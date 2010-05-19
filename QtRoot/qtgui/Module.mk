@@ -1,11 +1,13 @@
-# $Id: Module.mk,v 1.5 2009/08/03 18:03:08 fine Exp $
+# $Id: Module.mk,v 1.6 2010/05/19 22:36:37 fine Exp $
 # Module.mk for qtgui module
 # Copyright (c) 2001 Valeri Fine
 #
 # Author: Valeri Fine, 21/10/2001
 
-MODNAME          := qtgui
+.SUFFIXES:       .ui
 
+MODNAME          := qtgui
+QTUICEXE         := $(dir $(QTMOCEXE))/uic
 MODDIR           := $(MODNAME)
 MODDIRS          := $(MODDIR)/src
 MODDIRI          := $(MODDIR)/inc
@@ -27,7 +29,7 @@ QTGUIH1        := TQtGuiFactory.h        TBrowserCustom.h   \
                   TQtPatternSelect.h     TQtTabValidator.h  \
                   TEmbeddedPad.h         TQtColorSelect.h   \
                   TQtZoomPadWidget.h     TQGsiRootCanvas.h  \
-			      TQtPad2Html.h          TQtCanvas2Html.h   \
+			         TQtPad2Html.h          TQtCanvas2Html.h   \
                   TQtMarkerSelect.h      TQtPixmapBox.h   
 						
 QTGUIH1        := $(patsubst %,$(MODDIRI)/%,$(QTGUIH1))
@@ -46,7 +48,8 @@ QTGUIMOCH     := TQtBrowserImp.h          TQtCanvasImp.h         \
                  TQtMarkerSelectButton.h  TQtStyleComboBox.h     \
                  TQtFloatSlider.h         TQtRootCommandCombo.h  \
                  qtcolorpicker.h          TQtColorPickerHelper.h \
-                 qtmmlwidget.h   
+                 qtmmlwidget.h            TQtCommandPlugin.h
+					  
                  
 QTGUIMOCH        := $(patsubst %,$(MODDIRI)/%,$(QTGUIMOCH))
                  
@@ -59,11 +62,12 @@ QTGUIMOCO       := $(QTGUIMOC:.cxx=.o)
 QTGUIS          := $(filter-out $(MODDIRS)/moc_%,$(filter-out $(MODDIRS)/G__%,$(wildcard $(MODDIRS)/*.cxx)))
 QTGUIO          := $(QTGUIS:.cxx=.o)
 
-QTGUIDEP        := $(QTGUIO:.o=.d) $(QTGUIDO:.o=.d)
+QTGUIDEP        := $(QTGUIO:.o=.d) $(QTGUIDO:.o=.d)  $(QTGUIMOCO:.o=.d)
 
 QTGUICXXFLAGS   := -DQT3_SUPPORT -DQT_DLL -DQT_THREAD_SUPPORT -I. 
 ifeq ($(ARCH),win32)
-QTGUICXXFLAGS   += -I$(QTDIR)/mkspecs/win32-msvc2005
+QTGUICXXFLAGS   += -I$(QTDIR)/mkspecs/default
+# -- win32-msvc2005
 else
 QTGUICXXFLAGS   += -I$(QTDIR)/mkspecs/default 
 endif
@@ -105,7 +109,7 @@ $(QTGUIMAP):     $(RLIBMAP) $(MAKEFILEDEP) $(QTGUIL)
 all-$(MODNAME):      $(QTGUILIB) $(QTGUIMAP)
 
 clean-$(MODNAME):
-		rm -f $(QTGUIO) $(QTGUIDO) $(QTGUIMOC) $(QTGUIMOCO)
+		rm -f $(QTGUIO) $(QTGUIDO) $(QTGUIMOC) $(QTGUIMOCO) $(ROOTQTGUIDIRS)/ui_TQtRootCommand.h
 
 clean::         clean-$(MODNAME)
 
@@ -129,9 +133,16 @@ distclean::     distclean-$(MODNAME)
 $(sort $(QTGUIMOCO) $(QTGUIO)):  CXXFLAGS += $(GQTCXXFLAGS)
 $(QTGUIDO):	 CXXFLAGS += $(GQTCXXFLAGS)
 
+$(ROOTQTGUIDIRS)/TQtCommandPlugin.cxx :  $(ROOTQTGUIDIRS)/ui_TQtRootCommand.h
+
+$(ROOTQTGUIDIRS)/ui_TQtRootCommand.h:  $(ROOTQTGUIDIRS)/TQtRootCommand.ui
+
 $(QTGUIMOC) : $(ROOTQTGUIDIRS)/moc_%.cxx: $(ROOTQTGUIDIRI)/%.h
 ifeq (,$(QT4))
 	$(QTMOCEXE)  $< -o $@
 else
 	$(QTMOCEXE)  $(QTGUICXXFLAGS) $< -o $@
 endif
+
+ui_%.h: %.ui
+		$(QTUICEXE)  $< -o $@

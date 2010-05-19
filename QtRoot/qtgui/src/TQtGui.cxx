@@ -2,14 +2,45 @@
 #include "TGClient.h"
 #include "TGPicture.h"
 #include "TSystem.h"
+#include "TEnv.h"
 #include <qpixmapcache.h> 
 #include <qfileinfo.h> 
-#if QT_VERSION >= 0x40000
-//Added by qt3to4:
-#  include <QPixmap>
-#  include <QString>
-#endif /* QT_VERSION */
+
+#include <QPixmap>
+#include <QString>
+
+namespace {
 static QPixmap *gDummyIcon = 0;
+//________________________________________________________________________
+inline QString RootIconPath() {
+   // See TGResourcePool::TGResourcePool(TGClient *client)
+  QString icon_path;
+#ifndef R__VMS
+# ifdef ROOTICONPATH
+   icon_path = QString("%1/icons:%2:.:")
+               .arg(gSystem->HomeDirectory())
+               .arg(ROOTICONPATH);
+   icon_path += 
+#  ifdef EXTRAICONPATH
+   gEnv->GetValue("Gui.IconPath", EXTRAICONPATH);
+#  else
+   gEnv->GetValue("Gui.IconPath", "");
+#  endif
+# else
+   icon_path = QString("%1/icons:%2/icons:.:")
+         .arg(gSystem->HomeDirectory())
+         .arg(gSystem->Getenv("ROOTSYS"));
+   const char *guiicon = gEnv->GetValue("Gui.IconPath", "");
+   if (guiicon && guiicon[0])icon_path += guiicon;
+# endif
+#else
+   QString line = QString("[%1.ICONS]").arg(gSystem->Getenv("ROOTSYS");
+   icon_path =  gEnv->GetValue("Gui.IconPath",line.toAscii().data());
+#endif
+   return icon_path;
+}
+
+}
 //________________________________________________________________________
 bool TQtGui::AddPicture(const QPixmap &pic, const char *pictureName, bool checkCache)
 {
@@ -25,12 +56,8 @@ bool TQtGui::AddPicture(const QPixmap &pic, const char *pictureName, bool checkC
      bool found = false;
      if (!checkCache || ( checkCache && !(found = QPixmapCache::find(pname))))
      {
-#if QT_VERSION >= 0x40000
         QPixmap p(pic);
         QPixmapCache::insert(pictureName, p);
-#else
-        QPixmapCache::insert(pictureName, new QPixmap(pic));
-#endif
         res = true;
      }
    }
@@ -39,11 +66,7 @@ bool TQtGui::AddPicture(const QPixmap &pic, const char *pictureName, bool checkC
 //________________________________________________________________________
 const QPixmap &TQtGui::GetPicture(QString &pictureName) 
 {
-#if QT_VERSION >= 0x40000
    std::string pName = pictureName.toStdString();
-#else
-   std::string pName = (const char *)pictureName;
-#endif
    return GetPicture(pName.c_str());
 }
 
@@ -61,29 +84,28 @@ const QPixmap &TQtGui::GetPicture(const char *pictureName)
    QString pname = QString(pictureName).stripWhiteSpace();
    if ( !(pp=QPixmapCache::find(pname)) ) {
 
-      QString ext   = QFileInfo(pname).extension(FALSE).lower();
+      QString ext   = QFileInfo(pname).suffix().lower();
 
       if (!ext.isEmpty()) { // ".xpm", ".gif" etc
-#if QT_VERSION >= 0x40000
+
          std::string mstrname = pname.toStdString();
-#else
-         std::string mstrname = (const char *)pname;
-#endif
          char *pxname = gSystem->ExpandPathName(gSystem->UnixPathName(mstrname.c_str()));
          pname = pxname;
          delete [] pxname;
       }
 
       // Get ROOT Icon path:
-      const char *iconPath = ".";
+      QString iconPath = ".";
       if (gClient) {
          // see: TGResourcePool::TGResourcePool
          TGPicturePool *pool  = gClient->GetPicturePool();
          iconPath = pool->GetPath();
-         if (!iconPath && !iconPath[0]) iconPath = ".";
-      } 
+         if (iconPath.isEmpty()) iconPath = ".";
+      }  else {
+         iconPath = RootIconPath();
+      }
       char *picnam = 0;
-      picnam = gSystem->Which(iconPath, (const char *)pname, kReadPermission);
+      picnam = gSystem->Which(iconPath.toAscii().data(), (const char *)pname, kReadPermission);
       if (picnam) {
          p.load(picnam);
          AddPicture(p,pname,kFALSE);

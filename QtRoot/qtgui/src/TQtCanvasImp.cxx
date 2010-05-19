@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasImp.cxx,v 1.23 2010/04/19 23:58:31 fine Exp $
+** $Id: TQtCanvasImp.cxx,v 1.24 2010/05/19 22:36:38 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -339,52 +339,14 @@ void TQtCanvasImp::MakeMenu()
     //---- toolbar. Add the action with the icon to the toolbar
    fFileToolBar = new QToolBar(fCanvasImpID);
    fToolBar = new QToolBar(fCanvasImpID);
-#if QT_VERSION < 0x40000
-   fCanvasImpID->addDockWindow(fFileToolBar);
-   fCanvasImpID->addDockWindow(fToolBar);
-   // fEditToolBar has been created at TQtCanvasImp::MakeToolBarAction()
-   fCanvasImpID->addDockWindow(fEditToolBar);
-#else
    fCanvasImpID->addToolBar(fFileToolBar);
    fCanvasImpID->addToolBar(fToolBar);
    // fEditToolBar has been created at TQtCanvasImp::MakeToolBarAction()
    fCanvasImpID->addToolBar(fEditToolBar);
-#endif
-
-
-   //    QPopupMenu *fileMenu = new QPopupMenu;
-   //    fileMenu->insertItem( "New",  myView, SLOT(newFile()), CTRL+Key_N );
-   //    fileMenu->insertItem( "Open", myView, SLOT(open()),    CTRL+Key_O );
-   //    mainMenu->insertItem( "File", fileMenu );
 
    //*-*  Main Canvas menu items
 
    // Int_t iMainMenuStart = i;
-#if QT_VERSION < 0x40000
-   QPopupMenu *fileMenu      = new QPopupMenu();
-   mainMenu->insertItem("&File",fileMenu);
-
-   QPopupMenu *editMenu      = new QPopupMenu();
-   mainMenu->insertItem("&Edit",editMenu);
-
-   QPopupMenu *viewMenu      = new QPopupMenu();
-   mainMenu->insertItem("&View",viewMenu);
-
-   QPopupMenu *optionsMenu   = new QPopupMenu();
-   mainMenu->insertItem("&Options",optionsMenu);
-
-   QPopupMenu *inspectorMenu = new QPopupMenu();
-   mainMenu->insertItem("&Inspector",inspectorMenu);
-
-   QPopupMenu *classesMenu   = new QPopupMenu();
-   mainMenu->insertItem("&Classes",classesMenu);
-
-   mainMenu->insertSeparator();
-
-   QPopupMenu *helpMenu   = new QPopupMenu();
-   mainMenu->insertItem("&Help",helpMenu);
-
-#else /* QT_VERSION */
    QMenu *fileMenu      = mainMenu->addMenu("&File");
    QMenu *editMenu      = mainMenu->addMenu("&Edit");
    QMenu *viewMenu      = mainMenu->addMenu("View");
@@ -396,25 +358,9 @@ void TQtCanvasImp::MakeMenu()
 
    QMenu *helpMenu     = mainMenu->addMenu("&Help");
 
-#endif /* QT_VERSION */
    fOptionMenu = optionsMenu;
 
    //*-*   Items for the File Menu
-#if QT_VERSION < 0x40000
-   fActions[kFileNewCanvas]->addTo(fileMenu);                    fActions[kFileNewCanvas]->addTo(fFileToolBar);
-   fActions[kFileOpen]     ->addTo(fileMenu);                    fActions[kFileOpen]     ->addTo(fFileToolBar);
-   fileMenu->                                 insertSeparator();
-   fActions[kFileCloseCanvas]->addTo(fileMenu);
-   fileMenu->                                 insertSeparator();
-   fActions[kFileSave]     ->addTo(fileMenu);                    fActions[kFileSave]     ->addTo(fFileToolBar);
-   fActions[kFileSaveAs]   ->addTo(fileMenu);                    fActions[kFileSaveAs]   ->addTo(fFileToolBar);
-   fActions[kFileSaveAsWeb]->addTo(fileMenu);                    fActions[kFileSaveAsWeb]->addTo(fFileToolBar);
-   fileMenu->                                 insertSeparator();
-   fActions[kFilePrint]    ->addTo(fileMenu);                    fActions[kFilePrint]    ->addTo(fFileToolBar);
-   fileMenu->                                 insertSeparator();
-   fActions[kFileQuit]     ->addTo(fileMenu);
-   fActions[kFileExit]     ->addTo(fileMenu);
-#else
    fileMenu->clear();
    fileMenu->addAction(fActions[kFileNewCanvas]);              fFileToolBar->addAction(fActions[kFileNewCanvas]);
    fileMenu->addAction(fActions[kFileOpen]);                   fFileToolBar->addAction(fActions[kFileOpen]);
@@ -429,25 +375,9 @@ void TQtCanvasImp::MakeMenu()
    fileMenu->                                 addSeparator();
    fileMenu->addAction(fActions[kFileQuit]);fActions[kFileQuit]->setMenuRole(QAction::QuitRole);
    fileMenu->addAction(fActions[kFileExit]);fActions[kFileExit]->setMenuRole(QAction::QuitRole);
-#endif
 
    //*-*   Items for the Edit Menu
 
-#if QT_VERSION < 0x40000
-   //  editMenu->insertItem("Undo","&Undo",SLOT(UnDoCB));
-   fActions[kEditCopy]       ->addTo(editMenu);
-   fActions[kEditCopyFrame]  ->addTo(editMenu);
-   editMenu->                                  insertSeparator();
-   fActions[kViewEditor]     ->addTo(editMenu);
-      fActions[kViewEditor]->setToggleAction(true);
-      fActions[kViewEditor]->setOn(gStyle->GetShowEditor());
-   editMenu->                                  insertSeparator();
-   QPopupMenu *clearMenu = new QPopupMenu();
-   editMenu->insertItem("C&lear",clearMenu);
-
-   fActions[kEditClearPad]   ->addTo(clearMenu);
-   fActions[kEditClearCanvas]->addTo(clearMenu);
-#else
    editMenu->clear();
    //  editMenu->insertItem("Undo","&Undo",SLOT(UnDoCB));
    editMenu->addAction(fActions[kEditCopy]);
@@ -461,62 +391,9 @@ void TQtCanvasImp::MakeMenu()
 
    clearMenu->addAction(fActions[kEditClearPad]);
    clearMenu->addAction(fActions[kEditClearCanvas]);
-#endif
 
    //*-*   Items for the View
 
-#if QT_VERSION < 0x40000
-   fActions[kViewEditor] ->addTo(viewMenu);
-   fActions[kViewToolbar]->addTo(viewMenu);   
-      fActions[kViewToolbar]->setToggleAction(true);
-      if (gStyle->GetShowToolBar()) {
-         fActions[kViewEventStatus]->setOn(true);
-      } else {
-         fActions[kViewEventStatus]->setOn(false);
-         fFileToolBar->hide();
-         fToolBar->hide();
-         fEditToolBar->hide();
-      }
-   fActions[kViewEventStatus]->addTo(viewMenu);
-      fActions[kViewEventStatus]->setToggleAction(true);
-      fActions[kViewEventStatus]->setOn(gStyle->GetShowEventStatus());
-   fActions[kInspectBrowser] ->addTo(viewMenu);
-   fActions[kViewZoomer] ->addTo(viewMenu);
-      fActions[kViewZoomer]->setToggleAction(true);
-      fActions[kViewZoomer]->setOn(false);
-   
-   viewMenu->                                  insertSeparator();
-   fActions[kViewColors] ->addTo(viewMenu);
-   fActions[kViewFonts]  ->addTo(viewMenu);
-   fActions[kViewMarkers]->addTo(viewMenu);
-   fActions[kViewIconify]->addTo(viewMenu);
-   viewMenu->                                  insertSeparator();
-   QPopupMenu *viewWithMenu = new QPopupMenu();
-   viewMenu->insertItem("View &3D With",viewWithMenu);
-
-#ifdef WIN32
-   fActions[kViewOpenGL ]->addTo(viewWithMenu);
-#else
-   fActions[kViewX3D]    ->addTo(viewWithMenu);
-   
-#  if ROOT_VERSION_CODE >= ROOT_VERSION(4,01,00)
-      fActions[kViewX3D]    ->setEnabled(FALSE);
-#  endif
-   
-   fActions[kViewOpenGL] ->addTo(viewWithMenu);
-#endif
-   // Check whether we haved OpenGL plugin
-   char *libRQTGL = gSystem->DynamicPathName("libRQTGL",kTRUE);
-   fActions[kViewOpenGL]->setEnabled(libRQTGL);
-   delete [] libRQTGL;
-   {
-      fActions[kViewInventorGL]->addTo(viewWithMenu); 
-      // Check whether we haved OpenInventor plugin
-      libRQTGL = gSystem->DynamicPathName("libRQIVTGL",kTRUE);
-      fActions[kViewInventorGL]->setEnabled(libRQTGL);
-      delete [] libRQTGL;
-   }
-#else
    viewMenu->clear();
    viewMenu->addAction(fActions[kViewEditor]);
    viewMenu->addAction(fActions[kViewToolbar]);   
@@ -567,36 +444,8 @@ void TQtCanvasImp::MakeMenu()
       fActions[kViewInventorGL]->setEnabled(libRQTGL);
       delete [] libRQTGL;
    }
-#endif 
    //*-*   Items for the Options Menu
  
-#if QT_VERSION < 0x40000
-   fActions[kViewEventStatus]   ->addTo(optionsMenu);
-   fActions[kOptionAutoExec]    ->addTo(optionsMenu);
-   optionsMenu->                                  insertSeparator();
-   fActions[kOptionAutoResize]  ->addTo(optionsMenu);
-   fActions[kOptionResizeCanvas]->addTo(optionsMenu);
-   optionsMenu->                                  insertSeparator();
-   fActions[kOptionInterrupt]   ->addTo(optionsMenu);             fActions[kOptionInterrupt]  ->addTo(fToolBar); 
-   fActions[kOptionRefresh]     ->addTo(optionsMenu);             fActions[kOptionRefresh]    ->addTo(fToolBar); 
-   optionsMenu->                                  insertSeparator();
-
-   fActions[kOptionStatistics]  ->addTo(optionsMenu);
-   fActions[kOptionStatistics]->setToggleAction(true);
-   fActions[kOptionStatistics]->setOn(gStyle->GetOptStat());
-
-   fActions[kOptionHistTitle]   ->addTo(optionsMenu);
-   fActions[kOptionHistTitle]->setToggleAction(true);
-   fActions[kOptionHistTitle]->setOn(gStyle->GetOptTitle());
-
-   fActions[kOptionFitParams]   ->addTo(optionsMenu);
-   fActions[kOptionFitParams]->setToggleAction(true);
-   fActions[kOptionFitParams]->setOn(gStyle->GetOptFit());
-
-   fActions[kOptionCanEdit]     ->addTo(optionsMenu);
-   fActions[kOptionCanEdit]->setToggleAction(true);
-   fActions[kOptionCanEdit]->setOn(gROOT->GetEditHistograms());
-#else
    optionsMenu->clear();
    optionsMenu->addAction(fActions[kViewEventStatus]);
    optionsMenu->addAction(fActions[kOptionAutoExec]);
@@ -623,38 +472,17 @@ void TQtCanvasImp::MakeMenu()
    optionsMenu->addAction(fActions[kOptionCanEdit]);
    fActions[kOptionCanEdit]->setCheckable(true);
    fActions[kOptionCanEdit]->setChecked(gROOT->GetEditHistograms());
-#endif
    //*-*   Items for the Inspect Menu
 
-#if QT_VERSION < 0x40000
-   fActions[kInspectRoot]   ->addTo(inspectorMenu);                fActions[kInspectRoot]    ->addTo(fToolBar); 
-   fActions[kInspectBrowser]->addTo(inspectorMenu);                fActions[kInspectBrowser]    ->addTo(fToolBar); 
-#else
    inspectorMenu->clear();
    inspectorMenu->addAction(fActions[kInspectRoot]   );              fToolBar->addAction(fActions[kInspectRoot]); 
    inspectorMenu->addAction(fActions[kInspectBrowser]);              fToolBar->addAction(fActions[kInspectBrowser]); 
-#endif
    //*-*   Items for the Class Menu
 
-#if QT_VERSION < 0x40000
-   fActions[kClassesTree]->addTo(classesMenu);
-#else
    classesMenu->clear();
    classesMenu->addAction(fActions[kClassesTree]);
-#endif
 
 
-#if QT_VERSION < 0x40000
-//   fActions[kHelpHelp]        ->addTo(helpMenu);
-   fActions[kHelpOnCanvas]    ->addTo(helpMenu);
-   fActions[kHelpOnMenus]     ->addTo(helpMenu);
-   fActions[kHelpOnGraphicsEd]->addTo(helpMenu);
-   fActions[kHelpOnBrowser]   ->addTo(helpMenu);
-   fActions[kHelpOnObjects]   ->addTo(helpMenu);
-   fActions[kHelpOnPS]        ->addTo(helpMenu);
-   helpMenu->                                   insertSeparator();
-   fActions[kHelpAbout]       ->addTo(helpMenu);
-#else
    helpMenu->clear();
 //   fActions[kHelpHelp]        ->addTo(helpMenu);
    helpMenu->addAction(fActions[kHelpOnCanvas]    );
@@ -665,7 +493,6 @@ void TQtCanvasImp::MakeMenu()
    helpMenu->addAction(fActions[kHelpOnPS]        );
    helpMenu->                                   addSeparator();
    helpMenu->addAction(fActions[kHelpAbout]       );fActions[kHelpAbout]->setMenuRole(QAction::AboutRole);
-#endif
 }
 
 //______________________________________________________________________________
@@ -763,21 +590,13 @@ Int_t TQtCanvasImp::InitWindow()
     connect(fCanvasImpID,SIGNAL(destroyed()),this,SLOT(Disconnect()));
 //    fCanvasID = (TQtWidget *)TGQt::iwid(gVirtualX->InitWindow(TGQt::iwid(fCanvasImpID)));
     fCanvasID = (TQtWidget *)TGQt::iwid(gVirtualX->InitWindow(0));
-#if QT_VERSION < 0x40000
-    fCanvasID->reparent(fCanvasImpID,QPoint(0,0));
-#else /* QT_VERSION */
     fCanvasID->setParent(fCanvasImpID);
-#endif /* QT_VERSION */
     // printf(" %d \n",  fCanvasID->isTopLevel());
     fCanvasID->SetCanvas(Canvas());
 //    fCanvasID->resize(fWidth,fHeight);
 
 #if 0 
-#  if QT_VERSION < 0x40000
-    QScrollView *view = new QScrollView (0,"canvasscroll");
-#  else /* QT_VERSION */
     Q3ScrollView *view = new Q3ScrollView (0,"canvasscroll");
-#  endif /* QT_VERSION */
     view->addChild(fCanvasID);
     fCanvasImpID->setCentralWidget (view);
 #else
@@ -840,9 +659,6 @@ void TQtCanvasImp::CreateStatusBar(Int_t nparts)
 {
   QStatusBar *statusBar = fCanvasImpID->statusBar();
   Int_t i=0;
-#if QT_VERSION < 0x40000
-  fStatusBar.resize(nparts);
-#endif
   for (i=0;i<nparts;i++) {
     QLabel *l = new QLabel(statusBar);
     statusBar->addWidget(l,1,TRUE);
@@ -863,9 +679,6 @@ void TQtCanvasImp::CreateStatusBar(Int_t *parts, Int_t nparts)
   QSplitter *split = new QSplitter(statusBar);
   statusBar->addWidget(split,1,FALSE);
 
-#if QT_VERSION < 0x40000
-  fStatusBar.resize(nparts);
-#endif
   Int_t iField=0;
   for (iField=0; iField<nparts; iField++) {
     QLabel *infoBox = new QLabel(split);
@@ -1062,18 +875,10 @@ void TQtCanvasImp::OpenCB()
       else               dir = QFileInfo(dir).dirPath();
 
       QString fOpenFileName = QFileDialog::getOpenFileName (
-#if QT_VERSION < 0x40000
-           dir
-         , filetypes
-         , fCanvasImpID
-         , tr("Open")
-         , tr("Open ROOT file ") );
-#else /* QT_VERSION */
            fCanvasImpID
          , tr("Open ROOT file ")
          , dir
          , filetypes );
-#endif /* QT_VERSION */
       
       if (!fOpenFileName.isEmpty()){
          thisCintCommand = "{new TFile(\"";
@@ -1226,13 +1031,8 @@ void TQtCanvasImp::CloseCB()
 {
 #if 1   
   fCanvasImpID->hide();
-#if QT_VERSION < 0x40000
-  TCanvas *c = Canvas();
-  if (c && c->IsOnHeap() )  delete c;
-#else
   // qDebug() << "TQtCanvasImp::CloseCB()";
   QTimer::singleShot(0, this, SLOT(ReallyDeleteCB()));
-#endif
 #else
   Close();
   delete this;
@@ -1280,11 +1080,12 @@ void TQtCanvasImp::EditorCB()
   // Canvas()->EditorBar(); 
    TCanvas *c = Canvas();
    // This is XOR operation
-   if (c && ( ( c->GetShowEditor() && !fActions[kViewEditor]->isOn() ) ||
-              (!c->GetShowEditor() &&  fActions[kViewEditor]->isOn() ) ) )
-            {
-                 Canvas()->ToggleEditor();
-            }
+   if (c && (( c->GetShowEditor() && !fActions[kViewEditor]->isOn() )  ||
+             (!c->GetShowEditor() &&  fActions[kViewEditor]->isOn() ) 
+            ) 
+      ) {
+          Canvas()->ToggleEditor();
+      }
 //     ShowEditor(fActions[kViewEditor]->isOn());
 }
 
