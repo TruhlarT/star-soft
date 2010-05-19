@@ -26,6 +26,7 @@ QTEXAMPLEPACKAGES   = HelloCanvas           \
 
 QTEXTENSIONEXAMPLES = HelloPixmap           \
                       HelloToolBar          \
+                      HelloRootConsole      \
                       HelloGLViewer         \
                       HelloOpenGL           \
                       DrawFunction          \
