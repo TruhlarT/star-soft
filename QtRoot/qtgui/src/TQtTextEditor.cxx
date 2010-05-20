@@ -1,4 +1,4 @@
-// @(#)root/gui:$Id: TQtTextEditor.cxx,v 1.1 2010/05/19 22:36:38 fine Exp $
+// @(#)root/gui:$Id: TQtTextEditor.cxx,v 1.2 2010/05/20 14:59:37 fine Exp $
 // Author: Bertrand Bellenot   20/06/06
 // Author:Valeri Fine          20/05/10 (Qt-based implemenation)
 
@@ -976,20 +976,38 @@ bool TQtTextEditor::TextChanged() const
   return fTextEdit->document()->isModified();
 }
 //______________________________________________________________________________
-void   TQtTextEditor::SetText(QText *text) {
-    // fTextEdit->SetText(text); 
+void   TQtTextEditor::SetText(const char *text) {
+   SetText(QString(text));
 }
 //______________________________________________________________________________
-void  TQtTextEditor::AddText(QText *text) { 
-//    fTextEdit->AddText(text);
- }
+void   TQtTextEditor::SetText(const QString &text) {
+    fTextEdit->setPlainText(text); 
+}
+//______________________________________________________________________________
+void  TQtTextEditor::AddText(const char *text) { 
+   AddText(QString(text));
+}
+//______________________________________________________________________________
+void  TQtTextEditor::AddText(const QString &text) { 
+    fTextEdit->append(text);
+}
+
 //______________________________________________________________________________
 void   TQtTextEditor::AddLine(const char *string) { 
-//   fTextEdit->AddLine(string);
+   AddLine(QString(string));
+}
+//______________________________________________________________________________
+void   TQtTextEditor::AddLine(const QString &string) { 
+    AddText(string);
 }
 //______________________________________________________________________________
 void   TQtTextEditor::AddLineFast(const char *string) { 
-//    fTextEdit->AddLineFast(string); 
- }
+    AddLineFast(QString(string)); 
+}
+
+//______________________________________________________________________________
+void   TQtTextEditor::AddLineFast(const QString &string) { 
+    AddText(string); 
+}
 //______________________________________________________________________________
 //   QText         *GetText() const { return fTextEdit->GetText(); }

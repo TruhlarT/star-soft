@@ -1,4 +1,4 @@
-// @(#)root/gui:$Id: TQtTextEditor.h,v 1.1 2010/05/19 22:36:37 fine Exp $
+// @(#)root/gui:$Id: TQtTextEditor.h,v 1.2 2010/05/20 14:59:36 fine Exp $
 // Author: Bertrand Bellenot   20/06/06
 
 /*************************************************************************
@@ -96,9 +96,13 @@ public slots:
    void           CompileMacro();
    void           ExecuteMacro();
    void           InterruptMacro();
-   void           SetText(QText *text);
-   void           AddText(QText *text);
+   void           SetText(const QString &text);
+   void           AddText(const QString &text);
+   void           SetText(const char *text);
+   void           AddText(const char *text);
    void           AddLine(const char *string);
+   void           AddLineFast(const QString &string);
+   void           AddLine(const QString &string);
    void           AddLineFast(const char *string);
    void           CanPaste();
 //   QText         *GetText() const;
