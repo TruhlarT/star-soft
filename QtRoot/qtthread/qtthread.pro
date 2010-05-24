@@ -33,6 +33,12 @@ isEmpty(QTROOTSYSPATHINSTALL) {
   QTROOTSYSPATHINSTALL = $$DESTDIR
 }
 
+QTROOTSYSDIRLIB = $$(QTROOTSYSDIR_LIB)
+isEmpty( QTROOTSYSDIRLIB  ) {
+    QTROOTSYSDIRLIB=lib
+} 
+target.path = $$QTROOTSYSPATHINSTALL/$$QTROOTSYSDIRLIB
+
 #!isEmpty(QTROOTSYSPATHINSTALL) {
 #  DESTDIR=$$QTROOTSYSDIR
 #}
@@ -81,7 +87,6 @@ mac: unix: LIBS += -lThread
 headerfiles.path  = $$QTROOTSYSPATHINSTALL/include/
 headerfiles.files = $$QTTHREADDIRI/*.*
 headerfiles.files -= $$QTTHREADDIRI/LinkDef.h
-target.path = $$QTROOTSYSPATHINSTALL/lib/
 
 INSTALLS += headerfiles target
 

@@ -7,21 +7,16 @@
 # If your Qt version is lower than 3.1 (look at $QTDIR/lib), you need to link with GLUT.
 # Uncomment the following line:
 # USE_GLUT = yes
+
 TEMPLATE = lib
 TARGET = QGLViewer
-VERSION = 2.3.1
-win32 {
+VERSION = 2.3.4
+# CONFIG -= debug debug_and_release
+# CONFIG *= release qt opengl warn_on shared thread create_prl rtti
 # respect the external release / debug options
-  CONFIG *= qt opengl warn_on shared thread create_prl rtti
-}
-unix {
-CONFIG -= debug debug_and_release
-CONFIG *= release qt opengl warn_on shared thread create_prl rtti
-# respect the external release / debug options
-#  CONFIG *=  qt opengl warn_on shared thread create_prl rtti
-}
-QMAKE_RPATH=
+CONFIG *=  qt opengl warn_on shared thread create_prl rtti
 
+QMAKE_RPATH=
 HEADERS = qglviewer.h \
 	  camera.h \
 	  manipulatedFrame.h \
@@ -57,10 +52,6 @@ QT_VERSION=$$[QT_VERSION]
 
 contains( QT_VERSION, "^4.*" ) {
   QT *= xml opengl
-  CONFIG(debug, debug|release) {
-    unix: TARGET = $$join(TARGET,,,_debug)
-    win32: TARGET = $$join(TARGET,,d)
-  }
 }
 
 !isEmpty( QGLVIEWER_STATIC ) {
@@ -104,7 +95,7 @@ contains( DEFINES, NO_VECTORIAL_RENDER ) {
 	VRender/NVector3.cpp \
 	VRender/VRender.cpp
 
-  HEADERS *= \
+  VRENDER_HEADERS = \
 	VRender/AxisAlignedBox.h \
 	VRender/Exporter.h \
 	VRender/gpc.h \
@@ -134,12 +125,15 @@ unix {
         PREFIX=/usr
      }
   }
-  isEmpty( PREFIX ) {
-    PREFIX=/usr
-  }
   isEmpty( LIB_DIR ) {
-    LIB_DIR = $${PREFIX}/lib
+   QTROOTSYSDIRLIB = $$(QTROOTSYSDIR_LIB)
+    isEmpty( QTROOTSYSDIRLIB  ) {
+       QTROOTSYSDIRLIB=lib
+    }
+    LIB_DIR = $${PREFIX}/$${QTROOTSYSDIRLIB}
   }
+
+  
   isEmpty( INCLUDE_DIR ) {
     INCLUDE_DIR = $${PREFIX}/include
   }
@@ -198,25 +192,35 @@ unix {
   INSTALLS *= target include documentation docImages docRefManual
 }
 
+# Must be done after install target definition
+HEADERS *= $${VRENDER_HEADERS}
+
 #		--  L i n u x  --
 linux-g++ {
-message ( --  L i n u x  -- linux-g++ ) 
   # Patch for gcc 3.2.0 and 3.3.1-2
   system( g++ --version | grep " 3\.2\.0 " > /dev/null )|system( g++ --version | grep " 3\.3\.1\-2" > /dev/null ) {
       message( Patching gcc bug - using debug configuration )
       CONFIG -= release
       CONFIG *= debug
   }
-  #Patch for gcc 4.3.2 bug
-  QMAKE_CXXFLAGS *= -fno-inline
+  # Patch for gcc 4.3.2
+  system( g++ --version | grep " 4\.3\.2 " > /dev/null ) {
+     QMAKE_CXXFLAGS *= -fno-inline 
+  }
 }
 linux-g++-32 {
-  message ( Patch for gcc 4.3.2 bug --  L i n u x  -- linux-g++-32 ) 
-  QMAKE_CXXFLAGS *= -fno-inline
+  # Patch for gcc 4.3.2
+  system( g++ --version | grep " 4\.3\.2 " > /dev/null ) {
+     message ( Patch for gcc 4.3.2 bug --  L i n u x  -- linux-g++-32 ) 
+     QMAKE_CXXFLAGS *= -fno-inline
+  }
 }
+
 linux-g++-64 {
-  message ( Patch for gcc 4.3.2 bug --  L i n u x  -- linux-g++-64 ) 
-  QMAKE_CXXFLAGS *= -fno-inline
+  system( g++ --version | grep " 4\.3\.2 " > /dev/null ) {
+    message ( Patch for gcc 4.3.2 bug --  L i n u x  -- linux-g++-64 ) 
+     QMAKE_CXXFLAGS *= -fno-inline
+  }
 }
 
 #		--  S G I   I r i x  --
@@ -256,12 +260,15 @@ macx|darwin-g++ {
 
 #		--  W i n d o w s  --
 win32 {
+  CONFIG -= release
+  CONFIG += debug_and_release build_all
+
   staticlib {
     DEFINES *= QGLVIEWER_STATIC
   } else {
     DEFINES *= CREATE_QGLVIEWER_DLL
   }
-
+ 
   MOC_DIR = moc
   OBJECTS_DIR = obj
 
@@ -282,3 +289,12 @@ win32 {
     }
   }
 }
+
+contains( QT_VERSION, "^4.*" ) {
+  CONFIG(debug) {
+#  CONFIG(debug, debug|release) {
+#   unix: TARGET = $$join(TARGET,,,_debug)
+    win32: TARGET = $$join(TARGET,,d)
+  }
+}
+

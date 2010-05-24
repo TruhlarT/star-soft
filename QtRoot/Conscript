@@ -1,10 +1,14 @@
 #!/usr/bin/env perl
+use File::Basename;
 Import qw ( env INCLUDE LIB BIN BUILD OBJ);
 ( my $build = $OBJ ) =~ s/\#//g;
-$build =~ s/\\/\//g;                                    # print "OBJ = $OBJ build = $build\n";
-#print "PWD === $ENV{PWD}\n"; die;
+( my $mylib = $LIB ) =~ s/\#//g;
 
-$env->{ENV}->{QTROOTSYSDIR} = $ENV{PWD}."/.".$env->{ENV}->{STAR_HOST_SYS}; 
+$build =~ s/\\/\//g;   #     print "------------- > OBJ = $OBJ  LIB=$mylib build = $build \n"; 
+(my $sysdir = $build ) =~ s/\/obj//i;
+#print "PWD === $ENV{PWD}\n"; die;
+$env->{ENV}->{QTROOTSYSDIR} = $ENV{PWD} . "/" . $sysdir;# print "QTROOTSYSDIR = $env->{ENV}->{QTROOTSYSDIR}\n";
+$env->{ENV}->{QTROOTSYSDIR_LIB} =  basename($mylib);
 $env->{ENV}->{QTDIR} = $env->{Packages}->{QT}->{DIR};
 $env->{ENV}->{IVROOT} = $env->{Packages}->{COIN3D}->{DIR}; # print "IvRoot = $env->{ENV}->{IVROOT}";
 my $qt4 = ($env->{Packages}->{QT}->{QT_VERSION} == 4);
@@ -12,6 +16,10 @@ my $DirPath = DirPath '.';                             #  print "DirPath = $DirP
 ( my $obj_dir = $DirPath ) =~ s/\\/\//g;               #  print "obj_dir = $obj_dir\n";
 ( my $Dir = $obj_dir ) =~ s/$build\///g;               #  print "Dir = $Dir\n";
 my $PKGT = "QtRoot";
+
+# Import from ENV variables
+# $TEMP = $TMP = (defined($ENV{SCRATCH})?$ENV{SCRATCH}:"/tmp");
+
 printf( "Run Conscript          in %-30s  for %-20s\n", $Dir,$PKGT );
 
 my @src = ();
@@ -64,15 +72,15 @@ $ENV{PATH} = $PATH;
 $env2 = $env->clone();
 $env2->{ENV}->{PATH} = $PATH;
 if ($qt4) {
-  Command $env2 ["Makefile"], qw(qtRoot.pro qtthread/qtthread.pro), qq(cd $obj_dir; qmake PREFIX=$env->{ENV}->{QTROOTSYSDIR} $DEBUG);
+  Command $env2 ["Makefile"], qw(qtRoot.pro qtthread/qtthread.pro), qq(cd $obj_dir;qmake PREFIX=$env->{ENV}->{QTROOTSYSDIR} $DEBUG);
 } else {
   Command $env2 ["Makefile"], qw(qtRoot.pro qtthread/qtthread.pro), qq(cd $obj_dir; qmake $DEBUG);
 }
-Command $env2 [(@DepsL, @DepsI)], (Makefile, @src), qq(cd $obj_dir; make -j8; make install);
+Command $env2 [(@DepsL, @DepsI)], (Makefile, @src), qq(cd $obj_dir;make;make install);
 # Command $env2 ["Makefile"], qw(qtExamples/qtExamples.pro), qq(cd $obj_dir; qmake $DEBUG; make);
 #________________________________________
 sub find_q{  @main::search_files   = ();
-#	     print "find_q for $_[0]\n";
+	#     print "find_q for $_[0]\n";
   if (-d $_[0]) {
     &File::Find::find(\&wanted_q, @_);
     for my $dir (@_) {

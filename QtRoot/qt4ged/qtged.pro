@@ -97,7 +97,11 @@ headerfiles.files -= $$QTGEDDIRI/LinkDef.h
 plugins.path   = $$QTROOTSYSPATHINSTALL/etc/plugins/TVirtualPadEditor/
 plugins.files  = plugins/TVirtualPadEditor/*.C
 
-target.path = $$QTROOTSYSPATHINSTALL/lib
+QTROOTSYSDIRLIB = $$(QTROOTSYSDIR_LIB)
+isEmpty( QTROOTSYSDIRLIB  ) {
+    QTROOTSYSDIRLIB=lib
+} 
+target.path = $$QTROOTSYSPATHINSTALL/$$QTROOTSYSDIRLIB
 
 INSTALLS += headerfiles target plugins
 

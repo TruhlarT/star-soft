@@ -25,13 +25,10 @@ QTCOINDIRI  = inc
 QTGLGLDIRI = ../qtgl/inc
 COININCDIRI = $$COIN3DDIR/include
 
+DEPENDPATH  += $$QTCOINDIRI $$QTGLGLDIRI
+INCLUDEPATH += $$QTCOINDIRI $$QTGLGLDIRI $$COININCDIRI $$SOQTINCDIRI
 
 GQTDIRI   = ../../qt/inc
-GQTROOTGUIDIRI   = ../../qtgui/inc
-
-DEPENDPATH  += $$QTCOINDIRI $$QTGLGLDIRI $$GQTROOTGUIDIRI
-INCLUDEPATH += $$GQTROOTGUIDIRI $$QTCOINDIRI $$QTGLGLDIRI $$COININCDIRI $$SOQTINCDIRI
-
 
 QTCOINH1    = $$QTCOINDIRI/TQtCoinViewerImp.h      $$QTCOINDIRI/TQtCoinWidget.h   $$QTCOINDIRI/TQtRootCoinViewer3D.h  \
               $$QTCOINDIRI/TQtCoin3DDefInterface.h $$QTCOINDIRI/TGeoTranslationC.h
@@ -59,6 +56,13 @@ QT_VERSION=$$[QT_VERSION]
 contains( QT_VERSION, "^4.*" ) {
     QTROOTSYSPATHINSTALL = $$(QTROOTSYSDIR)
 }
+
+
+QTROOTSYSDIRLIB = $$(QTROOTSYSDIR_LIB)
+isEmpty( QTROOTSYSDIRLIB  ) {
+    QTROOTSYSDIRLIB=lib
+} 
+target.path = $$QTROOTSYSPATHINSTALL/$$QTROOTSYSDIRLIB
 
 ROOTCINTFOUND =
     exists ($$GQTDIRI/rootcintrule.pri){
@@ -126,7 +130,6 @@ headerfiles.files = $$QTCOINDIRI/*.*
 plugins.path   = $$QTROOTSYSPATHINSTALL/etc/plugins/TVirtualViewer3D/
 plugins.files  = plugins/TVirtualViewer3D/*.C
 
-target.path = $$QTROOTSYSPATHINSTALL/lib
 
 INSTALLS += headerfiles target plugins
 

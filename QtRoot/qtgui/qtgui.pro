@@ -30,6 +30,13 @@ isEmpty(QTROOTSYSPATHINSTALL) {
   QTROOTSYSPATHINSTALL = $$DESTDIR
 }
 
+
+QTROOTSYSDIRLIB = $$(QTROOTSYSDIR_LIB)
+isEmpty( QTROOTSYSDIRLIB  ) {
+    QTROOTSYSDIRLIB=lib
+} 
+target.path = $$QTROOTSYSPATHINSTALL/$$QTROOTSYSDIRLIB
+
 DEFINES += R__QT
 MODDIRI = inc
 
@@ -199,7 +206,6 @@ headerfiles.files -= $$MODDIRI/LinkDef.h
 plugins.path   = $$QTROOTSYSPATHINSTALL/etc/plugins/TGuiFactory/
 plugins.files  = plugins/TGuiFactory/*.C
 
-target.path = $$QTROOTSYSPATHINSTALL/lib/
 
 INSTALLS += headerfiles target plugins
 
@@ -232,7 +238,9 @@ QT +=  qt3support
 QT +=
 
 linux-g++-32 {   
-   message ( Patch for gcc 4.3.2 bug --  L i n u x  -- linux-g++-32 )    
-   QMAKE_CXXFLAGS *= -fno-inline   
+  system( g++ --version | grep " 4\.3\.2 " > /dev/null ) {
+     message ( Patch for gcc 4.3.2 bug --  L i n u x  -- linux-g++-32 )    
+     QMAKE_CXXFLAGS *= -fno-inline   
+  }
 }   
 

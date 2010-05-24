@@ -68,7 +68,13 @@ mac {
 headerfiles.path   = $$QTROOTSYSPATHINSTALL/include/
 headerfiles.files  = $$QTIMAGEDIRI/*.*
 headerfiles.files -= $$QTIMAGEDIRI/LinkDef.h
-target.path = $$QTROOTSYSPATHINSTALL/lib/
+
+QTROOTSYSDIRLIB = $$(QTROOTSYSDIR_LIB)
+isEmpty( QTROOTSYSDIRLIB  ) {
+    QTROOTSYSDIRLIB=lib
+} 
+target.path = $$QTROOTSYSPATHINSTALL/$$QTROOTSYSDIRLIB
+
 
 INSTALLS += headerfiles target
 

@@ -51,6 +51,12 @@ contains( QT_VERSION, "^4.*" ) {
     QTROOTSYSPATHINSTALL = $$(QTROOTSYSDIR)
 }
 
+QTROOTSYSDIRLIB = $$(QTROOTSYSDIR_LIB)
+isEmpty( QTROOTSYSDIRLIB  ) {
+    QTROOTSYSDIRLIB=lib
+} 
+target.path = $$QTROOTSYSPATHINSTALL/$$QTROOTSYSDIRLIB
+
 ROOTCINTFOUND =
     exists ($$GQTDIRI/rootcintrule.pri){
          ROOTCINTFOUND =$$GQTDIRI/rootcintrule.pri
@@ -126,8 +132,6 @@ headerfiles.files = $$QTGLDIRI/*.*
 
 plugins.path   = $$QTROOTSYSPATHINSTALL/etc/plugins/TVirtualViewer3D/
 plugins.files  = plugins/TVirtualViewer3D/*.C
-
-target.path    = $$QTROOTSYSPATHINSTALL/lib
 
 INSTALLS += headerfiles target plugins
 

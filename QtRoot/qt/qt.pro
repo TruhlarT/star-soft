@@ -3,9 +3,8 @@
 ######################################################################
 
 TEMPLATE = lib 
-CONFIG += thread dll ordered
+CONFIG += thread dll
 CONFIG += create_prl
-CONFIG *= ordered
 
 # QT += qt3support
 
@@ -40,6 +39,13 @@ isEmpty(DESTDIR) {
 isEmpty(QTROOTSYSPATHINSTALL) {
   QTROOTSYSPATHINSTALL = $$DESTDIR
 }
+
+QTROOTSYSDIRLIB = $$(QTROOTSYSDIR_LIB)
+isEmpty( QTROOTSYSDIRLIB  ) {
+    QTROOTSYSDIRLIB=lib
+} 
+target.path = $$QTROOTSYSPATHINSTALL/$$QTROOTSYSDIRLIB
+
 
 #!isEmpty(QTROOTSYSPATHINSTALL) {
 #  DESTDIR=$$QTROOTSYSDIR
@@ -110,7 +116,7 @@ unix {
 headerfiles.path  = $$QTROOTSYSPATHINSTALL/include/
 headerfiles.files = $$GQTDIRI/*.h $$GQTDIRI/*.cw $$GQTDIRI/*.pri  $$GQTDIRI/TVirtualX.interface.h
 headerfiles.files -= $$GQTDIRI/LinkDef.h
-unix:  target.path = $$QTROOTSYSPATHINSTALL/lib
+
 win32: target.path = $$QTROOTSYSPATHINSTALL/bin
 
 INSTALLS += headerfiles target 
