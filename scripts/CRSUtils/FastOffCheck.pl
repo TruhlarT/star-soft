@@ -58,10 +58,19 @@ $lockf = $SCRATCH."/$lockf.lck";
 if ( -e $lockf ){
     my(@info)=stat($lockf);
     my($delta)=time()-$info[10];
-    my($DLIMIT)=7200; # 2 hours
+    my($DLIMIT)=14400; # 4 hours
 
     if ( $delta > $DLIMIT ){  
-	print "$PID Removing lock file $lockf ".localtime()."\n";
+	open(FI,$lockf); chomp($ligne = <FI>); close(FI);
+	my($PPid,$tmp) = split(";",$ligne);
+	if ( $PPid ne "" && $tmp ne ""){
+	    # parsing is OK
+	    kill 9,$PPid;
+	    print "$PID Killed previous $PPid and removing lock file $lockf ".localtime()."\n";
+	} else {
+	    print "$PID Removing lock file $lockf (could not get previous PID) ".localtime()."\n";
+	}
+	
 	rdaq_set_message($SSELF,"A lock file exist","Age reached ".(int($DLIMIT/6/6)/100)." hours - will remove and proceed");
 	unlink($lockf);
     } else {
@@ -73,7 +82,7 @@ if ( -e $lockf ){
 }
 # else open a lock and delete later
 open(FLCK,">$lockf") || die "Could not create $lockf\n";
-print FLCK localtime()."\n";
+print FLCK "$$;".localtime()."\n";
 close(FLCK);
 
 
