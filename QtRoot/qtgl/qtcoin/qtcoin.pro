@@ -22,7 +22,7 @@ isEmpty(QTROOTSYSPATHINSTALL) {
 QTCOINDIRS  = src
 QTCOINDIRI  = inc
 
-QTGLGLDIRI = ../qtgl/inc
+QTGLGLDIRI = ../qtgl/inc ../../qt/inc ../../qtgui/inc
 COININCDIRI = $$COIN3DDIR/include
 
 DEPENDPATH  += $$QTCOINDIRI $$QTGLGLDIRI
