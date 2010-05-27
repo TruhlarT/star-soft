@@ -1,4 +1,4 @@
-// @(#)root/gui:$Id: TQtTextEditor.cxx,v 1.2 2010/05/20 14:59:37 fine Exp $
+// @(#)root/gui:$Id: TQtTextEditor.cxx,v 1.3 2010/05/27 21:38:54 fine Exp $
 // Author: Bertrand Bellenot   20/06/06
 // Author:Valeri Fine          20/05/10 (Qt-based implemenation)
 
@@ -315,9 +315,6 @@ TQtTextEditor::TQtTextEditor(TMacro *macro, QWidget *parent, unsigned int w, uns
          fTextEdit->append(obj->GetName());
       }
 #if QT_VERSION >= 0x40500
-      QString tmp;
-      tmp.Form("TMacro : %s: %ld lines read.",
-               macro->GetName(), fTextEdit->document()->lineCount());
       SetStatusText(QString("TMacro : %1: %2 lines read.")
                                .arg(macro->GetName())
                                .arg(fTextEdit->document()->lineCount()), 0);
@@ -576,8 +573,10 @@ bool TQtTextEditor::SaveFile(const QString &fname)
      QApplication::restoreOverrideCursor();
      file.close();
 #if QT_VERSION >= 0x40500
-     tmp.Form("%s: %ld lines written.", p, fTextEdit->ReturnLineCount());
-     SetStatusText(tmp.Data(), 0);
+     SetStatusText( QString("%1: %2 lines written.")
+                          .arg(fname)
+                          .arg(fTextEdit->document()->lineCount())
+                  , 0);
 #endif
      setWindowTitle(QString("%1[*] - TQtTextEditor").arg(fname));
      DataChanged(false);
