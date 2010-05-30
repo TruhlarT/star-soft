@@ -39,7 +39,7 @@ $UPDATE  = shift(@ARGV) if ( @ARGV );   # 0, scan and delete if old,
 exit if ( ! -d $TARGET);                # do not lose time, leave
 
 # You can debug a specific run #
-#$DEBUGR = 8348080;
+$DEBUGR = ""; # 8348080;
 $RMEVROOT  = 1==1;                      # could be a parameter later, delete event.root files
 
 # Assume standard tree structure
@@ -118,10 +118,40 @@ if ($UPDATE == 0){
 	print "$PID DEBUG FreeSpace is $space\n" if ($DEBUG);
     }
 
+
+    # The job directory itself needs to be scanned periodically
+    # as some jobs escapes the scan - accumulation is then a burden
+    # on later passes. But take it at a slightly large time than
+    # what is passed on the cmd line
+    my($t)=int($RETENT*1.5);
+    closedir(DIR);
+    @all = `$FIND $JOBDIR/ -maxdepth 1 -type f -mtime +$t`;
+    foreach $el (@all){
+	chomp($el);
+	$dest =  $el; 
+	$dest =~ s/archive\//archive\/old\//;
+	print "$PID $el moved to old\n" if rename($el,$dest);
+    }
+    opendir(DIR,"$JOBDIR");
+    
+    #
+    # read target disk in whole - cahe the full file list
+    #
+    chomp(@FILES = `cd $TARGET ; $FIND -type f -name *.MuDst.root`);
+    foreach $file (@FILES){
+	$loc =  $file;
+	$loc =~ s/.*\///;
+	$FILES{"$file"} = $loc;
+    }
+    undef(@FILES);
+    
+    
     $TAKEN = $COUNT = 0;
 
+    # do the cleaning by comparing to the job directory - if un-available, this
+    # script may not work.
     while( defined($jfile = readdir(DIR)) ){
-	#print "$PID $jfile\n";
+	# print "$PID $jfile\n";
 	if( $jfile =~ /(.*_)(st_.*)/){
 	    $tree = $1;
 	    $file = $2;
@@ -174,7 +204,9 @@ if ($UPDATE == 0){
 		    }
 
 		    # print "$PID Searching for $file\n";
-		    chomp($lfile = `cd $TARGET ; $FIND -type f -name $file.MuDst.root`);
+		    # chomp($lfile = `cd $TARGET ; $FIND -type f -name $file.MuDst.root`);
+		    if ( ! defined($lfile = $FILES{"$file.MuDst.root"}) ){  $lfile = "";}
+		    
 		    if( $lfile ne ""){
 			# found it so it is done - if not, it may be on another disk
 			# .checked file is really what will disable the check though
@@ -207,7 +239,7 @@ if ($UPDATE == 0){
 			    }
 			}
 
-			#print "$PID DEBUG Could not find $TARGET/$tree/$file.MuDst.root\n" if ($DEBUG);
+			# print "$PID DEBUG Could not find $TARGET/$tree/$file.MuDst.root\n" if ($DEBUG);
 		    }
 		}
 	    }
@@ -225,7 +257,7 @@ if ($UPDATE == 0){
 	    chomp(@all = `cd $TARGET ; $FIND $LIB -type f -mtime +$RETENT`);
 	} else {
 	    push(@all,`cd $TARGET ; $FIND -type f -mtime +$RETENT`);
-	    push(@all,`cd $TARGET ; $FIND -type f  -empty`) if ( $^O =~ /linux/);
+	    push(@all,`cd $TARGET ; $FIND -type f -empty`) if ( $^O =~ /linux/);
 	    chomp(@all);
 
 	    @all = grep(!/StarDb/,@all);
@@ -248,8 +280,6 @@ if ($UPDATE == 0){
 	    if( ! defined($LOCATIONS{$el}) ){
 		$LOCATIONS{$el} = 0;
 	    }
-
-
 	}
     }
 
@@ -278,6 +308,7 @@ if ($UPDATE == 0){
 	    # if we have a problem here, not  abig deal (time stamp will
 	    # be compared again)
 	    foreach $jfile (@MOVE){
+		# rename("$JOBDIR/$jfile","$JOBDIR/old/$jfile");
 		open(FO,">$JOBDIR/old/$jfile.checked");
 		print FO "$0 ".localtime()."\n";
 		close(FO);
