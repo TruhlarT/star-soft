@@ -66,6 +66,7 @@ my $pday;
 my $pcpu;
 my $prtime;
 my $pstream;
+my $pryear = "2010";
 
 my %rte = {};
 my %nstr = {};
@@ -75,6 +76,11 @@ my @arphysics = ();
 my @argamma = ();
 my @arhlt = ();
 my @arfmsfast = ();
+my @arht = ();
+my @aratomcules = ();
+my @arupc = ();
+my @armonitor = ();
+my @arpmdftp = ();
 my @ndate = ();
 my $ndt = 0;
 
@@ -117,12 +123,12 @@ my $query = new CGI;
 
 my $scriptname = $query->url(-relative=>1);
 
-my $pryear = $query->param('pyear');
+#my $pryear = $query->param('pyear');
 my $qprod = $query->param('prod');
 my $qperiod = $query->param('period');
 
 
-if( $qperiod eq "" and $qprod eq "" and $pryear eq "" ) {
+if( $qperiod eq "" and $qprod eq "" ) {
     print $query->header();
     print $query->start_html('Production CPU usage');
     print <<END;
@@ -143,22 +149,13 @@ END
 <td>
 END
 
-   print "<p>";
-    print "</td><td>";
-    print "<h3 align=center> Select year</h3>";
-    print "<h4 align=center>";
-    print  $query->scrolling_list(-name=>'pyear',
-	                          -values=>\@prodyear,
-	                          -default=>2009,
-      			          -size =>1);
-
     print "<p>";
     print "</td><td>";
     print "<h3 align=center> Select production series</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P10ic,
+	                          -default=>P10ih,
       			          -size =>1);
 
     print "<p>";
@@ -192,12 +189,19 @@ END
     
   my $qqr = new CGI;
  
-    my $pryear = $qqr->param('pyear');  
     my $qprod = $qqr->param('prod');
     my $qperiod = $qqr->param('period');
  
     
  # Tables
+
+  if( $qprod eq "P10ic" or $qprod eq "P09ig" ) {
+      $pryear = "2009";
+
+  }else{
+      $pryear = "2010";
+  } 
+      
 
     $JobStatusT = "JobStatus".$pryear;
 
@@ -248,7 +252,7 @@ END
     $cursor->finish();
 
 
-    $sql="SELECT DISTINCT date_format(createTime, '%Y-%m-%d') AS PDATE  FROM $JobStatusT WHERE prodSeries = ? AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) < ?  order by PDATE";
+    $sql="SELECT DISTINCT runDay  FROM $JobStatusT WHERE prodSeries = ?  AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(runDay)) < ?  order by runDay";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -281,7 +285,7 @@ END
 	@jbstat = ();  
 	$nstat = 0;
 
-   $sql="SELECT date_format(createTime, '%Y-%m-%d') AS PDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' "; 
+   $sql="SELECT runDay, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 "; 
 
 	    $cursor =$dbh->prepare($sql)
 	      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -296,7 +300,7 @@ END
 		my $fname=$cursor->{NAME}->[$i];
                 # print "$fname = $fvalue\n" ;
 
-		($$fObjAdr)->vday($fvalue)    if( $fname eq 'PDATE');
+		($$fObjAdr)->vday($fvalue)    if( $fname eq 'runDay');
 		($$fObjAdr)->cpuv($fvalue)    if( $fname eq 'CPU_per_evt_sec');
 		($$fObjAdr)->rtmv($fvalue)    if( $fname eq 'RealTime_per_evt');
 		($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
@@ -339,6 +343,16 @@ END
                $arhlt[$ndt] =  $rte{$mfile,$ndt};
               }elsif( $mfile eq "fmsfast" ) {
                $arfmsfast[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "ht" ) {
+               $arht[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "atomcules" ) {
+               $aratomcules[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "monitor" ) {
+               $armonitor[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "pmdftp" ) {
+               $arpmdftp[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "upc" ) {
+               $arupc[$ndt] =  $rte{$mfile,$ndt};
 	       }
               }
           }
@@ -368,9 +382,16 @@ END
        $legend[4] = "st_gamma     ";
        $legend[5] = "st_hlt       ";
 
-#    @data = (\@ndate, \@arphysics, \@armtd, \@arupsilon, \@arhlt, \@argamma, \@arfmsfast ) ;
- 
+	if ($pryear = "2009" ) {
+
    @data = (\@ndate, \@arphysics, \@arfmsfast, \@armtd, \@arupsilon, \@argamma, \@arhlt ) ;
+
+       }elsif ($pryear = "2010" ){
+    
+   @data = (\@ndate, \@arhlt ) ;
+
+#     @data = (\@ndate, \@arphysics, \@arhlt, \@arht, \@armtd, \@arupsilon, \@argamma, \@arupc ) ; 
+     }
 
 #        	@data = (\@ndate, \@arphysics );   
   
