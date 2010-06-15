@@ -382,18 +382,20 @@ END
        $legend[4] = "st_gamma     ";
        $legend[5] = "st_hlt       ";
 
-	if ($pryear = "2009" ) {
+	if ($pryear eq "2009" ) {
 
    @data = (\@ndate, \@arphysics, \@arfmsfast, \@armtd, \@arupsilon, \@argamma, \@arhlt ) ;
 
-       }elsif ($pryear = "2010" ){
+       }elsif ($pryear eq "2010" ){
     
    @data = (\@ndate, \@arhlt ) ;
 
 #     @data = (\@ndate, \@arphysics, \@arhlt, \@arht, \@armtd, \@arupsilon, \@argamma, \@arupc ) ; 
-     }
+
+#     } else {
 
 #        	@data = (\@ndate, \@arphysics );   
+  }
   
 	my $ylabel;
 	my $gtitle; 
