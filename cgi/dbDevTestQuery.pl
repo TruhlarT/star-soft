@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.31 2010/06/14 16:51:37 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.32 2010/06/15 14:40:42 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.32  2010/06/15 14:40:42  didenko
+# added auau 11.5 GeV
+#
 # Revision 1.31  2010/06/14 16:51:37  didenko
 # add auau 62GeV
 #
@@ -148,6 +151,7 @@ my @prod_set = (
                 "daq_sl302/year_2010/auau200_production",
                 "daq_sl302/year_2010/auau62_production",
                 "daq_sl302/year_2010/auau39_production",
+                "daq_sl302/year_2010/auau11_production", 
                 "daq_sl302/year_2010/auau7_production"
 		);
 
