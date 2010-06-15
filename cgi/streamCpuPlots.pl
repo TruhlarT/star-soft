@@ -281,7 +281,7 @@ END
 	@jbstat = ();  
 	$nstat = 0;
 
-   $sql="SELECT date_format(createTime, '%Y-%m-%d') AS PDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 "; 
+   $sql="SELECT date_format(createTime, '%Y-%m-%d') AS PDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' "; 
 
 	    $cursor =$dbh->prepare($sql)
 	      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -362,12 +362,6 @@ END
     } else {
 	 
 	$legend[0] = "st_physics   ";
-#	$legend[1] = "st_mtd       ";
-#	$legend[2] = "st_upsilon   ";
-#	$legend[3] = "st_hlt       ";
-#	$legend[4] = "st_gamma     ";
-#	$legend[5] = "st_fmsfast   ";
-
        $legend[1] = "st_fmsfast   ";
        $legend[2] = "st_mtd       ";
        $legend[3] = "st_upsilon   ";
@@ -389,7 +383,7 @@ END
  
 
 	$min_y = 0;
-	$max_y = 100 ; 
+#	$max_y = 100 ; 
 
 	if (scalar(@ndate) >= 20 ) {
 	    $skipnum = int(scalar(@ndate)/20);
