@@ -52,7 +52,6 @@ my $dyear = $thisyear - 2000;
 
 my @prodyear = ("2009","2010");
 
-
 my @arperiod = ( );
 my $mstr;
 
@@ -86,7 +85,7 @@ my $ndt = 0;
 
 $JobStatusT = "JobStatus2009";
  
-my @arperiod = ("week","1_month","2_months","3_months","6_months","12_months");
+my @arperiod = ("week","1_month","2_months","3_months","4_months","5_months","6_months","12_months");
 
   &StDbProdConnect();
 
@@ -215,7 +214,7 @@ END
   my $tdate;
   my @jbstat = ();  
   my $nstat = 0;
-
+  my $jset;
 
      @arstream = ();
 
@@ -265,10 +264,7 @@ END
 
 
  $ndt = 0;
- my $jset;
-
-    #####################
-
+  #####################
 
  %rte = {};
  %nstr = {};
@@ -279,7 +275,11 @@ END
  @arhlt = ();
  @arfmsfast = ();
  @ndate = ();
- 
+ @arht = ();
+ @aratomcules = ();
+ @arupc = ();
+ @armonitor = ();
+ @arpmdftp = ();
 
     foreach  $tdate (@ardays) {
 	@jbstat = ();  
