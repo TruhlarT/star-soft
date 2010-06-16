@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.232 2010/06/16 22:35:40 jeromel Exp $
+#       $Id: group_env.csh,v 1.233 2010/06/16 22:46:57 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -240,6 +240,27 @@ if ($STAF_LEVEL  == "old" || $STAF_LEVEL  == "pro" || $STAF_LEVEL  == "new" || $
   endif
 endif
 
+#+
+# use alternate gcc installations
+# Needs to be here because STAR_SYS will set vars based on the
+# command 'gcc'
+#-
+if ( $?USE_GCC_DIR ) then
+    if ( -x $USE_GCC_DIR/bin/gcc && -d $USE_GCC_DIR/lib ) then
+        # do not redefine it if already done to avoid having
+	# a messed up path and ldpath
+        if ( ! $?ALT_GCC ) then
+            setenv ALT_GCC $USE_GCC_DIR
+	
+            set path=($USE_GCC_DIR/bin $path)
+	    if ( $?LD_LIBRARY_PATH ) then
+	        setenv LD_LIBRARY_PATH $USE_GCC_DIR/lib:${LD_LIBRARY_PATH}
+	    else
+	        setenv LD_LIBRARY_PATH $USE_GCC_DIR/lib
+	    endif
+	endif
+    endif
+endif
 
 
 
@@ -674,14 +695,6 @@ endsw
 # Extra package support
 # ==================================================================
 if ( $?DECHO ) echo "$self :: Extraneous packages check"
-
-# use alternate gcc installations
-if ( $?USE_GCC_DIR ) then
-    if ( -x $USE_GCC_DIR/bin/gcc && -d $USE_GCC_DIR/lib ) then
-        set path=($USE_GCC_DIR/bin $path)
-	setenv LD_LIBRARY_PATH $USE_GCC_DIR/lib:${LD_LIBRARY_PATH}
-    endif
-endif
 
 # Support for LSF
 if ( -d /usr/local/lsf/bin && ! $?LSF_ENVDIR ) then
