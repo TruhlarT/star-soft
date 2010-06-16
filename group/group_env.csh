@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.231 2009/12/29 16:44:41 jeromel Exp $
+#       $Id: group_env.csh,v 1.232 2010/06/16 22:35:40 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -674,6 +674,14 @@ endsw
 # Extra package support
 # ==================================================================
 if ( $?DECHO ) echo "$self :: Extraneous packages check"
+
+# use alternate gcc installations
+if ( $?USE_GCC_DIR ) then
+    if ( -x $USE_GCC_DIR/bin/gcc && -d $USE_GCC_DIR/lib ) then
+        set path=($USE_GCC_DIR/bin $path)
+	setenv LD_LIBRARY_PATH $USE_GCC_DIR/lib:${LD_LIBRARY_PATH}
+    endif
+endif
 
 # Support for LSF
 if ( -d /usr/local/lsf/bin && ! $?LSF_ENVDIR ) then
