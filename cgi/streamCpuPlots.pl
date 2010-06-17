@@ -261,7 +261,7 @@ END
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
-    $cursor->execute($qprod,$day_diff);
+    $cursor->execute($qprod);
 
     while($myday = $cursor->fetchrow) {
         $ardays[$nday] = $myday;
