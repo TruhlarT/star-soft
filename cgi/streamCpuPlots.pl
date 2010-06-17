@@ -466,7 +466,7 @@ END
  
 
 	$min_y = 0;
-	$max_y = $maxval + 0.2*$maxval; 
+	$max_y = int($maxval) + 0.2*int($maxval); 
 
 	if (scalar(@ndate) >= 40 ) {
 	    $skipnum = int(scalar(@ndate)/20);
