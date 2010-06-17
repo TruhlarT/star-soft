@@ -52,6 +52,7 @@ my $dyear = $thisyear - 2000;
 
 my @prodyear = ("2009","2010");
 
+
 my @arperiod = ( );
 my $mstr;
 
@@ -85,7 +86,7 @@ my $ndt = 0;
 
 $JobStatusT = "JobStatus2009";
  
-my @arperiod = ("week","1_month","2_months","3_months","4_months","5_months","6_months","12_months");
+my @arperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months");
 
   &StDbProdConnect();
 
@@ -219,24 +220,7 @@ END
      @arstream = ();
 
 
-#    if($pryear eq "2009") {
-#	$nowdate = "2009-12-31";
-#    } else {
-	$nowdate = $todate;
-#    }
-
-    if( $qperiod eq "week") {
-	$day_diff = 8;
-  
-    } elsif ( $qperiod =~ /month/) {
-	@prt = split("_", $qperiod);
-	$nmonth = $prt[0];
-	$day_diff = 30*$nmonth + 1; 
-    }
-
-    $day_diff = int($day_diff);
-
-  &StDbProdConnect();
+ &StDbProdConnect();
 
       $sql="SELECT DISTINCT streamName  FROM $JobStatusT where prodSeries = ? ";
 
@@ -251,6 +235,43 @@ END
     $cursor->finish();
 
 
+#    if($pryear eq "2009") {
+#	$nowdate = "2009-12-31";
+#    } else {
+	$nowdate = $todate;
+#    }
+
+    if( $qperiod eq "day") {
+       $day_diff = 1;
+
+   }elsif( $qperiod eq "week") {
+	$day_diff = 8;
+  
+    } elsif ( $qperiod =~ /month/) {
+	@prt = split("_", $qperiod);
+	$nmonth = $prt[0];
+	$day_diff = 30*$nmonth + 1; 
+    }
+
+    $day_diff = int($day_diff);
+
+     if( $qperiod eq "day") {
+
+    $sql="SELECT DISTINCT date_format(createTime, '%Y-%m-%d %H') as PDATE  FROM $JobStatusT WHERE prodSeries = ?  AND  createTime <> '0000-00-00 00:00:00' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) <= 1  order by PDATE ";
+
+    $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+    $cursor->execute($qprod,$day_diff);
+
+    while($myday = $cursor->fetchrow) {
+        $ardays[$nday] = $myday;
+        $nday++;
+    }
+
+##############################
+
+   }else{ 
+ 
     $sql="SELECT DISTINCT runDay  FROM $JobStatusT WHERE prodSeries = ?  AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(runDay)) < ?  order by runDay";
 
     $cursor =$dbh->prepare($sql)
@@ -262,9 +283,12 @@ END
         $nday++;
     }
 
+   }
 
  $ndt = 0;
-  #####################
+
+ #####################
+
 
  %rte = {};
  %nstr = {};
@@ -281,9 +305,39 @@ END
  @armonitor = ();
  @arpmdftp = ();
 
+
     foreach  $tdate (@ardays) {
 	@jbstat = ();  
 	$nstat = 0;
+
+     if( $qperiod eq "day") {
+
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as HDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 "; 
+
+	    $cursor =$dbh->prepare($sql)
+	      || die "Cannot prepare statement: $DBI::errstr\n";
+	    $cursor->execute($qprod);
+
+	while(@fields = $cursor->fetchrow) {
+	    my $cols=$cursor->{NUM_OF_FIELDS};
+	    $fObjAdr = \(JobAttr->new());
+
+	    for($i=0;$i<$cols;$i++) {
+		my $fvalue=$fields[$i];
+		my $fname=$cursor->{NAME}->[$i];
+                # print "$fname = $fvalue\n" ;
+
+		($$fObjAdr)->vday($fvalue)    if( $fname eq 'HDATE');
+		($$fObjAdr)->cpuv($fvalue)    if( $fname eq 'CPU_per_evt_sec');
+		($$fObjAdr)->rtmv($fvalue)    if( $fname eq 'RealTime_per_evt');
+		($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
+
+	    }
+	    $jbstat[$nstat] = $fObjAdr;
+	    $nstat++;
+	}
+
+     }else{
 
    $sql="SELECT runDay, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 "; 
 
@@ -309,7 +363,7 @@ END
 	    $jbstat[$nstat] = $fObjAdr;
 	    $nstat++;
 	}
-
+     }
 
      foreach $jset (@jbstat) {
 	    $pday     = ($$jset)->vday;
@@ -329,7 +383,7 @@ END
 ####################        
 
           foreach my $mfile (@arstream) {      
-              if ($nstr{$mfile,$ndt} >= 0.01) {
+              if ($nstr{$mfile,$ndt} >= 0.1) {
                   $rte{$mfile,$ndt} = $rte{$mfile,$ndt}/$nstr{$mfile,$ndt};
 		  if ( $mfile eq "physics" ) {
 	       $arphysics[$ndt] =  $rte{$mfile,$ndt};
@@ -408,15 +462,22 @@ END
 	$min_y = 0;
 #	$max_y = 100 ; 
 
-	if (scalar(@ndate) >= 20 ) {
+	if (scalar(@ndate) >= 40 ) {
 	    $skipnum = int(scalar(@ndate)/20);
 	}
 
 	$xLabelSkip = $skipnum;
 
+     if( $qperiod eq "day") {
+
+	$ylabel = "Average ratio RealTime/CPU per hour";
+	$gtitle = "Average ratio RealTime/CPU per hour for different stream data";
+
+     }else{
 	$ylabel = "Average ratio RealTime/CPU per day";
 	$gtitle = "Average ratio RealTime/CPU per day for different stream data";
-	
+    }	
+
 	$graph->set(x_label => "Date of Production",
 	            y_label => $ylabel,
                     title   => $gtitle,
