@@ -312,7 +312,7 @@ END
 
      if( $qperiod eq "day") {
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as HDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 "; 
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 "; 
 
 	    $cursor =$dbh->prepare($sql)
 	      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -327,7 +327,7 @@ END
 		my $fname=$cursor->{NAME}->[$i];
                 # print "$fname = $fvalue\n" ;
 
-		($$fObjAdr)->vday($fvalue)    if( $fname eq 'HDATE');
+		($$fObjAdr)->vday($fvalue)    if( $fname eq 'PDATE');
 		($$fObjAdr)->cpuv($fvalue)    if( $fname eq 'CPU_per_evt_sec');
 		($$fObjAdr)->rtmv($fvalue)    if( $fname eq 'RealTime_per_evt');
 		($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
