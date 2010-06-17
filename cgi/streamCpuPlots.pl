@@ -304,7 +304,7 @@ END
  @arupc = ();
  @armonitor = ();
  @arpmdftp = ();
-
+  my $maxvalue = 1;
 
     foreach  $tdate (@ardays) {
 	@jbstat = ();  
@@ -385,6 +385,9 @@ END
           foreach my $mfile (@arstream) {      
               if ($nstr{$mfile,$ndt} >= 0.1) {
                   $rte{$mfile,$ndt} = $rte{$mfile,$ndt}/$nstr{$mfile,$ndt};
+                  if ( $rte{$mfile,$ndt} > $maxval ) {
+                $maxval =  $rte{$mfile,$ndt}
+	        }
 		  if ( $mfile eq "physics" ) {
 	       $arphysics[$ndt] =  $rte{$mfile,$ndt};
 	      }elsif( $mfile eq "mtd" ) {
@@ -429,7 +432,7 @@ END
 
     } else {
 	 
-	$legend[0] = "st_physics   ";
+       $legend[0] = "st_physics   ";
        $legend[1] = "st_fmsfast   ";
        $legend[2] = "st_mtd       ";
        $legend[3] = "st_upsilon   ";
@@ -441,8 +444,11 @@ END
    @data = (\@ndate, \@arphysics, \@arfmsfast, \@armtd, \@arupsilon, \@argamma, \@arhlt ) ;
 
        }elsif ($pryear eq "2010" ){
+
+  	$legend[0] = "st_hlt       ";
     
    @data = (\@ndate, \@arhlt ) ;
+
 
 #     @data = (\@ndate, \@arphysics, \@arhlt, \@arht, \@armtd, \@arupsilon, \@argamma, \@arupc ) ; 
 
@@ -460,7 +466,7 @@ END
  
 
 	$min_y = 0;
-#	$max_y = 100 ; 
+	$max_y = $maxval + 0.2*$maxval; 
 
 	if (scalar(@ndate) >= 40 ) {
 	    $skipnum = int(scalar(@ndate)/20);
