@@ -4,7 +4,7 @@
 # $Id:
 #
 # L. Didenko 
-# gridEffiPlots.pl to make grid production efficicency plots
+# streamCpuPlots.pl to make plots for average RealTime/CPU job's usage 
 #
 ##########################################################
 
@@ -288,7 +288,6 @@ END
  $ndt = 0;
 
  #####################
-
 
  %rte = {};
  %nstr = {};
