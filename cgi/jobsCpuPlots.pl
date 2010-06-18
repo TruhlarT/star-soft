@@ -150,7 +150,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'period',
                                   -values=>\@arperiod,
-                                  -default=>week,
+                                  -default=>day,
                                   -size =>1); 
 
     
@@ -246,7 +246,6 @@ END
  @argamma = ();
  @arhlt = ();
  @arfmsfast = ();
- @ndate = ();
  @arht = ();
  @aratomcules = ();
  @arupc = ();
@@ -254,9 +253,10 @@ END
  @arpmdftp = ();
   my $maxvalue = 1;
 
-    foreach  $tdate (@ardays) {
 	@jbstat = ();  
 	$nstat = 0;
+
+    foreach  $tdate (@ardays) {
 
   $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 "; 
 
