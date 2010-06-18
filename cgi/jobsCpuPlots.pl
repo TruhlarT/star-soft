@@ -328,7 +328,6 @@ END
 	       }
 	    $ndt++;
 	    }
-#	    $ndt++;
 	  }
 
 
@@ -377,10 +376,10 @@ END
 
 	$xLabelSkip = $skipnum;
 
-	$ylabel = "Average ratio RealTime/CPU per hour";
-	$gtitle = "Average ratio RealTime/CPU per hour for different stream data";
+	$ylabel = "Average ratio RealTime/CPU for every jobs";
+	$gtitle = "Average ratio RealTime/CPU for different stream data";
 
-	$graph->set(x_label => "Date of Production",
+	$graph->set(x_label => "Datetime of Production",
 	            y_label => $ylabel,
                     title   => $gtitle,
                     y_tick_number => 14,
