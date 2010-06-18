@@ -287,6 +287,7 @@ END
 
 ###########
  $ndt = 0;
+ @ndate = ();
 
      foreach $jset (@jbstat) {
 	    $pday     = ($$jset)->vday;
@@ -325,9 +326,9 @@ END
               }elsif( $pstream eq "upc" ) {
                $arupc[$ndt] =  $rte{$pstream,$ndt};
 	       }
-
-	    }
 	    $ndt++;
+	    }
+#	    $ndt++;
 	  }
 
 
