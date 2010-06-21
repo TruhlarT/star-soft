@@ -1,4 +1,4 @@
-// @(#)root/ged:$Name:  $:$Id: TQtLineEditor.cxx,v 1.2 2009/08/03 18:02:59 fine Exp $
+// @(#)root/ged:$Name:  $:$Id: TQtLineEditor.cxx,v 1.3 2010/06/21 13:34:49 fine Exp $
 // Author: Valeri Fine 13/06/06
 
 /*************************************************************************
@@ -249,13 +249,8 @@ void TQtLineEditor::DoLineOrientation(int)
    // Slot so set the line orientation
 
 #if ROOT_VERSION_CODE > ROOT_VERSION(5,11,3) 
-#if QT_VERSION < 0x40000
-   fModel->SetVertical  (fVertical  ->state() == QButton::On);
-   fModel->SetHorizontal(fHorizontal->state() == QButton::On);
-#else /* QT_VERSION */
-   fModel->SetVertical  (fVertical  ->state() == QCheckBox::On);
-   fModel->SetHorizontal(fHorizontal->state() == QCheckBox::On);
-#endif /* QT_VERSION */
+   fModel->SetVertical  (fVertical  ->checkState() == Qt::Checked);
+   fModel->SetHorizontal(fHorizontal->checkState() == Qt::Checked);
 #endif   
 }
 
