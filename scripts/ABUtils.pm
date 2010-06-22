@@ -65,7 +65,7 @@ $INSU::CONSOK=0;
 $INSU::RELFLNM=".log/afs.release";
 @INSU::MANAGERS=("jlauret\@bnl.gov",
 		 "didenko\@bnl.gov",
-		 "fisyak\@bnl.gov"
+		 "gene\@bnl.gov"
 		 );
 
 
