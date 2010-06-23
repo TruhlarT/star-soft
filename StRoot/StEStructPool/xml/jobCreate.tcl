@@ -21,6 +21,11 @@ namespace eval ::jobCreate:: {
     variable numberOfInstances
     variable slaveInterpCount 0
     variable findString ""
+    array set combinedJobs {
+        1   ""
+        2   ""
+        sum ""
+    }
 
     variable addQAHistograms 1
     variable addCutsHistograms 1
@@ -470,7 +475,7 @@ proc ::jobCreate::getJobXmlFile {{fileName ""}} {
 proc ::jobCreate::toggleDisplay {f} {
     switch [$f.ab cget -dir] {
         right  {$f.ab configure -dir bottom
-                pack $f.f -in $f
+                pack $f.f -in $f -fill x
                 }
         bottom {$f.ab configure -dir right
                 pack forget $f.f
@@ -3247,6 +3252,64 @@ proc ::jobCreate::selectAll {} {
         set mode [$node text]
         toplevel .selectAll
         wm title .selectAll "Run Select macro on selected histogram files"
+
+        # Create menu bar for this window
+        set m [menu .selectAll.menu]
+        .selectAll configure -menu $m
+        set file [menu $m.file]
+        # File menu.
+        $m add cascade -label File -menu $file
+        $file add command -label "Scan directories" -command [namespace code scanSelectAll]
+        #
+        # Option to combine jobs
+        #
+        labelframe .selectAll.combineJobs -text "combine jobs"
+        pack .selectAll.combineJobs -fill x
+        ArrowButton .selectAll.combineJobs.ab -dir right -command [namespace code "toggleDisplay .selectAll.combineJobs"]
+        pack .selectAll.combineJobs.ab -side left -fill x -anchor nw
+        frame .selectAll.combineJobs.f
+        set f1 [frame .selectAll.combineJobs.f.dirs]
+        set f2 [frame .selectAll.combineJobs.f.actions]
+        pack $f1 -fill both -expand true
+        pack $f2 -fill x -expand true
+        label       $f1.job1_label    -text "job 1 directory:" -justify left
+        entry       $f1.job1Dir       -textvariable ::jobCreate::combinedJobs(1)
+        button      $f1.selectJob1Dir -text "Browse" -command [namespace code "getJobDirectory 1"]
+        button      $f1.deleteJob1Dir -text "x" -foreground red -state disabled -command [namespace code "deleteJobDirectory $f1 1"]
+        label       $f1.job2_label    -text "job 2 directory:" -justify left
+        entry       $f1.job2Dir       -textvariable ::jobCreate::combinedJobs(2)
+        button      $f1.selectJob2Dir  -text "Browse" -command [namespace code "getJobDirectory 2"]
+        button      $f1.deleteJob2Dir -text "x" -foreground red -state disabled -command [namespace code "deleteJobDirectory $f1 2"]
+        label       $f1.jobSelectAll_label    -text "job selectAll directory:" -justify left
+        entry       $f1.jobSelectAllDir       -textvariable ::jobCreate::combinedJobs(sum)
+        button      $f1.selectJobSelectAllDir  -text "Browse" -command [namespace code "getJobDirectory sum"]
+        grid $f1.job1_label $f1.job1Dir $f1.selectJob1Dir $f1.deleteJob1Dir
+        grid $f1.job2_label $f1.job2Dir $f1.selectJob2Dir $f1.deleteJob2Dir
+        grid $f1.jobSelectAll_label $f1.jobSelectAllDir $f1.selectJobSelectAllDir x
+        grid columnconfigure $f1  1 -weight 1
+        grid $f1.job1_label -sticky e
+        grid $f1.job1Dir -sticky we
+        grid $f1.selectJob1Dir -sticky w
+        grid $f1.job2_label -sticky e
+        grid $f1.job2Dir -sticky we
+        grid $f1.selectJob2Dir -sticky w
+        grid $f1.jobSelectAll_label -sticky e
+        grid $f1.jobSelectAllDir -sticky we
+        grid $f1.selectJobSelectAllDir -sticky w
+        button $f2.createSelectAllDir -text "create Sum Directory" -command [namespace code createSelectAllDir] -state disabled
+        button $f2.anotherJobDirectory   -text "another Job Directory" -command [namespace code anotherJobDirectory]
+        button $f2.defaultValues      -text "guess directories" -command [namespace code defaultJobDirectories]
+        grid $f2.createSelectAllDir $f2.anotherJobDirectory $f2.defaultValues x
+        grid $f2.createSelectAllDir -sticky e
+        grid $f2.defaultValues -sticky w
+
+        trace add variable ::jobCreate::combinedJobs(1) write [namespace code checkJobDirs]
+        trace add variable ::jobCreate::combinedJobs(1) unset [namespace code checkJobDirs]
+        trace add variable ::jobCreate::combinedJobs(2) write [namespace code checkJobDirs]
+        trace add variable ::jobCreate::combinedJobs(2) unset [namespace code checkJobDirs]
+        trace add variable ::jobCreate::combinedJobs(sum) write [namespace code checkJobDirs]
+        checkJobDirs ::jobCreate::combinedJobs(sum) {} write
+
         pack [labelframe .selectAll.found -text "Previously created files from selectAll$mode"] -anchor w
         set selFrame [labelframe .selectAll.files -text "Invoke selectAll$mode with..."]
         pack $selFrame -anchor w
@@ -3286,143 +3349,466 @@ proc ::jobCreate::selectAll {} {
         # Want to only allow window to be destroyed when not in action?
         #bind .selectAll <Control-w> {destroy .selectAll}
 
-        set node [$::jobCreate::jobInfo getElementsByTagName outputDir]
-        set path [file join [$node text] data]
+        scanSelectAll
 
-        # Look for log file from and parse it for previous runs of selectAll
-        set logFile [file join $path selectAllLog]
-        set found [list]
-        if {[file exists $logFile]} {
-            set log [open $logFile r]
-            while {[gets $log line] >= 0} {
-                if {[string first "Invoke selectAllM${mode}" $line] >= 0} {
-                    lappend found [lindex $line end]
-                }
-            }
-            close $log
-        }
-        set found [lsort -unique -dictionary $found]
-        foreach fn $found {
-            pack [label .selectAll.found.l$fn -text $fn]  -side left
-        }
-
-        # Look for log file from and parse it for previous runs of combineHistograms
-        set logFile [file join $path combineLog]
-        unset -nocomplain found
-        if {[file exists $logFile]} {
-            set log [open $logFile r]
-            while {[gets $log line] >= 0} {
-                if {[string first "Invoke combineHistogram$mode creating" $line] >= 0} {
-                    if {[regexp "Invoke combineHistogram$mode creating(.*)" $line m v]} {
-                        set found([lindex $v 0]) [lrange $v 2 end]
-                    }
-                }
-            }
-            close $log
-        }
-        foreach fn [array names found] {
-            pack [frame .selectAll.foundHists.f$fn] -anchor w
-            pack [label .selectAll.foundHists.f$fn.l$fn -text $fn] -side left
-            pack [label .selectAll.foundHists.f$fn.lArrow -text "<-"] -side left
-            foreach f [lsort -dictionary $found($fn)] {
-                pack [label .selectAll.foundHists.f$fn.l$f -text $f] -side left
-            }
-        }
-
-        # Get Data{n}.root files
-        set dList [list]
-        foreach fName [glob -nocomplain [file join $path Data*.root]] {
-            set f [file tail $fName]
-            if {[regexp {Data(\d+).root} $f m v]} {
-                lappend dList [file rootname $f]
-            }
-        }
-        # Get Sum{n1}_{n2}.root files
-        set sList [list]
-        foreach fName [glob -nocomplain [file join $path Sum*.root]] {
-            set f [file tail $fName]
-            if {[regexp {Sum(\d+)_(\d+).root} $f m v1 v2]} {
-                lappend sList [file rootname $f]
-            }
-        }
-        if {[llength $dList] == 0 && [llength $sList] == 0} {
-            .selectAll.tFrame.t insert end "Did not find a file that looked like \
-                a sum of the correlation histogram files in directory $path \n" errorOutput
-            .selectAll.tFrame.t see end
-            return
-        }
-        set dList [lsort -dictionary $dList]
-        set sList [lsort -dictionary $sList]
-
-        set ::jobCreate::selectAllFiles [list]
-
-        # Create row of buttons for Data{n} files.
-        # In case window was created, modified, then destroyed look for variables
-        # that would have been set and make widgets reflect those settings.
-        set bdList [label .selectAll.files.dSelect -text "Data"]
-        foreach d $dList {
-            regexp {Data(\d+)} $d m i
-            if {![info exists ::jobCreate::selectAllFiles$i]} {
-                set ::jobCreate::selectAllFiles$i 1
-            }
-            if {[lsearch $::jobCreate::selectAllFiles $d] >= 0} {
-                set ::jobCreate::selectAllFiles$i 1
-            } elseif {[set ::jobCreate::selectAllFiles$i]} {
-                lappend ::jobCreate::selectAllFiles $d
-            }
-            lappend bdList [checkbutton .selectAll.files.sel$i -text $i \
-                    -variable ::jobCreate::selectAllFiles$i \
-                    -command [namespace code [list includeInSelect $i $d]]]
-        }
-        eval grid $bdList -sticky w
-        set nCols [llength $bdList]
-
-        set bsList [label .selectAll.files.sSelect -text "Sum"]
-        foreach s $sList {
-            regexp {Sum(\d+_\d+)} $s m i
-            if {![info exists ::jobCreate::selectAllFiles$i]} {
-                set ::jobCreate::selectAllFiles$i 1
-            }
-            if {[lsearch $::jobCreate::selectAllFiles $s] >= 0} {
-                set ::jobCreate::selectAllFiles$i 1
-            } elseif {[set ::jobCreate::selectAllFiles$i]} {
-                lappend ::jobCreate::selectAllFiles $s
-            }
-            lappend bsList [checkbutton .selectAll.files.sel$i -text $i \
-                    -variable ::jobCreate::selectAllFiles$i \
-                    -command [namespace code [list includeInSelect $i $s]]]
-        }
-        eval grid $bsList -sticky w
-        if {[llength $bsList] > $nCols} {
-            set nCols [llength $bsList]
-        }
-        for {set i 3} {$i < $nCols} {incr i} {
-            grid columnconfigure .selectAll.files $i -uniform a
-        }
-
-        # Create lines for specifying files to combine in histograms.
-        set n 1
-        if {[info exists ::jobCreate::numberHistFiles]} {
-            set n $::jobCreate::numberHistFiles
-        }
-        set ::jobCreate::numberHistFiles 0
-        set ::jobCreate::histFileList(0) $dList
-        for {set i 0} {$i < $n} {incr i} {
-            addDeltaRhoFile $dList $sList
-        }
-        # Sum up Data{n} for one DeltaRho file by default.
-        foreach d $dList {
-            regexp {Data(\d+)} $d m ic
-            set ::jobCreate::histFileCB(0,$ic) 1
-        }
-
-        if {[llength $::jobCreate::selectAllFiles] > 0} {
-            .selectAll.runIt configure -state normal
-            .selectAll.batchRunIt configure -state normal
-        }
-        .selectAll.anotherGroup configure -command [namespace code [list addDeltaRhoFile $dList $sList]]
     } else {
         raise .selectAll
+    }
+}
+################################################################################
+# scanSelectAll scans for files suitable for selectAll (and output from that macro)
+#   and grouping into \Delta\rho/sqrt{\rho}
+################################################################################
+proc ::jobCreate::scanSelectAll {} {
+    if {$::jobCreate::combinedJobs(sum) eq ""} {
+        set node [$::jobCreate::jobInfo getElementsByTagName outputDir]
+        set path [file join [$node text] data]
+    } else {
+        set path [file join $::jobCreate::combinedJobs(sum) data]
+    }
+    set node [$::jobCreate::jobInfo getElementsByTagName cutMode]
+    set mode [$node text]
+
+    # Look for log file from selectAll and parse it for previous runs
+    set logFile [file join $path selectAllLog]
+    set found [list]
+    if {[file exists $logFile]} {
+        set log [open $logFile r]
+        while {[gets $log line] >= 0} {
+            if {[string first "Invoke selectAllM${mode}" $line] >= 0} {
+                lappend found [lindex $line end]
+            }
+        }
+        close $log
+    }
+    set found [lsort -unique -dictionary $found]
+    foreach ch [winfo children .selectAll.found] {
+        destroy $ch
+    }
+    foreach fn $found {
+        pack [label .selectAll.found.l$fn -text $fn]  -side left
+    }
+
+    # Look for log file from combineHistograms and parse it for previous runs
+    set logFile [file join $path combineLog]
+    unset -nocomplain found
+    if {[file exists $logFile]} {
+        set log [open $logFile r]
+        while {[gets $log line] >= 0} {
+            if {[string first "Invoke combineHistogram$mode creating" $line] >= 0} {
+                if {[regexp "Invoke combineHistogram$mode creating(.*)" $line m v]} {
+                    set found([lindex $v 0]) [lrange $v 2 end]
+                }
+            }
+        }
+        close $log
+    }
+    foreach ch [winfo children .selectAll.foundHists] {
+        destroy $ch
+    }
+    foreach fn [array names found] {
+        pack [frame .selectAll.foundHists.f$fn] -anchor w
+        pack [label .selectAll.foundHists.f$fn.l$fn -text $fn] -side left
+        pack [label .selectAll.foundHists.f$fn.lArrow -text "<-"] -side left
+        foreach f [lsort -dictionary $found($fn)] {
+            pack [label .selectAll.foundHists.f$fn.l$f -text $f] -side left
+        }
+    }
+
+    # Get Data{n}.root files
+    set dList [list]
+    foreach fName [glob -nocomplain [file join $path Data*.root]] {
+        set f [file tail $fName]
+        if {[regexp {Data(\d+).root} $f m v]} {
+            lappend dList [file rootname $f]
+        }
+    }
+    # Get Sum{n1}_{n2}.root files
+    set sList [list]
+    foreach fName [glob -nocomplain [file join $path Sum*.root]] {
+        set f [file tail $fName]
+        if {[regexp {Sum(\d+)_(\d+).root} $f m v1 v2]} {
+            lappend sList [file rootname $f]
+        }
+    }
+    if {[llength $dList] == 0 && [llength $sList] == 0} {
+        .selectAll.tFrame.t insert end "Did not find a file that looked like \
+            a sum of the correlation histogram files in directory $path \n" errorOutput
+        .selectAll.tFrame.t see end
+        return
+    }
+    set dList [lsort -dictionary $dList]
+    set sList [lsort -dictionary $sList]
+
+    set ::jobCreate::selectAllFiles [list]
+
+    # Create row of buttons for Data{n} files.
+    # In case window was created, modified, then destroyed look for variables
+    # that would have been set and make widgets reflect those settings.
+    foreach ch [winfo children .selectAll.files] {
+        destroy $ch
+    }
+
+    set bdList [label .selectAll.files.dSelect -text "Data"]
+    foreach d $dList {
+        regexp {Data(\d+)} $d m i
+        if {![info exists ::jobCreate::selectAllFiles$i]} {
+            set ::jobCreate::selectAllFiles$i 1
+        }
+        if {[lsearch $::jobCreate::selectAllFiles $d] >= 0} {
+            set ::jobCreate::selectAllFiles$i 1
+        } elseif {[set ::jobCreate::selectAllFiles$i]} {
+            lappend ::jobCreate::selectAllFiles $d
+        }
+        lappend bdList [checkbutton .selectAll.files.sel$i -text $i \
+                -variable ::jobCreate::selectAllFiles$i \
+                -command [namespace code [list includeInSelect $i $d]]]
+    }
+    eval grid $bdList -sticky w
+    set nCols [llength $bdList]
+
+    set bsList [label .selectAll.files.sSelect -text "Sum"]
+    foreach s $sList {
+        regexp {Sum(\d+_\d+)} $s m i
+        if {![info exists ::jobCreate::selectAllFiles$i]} {
+            set ::jobCreate::selectAllFiles$i 1
+        }
+        if {[lsearch $::jobCreate::selectAllFiles $s] >= 0} {
+            set ::jobCreate::selectAllFiles$i 1
+        } elseif {[set ::jobCreate::selectAllFiles$i]} {
+            lappend ::jobCreate::selectAllFiles $s
+        }
+        lappend bsList [checkbutton .selectAll.files.sel$i -text $i \
+                -variable ::jobCreate::selectAllFiles$i \
+                -command [namespace code [list includeInSelect $i $s]]]
+    }
+    eval grid $bsList -sticky w
+    if {[llength $bsList] > $nCols} {
+        set nCols [llength $bsList]
+    }
+    for {set i 3} {$i < $nCols} {incr i} {
+        grid columnconfigure .selectAll.files $i -uniform a
+    }
+
+    # Create lines for specifying files to combine in histograms.
+    set n 1
+    if {[info exists ::jobCreate::numberHistFiles]} {
+        set n $::jobCreate::numberHistFiles
+    }
+    set ::jobCreate::numberHistFiles 0
+    set ::jobCreate::histFileList(0) $dList
+    for {set i 0} {$i < $n} {incr i} {
+        addDeltaRhoFile $dList $sList
+    }
+    # Sum up Data{n} for one DeltaRho file by default.
+    foreach d $dList {
+        regexp {Data(\d+)} $d m ic
+        set ::jobCreate::histFileCB(0,$ic) 1
+    }
+
+    if {[llength $::jobCreate::selectAllFiles] > 0} {
+        .selectAll.runIt configure -state normal
+        .selectAll.batchRunIt configure -state normal
+    }
+    .selectAll.anotherGroup configure -command [namespace code [list addDeltaRhoFile $dList $sList]]
+}
+################################################################################
+# getJobDirectory invokes file requestor to get a directory for;
+#   job1
+#   job2
+#   jobSelectAll
+################################################################################
+proc ::jobCreate::getJobDirectory {el} {
+    set ::jobCreate::combinedJobs($el) [tk_chooseDirectory]
+}
+################################################################################
+# anotherJobDirectory:
+#   Create row of widgets for another job directory to sum.
+#   When we have more than two directories enable deleteJobDirectory buttons.
+#   In order to pack new line before sum line need to forget and re-grid sum.
+################################################################################
+proc ::jobCreate::anotherJobDirectory {} {
+    set elList [lremove [array names ::jobCreate::combinedJobs] sum]
+    set el [lindex [lsort $elList] end]
+    incr el
+
+    set f1 .selectAll.combineJobs.f.dirs
+
+    label       $f1.job${el}_label    -text "job $el directory:" -justify left
+    entry       $f1.job${el}Dir       -textvariable ::jobCreate::combinedJobs($el)
+    button      $f1.selectJob${el}Dir -text "Browse" -command [namespace code "getJobDirectory $el"]
+    button      $f1.deleteJob${el}Dir -text "x" -foreground red -command [namespace code "deleteJobDirectory $f1 $el"]
+
+    grid forget $f1.jobSelectAll_label $f1.jobSelectAllDir $f1.selectJobSelectAllDir
+    grid $f1.job${el}_label $f1.job${el}Dir $f1.selectJob${el}Dir $f1.deleteJob${el}Dir
+    grid $f1.jobSelectAll_label $f1.jobSelectAllDir $f1.selectJobSelectAllDir x
+    grid $f1.job${el}_label -sticky e
+    grid $f1.job${el}Dir -sticky we
+    grid $f1.selectJob${el}Dir -sticky w
+    grid $f1.jobSelectAll_label -sticky e
+    grid $f1.jobSelectAllDir -sticky we
+    grid $f1.selectJobSelectAllDir -sticky w
+
+    trace add variable ::jobCreate::combinedJobs($el) write [namespace code checkJobDirs]
+    trace add variable ::jobCreate::combinedJobs($el) unset [namespace code checkJobDirs]
+
+    if {$el > 2} {
+        for {set i 1} {$i <= $el} {incr i} {
+            $f1.deleteJob${i}Dir configure -state normal
+        }
+    }
+    set ::jobCreate::combinedJobs($el) $::jobCreate::combinedJobs($el)
+}
+################################################################################
+# deleteJobDirectory:
+#   Delete row of widgets for job directory.
+#   If this is not the last of the job directory rows we compact list.
+#   If we are left with only two job directories we disable delete buttons.
+################################################################################
+proc ::jobCreate::deleteJobDirectory {f1 el} {
+    set elList [lremove [array names ::jobCreate::combinedJobs] sum]
+    set last [lindex [lsort $elList] end]
+
+    for {set i $el} {$i < $last} {} {
+        set ::jobCreate::combinedJobs($i) $::jobCreate::combinedJobs([incr i])
+    }
+    grid forget $f1.job${last}_label $f1.job${last}Dir $f1.selectJob${last}Dir $f1.deleteJob${last}Dir
+    destroy $f1.job${last}_label
+    destroy $f1.job${last}Dir
+    destroy $f1.selectJob${last}Dir
+    destroy $f1.deleteJob${last}Dir
+
+    unset ::jobCreate::combinedJobs($last)
+    if {[llength [array names ::jobCreate::combinedJobs]] < 4} {
+        $f1.deleteJob1Dir configure -state disabled
+        $f1.deleteJob2Dir configure -state disabled
+    }
+}
+################################################################################
+# defaultJobDirectories:
+#   job1:  outputDir in job1
+#   job2:  switch FullField and ReversedFullField of job1
+#          if directory does not exist leave entry blank
+#   jobSelectAll : If job1 and job2 are filled omit FullFiled and ReversFullField
+#                  Otherwise leave blank
+################################################################################
+proc ::jobCreate::defaultJobDirectories {} {
+    set node [$::jobCreate::jobInfo getElementsByTagName outputDir]
+    set job1 [$node text]
+    set ::jobCreate::combinedJobs(1) $job1
+    set ::jobCreate::combinedJobs(2) ""
+    if {[string first FullField $job1] >= 0} {
+        set job2 [string map {FullField ReversedFullField ReversedFullField FullField} $job1]
+        if {[file exists $job2]} {
+            set ::jobCreate::combinedJobs(2) $job2
+        }
+    }
+    if {$::jobCreate::combinedJobs(2) ne ""} {
+        set jobSelectAll [string map {FullField "" ReversedFullField ""} $job1]
+        if {[file exists $jobSelectAll]} {
+            if {[file isdirectory $jobSelectAll]} {
+                if {[tk_messageBox -message "Destination directory \n $jobSelectAll \n exists. Should we use it?" -type yesno]} {
+                    set ::jobCreate::combinedJobs(sum) $jobSelectAll
+                }
+            } else {
+                tk_messageBox -message "Wanted to use \n $jobSelectAll \n as destination directory but it is a file" -type ok
+            }
+        } else {
+            set ::jobCreate::combinedJobs(sum) $jobSelectAll
+        }
+    }
+}
+################################################################################
+# createSelectAllDir:
+#   Create directory if it doesn't exist
+#   Sum QA/QA.root, cuts/Cuts.root, data/Datan.root and data/Sum_M_N.root from
+#   job1Dir and job2Dir putting
+################################################################################
+proc ::jobCreate::createSelectAllDir {} {
+    # Check that expected job1, job2 directories exist
+    set elList [lremove [array names ::jobCreate::combinedJobs] sum]
+    foreach el $elList {
+        set dir $::jobCreate::combinedJobs($el)
+        if {[file isdirectory $dir]} {
+            foreach subDir [list QA cuts data] {
+                if {![file isdirectory [file join $dir $subDir]]} {
+                    return
+                }
+            }
+        }
+    }
+    # If destination directory is a file we quit
+    if {[file isfile $::jobCreate::combinedJobs(sum)]} {
+        return
+    }
+    # Make destination directory if it doesn't exist.
+    # Make sure it is populated with appropriate directories that are not files.
+    if {![file exists $::jobCreate::combinedJobs(sum)]} {
+        file mkdir $::jobCreate::combinedJobs(sum)
+    }
+    foreach subDir [list scripts QA cuts data logs] {
+        set newDir [file join $::jobCreate::combinedJobs(sum) $subDir]
+        if {[file isfile $newDir]} {
+            return
+        }
+    }
+    foreach subDir [list scripts QA cuts data logs] {
+        set newDir [file join $::jobCreate::combinedJobs(sum) $subDir]
+        if {![file exists $newDir]} {
+            file mkdir $newDir
+        }
+    }
+
+    # Open log file in logs sub-directory of combined directory
+    set logFile [file join $::jobCreate::combinedJobs(sum) logs addJobsLog]
+    set log [open $logFile w+]
+
+    # Use hadd to sum QA and Cuts histogram files.
+    # For Cuts.root files we may have different limits
+    # for some histograms.
+    # Copy original Cuts.root files (with a new name) and
+    # catch the hadd command for Cuts.
+    set QAList [list]
+    foreach el $elList {
+        set QAFile [file join $::jobCreate::combinedJobs($el) QA QA.root]
+        lappend QAList $QAFile
+    }
+    set QA [file join $::jobCreate::combinedJobs(sum) QA QA.root]
+    puts $log "eval exec hadd $QA $QAList"
+    catch {eval exec hadd $QA $QAList}
+
+    set cutsList [list]
+    foreach el $elList {
+        set CutsFile [file join $::jobCreate::combinedJobs($el) cuts Cuts.root]
+        lappend cutsList $CutsFile
+        set CutsCopy [file join $::jobCreate::combinedJobs(sum) cuts Cuts_[file tail $::jobCreate::combinedJobs($el)].root]
+        puts $log "file copy $CutsFile $CutsCopy"
+        file copy $CutsFile $CutsCopy
+    }
+    set cuts [file join $::jobCreate::combinedJobs(sum) cuts Cuts.root]
+    puts $log "eval exec hadd $cuts $cutsList"
+    catch {eval exec hadd $cuts $cutsList}
+
+    # For data histograms we use addJobs macro to keep zBuffers independent until selectAll macro.
+    foreach d [glob [file join $::jobCreate::combinedJobs(1) data Data*]] {
+        if {[regexp {Data(\d+).root} $d m i]} {
+            set dataList [list]
+            foreach el $elList {
+                lappend dataList [file join $::jobCreate::combinedJobs($el) data $m]
+            }
+
+            set outFile [file join $::jobCreate::combinedJobs(sum) data Data${i}.root]
+            set mFile [file join $::jobCreate::combinedJobs(sum) scripts addJobs${i}.C]
+            set mF [open $mFile w+]
+            puts $mF "void addJobs${i} () {"
+            puts $mF "    gROOT->LoadMacro(\"addJobs.C\");"
+            puts $mF "    char *inFiles\[\] = {\"[join $dataList {", "}]\"};"
+            puts $mF "    addJobs(\"$outFile\",inFiles,[llength $dataList]);"
+            puts $mF "}"
+            close $mF
+            file attributes $mFile -permissions +x
+            set cmd "root4star -q -b $mFile"
+
+            puts $log "Starting addJobs for $m"
+            puts $log $cmd
+            .selectAll.tFrame.t insert end "$cmd\n" input
+            .selectAll.tFrame.t see end
+            set fid [open "|$cmd"]
+            fconfigure $fid -blocking false -buffering line
+            fileevent $fid readable [namespace code [list addJobsReadable $fid $log]]
+            set currCurs [.selectAll.tFrame.t cget -cursor]
+            .selectAll.tFrame.t configure -cursor watch
+            vwait ::ADDJOBS-DONE
+            catch {close $fid}
+            .selectAll.tFrame.t conf -cursor $currCurs
+        }
+    }
+
+    foreach s [glob [file join $::jobCreate::combinedJobs(1) data Sum*]] {
+        if {[regexp {Sum(\d+_\d+).root} $s m i]} {
+            set dataList [list]
+            foreach el $elList {
+                lappend dataList [file join $::jobCreate::combinedJobs($el) data $m]
+            }
+
+
+            set outFile [file join $::jobCreate::combinedJobs(sum) data Sum${i}.root]
+            set mFile [file join $::jobCreate::combinedJobs(sum) scripts addJobs${i}.C]
+            set mF [open $mFile w+]
+            puts $mF "void addJobs${i} () {"
+            puts $mF "    gROOT->LoadMacro(\"addJobs.C\");"
+            puts $mF "    char *inFiles\[\] = {\"[join $dataList {", "}]\"};"
+            puts $mF "    addJobs(\"$outFile\",inFiles,[llength $dataList]);"
+            puts $mF "}"
+            close $mF
+            file attributes $mFile -permissions +x
+            set cmd "root4star -q -b $mFile"
+
+            puts $log "Starting addJobs for $m"
+            puts $log $cmd
+            .selectAll.tFrame.t insert end "$cmd\n" input
+            .selectAll.tFrame.t see end
+            set fid [open "|$cmd"]
+            fconfigure $fid -blocking false -buffering line
+            fileevent $fid readable [namespace code [list addJobsReadable $fid $log]]
+            set currCurs [.selectAll.tFrame.t cget -cursor]
+            .selectAll.tFrame.t configure -cursor watch
+            vwait ::ADDJOBS-DONE
+            catch {close $fid}
+            .selectAll.tFrame.t conf -cursor $currCurs
+        }
+    }
+
+    scanSelectAll
+}
+################################################################################
+# addJobsReadable waits for output from root4star process running addJobs and
+#  puts it into a text widget.
+################################################################################
+proc ::jobCreate::addJobsReadable {fid fLog} {
+    # The channel is readable; try to read it.
+    set status [catch { gets $fid line } result]
+    if { $status != 0 } {
+        # Error on the channel
+        puts $fLog ">>>>>error reading $fid: $result<<<<<"
+        .selectAll.tFrame.t insert end "error reading $fid: $result\n"
+        .selectAll.tFrame.t see end
+        set ::ADDJOBS-DONE 2
+    } elseif { [eof $fid] } {
+        set ::ADDJOBS-DONE 1
+    } elseif { $result >= 0 } {
+        puts $fLog $line
+        .selectAll.tFrame.t insert end "$line\n"
+        .selectAll.tFrame.t see end
+    } elseif { [fblocked $fid] } {
+        # Read blocked.  Just return
+    } else {
+        # Something else
+        puts $fLog ">>>>>Something impossible happened while reading output from hadd<<<<<"
+        .selectAll.tFrame.t insert end "What did you do?? the impossible happened while reading $fid: $result\n"
+        .selectAll.tFrame.t see end
+        set ::ADDJOBS-DONE 3
+    }
+}
+################################################################################
+# checkJobDirs:
+#   Require ::jobCreate::combinedJobs(sum) and at least two ::jobCreate::combinedJobs(n).
+#   to be set to some value for .selectAll.combineJobs.f.actions.createSelectAllDir to
+#    be available
+################################################################################
+proc ::jobCreate::checkJobDirs {var el op} {
+    if {![winfo exists .selectAll.combineJobs.f.actions.createSelectAllDir]} {
+        return
+    }
+    .selectAll.combineJobs.f.actions.createSelectAllDir configure -state normal
+    if {[llength [array names ::jobCreate::combinedJobs]] < 3} {
+        .selectAll.combineJobs.f.actions.createSelectAllDir configure -state disabled
+        return
+    }
+    foreach el [array names ::jobCreate::combinedJobs] {
+        if {$::jobCreate::combinedJobs($el) eq ""} {
+            .selectAll.combineJobs.f.actions.createSelectAllDir configure -state disabled
+        }
     }
 }
 ################################################################################
@@ -3434,52 +3820,55 @@ proc ::jobCreate::selectAll {} {
 proc ::jobCreate::addDeltaRhoFile {dList sList} {
     set j $::jobCreate::numberHistFiles
     set hFrame .selectAll.hists
-    lappend cbs [label $hFrame.histFile$j -text "DeltaRhoBySqrtRho_$j"]
-    lappend cbs [label $hFrame.space$j -text "<-"]
-    if {![info exists ::jobCreate::histFileList($j)]} {
-        set ::jobCreate::histFileList($j) [list]
-    }
-    foreach d $dList {
-        regexp {Data(\d+)} $d m ic
-        if {![info exists ::jobCreate::histFileCB($j,$ic)]} {
-            set ::jobCreate::histFileCB($j,$ic) 0
-        }
-        if {[lsearch $::jobCreate::histFileList($j) $d] >= 0} {
-            set ::jobCreate::histFileCB($j,$ic) 1
-        } elseif {$::jobCreate::histFileCB($j,$ic)} {
-            lappend ::jobCreate::histFileList($j) $d
-        }
-        lappend cbs [checkbutton $hFrame.cb${j}${ic} -text $ic -variable ::jobCreate::histFileCB($j,$ic) \
-                -command [namespace code [list toggleHistFile $j $ic $d]]]
-    }
-    set nCols [llength $cbs]
-    if {$nCols > 0} {
-        eval grid $cbs -sticky w
-    }
+    if {![winfo exists $hFrame.histFile$j]} {
+        lappend cbs [label $hFrame.histFile$j -text "DeltaRhoBySqrtRho_$j"]
+        lappend cbs [label $hFrame.space$j -text "<-"]
 
-    set cbs [list x x]
-    foreach s $sList {
-        regexp {Sum(\d+_\d+)} $s m ic
-        if {![info exists ::jobCreate::histFileCB($j,$ic)]} {
-            set ::jobCreate::histFileCB($j,$ic) 0
+        if {![info exists ::jobCreate::histFileList($j)]} {
+            set ::jobCreate::histFileList($j) [list]
         }
-        if {[lsearch $::jobCreate::histFileList($j) $s] >= 0} {
-            set ::jobCreate::histFileCB($j,$ic) 1
-        } elseif {$::jobCreate::histFileCB($j,$ic)} {
-            lappend ::jobCreate::histFileList($j) $s
+        foreach d $dList {
+            regexp {Data(\d+)} $d m ic
+            if {![info exists ::jobCreate::histFileCB($j,$ic)]} {
+                set ::jobCreate::histFileCB($j,$ic) 0
+            }
+            if {[lsearch $::jobCreate::histFileList($j) $d] >= 0} {
+                set ::jobCreate::histFileCB($j,$ic) 1
+            } elseif {$::jobCreate::histFileCB($j,$ic)} {
+                lappend ::jobCreate::histFileList($j) $d
+            }
+            lappend cbs [checkbutton $hFrame.cb${j}${ic} -text $ic -variable ::jobCreate::histFileCB($j,$ic) \
+                    -command [namespace code [list toggleHistFile $j $ic $d]]]
         }
-        lappend cbs [checkbutton $hFrame.cb${j}${ic} -text $ic -variable ::jobCreate::histFileCB($j,$ic) \
-                -command [namespace code [list toggleHistFile $j $ic $s]]]
-    }
-    set mCols [llength $cbs]
-    if {$mCols > 2} {
-        eval grid $cbs -sticky w
-    }
-    if {$mCols > $nCols} {
-        set nCols $mCols
-    }
-    for {set i 3} {$i < $nCols} {incr i} {
-        grid columnconfigure $hFrame $i -uniform a
+        set nCols [llength $cbs]
+        if {$nCols > 0} {
+            eval grid $cbs -sticky w
+        }
+
+        set cbs [list x x]
+        foreach s $sList {
+            regexp {Sum(\d+_\d+)} $s m ic
+            if {![info exists ::jobCreate::histFileCB($j,$ic)]} {
+                set ::jobCreate::histFileCB($j,$ic) 0
+            }
+            if {[lsearch $::jobCreate::histFileList($j) $s] >= 0} {
+                set ::jobCreate::histFileCB($j,$ic) 1
+            } elseif {$::jobCreate::histFileCB($j,$ic)} {
+                lappend ::jobCreate::histFileList($j) $s
+            }
+            lappend cbs [checkbutton $hFrame.cb${j}${ic} -text $ic -variable ::jobCreate::histFileCB($j,$ic) \
+                    -command [namespace code [list toggleHistFile $j $ic $s]]]
+        }
+        set mCols [llength $cbs]
+        if {$mCols > 2} {
+            eval grid $cbs -sticky w
+        }
+        if {$mCols > $nCols} {
+            set nCols $mCols
+        }
+        for {set i 3} {$i < $nCols} {incr i} {
+            grid columnconfigure $hFrame $i -uniform a
+        }
     }
 
     incr ::jobCreate::numberHistFiles
@@ -3532,8 +3921,12 @@ proc ::jobCreate::includeInSelect {i f} {
 proc ::jobCreate::batchRunSelectAll {} {
     set node [$::jobCreate::jobInfo getElementsByTagName cutMode]
     set mode [$node text]
-    set node [$::jobCreate::jobInfo getElementsByTagName outputDir]
-    set path [$node text]
+    if {$::jobCreate::combinedJobs(sum) eq ""} {
+        set node [$::jobCreate::jobInfo getElementsByTagName outputDir]
+        set path [$node text]
+    } else {
+        set path $::jobCreate::combinedJobs(sum)
+    }
     # Assume selectAllM${mode}.C script is under the localDir job was submitted from.
     # Assume code compiled for starLibVersion
     set node [$::jobCreate::jobInfo getElementsByTagName localDir]
@@ -3584,6 +3977,7 @@ proc ::jobCreate::batchRunSelectAll {} {
         set csh [open $selectcsh w]
 
         puts $log "Creating C macro and csh script to run selectAll."
+        puts $log "Invoke selectAllM$mode for [file rootname $s]"
         puts $log "Want to run following command."
         puts $log "    root4star -q -b selectAllM${mode}.C\(\"$path\",\"[file rootname $s]\"\);"
 
@@ -3624,6 +4018,7 @@ proc ::jobCreate::batchRunSelectAll {} {
         }
         .selectAll.files.sel$i configure -selectcolor blue
     }
+    close $log
 }
 ################################################################################
 # runSelectAll executes the appropriate version of selectAll for the
@@ -3632,8 +4027,12 @@ proc ::jobCreate::batchRunSelectAll {} {
 proc ::jobCreate::runSelectAll {} {
     set node [$::jobCreate::jobInfo getElementsByTagName cutMode]
     set mode [$node text]
-    set node [$::jobCreate::jobInfo getElementsByTagName outputDir]
-    set path [file join [$node text] data]
+    if {$::jobCreate::combinedJobs(sum) eq ""} {
+        set node [$::jobCreate::jobInfo getElementsByTagName outputDir]
+        set path [file join [$node text] data]
+    } else {
+        set path [file join $::jobCreate::combinedJobs(sum) data]
+    }
     # Assume selectAllM${mode}.C script is under the localDir job was submitted from.
     set pwd [pwd]
     set node [$::jobCreate::jobInfo getElementsByTagName localDir]
@@ -3699,6 +4098,7 @@ proc ::jobCreate::runSelectAll {} {
     } else {
         .selectAll.runIt configure -text Done -command "" -state disabled
     }
+    close $log
     cd $pwd
 }
 ################################################################################
@@ -3709,8 +4109,12 @@ proc ::jobCreate::runSelectAll {} {
 proc ::jobCreate::batchCreateDeltaRhoFile {} {
     set node [$::jobCreate::jobInfo getElementsByTagName cutMode]
     set mode [$node text]
-    set node [$::jobCreate::jobInfo getElementsByTagName outputDir]
-    set path [$node text]
+    if {$::jobCreate::combinedJobs(sum) eq ""} {
+        set node [$::jobCreate::jobInfo getElementsByTagName outputDir]
+        set path [$node text]
+    } else {
+        set path $::jobCreate::combinedJobs(sum)
+    }
     # Assume combineHistograms.C script is under the localDir job was submitted from.
     # Assume code compiled for starLibVersion
     set node [$::jobCreate::jobInfo getElementsByTagName localDir]
@@ -3769,6 +4173,7 @@ proc ::jobCreate::batchCreateDeltaRhoFile {} {
         }
         set csh [open $deltaRhocsh w]
 
+        puts $log "Invoke combineHistogram$mode creating $outFile from $fN"
         puts $log "Creating C macro and csh script to run combineHistograms${mode}."
         puts $log "Want to run following commands."
         puts $log "    gROOT->LoadMacro(\"combineHistograms${mode}.C\");"
@@ -3829,8 +4234,12 @@ proc ::jobCreate::batchCreateDeltaRhoFile {} {
 proc ::jobCreate::createDeltaRhoFile {} {
     set node [$::jobCreate::jobInfo getElementsByTagName cutMode]
     set mode [$node text]
-    set node [$::jobCreate::jobInfo getElementsByTagName outputDir]
-    set path [file join [$node text] data]
+    if {$::jobCreate::combinedJobs(sum) eq ""} {
+        set node [$::jobCreate::jobInfo getElementsByTagName outputDir]
+        set path [file join [$node text] data]
+    } else {
+        set path [file join $::jobCreate::combinedJobs(sum) data]
+    }
     # Assume combineHistograms.C script is under the localDir job was submitted from.
     set pwd [pwd]
     set node [$::jobCreate::jobInfo getElementsByTagName localDir]
@@ -4238,13 +4647,10 @@ proc ::jobCreate::displayHelp {w} {
     $w insert end "Exit from jobCreate. If jobMonitor has been started from " n
     $w insert end "jobCreate we kill it too.\n" n
 
-    $w insert end " o Edit\n" bullet
-    $w insert end "- Just a placeholder for now until I think of a use for it\n" n
-
     $w insert end " o Apr\u00e8s batch\n" bullet
     $w insert end "- Add Histograms\n" n
-    $w insert end "  For use after all jobs are finished (although we do keep track of which data histograms. " n
-    $w insert end "  have been added so you can run this before all batch jobs are done, just to get a look). " n
+    $w insert end "  For use after all jobs are finished (although we do keep track of which data histograms " n
+    $w insert end "have been added so you can run this before all batch jobs are done, just to get a look). " n
     $w insert end "Add all cuts histograms to Cuts.root, all QA histograms " n
     $w insert end "to QA.root and all dataHistograms. For StEStructCorrelation " n
     $w insert end "we end up with one DataN.root histograms for each " n
@@ -4254,10 +4660,10 @@ proc ::jobCreate::displayHelp {w} {
     $w insert end "sum all these groups together, cleaning up the intermediate " n
     $w insert end "files at the end.\n " n
     $w insert end " For each centrality you can select how many files to add as a subgroup.\n" n
-    $w insert end "The \"Added files\" buttons shows which files have been added." n
-    $w insert end "The \"Files to add\" buttons allows you to exclude specific files from being added." n
-    $w insert end " The \"Add em up\" button at the bottom will use the interactive node you\n" n
-    $w insert end "are on to add files sequentially. " n
+    $w insert end " The \"Added files\" buttons shows which files have been added.\n" n
+    $w insert end " The \"Files to add\" buttons allows you to exclude specific files from being added.\n" n
+    $w insert end " The \"Add em up\" button at the bottom will use the interactive node you " n
+    $w insert end "are on to add files sequentially (one centrality at a time).\n " n
     $w insert end "The \"Add using batch\" will create necessary files so we can run hadd in batch. " n
     $w insert end "You can monitor progress using the jobMonitor. I figured out how to hold and release " n
     $w insert end "the jobs to sum the sub-groups on SGE. For condor I don't know how to release " n
@@ -4275,12 +4681,23 @@ proc ::jobCreate::displayHelp {w} {
     $w insert end "status of batch jobs \n\n" n
     $w insert end "- selectAll macro\n" n
     $w insert end "  For StEStructCorrelation only. \n" n
-    $w insert end "Allows user to speficy which Data{n} and Sum{n1}_{n2} files " n
+    $w insert end " There are three sections in this window.\n " n
+    $w insert end "combine Jobs.\n" n
+    $w insert end " This is for combining two or more sub-jobs. Useful when you analyse FullField and " n
+    $w insert end "ReversedFullField separately, as an example. Specify the existing job directories " n
+    $w insert end "to combine.\n " n
+    $w insert end " create Sum Directory will create the new directory and merge appropriate files. " n
+    $w insert end "It will leave the input directories alone (in case anything should go wrong).\n " n
+    $w insert end " another Job Directory, in case you want to merge more than two.\n " n
+    $w insert end " guess Directories looks for directory names with FullField and ReversedFullField in them.\n " n
+    $w insert end "Invoke selectAll{m} with...\n " n
+    $w insert end " allows user to speficy which Data{n} and Sum{n1}_{n2} files " n
     $w insert end "to run through selectAllM{mode} macro (via \"Run selectAll\" (interactively) " n
     $w insert end "or \"Batch selectAll\" (as batch jobs)). This macro combines cut bins " n
     $w insert end "but doesn't create \u0394\u03c1/\u221a\u03c1_ref histograms. \n" n
-    $w insert end "After the selectAllM{mode} macro has been run user can specify which " n
-    $w insert end "classes of files to turn into \u0394\u03c1/\u221a\u03c1_ref histograms " n
+    $w insert end "Group into \u0394\u03c1/\u221a\u03c1_ref histogram file (using combineHistograms{m})\n " n
+    $w insert end " (After the selectAllM{mode} macro has been run) you specify which " n
+    $w insert end "files to combine into \u0394\u03c1/\u221a\u03c1_ref histograms " n
     $w insert end "via the combineHistograms{mode} macro. Output of this macro " n
     $w insert end "is a root histogram file that can be used without the STAR library. " n
     $w insert end "You may wish to create more than one \u0394\u03c1/\u221a\u03c1_ref histogram file " n
@@ -4376,8 +4793,8 @@ proc ::jobCreate::displayHelp {w} {
     $w insert end " o show <job>\n" bullet
     $w insert end "- Pops up window containing xml file that will be used in " n
     $w insert end "star-submit command. " n
-    $w insert end "For more information on the text display/edit window see the " n
-    $w insert end "section titled \"Display/Edit window\".\n\n" n
+    $w insert end "Information cannot be modified in this window, but changes " n
+    $w insert end "made via other widgets are automatically shown.\n\n" n
 
     $w insert end "Everything else in this frame should be described on the STAR web page " n
     $w insert end "describing the scheduler. " n
@@ -4404,7 +4821,7 @@ proc ::jobCreate::displayHelp {w} {
 
     $w insert end "- The doEStruct macro is made up from parts that depend on what " n
     $w insert end "type of job is required. The actual widgets that show up here " n
-    $w insert end "depending on whether you want to do a 2pt correlation or a fluctuation " n
+    $w insert end "depend on whether you want to do a 2pt correlation or a fluctuation " n
     $w insert end "analysis.\n\n" n
 
     $w insert end " o analysisType\n" bullet
@@ -4429,32 +4846,38 @@ proc ::jobCreate::displayHelp {w} {
     $w insert end "- Bit pattern passed to constructor of analsis object.\n\n" n
 
     $w insert end " o useGlobalTracks\n" bullet
-    $w insert end "- If true MuDstReader will use global tracks instaed of primaries..\n\n" n
+    $w insert end "- If true MuDstReader will use global tracks instaed of primaries." n
+    $w insert end "- We calculate eta, phi and impact parameter from outerHelix.\n\n" n
 
-    $w insert end " o declareAnalysis\n" bullet
-    $w insert end "- Code to declare the analysis. Clicking on button will make this information editable. " n
-    $w insert end "For more information on the text display/edit window see the " n
-    $w insert end "section titled \"Display/Edit window\".\n\n" n
+    $w insert end " o sortEvents\n" bullet
+    $w insert end "- I am working on this option." n
+    $w insert end "Currently we can sort Hijing events by multiplicity. " n
+    $w insert end "I hope to be able to sort data by z-vertex position and " n
+    $w insert end "multiplicity. This should minimize plaids and may allow " n
+    $w insert end "us to do away with z-vertex binning of mixed events.\n\n" n
 
-    $w insert end " o declareReader\n" bullet
-    $w insert end "- Code to declare the reader. Clicking on button will make this information editable. " n
-    $w insert end "For more information on the text display/edit window see the " n
-    $w insert end "section titled \"Display/Edit window\".\n\n" n
-
-    $w insert end " o allocateAnalysis\n" bullet
-    $w insert end "- Code to allocate the analysis object. Clicking on button will make this information editable. " n
-    $w insert end "For more information on the text display/edit window see the " n
-    $w insert end "section titled \"Display/Edit window\".\n\n" n
+    $w insert end " o declareAnalysis, declareReader, allocateAnalysis, preLoop, preEvent, postEvent, postLoop\n" bullet
+    $w insert end "- These buttons allow you to select colors. " n
+    $w insert end "The code snippets associated with these elements can be seen " n
+    $w insert end "and modified in the edit window\".\n\n" n
 
     $w insert end " o weightsFile\n" bullet
     $w insert end "- For use in reaction plane analyses. \n\n" n
 
-    $w insert end " o main\n" bullet
+    $w insert end " o doEStruc.C edit button\n" bullet
     $w insert end "- Complete doEStruct macro. Clicking on the button will bring up a " n
-    $w insert end "window showing the text. It is not directly editable (but automatically reflects " n
-    $w insert end "changes that modify it.) " n
-    $w insert end "For more information on the text display/edit window see the " n
-    $w insert end "section titled \"Display/Edit window\".\n\n" n
+    $w insert end "window showing the text. It automatically reflects " n
+    $w insert end "changes that modify its information (e.g. centralities). " n
+    $w insert end "You can modify some of the code snippets in this window " n
+    $w insert end "(see list above). Menus allow you to undo/redo as well as " n
+    $w insert end "save/revert. Information is not actually used until saved.\n\n" n
+
+
+    $w insert end "Next options are only in StEStructCorrelation:\n\n" n
+
+    $w insert end " o cutMode\n" bullet
+    $w insert end "- Flag that chooses actual cut binning mode. \n\n" n
+
 
     $w insert end "Next options are only in StEStructFluctuation:\n\n" n
 
@@ -4465,13 +4888,6 @@ proc ::jobCreate::displayHelp {w} {
     $w insert end " o ptCentralities\n" bullet
     $w insert end "- All pt bins have same centrality selection but this is " n
     $w insert end "different than the cuts for the entire pt range. \n\n" n
-
-
-    $w insert end "Next options are only in StEStructCorrelation:\n\n" n
-
-    $w insert end " o cutMode\n" bullet
-    $w insert end "- Flag that chooses actual cut binning mode. \n\n" n
-
 
     $w insert end "Next options are only when we are using Hijing as input:\n\n" n
 
@@ -4541,13 +4957,6 @@ proc ::jobCreate::displayHelp {w} {
     $w insert end "- Number of samples used in multiplicity and max. integrand determination.\n" n
 
 
-    $w insert end "Display/Edit Window\n" header
-
-    $w insert end " o This window shows text fields that don't fit in a single line.\n " bullet
-    $w insert end " - Some of these fields are editable and some not (when they include other " n
-    $w insert end "fields that can be changed elswhere in this interface.) " n
-    $w insert end "This window has it's own menus allowing you to undo/redo edits " n
-    $w insert end "and search for text within the window.\n\n " n
 
     $w config -state disabled
 }
