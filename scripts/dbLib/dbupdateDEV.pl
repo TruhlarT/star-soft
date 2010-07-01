@@ -210,6 +210,8 @@ struct JFileAttr => {
         jCPU      => '$',
         jRT       => '$',
         avTr      => '$',
+        avPrVtx   => '$',
+        nEvtVtx   => '$',
         avPrTr    => '$',
         avTrGd    => '$',
         avPrfit   => '$',  
@@ -272,6 +274,7 @@ struct JFileAttr => {
  my $no_event = 0; 
  my @maker_size = ();
  my $jrun = "Run not completed";
+ my $nevent_vtx = 0;
  my $tot_tracks = 0;
  my $tot_vertices = 0;
  my $tot_prtracks = 0;
@@ -284,6 +287,7 @@ struct JFileAttr => {
  my $avr_tracks = 0;
  my $avr_vertices = 0;
  my $avr_prtracks = 0;
+ my $avr_prvertx = 0;
  my $avr_trck_nfit15 = 0; 
  my $avr_prtrck_nfit15 = 0;  
  my $avr_prtracks_1vtx = 0;
@@ -425,9 +429,11 @@ my $pyear = 0;
      
  $jrun = "Run not completed";
  $EvDone = 0;
+ $nevent_vtx = 0;
  $perct_usb = 0;
  $avr_tracks = 0;
  $avr_vertices = 0;
+ $avr_prvertx = 0;
  $avr_prtracks = 0;
  $avr_knvertices = 0;
  $avr_xivertices = 0;
@@ -513,6 +519,8 @@ my $pyear = 0;
       ($$fObjAdr)->jCPU($mCPU);
       ($$fObjAdr)->jRT($mRealT);
       ($$fObjAdr)->avTr($avr_tracks);
+      ($$fObjAdr)->avPrVtx($avr_prvertx);
+      ($$fObjAdr)->nEvtVtx($nevent_vtx); 
       ($$fObjAdr)->avPrTr($avr_prtracks);
       ($$fObjAdr)->avVrt($avr_vertices);
       ($$fObjAdr)->avXi($avr_xivertices);
@@ -586,7 +594,9 @@ my $pyear = 0;
  $jrun = "Run not completed";
  $EvDone = 0;
  $perct_usb = 0;
+ $nevent_vtx = 0; 
  $avr_tracks = 0;
+ $avr_prvertx = 0;
  $avr_vertices = 0;
  $avr_prtracks = 0;
  $avr_knvertices = 0;
@@ -634,6 +644,8 @@ my $pyear = 0;
     $mCPU =    ($$newjobFile)->jCPU;
     $mRealT =  ($$newjobFile)->jRT;
     $avr_tracks=  ($$newjobFile)->avTr;
+    $nevent_vtx=  ($$newjobFile)->nEvtVtx;
+    $avr_prvertx= ($$newjobFile)->avPrVtx;
     $avr_prtracks = ($$newjobFile)->avPrTr;
     $avr_vertices = ($$newjobFile)->avVrt;
     $avr_xivertices = ($$newjobFile)->avXi;
@@ -1251,6 +1263,8 @@ sub fillJSTable {
     $sql.="CPU_per_evt_sec='$mCPU',";
     $sql.="RealTime_per_evt='$mRealT',";
     $sql.="avg_no_tracks='$avr_tracks',";
+    $sql.="NoEventVtx='$nevent_vtx',";
+    $sql.="avgNoVtx_evt='$avr_prvertx',";
     $sql.="avg_no_V0Vrt='$avr_vertices',";
     $sql.="avg_no_primaryT='$avr_prtracks',";
     $sql.="avg_no_tracksnfit15='$avr_trck_nfit15',";
@@ -1317,6 +1331,8 @@ sub  updateJSTable {
  my $nevt = 0;
  my $max_npr = 0;
  my $max_npr_nfit15 = 0;
+ my $no_prvertx = 0;
+
     $tot_tracks = 0;
     $tot_vertices = 0;
     $tot_prtracks = 0;
@@ -1338,6 +1354,11 @@ sub  updateJSTable {
 #---------------------------------------------------------
 
 #  print $fl_log, "\n";
+
+ $nevent_vtx = 0;
+#  if($fl_log =~ /st_physics_11029020_raw_1030002.log/) {
+
+  $nevent_vtx = `grep 'primary vertex(0):' $fl_log | wc -l ` ;
 
   open (LOGFILE, $fl_log ) or die "cannot open $fl_log", "\n";
 
@@ -1362,7 +1383,6 @@ $jrun = "Run not completed";
 
    $embflag = 1;
  }
-
 
    foreach my $line (@logfile) {
        chop $line ;
@@ -1453,7 +1473,7 @@ $jrun = "Run not completed";
 # get number of tracks and vertices
 
       if ($line =~ /QA :INFO  - StAnalysisMaker/ && $Anflag == 0 ) {
- 
+
   @nmb = ();
   @nmbx = ();
   @word_tr = ();
@@ -1490,8 +1510,12 @@ $jrun = "Run not completed";
             for ($ik = 2; $ik< 120; $ik++)  { 
               $string = $logfile[$num_line + $ik];
               chop $string;
+            
+           if( $string =~ /primary vertex/ and $string =~ /QA :INFO/ ) {
+             $no_prvertx++;
+           }
 
-           if( $string =~ /primary tracks/) {
+            if( $string =~ /primary tracks/) {
 
               @word_tr = split /:/,$string;
               @nmb =  split /</,$word_tr[2];
@@ -1616,6 +1640,7 @@ $jrun = "Run not completed";
    }
     $perct_usb        = ($nevt/$EvCom)*100;
     $avr_tracks       = $tot_tracks/$EvCom;
+    $avr_prvertx      = $no_prvertx/$EvCom;
     $avr_vertices     = $tot_vertices/$EvCom;
     $avr_prtracks     = $tot_prtracks/$EvCom;
     $avr_trck_nfit15  = $tot_trck_nfit15/$EvCom;   
@@ -1635,7 +1660,7 @@ $jrun = "Run not completed";
     $avr_xi_usb =$tot_xivertices/$nevt ;
 }
 
-# print "Size of executable:  ", $EvDone, "  ", $no_event,"  ",$EvCom,"  ",$maker_size[$EvCom -1], "\n";                               
+#  print "Number of vertices = ", $no_prvertx,"   ", "Number of events ", $no_event,"  ",$EvCom,"  ",$nevent_vtx, "  Average No vtx = ", $avr_prvertx, "\n"; 
 
     if ( defined $maker_size[0]) { 
     $memFst = $maker_size[0];
@@ -1649,7 +1674,8 @@ $jrun = "Run not completed";
   }
  }      
 # print "Memory size:   ",$memFst, "   ", $memLst, "\n";
-    
+   
    close (LOGFILE);
+# }  # close log file  
 
 }
