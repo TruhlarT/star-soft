@@ -127,6 +127,8 @@ struct JFileAttr => {
         jCPU      => '$',
         jRT       => '$',
         avTr      => '$',
+        avPrVtx   => '$',
+        nEvtVtx   => '$',
         avPrTr    => '$',
         avVrt     => '$',
         avTrGd    => '$',
@@ -189,6 +191,7 @@ struct JFileAttr => {
  my $no_event = 0; 
  my @maker_size = ();
  my $jrun = "Run not completed";
+ my $nevent_vtx = 0;
  my $tot_tracks = 0;
  my $tot_vertices = 0;
  my $tot_prtracks = 0;
@@ -201,6 +204,7 @@ struct JFileAttr => {
  my $avr_tracks = 0;
  my $avr_vertices = 0;
  my $avr_prtracks = 0;
+ my $avr_prvertx = 0;
  my $avr_knvertices = 0;
  my $avr_xivertices = 0;
  my $avr_trck_nfit15 = 0; 
@@ -316,8 +320,11 @@ my $pyear = 0;
      
  $jrun = "Run not completed";
  $EvDone = 0;
+ $nevent_vtx = 0;
+ $perct_usb = 0; 
  $avr_tracks = 0;
  $avr_vertices = 0;
+ $avr_prvertx = 0;
  $avr_prtracks = 0;
  $avr_knvertices = 0;
  $avr_xivertices = 0;
@@ -403,6 +410,8 @@ my $pyear = 0;
       ($$fObjAdr)->jCPU($mCPU);
       ($$fObjAdr)->jRT($mRealT);
       ($$fObjAdr)->avTr($avr_tracks);
+      ($$fObjAdr)->avPrVtx($avr_prvertx);
+      ($$fObjAdr)->nEvtVtx($nevent_vtx);
       ($$fObjAdr)->avPrTr($avr_prtracks);
       ($$fObjAdr)->avVrt($avr_vertices);
       ($$fObjAdr)->avXi($avr_xivertices);
@@ -477,7 +486,10 @@ my $pyear = 0;
 
  $jrun = "Run not completed";
  $EvDone = 0;
+ $perct_usb = 0;
+ $nevent_vtx = 0;
  $avr_tracks = 0;
+ $avr_prvertx = 0;
  $avr_vertices = 0;
  $avr_prtracks = 0;
  $avr_knvertices = 0;
@@ -526,6 +538,8 @@ my $pyear = 0;
     $mCPU =    ($$newjobFile)->jCPU;
     $mRealT =  ($$newjobFile)->jRT;
     $avr_tracks=  ($$newjobFile)->avTr;
+    $nevent_vtx=  ($$newjobFile)->nEvtVtx;
+    $avr_prvertx= ($$newjobFile)->avPrVtx;
     $avr_prtracks = ($$newjobFile)->avPrTr;
     $avr_vertices = ($$newjobFile)->avVrt;
     $avr_xivertices = ($$newjobFile)->avXi;
@@ -1106,6 +1120,8 @@ sub fillJSTable {
     $sql.="CPU_per_evt_sec='$mCPU',";
     $sql.="RealTime_per_evt='$mRealT',";
     $sql.="avg_no_tracks='$avr_tracks',";
+    $sql.="NoEventVtx='$nevent_vtx',";
+    $sql.="avgNoVtx_evt='$avr_prvertx',";
     $sql.="avg_no_V0Vrt='$avr_vertices',";
     $sql.="avg_no_primaryT='$avr_prtracks',";
     $sql.="avg_no_primaryTnfit15='$avr_prtrck_nfit15',";
@@ -1171,6 +1187,7 @@ sub  updateJSTable {
  my $nevt = 0;
  my $max_npr = 0;
  my $max_npr_nfit15 = 0;
+ my $no_prvertx = 0;
 
     $tot_tracks = 0;
     $tot_vertices = 0;
@@ -1193,7 +1210,10 @@ sub  updateJSTable {
 
 #---------------------------------------------------------
 
- print $fl_log, "\n";
+# print $fl_log, "\n";
+
+ $nevent_vtx = 0;
+ $nevent_vtx = `grep 'primary vertex(0):' $fl_log | wc -l ` ;  
 
   open (LOGFILE, $fl_log ) or die "cannot open $fl_log: $!\n";
 
@@ -1341,6 +1361,10 @@ my $cput = 0;
               $string = $logfile[$num_line + $ik];
               chop $string;
 
+           if( $string =~ /primary vertex/ and $string =~ /QA :INFO/ ) {
+             $no_prvertx++;
+           }
+
            if( $string =~ /primary tracks:/) {          
 
               @word_tr = split /:/,$string;
@@ -1481,6 +1505,12 @@ my $cput = 0;
     $avr_kink_usb = $tot_knvertices/$nevt;
     $avr_xi_usb =$tot_xivertices/$nevt ; 
    }
+
+    if($nevent_vtx >= 1 ) {
+    $avr_prvertx      = $no_prvertx/$nevent_vtx;
+       }else{
+    $avr_prvertx      = 0;
+      }
 
 # print "Size of executable:  ", $EvDone, "  ", $no_event,"  ",$maker_size[$EvCom  -1], "\n"; 
 
