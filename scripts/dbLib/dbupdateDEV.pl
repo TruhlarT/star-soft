@@ -1356,7 +1356,7 @@ sub  updateJSTable {
 #  print $fl_log, "\n";
 
  $nevent_vtx = 0;
-#  if($fl_log =~ /st_physics_11029020_raw_1030002.log/) {
+#  if($fl_log =~ /st_physics_11138001_raw_2020001.log/) {
 
   $nevent_vtx = `grep 'primary vertex(0):' $fl_log | wc -l ` ;
 
@@ -1640,7 +1640,6 @@ $jrun = "Run not completed";
    }
     $perct_usb        = ($nevt/$EvCom)*100;
     $avr_tracks       = $tot_tracks/$EvCom;
-    $avr_prvertx      = $no_prvertx/$EvCom;
     $avr_vertices     = $tot_vertices/$EvCom;
     $avr_prtracks     = $tot_prtracks/$EvCom;
     $avr_trck_nfit15  = $tot_trck_nfit15/$EvCom;   
@@ -1659,6 +1658,11 @@ $jrun = "Run not completed";
     $avr_kink_usb = $tot_knvertices/$nevt;
     $avr_xi_usb =$tot_xivertices/$nevt ;
 }
+       if($nevent_vtx >= 1 ) {
+   $avr_prvertx      = $no_prvertx/$nevent_vtx;
+    }else{
+   $avr_prvertx      = 0;
+   } 
 
 #  print "Number of vertices = ", $no_prvertx,"   ", "Number of events ", $no_event,"  ",$EvCom,"  ",$nevent_vtx, "  Average No vtx = ", $avr_prvertx, "\n"; 
 
