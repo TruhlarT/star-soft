@@ -187,12 +187,29 @@ switch ($pkg)
       endif
 
       if ( $version != 0 ) then
-        set TEST=`/bin/ls -ld $OPTSTAR/alt/lib/gcc-lib/*/$version/`
+        set TEST=`/usr/bin/test -d $OPTSTAR/alt && /bin/ls -ld $OPTSTAR/alt/lib/gcc-lib/*/$version/`
         if ("$TEST" == "") then
-	  echo "There are no alternate installation of gcc with version $version in $OPTSTAR/alt"
+	  set TEST=`/usr/bin/test -d /opt/gcc/$version && echo "/opt/gcc/$version"`
+	  if ( "$TEST" == "") then
+	    echo "There are no alternate installation of gcc with version $version in $OPTSTAR/alt nor /opt/gcc/"
+	  else
+	    set BP=/opt/gcc/$version
+	  endif
         else
-	  setenv PATH $OPTSTAR/alt/bin:$PATH
-	  setenv LD_LIBRARY_PATH $OPTSTAR/alt/lib:$LD_LIBRARY_PATH
+	  set BP=$OPTSTAR/alt
+        endif
+	  
+	if ( "$TEST" != "") then
+	  setenv PATH ${BP}/bin:$PATH
+	  if ( $?USE_64BITS ) then
+	    if ( $USE_64BITS == 1 ) then
+		setenv LD_LIBRARY_PATH ${BP}/lib64:${BP}/lib:$LD_LIBRARY_PATH
+	    else
+		setenv LD_LIBRARY_PATH ${BP}/lib:${BP}/lib64:$LD_LIBRARY_PATH		
+	    endif
+	  else
+	    setenv LD_LIBRARY_PATH ${BP}/lib:$LD_LIBRARY_PATH
+          endif
         endif
       endif
       if ( $?optstar )  setenv  OPTSTAR  $optstar
