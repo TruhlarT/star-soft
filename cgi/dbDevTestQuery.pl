@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.32 2010/06/15 14:40:42 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.33 2010/07/02 17:11:29 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.33  2010/07/02 17:11:29  didenko
+# updated for number of vertices
+#
 # Revision 1.32  2010/06/15 14:40:42  didenko
 # added auau 11.5 GeV
 #
@@ -171,7 +174,9 @@ my @myplot =   (
                 "Average_NoTracks",
 		"Average_NoPrimaryT",
                 "Average_NoTracksNfit15",
-		"Average_NoPrimaryTNfit15",                 
+		"Average_NoPrimaryTNfit15",
+                "Average_NoPrimVertex",
+                "NoEvent_vertex",                 
                 "Average_NoV0Vrt",
 		"Average_NoXiVrt",
 		"Average_NoKinKVrt",

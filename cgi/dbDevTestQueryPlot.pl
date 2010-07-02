@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.53 2009/12/03 22:11:01 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.54 2010/07/02 17:11:29 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.54  2010/07/02 17:11:29  didenko
+# updated for number of vertices
+#
 # Revision 1.53  2009/12/03 22:11:01  didenko
 # more fixes
 #
@@ -93,6 +96,8 @@ my %plotHash = (
 		Average_NoPrimaryT => 'avg_no_primaryT',
                 Average_NoTracksNfit15 => 'avg_no_tracksnfit15',
 		Average_NoPrimaryTNfit15  => 'avg_no_primaryTnfit15',     
+                Average_NoPrimVertex => 'avgNoVtx_evt',
+                NoEvent_vertex => 'NoEventVtx',
                 Average_NoV0Vrt => 'avg_no_V0Vrt',
 		Average_NoXiVrt => 'avg_no_XiVrt',
 		Average_NoKinKVrt => 'avg_no_KinKVrt',
