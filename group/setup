@@ -182,8 +182,8 @@ switch ($pkg)
     case "gcc":
       unsetenv QTDIR
       if ( -x $GROUP_DIR/dropit ) then
-	setenv PATH            `$GROUP_DIR/dropit alt`
-	setenv LD_LIBRARY_PATH `$GROUP_DIR/dropit -p $LD_LIBRARY_PATH $OPTSTAR/alt`
+	setenv PATH            `$GROUP_DIR/dropit alt opt/gcc`
+	setenv LD_LIBRARY_PATH `$GROUP_DIR/dropit -p $LD_LIBRARY_PATH $OPTSTAR/alt opt/gcc`
       endif
 
       if ( $version != 0 ) then
