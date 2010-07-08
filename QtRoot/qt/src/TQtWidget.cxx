@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.27 2010/07/08 03:58:36 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.28 2010/07/08 04:19:45 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -791,7 +791,7 @@ bool TQtWidget::Save(const QString &fileName,const char *format,int quality)cons
    if (rootFormatFound && c) {
       c->Print(fileName.toStdString().c_str(),saveType.toStdString().c_str());
       Ok = true;
-   } else {
+   } else if (GetOffScreenBuffer()) {
       // Since the "+" is a legal part of the file name and it is used by Onuchin
       // to indicate  the "animation" mode, we have to proceed very carefully
       int dot = fileName.lastIndexOf('.');
@@ -800,7 +800,11 @@ bool TQtWidget::Save(const QString &fileName,const char *format,int quality)cons
          plus = fileName.indexOf('+',dot+1);
       }
       QString fln = (plus > -1) ? TGQt::GetNewFileName(fileName.left(plus)) : fileName;
-      Ok = GetOffScreenBuffer() ? GetOffScreenBuffer()->save(fln,saveType.toStdString().c_str(),quality): false;
+      if (fCanvasDecorator.isNull()) {
+         Ok = GetOffScreenBuffer()->save(fln,saveType.toStdString().c_str(),quality);
+      } else {
+         /// add decoration
+      }
    }
    emit ((TQtWidget *)this)->Saved(Ok);
    return Ok;
@@ -900,6 +904,7 @@ void TQtWidget::paintEvent (QPaintEvent *e)
          screen.setClipRegion(region);
          // paint the the TCanvas double buffer
          if (fPixmapID)  screen.drawPixmap(0,0,*GetOffScreenBuffer());
+         if (!fCanvasDecorator.isNull()) fCanvasDecorator->paintEvent(screen,e);
       }
    }
    fInsidePaintEvent = false;
