@@ -343,17 +343,17 @@ END
 
     } else {
 	 
-#       $legend[0] = "st_physics   ";
-#       $legend[1] = "st_fmsfast   ";
-#       $legend[2] = "st_mtd       ";
+       $legend[0] = "st_physics   ";
+       $legend[1] = "st_mtd       ";
+       $legend[2] = "st_hlt       ";
+       $legend[3] = "st_ht       ";
+       $legend[4] = "st_monitor  ";
+       $legend[5] = "st_pmdftp       ";
+
 #       $legend[3] = "st_upsilon   ";
 #       $legend[4] = "st_gamma     ";
-#       $legend[5] = "st_hlt       ";
-
-
-    $legend[0] = "st_hlt       ";
     
-   @data = (\@ndate, \@arhlt ) ;
+   @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp ) ;
 
 
 #     @data = (\@ndate, \@arphysics, \@arhlt, \@arht, \@armtd, \@arupsilon, \@argamma, \@arupc ) ; 
