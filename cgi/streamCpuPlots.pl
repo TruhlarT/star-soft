@@ -431,6 +431,8 @@ END
 
     } else {
 	 
+	if ($pryear eq "2009" ) {
+
        $legend[0] = "st_physics   ";
        $legend[1] = "st_fmsfast   ";
        $legend[2] = "st_mtd       ";
@@ -438,18 +440,19 @@ END
        $legend[4] = "st_gamma     ";
        $legend[5] = "st_hlt       ";
 
-	if ($pryear eq "2009" ) {
-
    @data = (\@ndate, \@arphysics, \@arfmsfast, \@armtd, \@arupsilon, \@argamma, \@arhlt ) ;
 
        }elsif ($pryear eq "2010" ){
 
-  	$legend[0] = "st_hlt       ";
-    
-   @data = (\@ndate, \@arhlt ) ;
+       $legend[0] = "st_physics   ";
+       $legend[1] = "st_mtd       ";
+       $legend[2] = "st_hlt       ";
+       $legend[3] = "st_ht        ";
+       $legend[4] = "st_monitor   ";
+       $legend[5] = "st_pmdftp    ";
 
+   @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp ) ;
 
-#     @data = (\@ndate, \@arphysics, \@arhlt, \@arht, \@armtd, \@arupsilon, \@argamma, \@arupc ) ; 
 
 #     } else {
 
