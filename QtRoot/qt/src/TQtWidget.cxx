@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.26 2010/05/10 22:51:26 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.27 2010/07/08 03:58:36 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -535,6 +535,7 @@ void TQtWidget::mousePressEvent (QMouseEvent *e)
    //    kButton1Down   =  1, kButton2Down   =  2, kButton3Down   =  3,
 
    EEventType rootButton = kNoEvent;
+   Qt::ContextMenuPolicy currentPolicy = contextMenuPolicy();
    fOldMousePos = e->pos();
    TCanvas *c = Canvas();
    if (c && !fWrapper ){
@@ -542,13 +543,16 @@ void TQtWidget::mousePressEvent (QMouseEvent *e)
       {
       case Qt::LeftButton:  rootButton = kButton1Down; break;
       case Qt::RightButton: {
-//          rootButton = kButton3Down; 
          // respect the QWidget::contextMenuPolicy
          // treat this event as QContextMenuEvent
-          if (contextMenuPolicy()) {
-             e->accept(); 
-             QContextMenuEvent evt(QContextMenuEvent::Other, e->pos() );
-             QApplication::sendEvent(this, &evt);
+          if (currentPolicy != Qt::NoContextMenu) {
+             if ( currentPolicy != Qt::PreventContextMenu) {
+                e->accept(); 
+                QContextMenuEvent evt(QContextMenuEvent::Other, e->pos() );
+                QApplication::sendEvent(this, &evt);
+             } else {
+                rootButton = kButton3Down;
+             }
           }
           break;
        }
