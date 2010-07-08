@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.28 2010/07/08 04:19:45 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.29 2010/07/08 22:31:37 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -546,7 +546,7 @@ void TQtWidget::mousePressEvent (QMouseEvent *e)
          // respect the QWidget::contextMenuPolicy
          // treat this event as QContextMenuEvent
           if (currentPolicy != Qt::NoContextMenu) {
-             if ( currentPolicy != Qt::PreventContextMenu) {
+             if ( currentPolicy == Qt::DefaultContextMenu) {
                 e->accept(); 
                 QContextMenuEvent evt(QContextMenuEvent::Other, e->pos() );
                 QApplication::sendEvent(this, &evt);
@@ -561,7 +561,14 @@ void TQtWidget::mousePressEvent (QMouseEvent *e)
       };
       if (rootButton != kNoEvent) {
          e->accept(); 
-         c->HandleInput(rootButton, e->x(), e->y());
+         if (rootButton == kButton3Down) {
+           bool lastvalue = c->TestBit(kNoContextMenu);
+           c->SetBit(kNoContextMenu);
+           c->HandleInput(rootButton, e->x(), e->y());
+           c->SetBit(kNoContextMenu, lastvalue);
+         } else {
+           c->HandleInput(rootButton, e->x(), e->y());
+         }
          EmitSignal(kMousePressEvent);
          return;
       }
