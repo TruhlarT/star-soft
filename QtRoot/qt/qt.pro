@@ -43,7 +43,7 @@ isEmpty(QTROOTSYSPATHINSTALL) {
 QTROOTSYSDIRLIB = $$(QTROOTSYSDIR_LIB)
 isEmpty( QTROOTSYSDIRLIB  ) {
     QTROOTSYSDIRLIB=lib
-} 
+}
 target.path = $$QTROOTSYSPATHINSTALL/$$QTROOTSYSDIRLIB
 
 
@@ -155,6 +155,7 @@ HEADERS += $$GQTDIRI/TGQt.h \
            $$GQTDIRI/TQtLockGuard.h         \
            $$GQTDIRI/TQtPadFont.h           \
            $$GQTDIRI/TQtPen.h               \
+           $$GQTDIRI/TQtCanvasPainter.h     \
            $$GQTDIRI/TQtRootSlot.h
            
 SOURCES += $$GQTDIRS/GQtGUI.cxx             \
