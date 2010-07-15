@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasImp.cxx,v 1.24 2010/05/19 22:36:38 fine Exp $
+** $Id: TQtCanvasImp.cxx,v 1.25 2010/07/15 17:49:05 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -202,9 +202,9 @@ static TQtBrowserMenuItem_t gMenu_Data[] = {
   { "Fit &Params", kOptionFitParams,           0, "", ""},
   { "&Can Edit Histograms", kOptionCanEdit,    0, "", ""},
 
-  { "Inspect",   kInspectRoot,    Qt::Key_F3,         "Inspect the ROOT objectwith the ROOT object inspector", "inspect.xpm" },
-  { "Browser",   kInspectBrowser, Qt::CTRL+Qt::Key_B, "Start ROOT Browser",               "browser.xpm"                 },
+  { "Inspect ROOT",   kInspectRoot,    Qt::Key_F3,         "Inspect the ROOT objectwith the ROOT object inspector", "inspect.xpm" },
   { "&Class Tree",kClassesTree,      0, "", ""},
+  { "Start Browser",   kInspectBrowser, Qt::CTRL+Qt::Key_B, "Start ROOT Browser",               "browser.xpm"                 },
 
   { "About",                 kHelpAbout,        0, "", ""},
   { "Help On Canvas...",     kHelpOnCanvas,     0, "", ""},
@@ -351,8 +351,7 @@ void TQtCanvasImp::MakeMenu()
    QMenu *editMenu      = mainMenu->addMenu("&Edit");
    QMenu *viewMenu      = mainMenu->addMenu("View");
    QMenu *optionsMenu   = mainMenu->addMenu("&Options");
-   QMenu *inspectorMenu = mainMenu->addMenu("&Inspector");
-   QMenu *classesMenu   = mainMenu->addMenu("&Classes");
+   QMenu *inspectorMenu = mainMenu->addMenu("&Tools");
 
    mainMenu->addSeparator();
 
@@ -477,10 +476,7 @@ void TQtCanvasImp::MakeMenu()
    inspectorMenu->clear();
    inspectorMenu->addAction(fActions[kInspectRoot]   );              fToolBar->addAction(fActions[kInspectRoot]); 
    inspectorMenu->addAction(fActions[kInspectBrowser]);              fToolBar->addAction(fActions[kInspectBrowser]); 
-   //*-*   Items for the Class Menu
-
-   classesMenu->clear();
-   classesMenu->addAction(fActions[kClassesTree]);
+   inspectorMenu->addAction(fActions[kClassesTree]);
 
 
    helpMenu->clear();
