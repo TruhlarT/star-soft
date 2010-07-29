@@ -130,7 +130,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.369";
+$VERSION   =   "V01.370";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -297,7 +297,10 @@ $keywrds{"daynumber"     }    =   "dataTakingDay"             .",RunParams"     
 $keywrds{"year"          }    =   "dataTakingYear"            .",RunParams"              .",0" .",num"  .",0" .",1" .",1";
 $keywrds{"magscale"      }    =   "magFieldScale"             .",RunParams"              .",1" .",text" .",0" .",1" .",1";
 $keywrds{"magvalue"      }    =   "magFieldValue"             .",RunParams"              .",0" .",num"  .",0" .",1" .",1";
-$keywrds{"filename"      }    =   "filename"                  .",FileData"               .",1" .",text" .",0" .",1" .",1";
+$keywrds{"filename"      }    =   "fileName"                  .",FileData"               .",1" .",text" .",0" .",1" .",1";
+$keywrds{"basename"      }    =   "baseName"                  .",FileData"               .",0" .",text" .",0" .",1" .",1";
+$keywrds{"sname1"        }    =   "sName1"                    .",FileData"               .",0" .",text" .",0" .",1" .",1";
+$keywrds{"sname2"        }    =   "sName2"                    .",FileData"               .",0" .",text" .",0" .",1" .",1";
 $keywrds{"fileseq"       }    =   "fileSeq"                   .",FileData"               .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"stream"        }    =   "fileStream"                .",FileData"               .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"filecomment"   }    =   "fileDataComment"           .",FileData"               .",0" .",text" .",0" .",0" .",1";
@@ -2499,6 +2502,7 @@ sub insert_file_data {
   }
 
 
+
   #
   # non mandatory keywords
   #
@@ -2528,17 +2532,27 @@ sub insert_file_data {
       $md5sum = "\"".$valuset{"md5sum"}."\"";
   }
 
+  # those fields are automatically set if unset
+  #$name = "st_physics_10085114_raw_1020001.MuDst.root"; print $name."\n"; $name =~ s/\..*//; 
+  #print $name."\n"; $name =~ s/_\d+$//; print $name."\n"; $name =~ s/_\d+.*$//; print $name."\n";
+  my($nm0,$nm1,$nm2) = &_GetONames($valuset{"filename"});
+  if ( ! defined($valuset{"basename"}) ){  $valuset{"basename"} = $nm0;}
+  if ( ! defined($valuset{"sname1"}) ){    $valuset{"sname1"}   = $nm1;}
+  if ( ! defined($valuset{"sname2"}) ){    $valuset{"sname2"}   = $nm2;}
+
+
 
   # Prepare the SQL query and execute it
   my $fdinsert;
   $fdinsert  = "INSERT IGNORE INTO FileData ";
   $fdinsert .=
-      "(runParamID, fileName, productionConditionID, numEntries, ".
+      "(runParamID, fileName, baseName, sName1, sName2, productionConditionID, numEntries, ".
       " md5sum, fileTypeID, fileDataComment, fileSeq, fileStream, ".
       " fileDataIDate, fileDataCreator)";
   $fdinsert .=
-      " VALUES($runNumber, \"".$valuset{"filename"}."\",$production, $nevents, ".
-      " $md5sum, $fileType,$fileComment,$fileSeq,$filestream, ".
+      " VALUES($runNumber, ".
+      " \"".$valuset{"filename"}."\",\"".$valuset{"basename"}."\",\"".$valuset{"sname1"}."\",\"".$valuset{"sname2"}."\",".
+      " $production, $nevents, $md5sum, $fileType,$fileComment,$fileSeq,$filestream, ".
       " NOW()+0, ".&_GetILogin().")";
 
   if ($DEBUG > 0) { &print_debug("insert_file_data","Execute $fdinsert");}
@@ -6184,6 +6198,25 @@ sub destroy {
   }
 }
 
+
+sub _GetONames
+{
+    my($nm)=@_;
+    my($name0,$name1,$name2);
+
+    $nm =~ s/\..*//;    $name0 = $nm;
+    $nm =~ s/_\d+$//;   $name1 = $nm;
+    $nm =~ s/_\d+.*$//; 
+    if ($nm eq $name1){
+	# remove one more _.*
+	if ( $name1  =~ m/(.*)(_)(.*)/){
+	     $nm = $1;
+	 }
+    }
+    $name2 = $nm;
+    &print_debug("_GetONames","Returning $name0,$name1,$name2");
+    return ($name0,$name1,$name2);
+}
 
 sub _NormalizeAND_OR
 {
