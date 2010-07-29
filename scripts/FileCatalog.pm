@@ -130,7 +130,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.368";
+$VERSION   =   "V01.369";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -321,11 +321,11 @@ $keywrds{"genparams"     }    =   "eventGeneratorParams"      .",EventGenerators
 # This is a dictionary with multiple association
 $keywrds{"creator"       }    =   "creatorName"               .",Creators"               .",1" .",text" .",0" .",0" .",0";
 
-# Path related keywords apart from index 
+# Path related keywords apart from index
 $keywrds{"path"          }    =   "filePathName"              .",FilePaths"              .",1" .",text" .",0" .",0". ",1";
 $keywrds{"pathcomment"   }    =   "filePathComment"           .",FilePaths"              .",0" .",text" .",0" .",0". ",1";
 
-# Node related keywords 
+# Node related keywords
 $keywrds{"node"         }     =   "hostName"                  .",Hosts"                  .",0" .",text" .",0" .",0". ",1";
 $keywrds{"nodecomment"  }     =   "hostComment"               .",Hosts"                  .",0" .",text" .",0" .",0". ",1";
 
@@ -1113,7 +1113,7 @@ sub _Connect
     # check number of SELECT but only if Admin
     if ($FC::INTENT =~ m/Admin/i){
     	my($sth) = $FC::DBH->prepare("SHOW PROCESSLIST");
-	&print_debug("_Connect","Additional information");   
+	&print_debug("_Connect","Additional information");
  	my(@val,@pid);
 	my($sel,$ins,$delr)=(0,0,0);
 	my($cond)=0;
@@ -1146,7 +1146,7 @@ sub _Connect
 		$fr[$ii] = 0;
 	    }
 	}
-	
+
 	if (      $cond = ($sel  > ($FC::LOADMANAGE[0]+$fr[0]) && $FC::LOADMANAGE[0] > 0) ){
 	    &print_message("_Connect","SELECT=$sel INSERT=$ins DELETE=$delr - SELECT greater than threshold ".
 		                      sprintf("%3.3d [%3.3d]",($FC::LOADMANAGE[0]+$fr[0]),$rtries)." ".localtime() );
@@ -1162,7 +1162,7 @@ sub _Connect
 	    # if ( $tries < $NCTRY-1){
 	        $tries--;  # try infinitely
 	        &print_debug("_Connect","Will sleep for ".($NCSLP*3)." seconds and retry");
-		&destroy();   
+		&destroy();
 	        sleep($NCSLP*3);
 		goto CONNECT_TRY;
 	    # } else {
@@ -1198,7 +1198,7 @@ sub _Connect
 	    }
 	    # this will make the test &_TypeSplitted() return FALSE for non-split
 	    # tables i.e. $st > 0 && $st < 0 == FALSE.
-	    if ($FC::SPLIT_MAX{$tab} != 0){  
+	    if ($FC::SPLIT_MAX{$tab} != 0){
 		$FC::SPLIT_MAX{$tab}++;
 		&print_debug("_Connect","\tInterval $FC::SPLIT_MIN{$tab} to $FC::SPLIT_MAX{$tab}");
 	    } else {
@@ -1217,7 +1217,7 @@ sub _Connect
 sub warn_if_duplicates
 {
     my($val)=@_;
-    
+
     if ( defined($val) ){
 	$FC::WDUPS = ($val==1);
     } else {
@@ -1231,7 +1231,7 @@ sub warn_if_duplicates
 sub set_thresholds
 {
    if ($_[0] =~ m/FileCatalog/) {   shift(@_);}
-   my($s,$i,$d)=@_;  
+   my($s,$i,$d)=@_;
 
    if ( defined($s) ){  $FC::LOADMANAGE[0] = $s;}
    if ( defined($i) ){  $FC::LOADMANAGE[1] = $i;}
@@ -1765,7 +1765,7 @@ sub get_prodlib_version_ID {
 	$cmd1 = &_CACHED_SELECT().&_IDize("get_prolib_version_ID",$tabname)." FROM $tabname WHERE $fldnm1=? AND $fldnm2=?";
 	#print "$cmd1\n";
 	$sth1 = $FC::DBH->prepare($cmd1);
-	if ( ! $sth1 ){  
+	if ( ! $sth1 ){
 	    &die_message("get_prodlib_version_ID","Prepare statements 1 failed");
 	} else {
 	    if ( $sth1->execute($prod,$lib) ){
@@ -1773,7 +1773,7 @@ sub get_prodlib_version_ID {
 		if ($sth1->rows == 0) {
 		    # then insert
 		    my($cmd2,$sth2);
-		    
+
 		    $cmd2  = "INSERT IGNORE INTO $tabname ($fldnm1, $fldnm2, ".&_IDatize("",$tabname).", ".&_Creatorize("",$tabname).") ";
 		    $cmd2 .= "VALUES('".$prod."', '".$lib." ', NOW()+0, ".&_GetILogin().")";
 		    #print "$cmd2\n";
@@ -1785,7 +1785,7 @@ sub get_prodlib_version_ID {
 			&print_message("get_prodlib_version_ID","Failed to insert $prod,$lib".$FC::DBH->errstr);
 		    }
 		    $sth2->finish();
-		    
+
 		} elsif ($sth1->rows > 1) {
 		    $sth1->finish();
 		    &die_message("get_prodlib_version_ID","Self consistency check failed",
@@ -1796,7 +1796,7 @@ sub get_prodlib_version_ID {
 		}
 		$sth1->finish();
 		return $id;
-	    } 
+	    }
 	    # can we reach here?
 	    $sth1->finish();
 	}
@@ -2135,8 +2135,8 @@ sub insert_collision_type {
 
   ($firstParticle, $secondParticle, $energy) = &disentangle_collision_type($colstring);
 
-  if ( $firstParticle eq ""  || 
-       $secondParticle eq "" || 
+  if ( $firstParticle eq ""  ||
+       $secondParticle eq "" ||
        $energy eq ""){
 
       # Don't waste time, it is wrong and not parsed
@@ -2957,7 +2957,7 @@ sub insert_simulation_params {
   }
 
   my( $id );
-  if ( ! $sth->execute() ){  
+  if ( ! $sth->execute() ){
       $sth->finish();
       return 0;
   }
@@ -3348,7 +3348,7 @@ sub insert_file_location {
 
   $UFID = 0;
   if ( &_CanHandleSplitted() ){
-      # started in 2008, I splitted FileLocations by storageTypeID 
+      # started in 2008, I splitted FileLocations by storageTypeID
       if ( &_TypeSplitted("FileLocations",$storageType) ){
 	  $flinchk    = "SELECT fileLocationID from FileLocations_$storageType WHERE ";
 	  $flinsert   = "INSERT IGNORE INTO FileLocations_$storageType ";
@@ -3364,8 +3364,8 @@ sub insert_file_location {
       # may become handy to later find empty/usable indexes
       #
       # TODO Bootstrap global with
-      #   SELECT  FileLocationsID.fileLocationID FROM  FileLocationsID LEFT OUTER JOIN FileLocations 
-      #       ON FileLocations.fileLocationID =  FileLocationsID.fileLocationID 
+      #   SELECT  FileLocationsID.fileLocationID FROM  FileLocationsID LEFT OUTER JOIN FileLocations
+      #       ON FileLocations.fileLocationID =  FileLocationsID.fileLocationID
       #       WHERE FileLocationsID.fileLocationID IS NULL;
       #
       #   and delete the indexes returned
@@ -3455,7 +3455,7 @@ sub insert_file_location {
 		  &print_debug("insert_file_location",
 			       "ERROR in insert_file_location() ".$FC::DBH->err." >> ".$FC::DBH->errstr);
 	      }
-	  
+
 	      $td = time()-$ts;
 	      &print_debug("insert_file_location","Execute took $td secondes");
 	  }
@@ -3481,7 +3481,7 @@ sub _CACHED_SELECT
 
 #
 # The main idea of this routine is that while we are building
-# a condition statement, we can check if $keyw with $val is 
+# a condition statement, we can check if $keyw with $val is
 # a super index. Note that this DOES not check for val1 OR val2
 # or fancy queries - this check should be external.
 #   $keyw    the key to check by name (i.e. -cond etc ...)
@@ -3520,7 +3520,7 @@ sub _CanHandleSplitted()
     # Intermediate versions did not have splitting
     if ($VERSION gt "V01.340"){
 	$yn=1==1;
-    } 
+    }
     $yn;
 }
 
@@ -3859,7 +3859,7 @@ sub run_query {
 
 
   # Transfer into associative array for easier handling
-  foreach $keyw (@keywords){  
+  foreach $keyw (@keywords){
       $keyw =~ s/ //g;
       $keyset{$keyw} =$keyw ;
   }
@@ -3957,7 +3957,7 @@ sub run_query {
   my ($j,$tl,@temp,@items,@setkeys);
 
   for ($j=$i=0 ; $i <= $#keywords ; $i++){
-      $keyw = $keywords[$i]; 
+      $keyw = $keywords[$i];
       &print_debug("run_query","... Checking [$keyw]");
       if ( defined($keyset{$keyw}) ){
 	  if ( defined($xkeys{$keyw}) ){
@@ -4206,7 +4206,7 @@ sub run_query {
 			      }
 			      &print_debug("run_query","\tAdded constraints case-1 now $addedconstr");
 			  }
-			  
+
 			  # we can switch to super-index logic only if only
 			  # one of them is used
 			  #&_storagetypeSplitted($storageType)
@@ -4214,7 +4214,7 @@ sub run_query {
 			      &print_debug("run_query","\t$keyw is a super index");
 			      # we shall drop this condition all together
 			      push(@super_index,$id);
-                          
+
 			  } else {
 			      # Add a newly constructed keyword
 			      #if ( index(join(" ",@constraint),$addedconstr) == -1){
@@ -4314,7 +4314,7 @@ sub run_query {
   for ($count=1; $count<$#keywords+1; $count++) {
       &print_debug("run_query","\t. Connecting $keywords[0] $keywords[$count] ".
 		   &connect_fields($keywords[0], $keywords[$count]));
-      
+
       push (@connections, (&connect_fields($keywords[0], $keywords[$count])));
       push (@from, &_GetTableName($keywords[$count]));
   }
@@ -4391,7 +4391,7 @@ sub run_query {
 	  &print_debug("run_query",">> Adding keyword: [$keyw] (nothing special) ");
 	  push (@select, &_GetTableName($keyw).".".&_GetFieldName($keyw));
 	  push (@kstack,$keyw);
-	  
+
       }
   }
 
@@ -4451,7 +4451,7 @@ sub run_query {
 
   # Get only the unique field names
   my(@selectunique,@kstackunique);
-  
+
   for (my $ii=0 ; $ii <= $#select ; $ii++){
       my $el = $select[$ii];
       my $kel= $kstack[$ii];
@@ -4574,7 +4574,7 @@ sub run_query {
   if ( $FC::FORCECACHE ){
       $sqlquery  = &_CACHED_SELECT();
   } else {
-      $sqlquery  = "SELECT "; 
+      $sqlquery  = "SELECT ";
       $sqlquery .= "SQL_BUFFER_RESULT " if ($FC::OPTIMIZE);
   }
 
@@ -4676,7 +4676,7 @@ sub run_query {
       if ( ! $using_global_func){ $limit = 100;}
   }
   if ( defined($limit) ){
-      if ( $limit < $OPTIMLIMIT && $FC::OPTIMIZE){ 
+      if ( $limit < $OPTIMLIMIT && $FC::OPTIMIZE){
 	  # remove optimization if a small number of rows is requested
 	  # limit is arbitrary
 	  $sqlquery =~ s/SQL_BUFFER_RESULT //;
@@ -4684,7 +4684,7 @@ sub run_query {
       $sqlquery .= " LIMIT $offset, $limit";
   }
 
-  
+
 
 
   # We can replace FileLocations here if needed
@@ -4722,14 +4722,14 @@ sub run_query {
 	  # RAISE ALARM
 	  local $SIG{ALRM} = sub { die "ALARM\n"};
 	  alarm($FC::TIMEOUT);
-	  # EXECUTE 
+	  # EXECUTE
 	  $success = $sth->execute();
 	  # CANCEL ALARM
 	  alarm(0);
       };
       if ($@){
-	  $sth->finish(); 
-	  &print_message("run_query","ALRM signal received, we timed out after ".($FC::TIMEOUT/60)." mnts"); 
+	  $sth->finish();
+	  &print_message("run_query","ALRM signal received, we timed out after ".($FC::TIMEOUT/60)." mnts");
 	  return 0;
       } else {
 	  alarm(0);
@@ -5746,7 +5746,7 @@ sub update_location {
   if ($#REFid == -1){
       my($info);
       $info = &get_context("storage")."::".&get_context("path")."::".&get_context("filename");
-      if ( $FC::WDUPS ){      
+      if ( $FC::WDUPS ){
 	  &print_message("update_location","The context did not return any candidate for [$info]");
       } else {
 	  &print_debug("update_location","Context not found, record may have been updated [$info]");
@@ -5803,10 +5803,10 @@ sub update_location {
 
   #
   # This routine actually handles FileData or FileLocations as logic
-  # change table name upon detecting proper arguments (LFN / PFN 
+  # change table name upon detecting proper arguments (LFN / PFN
   # transparency).
   # But we can improve if the table is splittable espeically if only
-  # FileLocations is used. Until now, $fltblnam <=> "FileLocations"  
+  # FileLocations is used. Until now, $fltblnam <=> "FileLocations"
   #
   if ($utable eq $fltblnam && &_CanHandleSplitted() ){
       # we can use this logic only if storage was specified
@@ -5814,11 +5814,11 @@ sub update_location {
       if ( &_TypeSplitted($fltblnam,$storageType) && $storageType != 0){
 	  $utable = "$fltblnam"."_$storageType";
 	  if ($mtable eq $fltblnam ){  $mtable = $utable;}
-	  # now reset the $fltblnam 
+	  # now reset the $fltblnam
 	  $fltblnam = $utable;
-      } 
+      }
   }
- 
+
 
   #
   # Sort out sth
@@ -5984,7 +5984,7 @@ sub update_location {
 		  } else {
 		      &print_debug(  "update_location",
 			             "Loop detected for $mtable (record exists for fldid=$fldid)",
-				     "\tContext = ".join(",",@CTXMEM));		      
+				     "\tContext = ".join(",",@CTXMEM));
 		  }
 	      } else {
 		  $GUPDID{$qupdate.$fldid} = $qdelete;
@@ -6200,7 +6200,7 @@ sub _NormalizeAND_OR
     }
 
     if ($#test != -1){
-	&print_debug("_NormalizeAND_OR","Found $#test items $test[0]");	
+	&print_debug("_NormalizeAND_OR","Found $#test items $test[0]");
     }
     if ($#test > 5){
 	my($base)=$test[0];
@@ -6211,7 +6211,7 @@ sub _NormalizeAND_OR
 	# AND and = will lead to FALSE always
 	#
 	if ($case == 1 && $base =~ m/!=/){  return " (1=1) ";}
-	if ($case == 2 && $base =~ m/ = /){ 
+	if ($case == 2 && $base =~ m/ = /){
 	    &print_message("_NormalizeAND_OR","One keyword chain of ANDs of equality will lead to FALSE");
 	    return " (1=0) ";
 	}
