@@ -1136,7 +1136,7 @@ sub _Connect
 	}
 	$sth->finish();
 	&print_debug("_Connect","SELECT=$sel INSERT=$ins DELETE=$delr");
-	&print_debug("_Connect","kill ".join("; kill ",@pid));
+	&print_debug("_Connect","\t".($#pid==-1?"Connections OK - cleare to proceed":"kill ".join("; kill ",@pid)));
 
 	# be fair - the longer we wait, more likely we will go through
 	for ($ii=0 ; $ii <= $#FC::LOADMANAGE ; $ii++){
@@ -3874,7 +3874,14 @@ sub run_query {
   #        &print_debug("run_query","\t$_ count is ".$rowcounts{$_}."\n");
   #    }
   #}
+  # coming from context
+  #$operset $valuset $optoperset $optvaluset
 
+  &print_debug("run_query","BEGIN Will treat keywords  [".join(",",@keywords)."]");
+  &print_debug("run_query","BEGIN Receiving condition  [".join(",",keys %valuset)."]");
+  &print_debug("run_query","BEGIN Receiving opt cond   [".join(",",keys %optvaluset)."]");
+
+  #&print_debug("run_query","BEGIN FLRELATED ".join(",",%FC::FLRELATED));
 
 
   #+
@@ -3955,25 +3962,26 @@ sub run_query {
       if ( defined($keyset{$keyw}) ){
 	  if ( defined($xkeys{$keyw}) ){
 	      push(@setkeys,$keyw);   # keep ordered track for later use
-	      &print_debug("run_query","    Pushing in >> ".$xkeys{$keyw}." <<");
+	      &print_debug("run_query","\tPushing in >> ".$xkeys{$keyw}." <<");
 	      @items = split(" ",$xkeys{$keyw});
 	      push(@temp,@items);
 	      $keyset{$keyw} .= "($j,$#items";
-	      &print_debug("run_query","    Defined as xkeys with function ".$keyset{$keyw});
+	      &print_debug("run_query","\tDefined as xkeys with function ".$keyset{$keyw});
 	      #$j += ($#items+1);
 	  } else {
 	      delete($keyset{$keyw});
-	      &print_debug("run_query","    Selected as a valid key");
 	      push(@temp,$keyw);
 
 	      # logic is for optional context
 	      $tl = &_GetTableName($keyw);
+	      &print_debug("run_query","\tSelected as a valid key $tl");
+
 	      $TableUSED{$tl} = 1;
-	      if ( $FC::FLRELATED{$tl} ){ $XTableUSED{"FileLocations"} = 1;}
-	      if ( $FC::FDRELATED{$tl} ){ $XTableUSED{"FileData"}      = 1;}
+	      if ( $FC::FLRELATED{$tl} ){ $XTableUSED{"FileLocations"} = 1; &print_debug("run_query","\tRelated to FL");}
+	      if ( $FC::FDRELATED{$tl} ){ $XTableUSED{"FileData"}      = 1; &print_debug("run_query","\tRelated to FD");}
 	      #$j++;
 	  }
-	  $j++; # <-- not a bug
+	  $j++; # <-- not a bug :-)
       }
   }
   @keywords = @temp;
@@ -3990,20 +3998,27 @@ sub run_query {
   my @USEDTables = keys %TableUSED;
 
 
-  # Optional condition can be checked now
+  # Optional condition should be checked now and added to the stack if applies
   # Note that they are enabled only if one of the returned
   # keys belong to the same table than the condition.
   &print_debug("run_query","Will inspect optional context now");
   foreach $keyw (keys %optvaluset){
       my ($tabname) = &_GetTableName($keyw);
-      &print_debug("run_query","\tKey $keyw, table=$tabname");
+      &print_debug("run_query","\tOptional Key $keyw, table=$tabname");
       if( $tabname ne ""){
-	  # The conditions above are tricky to understand in one glance.
+	  &print_debug("run_query","\tConditional check to promote to major cond ".
+		       join("-",((defined($TableUSED{$tabname}))?"1":"0",
+				 (defined($XTableUSED{$tabname}))?"1":"0",
+				 (defined($TableUSED{FileData}) && defined($XTableUSED{FileLocations}))?"1":"0",
+				 (defined($TableUSED{FileLocations}) && defined($XTableUSED{FileData}))?"1":"0"))
+		       );
+	  # The conditions below are tricky to understand in one glance.
 	  # - The first one is simple, the table is in use, optional context is set
 	  # - The second/third implies that if there is a cross dependence FileData/FileLocations
 	  #   in the keyword list, there WILL be a JOIN on FileData/FileLocations and therefore,
 	  #   it is also a candidate for adding the optionally context on the query stack.
 	  if ( ( defined($TableUSED{$tabname}) )                                         ||
+	       ( defined($XTableUSED{$tabname}) )                                        ||
 	       ( defined($TableUSED{FileData}) && defined($XTableUSED{FileLocations}) )  ||
 	       ( defined($TableUSED{FileLocations}) && defined($XTableUSED{FileData}) )  ){
 	      if ( ! defined($valuset{$keyw}) ){
@@ -4016,7 +4031,11 @@ sub run_query {
 		  &print_debug("run_query",
 			       "\t** Optional context $keyw will NOT be activated");
 	      }
+	  } else {
+	      &print_debug("run_query","\t** Dropping $keyw as the association conditions with selected keys does not validate");
 	  }
+      } else {
+	  &print_debug("run_query","\tBogus $keyw leads to tablename NULL");
       }
   }
 
@@ -4541,6 +4560,9 @@ sub run_query {
   if ( $floc > 0 && defined($valuset{"all"}) ){
     if ( $valuset{"all"} == 0 && ! defined($valuset{"available"}) ){
 	push ( @constraint, "FileLocations.availability > 0");
+	&print_debug("run_query","Detecting we do NOT have 'availability' specified and 'all' is null -> adding availability > 0");
+    } else {
+	&print_debug("run_query","Either 'available' is set or all is not null");
     }
   }
 
