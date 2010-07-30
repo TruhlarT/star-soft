@@ -130,7 +130,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.370";
+$VERSION   =   "V01.371";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -1999,8 +1999,8 @@ sub disentangle_collision_type {
       $colstring = "0.0";
   } elsif (($colstring =~ m/unknown/) > 0){
       # Allow this as well
-      $firstParticle  = "unknwon";
-      $secondParticle = "unknwon";
+      $firstParticle  = "unknown";
+      $secondParticle = "unknown";
       $colstring = "0.0";
 
   } else {
@@ -6200,7 +6200,10 @@ sub destroy {
 
 
 sub _GetONames
-{
+{   
+    if ($_[0] =~ m/FileCatalog/) {
+	shift @_;
+    }
     my($nm)=@_;
     my($name0,$name1,$name2);
 
@@ -6359,9 +6362,13 @@ sub _GetLogin
 	my($user) = getpwuid($<);
 
 	if ( ! defined($user) ){
-	    chomp($user = `id`);
-	    $user =~ m/(uid=\d+\()(.*)\)(\s+gid=)/;
-	    $user = $2;
+	    if ( defined($ENV{USER}) ){
+		$user = $ENV{USER};
+	    } else {
+		chomp($user = `id`);
+		$user =~ m/(uid=\d+\()(.*)\)(\s+gid=)/;
+		$user = $2;
+	    }
 	}
 	$FC::USER = $user;
     }
