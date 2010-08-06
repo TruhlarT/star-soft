@@ -58,6 +58,8 @@ my $mstr;
 
 my @arrprod = ();
 my @arstream = ();
+my @ardays = ();
+my $ndy = 0;
 my $nst = 0;
 my $str;
 my $npr = 0;
@@ -223,7 +225,6 @@ END
   my $nmonth = 0;
   my @prt = ();
   my $myday;
-  my $nday = 0;
   my @ardays = ();
   my $tdate;
   my @jbstat = ();  
@@ -246,21 +247,6 @@ END
           $nst++;
        }
     $cursor->finish();
-
-
-    if( $qperiod eq "day") {
-       $day_diff = 1;
-
-   }elsif( $qperiod eq "week") {
-	$day_diff = 8;
-  
-    } elsif ( $qperiod =~ /month/) {
-	@prt = split("_", $qperiod);
-	$nmonth = $prt[0];
-	$day_diff = 30*$nmonth + 1; 
-    }
-
-    $day_diff = int($day_diff);
 
 
  $ndt = 0;
@@ -418,7 +404,6 @@ END
 
   }
 
-
     &StDbProdDisconnect();
 
     my @data = ();
@@ -451,7 +436,7 @@ END
  
 
 	$min_y = 0;
-	$max_y = $maxval + 0.2*$maxval; 
+#	$max_y = $maxval + 0.2*$maxval; 
 
 	if (scalar(@ndate) >= 40 ) {
 	    $skipnum = int(scalar(@ndate)/20);
