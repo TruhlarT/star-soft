@@ -265,7 +265,6 @@ END
     $cursor->finish();
 
 
-
  $ndt = 0;
 
  #####################
@@ -462,8 +461,8 @@ END
 	$xLabelSkip = $skipnum;
 
 
-	$ylabel = "Average ratio of different stream data per hour";
-	$gtitle = "Average ratio of different stream data per hour";
+	$ylabel = "Ratio of different stream data to st_physics per hour ";
+	$gtitle = "Ratio of different stream data to st_physics per hour for day $qday ";
 
 
 	$graph->set(x_label => "Date of Production",
