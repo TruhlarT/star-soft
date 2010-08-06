@@ -128,7 +128,7 @@ my @rtupsilon = ();
        }
     $cursor->finish();
 
-    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2010-07-09' order by runDay ;
+    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2010-07-09' order by runDay" ;
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -183,7 +183,7 @@ END
 
     print "<p>";
     print "</td><td>";  
-    print "<h3 align=center> Day of production</h3>";
+    print "<h3 align=center> Select Day of production</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'pday',
                                   -values=>\@rdays,
@@ -208,7 +208,7 @@ END
 
     print $query->end_html();
 
-} else{
+ } else{
     
   my $qqr = new CGI;
  
