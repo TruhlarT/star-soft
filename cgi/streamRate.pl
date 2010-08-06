@@ -111,6 +111,9 @@ my @rtmonitor = ();
 my @rtpmdftp = ();
 my @rtupsilon = ();
 
+my @arhr = ();
+my $mhr = 0;
+my $nhr = 0;
 
   &StDbProdConnect();
  
@@ -225,7 +228,6 @@ END
   my $nmonth = 0;
   my @prt = ();
   my $myday;
-  my @ardays = ();
   my $tdate;
   my @jbstat = ();  
   my $nstat = 0;
@@ -247,6 +249,21 @@ END
           $nst++;
        }
     $cursor->finish();
+
+
+   $sql="SELECT DISTINCT  date_format(createTime, '%Y-%m-%d %H') as PDATE  FROM $JobStatusT  where prodSeries = ? and runDay = ? order by PDATE ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute($qprod,$qday);
+
+       while( $mhr = $cursor->fetchrow() ) {
+
+          $arhr[$nhr] = $mhr;
+          $nhr++;
+       }
+    $cursor->finish();
+
 
 
  $ndt = 0;
@@ -294,7 +311,7 @@ END
 
   my $maxvalue = 1;
 
-    foreach  $tdate (@ardays) {
+    foreach  $tdate (@arhr) {
 	@jbstat = ();  
 	$nstat = 0;
 
@@ -389,16 +406,16 @@ END
     } # foreach tdate
 
       for($ii = 0; $ii < $ndt; $ii++) {
-      if ($nstphysics[$ndt] >= 1) {
+      if ($nstphysics[$ii] >= 1) {
       
-      $rtmtd[$ndt] = $nstmtd[$ndt]/$nstphysics[$ndt];
-      @rthlt[$ndt] = $nsthlt[$ndt]/$nstphysics[$ndt];
-      @rtht[$ndt] = $nstht[$ndt]/$nstphysics[$ndt];
-      @rtmonitor[$ndt] = $nstmonitor[$ndt]/$nstphysics[$ndt];
-      @rtpmdftp[$ndt] = $nstpmdftp[$ndt]/$nstphysics[$ndt];
-#      @rtupc[$ndt] = $nstupc[$ndt]/$nstphysics[$ndt];
-#      @rtfmsfast[$ndt] = $nstfmsfast[$ndt]/$nstphysics[$ndt];
-#      @rtatomcules[$ndt] = $nstatomcules[$ndt]/$nstphysics[$ndt];
+      $rtmtd[$ii] = $nstmtd[$ii]/$nstphysics[$ii];
+      $rthlt[$ii] = $nsthlt[$ii]/$nstphysics[$ii];
+      $rtht[$ii] = $nstht[$ii]/$nstphysics[$ii];
+      $rtmonitor[$ii] = $nstmonitor[$ii]/$nstphysics[$ii];
+      $rtpmdftp[$ii] = $nstpmdftp[$ii]/$nstphysics[$ii];
+#      $rtupc[$ii] = $nstupc[$ii]/$nstphysics[$ii];
+#      $rtfmsfast[$ii] = $nstfmsfast[$ii]/$nstphysics[$ii];
+#      $rtatomcules[$ii] = $nstatomcules[$ii]/$nstphysics[$ii];
 
      }
 
