@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.72 2010/08/06 15:31:57 genevb Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.73 2010/08/10 20:16:04 genevb Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TString.h"
@@ -694,7 +694,9 @@ Bfc_st BFC[] = {
 
 
   {"FiltGamma" ,"","","StEvent,StMcEvent,EmcUtil",
-                                           "StGammaFilterMaker","StFilterMaker", "Gamma filtering",kFALSE},
+                                      "StGammaFilterMaker","StFilterMaker", "BEmc Gamma filtering",kFALSE},
+  {"FiltEemcGamma" ,"","","StEvent,StMcEvent,EmcUtil",
+                                  "StEemcGammaFilterMaker","StFilterMaker", "EEmc Gamma filtering",kFALSE},
 
 
 
@@ -1769,7 +1771,9 @@ Bfc_st BFC[] = {
 
 
   {"FiltGamma" ,"","","StEvent,StMcEvent,EmcUtil",
-                                           "StGammaFilterMaker","StFilterMaker", "Gamma filtering",kFALSE},
+                                      "StGammaFilterMaker","StFilterMaker", "BEmc Gamma filtering",kFALSE},
+  {"FiltEemcGamma" ,"","","StEvent,StMcEvent,EmcUtil",
+                                  "StEemcGammaFilterMaker","StFilterMaker", "EEmc Gamma filtering",kFALSE},
 
 
 
