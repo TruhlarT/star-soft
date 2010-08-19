@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.73 2010/08/10 20:16:04 genevb Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.74 2010/08/19 23:00:15 fisyak Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TString.h"
@@ -3086,14 +3086,14 @@ void StBFChain::SetOptions(const Char_t *options, const Char_t *chain) {
 	  if (Tag.Length() == 11)  (void) sscanf(Tag.Data(),"dbv%8d",&FDate);
 	  if (Tag.Length() == 18)  (void) sscanf(Tag.Data(),"dbv%8d.%6d",&FDate,&FTime);
 	  if (Tag.Length() == 11 || Tag.Length() == 18) {
-	    gMessMgr->QAInfo() << Tag.Data() << " ... but still will be considered as a dynamic timestamp (MaxEntryTime) "
+	    gMessMgr->QAInfo() << Tag.Data() << " ... but still will be considered as a dynamic timestamp (Max DB EntryTime) "
 			       << FDate  << "." << FTime << endm;
 	  }
 	} else if (Tag.BeginsWith("sdt")) {
 	  if (Tag.Length() == 11)  (void) sscanf(Tag.Data(),"sdt%8d",&FDateS);
 	  if (Tag.Length() == 18)  (void) sscanf(Tag.Data(),"sdt%8d.%6d",&FDateS,&FTimeS);
 	  if (Tag.Length() == 11 || Tag.Length() == 18) {
-	    gMessMgr->QAInfo() << Tag.Data() << " ... but still will be considered as a dynamic timestamp (MaxEntryTime) "
+	    gMessMgr->QAInfo() << Tag.Data() << " ... but still will be considered as a dynamic timestamp (Event Time) "
 			       << FDateS  << "." << FTimeS << endm;
 	  }
 	} else if ( Tag.BeginsWith("gopt") && Tag.Length() == 13){
@@ -3551,12 +3551,12 @@ void StBFChain::SetDbOptions(StMaker *mk){
       gMessMgr->QAInfo() << GetName() << " Chain set time from  " << db->GetName() << endm;
       m_EvtHddr->SetDateTime(db->GetDateTime());
     }
-    // MaxEntry over-write
-    if (Idate) {
-      db->SetMaxEntryTime(Idate,Itime);
-      gMessMgr->Info() << "\tSet DataBase max entry time " << Idate << "/" << Itime
-		       << " for St_db_Maker(\"" << db->GetName() <<"\")" << endm;
-    }
+  }
+  // MaxEntry over-write
+  if (Idate) {
+    db->SetMaxEntryTime(Idate,Itime);
+    gMessMgr->Info() << "\tSet DataBase max entry time " << Idate << "/" << Itime
+		     << " for St_db_Maker(\"" << db->GetName() <<"\")" << endm;
   } // check if maker is St_db_Maker
   if (!GetOption("fzin")) {
     struct Field_t {
