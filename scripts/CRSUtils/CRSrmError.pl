@@ -3,7 +3,7 @@
 # L. Didenko
 ###############################################################################
 
- my $prodSer; 
+ my $prodSer = $ARGV[0]; 
 my $jobdir;
 my $archdir;
 my $lostdir;
@@ -90,24 +90,17 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
       @jobrr = ();
       @wrd = split ("-", $lline);
       $jobname = $wrd[0];
-      @jobrr = split ("_", $wrd[0]);
-      $prodSer = $jobrr[2];
+#      @jobrr = split ("_", $wrd[0]);
+#      $prodSer = $jobrr[2];
       @prt = split (" ", $lline);
       $crsjobname = $prt[0];
 
-#      print $jobname,"   ", $prt[1], "\n";
-
    $loopdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobs_looping"; 
 
-     if( $jobname =~ /2007Production/ ) {
-
-  $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobfiles_2007";  
-  $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive_2007";
-}else{
 
   $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobfiles";  
   $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive";
-}
+
      $fullname = $archdir ."/". $jobname;
 
 ############## uncomment next lines
@@ -117,6 +110,7 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
 
       `mv $fullname $loopdir \n`;
         print "Looping job killed and moved to jobs_looping dir: ", $jobname,"   ", $prt[1],  "\n";
+#         print "Found looping jobs: ", $jobname,"   ", $prt[1],  "\n";
     }
   }
 
@@ -146,22 +140,15 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
       @jobrr = ();
       @wrd = split ("-", $erline);
       $jobname = $wrd[0];
-      @jobrr = split ("_", $wrd[0]);
-      $prodSer = $jobrr[2];
+#      @jobrr = split ("_", $wrd[0]);
+#      $prodSer = $jobrr[2];
       @prt = split (" ", $erline);
       $crsjobname = $prt[0];
 
 #      print $jobname,"   ", $prt[1], "\n";
 
-     if( $jobname =~ /2007Production/ ) {
-
-  $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobfiles_2007";  
-  $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive_2007";
-}else{
-
   $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobfiles";  
   $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive";
-}
 
   $lostdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobs_lostfiles"; 
 
@@ -171,10 +158,10 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
     `crs_job -kill $crsjobname`;
      print "Job killed:  ", $jobname,"   ", $prt[1], "\n";
 
-   }elsif($prt[1] eq "hpss_error_-2" or $prt[1] eq "hpss_error_-5") {
+   }elsif($prt[1] eq "hpss_error_-2" or $prt[1] eq "hpss_error_-5" or $prt[1] eq "hpss_error_-150" ) {
     `crs_job -kill $crsjobname`;
      print "Job killed:  ", $jobname,"   ", $prt[1], "\n";
-        `mv $fullname $lostdir \n`;
+     `mv $fullname $lostdir \n`;
 
    }elsif($prt[1] eq "no_response_from_hpss_server") {
     `crs_job -reset $crsjobname`; 
@@ -212,34 +199,6 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
     
   }
  }
-
-#####################
-
-#    open (STDOUT, ">$outfile");
-
-#   print "#! /usr/local/bin/tcsh -f", "\n";
-
-   foreach my $jfile (@jobfilelist) { 
-
-    @wrd = split ("_",$jfile);
-    $prod = $wrd[2]; 
-    $trigset = $wrd[0]; 
-    $field = $wrd[1]; 
-    if( $jfile =~ /st_physics_adc_/ ) {
-    $filebase = $wrd[3] ."_".$wrd[4]."_".$wrd[5]."_".$wrd[6]."_".$wrd[7]."_".$wrd[8];
-  }else{
-    $filebase = $wrd[3] ."_".$wrd[4]."_".$wrd[5]."_".$wrd[6]."_".$wrd[7];
-  }   
-
-    $pathname = "/star/data*/reco/".$trigset."/".$field."/".$prod."/"."*"."/"."*"."/".$filebase."*";
-
-#   print "rm ", $pathname, "\n";
-
- }
-#####################
-#     close (STDOUT);
-
-#    `chmod +x $outfile`;
 
  }else {
 
