@@ -366,11 +366,16 @@ proc ::jobCreate::+listDefaultXml {type t c b} {
                            data_pp400MinBias_2005.lis \
                            data_pp2006MinBias_2006.lis \
                            data_ppProductionMB62_2006.lis \
+                           dataAuAu7_2010_MinBias.lis \
+                           dataAuAu11_2010_MinBias.lis \
                            dataAuAu19_2001_MinBias.lis \
+                           dataAuAu39_2010_MinBias.lis \
                            dataAuAu62_2004_MinBias.lis \
                            dataAuAu130_2000_MinBias.lis \
                            dataAuAu200_2001_MinBiasVertex.lis \
                            dataAuAu200_2001_ProductionMinBias.lis \
+                           dataAuAu200_2004_ProductionMinBias_FullField.lis \
+                           dataAuAu200_2004_ProductionMinBias_ReversedFullField.lis \
                            dataAuAu200_2004A_ProductionMinBias.lis \
                            dataAuAu200_2004B_ProductionMinBias.lis \
                            dataAuAu200_2004_ProductionLow.lis \
@@ -2693,6 +2698,7 @@ proc ::jobCreate::createCondorFile {fileName scriptFile outPut log dir {hold fal
     puts $condor ""
     puts $condor "Executable     = $scriptFile"
     puts $condor "Output         = $outPut"
+    puts $condor "Error          = [string map {.log .err} $outPut]"
     puts $condor "Requirements   = (CPU_Experiment == \"star\")"
     puts $condor "Log            = $log"
     puts $condor "Initialdir     = $dir"
