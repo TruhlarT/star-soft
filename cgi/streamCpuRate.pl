@@ -156,7 +156,7 @@ my $qday = $query->param('pday');
 my $srate = $query->param('prate');
 
 
-if( $qday eq "" and $qprod eq "" and $srate "" ) {
+if( $qday eq "" and $qprod eq "" and $srate eq "" ) {
     print $query->header();
     print $query->start_html('Production CPU usage');
     print <<END;
