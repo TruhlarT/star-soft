@@ -101,6 +101,7 @@ my @nstupc = ();
 my @nstmonitor = ();
 my @nstpmdftp = ();
 my @nstupsilon = ();
+my @numstream  = ()
 
 my @rtgamma = ();
 my @rtmtd = ();
@@ -112,6 +113,7 @@ my @rtupc = ();
 my @rtmonitor = ();
 my @rtpmdftp = ();
 my @rtupsilon = ();
+my @rtphysics = ();
 
 my @arhr = ();
 my $mhr = 0;
@@ -190,7 +192,7 @@ END
  
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Select stream values: <br> cpu or stream rate</h3>";
+    print "<h3 align=center> Select stream values: <br> CPU or stream rate</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
 	                          -values=>\@arrate,
@@ -307,7 +309,9 @@ END
  @nstmonitor = ();
  @nstpmdftp = ();
  @nstupsilon = ();
+ @numstream = ();
 
+ @rtphysics = ();
  @rtgamma = ();
  @rtmtd = ();
  @rthlt = ();
@@ -417,18 +421,29 @@ END
     } # foreach tdate
 
       for($ii = 0; $ii < $ndt; $ii++) {
-      if ($nstphysics[$ii] >= 1) {
+	  $numstream[$ii] = $nstphysics[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+$nstht[$ii]+$nstmonitor[$ii]+$nstpmdftp[$ii]+ $nstupc[$ii];
+
+     if ($numstream[$ii] >= 1) { 
+      $rtphysics[$ii] = $nstphysics[$ii]/$numstream[$ii];
+      $rtmtd[$ii] = $nstmtd[$ii]/$numstream[$ii];
+      $rthlt[$ii] = $nsthlt[$ii]/$numstream[$ii];
+      $rtht[$ii] = $nstht[$ii]/$numstream[$ii];
+      $rtmonitor[$ii] = $nstmonitor[$ii]/$numstream[$ii];
+      $rtpmdftp[$ii] = $nstpmdftp[$ii]/$numstream[$ii];
+      $rtupc[$ii] = $nstupc[$ii]/$numstream[$ii];
+
+  }
+#      if ($nstphysics[$ii] >= 1) {
       
-      $rtmtd[$ii] = $nstmtd[$ii]/$nstphysics[$ii];
-      $rthlt[$ii] = $nsthlt[$ii]/$nstphysics[$ii];
-      $rtht[$ii] = $nstht[$ii]/$nstphysics[$ii];
-      $rtmonitor[$ii] = $nstmonitor[$ii]/$nstphysics[$ii];
-      $rtpmdftp[$ii] = $nstpmdftp[$ii]/$nstphysics[$ii];
-      $rtupc[$ii] = $nstupc[$ii]/$nstphysics[$ii];
+#      $rtmtd[$ii] = $nstmtd[$ii]/$nstphysics[$ii];
+#      $rthlt[$ii] = $nsthlt[$ii]/$nstphysics[$ii];
+#      $rtht[$ii] = $nstht[$ii]/$nstphysics[$ii];
+#      $rtmonitor[$ii] = $nstmonitor[$ii]/$nstphysics[$ii];
+#      $rtpmdftp[$ii] = $nstpmdftp[$ii]/$nstphysics[$ii];
+#      $rtupc[$ii] = $nstupc[$ii]/$nstphysics[$ii];
 #      $rtfmsfast[$ii] = $nstfmsfast[$ii]/$nstphysics[$ii];
 #      $rtatomcules[$ii] = $nstatomcules[$ii]/$nstphysics[$ii];
-
-     }
+#     }
 
   }
 
@@ -470,7 +485,7 @@ END
 
  @data = (\@ndate, \@rtmtd, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp ) ;
 
-
+       	$max_y = 2.0;
      
     }
 
