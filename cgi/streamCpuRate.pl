@@ -438,7 +438,7 @@ END
        $legend[4] = "st_monitor   ";
        $legend[5] = "st_pmdftp    ";
 
-   @data = (\@ndate, \@arphysics, \@rtmtd, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp ) ;
+   @data = (\@ndate, \@rtmtd, \@arphysics, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp ) ;
 
   
 	my $ylabel;
@@ -476,7 +476,7 @@ END
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple lorange lred lblack lgray) ],
+                    dclrs => [ qw(lblue lgreen lpurple lorange lred lblack) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
