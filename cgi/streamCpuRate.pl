@@ -438,8 +438,9 @@ END
        $legend[4] = "st_monitor   ";
        $legend[5] = "st_pmdftp    ";
 
-   @data = (\@ndate, \@rtmtd, \@arphysics, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp ) ;
-
+#   @data = (\@ndate, \@rtmtd, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp ) ;
+    
+  @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp ) ;
   
 	my $ylabel;
 	my $gtitle; 
