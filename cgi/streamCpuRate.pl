@@ -432,19 +432,7 @@ END
       $rtpmdftp[$ii] = $nstpmdftp[$ii]/$numstream[$ii];
       $rtupc[$ii] = $nstupc[$ii]/$numstream[$ii];
 
-  }
-#      if ($nstphysics[$ii] >= 1) {
-      
-#      $rtmtd[$ii] = $nstmtd[$ii]/$nstphysics[$ii];
-#      $rthlt[$ii] = $nsthlt[$ii]/$nstphysics[$ii];
-#      $rtht[$ii] = $nstht[$ii]/$nstphysics[$ii];
-#      $rtmonitor[$ii] = $nstmonitor[$ii]/$nstphysics[$ii];
-#      $rtpmdftp[$ii] = $nstpmdftp[$ii]/$nstphysics[$ii];
-#      $rtupc[$ii] = $nstupc[$ii]/$nstphysics[$ii];
-#      $rtfmsfast[$ii] = $nstfmsfast[$ii]/$nstphysics[$ii];
-#      $rtatomcules[$ii] = $nstatomcules[$ii]/$nstphysics[$ii];
-#     }
-
+       }
   }
 
     &StDbProdDisconnect();
@@ -480,12 +468,12 @@ END
  
   }elsif(  $srate eq "rate" ) {
 
-	$ylabel = "Ratio of different stream data to st_physics per hour ";
-	$gtitle = "Ratio of different stream data to st_physics per hour for day $qday ";
+	$ylabel = "Ratio of different stream data per hour ";
+	$gtitle = "Ratio of different stream data to all stream per hour for day $qday ";
 
  @data = (\@ndate, \@rtmtd, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp ) ;
 
-       	$max_y = 2.0;
+       	$max_y = 1.2;
      
     }
 
