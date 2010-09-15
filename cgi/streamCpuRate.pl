@@ -46,7 +46,7 @@ if( $sec < 10) { $sec = '0'.$sec };
 
 my $todate = ($year+1900)."-".($mon+1)."-".$mday;
 
-my $nowdate;
+my $nowdate = $todate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
@@ -55,6 +55,7 @@ my @prodyear = ("2010");
 
 my @arperiod = ( );
 my $mstr;
+my @arrate = ("cpu","rate");
 
 my @arrprod = ();
 my @arstream = ();
@@ -152,9 +153,10 @@ my $scriptname = $query->url(-relative=>1);
 
 my $qprod = $query->param('prod');
 my $qday = $query->param('pday');
+my $srate = $query->param('prate');
 
 
-if( $qday eq "" and $qprod eq "" ) {
+if( $qday eq "" and $qprod eq "" and $srate "" ) {
     print $query->header();
     print $query->start_html('Production CPU usage');
     print <<END;
@@ -183,6 +185,15 @@ END
 	                          -values=>\@arrprod,
 	                          -default=>P10ih,
       			          -size =>1);
+ 
+   print "<p>";
+    print "</td><td>";
+    print "<h3 align=center> Select stream rate values</h3>";
+    print "<h4 align=center>";
+    print  $query->scrolling_list(-name=>'prate',
+	                          -values=>\@arrate,
+	                          -default=>cpu,
+      			          -size =>1);
 
     print "<p>";
     print "</td><td>";  
@@ -190,7 +201,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'pday',
                                   -values=>\@rdays,
-                                  -default=>$todate,
+                                  -default=>\$nowdate,
                                   -size =>1); 
 
     
@@ -217,6 +228,7 @@ END
  
     my $qprod = $qqr->param('prod');
     my $qday = $qqr->param('pday');
+    my $srate = $qqr->param('prate');
  
     
     $JobStatusT = "JobStatus".$pryear;
@@ -410,7 +422,7 @@ END
       $rtht[$ii] = $nstht[$ii]/$nstphysics[$ii];
       $rtmonitor[$ii] = $nstmonitor[$ii]/$nstphysics[$ii];
       $rtpmdftp[$ii] = $nstpmdftp[$ii]/$nstphysics[$ii];
-#      $rtupc[$ii] = $nstupc[$ii]/$nstphysics[$ii];
+      $rtupc[$ii] = $nstupc[$ii]/$nstphysics[$ii];
 #      $rtfmsfast[$ii] = $nstfmsfast[$ii]/$nstphysics[$ii];
 #      $rtatomcules[$ii] = $nstatomcules[$ii]/$nstphysics[$ii];
 
@@ -420,7 +432,9 @@ END
 
     &StDbProdDisconnect();
 
-    my @data = ();
+ my $ylabel;
+ my $gtitle; 
+ my @data = ();
 
     my $graph = new GD::Graph::linespoints(750,650);
 
@@ -438,12 +452,26 @@ END
        $legend[4] = "st_monitor   ";
        $legend[5] = "st_pmdftp    ";
 
-#   @data = (\@ndate, \@rtmtd, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp ) ;
-    
+       if ( $srate eq "cpu" ) {
+
+       $ylabel = "Average ratio RealTime/CPU per hour";
+       $gtitle = "Average ratio RealTime/CPU per hour for different stream data";
+
   @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp ) ;
-  
-	my $ylabel;
-	my $gtitle; 
+
+  	$max_y = $maxval + 0.2*$maxval; 
+ 
+  }elsif(  $srate eq "rate" ) {
+
+	$ylabel = "Ratio of different stream data to st_physics per hour ";
+	$gtitle = "Ratio of different stream data to st_physics per hour for day $qday ";
+
+ @data = (\@ndate, \@rtmtd, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp ) ;
+
+
+     
+    }
+
 	my $xLabelsVertical = 1;
 	my $xLabelPosition = 0;
 	my $xLabelSkip = 1;
@@ -451,21 +479,13 @@ END
  
 
 	$min_y = 0;
-	$max_y = $maxval + 0.2*$maxval; 
+#	$max_y = $maxval + 0.2*$maxval; 
 
 	if (scalar(@ndate) >= 40 ) {
 	    $skipnum = int(scalar(@ndate)/20);
 	}
 
 	$xLabelSkip = $skipnum;
-
-
-#	$ylabel = "Ratio of different stream data to st_physics per hour ";
-#	$gtitle = "Ratio of different stream data to st_physics per hour for day $qday ";
-
-        $ylabel = "Average ratio RealTime/CPU per hour";
-        $gtitle = "Average ratio RealTime/CPU per hour for different stream data";
-
 
 	$graph->set(x_label => "Date of Production",
 	            y_label => $ylabel,
