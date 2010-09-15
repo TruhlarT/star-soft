@@ -88,6 +88,7 @@ my @ndate = ();
 my $ndt = 0;
 my @rdays = ();
 my $ndy = 0;
+my @rvdays = ();
 
 my @nstphysics = ();
 my @nstgamma = ();
@@ -144,6 +145,7 @@ my $nhr = 0;
        }
     $cursor->finish();
 
+@rvdays = reverse @rdays ;
 
 &StDbProdDisconnect();
 
@@ -200,8 +202,8 @@ END
     print "<h3 align=center> Select Day of production</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'pday',
-                                  -values=>\@rdays,
-                                  -default=>\$nowdate,
+                                  -values=>\@rvdays,
+                                  -default=>$nowdate,
                                   -size =>1); 
 
     
