@@ -469,11 +469,11 @@ END
   }elsif(  $srate eq "rate" ) {
 
 	$ylabel = "Ratio of different stream data per hour ";
-	$gtitle = "Ratio of different stream data to all stream per hour for day $qday ";
+	$gtitle = "Ratio of different stream data to all streams per hour for day $qday ";
 
- @data = (\@ndate, \@rtmtd, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp ) ;
+ @data = (\@ndate, \@rtphysics, \@rtmtd, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp ) ;
 
-       	$max_y = 1.2;
+       	$max_y = 1.0;
      
     }
 
