@@ -190,7 +190,7 @@ END
  
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Select stream rate values</h3>";
+    print "<h3 align=center> Select stream values: <br> cpu or stream rate</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
 	                          -values=>\@arrate,
