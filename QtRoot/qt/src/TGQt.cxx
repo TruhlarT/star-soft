@@ -1,7 +1,7 @@
-// @(#)root/qt:$Id: TGQt.cxx,v 1.39 2010/05/10 22:51:26 fine Exp $
+// @(#)root/qt:$Id: TGQt.cxx,v 1.40 2010/09/20 15:56:09 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.39 2010/05/10 22:51:26 fine Exp $
+** $Id: TGQt.cxx,v 1.40 2010/09/20 15:56:09 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -850,7 +850,7 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.39 2010/05/10 22:51:26 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.40 2010/09/20 15:56:09 fine Exp $ this=%p\n",this);
 #ifndef R__QTWIN32
    extern void qt_x11_set_global_double_buffer(bool);
 //   qt_x11_set_global_double_buffer(false);
@@ -928,7 +928,9 @@ Bool_t TGQt::Init(void* /*display*/)
    fFontTextCode = "ISO8859-1";
    const char *default_font =
       gEnv->GetValue("Gui.DefaultFont",  "-adobe-helvetica-medium-r-*-*-12-*-*-*-*-*-iso8859-1");
-   QApplication::setFont(*(QFont *)LoadQueryFont(default_font));
+   QFont *dfFont = (QFont *)LoadQueryFont(default_font);
+   QApplication::setFont(*dfFont);
+   delete dfFont;
    //  define the font code page
    QString fontName(default_font);
    fFontTextCode = fontName.section('-',13). toUpper();
