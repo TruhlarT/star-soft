@@ -135,7 +135,7 @@ my $nhr = 0;
        }
     $cursor->finish();
 
-    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2010-08-10' order by runDay" ;
+    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2010-07-20' order by runDay" ;
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
