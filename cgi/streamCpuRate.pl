@@ -201,7 +201,7 @@ END
 
     print "<p>";
     print "</td><td>";  
-    print "<h3 align=center> Select Day of production</h3>";
+    print "<h3 align=center> Select Date of production</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'pday',
                                   -values=>\@rvdays,
