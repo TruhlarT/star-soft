@@ -447,6 +447,7 @@ END
        $legend[3] = "st_ht        ";
        $legend[4] = "st_monitor   ";
        $legend[5] = "st_pmdftp    ";
+       $legend[6] = "st_upc    ";       
 
    @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
 
