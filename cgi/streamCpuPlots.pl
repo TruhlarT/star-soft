@@ -86,7 +86,7 @@ my $ndt = 0;
 
 $JobStatusT = "JobStatus2009";
  
-my @arperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months");
+my @arperiod = ("week","1_month","2_months","3_months","4_months","5_months","6_months");
 
   &StDbProdConnect();
 
@@ -149,8 +149,8 @@ END
 <td>
 END
 
-    #print "<p>";
-    #print "</td><td>";
+    print "<p>";
+    print "</td><td>";
     print "<h3 align=center> Select production series</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
@@ -168,8 +168,8 @@ END
                                   -size =>1); 
 
     
-    #print "<p>";
-    #print "</td><td>";
+    print "<p>";
+    print "</td><td>";
     print "</td> </tr> </table><hr><center>";
 
     print "</h4>";
@@ -241,10 +241,7 @@ END
 	$nowdate = $todate;
 #    }
 
-    if( $qperiod eq "day") {
-       $day_diff = 1;
-
-   }elsif( $qperiod eq "week") {
+     if( $qperiod eq "week") {
 	$day_diff = 8;
   
     } elsif ( $qperiod =~ /month/) {
@@ -255,7 +252,7 @@ END
 
     $day_diff = int($day_diff);
 
-     if( $qperiod eq "day") {
+     if( $qperiod eq "week") {
 
     $sql="SELECT DISTINCT date_format(createTime, '%Y-%m-%d %H') as PDATE  FROM $JobStatusT WHERE prodSeries = ?  AND runDay <> '0000-00-00' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) <= 1  order by PDATE ";
 
@@ -309,7 +306,7 @@ END
 	@jbstat = ();  
 	$nstat = 0;
 
-     if( $qperiod eq "day") {
+     if( $qperiod eq "week") {
 
   $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 "; 
 
@@ -451,7 +448,7 @@ END
        $legend[4] = "st_monitor   ";
        $legend[5] = "st_pmdftp    ";
 
-   @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp ) ;
+   @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
 
 
 #     } else {
@@ -476,7 +473,7 @@ END
 
 	$xLabelSkip = $skipnum;
 
-     if( $qperiod eq "day") {
+     if( $qperiod eq "week") {
 
 	$ylabel = "Average ratio RealTime/CPU per hour";
 	$gtitle = "Average ratio RealTime/CPU per hour for different stream data";
