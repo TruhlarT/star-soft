@@ -463,7 +463,7 @@ END
        $ylabel = "Average ratio RealTime/CPU per hour";
        $gtitle = "Average ratio RealTime/CPU per hour for different stream data";
 
-  @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@$arupc ) ;
+  @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
 
   	$max_y = $maxval + 0.2*$maxval; 
  
