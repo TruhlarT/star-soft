@@ -205,7 +205,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'pday',
                                   -values=>\@rvdays,
-                                  -default=>$nowdate,
+                                  -default=>\$nowdate,
                                   -size =>1); 
 
     
@@ -456,13 +456,14 @@ END
        $legend[3] = "st_ht        ";
        $legend[4] = "st_monitor   ";
        $legend[5] = "st_pmdftp    ";
+       $legend[6] = "st_upc       ";
 
        if ( $srate eq "cpu" ) {
 
        $ylabel = "Average ratio RealTime/CPU per hour";
        $gtitle = "Average ratio RealTime/CPU per hour for different stream data";
 
-  @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp ) ;
+  @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@$arupc ) ;
 
   	$max_y = $maxval + 0.2*$maxval; 
  
@@ -471,9 +472,9 @@ END
 	$ylabel = "Ratio of different stream data per hour ";
 	$gtitle = "Ratio of different stream data to all streams per hour for day $qday ";
 
- @data = (\@ndate, \@rtphysics, \@rtmtd, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp ) ;
+ @data = (\@ndate, \@rtphysics, \@rtmtd, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc ) ;
 
-       	$max_y = 1.0;
+       	$max_y = 1.2;
      
     }
 
@@ -502,7 +503,7 @@ END
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple lorange lred lblack) ],
+                    dclrs => [ qw(lblue lgreen lpurple lorange lred lblack lgray) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
