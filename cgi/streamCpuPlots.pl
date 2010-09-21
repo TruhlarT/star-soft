@@ -84,24 +84,24 @@ my @arpmdftp = ();
 my @ndate = ();
 my $ndt = 0;
 
-$JobStatusT = "JobStatus2009";
+#$JobStatusT = "JobStatus2009";
  
 my @arperiod = ("week","1_month","2_months","3_months","4_months","5_months","6_months");
 
   &StDbProdConnect();
 
 
-    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
+#    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
 
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
+#      $cursor =$dbh->prepare($sql)
+#          || die "Cannot prepare statement: $DBI::errstr\n";
+#       $cursor->execute();
 
-       while( $mpr = $cursor->fetchrow() ) {
-          $arrprod[$npr] = $mpr;
-          $npr++;
-       }
-    $cursor->finish();
+#       while( $mpr = $cursor->fetchrow() ) {
+#          $arrprod[$npr] = $mpr;
+#          $npr++;
+#       }
+#    $cursor->finish();
 
  $JobStatusT = "JobStatus2010";  
 
@@ -451,10 +451,6 @@ END
 
    @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
 
-
-#     } else {
-
-#        	@data = (\@ndate, \@arphysics );   
   }
   
 	my $ylabel;
