@@ -302,7 +302,7 @@ END
  @arpmdftp = ();
   my $maxvalue = 1;
 
-    foreach  $tdate (@ardays) {
+    foreach my $tdate (@ardays) {
 	@jbstat = ();  
 	$nstat = 0;
 
@@ -379,7 +379,6 @@ END
 ####################        
 
           foreach my $mfile (@arstream) {      
-#              if ($nstr{$mfile,$ndt} >= 0.1) {
               if ($nstr{$mfile,$ndt} >= 2 ) {
                   $rte{$mfile,$ndt} = $rte{$mfile,$ndt}/$nstr{$mfile,$ndt};
                   if ( $rte{$mfile,$ndt} > $maxval ) {
@@ -407,7 +406,9 @@ END
                $arpmdftp[$ndt] =  $rte{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $arupc[$ndt] =  $rte{$mfile,$ndt};
-	       }
+	   }else{
+             next;
+           } 
               }
           }
 
