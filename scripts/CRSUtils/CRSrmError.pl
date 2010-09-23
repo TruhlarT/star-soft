@@ -163,6 +163,11 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
      print "Job killed:  ", $jobname,"   ", $prt[1], "\n";
      `mv $fullname $lostdir \n`;
 
+   }elsif($prt[1] eq "hpss_error_-153" or $prt[1] eq "hpss_error_-154" ) {
+    `crs_job -kill $crsjobname`;
+     print "Job killed:  ", $jobname,"   ", $prt[1], "\n";
+     `mv $fullname $lostdir \n`;
+
    }elsif($prt[1] eq "no_response_from_hpss_server") {
     `crs_job -reset $crsjobname`; 
      print "Job was reset:  ", $jobname,"   ", $prt[1], "\n";
