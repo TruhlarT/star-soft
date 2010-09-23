@@ -300,6 +300,8 @@ END
  @arupc = ();
  @armonitor = ();
  @arpmdftp = ();
+ 
+
   my $maxvalue = 1;
 
     foreach my $tdate (@ardays) {
