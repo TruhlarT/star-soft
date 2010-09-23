@@ -110,7 +110,10 @@ if($Ncreate <= 1000) {
 	chop $jbfile ;
         if ( -f $jbfile) {
 	print  $jbfile, "\n";
-	`$CRSDIR/crs_job -create $jbfile -q5 -p20 -drop`;
+
+      `$CRSDIR/crs_job -create $jbfile -q5 -p20 -drop`;
+#	`$CRSDIR/crs_job -create $jbfile -q5 -p20`;
+
 	`/bin/mv $jbfile $archdir`;
        } else {
                 print "[?] $jbfile is not a file\n";
