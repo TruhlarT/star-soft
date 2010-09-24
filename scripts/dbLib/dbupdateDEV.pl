@@ -1356,7 +1356,7 @@ sub  updateJSTable {
 #  print $fl_log, "\n";
 
  $nevent_vtx = 0;
-#  if($fl_log =~ /st_physics_11138001_raw_2020001.log/) {
+#  if($fl_log =~ /st_physics_adc_11138001_raw_1490001.log/) {
 
   $nevent_vtx = `grep 'primary vertex(0):' $fl_log | wc -l ` ;
 
@@ -1370,10 +1370,6 @@ my $mCPUbfc = 0;
 my $mRealTbfc = 0;
 my $embflag = 0;
 my @tmm = ();
-my $mrlt = 0;
-my $mcpu = 0;
-my $rlt = 0;
-my $cput = 0;
 my $mixline = "$STAR/StRoot/macros/embedding";
 
 $Err_messg = "none";
@@ -1439,20 +1435,6 @@ $jrun = "Run not completed";
       if ( $line =~ /Done with Event/ ) {
         $no_event++;
 
-#############################################
-    if($embflag == 1)  {
-    @part = ();
-    @part = split( "=", $line) ;
-    $mrlt = $part[1];
-    $mcpu = $part[2];
-     @tmm = ();
-    @tmm = split(" ", $part[1]) ; 
-    $rlt = $tmm[0];
-     @tmm = ();
-    @tmm = split(" ", $part[2]) ;      
-    $cput = $tmm[0];
-
-    }
 #############################################
      } 
 
@@ -1606,24 +1588,26 @@ $jrun = "Run not completed";
       $EvDone = $no_event;
       $EvCom = $EvDone - $EvSkip;
 
-     if($EvDone >= 1) {
-   if($embflag == 1) {
-      $mCPU = $cput/$EvDone;
-      $mRealT = $rlt/$EvDone;
+#     if($EvDone >= 1) {
+#   if($embflag == 1) {
+#      $mCPU = $cput/$EvDone;
+#      $mRealT = $rlt/$EvDone;
 
- }
-}
+# }
+#}
 
 ##### get CPU and Real Time per event
 
  if ($EvCom != 0) {
-    @cpu_output = `tail -5000 $fl_log`;
+    @cpu_output = `tail -2000 $fl_log`;
  
   foreach $end_line (@cpu_output){
           chop $end_line;
-   if ($end_line =~ /QAInfo:Chain/ and $end_line =~ /StBFChain::bfc/) {
 
-#    if ( $end_line =~ /StBFChain::bfc/) {  
+  if($embflag == 0 ) { 
+    
+  if ($end_line =~ /QAInfo:Chain/ and $end_line =~ /StBFChain::bfc/) {
+
 #  print $end_line, "\n";
      @part = split (" ", $end_line); 
       $mCPUbfc = $part[8];
@@ -1633,10 +1617,30 @@ $jrun = "Run not completed";
 #     print "CPU ", $mCPUbfc,"   %   ", $mRealTbfc, "\n";
      $mCPU = $mCPUbfc/$EvCom;
      $mRealT = $mRealTbfc/$EvCom;
-    
+
    }else{
     next;
       }
+ 
+  }elsif($embflag == 1 ) {  
+
+
+  if ($end_line =~ /QAInfo:Chain/ and $end_line =~ /StChain::Embedding/) {
+
+      @part = split (" ", $end_line); 
+      $mCPUbfc = $part[8];
+      $mRealTbfc = $part[6];
+      $mCPUbfc = substr($mCPUbfc,1) + 0;
+      $mRealTbfc = substr($mRealTbfc,1) + 0;
+#     print "CPU ", $mCPUbfc,"   %   ", $mRealTbfc, "\n";
+     $mCPU = $mCPUbfc/$EvCom;
+     $mRealT = $mRealTbfc/$EvCom;
+#   print "CPU and RealTime  ",$EvCom,"   ",$mCPU, "    ",$mRealT, "\n";
+   
+   }else{
+    next;
+      }
+    }
    }
     $perct_usb        = ($nevt/$EvCom)*100;
     $avr_tracks       = $tot_tracks/$EvCom;
