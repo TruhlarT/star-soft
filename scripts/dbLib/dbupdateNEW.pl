@@ -1228,10 +1228,9 @@ my $mRealTbfc = 0;
 my $embflag = 0;
 my $mixline = "/StRoot/macros/embedding";
 my @tmm = ();
-my $mrlt = 0;
-my $mcpu = 0;
-my $rlt = 0;
-my $cput = 0;
+my $evtcomp = 0;
+$Err_messg = "none";
+$jrun = "Run not completed";
 
 
   if($fl_log =~ /embed/) {
@@ -1287,27 +1286,13 @@ my $cput = 0;
 #   get  number of events
       if ( $line =~ /Done with Event/ ) {
         $no_event++;
-
-#############################################
-    if($embflag == 1)  {
-    @part = ();
-    @part = split( "=", $line) ;
-    $mrlt = $part[1];
-    $mcpu = $part[2];
-     @tmm = ();
-    @tmm = split(" ", $part[1]) ;
-    $rlt = $tmm[0];
-     @tmm = ();
-    @tmm = split(" ", $part[2]) ;
-    $cput = $tmm[0];
-
     }
-#############################################
-   }
+      if ( $line =~ /Reading Event:/ ) {
+        $evtcomp++;
+     }
 
-
-#  get memory size
-      if ($num_line > 200){
+ #  get memory size
+      if ($num_line > 500){
 	if( $line =~ /EndMaker/ and $line =~ /total/ ) {
         @size_line = split(" ",$line); 
 
@@ -1315,7 +1300,7 @@ my $cput = 0;
 
         @memSize = split("=",$size_line[6]);
         if( $mymaker eq "outputStream:"){
-          $maker_size[$no_event] = $memSize[1];
+          $maker_size[$evtcomp -1] = $memSize[1];
 
        }
       }
@@ -1440,36 +1425,30 @@ my $cput = 0;
         $EvSkip = $part[4];
     }      
 # check if job is completed
+
      if ( $line =~ /Run completed/) {
           
            $jrun = "Done";      
          }
-###### 
-     
-      }
- 
+#############
+       } 
  }
 
        $EvDone = $no_event;
       $EvCom = $EvDone - $EvSkip;
 
-  if($embflag == 1 and $EvDone >= 1) {
-      $mCPU = $cput/$EvDone;
-      $mRealT = $rlt/$EvDone;
-
- }
-
-
 ##### get CPU and Real Time per event
 
  if ($EvCom != 0) {
 
-  @cpu_output = ();
+   @cpu_output = ();
 
-    @cpu_output = `tail -5000 $fl_log`;
+    @cpu_output = `tail -2000 $fl_log`;
  
   foreach $end_line (@cpu_output){
           chop $end_line;
+
+   if($embflag == 0 ) {
    if ($end_line =~ /QAInfo:Chain/ and $end_line =~ /StBFChain::bfc/) {
      @part = split (" ", $end_line); 
       $mCPUbfc = $part[8];
@@ -1483,7 +1462,26 @@ my $cput = 0;
    }else{
     next;
       }
-   }
+ 
+  }elsif($embflag == 1 ) {
+
+  if ($end_line =~ /QAInfo:Chain/ and $end_line =~ /StChain::Embedding/) {
+
+      @part = split (" ", $end_line);
+      $mCPUbfc = $part[8];
+      $mRealTbfc = $part[6];
+      $mCPUbfc = substr($mCPUbfc,1) + 0;
+      $mRealTbfc = substr($mRealTbfc,1) + 0;
+#     print "CPU ", $mCPUbfc,"   %   ", $mRealTbfc, "\n";
+     $mCPU = $mCPUbfc/$EvCom;
+     $mRealT = $mRealTbfc/$EvCom;
+#   print "CPU and RealTime  ",$EvCom,"   ",$mCPU, "    ",$mRealT, "\n";
+
+   }else{
+    next;
+      }
+    }
+  }
 
     $perct_usb        = ($nevt/$EvCom)*100;
     $avr_tracks     = $tot_tracks/$EvCom;
@@ -1512,19 +1510,19 @@ my $cput = 0;
     $avr_prvertx      = 0;
       }
 
-# print "Size of executable:  ", $EvDone, "  ", $no_event,"  ",$maker_size[$EvCom  -1], "\n"; 
+# print "Size of executable:  ", $EvDone, "  ", $no_event,"  ",$maker_size[$evtcomp  -1], "\n"; 
 
     if ( defined $maker_size[0]) { 
     $memFst = $maker_size[0];
     }else {
     $memFst = 0;
   }
-    if ( defined $maker_size[$EvCom -1]) {
-    $memLst = $maker_size[$EvCom -1];
-    } elsif( defined $maker_size[$EvCom -2]) {
-    $memLst = $maker_size[$EvCom -2];
+    if ( defined $maker_size[$evtcomp -1]) {
+    $memLst = $maker_size[$evtcomp -1];
+    } elsif( defined $maker_size[$evtcomp -2]) {
+    $memLst = $maker_size[$evtcomp -2];
    }else{
-    $memLst = $maker_size[$EvCom -3];
+    $memLst = $maker_size[$evtcomp -3];
   }
  }      
 
