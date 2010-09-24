@@ -1371,7 +1371,7 @@ my $mRealTbfc = 0;
 my $embflag = 0;
 my @tmm = ();
 my $mixline = "$STAR/StRoot/macros/embedding";
-
+my $evtcomp = 0;
 $Err_messg = "none";
 $jrun = "Run not completed";
 
@@ -1434,12 +1434,14 @@ $jrun = "Run not completed";
 #     if ( $line =~ /QAInfo: Done with Event/ ) {
       if ( $line =~ /Done with Event/ ) {
         $no_event++;
-
-#############################################
      } 
 
+       if ( $line =~ /Reading Event:/ ) {
+        $evtcomp++;
+     }   
+
 #  get memory size
-      if ($num_line > 200){
+      if ($num_line > 500){
 	if( $line =~ /EndMaker/ and $line =~ /total/ ) {
         @size_line = split(" ",$line); 
         
@@ -1447,11 +1449,13 @@ $jrun = "Run not completed";
         @memSize = split("=",$size_line[6]);
         if( $mymaker eq "outputStream:"){
 
-          $maker_size[$no_event] = $memSize[1];
+          $maker_size[$evtcomp -1] = $memSize[1];
 
        }
       }
     }
+
+
 # get number of tracks and vertices
 
       if ($line =~ /QA :INFO  - StAnalysisMaker/ && $Anflag == 0 ) {
@@ -1588,14 +1592,6 @@ $jrun = "Run not completed";
       $EvDone = $no_event;
       $EvCom = $EvDone - $EvSkip;
 
-#     if($EvDone >= 1) {
-#   if($embflag == 1) {
-#      $mCPU = $cput/$EvDone;
-#      $mRealT = $rlt/$EvDone;
-
-# }
-#}
-
 ##### get CPU and Real Time per event
 
  if ($EvCom != 0) {
@@ -1675,8 +1671,8 @@ $jrun = "Run not completed";
     }else {
     $memFst = 0;
   }
-    if ( defined $maker_size[$EvCom -1]) {
-    $memLst = $maker_size[$EvCom -1];
+    if ( defined $maker_size[$evtcomp -1]) {
+    $memLst = $maker_size[$evtcomp -1];
     } else {
     $memLst = 0;
   }
