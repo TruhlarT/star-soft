@@ -55,6 +55,7 @@ my @prodyear = ("2009","2010");
 
 my @arperiod = ( );
 my $mstr;
+my @arrate = ("cpu","rate");
 
 my @arrprod = ();
 my @arstream = ();
@@ -83,6 +84,32 @@ my @armonitor = ();
 my @arpmdftp = ();
 my @ndate = ();
 my $ndt = 0;
+
+my @nstphysics = ();
+my @nstgamma = ();
+my @nstmtd = ();
+my @nsthlt = ();
+my @nstfmsfast = ();
+my @nstht = ();
+my @nstatomcules = ();
+my @nstupc = ();
+my @nstmonitor = ();
+my @nstpmdftp = ();
+my @nstupsilon = ();
+my @numstream  = ();
+
+my @rtgamma = ();
+my @rtmtd = ();
+my @rthlt = ();
+my @rtfmsfast = ();
+my @rtht = ();
+my @rtatomcules = ();
+my @rtupc = ();
+my @rtmonitor = ();
+my @rtpmdftp = ();
+my @rtupsilon = ();
+my @rtphysics = ();
+
 
 #$JobStatusT = "JobStatus2009";
  
@@ -126,9 +153,9 @@ my $scriptname = $query->url(-relative=>1);
 #my $pryear = $query->param('pyear');
 my $qprod = $query->param('prod');
 my $qperiod = $query->param('period');
+my $srate = $query->param('prate');
 
-
-if( $qperiod eq "" and $qprod eq "" ) {
+if( $qperiod eq "" and $qprod eq "" and $srate eq "" ) {
     print $query->header();
     print $query->start_html('Production CPU usage');
     print <<END;
@@ -157,6 +184,17 @@ END
 	                          -values=>\@arrprod,
 	                          -default=>P10ih,
       			          -size =>1);
+
+
+   print "<p>";
+    print "</td><td>";
+    print "<h3 align=center> Select stream values: <br> CPU or stream rate</h3>";
+    print "<h4 align=center>";
+    print  $query->scrolling_list(-name=>'prate',
+                                  -values=>\@arrate,
+                                  -default=>cpu,
+                                  -size =>1);
+
 
     print "<p>";
     print "</td><td>";  
@@ -191,6 +229,7 @@ END
  
     my $qprod = $qqr->param('prod');
     my $qperiod = $qqr->param('period');
+    my $srate = $qqr->param('prate');
  
     
  # Tables
@@ -301,6 +340,32 @@ END
  @armonitor = ();
  @arpmdftp = ();
  
+ @nstphysics = ();
+ @nstgamma = ();
+ @nstmtd = ();
+ @nsthlt = ();
+ @nstfmsfast = ();
+ @nstht = ();
+ @nstatomcules = ();
+ @nstupc = ();
+ @nstmonitor = ();
+ @nstpmdftp = ();
+ @nstupsilon = ();
+ @numstream = ();
+
+
+ @rtphysics = ();
+ @rtgamma = ();
+ @rtmtd = ();
+ @rthlt = ();
+ @rtfmsfast = ();
+ @rtht = ();
+ @rtatomcules = ();
+ @rtupc = ();
+ @rtmonitor = ();
+ @rtpmdftp = ();
+ @rtupsilon = ();
+
 
   my $maxvalue = 1;
 
@@ -378,6 +443,7 @@ END
 
 	    }
 	  }
+
 ####################        
 
           foreach my $mfile (@arstream) {      
@@ -388,26 +454,37 @@ END
 	        }
 		  if ( $mfile eq "physics" ) {
 	       $arphysics[$ndt] =  $rte{$mfile,$ndt};
+               $nstphysics[$ndt] =  $nstr{$mfile,$ndt};
 	      }elsif( $mfile eq "mtd" ) {
                $armtd[$ndt] =  $rte{$mfile,$ndt};
+               $nstmtd[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "upsilon" ) {
                $arupsilon[$ndt] =  $rte{$mfile,$ndt};
+               $nstupsilon[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "gamma" ) {
                $argamma[$ndt] =  $rte{$mfile,$ndt};
+               $nstgamma[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "hlt" ) {
                $arhlt[$ndt] =  $rte{$mfile,$ndt};
+               $nsthlt[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "fmsfast" ) {
                $arfmsfast[$ndt] =  $rte{$mfile,$ndt};
+               $nstfmsfast[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "ht" ) {
                $arht[$ndt] =  $rte{$mfile,$ndt};
+               $nstht[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "atomcules" ) {
+               $nstatomcules[$ndt] =  $nstr{$mfile,$ndt};
                $aratomcules[$ndt] =  $rte{$mfile,$ndt};
               }elsif( $mfile eq "monitor" ) {
                $armonitor[$ndt] =  $rte{$mfile,$ndt};
+               $nstmonitor[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "pmdftp" ) {
                $arpmdftp[$ndt] =  $rte{$mfile,$ndt};
+               $nstpmdftp[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $arupc[$ndt] =  $rte{$mfile,$ndt};
+               $nstupc[$ndt] =  $nstr{$mfile,$ndt};
 	   }else{
              next;
            } 
@@ -419,6 +496,23 @@ END
     } # foreach tdate
 
 
+      for($ii = 0; $ii < $ndt; $ii++) {
+          $numstream[$ii] = $nstphysics[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+$nstht[$ii]+$nstmonitor[$ii]+$nstpmdftp[$ii]+ $nstupc[$ii];
+
+     if ($numstream[$ii] >= 1) {
+      $rtphysics[$ii] = $nstphysics[$ii]/$numstream[$ii];
+      $rtmtd[$ii] = $nstmtd[$ii]/$numstream[$ii];
+      $rthlt[$ii] = $nsthlt[$ii]/$numstream[$ii];
+      $rtht[$ii] = $nstht[$ii]/$numstream[$ii];
+      $rtmonitor[$ii] = $nstmonitor[$ii]/$numstream[$ii];
+      $rtpmdftp[$ii] = $nstpmdftp[$ii]/$numstream[$ii];
+      $rtupc[$ii] = $nstupc[$ii]/$numstream[$ii];
+      $rtupsilon[$ii] = $nstupsilon[$ii]/$numstream[$ii];
+      $rtgamma[$ii] = $nstgamma[$ii]/$numstream[$ii];
+      $rtfmsfast[$ii] = $nstfmsfast[$ii]/$numstream[$ii];
+
+       }
+  }
 
     &StDbProdDisconnect();
 
@@ -441,7 +535,25 @@ END
        $legend[4] = "st_gamma     ";
        $legend[5] = "st_hlt       ";
 
-   @data = (\@ndate, \@arphysics, \@arfmsfast, \@armtd, \@arupsilon, \@argamma, \@arhlt ) ;
+       if ( $srate eq "cpu" ) {
+
+       $ylabel = "Average ratio RealTime/CPU per hour";
+       $gtitle = "Average ratio RealTime/CPU per hour for different stream data";
+
+  @data = (\@ndate, \@arphysics, \@arfmsfast, \@armtd, \@arupsilon, \@argamma, \@arhlt ) ;
+
+        $max_y = $maxval + 0.2*$maxval;
+
+  }elsif(  $srate eq "rate" ) {
+
+        $ylabel = "Ratio of different stream data per hour ";
+        $gtitle = "Ratio of different stream data to all streams per hour for day $qday ";
+
+ @data = (\@ndate, \@rtphysics, \@arfmsfast, \@rtmtd, \@rtupsilon, \@rtgamma,\@rthlt ) ;
+
+        $max_y = 1.2;
+
+    }
 
        }elsif ($pryear eq "2010" ){
 
@@ -453,7 +565,25 @@ END
        $legend[5] = "st_pmdftp    ";
        $legend[6] = "st_upc    ";       
 
-   @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
+       if ( $srate eq "cpu" ) {
+
+       $ylabel = "Average ratio RealTime/CPU per hour";
+       $gtitle = "Average ratio RealTime/CPU per hour for different stream data";
+
+  @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
+
+        $max_y = $maxval + 0.2*$maxval;
+
+  }elsif(  $srate eq "rate" ) {
+
+        $ylabel = "Ratio of different stream data per hour ";
+        $gtitle = "Ratio of different stream data to all streams per hour for day $qday ";
+
+ @data = (\@ndate, \@rtphysics, \@rtmtd, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc ) ;
+
+        $max_y = 1.2;
+
+    }
 
   }
   
