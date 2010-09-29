@@ -570,7 +570,7 @@ END
        if ( $srate eq "cpu" ) {
 
        $ylabel = "Average ratio RealTime/CPU per hour";
-       $gtitle = "Average ratio RealTime/CPU per hour for different streams for $qperiod ";
+       $gtitle = "Average ratio RealTime/CPU per hour for different streams for $qperiod period";
 
   @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
 
@@ -579,7 +579,7 @@ END
   }elsif(  $srate eq "rate" ) {
 
         $ylabel = "Ratio of different stream data per hour ";
-        $gtitle = "Ratio of different stream data to all streams per hour for $qperiod ";
+        $gtitle = "Ratio of different stream data to all streams per hour for $qperiod period";
 
  @data = (\@ndate, \@rtphysics, \@rtmtd, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc ) ;
 
