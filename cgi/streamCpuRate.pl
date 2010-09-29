@@ -461,7 +461,7 @@ END
        if ( $srate eq "cpu" ) {
 
        $ylabel = "Average ratio RealTime/CPU per hour";
-       $gtitle = "Average ratio RealTime/CPU per hour for different stream data for day $qday";
+       $gtitle = "Average ratio RealTime/CPU per hour for different stream data for $qday";
 
   @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
 
