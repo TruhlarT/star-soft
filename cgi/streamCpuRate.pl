@@ -449,7 +449,6 @@ END
 
     } else {
 	 
-
        $legend[0] = "st_physics   ";
        $legend[1] = "st_mtd       ";
        $legend[2] = "st_hlt       ";
@@ -494,7 +493,7 @@ END
 
 	$xLabelSkip = $skipnum;
 
-	$graph->set(x_label => "Date of Production",
+	$graph->set(x_label => "Datetime of job's completion",
 	            y_label => $ylabel,
                     title   => $gtitle,
                     y_tick_number => 14,
