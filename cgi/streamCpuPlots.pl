@@ -538,7 +538,7 @@ END
        if ( $srate eq "cpu" ) {
 
        $ylabel = "Average ratio RealTime/CPU per hour";
-       $gtitle = "Average ratio RealTime/CPU per hour for different stream data";
+       $gtitle = "Average ratio RealTime/CPU per hour for different streams for $qperiod ";
 
   @data = (\@ndate, \@arphysics, \@arfmsfast, \@armtd, \@arupsilon, \@argamma, \@arhlt ) ;
 
@@ -547,7 +547,7 @@ END
   }elsif(  $srate eq "rate" ) {
 
         $ylabel = "Ratio of different stream data per hour ";
-        $gtitle = "Ratio of different stream data to all streams per hour for day $qday ";
+        $gtitle = "Ratio of different stream data to all streams per hour for $qperiod ";
 
  @data = (\@ndate, \@rtphysics, \@arfmsfast, \@rtmtd, \@rtupsilon, \@rtgamma,\@rthlt ) ;
 
@@ -568,7 +568,7 @@ END
        if ( $srate eq "cpu" ) {
 
        $ylabel = "Average ratio RealTime/CPU per hour";
-       $gtitle = "Average ratio RealTime/CPU per hour for different stream data";
+       $gtitle = "Average ratio RealTime/CPU per hour for different streams for $qperiod ";
 
   @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
 
@@ -577,7 +577,7 @@ END
   }elsif(  $srate eq "rate" ) {
 
         $ylabel = "Ratio of different stream data per hour ";
-        $gtitle = "Ratio of different stream data to all streams per hour for day $qday ";
+        $gtitle = "Ratio of different stream data to all streams per hour for $qperiod ";
 
  @data = (\@ndate, \@rtphysics, \@rtmtd, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc ) ;
 
@@ -603,17 +603,7 @@ END
 
 	$xLabelSkip = $skipnum;
 
-     if( $qperiod eq "week") {
-
-	$ylabel = "Average ratio RealTime/CPU per hour";
-	$gtitle = "Average ratio RealTime/CPU per hour for different stream data";
-
-     }else{
-	$ylabel = "Average ratio RealTime/CPU per day";
-	$gtitle = "Average ratio RealTime/CPU per day for different stream data";
-    }	
-
-	$graph->set(x_label => "Date of Production",
+	$graph->set(x_label => "Datetime of job's completion",
 	            y_label => $ylabel,
                     title   => $gtitle,
                     y_tick_number => 14,
