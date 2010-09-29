@@ -461,12 +461,13 @@ END
        if ( $srate eq "cpu" ) {
 
        $ylabel = "Average ratio RealTime/CPU per hour";
-       $gtitle = "Average ratio RealTime/CPU per hour for different stream data";
+       $gtitle = "Average ratio RealTime/CPU per hour for different stream data for day $qday";
 
   @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
 
-  	$max_y = $maxval + 0.2*$maxval; 
- 
+#  	$max_y = $maxval + 0.2*$maxval; 
+     	$max_y = 35.0  
+
   }elsif(  $srate eq "rate" ) {
 
 	$ylabel = "Ratio of different stream data per hour ";
