@@ -516,7 +516,9 @@ END
 
     &StDbProdDisconnect();
 
-    my @data = ();
+ my @data = ();
+ my $ylabel;
+ my $gtitle; 
 
     my $graph = new GD::Graph::linespoints(750,650);
 
@@ -587,14 +589,11 @@ END
 
   }
   
-	my $ylabel;
-	my $gtitle; 
 	my $xLabelsVertical = 1;
 	my $xLabelPosition = 0;
 	my $xLabelSkip = 1;
 	my $skipnum = 1;
  
-
 	$min_y = 0;
 
 	if (scalar(@ndate) >= 40 ) {
