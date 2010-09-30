@@ -289,8 +289,21 @@ my @prt;
   
       &printRowFd(); 
 
-      }elsif( $dftime > 6.1 ) {
-      
+#      }elsif( $dftime > 6.1 ) {
+
+     }elsif( $dfmon == 0 and $dftime > 6.1 ) {     
+
+      $myJobS = "n/a";
+      $myMemF = 0;
+      $myMemL = 0;
+      $myCPU = 0;
+      $myEvtD = 0;
+
+      &printRowNA(); 
+
+     }elsif( $dfmon == 1 and $dftime <= 6 ) {
+
+
       $myJobS = "n/a";
       $myMemF = 0;
       $myMemL = 0;
@@ -300,6 +313,7 @@ my @prt;
       &printRowNA(); 
 
         }
+     
       }
 
 
