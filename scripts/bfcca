@@ -293,12 +293,21 @@ if($MULTIIN){
 #   Opt* : calibration pass is done, then we leave (remote soft-link)
 #
 #
-$copt = "";
-$cdir = "";
-print "Taking care of $#CINPUTS inputs\n";
+$DBCONF = "";
+$copt   = "";
+$cdir   = "";
+print   "Taking care of $#CINPUTS inputs\n";
 for ($i=0 ; $i <= $#CINPUTS ; $i++){
     $file = $CINPUTS[$i];
-    if( $file =~ /StarDb/){
+    if ( $file =~ /LoadBalancer/){
+	# Prepare to redefine this ENV variable
+	if ( -e $file){
+	    $DBCONF = $file;
+	} else {
+	    print "Warning: Did not find $file\n";
+	}
+
+    } elsif ( $file =~ /StarDb/){
 	# Calibration run enabled. Create soft link.
 	$copt = basename($file);
 	$cdir = dirname($file);
@@ -510,8 +519,10 @@ if ( $GENERICO ne ""){
 }
 print "Running condition                ".($OPTOPT?"Optimized":"Non-Optimized")."\n";
 
-if ( -e "$NFSHOME/dbServers.xml"){
-    print "DB will take its data from       $NFSHOME/dbServers.xml\n";
+if ( $DBCONF ne ""){
+    print "DB may take its data from        $DBCONF\n";
+} elsif ( -e "$NFSHOME/dbServers.xml" ){
+    print "DB may take its data from        $NFSHOME/dbServers.xml\n";
     $ENV{STDB_SERVERS} = "$NFSHOME/dbServers.xml";
 }
 if ($COMPRS){
@@ -557,6 +568,13 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
     print FO
 	"$CHVER\n",                                  # load chosen library env
 	"echo \"$PRGM :: Using \`which root4star\`\"\n";  # some info/debug message
+
+    # Added 2010
+    if ( $DBCONF ){
+	print FO
+	    "setenv DB_SERVER_LOCAL_CONFIG $DBCONF\n",
+	    "echo \"$PRGM :: Using DB_SERVER_LOCAL_CONFIG as $DBCONF\"\n";
+    }
 
 
 
