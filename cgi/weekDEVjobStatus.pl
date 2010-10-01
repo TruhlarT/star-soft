@@ -284,7 +284,7 @@ my @prt;
     } 
 
 
-     if( $dfmon == 1 and $ttime == 77 ) {
+     if( $dfmon == 1 and $ttime >= 77 ) {
   
       $myJobS = "n/a";
       $myMemF = 0;
