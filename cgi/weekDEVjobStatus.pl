@@ -310,11 +310,11 @@ my @prt;
 
       &printRowNA(); 
 
-     }elsif( $dfmon == 1 and $dftime >= 78 and $myJobS eq "Done") {
+     }elsif( $dfmon == 1 and $dftime < 77 and $myJobS eq "Done") {
 
       &printRow();
 
-       }elsif( $dfmon == 1 and $dftime >= 78  and $myJobS eq "Run not completed") {
+       }elsif( $dfmon == 1 and $dftime < 77  and $myJobS eq "Run not completed") {
   
       &printRowFd(); 
 
