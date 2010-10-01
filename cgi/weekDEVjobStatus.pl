@@ -281,7 +281,7 @@ my @prt;
       $dftime = $ddate - $bdate ;
     } 
 
-	if( $dfmon == 0 and $dftime <= 6 and $myJobS eq "Done") {
+       if( $dfmon == 0 and $dftime <= 6 and $myJobS eq "Done") {
 
       &printRow();
 
@@ -289,7 +289,6 @@ my @prt;
   
       &printRowFd(); 
 
-#      }elsif( $dftime > 6.1 ) {
 
      }elsif( $dfmon == 0 and $dftime > 6.1 ) {     
 
