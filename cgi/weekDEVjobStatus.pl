@@ -300,7 +300,7 @@ my @prt;
 
       &printRowNA(); 
 
-     }elsif( $dfmon >= 1 and $dftime = 77 or $dftime = 76  ) {
+     }elsif( $dfmon == 1 and $dftime = 77 ) {
   
       $myJobS = "n/a";
       $myMemF = 0;
@@ -310,8 +310,18 @@ my @prt;
 
       &printRowNA(); 
 
-        }
-     
+     }elsif( $dfmon == 1 and $dftime >= 78 and $myJobS eq "Done") {
+
+      &printRow();
+
+       }elsif( $dfmon == 1 and $dftime >= 78  and $myJobS eq "Run not completed") {
+  
+      &printRowFd(); 
+
+       }else{
+     &printRowNA(); 
+       } 
+
       }
 
 
