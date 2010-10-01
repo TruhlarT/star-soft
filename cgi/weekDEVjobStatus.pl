@@ -275,7 +275,7 @@ my @prt;
       @prt = split ("-", $cdate); 
       $lstmon = $prt[1];
       $dfmon = $mon - $lstmon;
-      if($dfmon == 1 ) {       
+      if($dfmon >= 1 ) {       
 
       $bdate = $prt[0].$mon."00";
       $dftime = $ddate - $bdate ;
@@ -301,7 +301,7 @@ my @prt;
 
       &printRowNA(); 
 
-     }elsif( $dfmon == 1 and $dftime <= 6 ) {
+     }elsif( $dfmon >= 1 and $dftime <= 6 ) {
 
 
       $myJobS = "n/a";
