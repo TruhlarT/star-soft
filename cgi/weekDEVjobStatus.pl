@@ -281,11 +281,13 @@ my @prt;
 #      $dftime = $ddate - $bdate ;
 #    } 
 
-       if( $dfmon == 0 and $dftime <= 6 and $myJobS eq "Done") {
+        if( $dftime <= 6 and $myJobS eq "Done") {
+#       if( $dfmon == 0 and $dftime <= 6 and $myJobS eq "Done") {
 
       &printRow();
+       }elsif( $dftime <= 6  and $myJobS eq "Run not completed") {
 
-       }elsif( $dfmon == 0 and $dftime <= 6  and $myJobS eq "Run not completed") {
+#       }elsif( $dfmon == 0 and $dftime <= 6  and $myJobS eq "Run not completed") {
   
       &printRowFd(); 
 
@@ -309,14 +311,6 @@ my @prt;
       $myEvtD = 0;
 
       &printRowNA(); 
-
-     }elsif( $dfmon == 1 and $myJobS eq "Done") {
-
-      &printRow();
-
-       }elsif( $dfmon == 1  and $myJobS eq "Run not completed") {
-  
-      &printRowFd(); 
 
        }else{
      &printRow(); 
