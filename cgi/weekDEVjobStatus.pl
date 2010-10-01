@@ -278,7 +278,7 @@ my @prt;
       if($dfmon >= 1 ) {       
 
       $bdate = $prt[0].$mon."00";
-      $dftime = $ddate - $bdate ;
+#      $dftime = $ddate - $bdate ;
     } 
 
        if( $dfmon == 0 and $dftime <= 6 and $myJobS eq "Done") {
@@ -300,7 +300,7 @@ my @prt;
 
       &printRowNA(); 
 
-     }elsif( $dfmon >= 1 and $dftime <= 6 ) {
+     }elsif( $dfmon >= 1 and $dftime = 77 or $dftime = 76  ) {
   
       $myJobS = "n/a";
       $myMemF = 0;
