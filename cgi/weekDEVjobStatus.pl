@@ -284,7 +284,7 @@ my @prt;
     } 
 
 
-     if( $dfmon == 1 and $ttime = 77 ) {
+     if( $dfmon == 1 and $ttime == 77 ) {
   
       $myJobS = "n/a";
       $myMemF = 0;
@@ -294,7 +294,7 @@ my @prt;
 
       &printRowNA(); 
  
-     }elsif( $dftime <= 6 and $myJobS eq "Done") {
+     }elsif(  $dftime <= 6 and $myJobS eq "Done") {
 
       &printRow();
 
@@ -303,7 +303,7 @@ my @prt;
       &printRowFd(); 
 
 
-     }elsif( $dfmon == 0 and $dftime > 6.1 ) {     
+     }elsif( $dfmon == 0 and  $dftime > 6.1 ) {     
 
       $myJobS = "n/a";
       $myMemF = 0;
