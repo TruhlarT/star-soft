@@ -53,6 +53,20 @@ my %wkHash = (
                  "Sun" => "Sunday" 
                  );
 
+my %dmonth = (
+               "01" => 76,
+               "02" => 78,
+               "03" => 76,
+               "04" => 77,
+               "05" => 76,
+               "06" => 77,
+               "07" => 76,
+               "08" => 76,
+               "09" => 77,
+               "10" => 76,
+               "11" => 77,
+               "12" => 76
+	      );
 
 my $min;
 my $hour;
@@ -119,6 +133,8 @@ struct FileAttr => {
  $testDay = $Nday[$iday - 1];
 
 my $ddate = $yr.$mon.$mday;
+my $daydif = 77;
+my $ttime = 0; 
 
 my $query = new CGI;
 
@@ -185,7 +201,8 @@ my $wkday    =  $qqr->param('wday');
 
 my @dbFiles = ();
 my $ndbFiles = 0; 
-my $qpath;
+my $qpath; 
+
 
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
@@ -269,13 +286,14 @@ my @prt;
     $bdate = $cdate;
     $bdate =~ s/-//g;  
 
-	$dftime = $ddate - $bdate ;
+   $dftime = $ddate - $bdate ;
+   $ttime = $dftime;
+    @prt = ();
+    @prt = split ("-", $cdate); 
+    $lstmon = $prt[1];
 
-	my $ttime = $dftime;
+    $daydif = $dmonth{$lstmon};
 
-	@prt = ();
-      @prt = split ("-", $cdate); 
-      $lstmon = $prt[1];
       $dfmon = $mon - $lstmon;
       if($dfmon == 1 ) {       
 
@@ -284,7 +302,7 @@ my @prt;
     } 
 
 
-     if( $dfmon == 1 and $ttime >= 77 ) {
+     if( $dfmon == 1 and $ttime >= $daydif ) {
   
       $myJobS = "n/a";
       $myMemF = 0;
