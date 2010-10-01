@@ -275,11 +275,11 @@ my @prt;
       @prt = split ("-", $cdate); 
       $lstmon = $prt[1];
       $dfmon = $mon - $lstmon;
-      if($dfmon >= 1 ) {       
+#      if($dfmon >= 1 ) {       
 
-      $bdate = $prt[0].$mon."00";
+#      $bdate = $prt[0].$mon."00";
 #      $dftime = $ddate - $bdate ;
-    } 
+#    } 
 
        if( $dfmon == 0 and $dftime <= 6 and $myJobS eq "Done") {
 
@@ -319,7 +319,7 @@ my @prt;
       &printRowFd(); 
 
        }else{
-     &printRowNA(); 
+     &printRow(); 
        } 
 
       }
