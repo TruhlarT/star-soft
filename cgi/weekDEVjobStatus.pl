@@ -271,24 +271,24 @@ my @prt;
 
 	$dftime = $ddate - $bdate ;
 
+	my $ttime = $dftime;
+
 	@prt = ();
       @prt = split ("-", $cdate); 
       $lstmon = $prt[1];
       $dfmon = $mon - $lstmon;
-#      if($dfmon >= 1 ) {       
+      if($dfmon == 1 ) {       
 
-#      $bdate = $prt[0].$mon."00";
-#      $dftime = $ddate - $bdate ;
-#    } 
+      $bdate = $prt[0].$mon."00";
+      $dftime = $ddate - $bdate ;
+    } 
 
         if( $dftime <= 6 and $myJobS eq "Done") {
-#       if( $dfmon == 0 and $dftime <= 6 and $myJobS eq "Done") {
 
       &printRow();
+
        }elsif( $dftime <= 6  and $myJobS eq "Run not completed") {
 
-#       }elsif( $dfmon == 0 and $dftime <= 6  and $myJobS eq "Run not completed") {
-  
       &printRowFd(); 
 
 
@@ -302,7 +302,7 @@ my @prt;
 
       &printRowNA(); 
 
-     }elsif( $dfmon == 1 and $dftime = 77 ) {
+     }elsif( $dfmon == 1 and $ttime = 77 ) {
   
       $myJobS = "n/a";
       $myMemF = 0;
