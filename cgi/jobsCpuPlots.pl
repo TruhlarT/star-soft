@@ -236,6 +236,7 @@ END
        }
     $cursor->finish();
 
+
     $sql="SELECT DISTINCT date_format(createTime, '%Y-%m-%d %H') as PDATE  FROM $JobStatusT WHERE prodSeries = ?  AND runDay = ? order by PDATE ";
 
     $cursor =$dbh->prepare($sql)
@@ -246,6 +247,8 @@ END
         $arhr[$nhr] = $mhr;
         $nhr++;
     }
+
+     $cursor->finish();
 
   #####################
 
