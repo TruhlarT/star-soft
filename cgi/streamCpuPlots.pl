@@ -540,16 +540,16 @@ END
        if ( $srate eq "cpu" ) {
 
        $ylabel = "Average ratio RealTime/CPU per hour";
-       $gtitle = "Average ratio RealTime/CPU per hour for different streams for $qperiod ";
+       $gtitle = "Average ratio RealTime/CPU per hour for different streams for $qperiod period ";
 
   @data = (\@ndate, \@arphysics, \@arfmsfast, \@armtd, \@arupsilon, \@argamma, \@arhlt ) ;
 
-        $max_y = $maxval + 0.2*$maxval;
+        $max_y = init($maxval + 0.2*$maxval);
 
   }elsif(  $srate eq "rate" ) {
 
         $ylabel = "Ratio of different stream data per hour ";
-        $gtitle = "Ratio of different stream data to all streams per hour for $qperiod ";
+        $gtitle = "Ratio of different stream data to all streams per hour for $qperiod  period";
 
  @data = (\@ndate, \@rtphysics, \@arfmsfast, \@rtmtd, \@rtupsilon, \@rtgamma,\@rthlt ) ;
 
@@ -574,7 +574,7 @@ END
 
   @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
 
-        $max_y = $maxval + 0.2*$maxval;
+        $max_y = init($maxval + 0.2*$maxval);
 
   }elsif(  $srate eq "rate" ) {
 
@@ -679,7 +679,7 @@ print <<END;
           <title>CPU versus RealTime usage</title>
    </head>
    <body BGCOLOR=\"#ccffff\">
-     <h1 align=center>No Data for $qprod and $qperiod </h1>
+     <h1 align=center>No Data for $qprod production and $qperiod period </h1>
      
 
     </body>
