@@ -46,7 +46,8 @@ if( $sec < 10) { $sec = '0'.$sec };
 
 my $todate = ($year+1900)."-".($mon+1)."-".$mday;
 
-my $nowdate;
+my $nowdate = $todate;
+
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
@@ -83,8 +84,11 @@ my @armonitor = ();
 my @arpmdftp = ();
 my @ndate = ();
 my $ndt = 0;
+my @rdays = ();
+my $ndy = 0;
+my @rvdays = ();
 
-my @arperiod = ("day","week");
+#my @arperiod = ("day","week");
 
  $JobStatusT = "JobStatus2010";  
 
@@ -103,6 +107,21 @@ my @arperiod = ("day","week");
        }
     $cursor->finish();
 
+
+  $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2010-07-20' order by runDay" ;
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $dy = $cursor->fetchrow() ) {
+          $rdays[$ndy] = $dy;
+          $ndy++;
+       }
+    $cursor->finish();
+
+@rvdays = reverse @rdays ;
+
 &StDbProdDisconnect();
 
 my $query = new CGI;
@@ -110,11 +129,13 @@ my $query = new CGI;
 my $scriptname = $query->url(-relative=>1);
 
 #my $pryear = $query->param('pyear');
+#my $qperiod = $query->param('period');
+
 my $qprod = $query->param('prod');
-my $qperiod = $query->param('period');
+my $qday = $query->param('pday');
 
+if( $qprod eq "" and $qday eq "" ) {
 
-if( $qperiod eq "" and $qprod eq "" ) {
     print $query->header();
     print $query->start_html('Production CPU usage');
     print <<END;
@@ -125,7 +146,7 @@ END
     print $query->startform(-action=>"$scriptname");
 
     print "<body bgcolor=\"cornsilk\">\n";
-    print "<h1 align=center><u>Production CPU&RealTime usage </u></h1>\n";
+    print "<h1 align=center><u>Production CPU&RealTime usage by individual jobs </u></h1>\n";
     print "<br>";
     print "<br>";
     print <<END;
@@ -148,9 +169,9 @@ END
     print "</td><td>";  
     print "<h3 align=center> Period of monitoring</h3>";
     print "<h4 align=center>";
-    print  $query->scrolling_list(-name=>'period',
-                                  -values=>\@arperiod,
-                                  -default=>day,
+    print  $query->scrolling_list(-name=>'pday',
+                                  -values=>\@rvdays,
+                                  -default=>$nowdate,
                                   -size =>1); 
 
     
@@ -174,10 +195,11 @@ END
 } else{
     
   my $qqr = new CGI;
- 
+
+#    my $qperiod = $qqr->param('period'); 
+
     my $qprod = $qqr->param('prod');
-    my $qperiod = $qqr->param('period');
- 
+    my $qday = $qqr->param('pday'); 
     
  # Tables
 
@@ -189,9 +211,9 @@ END
   my $day_diff = 0;
   my $nmonth = 0;
   my @prt = ();
-  my $myday;
-  my $nday = 0;
-  my @ardays = ();
+  my $mhr;
+  my $nhr = 0;
+  my @arhr = ();
   my $tdate;
   my @jbstat = ();  
   my $nstat = 0;
@@ -214,26 +236,15 @@ END
        }
     $cursor->finish();
 
-   $nowdate = $todate;
-
-    if( $qperiod eq "day") {
-       $day_diff = 1;
-
-   }elsif( $qperiod eq "week") {
-	$day_diff = 8;
-    }
-
-    $day_diff = int($day_diff);
-
-    $sql="SELECT DISTINCT date_format(createTime, '%Y-%m-%d %H') as PDATE  FROM $JobStatusT WHERE prodSeries = ?  AND runDay <> '0000-00-00' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) <= ? order by PDATE ";
+    $sql="SELECT DISTINCT date_format(createTime, '%Y-%m-%d %H') as PDATE  FROM $JobStatusT WHERE prodSeries = ?  AND runDay = ? order by PDATE ";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
-    $cursor->execute($qprod,$day_diff);
+    $cursor->execute($qprod,$qday);
 
-    while($myday = $cursor->fetchrow) {
-        $ardays[$nday] = $myday;
-        $nday++;
+    while($mhr = $cursor->fetchrow) {
+        $arhr[$nhr] = $mhr;
+        $nhr++;
     }
 
   #####################
@@ -256,7 +267,7 @@ END
 	@jbstat = ();  
 	$nstat = 0;
 
-    foreach  $tdate (@ardays) {
+    foreach  $tdate (@arhr) {
 
   $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 "; 
 
@@ -343,17 +354,18 @@ END
 
     } else {
 	 
-       $legend[0] = "st_physics   ";
-       $legend[1] = "st_mtd       ";
-       $legend[2] = "st_hlt       ";
+       $legend[0] = "st_physics  ";
+       $legend[1] = "st_mtd      ";
+       $legend[2] = "st_hlt      ";
        $legend[3] = "st_ht       ";
        $legend[4] = "st_monitor  ";
-       $legend[5] = "st_pmdftp       ";
+       $legend[5] = "st_pmdftp   ";
+       $legend[6] = "st_upc      ";
 
 #       $legend[3] = "st_upsilon   ";
 #       $legend[4] = "st_gamma     ";
     
-   @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp ) ;
+   @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
 
 
 #     @data = (\@ndate, \@arphysics, \@arhlt, \@arht, \@armtd, \@arupsilon, \@argamma, \@arupc ) ; 
@@ -368,7 +380,7 @@ END
  
 
 	$min_y = 0;
-#	$max_y = $maxval + 0.2*$maxval; 
+	$max_y = init($maxval + 0.2*$maxval); 
 
 	if (scalar(@ndate) >= 40 ) {
 	    $skipnum = int(scalar(@ndate)/20);
