@@ -371,7 +371,7 @@ END
 #       $legend[3] = "st_upsilon   ";
 #       $legend[4] = "st_gamma     ";
     
-   @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp ) ;
+   @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
 
 
 #     @data = (\@ndate, \@arphysics, \@arhlt, \@arht, \@armtd, \@arupsilon, \@argamma, \@arupc ) ; 
@@ -395,7 +395,7 @@ END
 	$xLabelSkip = $skipnum;
 
 	$ylabel = "Average ratio RealTime/CPU for every jobs";
-	$gtitle = "Average ratio RealTime/CPU for different stream data";
+	$gtitle = "Average ratio RealTime/CPU for different stream data for day $qday";
 
 	$graph->set(x_label => "Datetime of Production",
 	            y_label => $ylabel,
@@ -474,7 +474,7 @@ print <<END;
           <title>CPU versus RealTime usage</title>
    </head>
    <body BGCOLOR=\"#ccffff\">
-     <h1 align=center>No Data for $qprod and $qperiod </h1>
+     <h1 align=center>No Data for $qprod and $qday </h1>
      
 
     </body>
