@@ -243,7 +243,7 @@ END
       || die "Cannot prepare statement: $DBI::errstr\n";
     $cursor->execute($qprod,$qday);
 
-    while($mhr = $cursor->fetchrow) {
+    while($mhr = $cursor->fetchrow() ) {
         $arhr[$nhr] = $mhr;
         $nhr++;
     }
