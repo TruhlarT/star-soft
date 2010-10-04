@@ -270,6 +270,10 @@ END
 	@jbstat = ();  
 	$nstat = 0;
 
+ $ndt = 0;
+ @ndate = ();
+
+
     foreach  $tdate (@arhr) {
 
   $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 "; 
@@ -297,11 +301,10 @@ END
 	    $nstat++;
          }
   
-   }
+  }
 
 ###########
- $ndt = 0;
- @ndate = ();
+
 
      foreach $jset (@jbstat) {
 	    $pday     = ($$jset)->vday;
@@ -342,7 +345,7 @@ END
 	       }
 	    $ndt++;
 	    }
-	  }
+	}
 
 
     &StDbProdDisconnect();
@@ -383,7 +386,7 @@ END
  
 
 	$min_y = 0;
-	$max_y = init($maxval + 0.2*$maxval); 
+	$max_y = $maxval + 0.2*$maxval; 
 
 	if (scalar(@ndate) >= 40 ) {
 	    $skipnum = int(scalar(@ndate)/20);
