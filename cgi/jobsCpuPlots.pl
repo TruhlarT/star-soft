@@ -395,7 +395,7 @@ END
 	$xLabelSkip = $skipnum;
 
 	$ylabel = "Ratio RealTime/CPU for every jobs";
-	$gtitle = "Ratio RealTime/CPU for stream data for $qprod production and $qday day";
+	$gtitle = "Ratio RealTime/CPU for different stream data for $qday day";
 
 	$graph->set(x_label => "Datetime of Production",
 	            y_label => $ylabel,
