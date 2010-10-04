@@ -63,7 +63,7 @@ my $nst = 0;
 my $str;
 my $npr = 0;
 my $mpr;
-my $pday;
+my $phr;
 my $pcpu;
 my $prtime;
 my $pstream;
@@ -307,7 +307,7 @@ END
 
 
      foreach $jset (@jbstat) {
-	    $pday     = ($$jset)->vday;
+	    $phr     = ($$jset)->vday;
 	    $pcpu     = ($$jset)->cpuv;
 	    $prtime   = ($$jset)->rtmv;
 	    $pstream  = ($$jset)->strv;
@@ -315,7 +315,7 @@ END
     if( $pcpu >= 0.01) {             
 
         $rte{$pstream,$ndt} = $prtime/$pcpu;
-           $ndate[$ndt] = $pday;    
+           $ndate[$ndt] = $phr;    
            if ( $rte{$mfile,$ndt} > $maxval ) {
            $maxval =  $rte{$mfile,$ndt}
 	   }
@@ -386,7 +386,7 @@ END
  
 
 	$min_y = 0;
-	$max_y = $maxval + 0.2*$maxval; 
+#	$max_y = $maxval + 0.2*$maxval; 
 
 	if (scalar(@ndate) >= 40 ) {
 	    $skipnum = int(scalar(@ndate)/20);
