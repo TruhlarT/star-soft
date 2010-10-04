@@ -570,7 +570,7 @@ print <<END;
           <title>Ratio of different stream  data</title>
    </head>
    <body BGCOLOR=\"#ccffff\">
-     <h1 align=center>No Data for $qprod and $qday </h1>
+     <h1 align=center>No Data for $qprod production and $qday day </h1>
      
 
     </body>
