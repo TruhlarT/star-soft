@@ -544,7 +544,7 @@ END
 
   @data = (\@ndate, \@arphysics, \@arfmsfast, \@armtd, \@arupsilon, \@argamma, \@arhlt ) ;
 
-        $max_y = init($maxval + 0.2*$maxval);
+        $max_y = int($maxval + 0.2*$maxval);
 
   }elsif(  $srate eq "rate" ) {
 
