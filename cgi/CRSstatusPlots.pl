@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSstatusPlots.pl,v 1.21 2010/01/06 19:03:21 didenko Exp $
+# $Id: CRSstatusPlots.pl,v 1.22 2010/10/06 17:39:10 didenko Exp $
 #
 # $Log: CRSstatusPlots.pl,v $
+# Revision 1.22  2010/10/06 17:39:10  didenko
+# changed scale
+#
 # Revision 1.21  2010/01/06 19:03:21  didenko
 # fixed scale
 #
@@ -77,8 +80,7 @@ my $query = new CGI;
 
 my $scriptname = $query->url(-relative=>1);
 
-my @farmstat = ("executing","submitted","submitFailed","started","importWaiting","importHPSS","sleep","exportWaiting","exportHPSS","exportUNIX"
-,"done","error","fatal");
+my @farmstat = ("executing","submitted","submitFailed","started","importWaiting","importHPSS","sleep","exportWaiting","exportHPSS","exportUNIX","done","error","fatal");
 
 my @reqperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months","7_month","8_months","9_months","10_months","11_months","12_months");
 
@@ -285,8 +287,8 @@ if ( ! $graph){
  my $xLabelPosition = 0;
  my $xLabelSkip = 1;
 
-$xLabelSkip = 10  if( $fperiod eq "day" );
-$xLabelSkip = 12 if( $fperiod eq "week" );
+$xLabelSkip = 1  if( $fperiod eq "day" );
+$xLabelSkip = 4 if( $fperiod eq "week" );
 $xLabelSkip = 24 if( $fperiod eq "1_month" );
 $xLabelSkip = 48 if( $fperiod eq "2_months" );
 $xLabelSkip = 72 if( $fperiod eq "3_months" );
