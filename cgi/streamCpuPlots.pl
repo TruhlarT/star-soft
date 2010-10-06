@@ -574,10 +574,10 @@ END
 
   @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
 
-        $max_y = int($maxval + 0.2*$maxval);
+#        $max_y = int($maxval + 0.2*$maxval);
 
 #        $max_y = $maxval + 0.2*$maxval;
-#        $max_y = 35  
+        $max_y = 35  
 
   }elsif(  $srate eq "rate" ) {
 
