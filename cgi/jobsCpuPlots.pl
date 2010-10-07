@@ -56,6 +56,7 @@ my @prodyear = ("2009","2010");
 
 my @arperiod = ( );
 my $mstr;
+my @arrate = ("cpu","rtime/cpu");
 
 my @arrprod = ();
 my @arstream = ();
@@ -87,6 +88,18 @@ my $ndt = 0;
 my @rdays = ();
 my $ndy = 0;
 my @rvdays = ();
+
+my @cpupsilon = ();
+my @cpmtd = ();
+my @cpphysics = ();
+my @cpgamma = ();
+my @cphlt = ();
+my @cpfmsfast = ();
+my @cpht = ();
+my @cpatomcules = ();
+my @cpupc = ();
+my @cpmonitor = ();
+my @cppmdftp = (); 
 
 #my @arperiod = ("day","week");
 
@@ -132,9 +145,10 @@ my $scriptname = $query->url(-relative=>1);
 #my $qperiod = $query->param('period');
 
 my $qprod = $query->param('prod');
+my $srate = $query->param('prate');
 my $qday = $query->param('pday');
 
-if( $qprod eq "" and $qday eq "" ) {
+if( $qprod eq "" and $qday eq ""  and $srate eq "" ) {
 
     print $query->header();
     print $query->start_html('Production CPU usage');
@@ -164,6 +178,17 @@ END
 	                          -values=>\@arrprod,
 	                          -default=>P10ih,
       			          -size =>1);
+
+  
+   print "<p>";
+    print "</td><td>";
+    print "<h3 align=center> Select CPU or ratio Rtime/CPU</h3>";
+    print "<h4 align=center>";
+    print  $query->scrolling_list(-name=>'prate',
+                                  -values=>\@arrate,
+                                  -default=>cpu,
+                                  -size =>1);
+
 
     print "<p>";
     print "</td><td>";  
@@ -196,10 +221,9 @@ END
     
   my $qqr = new CGI;
 
-#    my $qperiod = $qqr->param('period'); 
-
     my $qprod = $qqr->param('prod');
     my $qday = $qqr->param('pday'); 
+    my $srate = $qqr->param('prate');
     
  # Tables
 
@@ -265,6 +289,18 @@ END
  @arupc = ();
  @armonitor = ();
  @arpmdftp = ();
+ @cpupsilon = ();
+ @cpmtd = ();
+ @cpphysics = ();
+ @cpgamma = ();
+ @cphlt = ();
+ @cpfmsfast = ();
+ @cpht = ();
+ @cpatomcules = ();
+ @cpupc = ();
+ @cpmonitor = ();
+ @cppmdftp = (); 
+
   my $maxvalue = 1;
 
 	@jbstat = ();  
@@ -315,33 +351,67 @@ END
     if( $pcpu >= 0.01) {             
 
         $rte{$pstream,$ndt} = $prtime/$pcpu;
-           $ndate[$ndt] = $phr;    
+           $ndate[$ndt] = $phr; 
+           $arupsilon[$ndt] = 0;
+           $armtd[$ndt] = 0;
+           $arphysics[$ndt] = 0;
+           $argamma[$ndt] = 0;
+           $arhlt[$ndt] = 0;
+           $arfmsfast[$ndt] = 0;
+           $arht[$ndt] = 0;
+           $aratomcules[$ndt] = 0;
+           $arupc[$ndt] = 0;
+           $armonitor[$ndt] = 0;
+           $arpmdftp[$ndt] = 0;
+           $cpupsilon[$ndt] = 0;
+           $cpmtd[$ndt] = 0;
+           $cpphysics[$ndt] = 0;
+           $cpgamma[$ndt] = 0;
+           $cphlt[$ndt] = 0;
+           $cpfmsfast[$ndt] = 0;
+           $cpht[$ndt] = 0;
+           $cpatomcules[$ndt] = 0;
+           $cpupc[$ndt] = 0;
+           $cpmonitor[$ndt] = 0;
+           $cppmdftp[$ndt] = 0;    
+
            if ( $rte{$mfile,$ndt} > $maxval ) {
            $maxval =  $rte{$mfile,$ndt}
 	   }
 
 	       if ( $pstream eq "physics" ) {
 	       $arphysics[$ndt] =  $rte{$pstream,$ndt};
+	       $cpphysics[$ndt] = $pcpu;
 	      }elsif( $pstream eq "mtd" ) {
                $armtd[$ndt] =  $rte{$pstream,$ndt};
+               $cpmtd[$ndt] = $pcpu;
               }elsif( $pstream eq "upsilon" ) {
                $arupsilon[$ndt] =  $rte{$pstream,$ndt};
+               $cpupsilon[$ndt] = $pcpu; 
               }elsif( $pstream eq "gamma" ) {
                $argamma[$ndt] =  $rte{$pstream,$ndt};
+               $cpgamma[$ndt] = $pcpu; 
               }elsif( $pstream eq "hlt" ) {
                $arhlt[$ndt] =  $rte{$pstream,$ndt};
+               $cphlt[$ndt] = $pcpu;  
               }elsif( $pstream eq "fmsfast" ) {
                $arfmsfast[$ndt] =  $rte{$pstream,$ndt};
+               $cpfmsfast[$ndt] =  $pcpu; 
               }elsif( $pstream eq "ht" ) {
                $arht[$ndt] =  $rte{$pstream,$ndt};
+               $cpht[$ndt] = $pcpu;  
               }elsif( $pstream eq "atomcules" ) {
                $aratomcules[$ndt] =  $rte{$pstream,$ndt};
+               $cpatomcules[$ndt] = $pcpu; 
               }elsif( $pstream eq "monitor" ) {
                $armonitor[$ndt] =  $rte{$pstream,$ndt};
+               $cpmonitor[$ndt] = $pcpu;  
               }elsif( $pstream eq "pmdftp" ) {
                $arpmdftp[$ndt] =  $rte{$pstream,$ndt};
+               $cppmdftp[$ndt] = $pcpu;   
               }elsif( $pstream eq "upc" ) {
                $arupc[$ndt] =  $rte{$pstream,$ndt};
+               $cpupc[$ndt] =  $pcpu;
 	       }
 	    $ndt++;
 	    }
@@ -350,7 +420,7 @@ END
 
     &StDbProdDisconnect();
 
-    my @data = ();
+    my $data = ();
 
     my $graph = new GD::Graph::linespoints(750,650);
 
@@ -371,12 +441,16 @@ END
 #       $legend[3] = "st_upsilon   ";
 #       $legend[4] = "st_gamma     ";
     
-   @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
+       if( $srate eq "cpu" )  {
 
+    @data = (\@ndate, \@cpphysics, \@cphlt, \@cpht, \@cpmtd, \@cpupsilon, \@cpgamma, \@cpupc ) ; 
 
-#     @data = (\@ndate, \@arphysics, \@arhlt, \@arht, \@armtd, \@arupsilon, \@argamma, \@arupc ) ; 
+      }else{
 
-  
+    @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
+
+     }
+
 	my $ylabel;
 	my $gtitle; 
 	my $xLabelsVertical = 1;
@@ -394,9 +468,16 @@ END
 
 	$xLabelSkip = $skipnum;
 
+         if( $srate eq "cpu" )  {
+
+	$ylabel = "CPU in sec/event for every jobs";
+	$gtitle = "CPU in sec/event for different stream data for $qday day";
+
+    }else{
+
 	$ylabel = "Ratio RealTime/CPU for every jobs";
 	$gtitle = "Ratio RealTime/CPU for different stream data for $qday day";
-
+    }
 	$graph->set(x_label => "Datetime of Production",
 	            y_label => $ylabel,
                     title   => $gtitle,
