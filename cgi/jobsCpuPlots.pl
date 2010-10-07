@@ -421,7 +421,7 @@ END
     
        if( $srate eq "cpu" )  {
 
-    @data = (\@ndate, \@cpphysics, \@cphlt, \@cpht, \@cpmtd, \@cpupsilon, \@cpgamma, \@cpupc ) ; 
+    @data = (\@ndate, \@cpphysics, \@cpmtd, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc ) ; 
 
       }else{
 
