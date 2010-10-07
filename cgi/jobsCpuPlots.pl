@@ -303,8 +303,8 @@ END
 
   my $maxvalue = 1;
 
-	@jbstat = ();  
-	$nstat = 0;
+ @jbstat = ();  
+ $nstat = 0;
 
  $ndt = 0;
  @ndate = ();
@@ -352,6 +352,7 @@ END
 
         $rte{$pstream,$ndt} = $prtime/$pcpu;
            $ndate[$ndt] = $phr; 
+#
            $arupsilon[$ndt] = 0;
            $armtd[$ndt] = 0;
            $arphysics[$ndt] = 0;
@@ -447,6 +448,8 @@ END
 
       }else{
 
+   $max_y = int($maxval + 0.2*$maxval); 
+  
     @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
 
      }
@@ -460,7 +463,6 @@ END
  
 
 	$min_y = 0;
-#	$max_y = $maxval + 0.2*$maxval; 
 
 	if (scalar(@ndate) >= 40 ) {
 	    $skipnum = int(scalar(@ndate)/20);
