@@ -353,29 +353,6 @@ END
         $rte{$pstream,$ndt} = $prtime/$pcpu;
            $ndate[$ndt] = $phr; 
 #
-           $arupsilon[$ndt] = 0;
-           $armtd[$ndt] = 0;
-           $arphysics[$ndt] = 0;
-           $argamma[$ndt] = 0;
-           $arhlt[$ndt] = 0;
-           $arfmsfast[$ndt] = 0;
-           $arht[$ndt] = 0;
-           $aratomcules[$ndt] = 0;
-           $arupc[$ndt] = 0;
-           $armonitor[$ndt] = 0;
-           $arpmdftp[$ndt] = 0;
-           $cpupsilon[$ndt] = 0;
-           $cpmtd[$ndt] = 0;
-           $cpphysics[$ndt] = 0;
-           $cpgamma[$ndt] = 0;
-           $cphlt[$ndt] = 0;
-           $cpfmsfast[$ndt] = 0;
-           $cpht[$ndt] = 0;
-           $cpatomcules[$ndt] = 0;
-           $cpupc[$ndt] = 0;
-           $cpmonitor[$ndt] = 0;
-           $cppmdftp[$ndt] = 0;    
-
            if ( $rte{$mfile,$ndt} > $maxval ) {
            $maxval =  $rte{$mfile,$ndt}
 	   }
