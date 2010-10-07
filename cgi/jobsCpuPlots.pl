@@ -425,7 +425,7 @@ END
 
       }else{
 
-   $max_y = int($maxval + 0.2*$maxval); 
+   $max_y = $maxval + 0.2*$maxval; 
   
     @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
 
