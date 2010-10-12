@@ -358,7 +358,7 @@ END
            $maxcpu = $pcpu; 
 	   }
            if ( $rte{$pstream,$ndt} > $maxval ) {
-	       $maxval =  $rte{$mfile,$ndt};
+	       $maxval =  $rte{$pstream,$ndt};
 	   }
 
 	       if ( $pstream eq "physics" ) {
