@@ -428,7 +428,7 @@ END
 	$ylabel = "CPU in sec/evt for every jobs";
 	$gtitle = "CPU in sec/evt for different stream data for $qday day";
 
-#      $max_y = $maxcpu + 0.2*$maxcpu; 
+      $max_y = $maxcpu + 0.2*$maxcpu; 
 #      $max_y = int($max_y);
 
     @data = (\@ndate, \@cpphysics, \@cpmtd, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc ) ; 
@@ -439,7 +439,7 @@ END
 	$gtitle = "Ratio RealTime/CPU for different stream data for $qday day";
 
       $max_y = $maxval + 0.2*$maxval; 
-      $max_y = int($max_y);
+#      $max_y = int($max_y);
   
     @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
 
