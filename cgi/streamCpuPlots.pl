@@ -567,45 +567,6 @@ END
 
     } else {
 	 
-	if ($pryear eq "2009" ) {
-
-       $legend[0] = "st_physics   ";
-       $legend[1] = "st_fmsfast   ";
-       $legend[2] = "st_mtd       ";
-       $legend[3] = "st_upsilon   ";
-       $legend[4] = "st_gamma     ";
-       $legend[5] = "st_hlt       ";
-
-       if ( $srate eq "rtime/cpu" ) {
-
-       $ylabel = "Average ratio RealTime/CPU per hour";
-       $gtitle = "Average ratio RealTime/CPU per hour for different streams for $qperiod period ";
-
-  @data = (\@ndate, \@arphysics, \@arfmsfast, \@armtd, \@arupsilon, \@argamma, \@arhlt ) ;
-
-        $max_y = $maxval + 0.2*$maxval;
-
-  }elsif(  $srate eq "cpu" ) {
-
-       $ylabel = "Average CPU in sec/evt per hour";
-       $gtitle = "Average CPU in sec/evt per hour for different streams for $qperiod period";
-
-  @data = (\@ndate, \@cpphysics, \@cpmtd, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc ) ;
-
-        $max_y = $maxcpu + 0.2*$maxcpu;
-
-  }elsif(  $srate eq "rate" ) {
-
-        $ylabel = "Ratio of different stream data per hour ";
-        $gtitle = "Ratio of different stream data to all streams per hour for $qperiod  period";
-
- @data = (\@ndate, \@rtphysics, \@arfmsfast, \@rtmtd, \@rtupsilon, \@rtgamma,\@rthlt ) ;
-
-        $max_y = 1.2;
-
-    }
-
-       }elsif ($pryear eq "2010" ){
 
        $legend[0] = "st_physics   ";
        $legend[1] = "st_mtd       ";
@@ -645,8 +606,6 @@ END
         $max_y = 1.2;
 
     }
-
-  }
   
 	my $xLabelsVertical = 1;
 	my $xLabelPosition = 0;
