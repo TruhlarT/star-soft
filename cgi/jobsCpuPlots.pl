@@ -402,7 +402,7 @@ END
 
     &StDbProdDisconnect();
 
-    my $data = ();
+    my @data = ();
 
     my $graph = new GD::Graph::linespoints(750,650);
 
@@ -435,10 +435,12 @@ END
 
       }else{
 
+ @data = ();
+
         $ylabel = "Ratio RealTime/CPU for every jobs";
 	$gtitle = "Ratio RealTime/CPU for different stream data for $qday day";
 
-      $max_y = $maxval + 0.2*$maxval; 
+       $max_y = $maxval + 0.2*$maxval; 
 #      $max_y = int($max_y);
   
     @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
