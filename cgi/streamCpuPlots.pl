@@ -576,7 +576,7 @@ END
        $legend[4] = "st_gamma     ";
        $legend[5] = "st_hlt       ";
 
-       if ( $srate eq "cpu" ) {
+       if ( $srate eq "rtime/cpu" ) {
 
        $ylabel = "Average ratio RealTime/CPU per hour";
        $gtitle = "Average ratio RealTime/CPU per hour for different streams for $qperiod period ";
@@ -615,7 +615,7 @@ END
        $legend[5] = "st_pmdftp    ";
        $legend[6] = "st_upc    ";       
 
-       if ( $srate eq "cpu" ) {
+       if ( $srate eq "rtime/cpu" ) {
 
        $ylabel = "Average ratio RealTime/CPU per hour";
        $gtitle = "Average ratio RealTime/CPU per hour for different streams for $qperiod period";
