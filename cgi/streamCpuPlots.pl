@@ -582,8 +582,16 @@ END
 
        if ( $srate eq "rtime/cpu" ) {
 
+       if( $qperiod eq "week") {
+
        $ylabel = "Average ratio RealTime/CPU per hour";
        $gtitle = "Average ratio RealTime/CPU per hour for different streams for $qperiod period";
+
+      }else{
+
+       $ylabel = "Average ratio RealTime/CPU per day";
+       $gtitle = "Average ratio RealTime/CPU per dau for different streams for $qperiod period";
+      }     
 
   @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
 
@@ -591,10 +599,19 @@ END
 
         $max_y = $maxval + 0.2*$maxval;
 
-  }elsif(  $srate eq "cpu" ) {
+     }elsif(  $srate eq "cpu" ) {
 
-       $ylabel = "Average CPU in sec/evt per hour";
-       $gtitle = "Average CPU in sec/evt per hour for different streams for $qperiod period";
+       if( $qperiod eq "week") {
+
+       $ylabel = "Average ratio RealTime/CPU per hour";
+       $gtitle = "Average ratio RealTime/CPU per hour for different streams for $qperiod period";
+
+         }else{
+
+       $ylabel = "Average ratio RealTime/CPU per day";
+       $gtitle = "Average ratio RealTime/CPU per day for different streams for $qperiod period";
+
+         }   
 
   @data = (\@ndate, \@cpphysics, \@cpmtd, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc ) ;
 
@@ -602,8 +619,16 @@ END
 
   }elsif(  $srate eq "rate" ) {
 
+       if( $qperiod eq "week") {
+
         $ylabel = "Ratio of different stream data per hour ";
         $gtitle = "Ratio of different stream data to all streams per hour for $qperiod period";
+
+      }else{
+
+        $ylabel = "Ratio of different stream data per day ";
+        $gtitle = "Ratio of different stream data to all streams per day for $qperiod period";
+     }
 
  @data = (\@ndate, \@rtphysics, \@rtmtd, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc ) ;
 
