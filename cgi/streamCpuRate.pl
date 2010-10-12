@@ -55,7 +55,7 @@ my @prodyear = ("2010");
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("cpu","rate");
+my @arrate = ("cpu","rtime/cpu","rate");
 
 my @arrprod = ();
 my @arstream = ();
@@ -114,6 +114,18 @@ my @rtmonitor = ();
 my @rtpmdftp = ();
 my @rtupsilon = ();
 my @rtphysics = ();
+
+my @cpupsilon = ();
+my @cpmtd = ();
+my @cpphysics = ();
+my @cpgamma = ();
+my @cphlt = ();
+my @cpfmsfast = ();
+my @cpht = ();
+my @cpatomcules = ();
+my @cpupc = ();
+my @cpmonitor = ();
+my @cppmdftp = ();
 
 my @arhr = ();
 my $mhr = 0;
@@ -323,8 +335,20 @@ END
  @rtpmdftp = ();
  @rtupsilon = ();
 
+ @cpupsilon = ();
+ @cpmtd = ();
+ @cpphysics = ();
+ @cpgamma = ();
+ @cphlt = ();
+ @cpfmsfast = ();
+ @cpht = ();
+ @cpatomcules = ();
+ @cpupc = ();
+ @cpmonitor = ();
+ @cppmdftp = ();
 
   my $maxvalue = 1;
+  my $maxcpu = 0;
 
     foreach my $tdate (@arhr) {
 	@jbstat = ();  
@@ -375,42 +399,56 @@ END
 
           foreach my $mfile (@arstream) {      
               if ($nstr{$mfile,$ndt} >= 2 ) {
+		  if ( $pcpu >= $maxcpu ) {
+		      $maxcpu = $pcpu ;
+		  }
                   $rte{$mfile,$ndt} = $rte{$mfile,$ndt}/$nstr{$mfile,$ndt};
                   if ( $rte{$mfile,$ndt} > $maxval ) {
                 $maxval =  $rte{$mfile,$ndt}
 	        }
 		  if ( $mfile eq "physics" ) {
 	       $arphysics[$ndt] =  $rte{$mfile,$ndt};
+               $cpphysics[$ndt] = $pcpu;
  	       $nstphysics[$ndt] =  $nstr{$mfile,$ndt};              
 	      }elsif( $mfile eq "mtd" ) {
                $armtd[$ndt] =  $rte{$mfile,$ndt};
+               $cpmtd[$ndt] = $pcpu;
                $nstmtd[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "upsilon" ) {
                $arupsilon[$ndt] =  $rte{$mfile,$ndt};
+               $cpupsilon[$ndt] = $pcpu;
                $nstupsilon[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "gamma" ) {
                $argamma[$ndt] =  $rte{$mfile,$ndt};
+               $cpgamma[$ndt] = $pcpu;
                $nstgamma[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "hlt" ) {
                $arhlt[$ndt] =  $rte{$mfile,$ndt};
+               $cphlt[$ndt] = $pcpu;
                $nsthlt[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "fmsfast" ) {
                $arfmsfast[$ndt] =  $rte{$mfile,$ndt};
+               $cpfmsfast[$ndt] =  $pcpu;
                $nstfmsfast[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "ht" ) {
                $arht[$ndt] =  $rte{$mfile,$ndt};
+               $cpht[$ndt] = $pcpu; 
                $nstht[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "atomcules" ) {
                $aratomcules[$ndt] =  $rte{$mfile,$ndt};
+               $cpatomcules[$ndt] = $pcpu;
                $nstatomcules[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "monitor" ) {
                $armonitor[$ndt] =  $rte{$mfile,$ndt};
+               $cpatomcules[$ndt] = $pcpu;
                $nstmonitor[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "pmdftp" ) {
                $arpmdftp[$ndt] =  $rte{$mfile,$ndt};
+               $cppmdftp[$ndt] = $pcpu;
                $nstpmdftp[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $arupc[$ndt] =  $rte{$mfile,$ndt};
+               $cpupc[$ndt] =  $pcpu;
                $nstupc[$ndt] =  $nstr{$mfile,$ndt};
 	       }
               }
@@ -457,15 +495,24 @@ END
        $legend[5] = "st_pmdftp    ";
        $legend[6] = "st_upc       ";
 
-       if ( $srate eq "cpu" ) {
+       if ( $srate eq "rtime/cpu" ) {
 
        $ylabel = "Average ratio RealTime/CPU per hour";
        $gtitle = "Average ratio RealTime/CPU per hour for different streams for $qday";
 
   @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
 
-#  	$max_y = $maxval + 0.2*$maxval; 
-     	$max_y = 35.0  
+  	$max_y = $maxval + 0.2*$maxval; 
+#     	$max_y = 35.0;  
+
+  }elsif(  $srate eq "cpu" ) {
+
+       $ylabel = "Average CPU in sec/event per hour";
+       $gtitle = "Average CPU in sec/event per hour for different streams for $qday";
+
+  @data = (\@ndate, \@cpphysics, \@cpmtd, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc ) ;
+
+    	$max_y = $maxcpu + 0.2*$maxcpu; 
 
   }elsif(  $srate eq "rate" ) {
 
