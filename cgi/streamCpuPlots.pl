@@ -590,7 +590,7 @@ END
       }else{
 
        $ylabel = "Average ratio RealTime/CPU per day";
-       $gtitle = "Average ratio RealTime/CPU per dau for different streams for $qperiod period";
+       $gtitle = "Average ratio RealTime/CPU per day for different streams for $qperiod period";
       }     
 
   @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
