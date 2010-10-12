@@ -428,8 +428,8 @@ END
 	$ylabel = "CPU in sec/evt for every jobs";
 	$gtitle = "CPU in sec/evt for different stream data for $qday day";
 
-      $max_y = $maxcpu + 0.2*$maxcpu; 
-      $max_y = int($max_y);
+#      $max_y = $maxcpu + 0.2*$maxcpu; 
+#      $max_y = int($max_y);
 
     @data = (\@ndate, \@cpphysics, \@cpmtd, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc ) ; 
 
