@@ -349,9 +349,9 @@ END
 	    $prtime   = ($$jset)->rtmv;
 	    $pstream  = ($$jset)->strv;
 
-    if( $pcpu >= 0.01) {             
+        if( $pcpu >= 0.01) {             
 
-        $rte{$pstream,$ndt} = $prtime/$pcpu;
+           $rte{$pstream,$ndt} = $prtime/$pcpu;
            $ndate[$ndt] = $phr; 
 #
            if ( $pcpu > $maxcpu ) {
@@ -429,7 +429,7 @@ END
 	$gtitle = "CPU in sec/evt for different stream data for $qday day";
 
       $max_y = $maxcpu + 0.2*$maxcpu; 
-#      $max_y = int($max_y);
+      $max_y = int($max_y);
 
     @data = (\@ndate, \@cpphysics, \@cpmtd, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc ) ; 
 
@@ -440,7 +440,7 @@ END
         $ylabel = "Ratio RealTime/CPU for every jobs";
 	$gtitle = "Ratio RealTime/CPU for different stream data for $qday day";
 
-       $max_y = $maxval + 0.2*$maxval; 
+#       $max_y = $maxval + 0.2*$maxval; 
 #      $max_y = int($max_y);
   
     @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
