@@ -301,7 +301,8 @@ END
  @cpmonitor = ();
  @cppmdftp = (); 
 
-  my $maxvalue = 1;
+ my $maxvalue = 1;
+ my $maxcpu = 0;
 
  @jbstat = ();  
  $nstat = 0;
@@ -353,8 +354,11 @@ END
         $rte{$pstream,$ndt} = $prtime/$pcpu;
            $ndate[$ndt] = $phr; 
 #
+           if ( $pcpu > $maxcpu ) {
+           $maxcpu = $pcpu; 
+	   }
            if ( $rte{$mfile,$ndt} > $maxval ) {
-           $maxval =  $rte{$mfile,$ndt}
+	       $maxval =  $rte{$mfile,$ndt};
 	   }
 
 	       if ( $pstream eq "physics" ) {
@@ -421,11 +425,21 @@ END
     
        if( $srate eq "cpu" )  {
 
+	$ylabel = "CPU in sec/evt for every jobs";
+	$gtitle = "CPU in sec/evt for different stream data for $qday day";
+
+      $max_y = $maxcpu + 0.2*$maxcpu; 
+      $max_y = int($max_y);
+
     @data = (\@ndate, \@cpphysics, \@cpmtd, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc ) ; 
 
       }else{
 
-#   $max_y = $maxval + 0.2*$maxval; 
+        $ylabel = "Ratio RealTime/CPU for every jobs";
+	$gtitle = "Ratio RealTime/CPU for different stream data for $qday day";
+
+      $max_y = $maxval + 0.2*$maxval; 
+      $max_y = int($max_y);
   
     @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
 
@@ -447,16 +461,6 @@ END
 
 	$xLabelSkip = $skipnum;
 
-         if( $srate eq "cpu" )  {
-
-	$ylabel = "CPU in sec/event for every jobs";
-	$gtitle = "CPU in sec/event for different stream data for $qday day";
-
-    }else{
-
-	$ylabel = "Ratio RealTime/CPU for every jobs";
-	$gtitle = "Ratio RealTime/CPU for different stream data for $qday day";
-    }
 	$graph->set(x_label => "Datetime of Production",
 	            y_label => $ylabel,
                     title   => $gtitle,
