@@ -357,7 +357,7 @@ END
            if ( $pcpu > $maxcpu ) {
            $maxcpu = $pcpu; 
 	   }
-           if ( $rte{$mfile,$ndt} > $maxval ) {
+           if ( $rte{$pstream,$ndt} > $maxval ) {
 	       $maxval =  $rte{$mfile,$ndt};
 	   }
 
@@ -440,8 +440,8 @@ END
         $ylabel = "Ratio RealTime/CPU for every jobs";
 	$gtitle = "Ratio RealTime/CPU for different stream data for $qday day";
 
-#       $max_y = $maxval + 0.2*$maxval; 
-#      $max_y = int($max_y);
+       $max_y = $maxval + 0.2*$maxval; 
+      $max_y = int($max_y);
   
     @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
 
