@@ -603,13 +603,13 @@ END
 
        if( $qperiod eq "week") {
 
-       $ylabel = "Average ratio RealTime/CPU per hour";
-       $gtitle = "Average ratio RealTime/CPU per hour for different streams for $qperiod period";
+       $ylabel = "Average CPU in sec/evt per hour";
+       $gtitle = "Average CPU in sec/evt per hour for different streams for $qperiod period";
 
          }else{
 
-       $ylabel = "Average ratio RealTime/CPU per day";
-       $gtitle = "Average ratio RealTime/CPU per day for different streams for $qperiod period";
+       $ylabel = "Average CPU in sec/evt per day";
+       $gtitle = "Average CPU in sec/evt per day for different streams for $qperiod period";
 
          }   
 
