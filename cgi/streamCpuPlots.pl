@@ -71,6 +71,7 @@ my $pryear = "2010";
 
 my %rte = {};
 my %nstr = {};
+my %arcpu = {};
 my @arupsilon = ();
 my @armtd = ();
 my @arphysics = ();
@@ -339,6 +340,7 @@ END
 
  %rte = {};
  %nstr = {};
+ %arcpu = {};
  @arupsilon = ();
  @armtd = ();
  @arphysics = ();
@@ -462,6 +464,7 @@ END
     if( $pcpu >= 0.01) {             
 
         $rte{$pstream,$ndt} = $rte{$pstream,$ndt} + $prtime/$pcpu;
+        $arcpu{$pstream,$ndt} = $arcpu{$pstream,$ndt} + $pcpu; 
         $nstr{$pstream,$ndt}++;
          
             $ndate[$ndt] = $pday;    
@@ -473,56 +476,57 @@ END
 
           foreach my $mfile (@arstream) {      
               if ($nstr{$mfile,$ndt} >= 2 ) {
-                  if ( $pcpu >= $maxcpu ) {
-                      $maxcpu = $pcpu ;
-                  }
+                  $arcpu{$mfile,$ndt} = $arcpu{$mfile,$ndt}/$nstr{$mfile,$ndt};
                   $rte{$mfile,$ndt} = $rte{$mfile,$ndt}/$nstr{$mfile,$ndt};
                   if ( $rte{$mfile,$ndt} > $maxval ) {
                 $maxval =  $rte{$mfile,$ndt}
 	        }
+                  if ( $arcpu{$mfile,$ndt} > $maxcpu ) {
+                      $maxcpu = $arcpu{$mfile,$ndt} ;
+                  }
 		  if ( $mfile eq "physics" ) {
 	       $arphysics[$ndt] =  $rte{$mfile,$ndt};
-               $cpphysics[$ndt] = $pcpu;
+               $cpphysics[$ndt] = $arcpu{$mfile,$ndt};
                $nstphysics[$ndt] =  $nstr{$mfile,$ndt};
 	      }elsif( $mfile eq "mtd" ) {
                $armtd[$ndt] =  $rte{$mfile,$ndt};
-               $cpmtd[$ndt] = $pcpu;
+               $cpmtd[$ndt] = $arcpu{$mfile,$ndt};
                $nstmtd[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "upsilon" ) {
                $arupsilon[$ndt] =  $rte{$mfile,$ndt};
-               $cpupsilon[$ndt] = $pcpu;
+               $cpupsilon[$ndt] = $arcpu{$mfile,$ndt};
                $nstupsilon[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "gamma" ) {
                $argamma[$ndt] =  $rte{$mfile,$ndt};
-               $cpgamma[$ndt] = $pcpu;
+               $cpgamma[$ndt] = $arcpu{$mfile,$ndt};
                $nstgamma[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "hlt" ) {
                $arhlt[$ndt] =  $rte{$mfile,$ndt};
-               $cphlt[$ndt] = $pcpu;
+               $cphlt[$ndt] = $arcpu{$mfile,$ndt};
                $nsthlt[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "fmsfast" ) {
                $arfmsfast[$ndt] =  $rte{$mfile,$ndt};
-               $cpfmsfast[$ndt] =  $pcpu;
+               $cpfmsfast[$ndt] =  $arcpu{$mfile,$ndt};
                $nstfmsfast[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "ht" ) {
                $arht[$ndt] =  $rte{$mfile,$ndt};
-               $cpht[$ndt] = $pcpu;
+               $cpht[$ndt] = $arcpu{$mfile,$ndt};
                $nstht[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "atomcules" ) {
                $aratomcules[$ndt] =  $rte{$mfile,$ndt};
-               $cpatomcules[$ndt] = $pcpu;
+               $cpatomcules[$ndt] = $arcpu{$mfile,$ndt};
                $nstatomcules[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "monitor" ) {
                $armonitor[$ndt] =  $rte{$mfile,$ndt};
-               $cpatomcules[$ndt] = $pcpu;
+               $cpatomcules[$ndt] = $arcpu{$mfile,$ndt};
                $nstmonitor[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "pmdftp" ) {
                $arpmdftp[$ndt] =  $rte{$mfile,$ndt};
-               $cppmdftp[$ndt] = $pcpu;
+               $cppmdftp[$ndt] = $arcpu{$mfile,$ndt};
                $nstpmdftp[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $arupc[$ndt] =  $rte{$mfile,$ndt};
-               $cpupc[$ndt] =  $pcpu;
+               $cpupc[$ndt] =  $arcpu{$mfile,$ndt};
                $nstupc[$ndt] =  $nstr{$mfile,$ndt};
 	   }else{
              next;
