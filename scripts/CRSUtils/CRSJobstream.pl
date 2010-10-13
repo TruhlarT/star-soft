@@ -93,11 +93,11 @@ if( $sec < 10) { $sec = '0'.$sec };
 	} elsif ($jobname =~ /st_upsilon/) { 
          $Nupsilon++;
 	} elsif ($jobname =~ /st_upc/) { 
-         $Nupc;
+         $Nupc++;
 	} elsif ($jobname =~ /st_zerobias/) {        
          $Nzerobias++;
  	} elsif ($jobname =~ /st_W/) {        
-         $Nbs++;
+         $Nwb++;
 	}
     }
 
@@ -126,7 +126,7 @@ exit;
  $sql.="monitor='$Nmonitor',";
  $sql.="pmdftp='$Npmdftp',";
  $sql.="upsilon='$Nupsilon',";
- $sql.="ups='$Nupc',";
+ $sql.="upc='$Nupc',";
  $sql.="Wbs='$Nwb',";
  $sql.="sdate='$thisday' "; 
 #   print "$sql\n" if $debugOn;
