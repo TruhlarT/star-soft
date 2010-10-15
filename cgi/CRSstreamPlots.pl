@@ -445,7 +445,7 @@ print <<END;
           <title>CPU versus RealTime usage</title>
    </head>
    <body BGCOLOR=\"#ccffff\">
-     <h1 align=center>No stream jobs for $qperiod period </h1>
+     <h1 align=center>No stream jobs for the period of $fperiod </h1>
 
 
     </body>
