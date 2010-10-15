@@ -77,7 +77,7 @@ my @Npoint = ();
 
 
 print $query->header;
-print $query->start_html('Ratio of stream's jobs');
+print $query->start_html('Ratio of stream jobs');
 print <<END;
 <META HTTP-EQUIV="Expires" CONTENT="0">
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
@@ -170,11 +170,11 @@ my $thisyear = $year+1900;
 
  $nowdate = $pryear."-".($mon+1)."-".$mday;
 
- }else{
+   }else{
 
  $nowdate = $pryear."-12-31 23:59:59";
 
-} 
+  } 
 
 my $day_diff = 0;
 my $nmonth = 0;
@@ -242,8 +242,8 @@ $day_diff = int($day_diff);
          for( my $k = 0; $k < 13; $k++) {
 
          $maxvalue[$k] = $fields[$k];
-
-     }
+        }
+      }
 
 #           $cursor->finish();
 
