@@ -55,7 +55,7 @@ my @prodyear = ("2010");
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("cpu","rtime/cpu","rate");
+my @arrate = ("cpu","rtime/cpu","stream_rate");
 
 my @arrprod = ();
 my @arstream = ();
@@ -205,7 +205,7 @@ END
  
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Select stream values: <br> CPU or stream rate</h3>";
+    print "<h3 align=center> Select stream values: <br> CPU, rtime/CPU or stream rate</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
 	                          -values=>\@arrate,
@@ -519,7 +519,7 @@ END
     	$max_y = $maxcpu + 0.2*$maxcpu; 
         $max_y = int($max_y);
 
-  }elsif(  $srate eq "rate" ) {
+  }elsif(  $srate eq "stream_rate" ) {
 
 	$ylabel = "Ratio of different stream data per hour ";
 	$gtitle = "Ratio of different stream data to all streams per hour for day $qday ";
