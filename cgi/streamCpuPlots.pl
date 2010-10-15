@@ -191,7 +191,7 @@ END
 
     print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Select production series</h3>";
+    print "<h3 align=center> Select production series<br></h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
