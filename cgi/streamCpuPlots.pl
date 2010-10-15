@@ -622,13 +622,13 @@ END
 
        if( $qperiod eq "week") {
 
-        $ylabel = "Ratio of different stream data per hour ";
-        $gtitle = "Ratio of different stream data to all streams per hour for $qperiod period";
+        $ylabel = "Ratio of different stream jobs per hour ";
+        $gtitle = "Ratio of different stream jobs to all jobs per hour for $qperiod period";
 
       }else{
 
-        $ylabel = "Ratio of different stream data per day ";
-        $gtitle = "Ratio of different stream data to all streams per day for $qperiod period";
+        $ylabel = "Ratio of different stream jobs per day ";
+        $gtitle = "Ratio of different stream jobs to all jobs per day for $qperiod period";
      }
 
  @data = (\@ndate, \@rtphysics, \@rtmtd, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc ) ;
