@@ -191,7 +191,7 @@ END
 
     print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Select production series<br></h3>";
+    print "<h3 align=center> Select production series <br></h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
@@ -211,7 +211,7 @@ END
 
     print "<p>";
     print "</td><td>";  
-    print "<h3 align=center> Period of monitoring</h3>";
+    print "<h3 align=center> Period of monitoring <br> </h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'period',
                                   -values=>\@arperiod,
