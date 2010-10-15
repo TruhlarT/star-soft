@@ -521,8 +521,8 @@ END
 
   }elsif(  $srate eq "stream_rate" ) {
 
-	$ylabel = "Ratio of different stream data per hour ";
-	$gtitle = "Ratio of different stream data to all streams per hour for day $qday ";
+	$ylabel = "Ratio of different stream jobs per hour ";
+	$gtitle = "Ratio of different stream jobs to all jobs per hour for day $qday ";
 
  @data = (\@ndate, \@rtphysics, \@rtmtd, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc ) ;
 
