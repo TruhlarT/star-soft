@@ -55,7 +55,7 @@ my @prodyear = ("2009","2010");
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("cpu","rtime/cpu","rate");
+my @arrate = ("cpu","rtime/cpu","stream_rate");
 
 my @arrprod = ();
 my @arstream = ();
@@ -618,7 +618,7 @@ END
         $max_y = $maxcpu + 0.2*$maxcpu;
        $max_y = int($max_y);
 
-  }elsif(  $srate eq "rate" ) {
+  }elsif(  $srate eq "stream_rate" ) {
 
        if( $qperiod eq "week") {
 
