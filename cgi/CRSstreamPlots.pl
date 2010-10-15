@@ -325,9 +325,9 @@ my $nnk = $ii;
     print STDOUT "Failed\n";
  } else {
 
-  my $format = $graph->export_format;
-  print header("image/$format");
-  binmode STDOUT;
+#  my $format = $graph->export_format;
+#  print header("image/$format");
+#  binmode STDOUT;
 
        $legend[0] = "st_physics   ";
        $legend[1] = "st_mtd       ";
@@ -402,9 +402,18 @@ my $nnk = $ii;
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
 
+        if ( scalar(@ndate) <= 1 ) {
+            print $qqr->header(-type => 'text/html')."\n";
+            &beginHtml();
+        } else {
+            my $format = $graph->export_format;
+            print header("image/$format");
+            binmode STDOUT;
+
     print STDOUT $graph->plot(\@data)->$format();      
+    }
    }
-  }
+ }
 
 ######################
 sub y_format
@@ -424,4 +433,22 @@ sub StcrsdbConnect {
 ######################
 sub StcrsdbDisconnect {
     $dbh = $dbh->disconnect() || die "Disconnect failure $DBI::errstr\n";
+}
+
+#####################################
+
+sub beginHtml {
+
+print <<END;
+  <html>
+   <head>
+          <title>CPU versus RealTime usage</title>
+   </head>
+   <body BGCOLOR=\"#ccffff\">
+     <h1 align=center>No stream jobs for $qperiod period </h1>
+
+
+    </body>
+   </html>
+END
 }
