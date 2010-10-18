@@ -402,7 +402,7 @@ my $nnk = $ii;
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
 
-        if ( scalar(@ndate) <= 1 ) {
+        if ( scalar(@Npoint) <= 1 ) {
             print $qqr->header(-type => 'text/html')."\n";
             &beginHtml();
         } else {
