@@ -393,7 +393,7 @@ END
  @cppmdftp = ();
 
 
-  my $maxcpu = 0;
+  my $maxcpu = 1;
   my $maxvalue = 1;
 
     foreach my $tdate (@ardays) {
@@ -601,6 +601,8 @@ END
 
      }elsif(  $srate eq "cpu" ) {
 
+  @data = ();
+
        if( $qperiod eq "week") {
 
        $ylabel = "Average CPU in sec/evt per hour";
@@ -619,6 +621,8 @@ END
        $max_y = int($max_y);
 
   }elsif(  $srate eq "stream_rate" ) {
+
+  @data = ();
 
        if( $qperiod eq "week") {
 
