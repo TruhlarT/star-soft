@@ -597,7 +597,7 @@ END
 
   @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
 
-#      $max_y = $maxval + 0.2*$maxval;
+      $max_y = $maxval + 0.2*$maxval;
 #      $max_y = int($max_y);
 
      }elsif(  $srate eq "cpu" ) {
@@ -619,7 +619,7 @@ END
   @data = (\@ndate, \@cpphysics, \@cpmtd, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc ) ;
 
         $max_y = $maxcpu + 0.2*$maxcpu;
-       $max_y = int($max_y);
+#       $max_y = int($max_y);
 
   }elsif(  $srate eq "stream_rate" ) {
 
