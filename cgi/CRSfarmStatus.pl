@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.35 2010/10/19 16:12:39 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.36 2010/10/19 16:22:58 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
+# Revision 1.36  2010/10/19 16:22:58  didenko
+# add 2011 year
+#
 # Revision 1.35  2010/10/19 16:12:39  didenko
 # add title
 #
@@ -234,8 +237,9 @@ my $thisyear = $year+1900;
  $nowdate = $pryear."-12-31 23:59:59";
 
 } 
-
-  if ($pryear == 2010 and $mm >= 10 ) {
+  if($pryear == 2011) {
+    $Nmaxjobs = 1800;
+ }elsif ($pryear == 2010 and $mm >= 10 ) {
     $Nmaxjobs = 1800;
  }elsif($pryear == 2010 and $mm < 10 ) {
     $Nmaxjobs = 1000;
