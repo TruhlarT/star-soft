@@ -1,10 +1,10 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.34 2010/10/19 16:09:44 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.35 2010/10/19 16:12:39 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
-# Revision 1.34  2010/10/19 16:09:44  didenko
+# Revision 1.35  2010/10/19 16:12:39  didenko
 # add title
 #
 # Revision 1.33  2010/10/19 16:05:52  didenko
@@ -387,7 +387,6 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
     @data = (\@Npoint, \@jobrate1, \@jobrate2, \@jobrate3, \@jobrate4 );
 
   $min_y = 0;
-#  $max_y = $ymax*100/$Nmaxjobs + 20 ;  
   $max_y = 120 ;
 
   $ylabel = "Number of jobs per hour in % to avalable slots"; 
