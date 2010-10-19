@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.30 2010/02/23 21:34:42 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.31 2010/10/19 15:48:06 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
+# Revision 1.31  2010/10/19 15:48:06  didenko
+# updated for increased number of CPU
+#
 # Revision 1.30  2010/02/23 21:34:42  didenko
 # adjust max number of jobs on the farm
 #
@@ -226,7 +229,7 @@ my $thisyear = $year+1900;
 } 
 
   if ($pryear == 2010 ) {
-   $Nmaxjobs = 1000;
+   $Nmaxjobs = 1800;
 }else{
    $Nmaxjobs = 460; 
 }
@@ -371,7 +374,7 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
     @data = (\@Npoint, \@jobrate1, \@jobrate2, \@jobrate3, \@jobrate4 );
 
   $min_y = 0;
-  $max_y = $ymax*100/$Nmaxjobs + 40 ;  
+  $max_y = $ymax*100/$Nmaxjobs + 20 ;  
 
   $ylabel = "Number of jobs per hour in % to avalable slots"; 
   $gtitle = "Number of jobs per hour in % to available slots for the period of $fperiod ";
