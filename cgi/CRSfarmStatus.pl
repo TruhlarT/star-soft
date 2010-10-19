@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.31 2010/10/19 15:48:06 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.32 2010/10/19 15:58:38 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
-# Revision 1.31  2010/10/19 15:48:06  didenko
-# updated for increased number of CPU
+# Revision 1.32  2010/10/19 15:58:38  didenko
+# more updates for increasead number of CPU
 #
 # Revision 1.30  2010/02/23 21:34:42  didenko
 # adjust max number of jobs on the farm
@@ -108,7 +108,7 @@ my $max_y = 10000;
 my $min_y = 0;
 my @data;
 my @legend;
-my $Nmaxjobs = 500;
+my $Nmaxjobs = 1800;
 
  my $pryear =  $query->param('ryear');
  my $fperiod  =  $query->param('period');
@@ -208,6 +208,7 @@ my @maxvalue = ();
 
 ($sec,$min,$hour,$mday,$mon,$year) = localtime;
 
+my $mm = $mon + 1;
 
 if( $mon < 10) { $mon = '0'.$mon };
 if( $mday < 10) { $mday = '0'.$mday };
@@ -228,11 +229,15 @@ my $thisyear = $year+1900;
 
 } 
 
-  if ($pryear == 2010 ) {
-   $Nmaxjobs = 1800;
-}else{
-   $Nmaxjobs = 460; 
-}
+  if ($pryear == 2010 and $mm >= 10 ) {
+    $Nmaxjobs = 1800;
+ }elsif($pryear == 2010 and $mm < 10 ) {
+    $Nmaxjobs = 1000;
+ }elsif($pryear == 2009)  {
+    $Nmaxjobs = 800;
+ }else{
+    $Nmaxjobs = 460; 
+ }
 
 my $day_diff = 0;
 my $nmonth = 0;
@@ -374,7 +379,8 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
     @data = (\@Npoint, \@jobrate1, \@jobrate2, \@jobrate3, \@jobrate4 );
 
   $min_y = 0;
-  $max_y = $ymax*100/$Nmaxjobs + 20 ;  
+#  $max_y = $ymax*100/$Nmaxjobs + 20 ;  
+  $max_y = 120 ;
 
   $ylabel = "Number of jobs per hour in % to avalable slots"; 
   $gtitle = "Number of jobs per hour in % to available slots for the period of $fperiod ";
