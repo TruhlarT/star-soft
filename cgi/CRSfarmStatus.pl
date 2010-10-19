@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.33 2010/10/19 16:05:52 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.34 2010/10/19 16:09:44 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
+# Revision 1.34  2010/10/19 16:09:44  didenko
+# add title
+#
 # Revision 1.33  2010/10/19 16:05:52  didenko
 # add title
 #
@@ -378,6 +381,8 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
     $jobrate4[$i] = 0;
  }
  }
+
+    $legend[3] = "Jobs failed in % to total number of jobs finished";
  
     @data = (\@Npoint, \@jobrate1, \@jobrate2, \@jobrate3, \@jobrate4 );
 
@@ -386,8 +391,7 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
   $max_y = 120 ;
 
   $ylabel = "Number of jobs per hour in % to avalable slots"; 
-  $gtitle = "Number of jobs per hour in % to available slots for the period of $fperiod <br>
-             Number of failed jobs in % to total number of jobs finished";
+  $gtitle = "Number of jobs per hour in % to available slots for the period of $fperiod";
 
 }
 
