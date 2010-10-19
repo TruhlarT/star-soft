@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.32 2010/10/19 15:58:38 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.33 2010/10/19 16:05:52 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
+# Revision 1.33  2010/10/19 16:05:52  didenko
+# add title
+#
 # Revision 1.32  2010/10/19 15:58:38  didenko
 # more updates for increasead number of CPU
 #
@@ -383,7 +386,8 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
   $max_y = 120 ;
 
   $ylabel = "Number of jobs per hour in % to avalable slots"; 
-  $gtitle = "Number of jobs per hour in % to available slots for the period of $fperiod ";
+  $gtitle = "Number of jobs per hour in % to available slots for the period of $fperiod <br>
+             Number of failed jobs in % to total number of jobs finished";
 
 }
 
