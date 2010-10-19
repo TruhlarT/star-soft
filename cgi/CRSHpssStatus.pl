@@ -350,8 +350,8 @@ $ymax = 1;
 # $max_y = 140;
 
 
-  $ylabel = "Number of jobs per hour in % to number of jobs finished ";
-  $gtitle = "Percent of jobs per hour failed to make HPSS transferring for the period of $fperiod ";
+  $ylabel = "Number of failed jobs in % to number of jobs finished per hour ";
+  $gtitle = "Number of failed jobs in % to number of jobs finished per hour for period of $fperiod ";
 
 }
 
