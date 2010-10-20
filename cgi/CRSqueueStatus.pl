@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSqueueStatus.pl,v 1.15 2010/10/20 15:36:25 didenko Exp $
+# $Id: CRSqueueStatus.pl,v 1.16 2010/10/20 15:48:11 didenko Exp $
 #
 # $Log: CRSqueueStatus.pl,v $
+# Revision 1.16  2010/10/20 15:48:11  didenko
+# updated title
+#
 # Revision 1.15  2010/10/20 15:36:25  didenko
 # minor changes
 #
@@ -306,8 +309,8 @@ my @prt = ();
       }
    $min_y = 0;
   $max_y = 140;       
-  $ylabel = "Number of jobs in the queue in %";
-  $gtitle = "Number of jobs in the queues in % of available slots for the period of $fperiod ";
+  $ylabel = "Number of jobs in the queue in % ";
+  $gtitle = "Number of jobs in the queues in % to max slots in the queue for period of $fperiod ";
 
     }
 
