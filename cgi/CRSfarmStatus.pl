@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.36 2010/10/19 16:22:58 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.37 2010/10/20 14:48:14 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
+# Revision 1.37  2010/10/20 14:48:14  didenko
+# update max slots
+#
 # Revision 1.36  2010/10/19 16:22:58  didenko
 # add 2011 year
 #
@@ -117,7 +120,7 @@ my $max_y = 10000;
 my $min_y = 0;
 my @data;
 my @legend;
-my $Nmaxjobs = 1800;
+my $Nmaxjobs = 2020;
 
  my $pryear =  $query->param('ryear');
  my $fperiod  =  $query->param('period');
@@ -238,9 +241,9 @@ my $thisyear = $year+1900;
 
 } 
   if($pryear == 2011) {
-    $Nmaxjobs = 1800;
+    $Nmaxjobs = 2020;
  }elsif ($pryear == 2010 and $mm >= 10 ) {
-    $Nmaxjobs = 1800;
+    $Nmaxjobs = 2020;
  }elsif($pryear == 2010 and $mm < 10 ) {
     $Nmaxjobs = 1000;
  }elsif($pryear == 2009)  {
