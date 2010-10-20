@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSqueueStatus.pl,v 1.13 2010/01/06 19:03:22 didenko Exp $
+# $Id: CRSqueueStatus.pl,v 1.14 2010/10/20 15:27:16 didenko Exp $
 #
 # $Log: CRSqueueStatus.pl,v $
+# Revision 1.14  2010/10/20 15:27:16  didenko
+# updated queues
+#
 # Revision 1.13  2010/01/06 19:03:22  didenko
 # fixed scale
 #
@@ -176,6 +179,7 @@ my @numjobs2 = ();
 my @numjobs3 = ();
 my @numjobs4 = ();
 my @numjobs5 = ();
+my @numjobs6 = ();
 my @Npoint = ();
 my @maxvalue = ();
 
@@ -228,12 +232,13 @@ my @prt = ();
  @numjobs3 = ();
  @numjobs4 = ();
  @numjobs5 = ();
+ @numjobs6 = ();
  @Npoint = ();
  @maxvalue = ();
 
     if($plview eq "numbers") {
 
-             $sql="SELECT max(queue0), max(queue1), max(queue2), max(queue3), max(queue4) FROM  $crsQueueT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? ";
+             $sql="SELECT max(queue0), max(queue1), max(queue2), max(queue3), max(queue4), max(queue5) FROM  $crsQueueT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($day_diff) ;
@@ -243,12 +248,13 @@ my @prt = ();
 		$maxvalue[1] = $fields[1];
 		$maxvalue[2] = $fields[2];
 		$maxvalue[3] = $fields[3]; 
-                $maxvalue[4] = $fields[4];   
+                $maxvalue[4] = $fields[4];
+                $maxvalue[5] = $fields[5];   
 	    }
 
  my $ii = 0;
 
-            $sql="SELECT queue0, queue1, queue2, queue3, queue4, sdate FROM  $crsQueueT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? ORDER by sdate ";
+            $sql="SELECT queue0, queue1, queue2, queue3, queue4, queue5, sdate FROM  $crsQueueT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($day_diff) ;
@@ -259,7 +265,8 @@ my @prt = ();
 		$numjobs3[$ii] = $fields[2];
 		$numjobs4[$ii] = $fields[3];
 		$numjobs5[$ii] = $fields[4];
-                $Npoint[$ii] =  $fields[5]; 
+		$numjobs6[$ii] = $fields[5];
+                $Npoint[$ii] =  $fields[6]; 
                	$ii++;
  
       }
@@ -277,7 +284,7 @@ my @prt = ();
 
     }else{
 
-            $sql="SELECT Rqueue0, Rqueue1, Rqueue2, Rqueue3, Rqueue4, sdate FROM  $crsQueueT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) < ? ORDER by sdate ";
+            $sql="SELECT Rqueue0, Rqueue1, Rqueue2, Rqueue3, Rqueue4, Rqueue5 sdate FROM  $crsQueueT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) < ? ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($day_diff) ;
@@ -288,7 +295,8 @@ my @prt = ();
 		$numjobs3[$ii] = $fields[2];
 		$numjobs4[$ii] = $fields[3];
 		$numjobs5[$ii] = $fields[4];
-                $Npoint[$ii] =  $fields[5]; 
+		$numjobs6[$ii] = $fields[5];
+                $Npoint[$ii] =  $fields[6]; 
                	$ii++;
  
       }
@@ -301,13 +309,15 @@ my @prt = ();
 
     &StcrsdbDisconnect();
 
-    @data = (\@Npoint, \@numjobs1, \@numjobs2, \@numjobs3, \@numjobs4, \@numjobs5 );
+#    @data = (\@Npoint, \@numjobs1, \@numjobs2, \@numjobs3, \@numjobs4, \@numjobs5, \@numjobs6 );
+  @data = (\@Npoint, \@numjobs1, \@numjobs4, \@numjobs5, \@numjobs6 );
 
     $legend[0] = "Jobs in queue 0'";
-    $legend[1] = "Jobs in queue 1";
-    $legend[2] = "Jobs in queue 2";
-    $legend[3] = "Jobs in queue 3";
-    $legend[4] = "Jobs in queue 4"; 
+#    $legend[1] = "Jobs in queue 1";
+#    $legend[2] = "Jobs in queue 2";
+    $legend[1] = "Jobs in queue 3";
+    $legend[2] = "Jobs in queue 4"; 
+    $legend[3] = "Jobs in queue 5";
 
  my  $graph = new GD::Graph::linespoints(750,650);
 
@@ -326,7 +336,7 @@ if ( ! $graph){
  my $xLabelPosition = 0;
  my $xLabelSkip = 1;
 
-$xLabelSkip = 10  if( $fperiod eq "day" );
+$xLabelSkip = 2  if( $fperiod eq "day" );
 $xLabelSkip = 12  if( $fperiod eq "week" );
 $xLabelSkip = 24 if( $fperiod eq "1_month" );
 $xLabelSkip = 48 if( $fperiod eq "2_months" );
