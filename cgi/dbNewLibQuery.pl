@@ -165,11 +165,13 @@ print <<END;
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
 <META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
 END
-print $query->startform(-action=>"dbNewLibQuery.pl?rand=$rand");  
+print $query->startform(-action=>"$scriptname");  
 
 print "<body bgcolor=\"cornsilk\">\n";
 print "<h1 align=center><u>Query for Nightly Test in NEW Librares</u></h1>\n";
 
+print "<br>";
+print "<br>";
 print <<END;
 <hr>
 <table BORDER=0 align=center width=99% cellspacing=3>
