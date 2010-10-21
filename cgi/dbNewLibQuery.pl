@@ -280,7 +280,7 @@ $minVal = 0;
               if ($plotVal eq "MemUsage") {
                 $plotmemfstd[$npk] = $fields[1];
                 $plotmemlstd[$npk] = $fields[2];
-               if( $plotmemlstd[$npt] >= $maxval)
+		if( $plotmemlstd[$npt] >= $maxval) {
 		    $maxval =  $plotmemlstd[$npt];
                   }
 	        if( $plotmemfstd[$npt] <= $minval ) {
@@ -290,7 +290,7 @@ $minVal = 0;
                  $npk++;                 
 	   }else{
  		$plotvaldg[$npk] = $fields[1];
-                if( $plotvaldg[$npt] >= $maxval)
+                if( $plotvaldg[$npt] >= $maxval) {
 		    $maxval =  $plotvaldg[$npt];
                   }
 	        if( $plotvaldg[$npt] <= $minval ) {
