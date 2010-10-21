@@ -255,7 +255,7 @@ $maxval = 0;
 $minVal = 0;
 
 
-    $sql="SELECT path, $mplotVal, LibTag FROM JobStatus WHERE path LIKE ?  AND jobStatus= 'Done' and createTime like '$tyear%' ORDER by createTime";
+    $sql="SELECT path, $mplotVal, LibTag FROM JobStatus WHERE path LIKE ?  AND jobStatus= 'Done' and LibTag like 'SL10%' and createTime like '$tyear%' ORDER by createTime";
 
         $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
         $cursor->execute($qupath);
@@ -348,8 +348,8 @@ if ($plotVal eq "MemUsage") {
 
 }
 
- my $xLabelsVertical = 0;
- my $xLabelPosition = 0;
+ my $xLabelsVertical = 1;
+ my $xLabelPosition = 0.5;
  my $xLabelSkip = 1;
 
 
