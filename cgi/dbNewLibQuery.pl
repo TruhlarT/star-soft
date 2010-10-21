@@ -212,16 +212,18 @@ my $tset    =  $qqr->param('sets');
 my $plotVal =  $qqr->param('plotVal');
 
 
+my $tset  = "daq_sl302/year_2010/auau200_production";
+my $plotVal = "Average_NoTracks"; 
+
 $JobStatusT = "JobStatus";
-
-            &beginHtml();
-
 
 my @spl = ();
 @spl = split(" ",$plotVal);
 my $plotVl = $spl[0];
 
 my $mplotVal = $plotHash{$plotVl};
+
+my $mplotVal = "avg_no_tracks"; 
 
   &StDbTJobsConnect();
 
@@ -237,6 +239,8 @@ my $tyear  = "2010%";
  $path =  $spl[1]."/". $spl[2];
 
 my $qupath = "%$path%";
+
+my $qupath = "year_2010/auau200_production";
 
 @plotvaldg = ();
 @plotvalop = ();
