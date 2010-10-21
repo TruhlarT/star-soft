@@ -213,8 +213,8 @@ my $tset    =  $qqr->param('sets');
 my $plotVal =  $qqr->param('plotVal');
 
 
-my $tset  = "daq_sl302/year_2010/auau200_production";
-my $plotVal = "Average_NoTracks"; 
+#my $tset  = "daq_sl302/year_2010/auau200_production";
+#my $plotVal = "Average_NoTracks"; 
 
 $JobStatusT = "JobStatus";
 
@@ -238,9 +238,6 @@ my $tyear  = "2010";
  $path =  $spl[1]."/". $spl[2];
 
  my $qupath = "%$path%";
-
-#my $mplotVal = "avg_no_tracks"; 
-#my $qupath = "year_2010/auau200_production";
 
 @plotvaldg = ();
 @plotvalop = ();
@@ -363,13 +360,18 @@ if ($plotVal eq "MemUsage") {
     $legend[3] = "MemUsageLast(nonoptimized)";
     $mplotVal="MemUsageFirstEvent,MemUsageLastEvent";
 } else {
-#    @data = (\@libtag, \@plotvalop, \@plotvaldg );
+    @data = (\@libtag, \@plotvalop, \@plotvaldg );
     
-     @data = (\@libtag, \@plotvaldg );
+#     @data = (\@libtag, \@plotvaldg );
     $legend[0] = "$mplotVal"."(optimized)";
     $legend[1] = "$mplotVal"."(nonoptimized)";
 
 }
+
+ my $xLabelsVertical = 1;
+ my $xLabelPosition = 0;
+ my $xLabelSkip = 1;
+
 
     $graph->set(#x_label => "$xlabel",
                 #y_label => "$mplotVal",
@@ -379,11 +381,13 @@ if ($plotVal eq "MemUsage") {
                 y_min_value => $min_y,
                 y_max_value => $max_y,
                 y_number_format => \&y_format,
-                labelclr => "lred",
+                labelclr => "lblack",
                 dclrs => [ qw(lblack lblue lred lgreen lpink lpurple lorange lyellow ) ],
-                line_width => 2,
+                line_width => 4,
                 markers => [ 2,3,4,5,6,7,8,9],
-                marker_size => 6,
+                marker_size => 3,
+                x_label_skip => $xLabelSkip,
+                x_labels_vertical =>$xLabelsVertical,
                 #long_ticks => 1
                 );
 
@@ -443,7 +447,7 @@ print <<END;
           <title>Plots for Nightly Test in NEW Library</title>
    </head>
    <body BGCOLOR=\"#ccffff\">
-     <h1 align=center>No Data for $path and $mplotVal </h1>
+     <h1 align=center>No Data for $tset and $mplotVal </h1>
 
 
     </body>
