@@ -150,7 +150,7 @@ my $maxval = 0;
 my $minVal = 0;
  
 
-$query = new CGI;
+my $query = new CGI;
 
 my $scriptname = $query->url(-relative=>1);
 
@@ -194,6 +194,7 @@ print $query->scrolling_list(-name=>'plotVal',
 			     -size =>8); 
 print "</td> </tr> </table><hr><center>";
 
+print "</h4>";
 print "<br>";
 print "<br>";
 print "<br>";
@@ -221,15 +222,13 @@ my @spl = ();
 @spl = split(" ",$plotVal);
 my $plotVl = $spl[0];
 
-my $mplotVal = $plotHash{$plotVl};
-
-my $mplotVal = "avg_no_tracks"; 
+#my $mplotVal = $plotHash{$plotVl};
 
   &StDbTJobsConnect();
 
 my $path;
 my $pth;
-my $tyear  = "2010%";
+my $tyear  = "2010";
 
  @spl = split(" ", $tset);
  $pth = $spl[0];
@@ -238,8 +237,10 @@ my $tyear  = "2010%";
  @spl = split("/", $pth);
  $path =  $spl[1]."/". $spl[2];
 
-my $qupath = "%$path%";
+#my $qupath = "%$path%";
 
+
+my $mplotVal = "avg_no_tracks"; 
 my $qupath = "year_2010/auau200_production";
 
 @plotvaldg = ();
@@ -258,7 +259,7 @@ $maxval = 0;
 $minVal = 0;
 
 
-    $sql="SELECT path, $mplotVal, LibTag FROM JobStatus WHERE path LIKE ?  AND jobStatus= 'Done' and createTime like '$tyear' ORDER by createTime";
+    $sql="SELECT path, $mplotVal, LibTag FROM JobStatus WHERE path LIKE ?  AND jobStatus= 'Done' and createTime like '$tyear%' ORDER by createTime";
 
         $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
         $cursor->execute($qupath);
@@ -320,15 +321,30 @@ $minVal = 0;
  $min_y = $minval;
  $max_y = $maxval;
 
-    if( $min_y == 0) {
-        $graph->set(x_label => "(0 value means job failed or data not available)");
-    } else {
-        # keep the min_y in the 6th ticks (6/3)
-        $min_y = $min_y - ($max_y-$min_y)*2.0;
-    }
+ my $ylabel;
+ my $gtitle;
 
-    # keep the max_y in the 9th ticks
-    $max_y = $max_y + ($max_y - $min_y)/10.0;
+@data = ();
+
+
+my $graph = new GD::Graph::linespoints(750,650);
+
+ if ( ! $graph){
+    print STDOUT $qqr->header(-type => 'text/plain');
+    print STDOUT "Failed\n";
+
+ } else {
+
+
+#    if( $min_y == 0) {
+#        $graph->set(x_label => "(0 value means job failed or data not available)");
+#    } else {
+#        # keep the min_y in the 6th ticks (6/3)
+#        $min_y = $min_y - ($max_y-$min_y)*2.0;
+#    }
+
+#    # keep the max_y in the 9th ticks
+#   $max_y = $max_y + ($max_y - $min_y)/10.0;
 
     if($max_y eq $min_y) {
         $max_y += 1;
@@ -340,9 +356,6 @@ $minVal = 0;
     }
 
 
-
-@data = ();
-
 if ($plotVal eq "MemUsage") {
     @data = (\@libtag, \@plotmemfsto, \@plotmemlsto, \@plotmemfstd, \@plotmemlstd );
     $legend[0] = "MemUsageFirst(optimized)";
@@ -351,20 +364,13 @@ if ($plotVal eq "MemUsage") {
     $legend[3] = "MemUsageLast(nonoptimized)";
     $mplotVal="MemUsageFirstEvent,MemUsageLastEvent";
 } else {
-    @data = (\@libtag, \@plotvalop, \@plotvaldg );
-    $legend[0] = "$plotVal"."(optimized)";
-    $legend[1] = "$plotVal"."(nonoptimized)";
+#    @data = (\@libtag, \@plotvalop, \@plotvaldg );
+    
+     @data = (\@libtag, \@plotvaldg );
+    $legend[0] = "$mplotVal"."(optimized)";
+    $legend[1] = "$mplotVal"."(nonoptimized)";
 
 }
-
-
-
-my $graph = new GD::Graph::linespoints(750,650);
-
- if ( ! $graph){
-    print STDOUT $qqr->header(-type => 'text/plain');
-    print STDOUT "Failed\n";
-} else {
 
     $graph->set(#x_label => "$xlabel",
                 #y_label => "$mplotVal",
