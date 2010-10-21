@@ -356,7 +356,7 @@ if ($plotVal eq "MemUsage") {
     if( $min_y == 0) {
         $graph->set(x_label => "(0 value means job failed or data not available)");
     } else {
-        $min_y = $min_y - ($max_y-$min_y)*5.0;
+        $min_y = $min_y - ($max_y-$min_y)*10.0;
     }
 
    $max_y = $max_y + ($max_y - $min_y)/10.0;
@@ -380,7 +380,7 @@ if ($plotVal eq "MemUsage") {
                 y_max_value => $max_y,
                 y_number_format => \&y_format,
                 labelclr => "lblack",
-                dclrs => [ qw(lblack lblue lred lgreen lpink lpurple lorange lyellow ) ],
+                dclrs => [ qw(lblack lred lgreen lpink lblue lpurple lorange lyellow ) ],
                 line_width => 2,
                 markers => [ 2,3,4,5,6,7,8,9],
                 marker_size => 2,
