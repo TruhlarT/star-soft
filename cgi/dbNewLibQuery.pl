@@ -348,7 +348,7 @@ if ($plotVal eq "MemUsage") {
 
 }
 
- my $xLabelsVertical = 1;
+ my $xLabelsVertical = 0;
  my $xLabelPosition = 0;
  my $xLabelSkip = 1;
 
