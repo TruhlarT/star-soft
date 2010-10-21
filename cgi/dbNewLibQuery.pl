@@ -392,8 +392,8 @@ my $graph = new GD::Graph::linespoints(750,650);
     
     print STDOUT $graph->plot(\@data)->$format();
 
+       }
     }
-
   }
 
 exit 0;
