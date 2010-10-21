@@ -214,6 +214,9 @@ my $plotVal =  $qqr->param('plotVal');
 
 $JobStatusT = "JobStatus";
 
+            &beginHtml();
+
+
 my @spl = ();
 @spl = split(" ",$plotVal);
 my $plotVl = $spl[0];
