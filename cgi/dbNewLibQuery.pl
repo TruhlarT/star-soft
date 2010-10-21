@@ -158,8 +158,8 @@ my $plotVal = $query->param('plotVal');
 
   if( $tset eq "" and $plotVal eq "" ) {
 
-print $query->header;
-print $query->start_html('Query for Nightly Test in NEW Library');
+print $query->header();
+print $query->start_html('Plots for Nightly Test in NEW Library');
 print <<END;
 <META HTTP-EQUIV="Expires" CONTENT="0">
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
@@ -168,7 +168,7 @@ END
 print $query->startform(-action=>"$scriptname");  
 
 print "<body bgcolor=\"cornsilk\">\n";
-print "<h1 align=center><u>Query for Nightly Test in NEW Librares</u></h1>\n";
+print "<h1 align=center><u>Plots for Nightly Test in NEW Librares</u></h1>\n";
 
 print "<br>";
 print "<br>";
@@ -196,12 +196,12 @@ print "</td> </tr> </table><hr><center>";
 print "<br>";
 print "<br>";
 print "<br>";
-print $query->submit,"<p>";
-print $query->reset;
-print $query->endform;
+print $query->submit(),"<p>";
+print $query->reset();
+print $query->endform();
 print "<address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>\n";
 
-print $query->end_html;
+print $query->end_html();
 
   }else{
 
@@ -210,6 +210,8 @@ my $qqr = new CGI;
 my $tset    =  $qqr->param('sets');
 my $plotVal =  $qqr->param('plotVal');
 
+
+$JobStatusT = "JobStatus";
 
 my @spl = ();
 @spl = split(" ",$plotVal);
@@ -282,21 +284,21 @@ $minVal = 0;
               if ($plotVal eq "MemUsage") {
                 $plotmemfstd[$npk] = $fields[1];
                 $plotmemlstd[$npk] = $fields[2];
-		if( $plotmemlstd[$npt] >= $maxval) {
-		    $maxval =  $plotmemlstd[$npt];
+		if( $plotmemlstd[$npk] >= $maxval) {
+		    $maxval =  $plotmemlstd[$npk];
                   }
-	        if( $plotmemfstd[$npt] <= $minval ) {
-		  $minval =  $plotmemfstd[$npt];
+	        if( $plotmemfstd[$npk] <= $minval ) {
+		  $minval =  $plotmemfstd[$npk];
 	          }
                 $libtag[$npk] = $fields[3];
                  $npk++;                 
 	   }else{
  		$plotvaldg[$npk] = $fields[1];
-                if( $plotvaldg[$npt] >= $maxval) {
-		    $maxval =  $plotvaldg[$npt];
+                if( $plotvaldg[$npk] >= $maxval) {
+		    $maxval =  $plotvaldg[$npk];
                   }
-	        if( $plotvaldg[$npt] <= $minval ) {
-		  $minval =  $plotvaldg[$npt];
+	        if( $plotvaldg[$npk] <= $minval ) {
+		  $minval =  $plotvaldg[$npk];
 	          }
                 $libtag[$npk] = $fields[2];
                 $npk++;            
@@ -352,13 +354,9 @@ if ($plotVal eq "MemUsage") {
 my $graph = new GD::Graph::linespoints(750,650);
 
  if ( ! $graph){
-    print STDOUT $query->header(-type => 'text/plain');
+    print STDOUT $qqr->header(-type => 'text/plain');
     print STDOUT "Failed\n";
 } else {
-
-  my $format = $graph->export_format;
-  print header("image/$format");
-  binmode STDOUT;
 
     $graph->set(#x_label => "$xlabel",
                 #y_label => "$mplotVal",
@@ -384,6 +382,14 @@ my $graph = new GD::Graph::linespoints(750,650);
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
 
+         if ( scalar(@libtag) <= 1 ) {
+            print $qqr->header(-type => 'text/html')."\n";
+            &beginHtml();
+        } else {
+            my $format = $graph->export_format;
+            print header("image/$format");
+            binmode STDOUT;
+    
     print STDOUT $graph->plot(\@data)->$format();
 
     }
@@ -414,3 +420,20 @@ sub y_format
     $ret = sprintf("%8.2f", $value);
 }
 
+#####################################
+
+sub beginHtml {
+
+print <<END;
+  <html>
+   <head>
+          <title>Plots for Nightly Test in NEW Library</title>
+   </head>
+   <body BGCOLOR=\"#ccffff\">
+     <h1 align=center>No Data for for this dataset </h1>
+
+
+    </body>
+   </html>
+END
+}
