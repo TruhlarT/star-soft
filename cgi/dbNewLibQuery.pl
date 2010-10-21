@@ -222,7 +222,7 @@ my @spl = ();
 @spl = split(" ",$plotVal);
 my $plotVl = $spl[0];
 
-#my $mplotVal = $plotHash{$plotVl};
+my $mplotVal = $plotHash{$plotVl};
 
   &StDbTJobsConnect();
 
@@ -237,11 +237,10 @@ my $tyear  = "2010";
  @spl = split("/", $pth);
  $path =  $spl[1]."/". $spl[2];
 
-#my $qupath = "%$path%";
+ my $qupath = "%$path%";
 
-
-my $mplotVal = "avg_no_tracks"; 
-my $qupath = "year_2010/auau200_production";
+#my $mplotVal = "avg_no_tracks"; 
+#my $qupath = "year_2010/auau200_production";
 
 @plotvaldg = ();
 @plotvalop = ();
@@ -444,7 +443,7 @@ print <<END;
           <title>Plots for Nightly Test in NEW Library</title>
    </head>
    <body BGCOLOR=\"#ccffff\">
-     <h1 align=center>No Data for this dataset $tset and $mplotVal </h1>
+     <h1 align=center>No Data for $path and $mplotVal </h1>
 
 
     </body>
