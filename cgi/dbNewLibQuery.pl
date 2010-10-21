@@ -323,7 +323,7 @@ $minVal = 0;
 @data = ();
 
 
-my $graph = new GD::Graph::linespoints(750,650);
+my $graph = new GD::Graph::linespoints(650,500);
 
  if ( ! $graph){
     print STDOUT $qqr->header(-type => 'text/plain');
@@ -332,15 +332,36 @@ my $graph = new GD::Graph::linespoints(750,650);
  } else {
 
 
-#    if( $min_y == 0) {
-#        $graph->set(x_label => "(0 value means job failed or data not available)");
-#    } else {
-#        # keep the min_y in the 6th ticks (6/3)
-#        $min_y = $min_y - ($max_y-$min_y)*2.0;
-#    }
+if ($plotVal eq "MemUsage") {
+    @data = (\@libtag, \@plotmemfsto, \@plotmemlsto, \@plotmemfstd, \@plotmemlstd );
+    $legend[0] = "MemUsageFirst(optimized)";
+    $legend[1] = "MemUsageLast(optimized)";
+    $legend[2] = "MemUsageFirst(nonoptimized)";
+    $legend[3] = "MemUsageLast(nonoptimized)";
 
-#    # keep the max_y in the 9th ticks
-#   $max_y = $max_y + ($max_y - $min_y)/10.0;
+    $mplotVal="MemUsageFirstEvent,MemUsageLastEvent";
+} else {
+    @data = (\@libtag, \@plotvalop, \@plotvaldg );
+    
+    $legend[0] = "$plotVal"."(optimized)";
+    $legend[1] = "$plotVal"."(nonoptimized)";
+
+}
+
+ my $xLabelsVertical = 1;
+ my $xLabelPosition = 0;
+ my $xLabelSkip = 1;
+
+
+    if( $min_y == 0) {
+        $graph->set(x_label => "(0 value means job failed or data not available)");
+    } else {
+        # keep the min_y in the 6th ticks (6/3)
+        $min_y = $min_y - ($max_y-$min_y)*2.0;
+    }
+
+    # keep the max_y in the 9th ticks
+   $max_y = $max_y + ($max_y - $min_y)/10.0;
 
     if($max_y eq $min_y) {
         $max_y += 1;
@@ -350,27 +371,6 @@ my $graph = new GD::Graph::linespoints(750,650);
     if($min_y < 0) {
         $min_y = 0;
     }
-
-
-if ($plotVal eq "MemUsage") {
-    @data = (\@libtag, \@plotmemfsto, \@plotmemlsto, \@plotmemfstd, \@plotmemlstd );
-    $legend[0] = "MemUsageFirst(optimized)";
-    $legend[1] = "MemUsageLast(optimized)";
-    $legend[2] = "MemUsageFirst(nonoptimized)";
-    $legend[3] = "MemUsageLast(nonoptimized)";
-    $mplotVal="MemUsageFirstEvent,MemUsageLastEvent";
-} else {
-    @data = (\@libtag, \@plotvalop, \@plotvaldg );
-    
-#     @data = (\@libtag, \@plotvaldg );
-    $legend[0] = "$mplotVal"."(optimized)";
-    $legend[1] = "$mplotVal"."(nonoptimized)";
-
-}
-
- my $xLabelsVertical = 1;
- my $xLabelPosition = 0;
- my $xLabelSkip = 1;
 
 
     $graph->set(#x_label => "$xlabel",
