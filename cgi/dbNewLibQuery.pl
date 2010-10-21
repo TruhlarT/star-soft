@@ -257,7 +257,7 @@ $minVal = 0;
               if ($plotVal eq "MemUsage") {
                 $plotmemfsto[$npt] = $fields[1];
                 $plotmemlsto[$npt] = $fields[2];
-                if( $plotmemlsto[$npt] >= $maxval)
+                if( $plotmemlsto[$npt] >= $maxval) {
 		    $maxval =  $plotmemlsto[$npt];
                   }
 	        if( $plotmemfsto[$npt] <= $minval ) {
@@ -267,7 +267,7 @@ $minVal = 0;
                  $npt++;  
 	   }else{
 		$plotvalop[$npt] = $fields[1];
-               if( $plotvalop[$npt] >= $maxval)
+		if( $plotvalop[$npt] >= $maxval) {
 		    $maxval =  $plotvalop[$npt];
                   }
 	        if( $plotvalop[$npt] <= $minval ) {
@@ -275,7 +275,7 @@ $minVal = 0;
 	          }
                 $libtag[$npt] = $fields[2];
                  $npt++;
-	    }
+	       }
 	    }else{                
               if ($plotVal eq "MemUsage") {
                 $plotmemfstd[$npk] = $fields[1];
