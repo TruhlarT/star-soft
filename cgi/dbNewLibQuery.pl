@@ -16,6 +16,7 @@ use DBI;
 use CGI qw(:standard);
 use GD;
 use GD::Graph::linespoints;
+use Mysql;
 
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
@@ -225,14 +226,14 @@ my $path;
 my $pth;
 my $tyear  = "2010%";
 
- @spl = split(" ", $set1);
+ @spl = split(" ", $tset);
  $pth = $spl[0];
 
  @spl = ();
  @spl = split("/", $pth);
  $path =  $spl[1]."/". $spl[2];
 
-my $qupath = "%$path";
+my $qupath = "%$path%";
 
 @plotvaldg = ();
 @plotvalop = ();
