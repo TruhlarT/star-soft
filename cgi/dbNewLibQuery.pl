@@ -30,7 +30,7 @@ $JobStatusT = "JobStatus";
 my $debugOn = 0;
 my @data = ();
 my @legend = ();
-my $prepath = "new";
+my $prepath;
 
 
 
@@ -355,7 +355,7 @@ if ($plotVal eq "MemUsage") {
     if( $min_y == 0) {
         $graph->set(x_label => "(0 value means job failed or data not available)");
     } else {
-        $min_y = $min_y - ($max_y-$min_y)*50.0;
+        $min_y = $min_y - ($max_y-$min_y)*500.0;
     }
 
    $max_y = $max_y + ($max_y - $min_y)/10.0;
