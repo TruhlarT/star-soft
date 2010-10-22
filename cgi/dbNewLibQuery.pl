@@ -30,8 +30,9 @@ $JobStatusT = "JobStatus";
 my $debugOn = 0;
 my @data = ();
 my @legend = ();
+my $prepath = "new";
 
-my $rand = rand(100);
+
 
 my @prod_set = (
 	  	"trs_sl302/year_2000/hc_standard",
@@ -212,10 +213,6 @@ my $qqr = new CGI;
 my $tset    =  $qqr->param('sets');
 my $plotVal =  $qqr->param('plotVal');
 
-
-#my $tset  = "daq_sl302/year_2010/auau200_production";
-#my $plotVal = "Average_NoTracks"; 
-
 $JobStatusT = "JobStatus";
 
 my @spl = ();
@@ -235,9 +232,11 @@ my $tyear  = "2010";
 
  @spl = ();
  @spl = split("/", $pth);
- $path =  $spl[1]."/". $spl[2];
+ $path = $spl[1]."/". $spl[2];
 
- my $qupath = "%$path%";
+$prepath = "%new/".$spl[0].".ittf";
+
+ my $qupath = "%$prepath%$path%";
 
 @plotvaldg = ();
 @plotvalop = ();
@@ -356,7 +355,7 @@ if ($plotVal eq "MemUsage") {
     if( $min_y == 0) {
         $graph->set(x_label => "(0 value means job failed or data not available)");
     } else {
-        $min_y = $min_y - ($max_y-$min_y)*10.0;
+        $min_y = $min_y - ($max_y-$min_y)*50.0;
     }
 
    $max_y = $max_y + ($max_y - $min_y)/10.0;
