@@ -248,10 +248,10 @@ $npk = 0;
 @plotmemfstd = ();
 @plotmemlstd = ();
 
-$min_y = 0;
-$max_y = 5000;
+$min_y = 10;
+$max_y = 1;
 $maxval = 0;
-$minVal = 0;
+$minVal = 50000;
 
 
     $sql="SELECT path, $mplotVal, LibTag FROM JobStatus WHERE path LIKE ?  AND jobStatus= 'Done' and LibTag like 'SL10%' and createTime like '$tyear%' ORDER by createTime";
