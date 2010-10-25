@@ -140,7 +140,8 @@ my %plotHash = (
 
 my @plotvaldg = ();
 my @plotvalop = ();
-my @libtag = ();
+my @libtagop = ();
+my @libtagd = ();
 my $npt = 0;
 my $npk = 0;
 my @plotmemfst = ();
@@ -240,7 +241,8 @@ $prepath = "%new/".$spl[0].".ittf";
 
 @plotvaldg = ();
 @plotvalop = ();
-@libtag = ();
+@libtagop = ();
+@libtagd = ();
 $npt = 0;
 $npk = 0;
 @plotmemfsto = ();
@@ -268,20 +270,20 @@ $minVal = 50000;
                 if( $plotmemlsto[$npt] >= $maxval) {
 		    $maxval =  $plotmemlsto[$npt];
                   }
-	        if( $plotmemfsto[$npt] <= $minval ) {
+	        if( $plotmemfsto[$npt] > 0.01 and $plotmemfsto[$npt] <= $minval ) {
 		  $minval =  $plotmemfsto[$npt];
 	          }
-                $libtag[$npt] = $fields[3];               
+                $libtagop[$npt] = $fields[3];               
                  $npt++;  
 	   }else{
 		$plotvalop[$npt] = $fields[1];
 		if( $plotvalop[$npt] >= $maxval) {
 		    $maxval =  $plotvalop[$npt];
                   }
-	        if( $plotvalop[$npt] <= $minval ) {
+	        if( $plotvalop[$npt] > 0.01 and $plotvalop[$npt] <= $minval ) {
 		  $minval =  $plotvalop[$npt];
 	          }
-                $libtag[$npt] = $fields[2];
+                $libtagop[$npt] = $fields[2];
                  $npt++;
 	       }
 	    }else{                
@@ -291,20 +293,20 @@ $minVal = 50000;
 		if( $plotmemlstd[$npk] >= $maxval) {
 		    $maxval =  $plotmemlstd[$npk];
                   }
-	        if( $plotmemfstd[$npk] <= $minval ) {
+	        if( $plotmemfstd[$npk] > 0.01 and $plotmemfstd[$npk]  <= $minval ) {
 		  $minval =  $plotmemfstd[$npk];
 	          }
-                $libtag[$npk] = $fields[3];
+                $libtagd[$npk] = $fields[3];
                  $npk++;                 
 	   }else{
  		$plotvaldg[$npk] = $fields[1];
                 if( $plotvaldg[$npk] >= $maxval) {
 		    $maxval =  $plotvaldg[$npk];
                   }
-	        if( $plotvaldg[$npk] <= $minval ) {
+	        if( $plotvaldg[$npk] > 0.01 and $plotvaldg[$npk] <= $minval ) {
 		  $minval =  $plotvaldg[$npk];
 	          }
-                $libtag[$npk] = $fields[2];
+                $libtagd[$npk] = $fields[2];
                 $npk++;            
             }
 	  }
@@ -332,16 +334,24 @@ my $graph = new GD::Graph::linespoints(650,500);
 
 
 if ($plotVal eq "MemUsage") {
-    @data = (\@libtag, \@plotmemfsto, \@plotmemlsto, \@plotmemfstd, \@plotmemlstd );
+    if(scaler(@libtagd > scaler(@libtagop ) {
+    @data = (\@libtagd, \@plotmemfsto, \@plotmemlsto, \@plotmemfstd, \@plotmemlstd );
+   }else{
+    @data = (\@libtagop, \@plotmemfsto, \@plotmemlsto, \@plotmemfstd, \@plotmemlstd );
+   }
     $legend[0] = "MemUsageFirst(optimized)";
     $legend[1] = "MemUsageLast(optimized)";
     $legend[2] = "MemUsageFirst(nonoptimized)";
     $legend[3] = "MemUsageLast(nonoptimized)";
 
     $mplotVal="MemUsageFirstEvent,MemUsageLastEvent";
-} else {
-    @data = (\@libtag, \@plotvalop, \@plotvaldg );
-    
+  } else {
+
+    if(scaler(@libtagd > scaler(@libtagop ) {
+    @data = (\@libtagd, \@plotvalop, \@plotvaldg );
+   }else{
+    @data = (\@libtagop, \@plotvalop, \@plotvaldg );
+   }    
     $legend[0] = "$plotVal"."(optimized)";
     $legend[1] = "$plotVal"."(nonoptimized)";
 
@@ -355,25 +365,18 @@ if ($plotVal eq "MemUsage") {
     if( $min_y == 0) {
         $graph->set(x_label => "(0 value means job failed or data not available)");
     } else {
-#        $min_y = $min_y - ($max_y-$min_y)*500.0;
          $min_y = $min_y - $min_y*0.2;
     }
 
-#   $max_y = $max_y + ($max_y - $min_y)/10.0;
- 
-   $max_y = $max_y + $max_y*0.2;
-#   $min_y = 0.8*$minval ;
+   $max_y = 1.2*$max_y;
+   $min_y = 0.8*$minval ;
 
-    $min_y = 0.5*$max_y;
+#    $min_y = 0.5*$max_y;
 
-#    if($max_y eq $min_y) {
-#        $max_y += 1;
-#        $min_y -= 1;
-#    }
 
-#    if($min_y < 0) {
-#        $min_y = 0;
-# }
+    if($min_y < 0) {
+        $min_y = 0;
+ }
 
 
     $graph->set(#x_label => "$xlabel",
