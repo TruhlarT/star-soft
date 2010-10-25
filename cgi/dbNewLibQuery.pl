@@ -362,7 +362,9 @@ if ($plotVal eq "MemUsage") {
 #   $max_y = $max_y + ($max_y - $min_y)/10.0;
  
    $max_y = $max_y + $max_y*0.2;
-    $min_y = 0.8*$min_y ;
+#   $min_y = 0.8*$minval ;
+
+    $min_y = 0.5*$max_y;
 
 #    if($max_y eq $min_y) {
 #        $max_y += 1;
