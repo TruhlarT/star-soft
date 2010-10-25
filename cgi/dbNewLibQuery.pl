@@ -248,7 +248,7 @@ $npk = 0;
 @plotmemfstd = ();
 @plotmemlstd = ();
 
-$min_y = 10;
+$min_y = 1000;
 $max_y = 1;
 $maxval = 0;
 $minVal = 50000;
@@ -362,16 +362,16 @@ if ($plotVal eq "MemUsage") {
 #   $max_y = $max_y + ($max_y - $min_y)/10.0;
  
    $max_y = $max_y + $max_y*0.2;
-    $min_y = $min_y - $min_y*0.2;
+    $min_y = 0.8*$min_y ;
 
 #    if($max_y eq $min_y) {
 #        $max_y += 1;
 #        $min_y -= 1;
 #    }
 
-    if($min_y < 0) {
-        $min_y = 0;
-    }
+#    if($min_y < 0) {
+#        $min_y = 0;
+# }
 
 
     $graph->set(#x_label => "$xlabel",
