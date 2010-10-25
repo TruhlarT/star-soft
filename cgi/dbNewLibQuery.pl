@@ -315,7 +315,7 @@ $minval = 50000;
 
 &StDbTJobsDisconnect();
 
- $min_y = 0.8*$minval;
+ $min_y = $minval;
  $max_y = $maxval;
 
  my $ylabel;
@@ -365,7 +365,7 @@ if ($plotVal eq "MemUsage") {
     if( $min_y == 0) {
         $graph->set(x_label => "(0 value means job failed or data not available)");
     } else {
-        $min_y = $min_y - $min_y*0.1;
+        $min_y = $min_y - $min_y*0.2;
    
     }
 
