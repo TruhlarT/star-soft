@@ -405,7 +405,7 @@ if ($plotVal eq "MemUsage") {
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
 
-         if ( scalar(@libtag) <= 1 ) {
+         if ( scalar(@libtagd) <= 1 and calar(@libtagop) <= 1 ) {
             print $qqr->header(-type => 'text/html')."\n";
             &beginHtml();
         } else {
