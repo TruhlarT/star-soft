@@ -294,7 +294,7 @@ $minVal = 0;
 	        if( $plotmemfstd[$npk] <= $minval ) {
 		  $minval =  $plotmemfstd[$npk];
 	          }
-#                $libtag[$npk] = $fields[3];
+                $libtag[$npk] = $fields[3];
                  $npk++;                 
 	   }else{
  		$plotvaldg[$npk] = $fields[1];
@@ -304,7 +304,7 @@ $minVal = 0;
 	        if( $plotvaldg[$npk] <= $minval ) {
 		  $minval =  $plotvaldg[$npk];
 	          }
-#                $libtag[$npk] = $fields[2];
+                $libtag[$npk] = $fields[2];
                 $npk++;            
             }
 	  }
@@ -360,12 +360,14 @@ if ($plotVal eq "MemUsage") {
     }
 
 #   $max_y = $max_y + ($max_y - $min_y)/10.0;
-    $max_y = $max_y + $max_y*0.2;
+ 
+   $max_y = $max_y + $max_y*0.2;
+    $min_y = $min_y - $min_y*0.2;
 
-    if($max_y eq $min_y) {
-        $max_y += 1;
-        $min_y -= 1;
-    }
+#    if($max_y eq $min_y) {
+#        $max_y += 1;
+#        $min_y -= 1;
+#    }
 
     if($min_y < 0) {
         $min_y = 0;
