@@ -334,7 +334,7 @@ my $graph = new GD::Graph::linespoints(650,500);
 
 
 if ($plotVal eq "MemUsage") {
-    if(scaler(@libtagd > scaler(@libtagop ) {
+    if(scaler(@libtagd) > scaler(@libtagop) ) {
     @data = (\@libtagd, \@plotmemfsto, \@plotmemlsto, \@plotmemfstd, \@plotmemlstd );
    }else{
     @data = (\@libtagop, \@plotmemfsto, \@plotmemlsto, \@plotmemfstd, \@plotmemlstd );
@@ -347,7 +347,7 @@ if ($plotVal eq "MemUsage") {
     $mplotVal="MemUsageFirstEvent,MemUsageLastEvent";
   } else {
 
-    if(scaler(@libtagd > scaler(@libtagop ) {
+    if(scaler(@libtagd) > scaler(@libtagop) ) {
     @data = (\@libtagd, \@plotvalop, \@plotvaldg );
    }else{
     @data = (\@libtagop, \@plotvalop, \@plotvaldg );
