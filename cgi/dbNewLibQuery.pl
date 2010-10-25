@@ -365,12 +365,11 @@ if ($plotVal eq "MemUsage") {
     if( $min_y == 0) {
         $graph->set(x_label => "(0 value means job failed or data not available)");
     } else {
-        $min_y = $min_y - $min_y*0.2;
+        $min_y = $min_y - $min_y*0.1;
    
     }
 
    $max_y = 1.2*$max_y;
-#   $min_y = 0.8*$minval ;
 
 #    $min_y = 0.5*$max_y;
 
