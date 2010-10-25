@@ -253,7 +253,7 @@ $npk = 0;
 $min_y = 1000;
 $max_y = 1;
 $maxval = 0;
-$minVal = 50000;
+$minval = 50000;
 
 
     $sql="SELECT path, $mplotVal, LibTag FROM JobStatus WHERE path LIKE ?  AND jobStatus= 'Done' and LibTag like 'SL10%' and createTime like '$tyear%' ORDER by createTime";
@@ -315,7 +315,7 @@ $minVal = 50000;
 
 &StDbTJobsDisconnect();
 
- $min_y = $minval;
+ $min_y = 0.8*$minval;
  $max_y = $maxval;
 
  my $ylabel;
@@ -365,11 +365,12 @@ if ($plotVal eq "MemUsage") {
     if( $min_y == 0) {
         $graph->set(x_label => "(0 value means job failed or data not available)");
     } else {
-         $min_y = $min_y - $min_y*0.2;
+        $min_y = $min_y - $min_y*0.2;
+   
     }
 
    $max_y = 1.2*$max_y;
-   $min_y = 0.8*$minval ;
+#   $min_y = 0.8*$minval ;
 
 #    $min_y = 0.5*$max_y;
 
