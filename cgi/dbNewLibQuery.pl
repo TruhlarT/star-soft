@@ -171,7 +171,7 @@ END
 print $query->startform(-action=>"$scriptname");  
 
 print "<body bgcolor=\"cornsilk\">\n";
-print "<h1 align=center><u>Plots for Nightly Test in NEW Librares</u></h1>\n";
+print "<h1 align=center><u>Plots for NEW librares validation tests</u></h1>\n";
 
 print "<br>";
 print "<br>";
@@ -250,10 +250,10 @@ $npk = 0;
 @plotmemfstd = ();
 @plotmemlstd = ();
 
-$min_y = 1000;
-$max_y = 1;
+$min_y = 1;
+$max_y = 1000;
 $maxval = 0;
-$minval = 50000;
+$minval = 100000;
 
 
     $sql="SELECT path, $mplotVal, LibTag FROM JobStatus WHERE path LIKE ?  AND jobStatus= 'Done' and LibTag like 'SL10%' and createTime like '$tyear%' ORDER by createTime";
@@ -365,14 +365,11 @@ if ($plotVal eq "MemUsage") {
     if( $min_y == 0) {
         $graph->set(x_label => "(0 value means job failed or data not available)");
     } else {
-        $min_y = $min_y - $min_y*0.2;
+        $min_y = $min_y - $min_y*0.1;
    
     }
 
    $max_y = 1.2*$max_y;
-
-#    $min_y = 0.5*$max_y;
-
 
     if($min_y < 0) {
         $min_y = 0;
