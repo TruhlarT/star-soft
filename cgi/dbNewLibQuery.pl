@@ -465,7 +465,7 @@ print <<END;
           <title>Plots for Nightly Test in NEW Library</title>
    </head>
    <body BGCOLOR=\"#ccffff\">
-     <h1 align=center>No Data for $tset and $plotVal </h1>
+     <h1 align=center>No $plotVal data for $tset and year $tyear </h1>
 
 
     </body>
