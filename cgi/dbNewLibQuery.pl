@@ -80,14 +80,6 @@ my @prod_set = (
                 "daq_sl302/year_2010/auau7_production"
 		);
 
-my @sets_name;
-
-my $kk = 0;
-$sets_name[0] = "all";
-for( $ll=0; $ll<scalar(@prod_set); $ll++) {
-    $sets_name[$kk] = $prod_set[$ll] ;
-    $kk++;
-}  
 
 my @myplot =   (
 		"MemUsage",
@@ -187,7 +179,7 @@ print "<p>";
 print "<h3 align=center>Select Test</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'sets',
-			     -values=>\@sets_name,
+			     -values=>\@prod_set,
 			     -size=>8);
 print "</td><td>";
 print "<h3 align=center> Select plot:</h3>";
@@ -231,7 +223,7 @@ my $dyear = $tyear - 2000 ;
 
 if( $dyear < 10 ) {$dyear = '0'.$dyear};
 
-my $ylib = "SL".$dyear;
+my $ylib = "SL"."$dyear%";
 my @spl = ();
 @spl = split(" ",$plotVal);
 my $plotVl = $spl[0];
@@ -271,10 +263,10 @@ $maxval = 0;
 $minval = 100000;
 
 
-    $sql="SELECT path, $mplotVal, LibTag FROM JobStatus WHERE path LIKE ?  AND jobStatus= 'Done' and LibTag like '$ylib%' and createTime like ? ORDER by createTime";
+    $sql="SELECT path, $mplotVal, LibTag FROM JobStatus WHERE path LIKE ?  AND jobStatus= 'Done' and LibTag like ? and createTime like ? ORDER by createTime";
 
         $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
-        $cursor->execute($qupath,$cryear);
+        $cursor->execute($qupath,$ylib,$cryear);
 
         while(@fields = $cursor->fetchrow_array) {
 
@@ -285,7 +277,7 @@ $minval = 100000;
                 if( $plotmemlsto[$npt] >= $maxval) {
 		    $maxval =  $plotmemlsto[$npt];
                   }
-	        if( $plotmemfsto[$npt] > 0.01 and $plotmemfsto[$npt] <= $minval ) {
+	        if( $plotmemfsto[$npt] >= 0 and $plotmemfsto[$npt] <= $minval ) {
 		  $minval =  $plotmemfsto[$npt];
 	          }
                 $libtagop[$npt] = $fields[3];               
@@ -295,7 +287,7 @@ $minval = 100000;
 		if( $plotvalop[$npt] >= $maxval) {
 		    $maxval =  $plotvalop[$npt];
                   }
-	        if( $plotvalop[$npt] > 0.01 and $plotvalop[$npt] <= $minval ) {
+	        if( $plotvalop[$npt] >=0 and $plotvalop[$npt] <= $minval ) {
 		  $minval =  $plotvalop[$npt];
 	          }
                 $libtagop[$npt] = $fields[2];
@@ -308,7 +300,7 @@ $minval = 100000;
 		if( $plotmemlstd[$npk] >= $maxval) {
 		    $maxval =  $plotmemlstd[$npk];
                   }
-	        if( $plotmemfstd[$npk] > 0.01 and $plotmemfstd[$npk]  <= $minval ) {
+	        if( $plotmemfstd[$npk] >= 0 and $plotmemfstd[$npk]  <= $minval ) {
 		  $minval =  $plotmemfstd[$npk];
 	          }
                 $libtagd[$npk] = $fields[3];
@@ -318,7 +310,7 @@ $minval = 100000;
                 if( $plotvaldg[$npk] >= $maxval) {
 		    $maxval =  $plotvaldg[$npk];
                   }
-	        if( $plotvaldg[$npk] > 0.01 and $plotvaldg[$npk] <= $minval ) {
+	        if( $plotvaldg[$npk] >= 0 and $plotvaldg[$npk] <= $minval ) {
 		  $minval =  $plotvaldg[$npk];
 	          }
                 $libtagd[$npk] = $fields[2];
