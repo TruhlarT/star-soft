@@ -150,16 +150,17 @@ my $min_y = 0;
 my $max_y = 5000;
 my $maxval = 0;
 my $minVal = 0;
- 
+my @aryear = ("2009","2010"); 
 
 my $query = new CGI;
 
 my $scriptname = $query->url(-relative=>1);
 
-my $tset    =  $query->param('sets');
+my $tset    = $query->param('sets');
 my $plotVal = $query->param('plotVal');
+my $tyear   = $query->param('ryear');
 
-  if( $tset eq "" and $plotVal eq "" ) {
+  if( $tset eq "" and $plotVal eq "" and $tyear eq  "" ) {
 
 print $query->header();
 print $query->start_html('Plots for Nightly Test in NEW Library');
@@ -171,7 +172,7 @@ END
 print $query->startform(-action=>"$scriptname");  
 
 print "<body bgcolor=\"cornsilk\">\n";
-print "<h1 align=center><u>Plots for NEW librares validation tests</u></h1>\n";
+print "<h1 align=center><u>Plots for NEW libraries validation tests</u></h1>\n";
 
 print "<br>";
 print "<br>";
@@ -196,6 +197,14 @@ print $query->scrolling_list(-name=>'plotVal',
 			     -size =>8); 
 print "</td> </tr> </table><hr><center>";
 
+print "<p>";
+print "<h3 align=center>Select year:</h3>";
+print "<h4 align=center>";
+print $query->scrolling_list(-name=>'ryear',
+			     -values=>\@aryear,
+                             -default=>2010,                              
+			     -size=>1);
+
 print "</h4>";
 print "<br>";
 print "<br>";
@@ -213,9 +222,16 @@ my $qqr = new CGI;
 
 my $tset    =  $qqr->param('sets');
 my $plotVal =  $qqr->param('plotVal');
+my $tyear   =  $qqr->param('ryear');
 
 $JobStatusT = "JobStatus";
 
+my $cryear = "$tyear%";
+my $dyear = $tyear - 2000 ;
+
+if( $dyear < 10 ) {$dyear = '0'.$dyear};
+
+my $ylib = "SL".$dyear;
 my @spl = ();
 @spl = split(" ",$plotVal);
 my $plotVl = $spl[0];
@@ -226,7 +242,6 @@ my $mplotVal = $plotHash{$plotVl};
 
 my $path;
 my $pth;
-my $tyear  = "2010";
 
  @spl = split(" ", $tset);
  $pth = $spl[0];
@@ -256,10 +271,10 @@ $maxval = 0;
 $minval = 100000;
 
 
-    $sql="SELECT path, $mplotVal, LibTag FROM JobStatus WHERE path LIKE ?  AND jobStatus= 'Done' and LibTag like 'SL10%' and createTime like '$tyear%' ORDER by createTime";
+    $sql="SELECT path, $mplotVal, LibTag FROM JobStatus WHERE path LIKE ?  AND jobStatus= 'Done' and LibTag like '$ylib%' and createTime like ? ORDER by createTime";
 
         $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
-        $cursor->execute($qupath);
+        $cursor->execute($qupath,$cryear);
 
         while(@fields = $cursor->fetchrow_array) {
 
