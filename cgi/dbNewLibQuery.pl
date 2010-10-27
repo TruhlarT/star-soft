@@ -140,16 +140,16 @@ my %plotHash = (
 
 my @plotvaldg = ();
 my @plotvalop = ();
-my @libtag = ();
+my @libtagop = ();
+my @libtagd = ();
 my $npt = 0;
 my $npk = 0;
-my $nl = 0;
 my @plotmemfst = ();
 my @plotmemlst = ();
 my $min_y = 0;
-my $max_y = 100000;
+my $max_y = 5000;
 my $maxval = 0;
-my $minVal = 100000;
+my $minVal = 0;
 my @aryear = ("2009","2010"); 
 
 my $query = new CGI;
@@ -231,7 +231,7 @@ my $dyear = $tyear - 2000 ;
 
 if( $dyear < 10 ) {$dyear = '0'.$dyear};
 
-my $ylib = "SL"."$dyear%";
+my $ylib = "SL".$dyear;
 my @spl = ();
 @spl = split(" ",$plotVal);
 my $plotVl = $spl[0];
@@ -242,7 +242,6 @@ my $mplotVal = $plotHash{$plotVl};
 
 my $path;
 my $pth;
-my $mlib;
 
  @spl = split(" ", $tset);
  $pth = $spl[0];
@@ -257,35 +256,22 @@ $prepath = "%new/".$spl[0].".ittf";
 
 @plotvaldg = ();
 @plotvalop = ();
-@libtag = ();
+@libtagop = ();
+@libtagd = ();
 $npt = 0;
 $npk = 0;
-$nl = 0;
 @plotmemfsto = ();
 @plotmemlsto = ();
 @plotmemfstd = ();
 @plotmemlstd = ();
-
 
 $min_y = 1;
 $max_y = 1000;
 $maxval = 0;
 $minval = 100000;
 
-    $sql="SELECT DISTINCT LibTag FROM JobStatus WHERE  LibTag like ? and createTime like ? ORDER by createTime";
 
-        $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
-        $cursor->execute($ylib,$cryear);
-
-       while( $mlib = $cursor->fetchrow() ) {
-          $libtag[$nl] = $mlib;
-          $nl++;
-       }
-    $cursor->finish();
-
-   foreach my $tlib (@libtag) {
-
-    $sql="SELECT path, $mplotVal, LibTag FROM JobStatus WHERE path LIKE ?  AND jobStatus= 'Done' and LibTag = '$tlib' and createTime like ? ORDER by createTime";
+    $sql="SELECT path, $mplotVal, LibTag FROM JobStatus WHERE path LIKE ?  AND jobStatus= 'Done' and LibTag like '$ylib%' and createTime like ? ORDER by createTime";
 
         $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
         $cursor->execute($qupath,$cryear);
@@ -299,42 +285,48 @@ $minval = 100000;
                 if( $plotmemlsto[$npt] >= $maxval) {
 		    $maxval =  $plotmemlsto[$npt];
                   }
-	        if( $plotmemfsto[$npt] >= 0 and $plotmemfsto[$npt] <= $minval ) {
+	        if( $plotmemfsto[$npt] > 0.01 and $plotmemfsto[$npt] <= $minval ) {
 		  $minval =  $plotmemfsto[$npt];
 	          }
+                $libtagop[$npt] = $fields[3];               
+                 $npt++;  
 	   }else{
 		$plotvalop[$npt] = $fields[1];
 		if( $plotvalop[$npt] >= $maxval) {
 		    $maxval =  $plotvalop[$npt];
                   }
-	        if( $plotvalop[$npt] >= 0 and $plotvalop[$npt] <= $minval ) {
+	        if( $plotvalop[$npt] > 0.01 and $plotvalop[$npt] <= $minval ) {
 		  $minval =  $plotvalop[$npt];
 	          }
+                $libtagop[$npt] = $fields[2];
+                 $npt++;
 	       }
 	    }else{                
               if ($plotVal eq "MemUsage") {
-                $plotmemfstd[$npt] = $fields[1];
-                $plotmemlstd[$npt] = $fields[2];
-		if( $plotmemlstd[$npt] >= $maxval) {
-		    $maxval =  $plotmemlstd[$npt];
+                $plotmemfstd[$npk] = $fields[1];
+                $plotmemlstd[$npk] = $fields[2];
+		if( $plotmemlstd[$npk] >= $maxval) {
+		    $maxval =  $plotmemlstd[$npk];
                   }
-	        if( $plotmemfstd[$npt] >= 0 and $plotmemfstd[$npt]  <= $minval ) {
-		  $minval =  $plotmemfstd[$npt];
+	        if( $plotmemfstd[$npk] > 0.01 and $plotmemfstd[$npk]  <= $minval ) {
+		  $minval =  $plotmemfstd[$npk];
 	          }
+                $libtagd[$npk] = $fields[3];
+                 $npk++;                 
 	   }else{
- 		$plotvaldg[$npt] = $fields[1];
-                if( $plotvaldg[$npt] >= $maxval) {
-		    $maxval =  $plotvaldg[$npt];
+ 		$plotvaldg[$npk] = $fields[1];
+                if( $plotvaldg[$npk] >= $maxval) {
+		    $maxval =  $plotvaldg[$npk];
                   }
-	        if( $plotvaldg[$npt] >= 0 and $plotvaldg[$npt] <= $minval ) {
-		  $minval =  $plotvaldg[$npt];
+	        if( $plotvaldg[$npk] > 0.01 and $plotvaldg[$npk] <= $minval ) {
+		  $minval =  $plotvaldg[$npk];
 	          }
+                $libtagd[$npk] = $fields[2];
+                $npk++;            
             }
 	  }
 
 	}
-    $npt++;
-     }
 
 &StDbTJobsDisconnect();
 
@@ -357,9 +349,10 @@ my $graph = new GD::Graph::linespoints(650,500);
 
 
 if ($plotVal eq "MemUsage") {
-
-    if(scalar(@libtag) >= 1 ) {
-    @data = (\@libtag, \@plotmemfsto, \@plotmemlsto, \@plotmemfstd, \@plotmemlstd );
+    if(scalar(@libtagd) > scalar(@libtagop) ) {
+    @data = (\@libtagd, \@plotmemfsto, \@plotmemlsto, \@plotmemfstd, \@plotmemlstd );
+   }else{
+    @data = (\@libtagop, \@plotmemfsto, \@plotmemlsto, \@plotmemfstd, \@plotmemlstd );
    }
     $legend[0] = "MemUsageFirst(optimized)";
     $legend[1] = "MemUsageLast(optimized)";
@@ -369,12 +362,15 @@ if ($plotVal eq "MemUsage") {
     $mplotVal="MemUsageFirstEvent,MemUsageLastEvent";
   } else {
 
-    if(scalar(@libtag) >= 1 ) {
-     @data = (\@libtag, \@plotvalop, \@plotvaldg );
+    if(scalar(@libtagd) > scalar(@libtagop) ) {
+    @data = (\@libtagd, \@plotvalop, \@plotvaldg );
+   }else{
+    @data = (\@libtagop, \@plotvalop, \@plotvaldg );
    }    
     $legend[0] = "$plotVal"."(optimized)";
     $legend[1] = "$plotVal"."(nonoptimized)";
-  }
+
+}
 
  my $xLabelsVertical = 1;
  my $xLabelPosition = 0.5;
@@ -421,7 +417,7 @@ if ($plotVal eq "MemUsage") {
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
 
-         if ( scalar(@libtag) <= 1  ) {
+         if ( scalar(@libtagd) <= 1 and scalar(@libtagop) <= 1 ) {
             print $qqr->header(-type => 'text/html')."\n";
             &beginHtml();
         } else {
@@ -437,21 +433,19 @@ if ($plotVal eq "MemUsage") {
 
 exit 0;
 
-##################################################################
-
+######################
 sub StDbTJobsConnect {
     $dbh = DBI->connect("dbi:mysql:$dbname:$dbhost", $dbuser, $dbpass)
         || die "Cannot connect to db server $DBI::errstr\n";
 }
 
-###################################################################
-
+######################
 sub StDbTJobsDisconnect {
     $dbh = $dbh->disconnect() || die "Disconnect failure $DBI::errstr\n";
 }
 
 
-###################################################################
+##########################################################
 
 sub y_format
 {
