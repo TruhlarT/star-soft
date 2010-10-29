@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.56 2010/10/29 15:37:00 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.57 2010/10/29 15:39:31 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.57  2010/10/29 15:39:31  didenko
+# change mark size
+#
 # Revision 1.56  2010/10/29 15:37:00  didenko
 # change color order
 #
@@ -382,7 +385,7 @@ $graph = new GD::Graph::linespoints(550+50*$weeks,500);
 		dclrs => [ qw(lblack lred lblue lgreen lpink lpurple lorange lyellow ) ],
 		line_width => 2,
 		markers => [ 2,3,4,5,6,7,8,9],
-		marker_size => 4,
+		marker_size => 2,
 		#long_ticks => 1
 		);
 
