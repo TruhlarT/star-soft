@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.55 2010/10/29 15:33:30 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.56 2010/10/29 15:37:00 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.56  2010/10/29 15:37:00  didenko
+# change color order
+#
 # Revision 1.55  2010/10/29 15:33:30  didenko
 # remove tpt plots
 #
@@ -376,10 +379,10 @@ $graph = new GD::Graph::linespoints(550+50*$weeks,500);
 		y_max_value => $max_y,
 		y_number_format => \&y_format,
 		labelclr => "lred",
-		dclrs => [ qw(lblack lblue lred lgreen lpink lpurple lorange lyellow ) ],
+		dclrs => [ qw(lblack lred lblue lgreen lpink lpurple lorange lyellow ) ],
 		line_width => 2,
 		markers => [ 2,3,4,5,6,7,8,9],
-		marker_size => 6,
+		marker_size => 4,
 		#long_ticks => 1
 		);
 
