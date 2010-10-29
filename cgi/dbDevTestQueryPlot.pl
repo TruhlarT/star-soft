@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.54 2010/07/02 17:11:29 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.55 2010/10/29 15:33:30 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.55  2010/10/29 15:33:30  didenko
+# remove tpt plots
+#
 # Revision 1.54  2010/07/02 17:11:29  didenko
 # updated for number of vertices
 #
@@ -316,22 +319,20 @@ while($n_weeks >= 0) {
 @data = ();
 
 if ($plotVal eq "MemUsage") {
-    @data = (\@Nday, \@point0, \@point1, \@point2, \@point3, \@point4, \@point5, \@point6, \@point7 );
-    $legend[0] = "MemUsageF(tpt)";
-    $legend[1] = "MemUsgaeL(tpt)";
-    $legend[2] = "MemUsgaeF(ittf.optimized)";
-    $legend[3] = "MemUsageL(tpt.optimized)";
-    $legend[4] = "MemUsageF(tpt.optimized)";
-    $legend[5] = "MemUsgaeL(ittf.optimized)";
-    $legend[6] = "MemUsgaeF(ittf)";
-    $legend[7] = "MemUsageL(ittf)";
+#    @data = (\@Nday, \@point0, \@point1, \@point2, \@point3, \@point4, \@point5, \@point6, \@point7 );
+    @data = (\@Nday, \@point2,  \@point3, \@point6, \@point7 );
+    $legend[0] = "MemUsgaeF(ittf.optimized)";
+    $legend[1] = "MemUsgaeL(ittf.optimized)";
+    $legend[2] = "MemUsgaeF(ittf)";
+    $legend[3] = "MemUsageL(ittf)";
     $mplotVal="MemUsageFirstEvent,MemUsageLastEvent";
 } else {
-    @data = (\@Nday, \@point0, \@point2, \@point4, \@point6 );
-    $legend[0] = "$plotVal"."(tpt)";
-    $legend[1] = "$plotVal"."(ittf.optimized)";
-    $legend[2] = "$plotVal"."(tpt.optimized)";
-    $legend[3] = "$plotVal"."(ittf)";
+
+#     @data = (\@Nday, \@point0, \@point2, \@point4, \@point6 );
+
+    @data = (\@Nday, \@point2, \@point6 );
+    $legend[0] = "$plotVal"."(ittf.optimized)";
+    $legend[1] = "$plotVal"."(ittf)";
 }
 
 
