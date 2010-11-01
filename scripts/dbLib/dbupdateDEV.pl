@@ -426,6 +426,8 @@ my $pyear = 0;
      foreach $fname ( @files) {
       next if !$fname;
       next if $fname =~ /^\.\.?$/;    
+      next if $fname =~ /hijing.log/;
+      next if $fname =~ /starsim.log/;
      
  $jrun = "Run not completed";
  $EvDone = 0;
