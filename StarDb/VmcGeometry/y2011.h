@@ -9,7 +9,7 @@ gSystem->Load("libGeom");
 TGeoRotation *rot;
 TGeoNode *Node, *Node1;
 
-TGeoManager *y2011 = new TGeoManager("y2011","y2011.C");
+TGeoManager *y2011 = new TGeoManager("y2011","y2011.h");
 
 
 //-----------List of Materials and Mixtures--------------
@@ -756,7 +756,7 @@ TGeoVolume *SBRX = gGeoManager->MakeTube("SBRX",med23,0,0.1,2.54);
 TGeoVolume *SBSR = gGeoManager->MakeTube("SBSR",med21,4.235,6.39,0.32);
   SBSR->SetLineColor(3);
 TGeoVolume *SBCR = gGeoManager->MakeBox("SBCR",med17,1.815,0.79,0.32);
-TGeoVolume *TPCE = gGeoManager->MakeTube("TPCE",med24,46.107,214.0434,268);
+TGeoVolume *TPCE = gGeoManager->MakeTube("TPCE",med24,46.107,207.77,268);
   TPCE->SetVisibility(0);
   TPCE->SetLineColor(2);
 TGeoVolume *TPGV = gGeoManager->MakeTube("TPGV",med25,47.969,200,104.9981);
