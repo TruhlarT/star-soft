@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.34 2010/11/05 15:07:47 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.35 2010/11/05 15:16:57 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.35  2010/11/05 15:16:57  didenko
+# remove plots for kink
+#
 # Revision 1.34  2010/11/05 15:07:47  didenko
 # add new MC tests and remove cucu200 HT
 #
@@ -185,16 +188,13 @@ my @myplot =   (
                 "NoEvent_vertex",                 
                 "Average_NoV0Vrt",
 		"Average_NoXiVrt",
-		"Average_NoKinKVrt",
                 "Percent_of_usableEvents",
                 "Average_NoTracks_per_usableEvent",
 		"Average_NoPrimTrack_per_usableEvent",
                 "Average_NoTracksNfit15_per_usableEvent",
 		"Average_NoPrimTrackNfit15_per_usableEvent",                 
                 "Average_NoV0_per_usableEvent",
-		"Average_NoXi_uper_sableEvent",
-		"Average_NoKink_per_usableEvent",                 
-                
+		"Average_NoXi_uper_sableEvent"                 
                 );   
 
 $query = new CGI;
