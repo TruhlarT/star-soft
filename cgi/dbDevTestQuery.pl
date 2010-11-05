@@ -1,10 +1,10 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.35 2010/11/05 15:16:57 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.36 2010/11/05 15:19:42 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
-# Revision 1.35  2010/11/05 15:16:57  didenko
-# remove plots for kink
+# Revision 1.36  2010/11/05 15:19:42  didenko
+# reorder tests samples
 #
 # Revision 1.34  2010/11/05 15:07:47  didenko
 # add new MC tests and remove cucu200 HT
@@ -119,25 +119,6 @@ my $debugOn = 0;
 
 my $rand = rand(100);
 my @prod_set = (
-	  	"trs_sl302/year_2000/hc_standard",
-		"trs_sl302/year_2001/hc_standard",
-                "trs_sl302/year_2001/pp_minbias",
-                "trs_sl302/year_2003/dau_minbias",
-                "trs_sl302/year_2004/auau_minbias",
-                "trs_sl302/year_2004/auau_central", 
-                "trs_sl302/year_2005/cucu200_minbias",
-                "trs_sl302/year_2005/cucu62_minbias",
-                "trs_sl302/year_2006/pp200_minbias",
-                "trs_sl302/year_2007/auau200_central",
-                "trs_sl302/year_2008/dau200_minbias",
-                "trs_sl302/year_2008/pp200_minbias",
-                "trs_sl302/year_2009/pp200_minbias",
-                "trs_sl302/year_2009/pp500_minbias",
-                "trs_sl302/year_2010/auau200_minbias",
-                "trs_sl302/year_2010/auau62_minbias",
-                "trs_sl302/year_2010/auau39_minbias",
-                "trs_sl302/year_2010/auau11_minbias",
-                "trs_sl302/year_2010/auau7_minbias",
                 "daq_sl302/year_2000/minbias",
                 "daq_sl302/year_2000/central",
 		"daq_sl302/year_2001/minbias",
@@ -165,7 +146,26 @@ my @prod_set = (
                 "daq_sl302/year_2010/auau39_production",
                 "daq_sl302/year_2010/auau11_production", 
                 "daq_sl302/year_2010/auau7_production"
-		);
+	  	"trs_sl302/year_2000/hc_standard",
+		"trs_sl302/year_2001/hc_standard",
+                "trs_sl302/year_2001/pp_minbias",
+                "trs_sl302/year_2003/dau_minbias",
+                "trs_sl302/year_2004/auau_minbias",
+                "trs_sl302/year_2004/auau_central", 
+                "trs_sl302/year_2005/cucu200_minbias",
+                "trs_sl302/year_2005/cucu62_minbias",
+                "trs_sl302/year_2006/pp200_minbias",
+                "trs_sl302/year_2007/auau200_central",
+                "trs_sl302/year_2008/dau200_minbias",
+                "trs_sl302/year_2008/pp200_minbias",
+                "trs_sl302/year_2009/pp200_minbias",
+                "trs_sl302/year_2009/pp500_minbias",
+                "trs_sl302/year_2010/auau200_minbias",
+                "trs_sl302/year_2010/auau62_minbias",
+                "trs_sl302/year_2010/auau39_minbias",
+                "trs_sl302/year_2010/auau11_minbias",
+                "trs_sl302/year_2010/auau7_minbias",
+ 		);
 
 my @sets_name;
 
