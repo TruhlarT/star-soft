@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.33 2010/07/02 17:11:29 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.34 2010/11/05 15:07:47 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.34  2010/11/05 15:07:47  didenko
+# add new MC tests and remove cucu200 HT
+#
 # Revision 1.33  2010/07/02 17:11:29  didenko
 # updated for number of vertices
 #
@@ -128,6 +131,10 @@ my @prod_set = (
                 "trs_sl302/year_2009/pp200_minbias",
                 "trs_sl302/year_2009/pp500_minbias",
                 "trs_sl302/year_2010/auau200_minbias",
+                "trs_sl302/year_2010/auau62_minbias",
+                "trs_sl302/year_2010/auau39_minbias",
+                "trs_sl302/year_2010/auau11_minbias",
+                "trs_sl302/year_2010/auau7_minbias",
                 "daq_sl302/year_2000/minbias",
                 "daq_sl302/year_2000/central",
 		"daq_sl302/year_2001/minbias",
@@ -139,7 +146,6 @@ my @prod_set = (
                 "daq_sl302/year_2004/AuAu_prodHigh",
                 "daq_sl302/year_2004/AuAu_prodLow",
                 "daq_sl302/year_2004/prodPP",
-                "daq_sl302/year_2005/CuCu200_HighTower",
                 "daq_sl302/year_2005/CuCu200_MinBias",
                 "daq_sl302/year_2005/CuCu62_MinBias",
                 "daq_sl302/year_2005/CuCu22_MinBias",
