@@ -176,7 +176,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P10ih,
+	                          -default=>P10ij,
       			          -size =>1);
 
   
@@ -413,15 +413,15 @@ END
     } else {
 	 
        $legend[0] = "st_physics  ";
-       $legend[1] = "st_mtd      ";
+       $legend[1] = "st_gamma    ";
        $legend[2] = "st_hlt      ";
        $legend[3] = "st_ht       ";
        $legend[4] = "st_monitor  ";
        $legend[5] = "st_pmdftp   ";
        $legend[6] = "st_upc      ";
+       $legend[7] = "st_mtd      ";
 
 #       $legend[3] = "st_upsilon   ";
-#       $legend[4] = "st_gamma     ";
     
        if( $srate eq "cpu" )  {
 
@@ -431,7 +431,7 @@ END
       $max_y = $maxcpu + 0.2*$maxcpu; 
       $max_y = int($max_y);
 
-    @data = (\@ndate, \@cpphysics, \@cpmtd, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc ) ; 
+    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpmtd ) ; 
 
       }else{
 
@@ -443,7 +443,7 @@ END
        $max_y = $maxval + 0.2*$maxval; 
       $max_y = int($max_y);
   
-    @data = (\@ndate, \@arphysics, \@armtd, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc ) ;
+    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@armtd ) ;
 
      }
 
@@ -473,7 +473,7 @@ END
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple lorange lred lblack lgray) ],
+                    dclrs => [ qw(lblue lgreen lpurple lorange lred lblack lgray lpink) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
