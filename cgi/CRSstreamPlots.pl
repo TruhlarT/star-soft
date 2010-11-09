@@ -330,13 +330,13 @@ my $nnk = $ii;
 #  binmode STDOUT;
 
        $legend[0] = "st_physics   ";
-       $legend[1] = "st_mtd       ";
+       $legend[1] = "st_gamma     ";
        $legend[2] = "st_hlt       ";
        $legend[3] = "st_ht        ";
        $legend[4] = "st_monitor   ";
        $legend[5] = "st_pmdftp    ";
        $legend[6] = "st_upc       ";
-
+       $legend[7] = "st_mtd       ";
 
  my $ylabel;
  my $gtitle; 
@@ -355,7 +355,7 @@ my $nnk = $ii;
 
     if( $plview eq "numbers") {
 
-    @data = (\@Npoint, \@nphysics, \@nmtd, \@nhlt, \@nht, \@nmonitor, \@npmdftp, \@nupc );
+    @data = (\@Npoint, \@nphysics, \@ngamma, \@nhlt, \@nht, \@nmonitor, \@npmdftp, \@nupc, \@nmtd );
 
   $min_y = 0;
   $max_y = $Nmaxjob + 200 ;
@@ -365,7 +365,7 @@ my $nnk = $ii;
 
     } else{
  
-    @data = (\@Npoint, \@rphysics, \@rmtd, \@rhlt, \@rht, \@rmonitor, \@rpmdftp, \@rupc );
+    @data = (\@Npoint, \@rphysics, \@rgamma, \@rhlt, \@rht, \@rmonitor, \@rpmdftp, \@rupc, \@rmtd );
 
   $min_y = 0;
   $max_y = 1.2 ;  
@@ -385,7 +385,7 @@ my $nnk = $ii;
 		y_number_format => \&y_format,
 		#labelclr => "lblack",
                 titleclr => "lblack",
-		dclrs => [ qw(lblue lgreen lpurple lorange lred lblack lgray ) ],
+		dclrs => [ qw(lblue lgreen lpurple lorange lred lblack lgray lpink ) ],
 		line_width => 2,
 		markers => [ 2,3,4,5,6,7,8,9],
 		marker_size => 1,
