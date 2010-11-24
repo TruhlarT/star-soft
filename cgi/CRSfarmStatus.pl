@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.38 2010/11/09 19:30:09 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.39 2010/11/24 17:13:34 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
+# Revision 1.39  2010/11/24 17:13:34  didenko
+# update max nodes
+#
 # Revision 1.38  2010/11/09 19:30:09  didenko
 # update ax number of slots
 #
@@ -244,7 +247,9 @@ my $thisyear = $year+1900;
 
 } 
   if($pryear == 2011) {
-    $Nmaxjobs = 3000;
+    $Nmaxjobs = 2800;
+ }elsif ($pryear == 2010 and $mm >= 11 ) {
+    $Nmaxjobs = 2750;
  }elsif ($pryear == 2010 and $mm >= 10 ) {
     $Nmaxjobs = 3000;
  }elsif($pryear == 2010 and $mm < 10 ) {
