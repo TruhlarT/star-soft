@@ -4,9 +4,9 @@
 # This is a command line utility to do a maintenance and cleanup
 # of te FileCatalog database
 #
-# Written by Adam Kisiel, Warsaw University of Technology (2002)
-#
-# Modified by J.Lauret, BNL 2002-2009
+# Initially written by Adam Kisiel, Warsaw University of Technology (2002)
+# (service task under J. Lauret)
+# Maintained and modified by J.Lauret, BNL 2002-2010
 #
 
 use Env qw(STAR_SCRIPTS);
@@ -203,7 +203,7 @@ if ( $instance ne ""){
 
 
 my $morerecords = 1;
-my $start = 0;
+my $start = $count = 0;
 while ($morerecords)
 {
     #
@@ -351,7 +351,7 @@ while ($morerecords)
 	&ResetContext($fileC);
 	
 	my($rec,@items);
-	&Print("Checking mode=$mode treated=$start (getting +$batchsize records) ".localtime());
+	&Print("Checking mode=$mode treated=$count (getting +$batchsize records) ".localtime());
 	$fileC->set_context("limit=$batchsize");
 	$fileC->set_context("startrecord=$start");
 	if ($mode == -2){
@@ -391,6 +391,7 @@ while ($morerecords)
 	}
 
 	if (($#items +1) == $batchsize){
+	    $count += ($#items+1);
 	    $morerecords = 1;
 	} else {
 	    print "Running post-deletion bootstrap\n";
