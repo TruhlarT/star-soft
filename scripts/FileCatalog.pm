@@ -158,7 +158,7 @@ my @DCMD;
 my $DSITE     =   undef;
 my $XMLREF    =   undef;
 my $dbname    =   "FileCatalog_BNL";     # Defaults were
-my $dbhost    =   "duvall.star.bnl.gov"; # "duvall.star.bnl.gov";
+my $dbhost    =   "fc1.star.bnl.gov";    # "duvall.star.bnl.gov";
 my $dbport    =   "3336";                # "3336";
 my $dbuser    =   "FC_user";
 my $dbpass    =   "FCatalog";
@@ -523,6 +523,8 @@ my $CACHESZ     = 500000;    # both are subject to cache flush but "T"
                              # holds large dictionnaries
 my %TCACHED;
 $TCACHED{"FilePaths"} = 1;   # declare who is in T (default is P)
+
+my %TRIMMSG;
 
 
 sub Require
@@ -1985,51 +1987,54 @@ sub get_detectors { return @DETECTORS;}
 #   second particle name
 #   collision energy
 sub disentangle_collision_type {
+    if ($_[0] =~ m/FileCatalog/) {
+	shift @_;
+    }
+    my ($colstring) = @_;
+    my ($firstParticle,$secondParticle,$el);
+    my (@particles) = ("proton", "gas", "au", "ga", "si", "p", "d", "s", "cu", "ca", "u");
 
-  my ($colstring) = @_;
-  my ($firstParticle,$secondParticle,$el);
-  my (@particles) = ("proton", "gas", "au", "ga", "si", "p", "d", "s", "cu", "ca", "u");
+    $firstParticle = $secondParticle = "";
+    $colstring     = lc($colstring);
 
-  $firstParticle = $secondParticle = "";
-
-  if (($colstring =~ m/cosmic/) > 0){
-      # Special case for cosmic
-      $firstParticle  = "cosmic";
-      $secondParticle = "cosmic";
-      $colstring = "0.0";
-  } elsif (($colstring =~ m/unknown/) > 0){
-      # Allow this as well
-      $firstParticle  = "unknown";
-      $secondParticle = "unknown";
-      $colstring = "0.0";
-
-  } else {
-      # Otherwise, cut in first/second
-      foreach $el (@particles){
-	  if (($colstring =~ m/(^$el)(.*)/) > 0) {
-	      &print_debug("disentangle_collision_type","Found first particle  = $el in $colstring");
-	      $firstParticle = $el;
-	      $colstring =~ s/($el)(.*)/$2/;
-	      last;
-	  }
-      }
-      foreach $el (@particles){
-	  if (($colstring =~ m/(^.*)($el)/) > 0) {
-	      &print_debug("disentangle_collision_type","Found second particle = $el in $colstring");
-	      $secondParticle = $el;
-	      $colstring =~ s/(.*)($el)(.*)/$1$3/;
-	      # be sure to get the numerical value only
-	      $colstring =~ m/(\d+\.\d+|\d+)/;
-	      $colstring =  $1;
-	      last;
-	  }
-      }
-  }
-  return ($firstParticle, $secondParticle, $colstring);
+    if (($colstring =~ m/cosmic/) > 0){
+	# Special case for cosmic
+	$firstParticle  = "cosmic";
+	$secondParticle = "cosmic";
+	$colstring = "0.0";
+    } elsif (($colstring =~ m/unknown/) > 0){
+	# Allow this as well
+	$firstParticle  = "unknown";
+	$secondParticle = "unknown";
+	$colstring = "0.0";
+	
+    } else {
+	# Otherwise, cut in first/second
+	foreach $el (@particles){
+	    if (($colstring =~ m/(^$el)(.*)/) > 0) {
+		&print_debug("disentangle_collision_type","Found first particle  = $el in $colstring");
+		$firstParticle = $el;
+		$colstring =~ s/($el)(.*)/$2/;
+		last;
+	    }
+	}
+	foreach $el (@particles){
+	    if (($colstring =~ m/(^.*)($el)/) > 0) {
+		&print_debug("disentangle_collision_type","Found second particle = $el in $colstring");
+		$secondParticle = $el;
+		$colstring =~ s/(.*)($el)(.*)/$1$3/;
+		# be sure to get the numerical value only
+		$colstring =~ m/(\d+\.\d+|\d+)/;
+		$colstring =  $1;
+		last;
+	    }
+	}
+    }
+    return ($firstParticle, $secondParticle, $colstring);
 }
 
 #============================================
-# disentangle collision type parameters from the collsion type name
+# disentangle collision type parameters from the collision type name
 # Params:
 # The collsion type to find
 # Returns:
@@ -3872,11 +3877,22 @@ sub run_query {
 
 
 
+
   # Transfer into associative array for easier handling
   foreach $keyw (@keywords){
       $keyw =~ s/ //g;
       $keyset{$keyw} =$keyw ;
   }
+
+
+
+  # Enventually treat ENV variables - needs to be documented
+  #if ( defined($ENV{FC_DSITE}) && ! defined($valuset{"site"}) ){  
+  #    $valuset{"site"} = $ENV{FC_DSITE}; 
+  #    &print_debug("run_query","Pushing site=".$valuset{"site"}." from ENV");
+  #}
+
+
 
 
   # Little debugging of the table size. This information was
@@ -4205,26 +4221,45 @@ sub run_query {
 
 	      } else {
 		  my( $id );
-
+		  #&print_debug("run_query","\tI am here");
 		  if ( $sth->execute() ){
 		      $sth->bind_columns( \$id );
-
+		      &print_debug("run_query","\tWe executed fine and got ".$sth->rows. " values / limit 5");
 		      if (( $sth->rows < 5) && ($sth->rows>0)) {
 			  # Create a new constraint
-			  $addedconstr = " ";
+			  $addedconstr = "";
+
+			  # loop below replaced by a IN() logic 2010
+			  # This will actually bypass the later use of _NormalizeAND_OR()
+			  # Watch for side effects
+
+			  #while ( $sth->fetch() ) {
+			  #    if ($addedconstr ne " "){
+			  #	  $addedconstr .= " OR $parent_tabname.$idname = $id ";
+			  #    } else {
+			  #	  $addedconstr .= " $parent_tabname.$idname = $id ";
+			  #    }
+			  #    &print_debug("run_query","\tAdded constraints case-1 now $addedconstr");
+			  #}
 			  while ( $sth->fetch() ) {
-			      if ($addedconstr ne " "){
-				  $addedconstr .= " OR $parent_tabname.$idname = $id ";
+			      if ( $addedconstr eq ""){
+			  	  $addedconstr  = $id;
 			      } else {
-				  $addedconstr .= " $parent_tabname.$idname = $id ";
+				  $addedconstr .= ",$id";
 			      }
-			      &print_debug("run_query","\tAdded constraints case-1 now $addedconstr");
 			  }
+			  if ( index($addedconstr,",") == -1){
+			      $addedconstr = " $parent_tabname.$idname = $addedconstr ";
+			  } else {
+			      $addedconstr = " $parent_tabname.$idname IN ($addedconstr) ";
+			  }
+			  &print_debug("run_query","\tAdded constraints case-1 now $addedconstr");
+
 
 			  # we can switch to super-index logic only if only
 			  # one of them is used
 			  #&_storagetypeSplitted($storageType)
-			  if ( ($id = &_IsSuperIndex($keyw,$id)) ne "" && $addedconstr !~ m/OR /){
+			  if ( ($id = &_IsSuperIndex($keyw,$id)) ne "" && $addedconstr !~ m/OR / && $addedconstr !~ m/IN /){
 			      &print_debug("run_query","\t$keyw is a super index");
 			      # we shall drop this condition all together
 			      push(@super_index,$id);
@@ -4260,6 +4295,8 @@ sub run_query {
 			  &print_debug("run_query","\tPushing $parent_tabname in the case-1 \@from list");
 			  push (@from, $parent_tabname);
 		      }
+		  } else {
+		      &print_debug("run_query","\tExecuted failed [".$FC::DBH->errstr."]");
 		  }
 		  $sth->finish();
 	      }
@@ -5549,9 +5586,14 @@ sub update_record {
 		      my $tmp= $utable.".".&_IDize("update_record",$utable);
 		      #print "$tmp $whereclause\n";
 		      if ( index($whereclause,$tmp) == - 1){
-			  &print_message("update_record",
-					 "Warning ! $ukeyword=$newvalue exists ".
-					 "in table $utable");
+			  my($msg)="WARNING - $ukeyword=%s exists in table $utable";
+
+			  if ( !defined($TRIMMSG{$msg}) ){
+			      &print_message("update_record",sprintf($msg,$newvalue));
+			      &print_message("update_record",
+					     "        - if [$whereclause] is not unique, this ".
+					     "may lead to disaster");
+			  }
 		      }
 		  }
 	      }
@@ -6140,7 +6182,7 @@ sub print_debug
 	} elsif($DEBUG==3) {
 	    print "<!-- $head $line -->\n";
 	} else {
-	    printf "FC-DBG :: %15.15s %s\n",$head,$line;
+	    printf "FC-DBG :: %20.20s %s\n",$head,$line;
 	}
     }
 }
