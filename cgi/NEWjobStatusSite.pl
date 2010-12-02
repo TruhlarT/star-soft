@@ -274,7 +274,7 @@ print <<END;
           <title>Status of nightly test for the new library</title>
    </head>
    <body BGCOLOR=\"cornsilk\"> 
-     <h1 align=center>Status of test jobs for $lastlib library on $tsite</h1>
+     <h1 align=center>Status of test jobs for <font color="#ff0000">$lastlib</font> library on <font color="#ff0000">$tsite</font></h1>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Path</B></TD>
