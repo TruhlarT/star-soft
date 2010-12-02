@@ -25,8 +25,8 @@ $dbname="LibraryJobs";
 
 
 # Tables
-$FilesCatalogT = "FilesCatalog";
-$JobStatusT = "JobStatus";
+
+$JobStatusT = "siteJobStatus";
 
 my $TOP_DIRD = "/star/rcf/test/new/";
 
@@ -81,9 +81,6 @@ my @arsite = ("rcf","pdsf");
 
 my $query=new CGI;
 
-    if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
-
-
 my $scriptname = $query->url(-relative=>1);
 
 my $tsite   = $query->param('rsite');
@@ -117,7 +114,7 @@ print "<h3 align=center>Select site</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'rsite',
                              -values=>\@arsite,
-                             -default=>'rcf',
+                             -default=>"rcf",
                              -size=>1);
 
 print "</td> </tr> </table><hr><center>";
@@ -141,6 +138,11 @@ my $tsite   = $qqr->param('rsite');
 
 $JobStatusT = "siteJobStatus";
 
+ print $qqr->header;
+ print $qqr->start_html('Nightly test status for DEV library');
+ print "<body bgcolor=\"cornsilk\">\n";
+
+
 &StDbTJobsConnect();
 
 
@@ -158,8 +160,6 @@ $JobStatusT = "siteJobStatus";
       $cursor->finish;
 
 my $lastlib = $arlib[$nd-1];
-
- &beginHtml();
 
 
 $sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%/new%ittf%' AND site = ? AND LibTag = $lastlib AND avail = 'Y' order by prodyear ";
@@ -211,6 +211,8 @@ $sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, 
  my $dtyear;
  my $evtype;
 
+  &beginHtml(); 
+
 
   foreach $eachFile (@dbFiles) {
 
@@ -260,11 +262,11 @@ $sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, 
 
  &StDbTJobsDisconnect();
 
+  print $qqr->end_html;
+ 
  &endHtml();
 
-  }
-exit 0;
-
+}
 
 #################
 sub beginHtml {
