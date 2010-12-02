@@ -30,7 +30,6 @@ $JobStatusT = "siteJobStatus";
 my $debugOn = 0;
 my @data = ();
 my @legend = ();
-my $prepath;
 
 my @prod_set = (
                 "daq_ittf/year_2010/auau200_production",
@@ -190,10 +189,10 @@ print "<h4 align=center>";
 print $query->scrolling_list(-name=>'plotVal',
 			     -values=>\@myplot,
 			     -size =>10); 
-print "</td> </tr> </table><hr><center>";
+print "</td> </tr> ";
 
 print "<p>";
-print "<td>";
+print "<tr><td>";
 print "<h3 align=center>Select year:</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'ryear',
