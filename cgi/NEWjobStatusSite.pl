@@ -28,12 +28,6 @@ $dbname="LibraryJobs";
 
 $JobStatusT = "siteJobStatus";
 
-my $TOP_DIRD = "/star/rcf/test/new/";
-
-my @OUT_DIR;
-my @OUTD_DIR;
-
-
 my $sec;
 my $min;
 my $hour;
