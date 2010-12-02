@@ -189,25 +189,25 @@ print "<h4 align=center>";
 print $query->scrolling_list(-name=>'plotVal',
 			     -values=>\@myplot,
 			     -size =>10); 
-print "</td> </tr> ";
+
+print "</td> </tr> </table><hr><center>";
 
 print "<p>";
-print "<tr><td>";
 print "<h3 align=center>Select year:</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'ryear',
-			     -values=>\@aryear,
-                             -default=>2010,                              
-			     -size=>1);
-print "</td><td>";
-print "<h3 align=center>Select year:</h3>";
+                             -values=>\@aryear,
+                             -default=>2010,
+                             -size=>1);
+
+print "<p>";
+print "<h3 align=center>Select site:</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'rsite',
 			     -values=>\@arsite,
                              -default=>rcf,                              
 			     -size=>1);
 
-print "</td> </tr> </table><hr><center>";
 print "</h4>";
 print "<br>";
 print "<br>";
