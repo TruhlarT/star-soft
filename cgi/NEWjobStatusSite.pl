@@ -115,7 +115,7 @@ print "<h3 align=center>Select site</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'rsite',
                              -values=>\@arsite,
-                             -default=>"rcf",
+                             -default=>rcf,
                              -size=>1);
 
 print "</td> </tr> </table><hr><center>";
@@ -163,7 +163,7 @@ $JobStatusT = "siteJobStatus";
  $lastlib = $arlib[$nd-1];
 
 
-$sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%/new%ittf%' AND site = ?  AND avail = 'Y' order by prodyear ";
+$sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%/new/%ittf%' AND site = ?  AND LibTag like '$lastlib%' AND avail = 'Y' order by prodyear ";
 
 
     $cursor =$dbh->prepare($sql)
