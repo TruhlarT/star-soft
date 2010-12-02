@@ -163,7 +163,7 @@ $JobStatusT = "siteJobStatus";
  $lastlib = $arlib[$nd-1];
 
 
-$sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%/new%ittf%' AND site = ? AND LibTag = $lastlib AND avail = 'Y' order by prodyear ";
+$sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%/new%ittf%' AND site = ?  AND avail = 'Y' order by prodyear ";
 
 
     $cursor =$dbh->prepare($sql)
