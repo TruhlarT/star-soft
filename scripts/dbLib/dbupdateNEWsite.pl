@@ -4,12 +4,12 @@
 #
 # $Log: L.Didenko
 #
-# dbupdateNEW.pl
+# dbupdateNEWsite.pl
 #
-# update JobStatus and FileCatalog with test jobs for NEW library
+# update siteJobStatus table with test jobs status for NEW library created on sites. 
 # Author: L.Didenko
 #
-##############################################################################
+########################################################################################
 
 use Mysql;
 use File::Find;
