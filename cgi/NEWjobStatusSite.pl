@@ -108,7 +108,7 @@ END
 print $query->startform(-action=>"$scriptname");
 
 print "<body bgcolor=\"cornsilk\">\n";
-print "<h1 align=center><u>Status of NEW library test jobs</u></h1>\n";
+print "<h1 align=center><u>Status of NEW library test jobs on site</u></h1>\n";
 
 
 print "<br>";
