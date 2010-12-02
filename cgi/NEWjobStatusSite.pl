@@ -2,10 +2,10 @@
 #
 #  $Id:
 #
-#  dbNewJobStatus.pl  script to get browser of nightly test files updated today. 
+#  NewJobStatusSite.pl  script to  browse  test results for NEW libraries created on site. 
 #  L. Didneko
 #
-###############################################################################
+#######################################################################################################
 
 
 BEGIN {
