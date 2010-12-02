@@ -162,6 +162,7 @@ $JobStatusT = "siteJobStatus";
 
 &StDbTJobsConnect();
 
+ @arlib = ();
 
  $sql="SELECT distinct LibTag FROM $JobStatusT where path LIKE '%new%ittf%' and site = ? order by createTime ";
 
