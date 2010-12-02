@@ -117,7 +117,7 @@ print "<h3 align=center>Select site</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'rsite',
                              -values=>\@arsite,
-                             -default=>rcf,
+                             -default=>'rcf',
                              -size=>1);
 
 print "</td> </tr> </table><hr><center>";
@@ -263,7 +263,7 @@ $sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, 
  &endHtml();
 
   }
- exit 0
+exit 0;
 
 
 #################
