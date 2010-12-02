@@ -62,6 +62,22 @@ struct FileAttr => {
 		  };
 
 
+ my $myFile;
+ my $myPath;
+ my $myEvtD;
+ my $myJobS;
+ my $myMemF;
+ my $myMemL;
+ my $myCPU;
+ my $myCtime;
+ my $mylib;
+ my $mychain;
+ my $cdate;
+ my @prt;
+ my $dtyear;
+ my $evtype;
+
+
 ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
     $thisday = (Sun,Mon,Tue,Wed,Thu,Fri,Sat)[(localtime)[6]];
 
@@ -197,21 +213,6 @@ $sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, 
       
   }
  
- my $myFile;
- my $myPath;
- my $myEvtD;
- my $myJobS;
- my $myMemF;
- my $myMemL;
- my $myCPU;
- my $myCtime;
- my $mylib;
- my $mychain;
- my $cdate;
- my @prt;
- my $dtyear;
- my $evtype;
-
   &beginHtml(); 
 
 
