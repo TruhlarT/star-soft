@@ -134,8 +134,12 @@ my @libtagop = ();
 my @libtagd = ();
 my $npt = 0;
 my $npk = 0;
-my @plotmemfst = ();
-my @plotmemlst = ();
+
+my @plotmemfsto = ();
+my @plotmemlsto = ();
+my @plotmemfstd = ();
+my @plotmemlstd = ();
+
 my $min_y = 0;
 my $max_y = 5000;
 my $maxval = 0;
