@@ -341,7 +341,6 @@ my $graph = new GD::Graph::linespoints(650,500);
 
  } else {
 
-
 if ($plotVal eq "MemUsage") {
     if(scalar(@libtagd) > scalar(@libtagop) ) {
     @data = (\@libtagd, \@plotmemfsto, \@plotmemlsto, \@plotmemfstd, \@plotmemlstd );
@@ -363,7 +362,6 @@ if ($plotVal eq "MemUsage") {
    }    
     $legend[0] = "$plotVal"."(optimized)";
     $legend[1] = "$plotVal"."(nonoptimized)";
-
 }
 
  my $xLabelsVertical = 1;
