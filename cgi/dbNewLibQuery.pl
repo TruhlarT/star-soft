@@ -282,7 +282,7 @@ $minval = 100000;
 	        if( $plotmemfsto[$npt] >= 0 and $plotmemfsto[$npt] <= $minval ) {
 		  $minval =  $plotmemfsto[$npt];
 	          }
-                $libtagop[$npt] = $fields[2];               
+                $libtagop[$npt] = $fields[3];               
                  $npt++;  
 	   }else{
 		$plotvalop[$npt] = $fields[1];
@@ -305,7 +305,7 @@ $minval = 100000;
 	        if( $plotmemfstd[$npk] >= 0 and $plotmemfstd[$npk]  <= $minval ) {
 		  $minval =  $plotmemfstd[$npk];
 	          }
-                $libtagd[$npk] = $fields[2];
+                $libtagd[$npk] = $fields[3];
                  $npk++;                 
 	   }else{
  		$plotvaldg[$npk] = $fields[1];
