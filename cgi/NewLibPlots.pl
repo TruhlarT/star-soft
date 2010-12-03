@@ -1,7 +1,7 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# dbNewLibQuery.pl
+# NewLibPlots.pl cgi to make plots for NEW library tests on sites
 #
 ################################################################
 
@@ -152,9 +152,8 @@ my $scriptname = $query->url(-relative=>1);
 my $tset    = $query->param('sets');
 my $plotVal = $query->param('plotVal');
 my $tyear   = $query->param('ryear');
-my $tsite   = $query->param('rsite');
 
-  if( $tset eq "" and $plotVal eq "" and $tyear eq  "" and $tsite eq "" ) {
+  if( $tset eq "" and $plotVal eq "" and $tyear eq  "" ) {
 
 print $query->header();
 print $query->start_html('Plots for Nightly Test in NEW Library');
@@ -200,14 +199,6 @@ print $query->scrolling_list(-name=>'ryear',
                              -default=>2010,
                              -size=>1);
 
-print "<p>";
-print "<h3 align=center>Select site:</h3>";
-print "<h4 align=center>";
-print $query->scrolling_list(-name=>'rsite',
-			     -values=>\@arsite,
-                             -default=>rcf,                              
-			     -size=>1);
-
 print "</h4>";
 print "<br>";
 print "<br>";
@@ -226,7 +217,7 @@ my $qqr = new CGI;
 my $tset    =  $qqr->param('sets');
 my $plotVal =  $qqr->param('plotVal');
 my $tyear   =  $qqr->param('ryear');
-my $tsite   =  $qqr->param('rsite');
+
 
 $JobStatusT = "siteJobStatus";
 
@@ -276,7 +267,7 @@ $maxval = 0;
 $minval = 100000;
 
 
-    $sql="SELECT path, $mplotVal, LibTag FROM JobStatus WHERE path LIKE ?  AND jobStatus= 'Done' and LibTag like ? and createTime like ? ORDER by createTime";
+    $sql="SELECT path, $mplotVal, LibTag, site FROM $JobStatusT WHERE path LIKE ?  AND jobStatus= 'Done' and LibTag like ? and createTime like ? ORDER by createTime";
 
         $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
         $cursor->execute($qupath,$ylib,$cryear);
