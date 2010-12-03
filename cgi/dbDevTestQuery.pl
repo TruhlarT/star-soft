@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.37 2010/11/05 15:33:59 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.38 2010/12/03 16:16:33 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.38  2010/12/03 16:16:33  didenko
+# add embedding tests to plots
+#
 # Revision 1.37  2010/11/05 15:33:59  didenko
 # reorder tests samples
 #
@@ -127,8 +130,13 @@ my @prod_set = (
                 "daq_sl302/year_2010/auau39_production",
                 "daq_sl302/year_2010/auau11_production", 
                 "daq_sl302/year_2010/auau7_production",
+                "daq_sl302/year_2010/auau200_embed",
+                "daq_sl302/year_2010/auau39_embed",
+                "daq_sl302/year_2010/auau11_embed", 
+                "daq_sl302/year_2010/auau7_embed",
                 "daq_sl302/year_2009/production2009_500GeV", 
-                "daq_sl302/year_2009/production2009_200Gev_Hi", 
+                "daq_sl302/year_2009/production2009_200Gev_Hi",
+                "daq_sl302/year_2009/pp200_embed",
                 "daq_sl302/year_2008/production_dAu2008",
                 "daq_sl302/year_2008/ppProduction2008", 
                 "daq_sl302/year_2007/2007ProductionMinBias",
