@@ -21,10 +21,12 @@ use Mysql;
 use Class::Struct;
 
 
-$dbhost="duvall.star.bnl.gov";
+$dbhost="fc2.star.bnl.gov:3386";
 $dbuser="starreco";
 $dbpass="";
 $dbname="operation";
+
+# $dbhost="duvall.star.bnl.gov";
 
 struct JobAttr => {
       vday      => '$',
