@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.235 2010/09/21 21:29:48 jeromel Exp $
+#       $Id: group_env.csh,v 1.236 2010/12/11 00:29:05 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -393,7 +393,7 @@ endif
 if ( $?SITE ) then
     #if ( ! $?DB_SERVER_LOCAL_CONFIG ) then
 	if ( -e ${STAR_PATH}/conf/dbLoadBalancerLocalConfig_${SITE}.xml ) then
-	    # 2008/08 new location and unique for all libraries
+	    # 2008/08 new location and unique for all libraries - SL08e or above
 	    setenv DB_SERVER_LOCAL_CONFIG ${STAR_PATH}/conf/dbLoadBalancerLocalConfig_${SITE}.xml
 	else
 	    # old method and value for backward compat - this is the part preventing
