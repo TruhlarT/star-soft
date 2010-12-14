@@ -23,7 +23,7 @@ my $delay;
 
 # Control variables
 # The size of a batch to process at once.
-my $batchsize =  1000;
+my $BATCHSIZE =  1000;
 my $MARKSIZE  =  5000;
 my $mode;
 my $cond_list;
@@ -122,15 +122,15 @@ while (defined $ARGV[$count]){
 	
     } elsif ($ARGV[$count] eq "-delete"){
 	$mode      = 2;
-	$batchsize = 250;
+	$BATCHSIZE = 250;
     } elsif ($ARGV[$count] eq "-cdelete"){
 	print "-cdelete currently has the same meaning than -delete\n";
 	$mode      = 2;
-	$batchsize = 250;
+	$BATCHSIZE = 250;
     } elsif ($ARGV[$count] eq "-ddelete"){
 	$mode      = 2;
 	$delay     = 1;
-	$batchsize = 250;
+	$BATCHSIZE = 250;
     } elsif ($ARGV[$count] eq "-alla"){
 	if ($mode != 2){
 	    print "-alla works only with deletion keywords\n";
@@ -226,8 +226,8 @@ while ($morerecords)
 	&MyConnect($fileC,"User")  if ($start == 0);
 	&ResetContext($fileC);
 	
-	&Print("Checking mode=0 treated=$start (getting +$batchsize records) ".localtime());
-	$fileC->set_context("limit=$batchsize");
+	&Print("Checking mode=0 treated=$start (getting +$BATCHSIZE records) ".localtime());
+	$fileC->set_context("limit=$BATCHSIZE");
 	$fileC->set_context("startrecord=$start");
 	$fileC->set_delimeter("::");
 
@@ -235,7 +235,7 @@ while ($morerecords)
 	@output = $fileC->run_query("path","filename","available");
 
 	# Check if there are any records left
-	if (($#output + 1) == $batchsize)
+	if (($#output + 1) == $BATCHSIZE)
 	  { $morerecords = 1; }
 
 	# Printing the output
@@ -244,7 +244,7 @@ while ($morerecords)
 	    my ($path, $fname, $av) = split ("::");
 	    &Print(join("/",($path, $fname))." $av");
 	}
-	$start += $batchsize;
+	$start += $BATCHSIZE;
 
 
 
@@ -252,6 +252,8 @@ while ($morerecords)
 	# Second mode of operation - get the file list,
 	# select the available ones and check if they
 	# really exist - if not, mark them as unavailable later
+	$SIG{INT} = 'IHandler';
+
 	$n = 0;
 	if ($start == 0){
 	    &MyConnect($fileC,"User");
@@ -262,9 +264,9 @@ while ($morerecords)
 	}
 	&ResetContext($fileC);
 	
-	&Print("Checking mode=$mode checked=$start (getting +$batchsize records, cached=".($#MARK+1).") ".localtime());
+	&Print("Checking mode=$mode checked=$start (getting +$BATCHSIZE records, cached=".($#MARK+1).") ".localtime());
 	
-	$fileC->set_context("limit=$batchsize");
+	$fileC->set_context("limit=$BATCHSIZE");
 	$fileC->set_context("startrecord=$start");
 	if ($mode == 1){
 	    $fileC->set_context("available>0");
@@ -290,8 +292,8 @@ while ($morerecords)
 	# @output = "/star/data34/reco/cuProductionMinBias/ReversedFullField/P07ib/2005/030::st_physics_adc_6030096_raw_2080008.tags.root::1::localhost::BNL";
 
 	# Check if there are any records left
-	# print "OUTPUT: $#output batchsize $batchsize\n";
-	if (($#output +1) == $batchsize)
+	# print "OUTPUT: $#output BATCHSIZE $BATCHSIZE\n";
+	if (($#output +1) == $BATCHSIZE)
 	  { $morerecords = 1; }
 
 	# checking the availability
@@ -341,7 +343,7 @@ while ($morerecords)
 	
 	# We have modified records so the next ROW number
 	# need to be offset by how many we just changed
-	$start += ($batchsize - $n) if ($n <= $batchsize);
+	$start += ($BATCHSIZE - $n) if ($n <= $BATCHSIZE);
 
     } elsif ($mode == 2 || $mode*$mode == 4){
 	# Delete records. Note that this function is EXTREMELY
@@ -351,8 +353,8 @@ while ($morerecords)
 	&ResetContext($fileC);
 	
 	my($rec,@items);
-	&Print("Checking mode=$mode treated=$count (getting +$batchsize records) ".localtime());
-	$fileC->set_context("limit=$batchsize");
+	&Print("Checking mode=$mode treated=$count (getting +$BATCHSIZE records) ".localtime());
+	$fileC->set_context("limit=$BATCHSIZE");
 	$fileC->set_context("startrecord=$start");
 	if ($mode == -2){
 	    $fileC->set_context("available<0");
@@ -390,7 +392,7 @@ while ($morerecords)
 	    }
 	}
 
-	if (($#items +1) == $batchsize){
+	if (($#items +1) == $BATCHSIZE){
 	    $count += ($#items+1);
 	    $morerecords = 1;
 	} else {
@@ -399,9 +401,9 @@ while ($morerecords)
 	}
 	if ($confirm){
 	    # we have shifted records
-	    $start += ($batchsize - $#items -1) if ($#items < $batchsize);
+	    $start += ($BATCHSIZE - $#items -1) if ($#items < $BATCHSIZE);
 	} else {
-	    $start += $batchsize;
+	    $start += $BATCHSIZE;
 	    print "Use -doit to confirm deletion\n";
 	}
 
@@ -447,7 +449,7 @@ while ($morerecords)
 	&MyConnect($fileC,"Admin")  if ($start == 0);
 	&ResetContext($fileC);
 	
-	$fileC->set_context("limit=$batchsize");
+	$fileC->set_context("limit=$BATCHSIZE");
 	if ($kwrd ne ""){
 	    if( ! defined($newval) ){
 		&Die("  You must specify a new value");
@@ -479,6 +481,8 @@ while ($morerecords)
 	# Fifth mode of operation - get the file list,
 	# and check if they really exist - if not, mark them as unavailable
 	# if yes - remark them as available
+	$SIG{INT} = 'IHandler';
+
 	$n = 0;
 	if ($start == 0){	
 	    &MyConnect($fileC,"User");
@@ -489,8 +493,8 @@ while ($morerecords)
 	}
 	&ResetContext($fileC);
 
-	&Print("Checking mode=$mode checked=$start (getting +$batchsize records, cached=".($#MARK+1).") ".localtime());
-	$fileC->set_context("limit=$batchsize");
+	&Print("Checking mode=$mode checked=$start (getting +$BATCHSIZE records, cached=".($#MARK+1).") ".localtime());
+	$fileC->set_context("limit=$BATCHSIZE");
 	$fileC->set_context("startrecord=$start");
 	$fileC->set_context("all=1");
 	$fileC->set_delimeter("::");
@@ -511,8 +515,8 @@ while ($morerecords)
 	@output = $fileC->run_query("path","filename","available","node","site");
 
 	# Check if there are any records left
-	# print "OUTPUT: $#output batchsize $batchsize\n";
-	if (($#output +1) == $batchsize)
+	# print "OUTPUT: $#output BATCHSIZE $BATCHSIZE\n";
+	if (($#output +1) == $BATCHSIZE)
 	  { $morerecords = 1; }
 
 	# checking the availability
@@ -553,7 +557,7 @@ while ($morerecords)
 		}
 	    }
 	}
-	$start += ($batchsize - $n) if ($n <= $batchsize);
+	$start += ($BATCHSIZE - $n) if ($n <= $BATCHSIZE);
 
 
     } elsif ($mode == 6) {
@@ -608,6 +612,7 @@ while ($morerecords)
     }
 }
 
+
 # need to work on the last batch of files not yet treated
 if ($#MARK != -1){
     &DoMark($fileC,"User");
@@ -615,6 +620,25 @@ if ($#MARK != -1){
 $fileC->destroy();
 
 &Exit();
+
+
+#
+# Signal handler routine for CTRL/C
+# If records are cached for marking, mark them before Exit()
+#
+sub IHandler
+{
+    $SIG{INT} = sub { exit };
+    print STDERR "IHandler - Caught CTRL/C [1 sec to CTRL/C again and abort clean-up]\n";
+    sleep(1);
+    if ($#MARK != -1){
+	print STDERR "IHandler - Marking records\n";
+	&DoMark($fileC,"User");
+    } else {
+	print STDERR "IHandler - Nothing to mark\n";
+    }
+    &Exit();
+}
 
 
 #
@@ -642,7 +666,7 @@ sub DoMark
 	
 	$Tstart=time();
 	# $fileC->set_delayed();
-	$fileC->warn_if_duplicates(0); # wedisable because of delays between Userand Admin
+	$fileC->warn_if_duplicates(0); # we disable because of delays between User and Admin
 	foreach $ligne (@MARK){
 	    # print "Got [$ligne]\n";
 	    my($avail,$confirm,$fname,$path,$av,$store,$node,$site) = split(":",$ligne);
