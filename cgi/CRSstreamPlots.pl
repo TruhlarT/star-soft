@@ -337,6 +337,7 @@ my $nnk = $ii;
        $legend[5] = "st_pmdftp    ";
        $legend[6] = "st_upc       ";
        $legend[7] = "st_mtd       ";
+       $legend[8] = "st_W       ";
 
  my $ylabel;
  my $gtitle; 
@@ -355,7 +356,7 @@ my $nnk = $ii;
 
     if( $plview eq "numbers") {
 
-    @data = (\@Npoint, \@nphysics, \@ngamma, \@nhlt, \@nht, \@nmonitor, \@npmdftp, \@nupc, \@nmtd );
+    @data = (\@Npoint, \@nphysics, \@ngamma, \@nhlt, \@nht, \@nmonitor, \@npmdftp, \@nupc, \@nmtd, \@nWbs );
 
   $min_y = 0;
   $max_y = $Nmaxjob + 200 ;
@@ -365,7 +366,7 @@ my $nnk = $ii;
 
     } else{
  
-    @data = (\@Npoint, \@rphysics, \@rgamma, \@rhlt, \@rht, \@rmonitor, \@rpmdftp, \@rupc, \@rmtd );
+    @data = (\@Npoint, \@rphysics, \@rgamma, \@rhlt, \@rht, \@rmonitor, \@rpmdftp, \@rupc, \@rmtd, \@rWbs );
 
   $min_y = 0;
   $max_y = 1.2 ;  
@@ -385,7 +386,7 @@ my $nnk = $ii;
 		y_number_format => \&y_format,
 		#labelclr => "lblack",
                 titleclr => "lblack",
-		dclrs => [ qw(lblue lgreen lpurple lorange lred lblack lgray lpink ) ],
+		dclrs => [ qw(lblue lgreen lpurple lorange lred lblack lgray lpink lbrown ) ],
 		line_width => 2,
 		markers => [ 2,3,4,5,6,7,8,9],
 		marker_size => 1,
