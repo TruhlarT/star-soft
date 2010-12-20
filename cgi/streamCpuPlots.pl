@@ -197,7 +197,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P10ij,
+	                          -default=>P10ik,
       			          -size =>1);
 
 
