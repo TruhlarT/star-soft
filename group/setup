@@ -1,7 +1,7 @@
 #!/bin/csh -f
 
 # Help
-if ($#argv == 0 || $#argv > 2) then
+if ($#argv == 0 || $#argv > 3) then
     /bin/cat <<EOF
 
  Usage is:
@@ -12,7 +12,7 @@ if ($#argv == 0 || $#argv > 2) then
                                     the STAR software
    nodebug|NODEBUG                  switch the environment to the nodebug (optimized) 
                                     of the STAR software
-   64bits|32bits                    Switch to 64 or 64 bits env
+   64bits|64b|32bits|32b            Switch to 64 or 64 bits env
 
    gprof|GRPOF                      enables/disables gprof profiling environment
    nogprof|NOGPROF                  non-optimized version will be implied when enabled
@@ -20,6 +20,8 @@ if ($#argv == 0 || $#argv > 2) then
 
    Grid|OSG                         Setup Grid environment
    root|ROOT     {version}          load or change root version
+   cern|CERN     {version} {InstallRoot} 
+                                    Re-define CERN related ENV variables
 
    parasoft|PARASOFT|insure|ISURE   load the Insure++ toolkit environment
    gcc           {version}          set environment to use gcc (or alternative version)
@@ -33,8 +35,10 @@ EOF
 endif
 
 set pkg = $1; shift;
-set version = 0;
-if ( $#argv > 0 ) set version = $1
+set version  = 0;
+set location = 0;
+if ( $#argv > 0 ) set version  = $1
+if ( $#argv > 1 ) set location = $2
 
 switch ($pkg)
     case "64bits":
@@ -151,6 +155,29 @@ switch ($pkg)
 	endif
 	breaksw
 
+    # CERN in case of alternate CERN_ROOT
+    case "CERN":
+    case "cern":
+	if ( $location != 0 ) then
+	    setenv CERN $location
+        else
+	    if ( $?USE_64BITS && -e "/cern64" ) then
+		setenv CERN /cern64
+	    else
+		setenv CERN /cern
+	    endif
+        endif
+	if ( $version != 0 ) then
+	    if ( -e $CERN/$version ) then
+		setenv CERN_LEVEL $version 
+	    endif
+	else
+	    if ( ! $?CERN_LEVEL ) then
+		setenv CERN_LEVEL pro
+	    endif
+	endif
+	setenv CERN_ROOT $CERN/$CERN_LEVEL
+	breaksw
 
     # Parasoft/Isure++ software
     case "insure":
