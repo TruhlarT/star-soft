@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.236 2010/12/11 00:29:05 jeromel Exp $
+#       $Id: group_env.csh,v 1.237 2010/12/22 15:21:00 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -453,8 +453,14 @@ setenv STAR_PAMS $STAR/pams;            if ($ECHO) echo   "Setting up STAR_PAMS 
 setenv STAR_DATA ${STAR_ROOT}/data;     if ($ECHO) echo   "Setting up STAR_DATA = ${STAR_DATA}"
 setenv CVSROOT   $STAR_PATH/repository; if ($ECHO) echo   "Setting up CVSROOT   = ${CVSROOT}"
 
+
+
+# The block below will be enabled only if there is botha ROOT_LEVEL
+# and a CERN_LEVEL file in $STAR/mgr/. If so, ROOT and CERN levels
+# will be set to the explicit version. Otherwise, some historical
+# deefault will be assumed.
 if ( $?DECHO ) echo "$self :: ROOT_LEVEL and CERN_LEVEL"
-if (-f $STAR/mgr/ROOT_LEVEL && -f $STAR/mgr/CERN_LEVEL) then
+if ( -f $STAR/mgr/ROOT_LEVEL && -f $STAR/mgr/CERN_LEVEL ) then
   setenv ROOT_LEVEL `/bin/cat $STAR/mgr/ROOT_LEVEL`
   setenv CERN_LEVEL `/bin/cat $STAR/mgr/CERN_LEVEL`
 
@@ -480,11 +486,16 @@ if (-f $STAR/mgr/ROOT_LEVEL && -f $STAR/mgr/CERN_LEVEL) then
 
   # now check if CERN exists
   if ( $?CERN ) then
-    if ( $?DECHO) echo "$self :: Caught $CERN_LEVEL from config in $STAR/mgr/ but not found"
-    if ( ! -e $CERN/$CERN_LEVEL ) setenv CERN_LEVEL pro
+    if ( ! -e $CERN/$CERN_LEVEL ) then
+	if ( $?DECHO) echo "$self :: Caught $CERN_LEVEL from config in $STAR/mgr/ but not found"
+	setenv CERN_LEVEL pro
+    endif
   endif
 
 else
+ # this block should really not be expanded - use the
+ # method above instead to change version so we do not
+ # have to maintain this long list of switch statements  
  switch ( $STAR_VERSION )
 
   case SL98l:
@@ -516,8 +527,16 @@ else
   endsw
 endif
 
-setenv CERN_ROOT  $CERN/$CERN_LEVEL
+
+# At this point, CERN_LEVEL should be defined but if not,
+# the global setup will define it to a default
+if ( -x $GROUP_DIR/setup  ) then
+    source $GROUP_DIR/setup CERN
+else
+    setenv CERN_ROOT  $CERN/$CERN_LEVEL
+endif
 if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
+
 
 if ( $?DECHO ) echo "$self :: Paths alter for STAR_MGR, STAR_SCRIPTS STAR_CGI etc ..."
 if ( -x ${GROUP_DIR}/dropit) then

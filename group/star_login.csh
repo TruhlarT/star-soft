@@ -178,34 +178,23 @@ if ( $?DECHO ) echo "$self :: Checking CERN stuff"
 
 if ($?CERN == 0) then
     # should be defined by now but ...
-    if ( ! $?USE_64BITS ) then
-	setenv USE_64BITS 0
+    if ( -x $GROUP_DIR/setup  ) then
+	source $GROUP_DIR/setup CERN
     endif
-    if ( $USE_64BITS == 1) then
-	set x="/cern64 /cern ${AFS_RHIC}/asis/@sys/cern64 ${AFS_RHIC}/asis/@sys/cern /usr/local/cern64 /usr/local/cern"
-    else
-	set x="/cern ${AFS_RHIC}/asis/@sys/cern /usr/local/cern"
-    endif
-
-    foreach d ($x)
-	if ( -e $d ) then
-	    setenv CERN $d
-	    break
-	endif
-    end
     if ($?ECHO == 1) then
 	if ( ! $?CERN ) then
-	    echo "$self :: WARNING none of $x exist ..."
+	    echo "$self :: Could not find a suitable CERN path"
 	else
 	    echo "$self :: Set CERN to $CERN"
 	endif
     endif
 endif
 
-# if still undefined, set it to /cern
-if ($?CERN == 0) setenv CERN "/cern"
+# If still undefined, set it to /cern and proceed
+# This will act as a safety net / minimal setup
+if ($?CERN == 0)       setenv CERN "/cern"
 if ($?CERN_LEVEL == 0) setenv CERN_LEVEL pro
-# add one more check - if not existing, swicth to pro
+# add one more check - if does not existing, switch to pro
 if ( ! -e $CERN/$CERN_LEVEL ) then
     if ( $?DECHO ) echo "$self :: $CERN/$CERN_LEVEL not found, switch to pro"
     setenv CERN_LEVEL pro
