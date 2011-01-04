@@ -1,10 +1,10 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.43 2011/01/04 17:23:27 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.44 2011/01/04 17:28:41 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
-# Revision 1.43  2011/01/04 17:23:27  didenko
+# Revision 1.44  2011/01/04 17:28:41  didenko
 # more fixes
 #
 # Revision 1.39  2010/11/24 17:13:34  didenko
@@ -245,7 +245,7 @@ my $thisyear = $year+1900;
 
  if( $thisyear eq $pryear) {
 
- $nowdate = $pryear."-".($mon+1)."-".$mday;
+ $nowdate = $thisyear."-".($mon+1)."-".$mday;
 
  }else{
 
