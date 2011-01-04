@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.46 2011/01/04 17:39:03 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.47 2011/01/04 18:10:22 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
-# Revision 1.46  2011/01/04 17:39:03  didenko
-# more fixes
+# Revision 1.47  2011/01/04 18:10:22  didenko
+# change default year
 #
 # Revision 1.39  2010/11/24 17:13:34  didenko
 # update max nodes
@@ -166,7 +166,7 @@ print "<h3 align=center> Select year of production</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'ryear',
                              -values=>\@prodyear,
-                             -default=>2010,
+                             -default=>2011,
                              -size =>1); 
 
 print "<p>";
