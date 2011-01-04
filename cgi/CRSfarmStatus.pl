@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.41 2011/01/04 17:15:04 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.42 2011/01/04 17:17:16 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
-# Revision 1.41  2011/01/04 17:15:04  didenko
-# try to fix nodate
+# Revision 1.42  2011/01/04 17:17:16  didenko
+# more fixes
 #
 # Revision 1.39  2010/11/24 17:13:34  didenko
 # update max nodes
@@ -243,14 +243,14 @@ if( $sec < 10) { $sec = '0'.$sec };
 my $nowdate = ($year+1900)."-".($mon+1)."-".$mday;
 my $thisyear = $year+1900;
 
-# if( $thisyear eq $pryear) {
+ if( $thisyear eq $pryear) {
 
-# $nowdate = $pryear."-".($mon+1)."-".$mday;
+ $nowdate = $pryear."-".($mon+1)."-".$mday;
 
-# }else{
+ }else{
 
-# $nowdate = $pryear."-12-31 23:59:59";
-# }
+ $nowdate = $pryear."-12-31 23:59:59";
+ }
  
   if($pryear == 2011) {
     $Nmaxjobs = 2900;
