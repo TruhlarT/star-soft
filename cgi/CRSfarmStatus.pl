@@ -1,10 +1,10 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.44 2011/01/04 17:28:41 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.45 2011/01/04 17:32:43 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
-# Revision 1.44  2011/01/04 17:28:41  didenko
+# Revision 1.45  2011/01/04 17:32:43  didenko
 # more fixes
 #
 # Revision 1.39  2010/11/24 17:13:34  didenko
@@ -217,10 +217,10 @@ my $dyear = $pryear - 2000 ;
  $dyear = 10;
 
 # Tables
-$crsJobStatusT = "crsJobStatusY".$dyear;
+#$crsJobStatusT = "crsJobStatusY".$dyear;
 $crsQueueT = "crsQueueY".$dyear;
 
-
+$crsJobStatusT = "crsJobStatusY10";
 
 my @numjobs1 = ();
 my @numjobs2 = ();
@@ -315,7 +315,7 @@ $day_diff = int($day_diff);
 
  my $ii = 0;
 
-            $sql="SELECT executing, importWaiting, exportWaiting, error,  done, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? and sdate <= $nowdate ORDER by sdate ";
+            $sql="SELECT executing, importWaiting, exportWaiting, error,  done, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? and sdate <= '$nowdate' ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($day_diff);
