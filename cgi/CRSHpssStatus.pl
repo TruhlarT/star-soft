@@ -23,7 +23,7 @@ $dbname="operation";
 
 
 my @reqperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months","7_months","8_months","9_months","10_months","11_months","12_months");
-my @prodyear = ("2010");
+my @prodyear = ("2010","2011");
 my @plotview = ("numbers","percentage");
 
 my $query = new CGI;
@@ -73,7 +73,7 @@ print "<h3 align=center> Select year of production</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'ryear',
                              -values=>\@prodyear,
-                             -default=>2010,
+                             -default=>2011,
                              -size =>1); 
 
 print "<p>";
@@ -123,6 +123,7 @@ my $plview    =  $qqr->param('plotvw');
 
 my $dyear = $pryear - 2000 ;
 
+ $dyear = 10;
 
 # Tables
 $crsJobStatusT = "crsJobStatusY".$dyear;
@@ -158,12 +159,12 @@ if( $sec < 10) { $sec = '0'.$sec };
 my $nowdate = ($year+1900)."-".($mon+1)."-".$mday;
 my $thisyear = $year+1900;
 
-# if( $thisyear eq $pryear) {
-# $nowdate = $pryear."-".($mon+1)."-".$mday;
+ if( $thisyear eq $pryear) {
+ $nowdate = $thisyear."-".($mon+1)."-".$mday;
 
-# }else{
-# $nowdate = $pryear."-12-31 23:59:59";
-#} 
+ }else{
+ $nowdate = $pryear."-12-31 23:59:59";
+} 
 
 my $day_diff = 0;
 my $nmonth = 0;
@@ -221,7 +222,7 @@ $day_diff = int($day_diff);
 
  my $ii = 0;
 
-            $sql="SELECT hpss_export_failed, hpss_import_failed, hpss_no_response, hpss_timeout, hpss_busy, hpss_error, error, done, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? ORDER by sdate ";
+            $sql="SELECT hpss_export_failed, hpss_import_failed, hpss_no_response, hpss_timeout, hpss_busy, hpss_error, error, done, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? and sdate <= '$nowdate' ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($day_diff);

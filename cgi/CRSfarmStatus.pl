@@ -1,10 +1,10 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.45 2011/01/04 17:32:43 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.46 2011/01/04 17:39:03 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
-# Revision 1.45  2011/01/04 17:32:43  didenko
+# Revision 1.46  2011/01/04 17:39:03  didenko
 # more fixes
 #
 # Revision 1.39  2010/11/24 17:13:34  didenko
@@ -263,8 +263,6 @@ my $thisyear = $year+1900;
  }else{
     $Nmaxjobs = 460; 
  }
-
-#    $Nmaxjobs = 2900;
 
 my $day_diff = 0;
 my $nmonth = 0;
