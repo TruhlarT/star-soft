@@ -1,10 +1,10 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSstatusPlots.pl,v 1.23 2011/01/04 19:31:28 didenko Exp $
+# $Id: CRSstatusPlots.pl,v 1.24 2011/01/04 19:33:39 didenko Exp $
 #
 # $Log: CRSstatusPlots.pl,v $
-# Revision 1.23  2011/01/04 19:31:28  didenko
+# Revision 1.24  2011/01/04 19:33:39  didenko
 # updated for 2011 year
 #
 # Revision 1.22  2010/10/06 17:39:10  didenko
@@ -123,7 +123,7 @@ print "<h3 align=center> Select year of production</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'ryear',
                              -values=>\@prodyear,
-                             -default=>2010,
+                             -default=>2011,
                              -size =>1); 
 
 print "<p>";
@@ -247,7 +247,7 @@ my @prt = ();
 	 }
 
 
-            $sql="SELECT $fstatus, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ?  and sdate <= '$nodatetime' ORDER by sdate ";
+            $sql="SELECT $fstatus, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ?  and sdate <= '$nowdatetime' ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($day_diff);
