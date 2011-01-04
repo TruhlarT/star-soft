@@ -1,10 +1,10 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.40 2011/01/04 17:06:57 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.41 2011/01/04 17:15:04 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
-# Revision 1.40  2011/01/04 17:06:57  didenko
+# Revision 1.41  2011/01/04 17:15:04  didenko
 # try to fix nodate
 #
 # Revision 1.39  2010/11/24 17:13:34  didenko
@@ -214,10 +214,13 @@ my $plview    =  $qqr->param('plotvw');
 
 my $dyear = $pryear - 2000 ;
 
+ $dyear = 10;
 
 # Tables
 $crsJobStatusT = "crsJobStatusY".$dyear;
 $crsQueueT = "crsQueueY".$dyear;
+
+
 
 my @numjobs1 = ();
 my @numjobs2 = ();
@@ -247,13 +250,11 @@ my $thisyear = $year+1900;
 # }else{
 
 # $nowdate = $pryear."-12-31 23:59:59";
-#}
+# }
  
   if($pryear == 2011) {
     $Nmaxjobs = 2900;
  }elsif ($pryear == 2010 and $mm >= 11 ) {
-    $Nmaxjobs = 2900;
- }elsif ($pryear == 2010 and $mm >= 10 ) {
     $Nmaxjobs = 2900;
  }elsif($pryear == 2010 and $mm < 10 ) {
     $Nmaxjobs = 1000;
@@ -262,6 +263,8 @@ my $thisyear = $year+1900;
  }else{
     $Nmaxjobs = 460; 
  }
+
+#    $Nmaxjobs = 2900;
 
 my $day_diff = 0;
 my $nmonth = 0;
