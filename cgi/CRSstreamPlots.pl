@@ -24,7 +24,7 @@ $dbname="operation";
 
 my @reqperiod = ("day","week","1_month","2_months","3_months","6_month");
 my @plotview = ("numbers","ratios");
-my @prodyear = ("2010");
+my @prodyear = ("2010","2011");
 
 my $query = new CGI;
 
@@ -103,7 +103,7 @@ print "<h3 align=center> Select year of production</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'ryear',
                              -values=>\@prodyear,
-                             -default=>2010,
+                             -default=>2011,
                              -size =>1); 
 
 print "<p>";
@@ -152,6 +152,7 @@ my $plview    =  $qqr->param('plotvw');
 my $dyear = $pryear - 2000 ;
 
 # Tables
+# $crsJobStreamsT = "crsJobStreamsY".$dyear;
 $crsJobStreamsT = "crsJobStreamsY10";
 
 ($sec,$min,$hour,$mday,$mon,$year) = localtime;
@@ -165,15 +166,17 @@ if( $sec < 10) { $sec = '0'.$sec };
 
 my $nowdate = ($year+1900)."-".($mon+1)."-".$mday;
 my $thisyear = $year+1900;
+my $nowdatetime ;
 
  if( $thisyear eq $pryear) {
 
- $nowdate = $pryear."-".($mon+1)."-".$mday;
+ $nowdate = $thisyear."-".($mon+1)."-".$mday;
+ $nowdatetime = $thisyear."-".($mon+1)."-".$mday." ".$hour.":".$min.":".$sec ;
 
    }else{
 
  $nowdate = $pryear."-12-31 23:59:59";
-
+ $nowdatetime = $nowdate;
   } 
 
 my $day_diff = 0;
@@ -247,7 +250,7 @@ $day_diff = int($day_diff);
 
 #           $cursor->finish();
 
-   $sql="SELECT physics, ht, hlt, gamma, fmsfast, minbias, mtd, monitor, pmdftp, upsilon, upc, zerobias, Wbs, Njobs,sdate FROM  $crsJobStreamsT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? ORDER by sdate ";
+   $sql="SELECT physics, ht, hlt, gamma, fmsfast, minbias, mtd, monitor, pmdftp, upsilon, upc, zerobias, Wbs, Njobs,sdate FROM  $crsJobStreamsT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? and sdate <= '$nowdatetime' ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($day_diff);
