@@ -158,11 +158,12 @@ if( $sec < 10) { $sec = '0'.$sec };
 my $nowdate = ($year+1900)."-".($mon+1)."-".$mday;
 my $thisyear = $year+1900;
 
- if( $thisyear eq $pryear) {
- $nowdate = $pryear."-".($mon+1)."-".$mday;
- }else{
- $nowdate = $pryear."-12-31 23:59:59";
-} 
+# if( $thisyear eq $pryear) {
+# $nowdate = $pryear."-".($mon+1)."-".$mday;
+
+# }else{
+# $nowdate = $pryear."-12-31 23:59:59";
+#} 
 
 my $day_diff = 0;
 my $nmonth = 0;
