@@ -171,7 +171,7 @@ my $nowdatetime ;
  if( $thisyear eq $pryear) {
 
  $nowdate = $thisyear."-".($mon+1)."-".$mday;
- $nowdatetime = $thisyear."-".($mon+1)."-".$mday." 23:59:59" ;
+ $nowdatetime = $thisyear."-".($mon+1)."-".$mday." ".$hour.":".$min.":59" ;
 
    }else{
 
