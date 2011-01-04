@@ -1,10 +1,10 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.42 2011/01/04 17:17:16 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.43 2011/01/04 17:23:27 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
-# Revision 1.42  2011/01/04 17:17:16  didenko
+# Revision 1.43  2011/01/04 17:23:27  didenko
 # more fixes
 #
 # Revision 1.39  2010/11/24 17:13:34  didenko
@@ -254,7 +254,7 @@ my $thisyear = $year+1900;
  
   if($pryear == 2011) {
     $Nmaxjobs = 2900;
- }elsif ($pryear == 2010 and $mm >= 11 ) {
+ }elsif ($pryear == 2010 ) {
     $Nmaxjobs = 2900;
  }elsif($pryear == 2010 and $mm < 10 ) {
     $Nmaxjobs = 1000;
@@ -315,7 +315,7 @@ $day_diff = int($day_diff);
 
  my $ii = 0;
 
-            $sql="SELECT executing, importWaiting, exportWaiting, error,  done, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? ORDER by sdate ";
+            $sql="SELECT executing, importWaiting, exportWaiting, error,  done, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? and sdate <= $nowdate ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($day_diff);
