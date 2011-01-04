@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.47 2011/01/04 18:10:22 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.48 2011/01/04 19:26:25 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
+# Revision 1.48  2011/01/04 19:26:25  didenko
+# more fixes
+#
 # Revision 1.47  2011/01/04 18:10:22  didenko
 # change default year
 #
@@ -242,14 +245,17 @@ if( $sec < 10) { $sec = '0'.$sec };
 
 my $nowdate = ($year+1900)."-".($mon+1)."-".$mday;
 my $thisyear = $year+1900;
+my $nowdatetime ;
 
  if( $thisyear eq $pryear) {
 
  $nowdate = $thisyear."-".($mon+1)."-".$mday;
+ $nowdatetime = $thisyear."-".($mon+1)."-".$mday." ".$hour.":".$min.":59" ;
 
  }else{
 
  $nowdate = $pryear."-12-31 23:59:59";
+ $nowdatetime = $nowdate;
  }
  
   if($pryear == 2011) {
@@ -313,7 +319,7 @@ $day_diff = int($day_diff);
 
  my $ii = 0;
 
-            $sql="SELECT executing, importWaiting, exportWaiting, error,  done, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? and sdate <= '$nowdate' ORDER by sdate ";
+            $sql="SELECT executing, importWaiting, exportWaiting, error,  done, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? and sdate <= '$nowdatetime' ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($day_diff);

@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSqueueStatus.pl,v 1.17 2010/10/20 15:50:08 didenko Exp $
+# $Id: CRSqueueStatus.pl,v 1.18 2011/01/04 19:26:25 didenko Exp $
 #
 # $Log: CRSqueueStatus.pl,v $
+# Revision 1.18  2011/01/04 19:26:25  didenko
+# more fixes
+#
 # Revision 1.17  2010/10/20 15:50:08  didenko
 # updated title
 #
@@ -80,7 +83,7 @@ $dbname="operation";
 my @reqperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months","7_months","8_months","9_months","10_months","11_months","12_months");
 my @plotview = ("numbers","percentage");
 #my @prodyear = ("2005","2006","2007","2008","2009","2010");
-my @prodyear = ("2009","2010");
+my @prodyear = ("2009","2010","2011");
 
 my $query = new CGI;
 
@@ -120,7 +123,7 @@ print "<h3 align=center> Select year of production</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'ryear',
                              -values=>\@prodyear,
-                             -default=>2010,
+                             -default=>2011,
                              -size =>1); 
 
 print "<p>";
@@ -168,6 +171,7 @@ my $plview    =  $qqr->param('plotvw');
 
 my $dyear = $pryear - 2000 ;
 
+$dyear = 10;
 
 # Tables
 $crsJobStatusT = "crsJobStatusY".$dyear;
@@ -202,16 +206,17 @@ if( $sec < 10) { $sec = '0'.$sec };
 
 my $nowdate = ($year+1900)."-".($mon+1)."-".$mday;
 my $thisyear = $year+1900;
-
+my $nowdatetime ;
 
  if( $thisyear eq $pryear) {
 
- $nowdate = $pryear."-".($mon+1)."-".$mday;
+ $nowdate = $thisyear."-".($mon+1)."-".$mday;
+ $nowdatetime = $thisyear."-".($mon+1)."-".$mday." ".$hour.":".$min.":59" ;
 
  }else{
 
  $nowdate = $pryear."-12-31 23:59:59";
-
+ $nowdatetime = $nowdate;
 }
 
 my $day_diff = 0;
@@ -261,7 +266,7 @@ my @prt = ();
 
  my $ii = 0;
 
-            $sql="SELECT queue0, queue1, queue2, queue3, queue4, queue5, sdate FROM  $crsQueueT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? ORDER by sdate ";
+            $sql="SELECT queue0, queue1, queue2, queue3, queue4, queue5, sdate FROM  $crsQueueT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? and sdate <= '$nowdatetime' ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($day_diff) ;
