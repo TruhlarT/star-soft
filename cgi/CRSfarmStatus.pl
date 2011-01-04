@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.39 2010/11/24 17:13:34 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.40 2011/01/04 17:06:57 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
+# Revision 1.40  2011/01/04 17:06:57  didenko
+# try to fix nodate
+#
 # Revision 1.39  2010/11/24 17:13:34  didenko
 # update max nodes
 #
@@ -114,7 +117,7 @@ $dbname="operation";
 
 my @reqperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months","7_months","8_months","9_months","10_months","11_months","12_months");
 my @plotview = ("numbers","percentage");
-my @prodyear = ("2005","2006","2007","2008","2009","2010");
+my @prodyear = ("2005","2006","2007","2008","2009","2010","2011");
 
 my $query = new CGI;
 
@@ -126,7 +129,7 @@ my $max_y = 10000;
 my $min_y = 0;
 my @data;
 my @legend;
-my $Nmaxjobs = 2020;
+my $Nmaxjobs = 2900;
 
  my $pryear =  $query->param('ryear');
  my $fperiod  =  $query->param('period');
@@ -237,21 +240,21 @@ if( $sec < 10) { $sec = '0'.$sec };
 my $nowdate = ($year+1900)."-".($mon+1)."-".$mday;
 my $thisyear = $year+1900;
 
- if( $thisyear eq $pryear) {
+# if( $thisyear eq $pryear) {
 
- $nowdate = $pryear."-".($mon+1)."-".$mday;
+# $nowdate = $pryear."-".($mon+1)."-".$mday;
 
- }else{
+# }else{
 
- $nowdate = $pryear."-12-31 23:59:59";
-
-} 
+# $nowdate = $pryear."-12-31 23:59:59";
+#}
+ 
   if($pryear == 2011) {
-    $Nmaxjobs = 2800;
+    $Nmaxjobs = 2900;
  }elsif ($pryear == 2010 and $mm >= 11 ) {
-    $Nmaxjobs = 2750;
+    $Nmaxjobs = 2900;
  }elsif ($pryear == 2010 and $mm >= 10 ) {
-    $Nmaxjobs = 3000;
+    $Nmaxjobs = 2900;
  }elsif($pryear == 2010 and $mm < 10 ) {
     $Nmaxjobs = 1000;
  }elsif($pryear == 2009)  {
