@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSstatusPlots.pl,v 1.22 2010/10/06 17:39:10 didenko Exp $
+# $Id: CRSstatusPlots.pl,v 1.23 2011/01/04 19:31:28 didenko Exp $
 #
 # $Log: CRSstatusPlots.pl,v $
+# Revision 1.23  2011/01/04 19:31:28  didenko
+# updated for 2011 year
+#
 # Revision 1.22  2010/10/06 17:39:10  didenko
 # changed scale
 #
@@ -89,7 +92,7 @@ $query = new CGI;
 
  my $fstatus   =  $query->param('statusfield');
  my $fperiod   =  $query->param('period');
- my @prodyear = ("2005","2006","2007","2008","2009","2010");
+ my @prodyear = ("2005","2006","2007","2008","2009","2010","2011");
 
   if( $fperiod eq "" and $fstatus eq "" and $pryear eq "" ) {
 
@@ -163,6 +166,8 @@ my $qqr = new CGI;
 
  my $dyear = $pryear - 2000 ;
 
+ $dyear = 10;
+
 # Tables
 $crsJobStatusT = "crsJobStatusY".$dyear;
 $crsQueueT = "crsQueueY".$dyear;
@@ -194,15 +199,17 @@ if( $sec < 10) { $sec = '0'.$sec };
 
 my $nowdate = ($year+1900)."-".($mon+1)."-".$mday;
 my $thisyear = $year+1900;
+my $nowdatetime ;
 
 if( $thisyear eq $pryear) {
 
- $nowdate = $pryear."-".($mon+1)."-".$mday;
+ $nowdate = $thisyear."-".($mon+1)."-".$mday;
+ $nowdatetime = $thisyear."-".($mon+1)."-".$mday." ".$hour.":".$min.":59" ;
 
  }else{
 
  $nowdate = $pryear."-12-31 23:59:59";
-
+ $nowdatetime = $nowdate;
 }
 
 my $nmonth = 0;
@@ -240,7 +247,7 @@ my @prt = ();
 	 }
 
 
-            $sql="SELECT $fstatus, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? ORDER by sdate ";
+            $sql="SELECT $fstatus, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ?  and sdate <= '$nodatetime' ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($day_diff);
