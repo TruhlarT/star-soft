@@ -47,6 +47,10 @@ switch ($pkg)
       source $GROUP_DIR/STAR_SYS
       unsetenv OPTSTAR
       unsetenv QTDIR
+      unsetenv LD_LIBRARY_PATH 
+      if ( $?SAVED_PATH ) then
+	set path=($SAVED_PATH)
+      endif
       source $GROUP_DIR/group_env.csh
       breaksw
 
@@ -56,8 +60,13 @@ switch ($pkg)
       source $GROUP_DIR/STAR_SYS
       unsetenv OPTSTAR
       unsetenv QTDIR
+      unsetenv LD_LIBRARY_PATH
+      if ( $?SAVED_PATH ) then
+	set path=($SAVED_PATH)
+      endif
       source $GROUP_DIR/group_env.csh 
       breaksw
+
 
     case "PGI":
     case "pgi":
@@ -164,6 +173,8 @@ switch ($pkg)
         else
 	    # try to determine the location according to pre-2010 logic
 	    if ( ! $?USE_64BITS ) then
+		# this is also defined in STAR_SYS but ensuring
+		# a defula tis needed for the test below
 		setenv USE_64BITS 0
 	    endif
 	    # some of the path below are historical
