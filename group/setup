@@ -44,27 +44,35 @@ switch ($pkg)
     case "64bits":
     case "64b":
       setenv USE_64BITS 1
-      source $GROUP_DIR/STAR_SYS
+      #source $GROUP_DIR/STAR_SYS
       unsetenv OPTSTAR
       unsetenv QTDIR
       unsetenv LD_LIBRARY_PATH 
-      if ( $?SAVED_PATH ) then
-	set path=($SAVED_PATH)
-      endif
-      source $GROUP_DIR/group_env.csh
+      #if ( $?SAVED_PATH ) then
+      #	set path=($SAVED_PATH)
+      #endif
+      setenv FLOGIN 1 
+      setenv SILENT 1
+      source $GROUP_DIR/star_login.csh 
+      unsetenv SILENT
+      #source $GROUP_DIR/group_env.csh
       breaksw
 
     case "32bits":
     case "32b":
       setenv USE_64BITS 0
-      source $GROUP_DIR/STAR_SYS
+      #source $GROUP_DIR/STAR_SYS
       unsetenv OPTSTAR
       unsetenv QTDIR
       unsetenv LD_LIBRARY_PATH
-      if ( $?SAVED_PATH ) then
-	set path=($SAVED_PATH)
-      endif
-      source $GROUP_DIR/group_env.csh 
+      #if ( $?SAVED_PATH ) then
+      #	set path=($SAVED_PATH)
+      #endif
+      #source $GROUP_DIR/group_env.csh 
+      setenv FLOGIN 1 
+      setenv SILENT 1
+      source $GROUP_DIR/star_login.csh 
+      unsetenv SILENT
       breaksw
 
 
