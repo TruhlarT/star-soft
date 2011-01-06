@@ -158,7 +158,7 @@ $JobStatusT = "siteJobStatus";
 
  @arlib = ();
 
- $sql="SELECT distinct LibTag FROM $JobStatusT where path LIKE '%new%ittf%' and site = ? order by createTime ";
+ $sql="SELECT distinct LibTag FROM $JobStatusT where path LIKE '%new%ittf%' and site = ? and avail = 'Y' ";
 
   $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -174,7 +174,7 @@ $JobStatusT = "siteJobStatus";
  $lastlib = $arlib[$nd-1];
 
 
-$sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%/new/%ittf%' AND site = ?  AND LibTag like '$lastlib%' AND avail = 'Y' order by prodyear ";
+$sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%/new/%ittf%' AND site = ?  AND LibTag like '$lastlib%' and avail = 'Y' order by prodyear ";
 
 
     $cursor =$dbh->prepare($sql)
