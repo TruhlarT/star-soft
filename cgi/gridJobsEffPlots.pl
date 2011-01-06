@@ -416,9 +416,9 @@ my $ndt = 0;
 
  } else {
 
-  my $format = $graph->export_format;
-  print header("image/$format");
-  binmode STDOUT;
+#  my $format = $graph->export_format;
+#  print header("image/$format");
+#  binmode STDOUT;
 
 
     if( $qsite eq "ALL" ) {
