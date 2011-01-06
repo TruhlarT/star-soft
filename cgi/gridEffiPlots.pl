@@ -61,7 +61,7 @@ my $nowdate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2008","2009","2010", "2011");
+my @prodyear = ("2008","2009","2010","2011");
 
 # Tables
 
@@ -247,13 +247,14 @@ END
 
  if( $thisyear eq $pryear) {
 
- $nowdate = $thisyear."-".($mon+1)."-".$mday;
- $nowdatetime = $thisyear."-".($mon+1)."-".$mday." ".$hour.":".$min.":59" ;
+# $nowdate = $thisyear."-".($mon+1)."-".$mday;
+  $nowdate = $todate ;
+ $nowdatetime = $todate ." ".$hour.":".$min.":59" ;
 
  }else{
 
- $nowdate = $pryear;
- $nowdatetime = $nowdate."-12-31 23:59:59";
+ $nowdate = $pryear. "-12-31";
+ $nowdatetime = $nowdate." 23:59:59";
  }
 
 
