@@ -280,7 +280,7 @@ $minval = 100000;
     $sql="SELECT path, $mplotVal, LibTag, site FROM $JobStatusT WHERE path LIKE ?  AND jobStatus= 'Done' and LibTag like ?  ORDER by createTime";
 
         $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
-        $cursor->execute($qupath,$ylib,$cryear);
+        $cursor->execute($qupath,$ylib);
 
         while(@fields = $cursor->fetchrow_array) {
 
