@@ -58,7 +58,7 @@ my $nowdate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2006","2007","2008","2009","2010");
+my @prodyear = ("2006","2007","2008","2009","2010"."2011");
 
 # Tables
 $JobStatusT = "JobStatus_10";
@@ -175,7 +175,7 @@ print "<h3 align=center> Select year</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'ryear',
                              -values=>\@prodyear,
-                             -default=>2010,
+                             -default=>2011,
       			     -size =>1);
 
 
@@ -248,6 +248,8 @@ my $tdate;
     $nowdate = "2008-12-31";
   }elsif($pryear eq "2009") {
     $nowdate = "2009-12-31";
+  }elsif($pryear eq "2010") {
+    $nowdate = "2010-12-31";
   }else{
     $nowdate = $todate;
   }
