@@ -242,17 +242,22 @@ END
     my @jbsub = ();
     my $njb = 0;
     my $jbt;
+    my $nowdatetime;
 
 
-    if($pryear eq "2008") {
-	$nowdate = "2008-12-31";
-    }elsif($pryear eq "2009") {
-	$nowdate = "2009-12-31";
-   }elsif($pryear eq "2010") {
-	$nowdate = "2010-12-31";
-    } else {
-	$nowdate = $todate;
-    }
+ if( $thisyear eq $pryear) {
+
+ $nowdate = $thisyear."-".($mon+1)."-".$mday;
+ $nowdatetime = $thisyear."-".($mon+1)."-".$mday." ".$hour.":".$min.":59" ;
+
+ }else{
+
+ $nowdate = $pryear;
+ $nowdatetime = $nowdate."-12-31 23:59:59";
+ }
+
+
+
 
     if( $qperiod eq "week") {
 	$day_diff = 8;
@@ -267,7 +272,7 @@ END
 
     &GRdbConnect();
 
-    $sql="SELECT DISTINCT date_format(submitTime, '%Y-%m-%d') AS PDATE  FROM $JobEfficiencyT WHERE ( lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND submitAttempt = 1 AND site = ? AND (TO_DAYS(\"$nowdate\") - TO_DAYS(submitTime)) < ?  order by PDATE";
+    $sql="SELECT DISTINCT date_format(submitTime, '%Y-%m-%d') AS PDATE  FROM $JobEfficiencyT WHERE ( lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND submitAttempt = 1 AND site = ? AND (TO_DAYS(\"$nowdate\") - TO_DAYS(submitTime)) < ?  and  submitTime <= '$nowdatetime' order by PDATE";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
