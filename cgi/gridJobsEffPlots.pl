@@ -58,7 +58,7 @@ my $nowdate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2006","2007","2008","2009","2010"."2011");
+my @prodyear = ("2006","2007","2008","2009","2010","2011");
 
 # Tables
 $JobStatusT = "JobStatus_10";
