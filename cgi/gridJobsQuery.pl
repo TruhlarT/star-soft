@@ -62,7 +62,7 @@ print "<h3 align=center> Select year</h3>";
 print "<h4 align=center>";
 print  $qq->scrolling_list(-name=>'ryear',
                              -values=>\@prodyear,
-                             -default=>2010,
+                             -default=>2011,
 			      -size =>1);
 
 print "<p>";
