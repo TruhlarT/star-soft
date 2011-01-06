@@ -218,8 +218,6 @@ END
 } else {
     # Argumnts are provided
     
-    # my $query = new CGI;
-
     my $pryear  = $query->param('ryear');
     my $qperiod = $query->param('period');
     my $qsite   = $query->param('prodsite');
@@ -247,7 +245,6 @@ END
 
  if( $thisyear eq $pryear) {
 
-# $nowdate = $thisyear."-".($mon+1)."-".$mday;
   $nowdate = $todate ;
  $nowdatetime = $todate ." ".$hour.":".$min.":59" ;
 
@@ -587,7 +584,7 @@ print <<END;
           <title>Jobs Efficiency</title>
    </head>
    <body BGCOLOR=\"#ccffff\">
-     <h1 align=center>No Data for that Period</h1>
+     <h1 align=center>No Data for $qperiod period</h1>
 
     </body>
    </html>
