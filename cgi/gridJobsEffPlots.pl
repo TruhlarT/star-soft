@@ -498,11 +498,20 @@ $xLabelSkip = 12 if( $qperiod eq "12_months" );
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
 
+
+        if ( scalar(@ndate) <= 1 ) {
+            print $qqr->header(-type => 'text/html')."\n";
+            &beginHtml();
+        } else {
+      my $format = $graph->export_format;
+      print header("image/$format");
+      binmode STDOUT;
+
       print STDOUT $graph->plot(\@data)->$format();
 
     }
-
- }
+  }
+}
 
 ######################
 sub y_format
@@ -523,5 +532,23 @@ sub GRdbConnect {
 ######################
 sub GRdbDisconnect {
     $dbh = $dbh->disconnect() || die "Disconnect failure $DBI::errstr\n";
+}
+
+#####################################
+
+sub beginHtml {
+
+print <<END;
+  <html>
+   <head>
+          <title>Efficiency of jobs execution</title>
+   </head>
+   <body BGCOLOR=\"#ccffff\">
+     <h1 align=center>No Data for $qperiod period </h1>
+
+
+    </body>
+   </html>
+END
 }
 
