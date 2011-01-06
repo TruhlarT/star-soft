@@ -258,8 +258,6 @@ END
  }
 
 
-
-
     if( $qperiod eq "week") {
 	$day_diff = 8;
   
