@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.43 2010/04/19 15:14:14 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.44 2011/01/11 23:09:29 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -134,6 +134,10 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	    $ALLARGS .= " $CHENVA";
 	} elsif($arg eq "-b"){
 	    $CHENVB   = $ARGV[++$i];
+	    $ALLARGS .= " $CHENVB";
+	} elsif($arg eq "-B"){
+	    # Grab it from ENV
+	    $CHENVB   = $ENV{AutoBuild_setup_cmd};
 	    $ALLARGS .= " $CHENVB";
 
 	} elsif($arg eq "-A"){
@@ -1213,6 +1217,8 @@ sub lhelp
 
  -b Cmd       Executes 'Cmd' before star library version change (can be used
               for executing a setup)
+ -B           Same as -b but will take Cmd from the environment variable
+              AutoBuild_setup_cmd (allowing multiple arguments)
  -a Cmd       Executes 'Cmd' after star library version change (can be used
               for modifying the setup)
 
