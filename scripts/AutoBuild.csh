@@ -16,8 +16,10 @@
 #   SL44
 #   SL5
 #
+#   gcc [v]    switch to some specific version of gcc
+#   icc [v]    Builds with icc
+#
 #   Insure     Builds Insure++ compilation
-#   icc        Builds with icc
 #   gprof      Builds with gprof options
 # 
 #   inter      Builds as per the default target but do not perform
@@ -107,7 +109,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		set SPATH=$AFS_RHIC/star/doc/www/comp/prod/Sanity
 		perl $SCRIPTD/AutoBuild.pl -k -i -R -1 -t -p $LPATH
 		if( -e $HOME/AutoBuild-dec_osf.html) then
-		    mv -f $HOME/AutoBuild-dec_osf.html $SPATH/AutoBuild-dec_osf.html
+		    /bin/mv -f $HOME/AutoBuild-dec_osf.html $SPATH/AutoBuild-dec_osf.html
 		endif
 		cd $LPATH
 		echo "Cleaning older libraries"
@@ -120,7 +122,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		set SPATH=$AFS_RHIC/star/doc/www/comp/prod/Sanity
 		$SCRIPTD/AutoBuild.pl -k -i -R -1 -t -p $LPATH
 		if( -e $HOME/AutoBuild-solaris.html) then
-		    mv -f $HOME/AutoBuild-solaris.html $SPATH/AutoBuild-solaris.html
+		    /bin/mv -f $HOME/AutoBuild-solaris.html $SPATH/AutoBuild-solaris.html
 		endif
 		cd $LPATH
 		# Clean this garbage
@@ -131,11 +133,15 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		breaksw
 
 
+	    # By extendig with -B, we can regroup targets
 	    case "icc9":
+		# Old backward compat
 		# this was added to provide cross verison support
 		# default tatrget becomes the latest
 		setenv INTELC_VERSION 9
 
+	    case "gprof":
+	    case "gcc":
 	    case "icc":
 		set LPATH=$AFS_RHIC/star/packages/adev
 		set SPATH=$AFS_RHIC/star/doc/www/comp/prod/Sanity
@@ -143,45 +149,40 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		# this is only for double checking. AutoBuild.pl is
 		# impermeable to external env changes (start a new process)
 		# so modifications has to be passed at command line level
-		echo "Testing setup icc ${INTELC_VERSION}"
-		setup icc
-		set test=`which icc`
-		set sts=$status
-		if ( $sts == 0 ) then
-		    echo "icc is $test ; starting AutoBuild"
-		    $SCRIPTD/AutoBuild.pl -k -i -R -t -T icc -p $LPATH -b 'setup icc' >$HOME/log/AB-icc-$DAY.log
-		    if( -e $HOME/AutoBuild-linux-icc.html) then
-			mv -f $HOME/AutoBuild-linux-icc.html $SPATH/AutoBuild-$1.html
+		echo "Testing setup $1"
+		setup $1 $2
+
+		# add a test for icc
+		set OKBUILD=1
+		if ( "$1" == "icc") then
+		    echo "Testing setup $1 ${INTELC_VERSION}"
+		    set test=`which icc`
+		    set sts=$status
+		    if ( $sts != 0 ) then
+			echo "Test returned status $sts"
+			set OKBUILD=0
+		    endif
+		endif
+
+		if ( $OKBUILD ) then
+		    setenv AutoBuild_setup_cmd "setup $1 $2"
+		    $SCRIPTD/AutoBuild.pl -1 -k -i -R -t -T $1$2 -B -p $LPATH 
+		    if( -e $HOME/AutoBuild-linux-$1$2.html) then
+			/bin/mv -f $HOME/AutoBuild-linux-$1$2.html $SPATH/AutoBuild-$1$2.html
 		    endif
 		    cd $LPATH
 		    echo "Cleaning older libraries"
-		    mgr/CleanLibs obj 1
+		endif
+
+		if ( "$1" == "gcc" || "$1" == "icc") then
+		    mgr/CleanLibs 1
+		    echo "Reverting to normal setup"
+		    setup gcc
 		else
-		    echo "Test returned status $sts"
+		    mgr/CleanLibs GOBJ 1
+		    echo "Reverting to normal setup"
+		    setup nogprof
 		endif
-		echo "Reverting to gcc setup"
-		setup gcc
-		breaksw
-
-
-	    case "gprof":
-		set LPATH=$AFS_RHIC/star/packages/adev
-		set SPATH=$AFS_RHIC/star/doc/www/comp/prod/Sanity
-		
-		# this is only for double checking. AutoBuild.pl is
-		# impermeable to external env changes (start a new process)
-		# so modifications has to be passed at command line level
-		echo "Testing setup gprof"
-		setup gprof
-		$SCRIPTD/AutoBuild.pl -1 -k -i -R -t -T gprof -b 'setup gprof' -p $LPATH 
-		if( -e $HOME/AutoBuild-linux-gprof.html) then
-		    mv -f $HOME/AutoBuild-linux-gprof.html $SPATH/AutoBuild-$1.html
-		endif
-		cd $LPATH
-		echo "Cleaning older libraries"
-		mgr/CleanLibs GOBJ 1
-		echo "Reverting to normal setup"
-		setup nogprof
 		breaksw
 
 
