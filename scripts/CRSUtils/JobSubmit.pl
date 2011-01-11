@@ -79,7 +79,7 @@ use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use RunDAQ;
 use CRSQueues;
 
-$ThisYear = 2010;                 # Block to consider. Completely artificial
+$ThisYear = 2011;                 # Block to consider. Completely artificial
                                   # and used to preserve older options in if
                                   # block along with current option.
 $HPSS     = 1;                    # turn to 0 for UNIX staging only
@@ -389,7 +389,7 @@ if ( $ThisYear == 2005 ){
     $SCALIB{"PPPP"} = "OptLaser";
 
     
-} elsif ( $ThisYear == 2010 ) {
+} elsif ( $ThisYear == 2010 || $ThisYear == 2011 ) {
     $TREEMODE= 1;
     $LIB     = "dev";
 
@@ -438,8 +438,8 @@ if ( $ThisYear == 2005 ){
 
 
     # Order is: regular, bypass, calib
-    @USEQ    = (5,  5,5);
-    @SPILL   = (0,105,4);
+    @USEQ    = (5,  5, 5);
+    @SPILL   = (0,105, 4);
 
 
     # at least, p+p calib
@@ -482,7 +482,8 @@ $tmpSP   = shift(@ARGV) if ( @ARGV );
 
 
 # DO NOT MODIFY THIS unless all STAR scripts have moved elsewhere
-$SPATH ="/afs/rhic.bnl.gov/star/packages/scripts";
+$SPATH    = "/afs/rhic.bnl.gov/star/packages/scripts";
+$DBLBNAME = "dbLoadBalancerLocalConfig_nightly.xml";
 
 # if we wait 1 minute between submit, and our cron
 # tab executes this once every 20 minutes, max the
@@ -1444,7 +1445,25 @@ sub Submit
 	if($calib ne ""){
 
 	    # ------------------------------------------------------------------
-	    # THIS IS A CALIBRATION PRE-PASS -- IT REQUIRES AN EXTRANEOUS INPUT
+	    # THIS IS A CALIBRATION PRE-PASS -- IT REQUIRES AN ADDITIONAL INPUT
+	    print FO <<__EOH__;
+mergefactor=1
+#input
+    inputnumstreams=3
+    inputstreamtype[0]=HPSS
+    inputdir[0]=$items[0]
+    inputfile[0]=$prefix$items[1]
+    inputstreamtype[1]=UNIX
+    inputdir[1]=$TARGET/StarDb
+    inputfile[1]=$calib
+    inputstreamtype[2]=UNIX
+    inputdir[2]=$SPATH/conf
+    inputfile[2]=$DBLBNAME
+
+__EOH__
+
+        } else {
+	    # THIS IS A REGULAR RECONSTRUCTION PROCESSING
 	    print FO <<__EOH__;
 mergefactor=1
 #input
@@ -1453,19 +1472,8 @@ mergefactor=1
     inputdir[0]=$items[0]
     inputfile[0]=$prefix$items[1]
     inputstreamtype[1]=UNIX
-    inputdir[1]=$TARGET/StarDb
-    inputfile[1]=$calib
-__EOH__
-
-        } else {
-	    # THIS IS A REGULAR RECONSTRUCTION PROCESSING
-	    print FO <<__EOH__;
-mergefactor=1
-#input
-    inputnumstreams=1
-    inputstreamtype[0]=HPSS
-    inputdir[0]=$items[0]
-    inputfile[0]=$prefix$items[1]
+    inputdir[1]=$SPATH/conf
+    inputfile[1]=$DBLBNAME
 
 __EOH__
 	}
