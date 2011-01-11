@@ -558,7 +558,7 @@ if ($TARGET !~ m/^\d+$/){
 	    print "$SELF : $ltarget does not exists\n"; 
 	    rdaq_set_message($SSELF,
 			     "Target disk space warning",
-			     "$larget does not exists");
+			     "$ltarget does not exists");
 	    next;
 	}
 
@@ -764,7 +764,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		&RandArray(\@Fs);
 		#$z = 0; 
 		#foreach my $f (@Fs){ @zozo = split(" ",$f); $z++; print FD "1 $z - ".($z<$W?"Y":"N")." - $zozo[0]\n";} 
-		close(FD);
+		#close(FD);
 		push(@Files,@Fs[0..$W]);
 
 	    }
