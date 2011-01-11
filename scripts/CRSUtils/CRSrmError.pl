@@ -4,6 +4,17 @@
 ###############################################################################
 
  my $prodSer = $ARGV[0]; 
+
+use DBI;
+
+$dbhost="duvall.star.bnl.gov";
+$dbuser="starreco";
+$dbpass="";
+$dbname="operation";
+
+$JobStatusT = "JobStatus2010";
+
+
 my $jobdir;
 my $archdir;
 my $lostdir;
@@ -77,6 +88,8 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
 
   $Nloop = scalar(@jobsloop);
 
+   &StDbProdConnect(); 
+
            if(scalar(@jobsloop) >= 1) {
   
      print $Nloop,"  ", "jobs looping:", "\n";
@@ -111,6 +124,10 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
       `mv $fullname $loopdir \n`;
         print "Looping job killed and moved to jobs_looping dir: ", $jobname,"   ", $prt[1],  "\n";
 #         print "Found looping jobs: ", $jobname,"   ", $prt[1],  "\n";
+
+      $sql="update $JobStatusT set jobStatus = 'hunging'  where jobfileName = '$jobname' ";
+      $rv = $dbh->do($sql) || die $dbh->errstr;   
+
     }
   }
 
@@ -162,11 +179,28 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
     `crs_job -kill $crsjobname`;
      print "Job killed:  ", $jobname,"   ", $prt[1], "\n";
      `mv $fullname $lostdir \n`;
+ 
+      $sql="update $JobStatusT set inputHpssStatus = '$prt[1]' where jobfileName = '$jobname' ";
+      $rv = $dbh->do($sql) || die $dbh->errstr;
+  
 
-   }elsif($prt[1] eq "hpss_error_-153" or $prt[1] eq "hpss_error_-154" ) {
+    }elsif($prt[1] eq "hpss_error_-153" or $prt[1] eq "hpss_error_-154" ) {
+ 
     `crs_job -kill $crsjobname`;
      print "Job killed:  ", $jobname,"   ", $prt[1], "\n";
      `mv $fullname $lostdir \n`;
+
+      $sql="update $JobStatusT set inputHpssStatus = '$prt[1]' where jobfileName = '$jobname' ";
+      $rv = $dbh->do($sql) || die $dbh->errstr;
+
+    }elsif($prt[1] =~ /hpss_error/ ) {
+ 
+    `crs_job -kill $crsjobname`;
+     print "Job killed:  ", $jobname,"   ", $prt[1], "\n";
+     `mv $fullname $lostdir \n`;
+
+      $sql="update $JobStatusT set inputHpssStatus = '$prt[1]' where jobfileName = '$jobname' ";
+      $rv = $dbh->do($sql) || die $dbh->errstr;
 
    }elsif($prt[1] eq "no_response_from_hpss_server") {
     `crs_job -reset $crsjobname`; 
@@ -197,10 +231,11 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
     `crs_job -kill $crsjobname`;
     next if( $jobname =~ /dev/);   
 
-    `mv $fullname $jobdir \n`;
-        print "Job killed and resubmitted: ", $jobname,"   ", $prt[1],  "\n";
-    $jobfilelist[$ii] = $jobname;
-    $ii++;
+    `mv $fullname $lostdir \n`;
+     print "Job killed:  ", $jobname,"   ", $prt[1],  "\n";
+     
+#    $jobfilelist[$ii] = $jobname;
+#    $ii++;
     
   }
  }
@@ -210,5 +245,19 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
      print "No failed jobs", "\n";
  }
 
+     &StDbProdDisconnect();
+
 exit;
 
+
+######################
+sub StDbProdConnect {
+    $dbh = DBI->connect("dbi:mysql:$dbname:$dbhost", $dbuser, $dbpass)
+        || die "Cannot connect to db server $DBI::errstr\n";
+}
+
+
+######################
+sub StDbProdDisconnect {
+    $dbh = $dbh->disconnect() || die "Disconnect failure $DBI::errstr\n";
+}
