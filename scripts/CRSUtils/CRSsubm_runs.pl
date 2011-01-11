@@ -11,6 +11,16 @@ my $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive";
 
 my $lockfile = "/star/u/starreco/prodlists/submission.lock";
 
+use DBI;
+
+$dbhost="duvall.star.bnl.gov";
+$dbuser="starreco";
+$dbpass="";
+$dbname="operation";
+
+$JobStatusT = "JobStatus2010";
+
+
  if( -f $lockfile) {
      `rm  $lockfile` ;
 
@@ -62,7 +72,7 @@ if( $mon < 10) { $mon = '0'.$mon };
 if( $mday < 10) { $mday = '0'.$mday };
 if( $hour < 10) { $hour = '0'.$hour };
 if( $min < 10) { $min = '0'.$min };
-if( $sec < 10) { $min = '0'.$sec };
+if( $sec < 10) { $sec = '0'.$sec };
 
 $year = $yr + 1900;
 
@@ -103,6 +113,11 @@ if($Ncreate <= 1000) {
 
     $nlast = scalar(@jobslist);
 
+ #####  connect to production DB
+
+ &StDbProdConnect();
+
+
      if ($nlast >= 1) {
 
       for ( $kk = $n1; $kk<$nlast; $kk++) {
@@ -115,17 +130,22 @@ if($Ncreate <= 1000) {
 #	`$CRSDIR/crs_job -create $jbfile -q5 -p20`;
 
 	`/bin/mv $jbfile $archdir`;
+
+      $sql="update $JobStatusT set submitTime = '$timestamp', submitAttempt = 1 where jobfileName = '$jbfile' ";
+      $rv = $dbh->do($sql) || die $dbh->errstr;        
+
        } else {
                 print "[?] $jbfile is not a file\n";
         }
       }    ##### for
-
 
     }else{
 ###### if ($nlast >= 1)
 
 	print "No run number $lastrun in the directory ", "\n"
     }
+
+    &StDbProdDisconnect();
 
     } else {
 ###### if ( $lastrun > 10000000 )
@@ -139,6 +159,7 @@ if($Ncreate <= 1000) {
      print "Number of CREATED jobs > 1000", "\n";
  }
  
+
 ##########################
 
 if ($lastid >=1 ) {
@@ -152,7 +173,7 @@ if ($lastid >=1 ) {
        print NEWLIST  "$myrun" ,"\n";  
    }
 
-}else{
+   }else{
 
     print  "No more run numbers in the list", "\n";
     print NEWLIST "10000000\n";
@@ -160,6 +181,7 @@ if ($lastid >=1 ) {
   } 
    close (NEWLIST);
  }
+
 ################
 
 if (!open (SUBFILE, ">$lockfile" ))  {printf ("Unable to create file %s\n",$lockfile);}
@@ -169,8 +191,21 @@ if (!open (SUBFILE, ">$lockfile" ))  {printf ("Unable to create file %s\n",$lock
  close (SUBFILE);
 
 
-
-  }else{
+   }else{
     exit;
  }
+
 exit;
+
+
+######################
+sub StDbProdConnect {
+    $dbh = DBI->connect("dbi:mysql:$dbname:$dbhost", $dbuser, $dbpass)
+        || die "Cannot connect to db server $DBI::errstr\n";
+}
+
+
+######################
+sub StDbProdDisconnect {
+    $dbh = $dbh->disconnect() || die "Disconnect failure $DBI::errstr\n";
+}
