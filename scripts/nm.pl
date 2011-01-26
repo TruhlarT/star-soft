@@ -189,11 +189,15 @@ foreach $file (@all){
 	    if ($el =~ /(\s+A )(.*)/){
 		print "$el$pad [Absolute symbol]\n";		
 	    } elsif ($el =~ /(\s+B )(.*)/){		
-		print "$el$pad [bss (unitialized data space)]\n";
+		print "$el$pad [bss global (unitialized data space)]\n";
+	    } elsif ($el =~ /(\s+b )(.*)/){		
+		print "$el$pad [bss local  (unitialized data space)]\n";
 	    } elsif ($el =~ /(\s+C )(.*)/){		
 		print "$el$pad [COMMON symbol]\n";
 	    } elsif ($el =~ /(\s+D )(.*)/){		
-		print "$el$pad [Data object symbol]\n";
+		print "$el$pad [Data object symbol global]\n";
+	    } elsif ($el =~ /(\s+d )(.*)/){		
+		print "$el$pad [Data object symbol local ]\n";
 	    } elsif ($el =~ /(\s+F )(.*)/){		
 		print "$el$pad [File symbol]\n";
 	    } elsif ($el =~ /(\s+G )(.*)/){		
@@ -209,7 +213,9 @@ foreach $file (@all){
 	    } elsif ($el =~ /(\s+S )(.*)/){		
 		print "$el$pad [Section symbol for small objects]\n";
 	    } elsif ($el =~ /(\s+T )(.*)/){		
-		print "$el$pad [Text symbol or code section (defined)]\n";
+		print "$el$pad [Text symbol or code section global (defined)]\n";
+	    } elsif ($el =~ /(\s+t )(.*)/){		
+		print "$el$pad [Text symbol or code section local  (defined)]\n";
 	    } elsif ($el =~ /(\s+U )(.*)/){
 		print "$el$pad [Undefined symbol (MUST be resolved))]\n";		
 	    } elsif ($el =~ /(\s+V )(.*)/){
