@@ -149,7 +149,7 @@ my $min_y = 0;
 my $max_y = 5000;
 my $maxval = 0;
 my $minVal = 0;
-my @aryear = ("2009","2010"); 
+my @aryear = ("2009","2010","2011"); 
 
 my $query = new CGI;
 
@@ -201,7 +201,7 @@ print "<h3 align=center>Select year:</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'ryear',
 			     -values=>\@aryear,
-                             -default=>2010,                              
+                             -default=>2011,                              
 			     -size=>1);
 
 print "</h4>";
