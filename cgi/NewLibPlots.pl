@@ -148,7 +148,6 @@ my $min_y = 0;
 my $max_y = 5000;
 my $maxval = 0;
 my $minVal = 0;
-my @aryear = ("2010","2011"); 
 my @arsite = ("rcf","pdsf");
 
 my $query = new CGI;
@@ -157,9 +156,8 @@ my $scriptname = $query->url(-relative=>1);
 
 my $tset    = $query->param('sets');
 my $plotVal = $query->param('plotVal');
-my $tyear   = $query->param('ryear');
 
-  if( $tset eq "" and $plotVal eq "" and $tyear eq  "" ) {
+  if( $tset eq "" and $plotVal eq "" ) {
 
 print $query->header();
 print $query->start_html('Plots for Nightly Test in NEW Library');
@@ -197,14 +195,6 @@ print $query->scrolling_list(-name=>'plotVal',
 
 print "</td> </tr> </table><hr><center>";
 
-print "<p>";
-print "<h3 align=center>Select year:</h3>";
-print "<h4 align=center>";
-print $query->scrolling_list(-name=>'ryear',
-                             -values=>\@aryear,
-                             -default=>2010,
-                             -size=>1);
-
 print "</h4>";
 print "<br>";
 print "<br>";
@@ -222,12 +212,27 @@ my $qqr = new CGI;
 
 my $tset    =  $qqr->param('sets');
 my $plotVal =  $qqr->param('plotVal');
-my $tyear   =  $qqr->param('ryear');
+my $tyear;
 
 
 $JobStatusT = "siteJobStatus";
 
-my $cryear = "$tyear%";
+($sec,$min,$hour,$mday,$mon,$year) = localtime();
+
+
+if( $mon < 10) { $mon = '0'.$mon };
+if( $mday < 10) { $mday = '0'.$mday };
+if( $hour < 10) { $hour = '0'.$hour };
+if( $min < 10) { $min = '0'.$min };
+if( $sec < 10) { $sec = '0'.$sec };
+
+
+my $todate = ($year+1900)."-".($mon+1)."-".$mday." ".$hour.":".$min.":".$sec ;
+
+my $day_diff = 365;
+
+my $tyear = $year+1900;
+
 my $dyear = $tyear - 2000 ;
 
 if( $dyear < 10 ) {$dyear = '0'.$dyear};
@@ -277,10 +282,10 @@ $maxval = 0;
 $minval = 100000;
 
 
-    $sql="SELECT path, $mplotVal, LibTag, site FROM $JobStatusT WHERE path LIKE ?  AND jobStatus= 'Done' and LibTag like ?  ORDER by createTime";
+    $sql="SELECT path, $mplotVal, LibTag, site, createTime  FROM $JobStatusT WHERE path LIKE ?  AND jobStatus= 'Done'  (TO_DAYS(\"$todate\") - TO_DAYS(createTime)) <= $day_diff  ORDER by createTime";
 
         $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
-        $cursor->execute($qupath,$ylib);
+        $cursor->execute($qupath);
 
         while(@fields = $cursor->fetchrow_array) {
 
@@ -502,7 +507,7 @@ print <<END;
           <title>Plots for Nightly Test in NEW Library</title>
    </head>
    <body BGCOLOR=\"#ccffff\">
-     <h1 align=center>No $plotVal data for $tset and year $tyear </h1>
+     <h1 align=center>No $plotVal data for $tset and one year period </h1>
 
 
     </body>
