@@ -90,13 +90,15 @@ $DSKLOG = "/star/rcf";            # disk where the logs go
 
 # disable at first
 # $ThisYear = -1;
+$TM = localtime();
+$TM =~ s/[ :]/_/g;
 
 # Self-sorted vars
 $SELF  =  $0;
 $SELF  =~ s/.*\///;
 $SELF  =~ s/\..*//;
 $SSELF = $SELF;
-$SELF .= " :: ".time();
+$SELF .= " :: ".$TM;
 
 # default values global (unless overwritten)
 @EXPRESS = undef;  $EXPRESS_W  =  70;
@@ -1651,6 +1653,7 @@ sub RandArray
     my($array) = @_;
     my($i,$j);
     for ($i = @$array; --$i; ) {
+	last if ($i == -1);
         $j = int( rand($i+1));
         next if ($i == $j);
         @$array[$i,$j] = @$array[$j,$i];
