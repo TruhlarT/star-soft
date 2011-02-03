@@ -282,7 +282,7 @@ $maxval = 0;
 $minval = 100000;
 
 
-    $sql="SELECT path, $mplotVal, LibTag, site, createTime  FROM $JobStatusT WHERE path LIKE ?  AND jobStatus= 'Done'  (TO_DAYS(\"$todate\") - TO_DAYS(createTime)) <= $day_diff  ORDER by createTime";
+    $sql="SELECT path, $mplotVal, LibTag, site, createTime  FROM $JobStatusT WHERE path LIKE ?  AND jobStatus= 'Done'  AND (TO_DAYS(\"$todate\") - TO_DAYS(createTime)) <= $day_diff  ORDER by createTime";
 
         $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
         $cursor->execute($qupath);
