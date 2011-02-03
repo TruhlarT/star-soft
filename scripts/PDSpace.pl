@@ -50,8 +50,8 @@ $DOWN = "<A HREF=\"#BOT\"><IMG ALT=\"[DOWN]\" BORDER=\"0\" SRC=\"/icons/down.gif
 # Insert an extra table break before those numbers
 $BREAK{"01"}   =  "User Space";
 $BREAK{"03"}   =  "Reserved Usage Space Area";
-$BREAK{"06"}   =  "Production Disks / Assigned TEMPORARY space for Projects";
-$BREAK{"09"}   =  "Production Disks";
+$BREAK{"06"}   =  "Production Disks / Speicla usage/ Assigned TEMPORARY space for Projects";
+$BREAK{"15"}   =  "Production Disks";
 
 # Addiitonal header based on patterns
 $BHEAD{"inst"} =  "Institution or specialized usage disks";
