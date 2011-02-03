@@ -225,7 +225,7 @@ if( $min < 10) { $min = '0'.$min };
 if( $sec < 10) { $sec = '0'.$sec };
 
 
-my $todate = ($year+1900)."-".($mon+1)."-".$mday;
+my $todate = ($year+1900)."-".($mon+1)."-".$mday." ".$hour.":".$min.":".$sec ;
 
 my $day_diff = 365;
 
@@ -274,10 +274,10 @@ $maxval = 0;
 $minval = 100000;
 
 
-    $sql="SELECT path, $mplotVal, LibTag, DISTINCT date_format(createTime, '%Y-%m-%d %H') as PDATE FROM $JobStatusT WHERE path LIKE ?  AND jobStatus= 'Done' AND  (TO_DAYS(\"$todate\") - TO_DAYS(createTime)) <= $day_diff  ORDER by createTime";
+    $sql="SELECT path, $mplotVal, LibTag, createTime  FROM $JobStatusT WHERE path LIKE ?  AND jobStatus= 'Done' AND  (TO_DAYS(\"$todate\") - TO_DAYS(createTime)) <= $day_diff  ORDER by createTime";
 
         $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
-        $cursor->execute($qupath,$day_diff);
+        $cursor->execute($qupath);
 
         while(@fields = $cursor->fetchrow_array) {
 
@@ -466,7 +466,7 @@ print <<END;
           <title>Plots for Nightly Test in NEW Library</title>
    </head>
    <body BGCOLOR=\"#ccffff\">
-     <h1 align=center>No $plotVal data for $tset and year $tyear </h1>
+     <h1 align=center>No $plotVal data for $tset and one year period  </h1>
 
 
     </body>
