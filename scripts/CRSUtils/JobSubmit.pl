@@ -391,7 +391,7 @@ if ( $ThisYear == 2005 ){
     $SCALIB{"PPPP"} = "OptLaser";
 
     
-} elsif ( $ThisYear == 2010 || $ThisYear == 2011 ) {
+} elsif ( $ThisYear == 2010 ) {
     $TREEMODE= 1;
     $LIB     = "dev";
 
@@ -448,6 +448,78 @@ if ( $ThisYear == 2005 ){
 #    $DCHAIN{"AuAu"} = "P2010a,btof,BEmcChkStat,QAalltrigs,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
     $DCHAIN{"AuAu"} = "P2010a,pmdReco,btof,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
     $DCHAIN{"PPPP"} = "pp2010a,btof,VFPPVnoCTB,beamline,BEmcChkStat,QAalltrigs,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
+
+    # allow chain switch on condition matching
+    # introduced in 2010, syntax is 
+    #    collision;name-match;... (could be other match later)
+    #
+    # Note that an empty string for a match will always pass the selection (by design)
+    # and a partial match such as "Au" will also pass the criteria.
+    #
+    $MCHAIN{"AuAu;upc"}  = $DCHAIN{"PPPP"};  
+    
+    $SCALIB{"AuAu"}      = "OptLaser";
+    $SCALIB{"PPPP"}      = "OptLaser";
+
+       
+    
+} elsif ( $ThisYear == 2011 ) {
+    $TREEMODE= 1;
+    $LIB     = "dev";
+
+    $NUMEVT  = 100;
+    $MINEVT  = 200;
+    $FRACTT  =  33;
+
+    $TARGET  = "/star/data09/reco";       # This is ONLY a default value.
+                                          # Overwritten by ARGV (see crontab)
+
+    # Those are taken from previous yera - agreed upon as per rate, etc...
+    # and documented on our Web pages.
+    $LASERTP =
+	rdaq_string2ftype("laser")."|".
+	rdaq_string2ftype("laser_adc");
+
+    $PHYSTP  =  rdaq_string2ftype("physics");
+    $PHYSTP2 =
+        rdaq_string2ftype("physics_adc")."|".
+        rdaq_string2ftype("upsilon").    "|".
+        rdaq_string2ftype("minbias").    "|".
+	rdaq_string2ftype("upc").        "|".  # <--
+        rdaq_string2ftype("minbias_adc");
+
+
+    @EXPRESS = (
+		rdaq_string2ftype("express"),
+		rdaq_string2ftype("jpsi"),
+		rdaq_string2ftype("btag"),
+		rdaq_string2ftype("gamma"),
+		rdaq_string2ftype("mtd"),
+	        rdaq_string2ftype("hlt"),
+		rdaq_string2ftype("muon"),
+		rdaq_string2ftype("upcjpsi"),
+		#rdaq_string2ftype("upc"),    # <---
+                rdaq_string2ftype("ht"),
+                rdaq_string2ftype("atomcules"),
+                rdaq_string2ftype("pmdftp"),
+                rdaq_string2ftype("monitor")
+		);
+    $ZEROBIAS=  rdaq_string2ftype("zerobias");
+
+    # Added for testing purposes
+    $ZEROBIAS_W = 0;
+    $EXPRESS_W  = 20;
+
+
+    # Order is: regular, bypass, calib
+    @USEQ    = (5,  5, 5);
+    @SPILL   = (0,105, 4);
+
+
+    # at least, p+p calib
+#    $DCHAIN{"AuAu"} = "P2010a,btof,BEmcChkStat,QAalltrigs,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
+    $DCHAIN{"AuAu"} = "P2010a,pmdReco,btof,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
+    $DCHAIN{"PPPP"} = "pp2011a,btof,VFPPVnoCTB,beamline,BEmcChkStat,QAalltrigs,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
 
     # allow chain switch on condition matching
     # introduced in 2010, syntax is 
