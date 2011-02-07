@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.44 2011/01/11 23:09:29 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.45 2011/02/07 23:54:33 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -176,6 +176,11 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	    # first compilation pass only
 	    $ALLARGS .= " $arg";
 	    $FIRSTPASS= 1==1;
+	} elsif($arg eq "-2"){
+	    # both compilations passes
+	    $ALLARGS .= " $arg";
+	    $FIRSTPASS= 1==0;
+
 	} elsif($arg eq "-i"){
 	    # interractive that is no cvs
 	    # operations
