@@ -166,7 +166,11 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 
 		if ( $OKBUILD ) then
 		    setenv AutoBuild_setup_cmd "setup $1 $2"
-		    $SCRIPTD/AutoBuild.pl -1 -k -i -R -t -T $1$2 -B -p $LPATH 
+		    if ("$3" == "") then
+			$SCRIPTD/AutoBuild.pl -1 -k -i -R -t -T $1$2 -B -p $LPATH 
+		    else
+			$SCRIPTD/AutoBuild.pl $3 -k -i -R -t -T $1$2 -B -p $LPATH 
+		    endif
 		    if( -e $HOME/AutoBuild-linux-$1$2.html) then
 			/bin/mv -f $HOME/AutoBuild-linux-$1$2.html $SPATH/AutoBuild-$1$2.html
 		    endif
