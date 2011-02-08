@@ -1550,8 +1550,13 @@ sub rdaq_status_string
     $str = "Processed" if($sts == 2);
     $str = "QADone"    if($sts == 3);   # i.e. + QA
     $str = "Skipped"   if($sts == 4);
+
     $str = "SCalib"    if($sts == 5);   # submitted for calibration
     $str = "FCalib"    if($sts == 6);   # submitted for calibration, ezTree
+
+    $str = "External"  if($sts == 7);   # submitted for external processing
+    $str = "RandomReject" if($sts == 8);# was rejected from pick by random Num
+
     $str = "Bad"       if($sts == 111);
     $str = "Died"      if($sts == 666);
 
