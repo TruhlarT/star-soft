@@ -13,7 +13,7 @@
 #
 # A cronjob should call this script regularly using
 # arguments
-#  % ScriptName [LibVersion] [NumEvt] [{|^|+|C|Z}targetDataDisk]
+#  % ScriptName [LibVersion] [NumEvt] [{|^|+|C|Z|X}targetDataDisk{:user}]
 #     [CommaSeparatedChainOptions]  [Queue] [SpillMode]
 # or
 #  % ScriptName [LibVersion] [NumEvt] [Option]
@@ -78,6 +78,7 @@
 use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use RunDAQ;
 use CRSQueues;
+
 
 $ThisYear = 2011;                 # Block to consider. Completely artificial
                                   # and used to preserve older options in if
@@ -167,13 +168,13 @@ if ( $ThisYear == 2005 ){
 
     # ezTree production requires some conditions. We set them here.
     # ezTree uses the Xtended Status index 1. See table in RunDAQ.pm
-    $ID                   = 1;
-    $EZTREE{"Status"}     = 0;
-    $EZTREE{"XStatus$ID"} = 0;
+    $ID                       = 1;
+    $XCONDITION{"Status"}     = 0;
+    $XCONDITION{"XStatus$ID"} = 0;
 
     if ( ($tmp = rdaq_string2trgs("ppProductionMinBias")) != 0){
     	# Self adapting
-    	$EZTREE{"TrgSetup"} = $tmp;
+    	$XCONDITION{"TrgSetup"} = $tmp;
     }
 
 } elsif ( $ThisYear == 2006 ) {
@@ -215,15 +216,15 @@ if ( $ThisYear == 2005 ){
 
     # ezTree production requires some conditions. We set them here.
     # ezTree uses the Xtended Status index 1. See table in RunDAQ.pm
-    $ID                   = 1;
-    $EZTREE{"Status"}     = 0;
-    $EZTREE{"XStatus$ID"} = 0;
+    $ID                       = 1;
+    $XCONDITION{"Status"}     = 0;
+    $XCONDITION{"XStatus$ID"} = 0;
 
     # ...
     #if ( ($tmp = rdaq_string2trgs("minbiasSetup")) != 0){
     if ( ($tmp = rdaq_string2trgs("pp2006MinBias")) != 0){
     	# Self adapting
-    	$EZTREE{"TrgSetup"} = $tmp;
+    	$XCONDITION{"TrgSetup"} = $tmp;
     }
 
 } elsif ( $ThisYear == 2007 ) {
@@ -273,16 +274,16 @@ if ( $ThisYear == 2005 ){
 
     # ezTree production requires some conditions. We set them here.
     # ezTree uses the Xtended Status index 1. See table in RunDAQ.pm
-    $ID                   = 1;
-    $EZTREE{"Status"}     = 0;
-    $EZTREE{"XStatus$ID"} = 0;
+    $ID                       = 1;
+    $XCONDITION{"Status"}     = 0;
+    $XCONDITION{"XStatus$ID"} = 0;
 
     # ...
     # EzTree were processed for this trigger before
     #
     # if ( ($tmp = rdaq_string2trgs("pp2006MinBias")) != 0){
     #	# Self adapting
-    #	$EZTREE{"TrgSetup"} = $tmp;
+    #	$XCONDITION{"TrgSetup"} = $tmp;
     # }
 
 } elsif ( $ThisYear == 2008 ) {
@@ -504,14 +505,30 @@ if ( $ThisYear == 2005 ){
                 rdaq_string2ftype("pmdftp"),
                 rdaq_string2ftype("monitor")
 		);
+
     $ZEROBIAS=  rdaq_string2ftype("zerobias");
 
-    # Added for testing purposes
+    # Weights for submissions, %tage - 0 indicates at max 1
     $ZEROBIAS_W = 0;
     $EXPRESS_W  = 20;
 
 
-    # Order is: regular, bypass, calib
+    # format for new X mode is different for the array
+    # must be an even number
+    @PIPEOFF =  (
+		 rdaq_string2ftype("W"),      100,
+		 rdaq_string2ftype("W_adc"),  100,
+		 rdaq_string2ftype("zerobias"),20,
+		 rdaq_string2ftype("physics"),  5
+		 );
+    #$XCONDITION{"Status"}     = 0;
+    $ID                       = 1;
+    $XCONDITION{"XStatus$ID"} = 0;
+    $XCONDITION{"NumEvt"}     = "> $MINEVT";
+
+
+
+    # Order is: regular, bypass, calib - do not change
     @USEQ    = (5,  5, 5);
     @SPILL   = (0,105, 4);
 
@@ -533,7 +550,6 @@ if ( $ThisYear == 2005 ){
     $SCALIB{"AuAu"}      = "OptLaser";
     $SCALIB{"PPPP"}      = "OptLaser";
 
-       
     
 } else {
     # Well, at first you may get that message ... should tell you that
@@ -597,7 +613,7 @@ $COND = "$PHYSTP";
 if ($PHYSTP2 != 0){ $COND .= "|$PHYSTP2";}
 
 
-
+#print "$SELF : Target is $TARGET\n";
 #
 # Check space on the target disk
 #
@@ -606,7 +622,16 @@ if ($TARGET !~ m/^\d+$/){
     $target =~ s/^\+//;
     $target =~ s/^C//;   # BEWARE !! hack here to check disk presence
     $target =~ s/^Z//;
+    $target =~ s/^X//;
     $target =~ s/^\^//;
+    $target =~ s/:.*//;
+
+    #print "DEBUG $target ".substr($target,1,1)."\n ";
+
+    if ( substr($target,1,1) eq "/" &&  substr($target,0,1) =~ m/\w/){
+	print "$SELF : Method ".substr($target,0,1)." in target $TARGET not implemented\n";
+	exit;
+    }
 
     #
     # Support disk range and spanning. Syntax follows the same syntax
@@ -1197,16 +1222,134 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 	rdaq_set_message($SSELF,"No slots available within range $USEQ[2] / $SPILL[2]","mode=calib");
     }
 
+} elsif ($TARGET =~ m/(^X\/)(.*)/ ) {
+    #
+    # External processing mode 
+    # TODO: cleanup globals vars
+    #
+    print "$SELF : Z processing is being reshaped\n";  
+
+    $pcount = $#PIPEOFF+1;
+    $sanity = int(($pcount)/2)*2;
+    if ( $sanity != $pcount ){
+	print "$SELF : Configuration error - number of element in PIPEOFF must be even\n";
+	exit;
+    } else {
+	print "$SELF : Configuration is correct, ready to proceed\n";
+	#for ($i=0 ; $i <= $#PIPEOFF ; $i++){
+	#    if ( int(($i+1)/2) == $i){
+	#	push(@PIPEFILES,$PIPEOFF[$i]);
+	#    } else {
+	#	#push(
+	#    }
+	#}
+	#print "Debug ".join(";",@PIPEFILES)."\n";
+	$TOT = 20;
+	if( ($obj = rdaq_open_odatabase()) ){
+	    if( substr($TARGET,0,1) eq "X" ){	
+		my($user,$i,$kind,$wght);
+		my($num);
+		my(%Cond);
+
+		foreach $key (keys %XCONDITION){
+		    $Cond{$key} = $XCONDITION{$key};
+		}
+
+
+		$TARGET=~ s/X\//\//;
+		($TARGET,$user)=split(":",$TARGET);
+
+		undef(@SKIPPED);
+		undef(@RANDREJECT);
+		undef(@OKFILES);  
+		undef(@OKFRMT); 
+
+		$num = int($TOT/(($#PIPEOFF+1)/2))+1;
+
+		print "$SELF : $TARGET and user=$user\n";
+		for ($i=0 ; $i <= $#PIPEOFF ; $i++){
+		    if ( 2*int(($i+1)/2) == $i ){
+                        # the kind of streams
+			$kind = $PIPEOFF[$i];
+			#print "Recovering $kind\n"; 
+		    } else {
+			# the weight of stream to transfer
+			$wght= $PIPEOFF[$i];
+			#print "Recovering $wght for $i\n";
+			#print "$SELF : Trying $kind / $wght\n";
+			@files= rdaq_get_files($obj,0, $num, 1 , \%Cond, $kind);
+			push(@MySelection,&RandomPick($wght,@files));
+		    }
+		}
+		#push(@files,rdaq_get_ffiles($obj,0,$TOT,$kind));
+		#print "We are considering\n";
+		foreach $f (@MySelection){
+		    @items = split(" ",$f);
+		    # leverage all logic related to exclusion
+		    &Submit(4,0,0,$f,undef,undef);
+		}
+
+		#print "We will skip\n";
+		#foreach $f (@SKIPPED){
+		#    @items = split(" ",$f);
+		#    print "\t$items[0]\n";
+		#}
+		#print "We rejected\n";
+		#foreach $f (@RANDREJECT){
+		#    @items = split(" ",$f);
+		#    print "\t$items[0]\n";
+		#}
+		    
+		# don't bother using the module - generate a file
+		# list and submit verbatim
+		my($FOUT)="/tmp/JobSubmit-$$.lis";
+		open(FDC,">$FOUT");
+
+		print "$SELF : We will submit\n";
+		foreach $f (@OKFRMT){
+		    #print "\t$f\n";
+		    print FDC "$f\n";
+		}
+		close(FDC);
+		#system("/bin/cat $FOUT");
+		my($TRANSFERCMD)= "/bin/cat $FOUT && /opt/star/bin/hpss_user.pl -i $user -f $FOUT";
+		#print "Would do $TRANSFERCMD\n";
+		system($TRANSFERCMD);
+		$status = $?;
+		if ($status != 0){
+		    print "$SELF : Error executing command - please debug $status\n";
+		    exit;
+		} else {
+		    print "$SELF : We will mark the requested files now\n";
+		    rdaq_set_xstatus($obj,$ID,1,@OKFILES);     # mark submitted
+		    rdaq_set_xstatus($obj,$ID,8,@RANDREJECT);  # mark Random reject 
+		    rdaq_set_xstatus($obj,$ID,4,@SKIPPED);     # mark skipped
+		    rdaq_set_files($obj,4,@SKIPPED);           # mark skipped as well as cond are similar
+		    rdaq_set_files($obj,7,@OKFILES);           # set to External
+		    rdaq_set_chain($obj,"Restored-for-external-processing-on-$target",@OKFILES);
+		}
+		unlink($FOUT);
+
+	    } else {
+		print "$SELF : Failed. Argument must specify a user and target disk\n";
+	    }
+	}
+    }
+
+
 } elsif ($TARGET =~ m/(^Z\/)(.*)/ ) {
     #
     # eZTree processing
     #
     # Overwrite queue if necessary
+    print "$SELF : Target Z disabled\n";
+    exit;
+    
 
     my(%Cond);
-
-    foreach $key (keys %EZTREE){
-	$Cond{$key} = $EZTREE{$key};
+    
+    foreach $key (keys %XCONDITION){
+	$Cond{$key} = $XCONDITION{$key};
     }
 
     # ezTree chain
@@ -1218,30 +1361,30 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 	    $CHAIN   = $DCHAIN{"PPPP"}.",ezTree,-Sti,-genvtx,-Ftpc,-SvtD,-fcf,-fcl";
 	}
     }
-
+    
     $USEQ[0] = $tmpUQ if ( defined($tmpUQ) );
     $SPILL[0]= $tmpSP if ( defined($tmpSP) );
-
+    
     # Default mode is submit. Target is a path
     # get the number of possible jobs per queue.
     #print "$SELF : Using $USEQ[1] $SPILL[1]\n";
     $TOT = CRSQ_getcnt($USEQ[0],$SPILL[0],$PAT,1);
     $TOT = 1 if ($DEBUG);
-
+	
     print "$SELF : ezTree processing, checking $TOT\n";
-
+	
     $time = localtime();
     if ($TOT > 0 && ! -e $LOCKF){
 	open(FL,">$LOCKF");
 	close(FL);
 	print "$SELF : We need to submit $TOT jobs\n";
-
+	    
 	# Check $TARGET for sub-mode
 	# If $TARGET starts with a ^, take only the top, otherwise
 	# go into the 'crawling down the list' mode. We will start
 	# with the second mode (gives an idea of how often we have
 	# a dead time process earlier runs).
-
+	
 	if( ($obj = rdaq_open_odatabase()) ){
 	    if( substr($TARGET,0,1) eq "Z" ){
 		# Simple with a perl module isn't it.
@@ -1261,7 +1404,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		foreach $file (@files){
 		    #print "$SELF : HW : $file\n";
 		    sleep($SLEEPT) if &Submit(1,$USEQ[0],$SPILL[0],
-					      $file,$CHAIN,"eZTree");
+						  $file,$CHAIN,"eZTree");
 		    $MAXCNT--;
 		    last if ($MAXCNT == 0);
 		}
@@ -1279,7 +1422,6 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 	print "$SELF : Target=Z - There are no slots available within range $USEQ[0] / $SPILL[0]\n";
 	rdaq_set_message($SSELF,"No slots available within range $USEQ[0] / $SPILL[0]","Target=XForm");
     }
-
 
 
 } elsif ($TARGET == 1) {
@@ -1470,6 +1612,7 @@ sub Submit
     $Hfile = rdaq_file2hpss($file,3);
     @items = split(" ",$Hfile);
 
+
     # No trigger information nowadays
     $m     = sprintf("%2.2d",$items[3]);
     $dm    = $items[4];
@@ -1477,6 +1620,18 @@ sub Submit
     $jfile =~ s/\..*//;
     $mfile = $file;
     $mfile =~ s/\..*//;
+
+    # transfer - only leverage logic and push into @OKFILES global array
+    if ( $mode == 4){
+	my(@el)=split(" ",$Hfile);
+	$dfile = $el[0];
+	$dfile =~ s/\/home\/starsink\/raw/$TARGET/;
+	push(@OKFILES,$file);
+	push(@OKFRMT,"$el[0]/$el[1] $dfile/$el[1]");
+	return;
+    }
+
+
 
     # Just in case ...
     if( -e "$jfile"){
@@ -1709,6 +1864,23 @@ sub Scramble
 	$i = rand($#files+1);
 	$s = splice(@files,$i,1); #print "Removing $s\n";
 	push(@TMP,$s);
+    }
+    return @TMP;
+}
+
+sub RandomPick
+{
+    my($prob,@files)=@_;
+    my(@TMP,$p);
+
+    # special cases
+    if ($prob == 100){  return @files;}
+    if ($prob == 0)  {  return undef;}
+
+    foreach $f (@files){
+	$p = int(rand(100)+1);
+	if ($p < $prob){  push(@TMP,$f);}         # <-- local
+	else {            push(@RANDREJECT,$f);}  # <-- global
     }
     return @TMP;
 }
