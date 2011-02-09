@@ -44,6 +44,7 @@ my @ngamma = ();
 my @nminbias = ();
 my @nmtd = ();
 my @nmonitor = ();
+my @natomcules = ();
 my @nfmsfast = ();
 my @npmdftp = ();
 my @nupsilon = ();
@@ -58,6 +59,7 @@ my @rgamma = ();
 my @rminbias = ();
 my @rmtd = ();
 my @rmonitor = ();
+my @ratomcules = ();
 my @rfmsfast = ();
 my @rpmdftp = ();
 my @rupsilon = ();
@@ -290,6 +292,7 @@ my $nnk = $ii;
          $rminbias[$jj] = $nminbias[$jj]/$njb[$jj];
          $rmtd[$jj]     = $nmtd[$jj]/$njb[$jj] ;
          $rmonitor[$jj] = $nmonitor[$jj]/$njb[$jj];
+         $ratomcules[$jj] = $natomcules[$jj]/$njb[$jj]
          $rfmsfast[$jj] = $nfmsfast[$jj]/$njb[$jj];
          $rpmdftp[$jj]  = $npmdftp[$jj]/$njb[$jj];
          $rupsilon[$jj] = $nupsilon[$jj]/$njb[$jj];
@@ -303,6 +306,7 @@ my $nnk = $ii;
          $rminbias[$jj] = 0;
          $rmtd[$jj]     = 0;
          $rmonitor[$jj] = 0;
+         $ratomcules[$jj] = 0;
          $rfmsfast[$jj] = 0;
          $rpmdftp[$jj]  = 0;
          $rupsilon[$jj] = 0;
@@ -339,8 +343,8 @@ my $nnk = $ii;
        $legend[4] = "st_monitor   ";
        $legend[5] = "st_pmdftp    ";
        $legend[6] = "st_upc       ";
-       $legend[7] = "st_mtd       ";
-       $legend[8] = "st_W       ";
+       $legend[7] = "st_atomcules ";
+       $legend[8] = "st_mtd       ";
 
  my $ylabel;
  my $gtitle; 
@@ -359,7 +363,9 @@ my $nnk = $ii;
 
     if( $plview eq "numbers") {
 
-    @data = (\@Npoint, \@nphysics, \@ngamma, \@nhlt, \@nht, \@nmonitor, \@npmdftp, \@nupc, \@nmtd, \@nWbs );
+#    @data = (\@Npoint, \@nphysics, \@ngamma, \@nhlt, \@nht, \@nmonitor, \@npmdftp, \@nupc, \@nmtd, \@nWbs );
+
+    @data = (\@Npoint, \@nphysics, \@ngamma, \@nhlt, \@nht, \@nmonitor, \@npmdftp, \@nupc, \@natomcules, \@nmtd );
 
   $min_y = 0;
   $max_y = $Nmaxjob + 200 ;
@@ -369,7 +375,9 @@ my $nnk = $ii;
 
     } else{
  
-    @data = (\@Npoint, \@rphysics, \@rgamma, \@rhlt, \@rht, \@rmonitor, \@rpmdftp, \@rupc, \@rmtd, \@rWbs );
+#    @data = (\@Npoint, \@rphysics, \@rgamma, \@rhlt, \@rht, \@rmonitor, \@rpmdftp, \@rupc, \@rmtd, \@rWbs );
+    
+	@data = (\@Npoint, \@rphysics, \@rgamma, \@rhlt, \@rht, \@rmonitor, \@rpmdftp, \@rupc, \@ratomcules, \@rmtd );
 
   $min_y = 0;
   $max_y = 1.2 ;  
@@ -389,7 +397,7 @@ my $nnk = $ii;
 		y_number_format => \&y_format,
 		#labelclr => "lblack",
                 titleclr => "lblack",
-		dclrs => [ qw(lblue lgreen lpurple lorange lred lblack lgray lpink lbrown ) ],
+		dclrs => [ qw(lblue lgreen lpurple lorange lred lblack lgray lbrown lyellow ) ],
 		line_width => 2,
 		markers => [ 2,3,4,5,6,7,8,9],
 		marker_size => 1,
