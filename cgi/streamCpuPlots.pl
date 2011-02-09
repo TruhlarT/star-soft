@@ -641,7 +641,7 @@ END
         $gtitle = "Ratio of different stream jobs to all jobs per day for $qperiod period";
      }
 
- @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc, \@rtatomcules \@rtmtd, ) ;
+ @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc, \@rtatomcules, \@rtmtd ) ;
 
         $max_y = 1.2;
 
