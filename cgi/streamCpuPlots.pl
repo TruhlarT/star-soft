@@ -600,7 +600,7 @@ END
        $gtitle = "Average ratio RealTime/CPU per day for different streams for $qperiod period";
       }     
 
-  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@armtd, \@aratomcules ) ;
+  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@aratomcules, \@armtd ) ;
 
       $max_y = $maxval + 0.2*$maxval;
 #      $max_y = int($max_y);
@@ -621,7 +621,7 @@ END
 
          }   
 
-  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpmtd ) ;
+  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpatomcules, \@cpmtd ) ;
 
         $max_y = $maxcpu + 0.2*$maxcpu;
 #       $max_y = int($max_y);
@@ -641,7 +641,7 @@ END
         $gtitle = "Ratio of different stream jobs to all jobs per day for $qperiod period";
      }
 
- @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc, \@rtmtd, \@rtatomcules ) ;
+ @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc, \@rtatomcules \@rtmtd, ) ;
 
         $max_y = 1.2;
 
