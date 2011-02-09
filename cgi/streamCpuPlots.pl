@@ -520,7 +520,7 @@ END
                $nstatomcules[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "monitor" ) {
                $armonitor[$ndt] =  $rte{$mfile,$ndt};
-               $cpatomcules[$ndt] = $arcpu{$mfile,$ndt};
+               $cpmonitor[$ndt] = $arcpu{$mfile,$ndt};
                $nstmonitor[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "pmdftp" ) {
                $arpmdftp[$ndt] =  $rte{$mfile,$ndt};
@@ -542,7 +542,7 @@ END
 
 
       for($ii = 0; $ii < $ndt; $ii++) {
-          $numstream[$ii] = $nstphysics[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+$nstht[$ii]+$nstmonitor[$ii]+$nstpmdftp[$ii]+ $nstupc[$ii];
+          $numstream[$ii] = $nstphysics[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+$nstht[$ii]+$nstmonitor[$ii]+$nstpmdftp[$ii]+ $nstupc[$ii]+ $nstgamma[$ii]+  $nstatomcules[$ii];
 
      if ($numstream[$ii] >= 1) {
       $rtphysics[$ii] = $nstphysics[$ii]/$numstream[$ii];
@@ -555,6 +555,7 @@ END
       $rtupsilon[$ii] = $nstupsilon[$ii]/$numstream[$ii];
       $rtgamma[$ii] = $nstgamma[$ii]/$numstream[$ii];
       $rtfmsfast[$ii] = $nstfmsfast[$ii]/$numstream[$ii];
+      $rtatomcules[$ii] = $nstatomcules[$ii]/$numstream[$ii];
 
        }
   }
@@ -582,6 +583,7 @@ END
        $legend[5] = "st_pmdftp    ";
        $legend[6] = "st_upc       ";       
        $legend[7] = "st_mtd       ";
+       $legend[8] = "st_atomcules ";
 
        if ( $srate eq "rtime/cpu" ) {
 
@@ -598,7 +600,7 @@ END
        $gtitle = "Average ratio RealTime/CPU per day for different streams for $qperiod period";
       }     
 
-  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@armtd ) ;
+  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@armtd, \@aratomcules ) ;
 
       $max_y = $maxval + 0.2*$maxval;
 #      $max_y = int($max_y);
@@ -639,7 +641,7 @@ END
         $gtitle = "Ratio of different stream jobs to all jobs per day for $qperiod period";
      }
 
- @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc, \@rtmtd ) ;
+ @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc, \@rtmtd, \@rtatomcules ) ;
 
         $max_y = 1.2;
 
@@ -668,7 +670,7 @@ END
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple lorange lred lblack lgray lpink) ],
+                    dclrs => [ qw(lblue lgreen lpurple lorange lred lblack lgray lpink lbrown) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
