@@ -444,7 +444,7 @@ END
                $nstatomcules[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "monitor" ) {
                $armonitor[$ndt] = $rte{$mfile,$ndt};
-               $cpatomcules[$ndt] = $arcpu{$mfile,$ndt};
+               $cpmonitor[$ndt] = $arcpu{$mfile,$ndt};
                $nstmonitor[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "pmdftp" ) {
                $arpmdftp[$ndt] = $rte{$mfile,$ndt};
@@ -463,7 +463,7 @@ END
     } # foreach tdate
 
       for($ii = 0; $ii < $ndt; $ii++) {
-	  $numstream[$ii] = $nstphysics[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+$nstht[$ii]+$nstmonitor[$ii]+$nstpmdftp[$ii]+ $nstupc[$ii];
+	  $numstream[$ii] = $nstphysics[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+$nstht[$ii]+$nstmonitor[$ii]+$nstpmdftp[$ii]+ $nstupc[$ii]+ $nstatomcules[$ii]+ $nstgamma[$ii];
 
      if ($numstream[$ii] >= 1) { 
       $rtphysics[$ii] = $nstphysics[$ii]/$numstream[$ii];
@@ -472,6 +472,7 @@ END
       $rthlt[$ii] = $nsthlt[$ii]/$numstream[$ii];
       $rtht[$ii] = $nstht[$ii]/$numstream[$ii];
       $rtmonitor[$ii] = $nstmonitor[$ii]/$numstream[$ii];
+      $rtatomcules[$ii] = $nstatomcules[$ii]/$numstream[$ii];
       $rtpmdftp[$ii] = $nstpmdftp[$ii]/$numstream[$ii];
       $rtupc[$ii] = $nstupc[$ii]/$numstream[$ii];
 
@@ -499,14 +500,16 @@ END
        $legend[4] = "st_monitor   ";
        $legend[5] = "st_pmdftp    ";
        $legend[6] = "st_upc       ";
-       $legend[7] = "st_mtd       ";
+       $legend[7] = "st_atomcules ";
+       $legend[8] = "st_mtd       ";
+
 
        if ( $srate eq "rtime/cpu" ) {
 
        $ylabel = "Average ratio RealTime/CPU per hour";
        $gtitle = "Average ratio RealTime/CPU per hour for different streams for $qday";
 
-  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@armtd ) ;
+  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@aratomcules, \@armtd ) ;
 
   	$max_y = $maxval + 0.2*$maxval; 
 #        $max_y = int($max_y);
@@ -516,7 +519,7 @@ END
        $ylabel = "Average CPU in sec/evt per hour";
        $gtitle = "Average CPU in sec/evt per hour for different streams for $qday";
 
-  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpmtd ) ;
+  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpatomcules, \@cpmtd ) ;
 
     	$max_y = $maxcpu + 0.2*$maxcpu; 
 #        $max_y = int($max_y);
@@ -526,7 +529,7 @@ END
 	$ylabel = "Ratio of different stream jobs per hour ";
 	$gtitle = "Ratio of different stream jobs to all jobs per hour for day $qday ";
 
- @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc, \@rtmtd ) ;
+ @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc, \@rtatomcules, \@rtmtd ) ;
 
        	$max_y = 1.2;
      
@@ -557,7 +560,7 @@ END
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple lorange lred lblack lgray lpink) ],
+                    dclrs => [ qw(lblue lgreen lpurple lorange lred lblack lgray lbrown lyellow) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
