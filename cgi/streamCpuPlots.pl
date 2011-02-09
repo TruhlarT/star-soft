@@ -582,8 +582,8 @@ END
        $legend[4] = "st_monitor   ";
        $legend[5] = "st_pmdftp    ";
        $legend[6] = "st_upc       ";       
-       $legend[7] = "st_mtd       ";
-       $legend[8] = "st_atomcules ";
+       $legend[7] = "st_atomcules ";
+       $legend[8] = "st_mtd       ";
 
        if ( $srate eq "rtime/cpu" ) {
 
@@ -670,7 +670,7 @@ END
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple lorange lred lblack lgray lpink lbrown) ],
+                    dclrs => [ qw(lblue lgreen lpurple lorange lred lblack lgray lbrown lpink) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
