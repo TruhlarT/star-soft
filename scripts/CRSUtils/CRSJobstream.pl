@@ -45,6 +45,7 @@ my $Nupsilon = 0;
 my $Nupc = 0;
 my $Nzerobias = 0;
 my $Nwb = 0;
+my $Natomcules = 0;
 
 my @prt = ();
 
@@ -98,6 +99,8 @@ if( $sec < 10) { $sec = '0'.$sec };
          $Nzerobias++;
  	} elsif ($jobname =~ /st_W/) {        
          $Nwb++;
+ 	} elsif ($jobname =~ /st_atomcules/) {        
+         $Natomcules++;
 	}
     }
 
@@ -126,6 +129,7 @@ exit;
  $sql.="monitor='$Nmonitor',";
  $sql.="pmdftp='$Npmdftp',";
  $sql.="upsilon='$Nupsilon',";
+ $sql.="atomcules='$Natomcules',";
  $sql.="upc='$Nupc',";
  $sql.="Wbs='$Nwb',";
  $sql.="sdate='$thisday' "; 
