@@ -2,7 +2,7 @@
 
 #
 # Initial version to help users locate files
-# J. Lauret 2009-2010
+# J. Lauret 2009-2011
 #
 
 use Env qw(STAR_SCRIPTS);
@@ -30,6 +30,8 @@ $PPATH = "";
 
 if ( $#ARGV == -1){
     print qq~
+(c) J. Lauret, 2009-2011
+
 Usage:
   % $SELF runNumber       # query a unique run
   % $SELF runMin-runMax   # using a range of run numbers
