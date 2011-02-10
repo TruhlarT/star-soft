@@ -19,6 +19,8 @@ $DFILE = "/tmp/$SELF.$<";
 # Internal parameters
 $QUERY = 0;               # returns primary DB info on #Evets and coll
 $QHPSS = 0;               # query path in HPSS
+$FINFO = 0;               # display run information
+$QRAW  = 0;               # query raw DAQ file
 $ALLP  = 0;               # disable default info if $QHPSS is on
 $DIFF  = 0;               # see -diff below to enable this feature
 $PAT   = "";              # no special pattern match (all files)
@@ -43,24 +45,34 @@ Use -Q          for querrying the primary database
     -diff       enable differential output (shows only changes since last run)
                 Limitation - please run from the same node as /tmp file will be used
                 for this feature.
-
+ 
+    -raw        to display a possible path in HPSS for the raw files
     -hpss       to display a possible path in HPSS for the processed files
-    -allp       to re-enable all printouts along wity -hpss
+    -finfo      Display field and other run info for a given runNumber
+    -allp       to re-enable all printouts along with -hpss
 
 Example:
- % ./FOlocate 11067022        show a summary of what FO is doing with run 11067022
- % ./FOlocate -hpss 11067022  show HPSS path for files which were processed by FO
+ % ./FOlocate 12039042        show a summary of what FO is doing with run 12039042
+ % ./FOlocate -hpss 12039042  show HPSS path for files which were processed by FO
                               ATTENTION: push of result into HPSS may have failed.
- % ./FOlocate -x=event.root -hpss 11067022
+ % ./FOlocate -raw 12039042   show a summary of file names and path in HPSS for the
+                              raw DAQ files
+
+ % ./FOlocate -x=event.root -hpss 12039042
                               Same but replace .daq by .event.root
 
- % ./FOlocate -dco -x -hpss 11067022
+ % ./FOlocate -dco -x -hpss 12039042
                               Generate a DataCarousel ready output for MuDst.root files
                               where the destination path will be auto-build and relative 
                               to $DEFP
- % ./FOlocate -dco=/star/institution/bnl/jeromel/daq2010/ ...
+
+ % ./FOlocate -dco=/star/data03 -x -raw 12039042
+                              Generates instead a list of HPSS DAQ file ready for the 
+                              DataCarousel and to be restored on data03
+
+ % ./FOlocate -dco=/star/institution/bnl/jeromel/daq2011/ ...
                               similar but dump all files in the same directory 
-                              /star/institution/bnl/jeromel/daq2010/
+                              /star/institution/bnl/jeromel/daq2011/
 
 ~;
     exit;
@@ -75,6 +87,14 @@ for ($ii=0; $ii <= $#ARGV ; $ii++){
 
     } elsif ($run =~ m/-hpss/){
 	$QHPSS = 1;
+
+    } elsif ($run =~ m/-finfo/){
+	$QHPSS = 1;
+	$FINFO = 1;
+
+    } elsif ($run =~ m/-raw/){
+	$QHPSS = 1;
+	$QRAW  = 1;
 
     } elsif ($run =~ m/-allp/){
 	$ALLP  = 1;
@@ -203,28 +223,46 @@ sub ProcessRun {
 
 	    if ( $QHPSS ){
 		#print "*** $loc\n";
-		if ( $loc ne 0 && ( $status == 2 || $status == 3) ){
+		if ( ($loc ne 0 && ( $status == 2 || $status == 3)) || $QRAW || $FINFO ){
 		    if ( $info[1] >= 10000000 ){
 			# TODO: this logic is similar to the one in JobSubmit
 			# and hence needs to be moved to the module
 			$trgsn = &rdaq_trgs2string($info[10]);
 			$field = &rdaq_scaleToString($info[6]);
 			$dm    = &rdaq_file2hpss($info[0]); 
-			         $dm =~ s/.*daq\///;
-			         $dm =~ s/\/st_.*//;
-			if ( $BASEP ne ""){
-			    $path  = "/home/starreco/reco/$trgsn/$field/dev/$dm/$file";
-			    if ( substr($BASEP,length($BASEP)-1,1) eq "/"){
-				$path .= " $BASEP$file";
+			
+			if ( $QRAW ){
+			    $dm =~ m/(.*\/)(.*)/;
+			    if ( $BASEP ne ""){
+				my($p,$f)=($1,$2);
+				my($d)=$p;
+				$d =~ s/\/home\/starsink\/raw/$BASEP/;
+				$path = "$p$f $d$f";
+				
 			    } else {
-				$path .= " $BASEP/$trgsn/$field/dev/$dm/$file";
+				$path = "$1 $2";
 			    }
+			} elsif ( $FINFO){
+			    #print "DEBUG $trgsn";
+			    $dm   =~ s/.*daq\///;
+			    $dm   =~ s/\/st_.*//;
+			    $path = join("/",($trgsn,$field,$dm));
+
 			} else {
-			    $path  = "/home/starreco/reco/$trgsn/$field/dev/$dm $file";
+			    $dm   =~ s/.*daq\///;
+			    $dm   =~ s/\/st_.*//;
+			    if ( $BASEP ne ""){
+				$path  = "/home/starreco/reco/$trgsn/$field/dev/$dm/$file";
+				if ( substr($BASEP,length($BASEP)-1,1) eq "/"){
+				    $path .= " $BASEP$file";
+				} else {
+				    $path .= " $BASEP/$trgsn/$field/dev/$dm/$file";
+				}
+			    } else {
+				$path  = "/home/starreco/reco/$trgsn/$field/dev/$dm $file";
+			    }
 			}
-			# "*** Yeah! $path\n";
-			#print "***".join(";",@info)."\n";
-			# rdaq_file2hpss($info[0],0)."\n";
+
 		    }
 		}
 	    }
