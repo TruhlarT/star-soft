@@ -26,6 +26,7 @@ $DIFF  = 0;               # see -diff below to enable this feature
 $PAT   = "";              # no special pattern match (all files)
 $EXT   = "";              # will be used for pattern replacement - see -x
 $BASEP = "";              # base path for -dco / do not speicfy here
+$PPATH = "";
 
 if ( $#ARGV == -1){
     print qq~
@@ -274,14 +275,19 @@ sub ProcessRun {
 		$xtra = "Check later";
 	    }
 
+	    #print "HEY1 ...";
 	    printf "%20.20s %12.12s %s\n",$reason,$xtra,($loc ne 0?$loc:"")  if ( ! $QHPSS || $ALLP );
 	    if ( $path ne ""){
-		if ( $ALLP ){
-		    printf "%40.40s * %s\n","",$path;
-		} else {
-		    print "$path\n";
+		#print "HEY1 ...";
+		if ($path ne $PPATH){
+		    #print "HEY2 ...";
+		    $PPATH = $path;
+		    if ( $ALLP ){
+			printf "%40.40s * %s\n","",$path;
+		    } else {
+			print "$path\n";
+		    }
 		}
-
 	    }
 	}
     }
