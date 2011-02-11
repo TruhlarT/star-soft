@@ -1227,7 +1227,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
     # External processing mode 
     # TODO: cleanup globals vars
     #
-    print "$SELF : Z processing is being reshaped\n";  
+    #print "$SELF : Z processing is being reshaped\n";  
 
     $pcount = $#PIPEOFF+1;
     $sanity = int(($pcount)/2)*2;
@@ -1252,6 +1252,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		my(%Cond);
 
 		foreach $key (keys %XCONDITION){
+		    #print "DEBUG We are adding condition for [$key] as $XCONDITION{$key}\n";
 		    $Cond{$key} = $XCONDITION{$key};
 		}
 
@@ -1267,24 +1268,30 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		$num = int($TOT/(($#PIPEOFF+1)/2))+1;
 
 		print "$SELF : $TARGET and user=$user\n";
+		#&rdaq_toggle_debug();
 		for ($i=0 ; $i <= $#PIPEOFF ; $i++){
 		    if ( 2*int(($i+1)/2) == $i ){
                         # the kind of streams
 			$kind = $PIPEOFF[$i];
-			#print "Recovering $kind\n"; 
+			#print "Recovering i=$i kind=$kind (pending)\n"; 
 		    } else {
 			# the weight of stream to transfer
 			$wght= $PIPEOFF[$i];
-			#print "Recovering $wght for $i\n";
 			#print "$SELF : Trying $kind / $wght\n";
-			@files= rdaq_get_files($obj,0, $num, 1 , \%Cond, $kind);
+			@files= rdaq_get_files($obj, 0, $num, 1 , \%Cond, $kind);
+			# ----------------------------^ this will add Status=0 in
+			# conditions - replace by undef otherwise.
+			print "$SELF : Recovering i=$i kind=$kind wght=$wght and $num (".($#files+1)." selected)\n";
 			push(@MySelection,&RandomPick($wght,@files));
 		    }
 		}
+		#&rdaq_toggle_debug();
+
 		#push(@files,rdaq_get_ffiles($obj,0,$TOT,$kind));
 		#print "We are considering\n";
 		foreach $f (@MySelection){
 		    @items = split(" ",$f);
+		    #print "\t$items[0]\n";
 		    # leverage all logic related to exclusion
 		    &Submit(4,0,0,$f,undef,undef);
 		}
@@ -1305,28 +1312,43 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		my($FOUT)="/tmp/JobSubmit-$$.lis";
 		open(FDC,">$FOUT");
 
-		print "$SELF : We will submit\n";
-		foreach $f (@OKFRMT){
-		    #print "\t$f\n";
-		    print FDC "$f\n";
+		if ( $#OKFRMT != -1 ){
+		    print "$SELF : We will submit\n";
+		    foreach $f (@OKFRMT){
+			print "\tWritting out $f\n";
+			print FDC "$f\n";
+		    }
+		    close(FDC);
+		    #system("/bin/cat $FOUT");
+		    my($TRANSFERCMD)= "/bin/cat $FOUT && /opt/star/bin/hpss_user.pl -i $user -f $FOUT";
+		    #print "Would do $TRANSFERCMD\n";
+		    system($TRANSFERCMD);
+		    $status = $?;
+		} else {
+		    print "$SELF : Nothing to submit -".
+			 " OKFiles=".(1+$#OKFILES).
+			 " Skipped=".(1+$#SKIPPED).
+			 " Rejected=".(1+$#RANDREJECT)."\n";
+		    $status = 0; # but this is OK
 		}
-		close(FDC);
-		#system("/bin/cat $FOUT");
-		my($TRANSFERCMD)= "/bin/cat $FOUT && /opt/star/bin/hpss_user.pl -i $user -f $FOUT";
-		#print "Would do $TRANSFERCMD\n";
-		system($TRANSFERCMD);
-		$status = $?;
+
 		if ($status != 0){
 		    print "$SELF : Error executing command - please debug $status\n";
 		    exit;
 		} else {
-		    print "$SELF : We will mark the requested files now\n";
-		    rdaq_set_xstatus($obj,$ID,1,@OKFILES);     # mark submitted
-		    rdaq_set_xstatus($obj,$ID,8,@RANDREJECT);  # mark Random reject 
-		    rdaq_set_xstatus($obj,$ID,4,@SKIPPED);     # mark skipped
-		    rdaq_set_files($obj,4,@SKIPPED);           # mark skipped as well as cond are similar
-		    rdaq_set_files($obj,7,@OKFILES);           # set to External
-		    rdaq_set_chain($obj,"Restored-for-external-processing-on-$target",@OKFILES);
+		    print "$SELF : We will mark any requested files now\n";
+		    if ( $#OKFILES != -1){
+			rdaq_set_xstatus($obj,$ID,1,@OKFILES);     # mark submitted
+			rdaq_set_files($obj,7,@OKFILES);           # set to External
+			rdaq_set_chain($obj,"Restored-for-external-processing-on-$target",@OKFILES);
+		    }
+		    if ( $#RANDREJECT != -1){
+			rdaq_set_xstatus($obj,$ID,8,@RANDREJECT);  # mark Random reject 
+		    }
+		    if ( $#SKIPPED != -1 ){
+			rdaq_set_xstatus($obj,$ID,4,@SKIPPED);     # mark skipped
+			rdaq_set_files($obj,4,@SKIPPED);           # mark skipped as well as cond are similar
+		    }
 		}
 		unlink($FOUT);
 
