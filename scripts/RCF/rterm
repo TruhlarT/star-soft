@@ -1,7 +1,9 @@
 #!/bin/csh
 #
 # Written J.Lauret Fri May 25 2001
-# (c) J. Luaret 2001-2011
+# (c) J. Lauret 2001-2011
+#
+# Version: V1.500 [will increment and compare with ssh GK]
 #
 # Generic enough to work everywhere.
 # Possible environment variables and features :
@@ -298,8 +300,9 @@ if ($help) then
    set wnode=`echo $node | $SED "s/+//"`
    cat <<EOF | more
 
-This command will open a connection to any remote node using the slogin 
-command. 
+Written by J. Lauret 2001 - This command will open a connection to 
+any remote node using the slogin command and, without node precision
+open a terminal on the least loaded node.
 
 Syntax is
   % $prgm [Options] [NodeSpec] [UserName]
