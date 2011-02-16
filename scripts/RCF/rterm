@@ -34,6 +34,9 @@ set ID=/usr/bin/id
 set SED=/bin/sed
 set SORT=/bin/sort
 
+# default argument value	    
+set X11Opt="-X"
+
 # Arguments parsing
 set count=0
 while ( $count <= $#argv)
@@ -49,6 +52,11 @@ while ( $count <= $#argv)
 	case "-i":
 	    set inter=1
 	    breaksw
+
+	case "-Y":
+	    set X11Opt="-Y"
+	    breaksw
+
 	case "-x":
 	    set excluded="$excluded $argv[$count]"
 	    if( $DEBUG) then
@@ -470,7 +478,7 @@ else
 	$SLOGIN $port $user@$node
     else
 	echo "Opening a $col terminal on $node for $user $extra"
-	$TERM_PRGM -sl 500 -sb +si -sk -T "$user@$node" -n "Xterm_$node" -bg $TERM_BKG_COLOR $TERM_OPTIONS -e $SLOGIN -X $port $user@$node &
+	$TERM_PRGM -sl 500 -sb +si -sk -T "$user@$node" -n "Xterm_$node" -bg $TERM_BKG_COLOR $TERM_OPTIONS -e $SLOGIN $X11Opt $port $user@$node &
     endif
 endif
 
