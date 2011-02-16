@@ -311,6 +311,7 @@ Currently implemented options are :
   -x node    Exclude 'node' from possible node to connect to. May be
              a comma separated list of nodes.
   -funky     pick a color randomly
+  -Y         use -Y option for ssh instead of -X
 
 The 'NodeSpec' argument may be a node name (specific login to a given node) 
 or a partial node name followed by the '+' sign (wildcard). For example,
