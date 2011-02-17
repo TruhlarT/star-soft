@@ -666,7 +666,7 @@ END
 
         $max_y = 1.2;
 
-    }elsif(  $srate eq "ntacks" ) {
+    }elsif(  $srate eq "ntracks" ) {
 
     @data = ();
 
