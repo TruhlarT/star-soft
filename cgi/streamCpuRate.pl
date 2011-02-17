@@ -76,6 +76,7 @@ my $pryear = "2010";
 my %rte = {};
 my %nstr = {};
 my %arcpu = {};
+my %artrk = {};
 my @arupsilon = ();
 my @armtd = ();
 my @arphysics = ();
