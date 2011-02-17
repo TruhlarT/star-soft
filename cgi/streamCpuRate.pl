@@ -461,7 +461,7 @@ END
               }elsif( $mfile eq "gamma" ) {
                $argamma[$ndt] = $rte{$mfile,$ndt};
                $cpgamma[$ndt] = $arcpu{$mfile,$ndt};
-               $cpgamma[$ndt] = $artrk{$mfile,$ndt}; 
+               $trgamma[$ndt] = $artrk{$mfile,$ndt}; 
                $nstgamma[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "hlt" ) {
                $arhlt[$ndt] = $rte{$mfile,$ndt};
