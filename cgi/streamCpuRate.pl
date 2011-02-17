@@ -553,6 +553,8 @@ END
        $ylabel = "Average ratio RealTime/CPU per hour";
        $gtitle = "Average ratio RealTime/CPU per hour for different streams for $qday";
 
+    @data = ();
+
   @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@aratomcules, \@armtd ) ;
 
   	$max_y = $maxval + 0.2*$maxval; 
@@ -562,6 +564,8 @@ END
 
        $ylabel = "Average CPU in sec/evt per hour";
        $gtitle = "Average CPU in sec/evt per hour for different streams for $qday";
+
+    @data = ();
 
   @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpatomcules, \@cpmtd ) ;
 
@@ -573,6 +577,8 @@ END
 	$ylabel = "Ratio of different stream jobs per hour ";
 	$gtitle = "Ratio of different stream jobs to all jobs per hour for day $qday ";
 
+    @data = ();
+
  @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc, \@rtatomcules, \@rtmtd ) ;
 
        	$max_y = 1.2;
@@ -581,6 +587,8 @@ END
 
 	$ylabel = "Average number of tracks in different streams";
 	$gtitle = "Average number of tracks in different streams per hour for day $qday ";
+
+   @data = ();
 
  @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trht, \@trmonitor, \@trpmdftp, \@trupc, \@tratomcules, \@trmtd ) ;
      
