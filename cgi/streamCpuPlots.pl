@@ -58,7 +58,7 @@ my @prodyear = ("2009","2010");
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("cpu","rtime/cpu","ntacks","stream_rate");
+my @arrate = ("cpu","rtime/cpu","ntracks","stream_rate");
 
 my @arrprod = ();
 my @arstream = ();
@@ -206,7 +206,7 @@ END
 
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Select stream values: <br> CPU, rtime/CPU, avg number of tracks, stream rate</h3>";
+    print "<h3 align=center> Select stream values: <br> CPU, rtime/CPU, avg number of tracks, stream ratios</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
                                   -values=>\@arrate,
