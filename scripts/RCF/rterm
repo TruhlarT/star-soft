@@ -236,12 +236,12 @@ if ("$node" == "") then
 
        case "rhphenix":
 	set node="rcas2+"
-        set pool="condor02.rcf.bnl.gov:9662"
+        set pool="condor01.rcf.bnl.gov:9662"
 	breaksw;
 
        case "rhbrahms":
         set node="rcas0+"
-        set pool="condor02.rcf.bnl.gov:9661"
+        set pool="condor01.rcf.bnl.gov:9661"
 	breaksw;
 
        case "usatlas":
@@ -270,11 +270,11 @@ else
         breaksw;
 
        case "rcas2*":
-        set pool="condor02.rcf.bnl.gov:9662"
+        set pool="condor01.rcf.bnl.gov:9662"
         breaksw;
 
        case "rcas0*":
-        set pool="condor02.rcf.bnl.gov:9661"
+        set pool="condor01.rcf.bnl.gov:9661"
         breaksw;
 
        case "acas*":
