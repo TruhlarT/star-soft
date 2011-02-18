@@ -467,8 +467,9 @@ if ( $ThisYear == 2005 ){
 } elsif ( $ThisYear == 2011 ) {
     $TREEMODE= 1;
     $LIB     = "dev";
-
-    $NUMEVT  = 100;
+#######
+    $MAXEVT  = 1000;
+    $NUMEVT  = 1000;
     $MINEVT  = 200;
     $FRACTT  =  33;
 
