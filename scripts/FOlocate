@@ -27,6 +27,7 @@ $PAT   = "";              # no special pattern match (all files)
 $EXT   = "";              # will be used for pattern replacement - see -x
 $BASEP = "";              # base path for -dco / do not speicfy here
 $PPATH = "";
+$DEBUG = $ENV{FOLocate_DEBUG};
 
 if ( $#ARGV == -1){
     print qq~
@@ -225,8 +226,9 @@ sub ProcessRun {
 	    $loc  = rdaq_get_location($obj,$info[0]);
 
 	    if ( $QHPSS ){
-		#print "*** $loc\n";
-		if ( ($loc ne 0 && ( $status == 2 || $status == 3)) || $QRAW || $FINFO ){
+		print "DEBUG *** $info[0] $loc status=$status\n" if ($DEBUG);
+		if ( ($loc ne 0 && ( $status == 2 || $status == 3 || $status == 7)) || 
+		     $QRAW || $FINFO ){
 		    if ( $info[1] >= 10000000 ){
 			# TODO: this logic is similar to the one in JobSubmit
 			# and hence needs to be moved to the module
@@ -246,23 +248,29 @@ sub ProcessRun {
 				$path = "$1 $2";
 			    }
 			} elsif ( $FINFO){
-			    #print "DEBUG $trgsn";
+			    print "DEBUG $trgsn" if ($DEBUG);
 			    $dm   =~ s/.*daq\///;
 			    $dm   =~ s/\/st_.*//;
 			    $path = join("/",($trgsn,$field,$dm));
 
 			} else {
-			    $dm   =~ s/.*daq\///;
-			    $dm   =~ s/\/st_.*//;
-			    if ( $BASEP ne ""){
-				$path  = "/home/starreco/reco/$trgsn/$field/dev/$dm/$file";
-				if ( substr($BASEP,length($BASEP)-1,1) eq "/"){
-				    $path .= " $BASEP$file";
-				} else {
-				    $path .= " $BASEP/$trgsn/$field/dev/$dm/$file";
-				}
+			    if ( $status == 7){
+				#print substr($loc,length($loc)-1,1)."\n" if ($DEBUG);
+				if ( substr($loc,length($loc)-1,1) eq "/"){ chop($loc);}
+				$path = "$loc $file";
 			    } else {
-				$path  = "/home/starreco/reco/$trgsn/$field/dev/$dm $file";
+				$dm   =~ s/.*daq\///;
+				$dm   =~ s/\/st_.*//;
+				if ( $BASEP ne ""){
+				    $path  = "/home/starreco/reco/$trgsn/$field/dev/$dm/$file";
+				    if ( substr($BASEP,length($BASEP)-1,1) eq "/"){
+					$path .= " $BASEP$file";
+				    } else {
+					$path .= " $BASEP/$trgsn/$field/dev/$dm/$file";
+				    }
+				} else {
+				    $path  = "/home/starreco/reco/$trgsn/$field/dev/$dm $file";
+				}
 			    }
 			}
 
@@ -272,7 +280,11 @@ sub ProcessRun {
 
 
 	    if ( $loc ne 0 && $xtra eq ""){
-		$xtra = "ON DISK";
+		if ( $loc =~ /\/home\/starreco/ ){
+		    $xtra = "ON HPSS";
+		} else {
+		    $xtra = "ON DISK";
+		}
 	    } elsif ( $status == 1 && $xtra eq ""){
 		$xtra = "Check later";
 	    }
