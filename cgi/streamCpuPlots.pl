@@ -884,7 +884,7 @@ END
                $nstupsilon[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "gamma" ) {
                $nstgamma[$ndt] =  $nstr{$mfile,$ndt};
-              }elsif( $mfile eq "hlt" ) 
+	      }elsif( $mfile eq "hlt" ) {
                $nsthlt[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "fmsfast" ) {
                $nstfmsfast[$ndt] =  $nstr{$mfile,$ndt};
