@@ -33,7 +33,8 @@ struct JobAttr => {
       cpuv      => '$',
       rtmv      => '$', 
       strk      => '$',
-      strv      => '$'
+      strv      => '$',
+      jbtot     => '$'
 };
 
 
@@ -58,7 +59,7 @@ my @prodyear = ("2009","2010");
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("cpu","rtime/cpu","ntracks","stream_rate");
+my @arrate = ("cpu","rtime/cpu","ntracks","stream_rate","jobtottime);
 
 my @arrprod = ();
 my @arstream = ();
@@ -70,6 +71,7 @@ my $pday;
 my $pcpu;
 my $prtime;
 my $pstream;
+my $jbTottime;
 
 my $pryear = "2010";
 
@@ -77,6 +79,8 @@ my %rte = {};
 my %nstr = {};
 my %arcpu = {};
 my %artrk = {};
+my %arjbtime = {};
+
 my $ptrack;
 my @arupsilon = ();
 my @armtd = ();
@@ -141,6 +145,18 @@ my @tratomcules = ();
 my @trupc = ();
 my @trmonitor = ();
 my @trpmdftp = ();
+
+my @jbupsilon = ();
+my @jbmtd = ();
+my @jbphysics = ();
+my @jbgamma = ();
+my @jbhlt = ();
+my @jbfmsfast = ();
+my @jbht = ();
+my @jbatomcules = ();
+my @jbupc = ();
+my @jbmonitor = ();
+my @jbpmdftp = ();
 
  
 my @arperiod = ("week","1_month","2_months","3_months","4_months","5_months","6_months");
@@ -309,6 +325,7 @@ END
 
     $day_diff = int($day_diff);
 
+
      if( $qperiod eq "week") {
 
     $sql="SELECT DISTINCT date_format(createTime, '%Y-%m-%d %H') as PDATE  FROM $JobStatusT WHERE prodSeries = ?  AND runDay <> '0000-00-00' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) <= $day_diff  order by PDATE ";
@@ -339,14 +356,156 @@ END
 
    }
 
+ %nstr = {};
+ @numstream = ();
+
+  my $maxcpu = 1;
+  my $maxvalue = 1;
+
+##################################### average CPU
+
+        if( $srate eq "cpu" ) {
+
+ %arcpu = {};
+ %nstr = {};
+
+ @cpupsilon = ();
+ @cpmtd = ();
+ @cpphysics = ();
+ @cpgamma = ();
+ @cphlt = ();
+ @cpfmsfast = ();
+ @cpht = ();
+ @cpatomcules = ();
+ @cpupc = ();
+ @cpmonitor = ();
+ @cppmdftp = (); 
+
+ @ndate = ();
  $ndt = 0;
 
- #####################
+   foreach my $tdate (@ardays) {
+        @jbstat = ();
+        $nstat = 0;
+
+     if( $qperiod eq "week") {
+
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 ";
+
+            $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n";
+            $cursor->execute($qprod);
+
+        while(@fields = $cursor->fetchrow) {
+            my $cols=$cursor->{NUM_OF_FIELDS};
+            $fObjAdr = \(JobAttr->new());
+
+            for($i=0;$i<$cols;$i++) {
+                my $fvalue=$fields[$i];
+                my $fname=$cursor->{NAME}->[$i];
+                # print "$fname = $fvalue\n" ;
+
+                ($$fObjAdr)->vday($fvalue)    if( $fname eq 'PDATE');
+                ($$fObjAdr)->cpuv($fvalue)    if( $fname eq 'CPU_per_evt_sec');
+                ($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
+            }
+            $jbstat[$nstat] = $fObjAdr;
+            $nstat++;
+        }
+
+     }else{
+
+  $sql="SELECT runDay, CPU_per_evt_sec, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND jobStatus = 'Done' AND NoEvents >= 10 ";
+
+            $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n";
+            $cursor->execute($qprod);
+
+        while(@fields = $cursor->fetchrow) {
+            my $cols=$cursor->{NUM_OF_FIELDS};
+            $fObjAdr = \(JobAttr->new());
+
+            for($i=0;$i<$cols;$i++) {
+                my $fvalue=$fields[$i];
+                my $fname=$cursor->{NAME}->[$i];
+                # print "$fname = $fvalue\n" ;
+
+                ($$fObjAdr)->vday($fvalue)    if( $fname eq 'runDay');
+                ($$fObjAdr)->cpuv($fvalue)    if( $fname eq 'CPU_per_evt_sec');
+                ($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
+
+            }
+            $jbstat[$nstat] = $fObjAdr;
+            $nstat++;
+        }
+      }
+
+
+     foreach $jset (@jbstat) {
+            $pday     = ($$jset)->vday;
+            $pcpu     = ($$jset)->cpuv;
+            $pstream  = ($$jset)->strv;
+
+    if( $pcpu >= 0.01) {
+
+        $arcpu{$pstream,$ndt} = $arcpu{$pstream,$ndt} + $pcpu;
+        $nstr{$pstream,$ndt}++;
+
+            $ndate[$ndt] = $pday;
+
+            }
+          }
+
+########################
+ 
+          foreach my $mfile (@arstream) {
+            if ($nstr{$mfile,$ndt} >= 2 ) {
+              $arcpu{$mfile,$ndt} = $arcpu{$mfile,$ndt}/$nstr{$mfile,$ndt};
+                if ( $arcpu{$mfile,$ndt} > $maxcpu ) {
+                    $maxcpu = $arcpu{$mfile,$ndt} ;
+                }
+
+              if ( $mfile eq "physics" ) {
+               $cpphysics[$ndt] = $arcpu{$mfile,$ndt};
+             }elsif( $mfile eq "mtd" ) {
+               $cpmtd[$ndt] = $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "gamma" ) {
+               $cpgamma[$ndt] = $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "upsilon" ) {
+               $cpupsilon[$ndt] = $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "hlt" ) {
+               $cphlt[$ndt] = $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "fmsfast" ) {
+               $cpfmsfast[$ndt] =  $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "ht" ) {
+               $cpht[$ndt] = $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "atomcules" ) {
+               $cpatomcules[$ndt] = $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "monitor" ) {
+               $cpmonitor[$ndt] = $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "pmdftp" ) {
+               $cppmdftp[$ndt] = $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "upc" ) {
+               $cpupc[$ndt] =  $arcpu{$mfile,$ndt};
+           }else{
+             next;
+           }
+              }
+          }
+
+        $ndt++;
+
+     }# foreach tdate
+
+
+###################################### ratio realTime/CPU
+
+             }elsif( $srate eq "rtime/cpu" ) { 
 
  %rte = {};
- %nstr = {};
  %arcpu = {};
- %artrk = {};
+ %nstr = {};
+
  @arupsilon = ();
  @armtd = ();
  @arphysics = ();
@@ -359,7 +518,274 @@ END
  @arupc = ();
  @armonitor = ();
  @arpmdftp = ();
+ @arjbtime = (); 
+
+ @cpupsilon = ();
+ @cpmtd = ();
+ @cpphysics = ();
+ @cpgamma = ();
+ @cphlt = ();
+ @cpfmsfast = ();
+ @cpht = ();
+ @cpatomcules = ();
+ @cpupc = ();
+ @cpmonitor = ();
+ @cppmdftp = ();
+ @ndate = ();
+ $ndt = 0;
+
+   foreach my $tdate (@ardays) {
+        @jbstat = ();
+        $nstat = 0;
+
+     if( $qperiod eq "week") {
+
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 ";
+
+            $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n";
+            $cursor->execute($qprod);
+
+        while(@fields = $cursor->fetchrow) {
+            my $cols=$cursor->{NUM_OF_FIELDS};
+            $fObjAdr = \(JobAttr->new());
+
+            for($i=0;$i<$cols;$i++) {
+                my $fvalue=$fields[$i];
+                my $fname=$cursor->{NAME}->[$i];
+                # print "$fname = $fvalue\n" ;
+
+                ($$fObjAdr)->vday($fvalue)    if( $fname eq 'PDATE');
+                ($$fObjAdr)->cpuv($fvalue)    if( $fname eq 'CPU_per_evt_sec');
+                ($$fObjAdr)->rtmv($fvalue)    if( $fname eq 'RealTime_per_evt');
+                ($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
+
+            }
+            $jbstat[$nstat] = $fObjAdr;
+            $nstat++;
+        }
+
+     }else{
+
+   $sql="SELECT runDay, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 ";
+
+            $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n";
+            $cursor->execute($qprod);
+
+        while(@fields = $cursor->fetchrow) {
+            my $cols=$cursor->{NUM_OF_FIELDS};
+            $fObjAdr = \(JobAttr->new());
+
+            for($i=0;$i<$cols;$i++) {
+                my $fvalue=$fields[$i];
+                my $fname=$cursor->{NAME}->[$i];
+                # print "$fname = $fvalue\n" ;
+
+
+                ($$fObjAdr)->vday($fvalue)    if( $fname eq 'runDay');
+                ($$fObjAdr)->cpuv($fvalue)    if( $fname eq 'CPU_per_evt_sec');
+                ($$fObjAdr)->rtmv($fvalue)    if( $fname eq 'RealTime_per_evt');
+                ($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
+
+            }
+            $jbstat[$nstat] = $fObjAdr;
+            $nstat++;
+        }
+     }
+
+     foreach $jset (@jbstat) {
+            $pday     = ($$jset)->vday;
+            $pcpu     = ($$jset)->cpuv;
+            $prtime   = ($$jset)->rtmv;
+            $pstream  = ($$jset)->strv;
+
+    if( $pcpu >= 0.01) {
+
+        $rte{$pstream,$ndt} = $rte{$pstream,$ndt} + $prtime/$pcpu;
+        $nstr{$pstream,$ndt}++;
+
+            $ndate[$ndt] = $pday;
+
+            }
+          }
+
+          foreach my $mfile (@arstream) {
+              if ($nstr{$mfile,$ndt} >= 2 ) {
+                   $rte{$mfile,$ndt} = $rte{$mfile,$ndt}/$nstr{$mfile,$ndt};
+
+                  if ( $rte{$mfile,$ndt} > $maxval ) {
+                $maxval =  $rte{$mfile,$ndt}
+                }
+                  if ( $mfile eq "physics" ) {
+               $arphysics[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "mtd" ) {
+               $armtd[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "upsilon" ) {
+               $arupsilon[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "gamma" ) {
+               $argamma[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "hlt" ) {
+               $arhlt[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "fmsfast" ) {
+               $arfmsfast[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "ht" ) {
+               $arht[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "atomcules" ) {
+               $aratomcules[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "monitor" ) {
+               $armonitor[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "pmdftp" ) {
+               $arpmdftp[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "upc" ) {
+               $arupc[$ndt] =  $rte{$mfile,$ndt};
+
+          }else{
+             next;
+           }
+              }
+          }
+
+        $ndt++;
+
+    } # foreach tdate
+
+
+########################################## average number of tracks
+
+        }elsif( $srate eq "ntracks" ) { 
+
+ %artrk = {};
+ %nstr = {};
+
+ @trupsilon = ();
+ @trmtd = ();
+ @trphysics = ();
+ @trgamma = ();
+ @trhlt = ();
+ @trfmsfast = ();
+ @trht = ();
+ @tratomcules = ();
+ @trupc = ();
+ @trmonitor = ();
+ @trpmdftp = ();
+ @ndate = ();
+
+  $ndt = 0;
+
+   foreach my $tdate (@ardays) {
+        @jbstat = ();
+        $nstat = 0;
+
+     if( $qperiod eq "week") {
+
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, avg_no_tracks, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND  jobStatus = 'Done' AND NoEvents >= 10 ";
+
+            $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n";
+            $cursor->execute($qprod);
+
+        while(@fields = $cursor->fetchrow) {
+            my $cols=$cursor->{NUM_OF_FIELDS};
+            $fObjAdr = \(JobAttr->new());
+
+            for($i=0;$i<$cols;$i++) {
+                my $fvalue=$fields[$i];
+                my $fname=$cursor->{NAME}->[$i];
+                # print "$fname = $fvalue\n" ;
+
+                ($$fObjAdr)->vday($fvalue)    if( $fname eq 'PDATE');
+                ($$fObjAdr)->strk($fvalue)    if( $fname eq 'avg_no_tracks');
+                ($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
+
+            }
+            $jbstat[$nstat] = $fObjAdr;
+            $nstat++;
+        }
+
+     }else{
+
+   $sql="SELECT runDay, avg_no_tracks, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries= ? AND jobStatus = 'Done' AND NoEvents >= 10 ";
+
+            $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n";
+            $cursor->execute($qprod);
+
+        while(@fields = $cursor->fetchrow) {
+            my $cols=$cursor->{NUM_OF_FIELDS};
+            $fObjAdr = \(JobAttr->new());
+
+            for($i=0;$i<$cols;$i++) {
+                my $fvalue=$fields[$i];
+                my $fname=$cursor->{NAME}->[$i];
+                # print "$fname = $fvalue\n" ;
+
+                ($$fObjAdr)->vday($fvalue)    if( $fname eq 'runDay');
+                ($$fObjAdr)->strk($fvalue)    if( $fname eq 'avg_no_tracks');
+                ($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
+
+            }
+            $jbstat[$nstat] = $fObjAdr;
+            $nstat++;
+        }
+     }
+
+    foreach $jset (@jbstat) {
+            $pday     = ($$jset)->vday;
+            $pstream  = ($$jset)->strv;
+            $ptrack   = ($$jset)->strk;
+
+        $artrk{$pstream,$ndt} = $artrk{$pstream,$ndt} + $ptrack;
+        $nstr{$pstream,$ndt}++;
+
+            $ndate[$ndt] = $pday;
+         }
+
+
+          foreach my $mfile (@arstream) {
+              if ($nstr{$mfile,$ndt} >= 2 ) {
+                  $artrk{$mfile,$ndt} = $artrk{$mfile,$ndt}/$nstr{$mfile,$ndt};
+
+                  if ( $mfile eq "physics" ) {
+               $trphysics[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "mtd" ) {
+               $trmtd[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "upsilon" ) {
+               $trupsilon[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "gamma" ) {
+               $trgamma[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "hlt" ) {
+               $trhlt[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "fmsfast" ) {
+               $trfmsfast[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "ht" ) {
+               $trht[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "atomcules" ) {
+               $tratomcules[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "monitor" ) {
+               $trmonitor[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "pmdftp" ) {
+               $trpmdftp[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "upc" ) {
+               $trupc[$ndt] =  $artrk{$mfile,$ndt};
+
+           }else{
+             next;
+           }
+              }
+          }
+
+        $ndt++;
+
+    } # foreach tdate
+
+#############################  stream ratios
+
+          }elsif( $srate eq "stream_rate" ) { 
  
+ %nstr = {};
+ @numstream = 0;
+
  @nstphysics = ();
  @nstgamma = ();
  @nstmtd = ();
@@ -371,8 +797,8 @@ END
  @nstmonitor = ();
  @nstpmdftp = ();
  @nstupsilon = ();
- @numstream = ();
-
+ @ndate = ();
+ $ndt = 0;  
 
  @rtphysics = ();
  @rtgamma = ();
@@ -386,174 +812,95 @@ END
  @rtpmdftp = ();
  @rtupsilon = ();
 
- @cpupsilon = ();
- @cpmtd = ();
- @cpphysics = ();
- @cpgamma = ();
- @cphlt = ();
- @cpfmsfast = ();
- @cpht = ();
- @cpatomcules = ();
- @cpupc = ();
- @cpmonitor = ();
- @cppmdftp = ();
-
-
-  my $maxcpu = 1;
-  my $maxvalue = 1;
-
     foreach my $tdate (@ardays) {
-	@jbstat = ();  
-	$nstat = 0;
+        @jbstat = ();
+        $nstat = 0;
 
      if( $qperiod eq "week") {
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, RealTime_per_evt, avg_no_tracks, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 "; 
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND  jobStatus = 'Done' AND NoEvents >= 10 ";
 
-	    $cursor =$dbh->prepare($sql)
-	      || die "Cannot prepare statement: $DBI::errstr\n";
-	    $cursor->execute($qprod);
+            $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n";
+            $cursor->execute($qprod);
 
-	while(@fields = $cursor->fetchrow) {
-	    my $cols=$cursor->{NUM_OF_FIELDS};
-	    $fObjAdr = \(JobAttr->new());
+        while(@fields = $cursor->fetchrow) {
+            my $cols=$cursor->{NUM_OF_FIELDS};
+            $fObjAdr = \(JobAttr->new());
 
-	    for($i=0;$i<$cols;$i++) {
-		my $fvalue=$fields[$i];
-		my $fname=$cursor->{NAME}->[$i];
+            for($i=0;$i<$cols;$i++) {
+                my $fvalue=$fields[$i];
+                my $fname=$cursor->{NAME}->[$i];
                 # print "$fname = $fvalue\n" ;
 
-		($$fObjAdr)->vday($fvalue)    if( $fname eq 'PDATE');
-		($$fObjAdr)->cpuv($fvalue)    if( $fname eq 'CPU_per_evt_sec');
-		($$fObjAdr)->rtmv($fvalue)    if( $fname eq 'RealTime_per_evt');
-                ($$fObjAdr)->strk($fvalue)    if( $fname eq 'avg_no_tracks');
-		($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
+                ($$fObjAdr)->vday($fvalue)    if( $fname eq 'PDATE');
+                ($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
 
-	    }
-	    $jbstat[$nstat] = $fObjAdr;
-	    $nstat++;
-	}
+            }
+            $jbstat[$nstat] = $fObjAdr;
+            $nstat++;
+        }
 
      }else{
 
-   $sql="SELECT runDay, CPU_per_evt_sec, RealTime_per_evt, avg_no_tracks, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 "; 
+   $sql="SELECT runDay, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND jobStatus = 'Done' AND NoEvents >= 10 ";
 
-	    $cursor =$dbh->prepare($sql)
-	      || die "Cannot prepare statement: $DBI::errstr\n";
-	    $cursor->execute($qprod);
+            $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n";
+            $cursor->execute($qprod);
 
-	while(@fields = $cursor->fetchrow) {
-	    my $cols=$cursor->{NUM_OF_FIELDS};
-	    $fObjAdr = \(JobAttr->new());
+        while(@fields = $cursor->fetchrow) {
+            my $cols=$cursor->{NUM_OF_FIELDS};
+            $fObjAdr = \(JobAttr->new());
 
-	    for($i=0;$i<$cols;$i++) {
-		my $fvalue=$fields[$i];
-		my $fname=$cursor->{NAME}->[$i];
+            for($i=0;$i<$cols;$i++) {
+                my $fvalue=$fields[$i];
+                my $fname=$cursor->{NAME}->[$i];
                 # print "$fname = $fvalue\n" ;
 
-		($$fObjAdr)->vday($fvalue)    if( $fname eq 'runDay');
-		($$fObjAdr)->cpuv($fvalue)    if( $fname eq 'CPU_per_evt_sec');
-		($$fObjAdr)->rtmv($fvalue)    if( $fname eq 'RealTime_per_evt');
-                ($$fObjAdr)->strk($fvalue)    if( $fname eq 'avg_no_tracks');
-		($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
+                ($$fObjAdr)->vday($fvalue)    if( $fname eq 'runDay');
+                ($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
 
-	    }
-	    $jbstat[$nstat] = $fObjAdr;
-	    $nstat++;
-	}
+            }
+            $jbstat[$nstat] = $fObjAdr;
+            $nstat++;
+        }
      }
 
-     foreach $jset (@jbstat) {
-	    $pday     = ($$jset)->vday;
-	    $pcpu     = ($$jset)->cpuv;
-	    $prtime   = ($$jset)->rtmv;
-	    $pstream  = ($$jset)->strv;
-            $ptrack   = ($$jset)->strk;
+    foreach $jset (@jbstat) {
+            $pday     = ($$jset)->vday;
+            $pstream  = ($$jset)->strv;
 
-    if( $pcpu >= 0.01) {             
+          $nstr{$pstream,$ndt}++;
+          $ndate[$ndt] = $pday;
+          }
 
-        $rte{$pstream,$ndt} = $rte{$pstream,$ndt} + $prtime/$pcpu;
-        $arcpu{$pstream,$ndt} = $arcpu{$pstream,$ndt} + $pcpu; 
-        $artrk{$pstream,$ndt} = $artrk{$pstream,$ndt} + $ptrack;
-        $nstr{$pstream,$ndt}++;
-         
-            $ndate[$ndt] = $pday;    
-
-	    }
-	  }
-
-####################        
-
-          foreach my $mfile (@arstream) {      
-              if ($nstr{$mfile,$ndt} >= 2 ) {
-                  $arcpu{$mfile,$ndt} = $arcpu{$mfile,$ndt}/$nstr{$mfile,$ndt};
-                  $rte{$mfile,$ndt} = $rte{$mfile,$ndt}/$nstr{$mfile,$ndt};
-                  $artrk{$mfile,$ndt} = $artrk{$mfile,$ndt}/$nstr{$mfile,$ndt};
-
-                  if ( $rte{$mfile,$ndt} > $maxval ) {
-                $maxval =  $rte{$mfile,$ndt}
-	        }
-                  if ( $arcpu{$mfile,$ndt} > $maxcpu ) {
-                      $maxcpu = $arcpu{$mfile,$ndt} ;
-                  }
-		  if ( $mfile eq "physics" ) {
-	       $arphysics[$ndt] =  $rte{$mfile,$ndt};
-               $cpphysics[$ndt] = $arcpu{$mfile,$ndt};
-               $trphysics[$ndt] = $artrk{$mfile,$ndt};
+         foreach my $mfile (@arstream) {
+           if ( $mfile eq "physics" ) {
                $nstphysics[$ndt] =  $nstr{$mfile,$ndt};
-	      }elsif( $mfile eq "mtd" ) {
-               $armtd[$ndt] =  $rte{$mfile,$ndt};
-               $cpmtd[$ndt] = $arcpu{$mfile,$ndt};
-               $trmtd[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "mtd" ) {
                $nstmtd[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "upsilon" ) {
-               $arupsilon[$ndt] =  $rte{$mfile,$ndt};
-               $cpupsilon[$ndt] = $arcpu{$mfile,$ndt};
-               $trupsilon[$ndt] = $artrk{$mfile,$ndt};
                $nstupsilon[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "gamma" ) {
-               $argamma[$ndt] =  $rte{$mfile,$ndt};
-               $cpgamma[$ndt] = $arcpu{$mfile,$ndt};
-               $trgamma[$ndt] = $artrk{$mfile,$ndt};
                $nstgamma[$ndt] =  $nstr{$mfile,$ndt};
-              }elsif( $mfile eq "hlt" ) {
-               $arhlt[$ndt] =  $rte{$mfile,$ndt};
-               $cphlt[$ndt] = $arcpu{$mfile,$ndt};
-               $trhlt[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "hlt" ) 
                $nsthlt[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "fmsfast" ) {
-               $arfmsfast[$ndt] =  $rte{$mfile,$ndt};
-               $cpfmsfast[$ndt] =  $arcpu{$mfile,$ndt};
-               $trfmsfast[$ndt] = $artrk{$mfile,$ndt};
                $nstfmsfast[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "ht" ) {
-               $arht[$ndt] =  $rte{$mfile,$ndt};
-               $cpht[$ndt] = $arcpu{$mfile,$ndt};
-               $trht[$ndt] = $artrk{$mfile,$ndt};
                $nstht[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "atomcules" ) {
-               $aratomcules[$ndt] =  $rte{$mfile,$ndt};
-               $cpatomcules[$ndt] = $arcpu{$mfile,$ndt};
-               $tratomcules[$ndt] = $artrk{$mfile,$ndt};
                $nstatomcules[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "monitor" ) {
-               $armonitor[$ndt] =  $rte{$mfile,$ndt};
-               $cpmonitor[$ndt] = $arcpu{$mfile,$ndt};
-               $trmonitor[$ndt] = $artrk{$mfile,$ndt};
                $nstmonitor[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "pmdftp" ) {
-               $arpmdftp[$ndt] =  $rte{$mfile,$ndt};
-               $cppmdftp[$ndt] = $arcpu{$mfile,$ndt};
-               $trpmdftp[$ndt] = $artrk{$mfile,$ndt};
                $nstpmdftp[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
-               $arupc[$ndt] =  $rte{$mfile,$ndt};
-               $cpupc[$ndt] =  $arcpu{$mfile,$ndt};
-               $trupc[$ndt] =  $artrk{$mfile,$ndt};
                $nstupc[$ndt] =  $nstr{$mfile,$ndt};
-	   }else{
+           }else{
              next;
-           } 
+           }
               }
           }
 
@@ -561,9 +908,9 @@ END
 
     } # foreach tdate
 
-
+ 
       for($ii = 0; $ii < $ndt; $ii++) {
-          $numstream[$ii] = $nstphysics[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+$nstht[$ii]+$nstmonitor[$ii]+$nstpmdftp[$ii]+ $nstupc[$ii]+ $nstgamma[$ii]+  $nstatomcules[$ii]+ $nstupsilon[$ii];
+      $numstream[$ii] = $nstphysics[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+$nstht[$ii]+$nstmonitor[$ii]+$nstpmdftp[$ii]+ $nstupc[$ii]+ $nstgamma[$ii]+  $nstatomcules[$ii]+ $nstupsilon[$ii];
 
      if ($numstream[$ii] >= 1) {
       $rtphysics[$ii] = $nstphysics[$ii]/$numstream[$ii];
@@ -580,6 +927,136 @@ END
 
        }
   }
+
+
+#########################################  jobs total time on the farm
+
+      }elsif( $srate eq "jobtottime" ) { 
+
+ %arjbtime = {};
+ %nstr = {};
+
+ @jbupsilon = ();
+ @jbmtd = ();
+ @jbphysics = ();
+ @jbgamma = ();
+ @jbhlt = ();
+ @jbfmsfast = ();
+ @jbht = ();
+ @jbatomcules = ();
+ @jbupc = ();
+ @jbmonitor = ();
+ @jbpmdftp = ();
+ @ndate = ();
+ $ndt = 0;  
+
+   foreach my $tdate (@ardays) {
+        @jbstat = ();
+        $nstat = 0;
+
+     if( $qperiod eq "week") {
+
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, jobtotalTime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND jobtotalTime > 0.1 AND jobStatus = 'Done' AND NoEvents >= 10 ";
+
+            $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n";
+            $cursor->execute($qprod);
+
+        while(@fields = $cursor->fetchrow) {
+            my $cols=$cursor->{NUM_OF_FIELDS};
+            $fObjAdr = \(JobAttr->new());
+
+            for($i=0;$i<$cols;$i++) {
+                my $fvalue=$fields[$i];
+                my $fname=$cursor->{NAME}->[$i];
+                # print "$fname = $fvalue\n" ;
+
+                ($$fObjAdr)->vday($fvalue)    if( $fname eq 'PDATE');
+                ($$fObjAdr)->jbtot($fvalue)   if( $fname eq 'jobtotalTime');
+                ($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
+
+            }
+            $jbstat[$nstat] = $fObjAdr;
+            $nstat++;
+        }
+
+     }else{
+
+   $sql="SELECT runDay, jobtotalTime, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND  jobtotalTime > 0.1 AND jobStatus = 'Done' AND NoEvents >= 10 ";
+
+            $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n";
+            $cursor->execute($qprod);
+
+        while(@fields = $cursor->fetchrow) {
+            my $cols=$cursor->{NUM_OF_FIELDS};
+            $fObjAdr = \(JobAttr->new());
+
+            for($i=0;$i<$cols;$i++) {
+                my $fvalue=$fields[$i];
+                my $fname=$cursor->{NAME}->[$i];
+                # print "$fname = $fvalue\n" ;
+
+                ($$fObjAdr)->vday($fvalue)    if( $fname eq 'runDay');
+                ($$fObjAdr)->jbtot($fvalue)   if( $fname eq 'jobtotalTime');
+                ($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
+
+            }
+            $jbstat[$nstat] = $fObjAdr;
+            $nstat++;
+        }
+     }
+
+    foreach $jset (@jbstat) {
+            $pday      = ($$jset)->vday;
+            $pstream   = ($$jset)->strv;
+            $jbTottime = ($$jset)->jbtot; 
+
+        $arjbtime{$pstream,$ndt} = $arjbtime{$pstream,$ndt} + $jbTottime
+        $nstr{$pstream,$ndt}++;
+
+            $ndate[$ndt] = $pday;
+
+          }
+
+      foreach my $mfile (@arstream) {
+          if ($nstr{$mfile,$ndt} >= 2 ) {
+           $arjbtime{$mfile,$ndt} = $arjbtime{$mfile,$ndt}/$nstr{$mfile,$ndt};
+
+            if ( $mfile eq "physics" ) {
+               $jbphysics[$ndt] =  $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "mtd" ) {
+               $jbmtd[$ndt] =  $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "upsilon" ) {
+               $jbupsilon[$ndt] = $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "gamma" ) {
+               $jbgamma[$ndt] = $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "hlt" ) {
+               $jbhlt[$ndt] =  $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "fmsfast" ) {
+               $jbfmsfast[$ndt] =  $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "ht" ) {
+               $jbht[$ndt] =  $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "atomcules" ) {
+               $jbatomcules[$ndt] = $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "monitor" ) {
+               $jbmonitor[$ndt] = $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "pmdftp" ) {
+               $jbpmdftp[$ndt] = $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "upc" ) {
+               $jbupc[$ndt] =  $arjbtime{$mfile,$ndt};
+
+           }else{
+             next;
+           }
+            }
+          }
+
+        $ndt++;
+
+    } # foreach tdate
+
+#############################
 
     &StDbProdDisconnect();
 
@@ -665,6 +1142,24 @@ END
  @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc, \@rtatomcules, \@rtmtd ) ;
 
         $max_y = 1.2;
+
+    }elsif(  $srate eq "jobtottime" ) {
+
+    @data = ();
+
+       if( $qperiod eq "week") {
+
+	$ylabel = "Total time jobs stay on the farm (finished per hour)";
+	$gtitle = "Total time stream jobs stay on the farm (finished per hour) for $qperiod period ";
+
+      }else{
+
+	$ylabel = "Total time jobs stay on the farm (finished per day) ";
+	$gtitle = "Total time stream jobs stay on the farm (finished per day) for $qperiod period ";
+     }
+
+ @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd ) ;
+   
 
     }elsif(  $srate eq "ntracks" ) {
 
