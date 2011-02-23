@@ -59,7 +59,7 @@ my @prodyear = ("2009","2010");
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("cpu","rtime/cpu","ntracks","stream_rate","jobtottime);
+my @arrate = ("cpu","rtime/cpu","ntracks","stream_rate","jobtottime");
 
 my @arrprod = ();
 my @arstream = ();
