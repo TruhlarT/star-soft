@@ -876,6 +876,7 @@ END
           }
 
          foreach my $mfile (@arstream) {
+ 
            if ( $mfile eq "physics" ) {
                $nstphysics[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "mtd" ) {
@@ -902,7 +903,7 @@ END
              next;
            }
               }
-          }
+#          }
 
         $ndt++;
 
@@ -927,10 +928,9 @@ END
        }
   }
 
-
 #########################################  jobs total time on the farm
 
-    }elsif( $srate eq "jobtottime" ) { 
+   }elsif( $srate eq "jobtottime" ) { 
 
  %arjbtime = {};
  %nstr = {};
