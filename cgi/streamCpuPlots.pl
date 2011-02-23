@@ -907,7 +907,6 @@ END
         $ndt++;
 
     } # foreach tdate
-
  
       for($ii = 0; $ii < $ndt; $ii++) {
       $numstream[$ii] = $nstphysics[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+$nstht[$ii]+$nstmonitor[$ii]+$nstpmdftp[$ii]+ $nstupc[$ii]+ $nstgamma[$ii]+  $nstatomcules[$ii]+ $nstupsilon[$ii];
@@ -931,7 +930,7 @@ END
 
 #########################################  jobs total time on the farm
 
-      }elsif( $srate eq "jobtottime" ) { 
+    }elsif( $srate eq "jobtottime" ) { 
 
  %arjbtime = {};
  %nstr = {};
