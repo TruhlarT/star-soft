@@ -955,7 +955,7 @@ END
 
      if( $qperiod eq "week") {
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, jobtotalTime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND jobtotalTime > 0.1 AND jobtotalTime <= 120 AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 ";
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, jobtotalTime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND jobtotalTime > 0.1 AND jobtotalTime <= 120.0 AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -981,7 +981,7 @@ END
 
      }else{
 
-   $sql="SELECT runDay, jobtotalTime, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND  jobtotalTime > 0.1 jobtotalTime <= 120 AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 ";
+   $sql="SELECT runDay, jobtotalTime, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND  jobtotalTime > 0.1 AND jobtotalTime <= 120.0 AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
