@@ -1011,7 +1011,7 @@ END
             $pstream   = ($$jset)->strv;
             $jbTottime = ($$jset)->jbtot; 
 
-        $arjbtime{$pstream,$ndt} = $arjbtime{$pstream,$ndt} + $jbTottime
+	    $arjbtime{$pstream,$ndt} = $arjbtime{$pstream,$ndt} + $jbTottime;
         $nstr{$pstream,$ndt}++;
 
             $ndate[$ndt] = $pday;
@@ -1054,6 +1054,8 @@ END
         $ndt++;
 
     } # foreach tdate
+
+  }
 
 #############################
 
