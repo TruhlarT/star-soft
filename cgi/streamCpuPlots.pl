@@ -1147,16 +1147,18 @@ END
     }elsif(  $srate eq "jobtottime" ) {
 
     @data = ();
+    $max_y = 500.;
+
 
        if( $qperiod eq "week") {
 
 	$ylabel = "Total time jobs stay on the farm in hours (finished per hour)";
-	$gtitle = "Total time stream jobs stay on the farm (finished per hour) for $qperiod period ";
+	$gtitle = "Total time jobs stay on the farm (finished per hour) for $qperiod period ";
 
       }else{
 
 	$ylabel = "Total time jobs stay on the farm in hours (finished per day) ";
-	$gtitle = "Total time stream jobs stay on the farm (finished per day) for $qperiod period ";
+	$gtitle = "Total time jobs stay on the farm (finished per day) for $qperiod period ";
      }
 
  @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd ) ;
