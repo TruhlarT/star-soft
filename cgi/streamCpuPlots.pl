@@ -59,7 +59,7 @@ my @prodyear = ("2009","2010");
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("cpu","rtime/cpu","ntracks","stream_rate","jobtottime");
+my @arrate = ("cpu","rtime/cpu","jobtottime","ntracks","stream_rate" );
 
 my @arrprod = ();
 my @arstream = ();
@@ -222,7 +222,7 @@ END
 
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Select stream values: <br> CPU, rtime/CPU, avg number of tracks, stream ratios</h3>";
+    print "<h3 align=center> Select stream jobs  values: <br> CPU, rtime/CPU, total time on the farm,<br> avg number of tracks, stream ratios</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
                                   -values=>\@arrate,
@@ -955,7 +955,7 @@ END
 
      if( $qperiod eq "week") {
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, jobtotalTime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND jobtotalTime > 0.1 AND jobStatus = 'Done' AND NoEvents >= 10 ";
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, jobtotalTime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND jobtotalTime > 0.1 AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -981,7 +981,7 @@ END
 
      }else{
 
-   $sql="SELECT runDay, jobtotalTime, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND  jobtotalTime > 0.1 AND jobStatus = 'Done' AND NoEvents >= 10 ";
+   $sql="SELECT runDay, jobtotalTime, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND  jobtotalTime > 0.1 AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -1150,12 +1150,12 @@ END
 
        if( $qperiod eq "week") {
 
-	$ylabel = "Total time jobs stay on the farm (finished per hour)";
+	$ylabel = "Total time jobs stay on the farm in hours (finished per hour)";
 	$gtitle = "Total time stream jobs stay on the farm (finished per hour) for $qperiod period ";
 
       }else{
 
-	$ylabel = "Total time jobs stay on the farm (finished per day) ";
+	$ylabel = "Total time jobs stay on the farm in hours (finished per day) ";
 	$gtitle = "Total time stream jobs stay on the farm (finished per day) for $qperiod period ";
      }
 
