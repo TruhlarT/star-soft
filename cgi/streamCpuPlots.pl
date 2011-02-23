@@ -222,7 +222,7 @@ END
 
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Select stream jobs  values: <br> CPU, rtime/CPU, total time on the farm,<br> avg number of tracks, stream ratios</h3>";
+    print "<h3 align=center> Select stream jobs  values: <br> CPU, rtime/CPU, <br>total time job stay on the farm,<br> avg number of tracks, stream ratios</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
                                   -values=>\@arrate,
@@ -459,7 +459,7 @@ END
 ########################
  
           foreach my $mfile (@arstream) {
-            if ($nstr{$mfile,$ndt} >= 2 ) {
+            if ($nstr{$mfile,$ndt} >= 3 ) {
               $arcpu{$mfile,$ndt} = $arcpu{$mfile,$ndt}/$nstr{$mfile,$ndt};
                 if ( $arcpu{$mfile,$ndt} > $maxcpu ) {
                     $maxcpu = $arcpu{$mfile,$ndt} ;
@@ -611,7 +611,7 @@ END
           }
 
           foreach my $mfile (@arstream) {
-              if ($nstr{$mfile,$ndt} >= 2 ) {
+              if ($nstr{$mfile,$ndt} >= 3 ) {
                    $rte{$mfile,$ndt} = $rte{$mfile,$ndt}/$nstr{$mfile,$ndt};
 
                   if ( $rte{$mfile,$ndt} > $maxval ) {
@@ -955,7 +955,7 @@ END
 
      if( $qperiod eq "week") {
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, jobtotalTime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND jobtotalTime > 0.1 AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 ";
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, jobtotalTime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND jobtotalTime > 0.1 AND jobtotalTime <= 120 AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -981,7 +981,7 @@ END
 
      }else{
 
-   $sql="SELECT runDay, jobtotalTime, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND  jobtotalTime > 0.1 AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 ";
+   $sql="SELECT runDay, jobtotalTime, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND  jobtotalTime > 0.1 jobtotalTime <= 120 AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -1019,7 +1019,7 @@ END
           }
 
       foreach my $mfile (@arstream) {
-          if ($nstr{$mfile,$ndt} >= 2 ) {
+          if ($nstr{$mfile,$ndt} >= 3 ) {
            $arjbtime{$mfile,$ndt} = $arjbtime{$mfile,$ndt}/$nstr{$mfile,$ndt};
 
             if ( $mfile eq "physics" ) {
