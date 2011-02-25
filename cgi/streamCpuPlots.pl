@@ -21,12 +21,11 @@ use Mysql;
 use Class::Struct;
 
 
-$dbhost="fc2.star.bnl.gov:3386";
+#$dbhost="fc2.star.bnl.gov:3386";
+$dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
 $dbpass="";
 $dbname="operation";
-
-# $dbhost="duvall.star.bnl.gov";
 
 struct JobAttr => {
       vday      => '$',
@@ -1147,8 +1146,6 @@ END
     }elsif(  $srate eq "jobtottime" ) {
 
     @data = ();
-    $max_y = 500.;
-
 
        if( $qperiod eq "week") {
 
