@@ -745,7 +745,7 @@ END
 
 
           foreach my $mfile (@arstream) {
-              if ($nstr{$mfile,$ndt} >= 2 ) {
+              if ($nstr{$mfile,$ndt} >= 3 ) {
                   $artrk{$mfile,$ndt} = $artrk{$mfile,$ndt}/$nstr{$mfile,$ndt};
 
                  if ( $artrk{$mfile,$ndt} > $maxtrk ) {
