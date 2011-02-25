@@ -358,8 +358,10 @@ END
  %nstr = {};
  @numstream = ();
 
-  my $maxcpu = 1;
-  my $maxvalue = 1;
+  my $maxcpu = 1.0;
+  my $maxval = 1.0;
+  my $maxjbtime = 0.1;
+  my $maxtrk = 1.0;
 
 ##################################### average CPU
 
@@ -382,6 +384,7 @@ END
 
  @ndate = ();
  $ndt = 0;
+ $maxcpu = 1.0;
 
    foreach my $tdate (@ardays) {
         @jbstat = ();
@@ -511,13 +514,11 @@ END
  @argamma = ();
  @arhlt = ();
  @arfmsfast = ();
- @ndate = ();
  @arht = ();
  @aratomcules = ();
  @arupc = ();
  @armonitor = ();
  @arpmdftp = ();
- @arjbtime = (); 
 
  @cpupsilon = ();
  @cpmtd = ();
@@ -532,6 +533,8 @@ END
  @cppmdftp = ();
  @ndate = ();
  $ndt = 0;
+ $maxval = 1.0;
+
 
    foreach my $tdate (@ardays) {
         @jbstat = ();
@@ -669,8 +672,8 @@ END
  @trmonitor = ();
  @trpmdftp = ();
  @ndate = ();
-
-  $ndt = 0;
+ $ndt = 0;
+ $maxtrk = 1.0;
 
    foreach my $tdate (@ardays) {
         @jbstat = ();
@@ -745,6 +748,9 @@ END
               if ($nstr{$mfile,$ndt} >= 2 ) {
                   $artrk{$mfile,$ndt} = $artrk{$mfile,$ndt}/$nstr{$mfile,$ndt};
 
+                 if ( $artrk{$mfile,$ndt} > $maxtrk ) {
+                $maxtrk =  $artrk{$mfile,$ndt}
+               }
                   if ( $mfile eq "physics" ) {
                $trphysics[$ndt] = $artrk{$mfile,$ndt};
               }elsif( $mfile eq "mtd" ) {
@@ -947,6 +953,8 @@ END
  @jbpmdftp = ();
  @ndate = ();
  $ndt = 0;  
+ $maxjbtime = 0.1;
+
 
    foreach my $tdate (@ardays) {
         @jbstat = ();
@@ -1011,7 +1019,7 @@ END
             $jbTottime = ($$jset)->jbtot; 
 
 	    $arjbtime{$pstream,$ndt} = $arjbtime{$pstream,$ndt} + $jbTottime;
-        $nstr{$pstream,$ndt}++;
+            $nstr{$pstream,$ndt}++;
 
             $ndate[$ndt] = $pday;
 
@@ -1020,6 +1028,10 @@ END
       foreach my $mfile (@arstream) {
           if ($nstr{$mfile,$ndt} >= 3 ) {
            $arjbtime{$mfile,$ndt} = $arjbtime{$mfile,$ndt}/$nstr{$mfile,$ndt};
+
+                if ( $arjbtime{$mfile,$ndt} > $maxjbtime ) {
+                    $maxjbtime = $arjbtime{$mfile,$ndt} ;
+                }
 
             if ( $mfile eq "physics" ) {
                $jbphysics[$ndt] =  $arjbtime{$mfile,$ndt};
@@ -1159,7 +1171,7 @@ END
      }
 
  @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd ) ;
-   
+  $max_y = $maxjbtime + 0.2*$maxjbtime;    
 
     }elsif(  $srate eq "ntracks" ) {
 
@@ -1177,7 +1189,9 @@ END
      }
 
  @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trht, \@trmonitor, \@trpmdftp, \@trupc, \@tratomcules, \@trmtd ) ;
-   
+    
+ $max_y = $maxtrk + 0.2*$maxtrk;
+ 
      }
   
 	my $xLabelsVertical = 1;
