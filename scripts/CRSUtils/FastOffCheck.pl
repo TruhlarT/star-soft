@@ -60,7 +60,7 @@ if ( -e $lockf ){
     my($delta)=time()-$info[10];
     my($DLIMIT)=14400; # 4 hours
 
-    if ( $delta > $DLIMIT ){  
+    if ( $delta > $DLIMIT ){
 	open(FI,$lockf); chomp($ligne = <FI>); close(FI);
 	my($PPid,$tmp) = split(";",$ligne);
 	if ( $PPid ne "" && $tmp ne ""){
@@ -70,7 +70,7 @@ if ( -e $lockf ){
 	} else {
 	    print "$PID Removing lock file $lockf (could not get previous PID) ".localtime()."\n";
 	}
-	
+
 	rdaq_set_message($SSELF,"A lock file exist","Age reached ".(int($DLIMIT/6/6)/100)." hours - will remove and proceed");
 	unlink($lockf);
     } else {
@@ -128,12 +128,12 @@ if ($UPDATE == 0){
     @all = `$FIND $JOBDIR/ -maxdepth 1 -type f -mtime +$t`;
     foreach $el (@all){
 	chomp($el);
-	$dest =  $el; 
+	$dest =  $el;
 	$dest =~ s/archive\//archive\/old\//;
 	print "$PID $el moved to old\n" if rename($el,$dest);
     }
     opendir(DIR,"$JOBDIR");
-    
+
     #
     # read target disk in whole - cahe the full file list
     #
@@ -144,8 +144,8 @@ if ($UPDATE == 0){
 	$FILES{"$file"} = $loc;
     }
     undef(@FILES);
-    
-    
+
+
     $TAKEN = $COUNT = 0;
 
     # do the cleaning by comparing to the job directory - if un-available, this
@@ -162,7 +162,7 @@ if ($UPDATE == 0){
 	    if ($DEBUG){
 		if ($file =~ m/$DEBUGR/){ print "$PID DEBUG **** found it $file ***\n";}
 	    }
-		
+
 
 	    $tree =~ s/_/\//g;
 	    chop($tree);        # remove trailing '/'
@@ -191,7 +191,7 @@ if ($UPDATE == 0){
 	    } else {
 		if ( ! -e "$SCRATCH/$file.done"){
 		    if ($DEBUG){
-			if ($file =~ m/$DEBUGR/){ 
+			if ($file =~ m/$DEBUGR/){
 			    print "$PID DEBUG **** Did NOT find $SCRATCH/$file.done [treat]\n";
 			}
 		    }
@@ -206,7 +206,7 @@ if ($UPDATE == 0){
 		    # print "$PID Searching for $file\n";
 		    # chomp($lfile = `cd $TARGET ; $FIND -type f -name $file.MuDst.root`);
 		    if ( ! defined($lfile = $FILES{"$file.MuDst.root"}) ){  $lfile = "";}
-		    
+
 		    if( $lfile ne ""){
 			# found it so it is done - if not, it may be on another disk
 			# .checked file is really what will disable the check though
@@ -234,7 +234,7 @@ if ($UPDATE == 0){
 			push(@MOVE,$jfile);
 		    } else {
 			if ($DEBUG){
-			    if ($file =~ m/$DEBUGR/){ 
+			    if ($file =~ m/$DEBUGR/){
 				print "$PID DEBUG **** Found $SCRATCH/$file.done [skip]\n";
 			    }
 			}
@@ -363,7 +363,7 @@ if ($UPDATE == 0){
 		rdaq_set_location($obj,0,$file);
 		print "$PID $path $ffile not found\n";
 	    } else {
-		# delete only if MuDST is found 
+		# delete only if MuDST is found
 		unlink ($efile) if ( -e "$path/$efile" && $RMEVROOT );
 
 		foreach $tfile (("$path/$ffile","$path/$qfile")){
