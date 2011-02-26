@@ -339,7 +339,7 @@ if ( $ThisYear == 2005 ){
     $DCHAIN{"AuAu"} = "pp2008a,ITTF,BEmcChkStat,QAalltrigs";
     $SCALIB{"AuAu"} = "OptLaser";
 
-    
+
 } elsif ( $ThisYear == 2009 ) {
     $TREEMODE= 1;
     $LIB     = "dev";
@@ -387,11 +387,11 @@ if ( $ThisYear == 2005 ){
 
     # at least, p+p calib
     $DCHAIN{"PPPP"} = "pp2009a,ITTF,BEmcChkStat,QAalltrigs,btofDat,Corr3,-hitfilt";
-#    $DCHAIN{"PPPP"} = "pp2009a,ITTF,BEmcChkStat,btofDat,Corr3,-hitfilt"; 
+#    $DCHAIN{"PPPP"} = "pp2009a,ITTF,BEmcChkStat,btofDat,Corr3,-hitfilt";
    # $DCHAIN{"PPPP"} = "pp2009b,ITTF,BEmcChkStat,QAalltrigs,btofDat"; # <-- switch to this if trgd crash
     $SCALIB{"PPPP"} = "OptLaser";
 
-    
+
 } elsif ( $ThisYear == 2010 ) {
     $TREEMODE= 1;
     $LIB     = "dev";
@@ -451,19 +451,19 @@ if ( $ThisYear == 2005 ){
     $DCHAIN{"PPPP"} = "pp2010a,btof,VFPPVnoCTB,beamline,BEmcChkStat,QAalltrigs,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
 
     # allow chain switch on condition matching
-    # introduced in 2010, syntax is 
+    # introduced in 2010, syntax is
     #    collision;name-match;... (could be other match later)
     #
     # Note that an empty string for a match will always pass the selection (by design)
     # and a partial match such as "Au" will also pass the criteria.
     #
-    $MCHAIN{"AuAu;upc"}  = $DCHAIN{"PPPP"};  
-    
+    $MCHAIN{"AuAu;upc"}  = $DCHAIN{"PPPP"};
+
     $SCALIB{"AuAu"}      = "OptLaser";
     $SCALIB{"PPPP"}      = "OptLaser";
 
-       
-    
+
+
 } elsif ( $ThisYear == 2011 ) {
     $TREEMODE= 1;
     $LIB     = "dev";
@@ -540,18 +540,18 @@ if ( $ThisYear == 2005 ){
     $DCHAIN{"PPPP"} = "pp2011a,btof,VFPPVnoCTB,beamline,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
 
     # allow chain switch on condition matching
-    # introduced in 2010, syntax is 
+    # introduced in 2010, syntax is
     #    collision;name-match;... (could be other match later)
     #
     # Note that an empty string for a match will always pass the selection (by design)
     # and a partial match such as "Au" will also pass the criteria.
     #
-    $MCHAIN{"AuAu;upc"}  = $DCHAIN{"PPPP"};  
-    
+    $MCHAIN{"AuAu;upc"}  = $DCHAIN{"PPPP"};
+
     $SCALIB{"AuAu"}      = "OptLaser";
     $SCALIB{"PPPP"}      = "OptLaser";
 
-    
+
 } else {
     # Well, at first you may get that message ... should tell you that
     # you have to add some default values.
@@ -656,7 +656,7 @@ if ($TARGET !~ m/^\d+$/){
 	else         {  $ltarget = $target;}
 
 	if ( ! -e "$ltarget"){
-	    print "$SELF : $ltarget does not exists\n"; 
+	    print "$SELF : $ltarget does not exists\n";
 	    rdaq_set_message($SSELF,
 			     "Target disk space warning",
 			     "$ltarget does not exists");
@@ -774,7 +774,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 
     print "$SELF : Mode=direct Queue count Tot=$TOT\n";
 
-    
+
     $TOT = 10;
 
     $time = localtime();
@@ -827,7 +827,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		    # open(FD,">>$HOME/debug.log"); print FD "\n";
 		    # $z = 0; foreach my $f (@Fs){ @zozo = split(" ",$f); $z++; print FD "0 $z - $zozo[0]\n";} close(FD);
 		    &RandArray(\@Fs);
-		    # open(FD,">>$HOME/debug.log"); 
+		    # open(FD,">>$HOME/debug.log");
 		    # $z = 0; foreach my $f (@Fs){ @zozo = split(" ",$f); $z++; print FD "1 $z - $zozo[0]\n";} close(FD);
 
 		    push(@Xfiles,@Fs[0..$num]);
@@ -846,7 +846,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		# may dominate by a lot (making st_upc for example come at the end) so
 		# we take equal amount of each and slice to $W instead.
 		#
-		my(@volatile) = split(/\|/,$COND);  
+		my(@volatile) = split(/\|/,$COND);
 		# count non-zero values
 		$num = 0; foreach my $t (@volatile){  if ( $t ne ""){ $num++;}}
 		#print "DEBUG --> We have $num in [$COND]\n";
@@ -857,14 +857,14 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		foreach my $t (@volatile){
 		    push(@Fs,rdaq_get_files($obj,0,$W, 1,\%SEL,$t));
 		}
-		
+
 		#print "Got $#Fs files $HOME\n";
 		#open(FD,">>$HOME/debug.log"); print FD "\n";
-		#$z = 0; 
-		#foreach my $f (@Fs){ @zozo = split(" ",$f); $z++; print FD "0 $z - ".($z<$W?"Y":"N")." - $zozo[0]\n";} 
+		#$z = 0;
+		#foreach my $f (@Fs){ @zozo = split(" ",$f); $z++; print FD "0 $z - ".($z<$W?"Y":"N")." - $zozo[0]\n";}
 		&RandArray(\@Fs);
-		#$z = 0; 
-		#foreach my $f (@Fs){ @zozo = split(" ",$f); $z++; print FD "1 $z - ".($z<$W?"Y":"N")." - $zozo[0]\n";} 
+		#$z = 0;
+		#foreach my $f (@Fs){ @zozo = split(" ",$f); $z++; print FD "1 $z - ".($z<$W?"Y":"N")." - $zozo[0]\n";}
 		#close(FD);
 		push(@Files,@Fs[0..$W]);
 
@@ -1009,7 +1009,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 	    # a new run by a run number only on a line.
 	    $line  =~ s/^\s*(.*?)\s*$/$1/;
 	    @items = split(" ",$line);
-	    
+
 	    # eliminate duplicate runs first
 	    if ( defined($KRUN{$items[0]}) ){
 		print "$SELF : Ignoring [$line] duplicate of previous record $KRUN{$items[0]} (already in?)\n";
@@ -1225,10 +1225,10 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 
 } elsif ($TARGET =~ m/(^X\/)(.*)/ ) {
     #
-    # External processing mode 
+    # External processing mode
     # TODO: cleanup globals vars
     #
-    #print "$SELF : Z processing is being reshaped\n";  
+    #print "$SELF : Z processing is being reshaped\n";
 
     $pcount = $#PIPEOFF+1;
     $sanity = int(($pcount)/2)*2;
@@ -1245,9 +1245,9 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 	#    }
 	#}
 	#print "Debug ".join(";",@PIPEFILES)."\n";
-	$TOT = 100;
+	$TOT = 150;
 	if( ($obj = rdaq_open_odatabase()) ){
-	    if( substr($TARGET,0,1) eq "X" ){	
+	    if( substr($TARGET,0,1) eq "X" ){
 		my($user,$i,$kind,$wght);
 		my($num);
 		my(%Cond);
@@ -1263,8 +1263,8 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 
 		undef(@SKIPPED);
 		undef(@RANDREJECT);
-		undef(@OKFILES);  
-		undef(@OKFRMT); 
+		undef(@OKFILES);
+		undef(@OKFRMT);
 
 		$num = int($TOT/(($#PIPEOFF+1)/2))+1;
 
@@ -1274,7 +1274,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		    if ( 2*int(($i+1)/2) == $i ){
                         # the kind of streams
 			$kind = $PIPEOFF[$i];
-			#print "Recovering i=$i kind=$kind (pending)\n"; 
+			#print "Recovering i=$i kind=$kind (pending)\n";
 		    } else {
 			# the weight of stream to transfer
 			$wght= $PIPEOFF[$i];
@@ -1307,7 +1307,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		#    @items = split(" ",$f);
 		#    print "\t$items[0]\n";
 		#}
-		    
+
 		# don't bother using the module - generate a file
 		# list and submit verbatim
 		my($FOUT)="/tmp/JobSubmit-$$.lis";
@@ -1344,7 +1344,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 			rdaq_set_chain($obj,"Restored-for-external-processing-on-$target",@OKFILES);
 		    }
 		    if ( $#RANDREJECT != -1){
-			rdaq_set_xstatus($obj,$ID,8,@RANDREJECT);  # mark Random reject 
+			rdaq_set_xstatus($obj,$ID,8,@RANDREJECT);  # mark Random reject
 		    }
 		    if ( $#SKIPPED != -1 ){
 			rdaq_set_xstatus($obj,$ID,4,@SKIPPED);     # mark skipped
@@ -1367,10 +1367,10 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
     # Overwrite queue if necessary
     print "$SELF : Target Z disabled\n";
     exit;
-    
+
 
     my(%Cond);
-    
+
     foreach $key (keys %XCONDITION){
 	$Cond{$key} = $XCONDITION{$key};
     }
@@ -1384,30 +1384,30 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 	    $CHAIN   = $DCHAIN{"PPPP"}.",ezTree,-Sti,-genvtx,-Ftpc,-SvtD,-fcf,-fcl";
 	}
     }
-    
+
     $USEQ[0] = $tmpUQ if ( defined($tmpUQ) );
     $SPILL[0]= $tmpSP if ( defined($tmpSP) );
-    
+
     # Default mode is submit. Target is a path
     # get the number of possible jobs per queue.
     #print "$SELF : Using $USEQ[1] $SPILL[1]\n";
     $TOT = CRSQ_getcnt($USEQ[0],$SPILL[0],$PAT,1);
     $TOT = 1 if ($DEBUG);
-	
+
     print "$SELF : ezTree processing, checking $TOT\n";
-	
+
     $time = localtime();
     if ($TOT > 0 && ! -e $LOCKF){
 	open(FL,">$LOCKF");
 	close(FL);
 	print "$SELF : We need to submit $TOT jobs\n";
-	    
+
 	# Check $TARGET for sub-mode
 	# If $TARGET starts with a ^, take only the top, otherwise
 	# go into the 'crawling down the list' mode. We will start
 	# with the second mode (gives an idea of how often we have
 	# a dead time process earlier runs).
-	
+
 	if( ($obj = rdaq_open_odatabase()) ){
 	    if( substr($TARGET,0,1) eq "Z" ){
 		# Simple with a perl module isn't it.
@@ -1518,7 +1518,7 @@ sub Submit
 		" No chain options declared. No default for [$coll] either.\n";
 	    return 0;
 	}
-	
+
 	# check if there is a specific chain for a file match
 	foreach $key ( keys %MCHAIN ){
 	    my($collision,$nmpat) = split(";",$key);
@@ -1531,7 +1531,7 @@ sub Submit
 		}
 	    }
 	}
-	
+
     }
 
     if($mode == 2){
@@ -1603,7 +1603,7 @@ sub Submit
     #if ($file !~ m/st_zerobias/){
     #	print "$SELF : Info : Skipping $file (special hardcoded exclusion)\n";
     #	push(@SKIPPED,$file);
-    #	return 0;	
+    #	return 0;
     #}
 
 
@@ -1735,20 +1735,20 @@ __EOH__
 
 	# SEVERAL OUTPUT "MAY" BE CREATED, NOTE THAT IN CALIBF MODE, $tags WILL
 	# BE CHANGED TO TAKE INTO ACCOUNT THE laser.root FILE.
-	
+
 	# first, decide if event.root should be saved - once every 10 ...
 	$AllFiles = ($fileseq % 10 == 0 && $fileseq !=0) || $fileseq ==1;
-	if ( $AllFiles){ 
+	if ( $AllFiles){
 	    $hint = "filseq check lead to use event.root";
 
 	    # ... and do regular MC i.e. toss a coin
 	    $prob = int(rand()*100);
-	    if ($prob >= $FRACTT){ 	
+	    if ($prob >= $FRACTT){
 		# set to false
 		$AllFiles = 1==0;
 		$hint = "filseq check -> event.root but disabled by regular MC ($prob >=  $FRACTT)";
-	    } 
-	} else { 
+	    }
+	} else {
 	    $hint = "standard file selection";
 	}
 
@@ -1916,8 +1916,8 @@ sub RandomPick
 # This implements the Fisher-Yates technique. I use splicing
 # abilities of perl for the permunation (no need for an intermediate
 # var).
-#    
-sub RandArray 
+#
+sub RandArray
 {
     my($array) = @_;
     my($i,$j);
@@ -1930,7 +1930,7 @@ sub RandArray
 }
 
 
-    
+
 #
 # Global xit routine in case cleanups are needed
 #
