@@ -39,7 +39,7 @@ $UPDATE  = shift(@ARGV) if ( @ARGV );   # 0, scan and delete if old,
 exit if ( ! -d $TARGET);                # do not lose time, leave
 
 # You can debug a specific run #
-$DEBUGR = ""; # 8348080;
+$DEBUGR = ""; # 12058024; # 8348080;
 $RMEVROOT  = 1==1;                      # could be a parameter later, delete event.root files
 
 # Assume standard tree structure
@@ -71,7 +71,8 @@ if ( -e $lockf ){
 	    print "$PID Removing lock file $lockf (could not get previous PID) ".localtime()."\n";
 	}
 
-	rdaq_set_message($SSELF,"A lock file exist","Age reached ".(int($DLIMIT/6/6)/100)." hours - will remove and proceed");
+	rdaq_set_message($SSELF,"A lock file exist",
+			 "Age reached ".(int($DLIMIT/6/6)/100)." hours - will remove and proceed");
 	unlink($lockf);
     } else {
 	print "$PID Skipping - $lockf is present\n";
@@ -204,8 +205,8 @@ if ($UPDATE == 0){
 		    }
 
 		    # print "$PID Searching for $file\n";
-		    # chomp($lfile = `cd $TARGET ; $FIND -type f -name $file.MuDst.root`);
-		    if ( ! defined($lfile = $FILES{"$file.MuDst.root"}) ){  $lfile = "";}
+		    chomp($lfile = `cd $TARGET ; $FIND -type f -name $file.MuDst.root`);
+		    #if ( ! defined($lfile = $FILES{"$file.MuDst.root"}) ){  $lfile = "";}
 
 		    if( $lfile ne ""){
 			# found it so it is done - if not, it may be on another disk
@@ -235,7 +236,7 @@ if ($UPDATE == 0){
 		    } else {
 			if ($DEBUG){
 			    if ($file =~ m/$DEBUGR/){
-				print "$PID DEBUG **** Found $SCRATCH/$file.done [skip]\n";
+				print "$PID DEBUG **** Found $SCRATCH/$file.done or lfile is null [skip]\n";
 			    }
 			}
 
@@ -406,7 +407,7 @@ sub Die
     &end();
 
     foreach $mess (@MSG){
-	chomP($mess);
+	chomp($mess);
 	die "$mess\n";
     }
 }
