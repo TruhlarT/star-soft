@@ -211,7 +211,7 @@ END
 
     print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Select production series <br></h3>";
+    print "<h3 align=center> Production series <br></h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
@@ -220,7 +220,7 @@ END
  
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Select stream values: <br> CPU, rtime/CPU, avg number of tracks, stream ratios</h3>";
+    print "<h3 align=center> Stream values: <br> CPU, rtime/CPU, avg number of tracks, stream ratios</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
 	                          -values=>\@arrate,
@@ -229,7 +229,7 @@ END
 
     print "<p>";
     print "</td><td>";  
-    print "<h3 align=center> Select Date of production<br></h3>";
+    print "<h3 align=center> Date of production<br></h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'pday',
                                   -values=>\@rvdays,
