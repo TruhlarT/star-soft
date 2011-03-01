@@ -665,7 +665,7 @@ sub beginHtml {
 print <<END;
   <html>
    <head>
-          <title>CPU versus RealTime usage</title>
+          <title>CPU and RealTime production usage</title>
    </head>
    <body BGCOLOR=\"#ccffff\">
      <h1 align=center>No Data for $qprod production and $qday day </h1>
