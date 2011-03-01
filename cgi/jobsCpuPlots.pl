@@ -514,7 +514,9 @@ END
 
     &StDbProdDisconnect();
 
-    my @data = ();
+my @data = ();
+my $ylabel;
+my $gtitle; 
 
     my $graph = new GD::Graph::linespoints(750,650);
 
@@ -538,6 +540,8 @@ END
 #       $legend[3] = "st_upsilon   ";
     
        if( $srate eq "cpu" )  {
+
+ @data = ();
 
 	$ylabel = "CPU in sec/evt for every jobs";
 	$gtitle = "CPU in sec/evt for different stream data for $qday day";
@@ -574,23 +578,20 @@ END
 
      }
 
-	my $ylabel;
-	my $gtitle; 
-	my $xLabelsVertical = 1;
-	my $xLabelPosition = 0;
-	my $xLabelSkip = 1;
-	my $skipnum = 1;
+ my $xLabelsVertical = 1;
+ my $xLabelPosition = 0;
+ my $xLabelSkip = 1;
+ my $skipnum = 1;
  
+ $min_y = 0;
 
-	$min_y = 0;
+  if (scalar(@ndate) >= 40 ) {
+     $skipnum = int(scalar(@ndate)/20);
+ }
 
-	if (scalar(@ndate) >= 40 ) {
-	    $skipnum = int(scalar(@ndate)/20);
-	}
+ $xLabelSkip = $skipnum;
 
-	$xLabelSkip = $skipnum;
-
-	$graph->set(x_label => "Datetime of Production",
+	$graph->set(x_label => "Datetime of job's compeletion",
 	            y_label => $ylabel,
                     title   => $gtitle,
                     y_tick_number => 14,
