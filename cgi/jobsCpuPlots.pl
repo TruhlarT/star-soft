@@ -564,8 +564,6 @@ END
         $ylabel = "Total jobs time on the farm";
 	$gtitle = "Total jobs time on the farm for different stream data for $qday day";
 
-$maxjbtime
-
        $max_y = $maxjbtime + 0.2*$maxjbtime; 
 #      $max_y = int($max_y);
   
