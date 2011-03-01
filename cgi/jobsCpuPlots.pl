@@ -214,7 +214,7 @@ END
 
     print "<p>";
     print "</td><td>";  
-    print "<h3 align=center> Period of monitoring</h3>";
+    print "<h3 align=center> Date of production</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'pday',
                                   -values=>\@rvdays,
