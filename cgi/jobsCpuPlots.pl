@@ -567,7 +567,7 @@ my $gtitle;
 
  @data = ();
 
-        $ylabel = "Total jobs time on the farm";
+        $ylabel = "Total jobs time on the farm in hours";
 	$gtitle = "Total jobs time on the farm for different stream data for $qday day";
 
        $max_y = $maxjbtime + 0.2*$maxjbtime; 
