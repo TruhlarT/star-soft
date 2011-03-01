@@ -31,7 +31,8 @@ $dbname="operation";
 struct JobAttr => {
       vday      => '$',
       cpuv      => '$',
-      rtmv      => '$', 
+      rtmv      => '$',
+      jbtot     => '$',
       strv      => '$'
 };
 
@@ -58,7 +59,7 @@ my @prodyear = ("2009","2010");
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("cpu","rtime/cpu");
+my @arrate = ("cpu","rtime/cpu","jobtottime");
 
 my @arrprod = ();
 my @arstream = ();
@@ -70,10 +71,12 @@ my $phr;
 my $pcpu;
 my $prtime;
 my $pstream;
+my $jbTottime;
 my $pryear = "2010";
 
 my %rte = {};
 my %nstr = {};
+
 my @arupsilon = ();
 my @armtd = ();
 my @arphysics = ();
@@ -102,6 +105,23 @@ my @cpatomcules = ();
 my @cpupc = ();
 my @cpmonitor = ();
 my @cppmdftp = (); 
+
+my @jbupsilon = ();
+my @jbmtd = ();
+my @jbphysics = ();
+my @jbgamma = ();
+my @jbhlt = ();
+my @jbfmsfast = ();
+my @jbht = ();
+my @jbatomcules = ();
+my @jbupc = ();
+my @jbmonitor = ();
+my @jbpmdftp = ();
+
+ my $maxval = 1;
+ my $maxcpu = 0;
+ my $maxjbtime = 0.1;
+
 
 #my @arperiod = ("day","week");
 
@@ -184,7 +204,7 @@ END
   
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Select CPU or ratio Rtime/CPU</h3>";
+    print "<h3 align=center> Select CPU, ratio Rtime/CPU <br> or total jobs time on the farm </h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
                                   -values=>\@arrate,
@@ -280,6 +300,7 @@ END
 
  %rte = {};
  %nstr = {};
+ 
  @arupsilon = ();
  @armtd = ();
  @arphysics = ();
@@ -291,6 +312,7 @@ END
  @arupc = ();
  @armonitor = ();
  @arpmdftp = ();
+
  @cpupsilon = ();
  @cpmtd = ();
  @cpphysics = ();
@@ -303,17 +325,104 @@ END
  @cpmonitor = ();
  @cppmdftp = (); 
 
- my $maxvalue = 1;
- my $maxcpu = 0;
-
- @jbstat = ();  
- $nstat = 0;
+ @jbupsilon = ();
+ @jbmtd = ();
+ @jbphysics = ();
+ @jbgamma = ();
+ @jbhlt = ();
+ @jbfmsfast = ();
+ @jbht = ();
+ @jbatomcules = ();
+ @jbupc = ();
+ @jbmonitor = ();
+ @jbpmdftp = ();
 
  $ndt = 0;
  @ndate = ();
 
+   if( $srate eq "jobtottime" ) {
 
     foreach  $tdate (@arhr) {
+
+        @jbstat = ();
+        $nstat = 0;
+
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, jobtotalTime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND jobtotalTime > 0.1  AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 "; 
+
+	    $cursor =$dbh->prepare($sql)
+	      || die "Cannot prepare statement: $DBI::errstr\n";
+	    $cursor->execute($qprod);
+
+	while(@fields = $cursor->fetchrow) {
+	    my $cols=$cursor->{NUM_OF_FIELDS};
+	    $fObjAdr = \(JobAttr->new());
+
+	    for($i=0;$i<$cols;$i++) {
+		my $fvalue=$fields[$i];
+		my $fname=$cursor->{NAME}->[$i];
+                # print "$fname = $fvalue\n" ;
+
+		($$fObjAdr)->vday($fvalue)    if( $fname eq 'PDATE');
+                ($$fObjAdr)->jbtot($fvalue)   if( $fname eq 'jobtotalTime');
+		($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
+
+	    }
+	    $jbstat[$nstat] = $fObjAdr;
+	    $nstat++;
+         }
+  
+  }
+
+###########
+
+     foreach $jset (@jbstat) {
+	    $phr       = ($$jset)->vday;
+            $jbTottime = ($$jset)->jbtot;
+	    $pstream   = ($$jset)->strv;
+
+           $ndate[$ndt] = $phr;  
+
+           if ( $jbTottime > $maxjbtime ) {
+            $maxjbtime = $jbTottime ;
+           }
+
+	   if ( $pstream eq "physics" ) {
+	       $jbphysics[$ndt] = $jbTottime;
+	   }elsif( $pstream eq "mtd" ) {
+               $jbmtd[$ndt] = $jbTottime;
+           }elsif( $pstream eq "upsilon" ) {
+               $jbupsilon[$ndt] = $jbTottime; 
+           }elsif( $pstream eq "gamma" ) {
+               $jbgamma[$ndt] = $jbTottime; 
+           }elsif( $pstream eq "hlt" ) {
+               $jbhlt[$ndt] = $jbTottime;  
+           }elsif( $pstream eq "fmsfast" ) {
+               $jbfmsfast[$ndt] =  $jbTottime; 
+           }elsif( $pstream eq "ht" ) {
+               $jbht[$ndt] = $jbTottime;  
+           }elsif( $pstream eq "atomcules" ) {
+               $jbatomcules[$ndt] = $jbTottime; 
+           }elsif( $pstream eq "monitor" ) {
+               $jbmonitor[$ndt] = $jbTottime;  
+           }elsif( $pstream eq "pmdftp" ) {
+               $jbpmdftp[$ndt] = $jbTottime;   
+           }elsif( $pstream eq "upc" ) {
+               $jbupc[$ndt] =  $jbTottime;
+	       }
+	    $ndt++;
+	    }
+
+###################
+
+   }else{
+
+ $ndt = 0;
+ @ndate = ();
+
+    foreach  $tdate (@arhr) {
+
+     @jbstat = ();
+     $nstat = 0;
 
   $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 "; 
 
@@ -343,7 +452,6 @@ END
   }
 
 ###########
-
 
      foreach $jset (@jbstat) {
 	    $phr     = ($$jset)->vday;
@@ -400,7 +508,7 @@ END
 	    $ndt++;
 	    }
 	}
-
+     }
 
     &StDbProdDisconnect();
 
@@ -437,17 +545,32 @@ END
 
     @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpatomcules, \@cpmtd ) ; 
 
-      }else{
+      }elsif( $srate eq "rtime/cpu"){
 
  @data = ();
 
         $ylabel = "Ratio RealTime/CPU for every jobs";
 	$gtitle = "Ratio RealTime/CPU for different stream data for $qday day";
 
-#       $max_y = $maxval + 0.2*$maxval; 
+       $max_y = $maxval + 0.2*$maxval; 
 #      $max_y = int($max_y);
   
     @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@rtatomcules, \@armtd ) ;
+
+     }elsif( $srate eq "jobtottime"){
+
+ @data = ();
+
+        $ylabel = "Total jobs time on the farm";
+	$gtitle = "Total jobs time on the farm for different stream data for $qday day";
+
+$maxjbtime
+
+       $max_y = $maxjbtime + 0.2*$maxjbtime; 
+#      $max_y = int($max_y);
+  
+    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd ) ;
+
 
      }
 
