@@ -1245,7 +1245,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 	#    }
 	#}
 	#print "Debug ".join(";",@PIPEFILES)."\n";
-	$TOT = 150;
+	$TOT = 200;
 	if( ($obj = rdaq_open_odatabase()) ){
 	    if( substr($TARGET,0,1) eq "X" ){
 		my($user,$i,$kind,$wght);
