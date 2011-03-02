@@ -1113,7 +1113,7 @@ END
   @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@aratomcules, \@armtd ) ;
 
       $max_y = $maxval + 0.2*$maxval;
-#      $max_y = int($max_y);
+#     $max_y = int($max_y);
 
      }elsif(  $srate eq "cpu" ) {
 
@@ -1133,8 +1133,8 @@ END
 
   @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpatomcules, \@cpmtd ) ;
 
-        $max_y = $maxcpu + 0.2*$maxcpu;
-#       $max_y = int($max_y);
+       $max_y = $maxcpu + 0.2*$maxcpu;
+       $max_y = int($max_y);
 
   }elsif(  $srate eq "stream_rate" ) {
 
@@ -1171,7 +1171,8 @@ END
      }
 
  @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd ) ;
-  $max_y = $maxjbtime + 0.2*$maxjbtime;    
+    $max_y = $maxjbtime + 0.2*$maxjbtime;    
+    $max_y = int($max_y);
 
     }elsif(  $srate eq "ntracks" ) {
 
@@ -1190,8 +1191,9 @@ END
 
  @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trht, \@trmonitor, \@trpmdftp, \@trupc, \@tratomcules, \@trmtd ) ;
     
- $max_y = $maxtrk + 0.2*$maxtrk;
- 
+      $max_y = $maxtrk + 0.2*$maxtrk;
+      $max_y = int($max_y); 
+
      }
   
 	my $xLabelsVertical = 1;
