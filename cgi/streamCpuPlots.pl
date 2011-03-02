@@ -1161,12 +1161,12 @@ END
 
        if( $qperiod eq "week") {
 
-	$ylabel = "Total time jobs stay on the farm in hours (finished per hour)";
+	$ylabel = "Total time jobs stay on the farm in hours";
 	$gtitle = "Total time jobs stay on the farm (finished per hour) for $qperiod period ";
 
       }else{
 
-	$ylabel = "Total time jobs stay on the farm in hours (finished per day) ";
+	$ylabel = "Total time jobs stay on the farm in hours ";
 	$gtitle = "Total time jobs stay on the farm (finished per day) for $qperiod period ";
      }
 
