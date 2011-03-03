@@ -158,7 +158,9 @@ my @jbmonitor = ();
 my @jbpmdftp = ();
 
  
-my @arperiod = ("week","1_month","2_months","3_months","4_months","5_months","6_months");
+#my @arperiod = ("week","1_month","2_months","3_months","4_months","5_months","6_months");
+
+my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months");
 
   &StDbProdConnect();
 
@@ -235,7 +237,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'period',
                                   -values=>\@arperiod,
-                                  -default=>week,
+                                  -default=>1_month,
                                   -size =>1); 
 
     
