@@ -500,16 +500,126 @@ END
 
    } # foreach tdate
 
+######################################  average number of tracks
+
+    }elsif( $srate eq "ntracks" ) {
+
+ %artrk = {};
+ %nstr = {};
+
+ @trupsilon = ();
+ @trmtd = ();
+ @trphysics = ();
+ @trgamma = ();
+ @trhlt = ();
+ @trfmsfast = ();
+ @trht = ();
+ @tratomcules = ();
+ @trupc = ();
+ @trmonitor = ();
+ @trpmdftp = ();
+ @ndate = ();
+ $ndt = 0;
+ $maxtrk = 1.0;
+
+   foreach my $tdate (@arhr) {
+	@jbstat = ();  
+	$nstat = 0;
+
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, avg_no_tracks, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? and avg_no_tracks >= 1 AND jobStatus = 'Done' AND NoEvents >= 10 ";
+
+            $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n";
+
+            $cursor->execute($qprod);
+
+        while(@fields = $cursor->fetchrow) {
+            my $cols=$cursor->{NUM_OF_FIELDS};
+            $fObjAdr = \(JobAttr->new());
+
+            for($i=0;$i<$cols;$i++) {
+                my $fvalue=$fields[$i];
+                my $fname=$cursor->{NAME}->[$i];
+                # print "$fname = $fvalue\n" ;
+
+                ($$fObjAdr)->vday($fvalue)    if( $fname eq 'PDATE');
+                ($$fObjAdr)->strk($fvalue)   if( $fname eq 'avg_no_tracks');
+                ($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
+
+
+            }
+            $jbstat[$nstat] = $fObjAdr;
+            $nstat++;
+        }
+
+
+     foreach $jset (@jbstat) {
+           $pday      = ($$jset)->vday;
+           $ptrack   = ($$jset)->strk;
+           $pstream   = ($$jset)->strv;
+
+           $artrk{$pstream,$ndt} = $artrk{$pstream,$ndt} + $ptrack;
+           $nstr{$pstream,$ndt}++;
+
+           $ndate[$ndt] = $pday;
+
+          }
+
+          foreach my $mfile (@arstream) {
+             if ($nstr{$mfile,$ndt} >= 2 ) {
+             $artrk{$mfile,$ndt} = $artrk{$mfile,$ndt}/$nstr{$mfile,$ndt};
+
+             if ( $artrk{$mfile,$ndt} > $maxtrk ) {
+             $maxtrk =  $artrk{$mfile,$ndt}
+               }
+
+                  if ( $mfile eq "physics" ) {
+               $trphysics[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "mtd" ) {
+               $trmtd[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "upsilon" ) {
+               $trupsilon[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "gamma" ) {
+               $trgamma[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "hlt" ) {
+               $trhlt[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "fmsfast" ) {
+               $trfmsfast[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "ht" ) {
+               $trht[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "atomcules" ) {
+               $tratomcules[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "monitor" ) {
+               $trmonitor[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "pmdftp" ) {
+               $trpmdftp[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "upc" ) {
+               $trupc[$ndt] =  $artrk{$mfile,$ndt};
+
+           }else{
+             next;
+           }
+            }
+          }
+
+        $ndt++;
+
+   } # foreach tdate
+
+
 
 #######################################   cpu, rtime/cpu
 
  }else{
 
+ @ndate = ();
+ $ndt = 0;
+
     foreach my $tdate (@arhr) {
 	@jbstat = ();  
 	$nstat = 0;
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, RealTime_per_evt, avg_no_tracks, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 "; 
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 "; 
 
 	    $cursor =$dbh->prepare($sql)
 	      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -527,7 +637,6 @@ END
 		($$fObjAdr)->vday($fvalue)    if( $fname eq 'PDATE');
 		($$fObjAdr)->cpuv($fvalue)    if( $fname eq 'CPU_per_evt_sec');
 		($$fObjAdr)->rtmv($fvalue)    if( $fname eq 'RealTime_per_evt');
-                ($$fObjAdr)->strk($fvalue)    if( $fname eq 'avg_no_tracks'); 
 		($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
 
 
@@ -542,13 +651,11 @@ END
 	    $pcpu     = ($$jset)->cpuv;
 	    $prtime   = ($$jset)->rtmv;
 	    $pstream  = ($$jset)->strv;
-            $ptrack   = ($$jset)->strk;
 
     if( $pcpu >= 0.001) {             
 
         $rte{$pstream,$ndt} = $rte{$pstream,$ndt} + $prtime/$pcpu;
         $arcpu{$pstream,$ndt} = $arcpu{$pstream,$ndt} + $pcpu;
-        $artrk{$pstream,$ndt} = $artrk{$pstream,$ndt} + $ptrack;
         $nstr{$pstream,$ndt}++;
          
             $ndate[$ndt] = $pday;    
@@ -560,32 +667,24 @@ END
           foreach my $mfile (@arstream) {      
               if ($nstr{$mfile,$ndt} >= 3 ) {
                   $arcpu{$mfile,$ndt} = $arcpu{$mfile,$ndt}/$nstr{$mfile,$ndt};
-                  $rte{$mfile,$ndt} = $rte{$mfile,$ndt}/$nstr{$mfile,$ndt};
-                  $artrk{$mfile,$ndt} = $artrk{$mfile,$ndt}/$nstr{$mfile,$ndt}; 
+                  $rte{$mfile,$ndt} = $rte{$mfile,$ndt}/$nstr{$mfile,$ndt}; 
                   if ( $rte{$mfile,$ndt} > $maxval ) {
                 $maxval =  $rte{$mfile,$ndt}
 	         }
                   if ( $arcpu{$mfile,$ndt} > $maxcpu ) {
                       $maxcpu = $arcpu{$mfile,$ndt} ;
                   }
-                if ( $artrk{$mfile,$ndt} > $maxtrk ) {
-                $maxtrk =  $artrk{$mfile,$ndt}
-               }
-
 		  if ( $mfile eq "physics" ) {
 	       $arphysics[$ndt] = $rte{$mfile,$ndt};
                $cpphysics[$ndt] = $arcpu{$mfile,$ndt};
-               $trphysics[$ndt] = $artrk{$mfile,$ndt};
  	       $nstphysics[$ndt] = $nstr{$mfile,$ndt};              
 	      }elsif( $mfile eq "mtd" ) {
                $armtd[$ndt] = $rte{$mfile,$ndt};
                $cpmtd[$ndt] = $arcpu{$mfile,$ndt};
-               $trmtd[$ndt] = $artrk{$mfile,$ndt};
                $nstmtd[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "upsilon" ) {
                $arupsilon[$ndt] = $rte{$mfile,$ndt};
                $cpupsilon[$ndt] = $arcpu{$mfile,$ndt};
-               $trupsilon[$ndt] = $artrk{$mfile,$ndt};
                $nstupsilon[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "gamma" ) {
                $argamma[$ndt] = $rte{$mfile,$ndt};
@@ -595,7 +694,6 @@ END
               }elsif( $mfile eq "hlt" ) {
                $arhlt[$ndt] = $rte{$mfile,$ndt};
                $cphlt[$ndt] = $arcpu{$mfile,$ndt};
-               $trhlt[$ndt] = $artrk{$mfile,$ndt}; 
                $nsthlt[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "fmsfast" ) {
                $arfmsfast[$ndt] = $rte{$mfile,$ndt};
@@ -605,27 +703,22 @@ END
               }elsif( $mfile eq "ht" ) {
                $arht[$ndt] = $rte{$mfile,$ndt};
                $cpht[$ndt] = $arcpu{$mfile,$ndt}; 
-               $trht[$ndt] = $artrk{$mfile,$ndt}; 
                $nstht[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "atomcules" ) {
                $aratomcules[$ndt] = $rte{$mfile,$ndt};
                $cpatomcules[$ndt] = $arcpu{$mfile,$ndt};
-               $tratomcules[$ndt] = $artrk{$mfile,$ndt};
                $nstatomcules[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "monitor" ) {
                $armonitor[$ndt] = $rte{$mfile,$ndt};
                $cpmonitor[$ndt] = $arcpu{$mfile,$ndt};
-               $trmonitor[$ndt] = $artrk{$mfile,$ndt};
                $nstmonitor[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "pmdftp" ) {
                $arpmdftp[$ndt] = $rte{$mfile,$ndt};
                $cppmdftp[$ndt] = $arcpu{$mfile,$ndt};
-               $trpmdftp[$ndt] = $artrk{$mfile,$ndt};
                $nstpmdftp[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $arupc[$ndt] =  $rte{$mfile,$ndt};
                $cpupc[$ndt] =  $arcpu{$mfile,$ndt};
-               $trupc[$ndt] =  $artrk{$mfile,$ndt};
                $nstupc[$ndt] =  $nstr{$mfile,$ndt};
 	       }
               }
