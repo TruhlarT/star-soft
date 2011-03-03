@@ -4,6 +4,10 @@
 # Setup ROOT environment according to STAR path standard
 # Multiple version and scheme supported
 #
+#this may be sourced
+if ( $?self ) then
+    set pself=${self}
+endif
 set self="rootenv"
 source $GROUP_DIR/unix_programs.csh
 
@@ -212,4 +216,10 @@ endif
 
 if ( -x ${GROUP_DIR}/dropit && -d ${ROOTSYS}/cint/doc ) then
     setenv MANPATH `${GROUP_DIR}/dropit -p ${MANPATH} -p ${ROOTSYS}/cint/doc`
+endif
+
+
+# restore - this in case of a sourcing
+if ( $?pself ) then
+    set self=$pself
 endif
