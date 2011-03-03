@@ -30,7 +30,8 @@ struct JobAttr => {
       vday      => '$',
       cpuv      => '$',
       rtmv      => '$', 
-      strk      => '$', 
+      strk      => '$',
+      jbtot     => '$', 
       strv      => '$'
 };
 
@@ -321,15 +322,13 @@ END
        }
     $cursor->finish();
 
-
- $ndt = 0;
-
  #####################
 
  %rte = {};
  %nstr = {};
  %arcpu = {};
  %artrk = {};
+
  @arupsilon = ();
  @armtd = ();
  @arphysics = ();
@@ -397,10 +396,7 @@ END
   my $maxjbtime = 0.1;
   my $maxtrk = 1.0;
 
- if( $srate eq "jobtottime" ) {
-
  %arjbtime = {};
- %nstr = {};
 
  @jbupsilon = ();
  @jbmtd = ();
@@ -415,7 +411,8 @@ END
  @jbpmdftp = ();
  @ndate = ();
  $ndt = 0;
- $maxjbtime = 0.1;
+
+ if( $srate eq "jobtottime" ) {
 
    foreach my $tdate (@arhr) {
 	@jbstat = ();  
