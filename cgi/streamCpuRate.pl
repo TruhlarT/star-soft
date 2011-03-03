@@ -56,7 +56,7 @@ my @prodyear = ("2010");
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("cpu","rtime/cpu","ntracks","stream_rate");
+my @arrate = ("cpu","rtime/cpu","jobtottime","ntracks","stream_rate");
 
 my @arrprod = ();
 my @arstream = ();
@@ -71,12 +71,14 @@ my $pcpu;
 my $prtime;
 my $pstream;
 my $ptrack;
+my $jbTottime;
 my $pryear = "2010";
 
 my %rte = {};
 my %nstr = {};
 my %arcpu = {};
 my %artrk = {};
+my %arjbtime = {};
 my @arupsilon = ();
 my @armtd = ();
 my @arphysics = ();
@@ -142,6 +144,19 @@ my @tratomcules = ();
 my @trupc = ();
 my @trmonitor = ();
 my @trpmdftp = ();
+
+my @jbupsilon = ();
+my @jbmtd = ();
+my @jbphysics = ();
+my @jbgamma = ();
+my @jbhlt = ();
+my @jbfmsfast = ();
+my @jbht = ();
+my @jbatomcules = ();
+my @jbupc = ();
+my @jbmonitor = ();
+my @jbpmdftp = ();
+
 
 my @arhr = ();
 my $mhr = 0;
@@ -220,7 +235,7 @@ END
  
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Stream values: <br> CPU, rtime/CPU, avg number of tracks, stream ratios</h3>";
+    print "<h3 align=center> Stream values: <br> CPU, rtime/CPU,<br>jobs total time on the farm,<br> avg number of tracks,<br> streamrate per jobs finish time interval </h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
 	                          -values=>\@arrate,
