@@ -29,7 +29,8 @@ $dbname="operation";
 struct JobAttr => {
       vday      => '$',
       cpuv      => '$',
-      rtmv      => '$', 
+      rtmv      => '$',
+      jbtot     => '$', 
       strk      => '$', 
       strv      => '$'
 };
@@ -56,7 +57,7 @@ my @prodyear = ("2010");
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("cpu","rtime/cpu","ntracks","stream_rate");
+my @arrate = ("cpu","rtime/cpu","jobtottime","ntracks","stream_rate");
 
 my @arrprod = ();
 my @arstream = ();
@@ -71,12 +72,15 @@ my $pcpu;
 my $prtime;
 my $pstream;
 my $ptrack;
+my $jbTottime;
 my $pryear = "2010";
 
 my %rte = {};
 my %nstr = {};
 my %arcpu = {};
 my %artrk = {};
+my %arjbtime = {};
+
 my @arupsilon = ();
 my @armtd = ();
 my @arphysics = ();
@@ -143,9 +147,23 @@ my @trupc = ();
 my @trmonitor = ();
 my @trpmdftp = ();
 
+
+my @jbupsilon = ();
+my @jbmtd = ();
+my @jbphysics = ();
+my @jbgamma = ();
+my @jbhlt = ();
+my @jbfmsfast = ();
+my @jbht = ();
+my @jbatomcules = ();
+my @jbupc = ();
+my @jbmonitor = ();
+my @jbpmdftp = ();
+
 my @arhr = ();
 my $mhr = 0;
 my $nhr = 0;
+
 
   &StDbProdConnect();
  
@@ -220,7 +238,7 @@ END
  
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Stream values: <br> CPU, rtime/CPU, avg number of tracks, stream ratios</h3>";
+    print "<h3 align=center> Stream jobs values: <br> CPU, rtime/CPU, <br>jobs total time on the farm,<br>avg number of tracks, <br>stream rate per jobs finish time interval</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
 	                          -values=>\@arrate,
@@ -377,8 +395,118 @@ END
  @trmonitor = ();
  @trpmdftp = ();
 
-  my $maxvalue = 1;
+  my $maxval = 1;
   my $maxcpu = 0;
+  my $maxjbtime = 0.1;
+  my $maxtrk = 1.0;
+
+  if( $srate eq "jobtottime" ) {
+
+ %arjbtime = {};
+ %nstr = {};
+
+ @jbupsilon = ();
+ @jbmtd = ();
+ @jbphysics = ();
+ @jbgamma = ();
+ @jbhlt = ();
+ @jbfmsfast = ();
+ @jbht = ();
+ @jbatomcules = ();
+ @jbupc = ();
+ @jbmonitor = ();
+ @jbpmdftp = ();
+ @ndate = ();
+ $ndt = 0;
+ $maxjbtime = 0.1;
+
+	@jbstat = ();  
+	$nstat = 0;
+
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, jobtotalTime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND jobtotalTime > 0.1  AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 "; 
+
+	    $cursor =$dbh->prepare($sql)
+	      || die "Cannot prepare statement: $DBI::errstr\n";
+	    $cursor->execute($qprod);
+
+       	while(@fields = $cursor->fetchrow) {
+	    my $cols=$cursor->{NUM_OF_FIELDS};
+	    $fObjAdr = \(JobAttr->new());
+
+	    for($i=0;$i<$cols;$i++) {
+		my $fvalue=$fields[$i];
+		my $fname=$cursor->{NAME}->[$i];
+                # print "$fname = $fvalue\n" ;
+
+		($$fObjAdr)->vday($fvalue)    if( $fname eq 'PDATE');
+                ($$fObjAdr)->jbtot($fvalue)   if( $fname eq 'jobtotalTime');
+		($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
+
+
+	    }
+	    $jbstat[$nstat] = $fObjAdr;
+	    $nstat++;
+	}
+ 
+
+     foreach $jset (@jbstat) {
+	   $pday      = ($$jset)->vday;
+           $jbTottime = ($$jset)->jbtot;
+	   $pstream   = ($$jset)->strv;
+
+           $arjbtime{$pstream,$ndt} = $arjbtime{$pstream,$ndt} + $jbTottime;
+           $nstr{$pstream,$ndt}++;
+
+           $ndate[$ndt] = $pday;
+
+	  }
+
+           foreach my $mfile (@arstream) {      
+             if ($nstr{$mfile,$ndt} >= 3 ) {
+           $arjbtime{$mfile,$ndt} = $arjbtime{$mfile,$ndt}/$nstr{$mfile,$ndt};
+
+                if ( $arjbtime{$mfile,$ndt} > $maxjbtime ) {
+                    $maxjbtime = $arjbtime{$mfile,$ndt} ;
+                }
+
+            if ( $mfile eq "physics" ) {
+               $jbphysics[$ndt] =  $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "mtd" ) {
+               $jbmtd[$ndt] =  $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "upsilon" ) {
+               $jbupsilon[$ndt] = $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "gamma" ) {
+               $jbgamma[$ndt] = $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "hlt" ) {
+               $jbhlt[$ndt] =  $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "fmsfast" ) {
+               $jbfmsfast[$ndt] =  $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "ht" ) {
+               $jbht[$ndt] =  $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "atomcules" ) {
+               $jbatomcules[$ndt] = $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "monitor" ) {
+               $jbmonitor[$ndt] = $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "pmdftp" ) {
+               $jbpmdftp[$ndt] = $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "upc" ) {
+               $jbupc[$ndt] =  $arjbtime{$mfile,$ndt};
+
+           }else{
+             next;
+           }
+            }
+          }
+
+        $ndt++;
+
+    } # foreach tdate
+
+
+
+#######################################   cpu, rtime/cpu
+
+ }else{ 
 
     foreach my $tdate (@arhr) {
 	@jbstat = ();  
@@ -433,7 +561,7 @@ END
 ####################        
 
           foreach my $mfile (@arstream) {      
-              if ($nstr{$mfile,$ndt} >= 2 ) {
+              if ($nstr{$mfile,$ndt} >= 3 ) {
                   $arcpu{$mfile,$ndt} = $arcpu{$mfile,$ndt}/$nstr{$mfile,$ndt};
                   $rte{$mfile,$ndt} = $rte{$mfile,$ndt}/$nstr{$mfile,$ndt};
                   $artrk{$mfile,$ndt} = $artrk{$mfile,$ndt}/$nstr{$mfile,$ndt}; 
@@ -443,6 +571,10 @@ END
                   if ( $arcpu{$mfile,$ndt} > $maxcpu ) {
                       $maxcpu = $arcpu{$mfile,$ndt} ;
                   }
+                 if ( $artrk{$mfile,$ndt} > $maxtrk ) {
+                $maxtrk =  $artrk{$mfile,$ndt}
+               }
+
 		  if ( $mfile eq "physics" ) {
 	       $arphysics[$ndt] = $rte{$mfile,$ndt};
                $cpphysics[$ndt] = $arcpu{$mfile,$ndt};
@@ -521,6 +653,8 @@ END
       $rtupc[$ii] = $nstupc[$ii]/$numstream[$ii];
       $rtupsilon[$ii] = $nstupsilon[$ii]/$numstream[$ii];
        }
+    }
+
   }
 
     &StDbProdDisconnect();
@@ -570,7 +704,20 @@ END
   @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpatomcules, \@cpmtd ) ;
 
     	$max_y = $maxcpu + 0.2*$maxcpu; 
-#        $max_y = int($max_y);
+        $max_y = int($max_y);
+
+
+   }elsif(  $srate eq "jobtottime" ) {
+
+    @data = ();
+
+   $ylabel = "Total time jobs stay on the farm in hours (finished per hour)";
+   $gtitle = "Total time jobs stay on the farm (finished per hour) for $qday ";
+
+@data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd ) ;
+
+  $max_y = $maxjbtime + 0.2*$maxjbtime;
+  $max_y = int($max_y);
 
   }elsif(  $srate eq "stream_rate" ) {
 
@@ -592,6 +739,9 @@ END
 
  @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trht, \@trmonitor, \@trpmdftp, \@trupc, \@tratomcules, \@trmtd ) ;
      
+ $max_y = $maxtrk + 0.2*$maxtrk;
+  $max_y = int($max_y);
+
     }
 
 	my $xLabelsVertical = 1;
