@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.237 2010/12/22 15:21:00 jeromel Exp $
+#       $Id: group_env.csh,v 1.238 2011/03/03 19:21:50 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -327,9 +327,26 @@ setenv STAF_LIB  $STAF/.${STAR_HOST_SYS}/lib  ;   if ($ECHO) echo   "Setting up 
 setenv STAF_BIN  $STAF/.${STAR_HOST_SYS}/bin  ;   if ($ECHO) echo   "Setting up STAF_BIN  = ${STAF_BIN}"
 # STAR
 setenv STAR      $STAR_PATH/${STAR_VERSION}   ;   if ($ECHO) echo   "Setting up STAR      = ${STAR}"
-setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/lib  ;   if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
+if ( $STAR_LEVEL == "cal" ) then
+    if ( ! $?STAR_BIN ) then
+	# make a default
+	setenv STAR_BIN $STAR_PATH/dev/.${STAR_HOST_SYS}/bin
+    endif
+    if ( -e $STAR/.${STAR_HOST_SYS}/bin ) then
+	# overwrite if exists
+	setenv STAR_BIN $STAR/.${STAR_HOST_SYS}/lib 
+    endif
+    if ( ! $?STAR_LIB ) then
+	setenv STAR_LIB $STAR_PATH/dev/.${STAR_HOST_SYS}/lib
+    endif
+    setenv STAR_lib  $STAR/.${STAR_HOST_SYS}/lib
+    setenv MINE_lib  $STAR/.${STAR_HOST_SYS}/lib
+else
+    setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/lib
+    setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/bin
+endif
+                                                  if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
 setenv MINE_LIB        .${STAR_HOST_SYS}/lib
-setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/bin
 setenv MY_BIN          .${STAR_HOST_SYS}/bin
 
 
@@ -439,8 +456,11 @@ else if ($?NODEBUG) then
   setenv MY_BIN          .${STAR_HOST_SYS}/BIN
 
 else
-  if ($?STAR_lib) unsetenv STAR_lib
-  if ($?MINE_lib) unsetenv MINE_lib
+  if ( $STAR_LEVEL != "cal" ) then
+    if ($?DECHO)    echo   "$self :: unseting STAR_lib and MINE_lib for Level=[$STAR_LEVEL]"
+    if ($?STAR_lib) unsetenv STAR_lib
+    if ($?MINE_lib) unsetenv MINE_lib
+  endif
 endif
 
 if ($ECHO)    echo   "Setting up STAR_BIN  = ${STAR_BIN}"
@@ -703,15 +723,18 @@ switch ($STAR_SYS)
       limit   coredump 0
       unlimit descriptors
       breaksw
-      case "alpha_dux*":
-        limit datasize unlimited
-        limit stacksize unlimited
+
+    case "alpha_dux*":
+      limit datasize unlimited
+      limit stacksize unlimited
       breaksw
+
     default:
 	#  ====================
 	breaksw
 endsw
 
+if ( $?DECHO ) echo "$self :: PATH is now $PATH"
 
 # ==================================================================
 # Extra package support
@@ -836,7 +859,11 @@ endif
 # ==================================================================
 
 
-if ( $?DECHO ) echo "$self :: Final touch ..."
+if ( $?DECHO ) then
+    echo "$self :: Final touch ..."
+    echo "$self :: LD_LIBRARY_PATH -> $LD_LIBRARY_PATH"
+    echo "$self :: PATH            -> $PATH"
+endif
 
 # We need this aliases even during BATCH
 if (-r $GROUP_DIR/group_aliases.csh) source $GROUP_DIR/group_aliases.csh
