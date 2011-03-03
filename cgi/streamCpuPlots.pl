@@ -681,9 +681,7 @@ END
 
      if( $qperiod eq "week") {
 
-#  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, avg_no_tracks, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND  jobStatus = 'Done' AND NoEvents >= 10 ";
-
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, avg_no_tracks, streamName FROM $JobStatusT WHERE PDATE = '$tdate' AND prodSeries = ? AND  jobStatus = 'Done' AND NoEvents >= 10 ";
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, avg_no_tracks, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND  jobStatus = 'Done' AND NoEvents >= 10 ";
 
 
             $cursor =$dbh->prepare($sql)
