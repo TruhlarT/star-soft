@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.238 2011/03/03 19:21:50 jeromel Exp $
+#       $Id: group_env.csh,v 1.239 2011/03/03 19:48:05 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -326,22 +326,27 @@ setenv STAF ${STAR_PATH}/StAF/${STAF_VERSION} ;   if ($ECHO) echo   "Setting up 
 setenv STAF_LIB  $STAF/.${STAR_HOST_SYS}/lib  ;   if ($ECHO) echo   "Setting up STAF_LIB  = ${STAF_LIB}"
 setenv STAF_BIN  $STAF/.${STAR_HOST_SYS}/bin  ;   if ($ECHO) echo   "Setting up STAF_BIN  = ${STAF_BIN}"
 # STAR
-setenv STAR      $STAR_PATH/${STAR_VERSION}   ;   if ($ECHO) echo   "Setting up STAR      = ${STAR}"
+setenv STARL     $STAR_PATH/${STAR_VERSION}   
 if ( $STAR_LEVEL == "cal" ) then
+    # do not redefine STAR in this case - this is used in cons
+    # heavily for finding includes and such. But define lib
+    # and conditionally bin so PATH and LD path will be set 
+    # properly. cd to STARL instead.
     if ( ! $?STAR_BIN ) then
 	# make a default
 	setenv STAR_BIN $STAR_PATH/dev/.${STAR_HOST_SYS}/bin
     endif
-    if ( -e $STAR/.${STAR_HOST_SYS}/bin ) then
+    if ( -e $STAR_PATH/${STAR_VERSION}/.${STAR_HOST_SYS}/bin ) then
 	# overwrite if exists
-	setenv STAR_BIN $STAR/.${STAR_HOST_SYS}/lib 
+	setenv STAR_BIN $STAR_PATH/${STAR_VERSION}/.${STAR_HOST_SYS}/lib 
     endif
     if ( ! $?STAR_LIB ) then
 	setenv STAR_LIB $STAR_PATH/dev/.${STAR_HOST_SYS}/lib
     endif
-    setenv STAR_lib  $STAR/.${STAR_HOST_SYS}/lib
-    setenv MINE_lib  $STAR/.${STAR_HOST_SYS}/lib
+    setenv STAR_lib  $STAR_PATH/${STAR_VERSION}/.${STAR_HOST_SYS}/lib
+    setenv MINE_lib  $STAR_PATH/${STAR_VERSION}/.${STAR_HOST_SYS}/lib
 else
+    setenv STAR      $STAR_PATH/${STAR_VERSION};  if ($ECHO) echo   "Setting up STAR      = ${STAR}"
     setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/lib
     setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/bin
 endif
