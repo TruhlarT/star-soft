@@ -20,8 +20,8 @@ use GD::Graph::linespoints;
 use Mysql;
 use Class::Struct;
 
-
-$dbhost="duvall.star.bnl.gov";
+$dbhost="fc2.star.bnl.gov:3386";
+#$dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
 $dbpass="";
 $dbname="operation";
@@ -395,6 +395,11 @@ END
   my $maxcpu = 0;
   my $maxjbtime = 0.1;
   my $maxtrk = 1.0;
+ 
+ @ndate = ();
+ $ndt = 0;
+
+ if( $srate eq "jobtottime" ) {
 
  %arjbtime = {};
 
@@ -409,10 +414,7 @@ END
  @jbupc = ();
  @jbmonitor = ();
  @jbpmdftp = ();
- @ndate = ();
- $ndt = 0;
 
- if( $srate eq "jobtottime" ) {
 
    foreach my $tdate (@arhr) {
 	@jbstat = ();  
@@ -458,7 +460,7 @@ END
           }
 
           foreach my $mfile (@arstream) {
-             if ($nstr{$mfile,$ndt} >= 3 ) {
+             if ($nstr{$mfile,$ndt} >= 2 ) {
            $arjbtime{$mfile,$ndt} = $arjbtime{$mfile,$ndt}/$nstr{$mfile,$ndt};
 
                 if ( $arjbtime{$mfile,$ndt} > $maxjbtime ) {
@@ -566,6 +568,10 @@ END
                   if ( $arcpu{$mfile,$ndt} > $maxcpu ) {
                       $maxcpu = $arcpu{$mfile,$ndt} ;
                   }
+                if ( $artrk{$mfile,$ndt} > $maxtrk ) {
+                $maxtrk =  $artrk{$mfile,$ndt}
+               }
+
 		  if ( $mfile eq "physics" ) {
 	       $arphysics[$ndt] = $rte{$mfile,$ndt};
                $cpphysics[$ndt] = $arcpu{$mfile,$ndt};
@@ -701,7 +707,7 @@ END
 
     @data = ();
 
-   $ylabel = "Total time jobs stay on the farm in hours (finished per hour)";
+   $ylabel = "Total time jobs stay on the farm in hours";
    $gtitle = "Total time jobs stay on the farm (finished per hour) for $qday ";
 
 @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd ) ;
@@ -729,7 +735,11 @@ END
    @data = ();
 
  @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trht, \@trmonitor, \@trpmdftp, \@trupc, \@tratomcules, \@trmtd ) ;
-     
+  
+      $max_y = $maxtrk + 0.2*$maxtrk;
+      $max_y = int($max_y);
+
+   
     }
 
 	my $xLabelsVertical = 1;
@@ -739,7 +749,6 @@ END
  
 
 	$min_y = 0;
-#	$max_y = $maxval + 0.2*$maxval; 
 
 	if (scalar(@ndate) >= 40 ) {
 	    $skipnum = int(scalar(@ndate)/20);
