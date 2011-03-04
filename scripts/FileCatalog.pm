@@ -1,7 +1,7 @@
 # FileCatalog.pm
 #
 # Written by Adam Kisiel, service work November-December 2001
-# Directed and/or written + modified by J.Lauret, 2002 - 2010
+# Directed and/or written + modified by J.Lauret, 2002 - 2011
 #
 # Methods of class FileCatalog:
 #
@@ -3876,6 +3876,7 @@ sub run_query {
   my (%TableUSED,%XTableUSED);
   my (@super_index);
   my $grouping = "";
+  my $using_global_func = 0;
 
 
 
@@ -3916,6 +3917,7 @@ sub run_query {
 	      if($l < $rlimit){  $l = $rlimit;}
 	      $valuset{"limit"} = $l;
 	  }
+	  $using_global_func = 1;
       }
   } else {
       $rlimit = 0;
@@ -4713,7 +4715,6 @@ sub run_query {
   $sqlquery .= join(" , ",(@selectunique))." FROM ".join(" , ",(@fromunique));
 
   # Small user stupidity check + a useful check on unsetting the limit
-  my $using_global_func = 0;
   if ( $#selectunique >= 1             &&
        ($sqlquery =~ /SUM\(.*\)/ ||
 	$sqlquery =~ /MIN\(.*\)/ ||
@@ -4764,7 +4765,7 @@ sub run_query {
       if ( ! $using_global_func){ $limit = 100;}
   }
 
-  if ( defined($limit) ){
+  if ( defined($limit) && $rlimit == 0 ){
       if ( $limit < $OPTIMLIMIT && $FC::OPTIMIZE){
 	  # remove optimization if a small number of rows is requested
 	  # limit is arbitrary
@@ -4854,7 +4855,7 @@ sub run_query {
 	      }
 
 	      if ( $rlimit > 0 ){
-		  #&print_debug("run_query","**** $count $rlimit");
+		  # rlimit mode
 		  if ( $idpushed ){ 
 		      $curid = shift(@cols);
 		  } else {
@@ -4863,11 +4864,13 @@ sub run_query {
 		  if ( $curid ne $previd){  
 		      $previd = $curid;
 		      $idcnt++;
-		      last if ( $idcnt > $rlimit);
+		      last if ( $idcnt > $rlimit+$offset);
 		  }
-		  $result[$count++] = join($delimeter,@cols);
+		  if ( $offset < $idcnt){
+		      $result[$count++] = join($delimeter,@cols);
+		  }
 	      } else {
-		  #&print_debug("run_query","**** undefined rlimit $rlimit");
+		  # Normal mode
 		  $result[$count++] = join($delimeter,@cols);
 	      }
 	  }
