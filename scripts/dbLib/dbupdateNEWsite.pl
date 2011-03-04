@@ -46,7 +46,7 @@ print  $SITE, "\n";
   @node_dir = ("daq_sl53.ittf", "trs_sl53.ittf");  
  }
 
-my @dir_year = ("year_2000", "year_2001", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008","year_2009","year_2010");
+my @dir_year = ("year_2000", "year_2001", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008","year_2009", "year_2010", "year_2011");
 
 my @OUT_DIR0 = ();
 my @OUT_DIR1 = ();
@@ -403,7 +403,7 @@ my $pyear = 0;
                        $fullyear,$mo,$dy,$hr,$min);    
 
 #           if( $ltime > 600 && $ltime < 518400 ){         
-          if( $ltime > 2400 ) { 
+          if( $ltime > 2400  and $size > 1000 ) { 
 #   print "Log time: ", $ltime, "\n";
 #   print $fullname, "\n";
         &logInfo("$fullname", "$platf");
