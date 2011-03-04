@@ -130,7 +130,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.371";
+$VERSION   =   "V01.375";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -362,6 +362,7 @@ $keywrds{"nounique"      }    =   ",,,,,,1";
 $keywrds{"noround"       }    =   ",,,,,,1";
 $keywrds{"startrecord"   }    =   ",,,,,,1";
 $keywrds{"limit"         }    =   ",,,,,,1";
+$keywrds{"rlimit"        }    =   ",,,,,,1";
 $keywrds{"all"           }    =   ",,,,,,1";
 
 # Keyword aliasing or keyword aggregate
@@ -3870,6 +3871,7 @@ sub run_query {
   my (%functions);
   my ($dele,$i);
   my ($keyw,$count);
+  my ($rlimit,$idpushed,$fdidpos);
   my (%keyset,%xkeys);
   my (%TableUSED,%XTableUSED);
   my (@super_index);
@@ -3877,13 +3879,47 @@ sub run_query {
 
 
 
-
   # Transfer into associative array for easier handling
+  # Detect position of special keyword fdid if any - will
+  # be used for rlimit logic
+  $fdidpos  = 0;
+  $i        = 0;
   foreach $keyw (@keywords){
       $keyw =~ s/ //g;
       $keyset{$keyw} =$keyw ;
+      if ( $keyw eq "fdid"){  $fdidpos = $i;}
+      $i++;
   }
 
+
+
+  # Get rlimit
+  $idpushed = 0;
+  if (defined $valuset{"rlimit"}){
+      $rlimit = $valuset{"rlimit"};
+      &print_debug("run_query","We have rlimit=$rlimit");
+      if($rlimit <= 0){
+	  $rlimit    = 0;
+      } else {
+	  # push the unique key
+	  if ( ! defined($keyset{"fdid"}) ){
+	      &print_debug("run_query","rlimit algo requires to push in fdid, not initially requested");
+	      $idpushed = 1;
+	      unshift(@keywords,"fdid");
+	      $keyset{"fdid"} = "fdid";
+	  }
+	  # verify limit keyword
+	  my($l);
+	  if ( defined($l = $valuset{"limit"}) ){
+	      # really should be much more
+	      &print_debug("run_query","limit=$l cannot be < rlimit=$rlimit, levelling to $rlimit");
+	      if($l < $rlimit){  $l = $rlimit;}
+	      $valuset{"limit"} = $l;
+	  }
+      }
+  } else {
+      $rlimit = 0;
+  }
 
 
   # Enventually treat ENV variables - needs to be documented
@@ -3912,6 +3948,7 @@ sub run_query {
   &print_debug("run_query","BEGIN Receiving opt cond   [".join(",",keys %optvaluset)."]");
 
   #&print_debug("run_query","BEGIN FLRELATED ".join(",",%FC::FLRELATED));
+
 
 
   #+
@@ -4726,6 +4763,7 @@ sub run_query {
   } else {
       if ( ! $using_global_func){ $limit = 100;}
   }
+
   if ( defined($limit) ){
       if ( $limit < $OPTIMLIMIT && $FC::OPTIMIZE){
 	  # remove optimization if a small number of rows is requested
@@ -4733,8 +4771,7 @@ sub run_query {
 	  $sqlquery =~ s/SQL_BUFFER_RESULT //;
       }
       $sqlquery .= " LIMIT $offset, $limit";
-  }
-
+  } 
 
 
 
@@ -4789,6 +4826,10 @@ sub run_query {
 
       $count = 0;
       if ( $success ){
+	  my($previd,$curid,$idcnt);
+
+	  $idcnt = 0;
+
 	  while ( @cols = $sth->fetchrow_array() ) {
 	      # if field is empty, fetchrow_array() returns undef()
 	      # fix it by empty string instead.
@@ -4812,8 +4853,23 @@ sub run_query {
 		  eval("\@cols = $res;");
 	      }
 
-	      $result[$count++] = join($delimeter,@cols);
-
+	      if ( $rlimit > 0 ){
+		  #&print_debug("run_query","**** $count $rlimit");
+		  if ( $idpushed ){ 
+		      $curid = shift(@cols);
+		  } else {
+		      $curid = $cols[$fdidpos];
+		  }
+		  if ( $curid ne $previd){  
+		      $previd = $curid;
+		      $idcnt++;
+		      last if ( $idcnt > $rlimit);
+		  }
+		  $result[$count++] = join($delimeter,@cols);
+	      } else {
+		  #&print_debug("run_query","**** undefined rlimit $rlimit");
+		  $result[$count++] = join($delimeter,@cols);
+	      }
 	  }
 
       } else {
@@ -4826,6 +4882,7 @@ sub run_query {
       # end
       $tf  = time(); &print_debug("run_query","END Time DBRef:$FC::DBRef ".localtime($tf));
       $tf -= $ts;    &print_debug("run_query","DELTA Time DBRef:$FC::DBRef $tf nfiles=".($#result+1));
+
 
       return (@result);
   }
