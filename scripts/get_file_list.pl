@@ -183,35 +183,31 @@ if ($count == 0){
 
 sub Usage
 {
-    print qq~
-Command usage:
- % get_file_list.pl [qualifiers] -keys field{,field} [-cond field=value{,field=value}]
-
- where the qualifiers may be
- -all                               use all entries regardless of availability flag
-                                    default is available=1
- -alls                              use all entries regardless of sanity flag 
-                                    default is sanity=1 unless the sanity key
-                                    was used as condition
- -onefile                           returns only one location (not the default)
- -distinct                          get only one value for a key-set (not the default
-                                    which is faster).
- -delim <string>                    sets the default delimeter in between keys
- -limit <number of output records>  limits the number of returned values (0 for all)
- -start <start record number>       start at the n-th record of the sample
- -rlimit <number of unique records> limits the number of unique LFN (number of returned
-                                    lines will be more).
-
- -o <output filename>               redirects results to an ouput file (use STDOUT)
-
- -V                                 print version and exits
- -as <scope>                        connects as specified, scopes={Admin|User}
- -as <site>::<scope>                connects to site as specified
-
- Fields appearing in -keys and/or -cond may be amongst the following
-     ~;
-
- print join(" ",$fileC->get_keyword_list())."\n\n";
+  print "\nCommand usage:\n % get_file_list.pl [qualifiers] -keys fie";
+  print "ld{,field} [-cond field=value{,field=value}]\n\n where the qu";
+  print "alifiers may be\n -all                  use  all entries rega";
+  print "rdless of availability  flag default is \n                   ";
+  print "    available=1\n -alls                 use all entries regar";
+  print "dless of sanity flag default is sanity=1  \n                 ";
+  print "      unless the  sanity key  was used as condition\n\n -onef";
+  print "ile              returns only one location (slow)\n -distinct";
+  print "             get only one value for a key-set (not the defaul";
+  print "t which is \n                       faster)\n\n -delim <strin";
+  print "g>       sets the default delimeter in between keys\n\n -limi";
+  print "t <Num>          limits  the number of returned records to Nu";
+  print "m  (0 for all \n                       records, 100 is the de";
+  print "fault value)\n -rlimit <Num>         limits the number of uni";
+  print "que LFN to Num (number of returned \n                       l";
+  print "ines will be more). rlimit will  switch limit logic off.\n -s";
+  print "tart <Num>          start at the n-th record of the sample fo";
+  print "r either limit or \n                       rlimit mode\n\n -o";
+  print " <output filename>  redirects results to an ouput file (use S";
+  print "TDOUT)\n\n -V                    print version and exits\n -a";
+  print "s <scope>           connects as specified, scopes={Admin|User";
+  print "}\n -as <site>::<scope>   connects to site as specified\n\n F";
+  print "ields appearing in -keys and/or -cond may be amongst the foll";
+  print "owing\n\n";
+  print join(" ",$fileC->get_keyword_list())."\n\n";
 
 }
 
