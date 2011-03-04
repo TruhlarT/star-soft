@@ -5,7 +5,7 @@
 # FileCatalog database.
 #
 # Written by Adam Kisiel, Warsaw University of Technology (2002)
-# Written by J.Lauret 2002-2004
+# Written by J.Lauret 2002-2011
 #
 # Uncodumented paramaters
 #
@@ -25,7 +25,7 @@ my ($debug,$caching);
 
 # The state variables
 my ($all, $alls, $unique, $field_list, $class);
-my ($cond_list, $start, $limit, $delim, $onefile, $outfilename);
+my ($cond_list, $start, $limit, $rlimit, $delim, $onefile, $outfilename);
 my ($intent)="User";
 
 # Load the modules to store the data into a new database
@@ -79,6 +79,8 @@ while (defined $ARGV[$count]){
       { $start = $ARGV[++$count]; }
     elsif ($ARGV[$count] eq "-limit")
       { $limit = $ARGV[++$count]; }
+    elsif ($ARGV[$count] eq "-rlimit")
+      { $rlimit = $ARGV[++$count]; }
     elsif ($ARGV[$count] eq "-delim")
       {	$delim = $ARGV[++$count]; }
     elsif ($ARGV[$count] eq "-keys")
@@ -131,6 +133,7 @@ if ($count == 0){
 	}
     }
     if (defined $limit){   $fileC->set_context("limit=$limit"); }
+    if (defined $rlimit){  $fileC->set_context("rlimit=$rlimit"); }
     if (defined $start){   $fileC->set_context("startrecord=$start"); }
     if (defined $delim){   $fileC->set_delimeter($delim); }
     if ($unique==0){       $fileC->set_context("nounique=1");}
@@ -196,6 +199,9 @@ Command usage:
  -delim <string>                    sets the default delimeter in between keys
  -limit <number of output records>  limits the number of returned values (0 for all)
  -start <start record number>       start at the n-th record of the sample
+ -rlimit <number of unique records> limits the number of unique LFN (number of returned
+                                    lines will be more).
+
  -o <output filename>               redirects results to an ouput file (use STDOUT)
 
  -V                                 print version and exits
