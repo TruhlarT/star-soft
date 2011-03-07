@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.38 2010/12/03 16:16:33 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.39 2011/03/07 19:28:24 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.39  2011/03/07 19:28:24  didenko
+# add pp 500GeV run 2011
+#
 # Revision 1.38  2010/12/03 16:16:33  didenko
 # add embedding tests to plots
 #
@@ -110,7 +113,6 @@
 #
 # Revision 1.1  2001/02/14 16:59:37  liuzx
 # Initial Version: query for nightly test in DEV library.
-#                   (currently only last five days)
 #
 #
 ################################################################
@@ -125,6 +127,7 @@ my $debugOn = 0;
 
 my $rand = rand(100);
 my @prod_set = (
+                "daq_sl302/year_2011/pp500_production_2011",
                 "daq_sl302/year_2010/auau200_production",
                 "daq_sl302/year_2010/auau62_production",
                 "daq_sl302/year_2010/auau39_production",
