@@ -57,7 +57,7 @@ my @prodyear = ("2010");
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("cpu","rtime/cpu","jobtottime","ntracks","stream_rate");
+my @arrate = ("cpu","rtime/cpu","jobtottime","ntracks");
 
 my @arrprod = ();
 my @arstream = ();
@@ -236,7 +236,7 @@ END
  
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Stream values: <br> CPU, rtime/CPU,<br>jobs total time on the farm,<br> avg number of tracks,<br> stream rate per jobs finish time interval </h3>";
+    print "<h3 align=center> Stream values: <br> CPU, rtime/CPU,<br>jobs total time on the farm,<br> avg number of tracks </h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
 	                          -values=>\@arrate,
@@ -341,19 +341,6 @@ END
  @arupc = ();
  @armonitor = ();
  @arpmdftp = ();
-
- @nstphysics = ();
- @nstgamma = ();
- @nstmtd = ();
- @nsthlt = ();
- @nstfmsfast = ();
- @nstht = ();
- @nstatomcules = ();
- @nstupc = ();
- @nstmonitor = ();
- @nstpmdftp = ();
- @nstupsilon = ();
- @numstream = ();
 
  @rtphysics = ();
  @rtgamma = ();
@@ -607,7 +594,6 @@ END
    } # foreach tdate
 
 
-
 #######################################   cpu, rtime/cpu
 
  }else{
@@ -677,49 +663,36 @@ END
 		  if ( $mfile eq "physics" ) {
 	       $arphysics[$ndt] = $rte{$mfile,$ndt};
                $cpphysics[$ndt] = $arcpu{$mfile,$ndt};
- 	       $nstphysics[$ndt] = $nstr{$mfile,$ndt};              
 	      }elsif( $mfile eq "mtd" ) {
                $armtd[$ndt] = $rte{$mfile,$ndt};
                $cpmtd[$ndt] = $arcpu{$mfile,$ndt};
-               $nstmtd[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "upsilon" ) {
                $arupsilon[$ndt] = $rte{$mfile,$ndt};
                $cpupsilon[$ndt] = $arcpu{$mfile,$ndt};
-               $nstupsilon[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "gamma" ) {
                $argamma[$ndt] = $rte{$mfile,$ndt};
                $cpgamma[$ndt] = $arcpu{$mfile,$ndt};
-               $trgamma[$ndt] = $artrk{$mfile,$ndt}; 
-               $nstgamma[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "hlt" ) {
                $arhlt[$ndt] = $rte{$mfile,$ndt};
                $cphlt[$ndt] = $arcpu{$mfile,$ndt};
-               $nsthlt[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "fmsfast" ) {
                $arfmsfast[$ndt] = $rte{$mfile,$ndt};
                $cpfmsfast[$ndt] = $arcpu{$mfile,$ndt};
-               $trfmsfast[$ndt] = $artrk{$mfile,$ndt}; 
-               $nstfmsfast[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "ht" ) {
                $arht[$ndt] = $rte{$mfile,$ndt};
                $cpht[$ndt] = $arcpu{$mfile,$ndt}; 
-               $nstht[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "atomcules" ) {
                $aratomcules[$ndt] = $rte{$mfile,$ndt};
                $cpatomcules[$ndt] = $arcpu{$mfile,$ndt};
-               $nstatomcules[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "monitor" ) {
                $armonitor[$ndt] = $rte{$mfile,$ndt};
                $cpmonitor[$ndt] = $arcpu{$mfile,$ndt};
-               $nstmonitor[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "pmdftp" ) {
                $arpmdftp[$ndt] = $rte{$mfile,$ndt};
                $cppmdftp[$ndt] = $arcpu{$mfile,$ndt};
-               $nstpmdftp[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $arupc[$ndt] =  $rte{$mfile,$ndt};
                $cpupc[$ndt] =  $arcpu{$mfile,$ndt};
-               $nstupc[$ndt] =  $nstr{$mfile,$ndt};
 	       }
               }
           }
@@ -728,24 +701,7 @@ END
 
     } # foreach tdate
 
-      for($ii = 0; $ii < $ndt; $ii++) {
-	  $numstream[$ii] = $nstphysics[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+$nstht[$ii]+$nstmonitor[$ii]+$nstpmdftp[$ii]+ $nstupc[$ii]+ $nstatomcules[$ii]+ $nstgamma[$ii] + $nstupsilon[$ii];
-
-     if ($numstream[$ii] >= 1) { 
-      $rtphysics[$ii] = $nstphysics[$ii]/$numstream[$ii];
-      $rtmtd[$ii] = $nstmtd[$ii]/$numstream[$ii];
-      $rtgamma[$ii] = $nstgamma[$ii]/$numstream[$ii];
-      $rthlt[$ii] = $nsthlt[$ii]/$numstream[$ii];
-      $rtht[$ii] = $nstht[$ii]/$numstream[$ii];
-      $rtmonitor[$ii] = $nstmonitor[$ii]/$numstream[$ii];
-      $rtatomcules[$ii] = $nstatomcules[$ii]/$numstream[$ii];
-      $rtpmdftp[$ii] = $nstpmdftp[$ii]/$numstream[$ii];
-      $rtupc[$ii] = $nstupc[$ii]/$numstream[$ii];
-      $rtupsilon[$ii] = $nstupsilon[$ii]/$numstream[$ii];
-       }
-  }
-
-}
+ }
 
     &StDbProdDisconnect();
 
@@ -808,18 +764,7 @@ END
   $max_y = $maxjbtime + 0.2*$maxjbtime;
   $max_y = int($max_y);
 
-
-  }elsif(  $srate eq "stream_rate" ) {
-
-	$ylabel = "Ratio of different stream jobs per hour ";
-	$gtitle = "Ratio of different stream jobs to all jobs per hour for day $qday ";
-
-    @data = ();
-
- @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc, \@rtatomcules, \@rtmtd ) ;
-
-       	$max_y = 1.2;
-    
+     
  }elsif(  $srate eq "ntracks" ) {
 
 	$ylabel = "Average number of tracks in different streams";
