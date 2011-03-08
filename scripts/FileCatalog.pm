@@ -130,7 +130,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.375";
+$VERSION   =   "V01.380";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -140,7 +140,7 @@ my %valuset;
 
 
 use DBI;
-# use Digest::MD5;
+use Digest::MD5;
 use strict;
 no strict "refs";
 
@@ -4746,149 +4746,228 @@ sub run_query {
 
 
 
-  #
-  # Sort out if a limiting number of records or range
-  # has been asked
-  #
-  my ($offset, $limit)=(undef,undef);
-  if (defined $valuset{"startrecord"}){
-      $offset = $valuset{"startrecord"};
-  } else {
-      $offset = 0;
-  }
-  if (defined $valuset{"limit"}){
-      $limit = $valuset{"limit"};
-      if($limit <= 0){
-	  $limit    = undef;
-      }
-  } else {
-      if ( ! $using_global_func){ $limit = 100;}
-  }
+    #
+    # Sort out if a limiting number of records or range
+    # has been asked
+    #
+    my ($offset, $limit)=(undef,undef);
+    if (defined $valuset{"startrecord"}){
+	$offset = $valuset{"startrecord"};
+    } else {
+	$offset = 0;
+    }
+    if (defined $valuset{"limit"}){
+	$limit = $valuset{"limit"};
+	if($limit <= 0){
+	    $limit    = undef;
+	}
+    } else {
+	if ( ! $using_global_func){ $limit = 100;}
+    }
 
-  if ( defined($limit) && $rlimit == 0 ){
-      if ( $limit < $OPTIMLIMIT && $FC::OPTIMIZE){
-	  # remove optimization if a small number of rows is requested
-	  # limit is arbitrary
-	  $sqlquery =~ s/SQL_BUFFER_RESULT //;
-      }
-      $sqlquery .= " LIMIT $offset, $limit";
-  } 
+    # Since we compare the id, do we need to order??
+    # DB should come with ordered IDs but some evidence this is
+    # not the case ...
+    if ( $rlimit != 0){
+	$sqlquery .= " ORDER BY FileData.fileDataID";
+    }
+    # limit and rlimit are exclusive if we supress the second
+    # condition
+    if ( defined($limit) && $rlimit == 0 ){
+	if ( $limit < $OPTIMLIMIT && $FC::OPTIMIZE){
+	    # remove optimization if a small number of rows is requested
+	    # limit is arbitrary
+	    $sqlquery =~ s/SQL_BUFFER_RESULT //;
+	}
+	$sqlquery .= " LIMIT $offset, $limit";
+    } 
 
+	
 
-
-  # We can replace FileLocations here if needed
-  if ( $#super_index != -1 ){
-      my($el,$tab,$rep);
-      foreach $el (@super_index){
-	  ($tab,$rep) = split(":",$el);
-	  &print_debug("run_query","Super index was previously detected for $tab -> $rep");
-	  $sqlquery =~ s/$tab/$rep/g;
-      }
-  }
-
-
-
-  &print_debug("run_query","Using query: $sqlquery");
-
-  my $sth;
-
-  $sth = $FC::DBH->prepare($sqlquery);
-  if ( ! $sth ){
-      &print_debug("run_query","Failed to prepare [$sqlquery]");
-      return;
-  } else {
-      my (@result,$res,$rescount);
-      my (@cols);
-      my ($success)=0;
-
-      # start timer
-      my($ts,$tf);
-      $ts = time(); &print_debug("run_query","START Time DBRef:$FC::DBRef ".localtime($ts));
-
-      # try this
-      &print_debug("run_query","Raising ALRM - timer expires in ".($FC::TIMEOUT/60)." mnts");
-      eval {
-	  # RAISE ALARM
-	  local $SIG{ALRM} = sub { die "ALARM\n"};
-	  alarm($FC::TIMEOUT);
-	  # EXECUTE
-	  $success = $sth->execute();
-	  # CANCEL ALARM
-	  alarm(0);
-      };
-      if ($@){
-	  $sth->finish();
-	  &print_message("run_query","ALRM signal received, we timed out after ".($FC::TIMEOUT/60)." mnts");
-	  return 0;
-      } else {
-	  alarm(0);
-	  &print_debug("run_query","ALRM cancelled - success");
-      }
-
-      $count = 0;
-      if ( $success ){
-	  my($previd,$curid,$idcnt);
-
-	  $idcnt = 0;
-
-	  while ( @cols = $sth->fetchrow_array() ) {
-	      # if field is empty, fetchrow_array() returns undef()
-	      # fix it by empty string instead.
-	      for ($i=0 ; $i <= $#cols ; $i++){
-		  # do not return undefined field, set to null-string
-		  if( ! defined($cols[$i]) ){ $cols[$i] = "";}
-		  # transformation in read here
-		  if ( defined($ktransform{$kstackunique[$i]}) ){
-		      &print_debug("run_query","We will transform $kstackunique[$i] = $cols[$i]\n");
-		      eval("\$cols[$i] = ".(split(";",$ktransform{$kstackunique[$i]}))[0]."($cols[$i]);");
-		  }
-	      }
+    # We can replace FileLocations here if needed
+    if ( $#super_index != -1 ){
+	my($el,$tab,$rep);
+	foreach $el (@super_index){
+	    ($tab,$rep) = split(":",$el);
+	    &print_debug("run_query","Super index was previously detected for $tab -> $rep");
+	    $sqlquery =~ s/$tab/$rep/g;
+	}
+    }
 
 
-	      # We are not done ...
-	      foreach $flkey (@setkeys){
-		  $res = "\@cols = $keyset{$flkey}";
-		  foreach my $el (@cols){  $res .= ",\"$el\"";}
-		  $res .= ");";
-		  &print_debug("run_query","eval() $res");
-		  eval("\@cols = $res;");
-	      }
 
-	      if ( $rlimit > 0 ){
-		  # rlimit mode
-		  if ( $idpushed ){ 
-		      $curid = shift(@cols);
-		  } else {
-		      $curid = $cols[$fdidpos];
-		  }
-		  if ( $curid ne $previd){  
-		      $previd = $curid;
-		      $idcnt++;
-		      last if ( $idcnt > $rlimit+$offset);
-		  }
-		  if ( $offset < $idcnt){
-		      $result[$count++] = join($delimeter,@cols);
-		  }
-	      } else {
-		  # Normal mode
-		  $result[$count++] = join($delimeter,@cols);
-	      }
-	  }
+    &print_debug("run_query","Using query: $sqlquery");
 
-      } else {
-	  &print_debug("run_query","ERROR ".$FC::DBH->err." >> ".$FC::DBH->errstr);
-      }
-      $sth->finish();
+    my $sth;
+    
+    # in rlimit, we benefit from caching
+    my $qhash=Digest::MD5->new();
+    my $md5=$qhash->add($sqlquery.$delimeter)->hexdigest();
+    my $FHDL=undef;
+    &print_debug("run_query","Query digest is [$md5]");
 
-      alarm(0);
+    # TODO: finish this logic - FHDL if defined is ready for write
+    # delimeter may be part of add()
+    if ( $rlimit != 0){
+	use FileHandle;
+	my($f)="/tmp/STAR-FC-$md5.dat";
+	my(@stat)=stat($f);
+	my($age)=time()-$stat[10];
+	
+	# possibly handle expiration
+	&print_debug("run_query","Cache age $age");
+	if ( $age > 7200){  unlink($f);}  # 2 hours
+	
+	
+	if ( -e $f && ! -z $f ){
+	    # logic reading from cache
+	    my($line);
+	    my($previd,$curid,$idcnt);
+	    my(@result,@cols);
+	    $idcnt = 0;
+	    $count = 0;
 
-      # end
-      $tf  = time(); &print_debug("run_query","END Time DBRef:$FC::DBRef ".localtime($tf));
-      $tf -= $ts;    &print_debug("run_query","DELTA Time DBRef:$FC::DBRef $tf nfiles=".($#result+1));
+	    &print_debug("run_query","Cache file exists - reading from it");
+	    if ( defined($FHDL = FileHandle->new("$f")) ){
+		while ( defined($line = $FHDL->getline() ) ){
+		    chomp($line);
+		    @cols = split($delimeter,$line);
+		    
+		    # COMMON CODE LOGIC AAB
+		    if ( $idpushed ){
+			$curid = shift(@cols);
+		    } else {
+			$curid = $cols[$fdidpos];
+		    }
+		    if ( $curid ne $previd){  
+			$previd = $curid;
+			$idcnt++; 
+			# in this case, we do not need to continue
+			# because it is cached
+			last if ( $idcnt > $rlimit+$offset);
+		    }
+		    if ( $offset < $idcnt ){
+			$result[$count++] = join($delimeter,@cols);
+		    } 
+		}
+		return @result;
+	    }
+	} else {
+	    if ( defined($FHDL = FileHandle->new(">$f")) ){
+		chmod(0775,$f);
+	    }
+
+	}
+    }
+    
+    
+    $sth = $FC::DBH->prepare($sqlquery);
+    if ( ! $sth ){
+	&print_debug("run_query","Failed to prepare [$sqlquery]");
+	return;
+    } else {
+	my (@result,$res,$rescount);
+	my (@cols);
+	my ($success)=0;
+
+	# start timer
+	my($ts,$tf);
+	$ts = time(); &print_debug("run_query","START Time DBRef:$FC::DBRef ".localtime($ts));
+
+	# try this
+	&print_debug("run_query","Raising ALRM - timer expires in ".($FC::TIMEOUT/60)." mnts");
+	eval {
+	    # RAISE ALARM
+	    local $SIG{ALRM} = sub { die "ALARM\n"};
+	    alarm($FC::TIMEOUT);
+	    # EXECUTE
+	    $success = $sth->execute();
+	    # CANCEL ALARM
+	    alarm(0);
+	};
+	if ($@){
+	    $sth->finish();
+	    &print_message("run_query","ALRM signal received, we timed out after ".($FC::TIMEOUT/60)." mnts");
+	    return 0;
+	} else {
+	    alarm(0);
+	    &print_debug("run_query","ALRM cancelled - success");
+	}
+
+	$count = 0;
+	if ( $success ){
+	    my($previd,$curid,$idcnt);
+
+	    $idcnt = 0;
+
+	    &print_debug("run_query","rlimit=$rlimit limit=$limit - fetching");
+	  
+	    while ( @cols = $sth->fetchrow_array() ) {
+		# if field is empty, fetchrow_array() returns undef()
+		# fix it by empty string instead.
+		for ($i=0 ; $i <= $#cols ; $i++){
+		    # do not return undefined field, set to null-string
+		    if( ! defined($cols[$i]) ){ $cols[$i] = "";}
+		    # transformation in read here
+		    if ( defined($ktransform{$kstackunique[$i]}) ){
+			&print_debug("run_query","We will transform $kstackunique[$i] = $cols[$i]\n");
+			eval("\$cols[$i] = ".(split(";",$ktransform{$kstackunique[$i]}))[0]."($cols[$i]);");
+		    }
+		}
 
 
-      return (@result);
-  }
+		# We are not done ...
+		foreach $flkey (@setkeys){
+		    $res = "\@cols = $keyset{$flkey}";
+		    foreach my $el (@cols){  $res .= ",\"$el\"";}
+		    $res .= ");";
+		    &print_debug("run_query","eval() $res");
+		    eval("\@cols = $res;");
+		}
+
+		# need to print prior
+		print $FHDL join($delimeter,@cols)."\n" if ( defined($FHDL) );
+		
+		if ( $rlimit > 0 ){
+		    # rlimit mode
+		    
+		    # COMMON CODE LOGIC AAB		    
+		    if ( $idpushed ){
+			$curid = shift(@cols);
+		    } else {
+			$curid = $cols[$fdidpos];
+		    }
+		    # &print_debug("run_query","[$curid] [$previd]");
+		    if ( $curid ne $previd){  
+			$previd = $curid;
+			$idcnt++;
+			# last if ( $idcnt > $rlimit+$offset);
+		    }
+		    # if ( $offset < $idcnt ){
+		    if ( ($offset < $idcnt) && ( $idcnt <= $rlimit+$offset) ){
+			$result[$count++] = join($delimeter,@cols);
+		    }
+		} else {
+		    # Normal mode
+		    $result[$count++] = join($delimeter,@cols);
+		}
+	    }
+
+	} else {
+	    &print_debug("run_query","ERROR ".$FC::DBH->err." >> ".$FC::DBH->errstr);
+	}
+	$sth->finish();
+
+	alarm(0);
+	close($FHDL) if ( defined($FHDL) );
+
+	# end
+	$tf  = time(); &print_debug("run_query","END Time DBRef:$FC::DBRef ".localtime($tf));
+	$tf -= $ts;    &print_debug("run_query","DELTA Time DBRef:$FC::DBRef $tf nfiles=".($#result+1));
+
+
+	return (@result);
+    } # sth prepare
 }
 
 
