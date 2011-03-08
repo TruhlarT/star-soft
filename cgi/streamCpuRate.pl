@@ -630,7 +630,6 @@ END
                 ($$fObjAdr)->strk($fvalue)   if( $fname eq 'avg_no_tracks');
                 ($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
 
-
             }
             $jbstat[$nstat] = $fObjAdr;
             $nstat++;
@@ -644,9 +643,7 @@ END
 
            $artrk{$pstream,$ndt} = $artrk{$pstream,$ndt} + $ptrack;
            $nstr{$pstream,$ndt}++;
-
            $ndate[$ndt] = $pday;
-
           }
 
           foreach my $mfile (@arstream) {
@@ -709,6 +706,7 @@ END
  @nstmonitor = ();
  @nstpmdftp = ();
  @nstupsilon = ();
+
  @numstream = ();
 
 
@@ -746,8 +744,7 @@ END
 	    $pstream  = ($$jset)->strv;
 
            $nstr{$pstream,$ndt}++;
-         
-            $ndate[$ndt] = $pday;    
+           $ndate[$ndt] = $pday;    
 
 	  }
 ####################        
@@ -884,7 +881,7 @@ END
 
 	$xLabelSkip = $skipnum;
 
-	$graph->set(x_label => "Datetime of job's completion",
+	$graph->set(x_label => "Datetime of jobs completion",
 	            y_label => $ylabel,
                     title   => $gtitle,
                     y_tick_number => 14,
