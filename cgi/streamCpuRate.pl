@@ -57,7 +57,7 @@ my @prodyear = ("2010");
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("cpu","rtime/cpu","jobtottime","ntracks");
+my @arrate = ("cpu","rtime/cpu","jobtottime","ntracks","njobs");
 
 my @arrprod = ();
 my @arstream = ();
@@ -236,7 +236,7 @@ END
  
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Stream values: <br> CPU, rtime/CPU,<br>jobs total time on the farm,<br> avg number of tracks </h3>";
+    print "<h3 align=center> Stream values: <br> CPU, rtime/CPU,<br>jobs total time on the farm,<br> avg number of tracks <br>number of stream jobs</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
 	                          -values=>\@arrate,
@@ -329,55 +329,6 @@ END
  %arcpu = {};
  %artrk = {};
 
- @arupsilon = ();
- @armtd = ();
- @arphysics = ();
- @argamma = ();
- @arhlt = ();
- @arfmsfast = ();
- @ndate = ();
- @arht = ();
- @aratomcules = ();
- @arupc = ();
- @armonitor = ();
- @arpmdftp = ();
-
- @rtphysics = ();
- @rtgamma = ();
- @rtmtd = ();
- @rthlt = ();
- @rtfmsfast = ();
- @rtht = ();
- @rtatomcules = ();
- @rtupc = ();
- @rtmonitor = ();
- @rtpmdftp = ();
- @rtupsilon = ();
-
- @cpupsilon = ();
- @cpmtd = ();
- @cpphysics = ();
- @cpgamma = ();
- @cphlt = ();
- @cpfmsfast = ();
- @cpht = ();
- @cpatomcules = ();
- @cpupc = ();
- @cpmonitor = ();
- @cppmdftp = ();
-
- @trupsilon = ();
- @trmtd = ();
- @trphysics = ();
- @trgamma = ();
- @trhlt = ();
- @trfmsfast = ();
- @trht = ();
- @tratomcules = ();
- @trupc = ();
- @trmonitor = ();
- @trpmdftp = ();
-
   my $maxval = 1;
   my $maxcpu = 0;
   my $maxjbtime = 0.1;
@@ -402,6 +353,8 @@ END
  @jbmonitor = ();
  @jbpmdftp = ();
 
+ @ndate = ();
+ $ndt = 0;
 
    foreach my $tdate (@arhr) {
 	@jbstat = ();  
@@ -600,6 +553,44 @@ END
 
  @ndate = ();
  $ndt = 0;
+
+ @arupsilon = ();
+ @armtd = ();
+ @arphysics = ();
+ @argamma = ();
+ @arhlt = ();
+ @arfmsfast = ();
+ @ndate = ();
+ @arht = ();
+ @aratomcules = ();
+ @arupc = ();
+ @armonitor = ();
+ @arpmdftp = ();
+
+ @rtphysics = ();
+ @rtgamma = ();
+ @rtmtd = ();
+ @rthlt = ();
+ @rtfmsfast = ();
+ @rtht = ();
+ @rtatomcules = ();
+ @rtupc = ();
+ @rtmonitor = ();
+ @rtpmdftp = ();
+ @rtupsilon = ();
+
+ @cpupsilon = ();
+ @cpmtd = ();
+ @cpphysics = ();
+ @cpgamma = ();
+ @cphlt = ();
+ @cpfmsfast = ();
+ @cpht = ();
+ @cpatomcules = ();
+ @cpupc = ();
+ @cpmonitor = ();
+ @cppmdftp = ();
+
 
     foreach my $tdate (@arhr) {
 	@jbstat = ();  
