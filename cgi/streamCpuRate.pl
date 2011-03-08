@@ -236,7 +236,7 @@ END
  
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Stream values: <br> CPU, rtime/CPU,<br>jobs total time on the farm,<br> avg number of tracks <br>number of stream jobs</h3>";
+    print "<h3 align=center> Stream values: <br> CPU, rtime/CPU,<br>jobs total time on the farm,<br> avg number of tracks <br>number of finished jobs</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
 	                          -values=>\@arrate,
@@ -440,6 +440,150 @@ END
 
    } # foreach tdate
 
+##################################### cpu, rtime/cpu
+
+   }elsif( $srate eq "cpu" or $srate eq "rtime/cpu"  ) {
+
+ @ndate = ();
+ $ndt = 0;
+
+ @arupsilon = ();
+ @armtd = ();
+ @arphysics = ();
+ @argamma = ();
+ @arhlt = ();
+ @arfmsfast = ();
+ @ndate = ();
+ @arht = ();
+ @aratomcules = ();
+ @arupc = ();
+ @armonitor = ();
+ @arpmdftp = ();
+
+ @rtphysics = ();
+ @rtgamma = ();
+ @rtmtd = ();
+ @rthlt = ();
+ @rtfmsfast = ();
+ @rtht = ();
+ @rtatomcules = ();
+ @rtupc = ();
+ @rtmonitor = ();
+ @rtpmdftp = ();
+ @rtupsilon = ();
+
+ @cpupsilon = ();
+ @cpmtd = ();
+ @cpphysics = ();
+ @cpgamma = ();
+ @cphlt = ();
+ @cpfmsfast = ();
+ @cpht = ();
+ @cpatomcules = ();
+ @cpupc = ();
+ @cpmonitor = ();
+ @cppmdftp = ();
+
+    foreach my $tdate (@arhr) {
+        @jbstat = ();
+        $nstat = 0;
+
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 ";
+
+            $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n";
+            $cursor->execute($qprod);
+
+        while(@fields = $cursor->fetchrow) {
+            my $cols=$cursor->{NUM_OF_FIELDS};
+            $fObjAdr = \(JobAttr->new());
+
+            for($i=0;$i<$cols;$i++) {
+                my $fvalue=$fields[$i];
+                my $fname=$cursor->{NAME}->[$i];
+                # print "$fname = $fvalue\n" ;
+
+
+                ($$fObjAdr)->vday($fvalue)    if( $fname eq 'PDATE');
+                ($$fObjAdr)->cpuv($fvalue)    if( $fname eq 'CPU_per_evt_sec');
+                ($$fObjAdr)->rtmv($fvalue)    if( $fname eq 'RealTime_per_evt');
+                ($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
+
+
+            }
+            $jbstat[$nstat] = $fObjAdr;
+            $nstat++;
+        }
+
+
+     foreach $jset (@jbstat) {
+            $pday     = ($$jset)->vday;
+            $pcpu     = ($$jset)->cpuv;
+            $prtime   = ($$jset)->rtmv;
+            $pstream  = ($$jset)->strv;
+
+    if( $pcpu >= 0.001) {
+
+        $rte{$pstream,$ndt} = $rte{$pstream,$ndt} + $prtime/$pcpu;
+        $arcpu{$pstream,$ndt} = $arcpu{$pstream,$ndt} + $pcpu;
+        $nstr{$pstream,$ndt}++;
+
+            $ndate[$ndt] = $pday;
+
+            }
+          }
+####################
+          foreach my $mfile (@arstream) {
+              if ($nstr{$mfile,$ndt} >= 3 ) {
+                  $arcpu{$mfile,$ndt} = $arcpu{$mfile,$ndt}/$nstr{$mfile,$ndt};
+                  $rte{$mfile,$ndt} = $rte{$mfile,$ndt}/$nstr{$mfile,$ndt};
+                  if ( $rte{$mfile,$ndt} > $maxval ) {
+                $maxval =  $rte{$mfile,$ndt}
+                 }
+                  if ( $arcpu{$mfile,$ndt} > $maxcpu ) {
+                      $maxcpu = $arcpu{$mfile,$ndt} ;
+                  }
+                  if ( $mfile eq "physics" ) {
+               $arphysics[$ndt] = $rte{$mfile,$ndt};
+               $cpphysics[$ndt] = $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "mtd" ) {
+               $armtd[$ndt] = $rte{$mfile,$ndt};
+               $cpmtd[$ndt] = $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "upsilon" ) {
+               $arupsilon[$ndt] = $rte{$mfile,$ndt};
+               $cpupsilon[$ndt] = $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "gamma" ) {
+               $argamma[$ndt] = $rte{$mfile,$ndt};
+               $cpgamma[$ndt] = $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "hlt" ) {
+               $arhlt[$ndt] = $rte{$mfile,$ndt};
+               $cphlt[$ndt] = $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "fmsfast" ) {
+               $arfmsfast[$ndt] = $rte{$mfile,$ndt};
+               $cpfmsfast[$ndt] = $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "ht" ) {
+               $arht[$ndt] = $rte{$mfile,$ndt};
+               $cpht[$ndt] = $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "atomcules" ) {
+               $aratomcules[$ndt] = $rte{$mfile,$ndt};
+               $cpatomcules[$ndt] = $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "monitor" ) {
+               $armonitor[$ndt] = $rte{$mfile,$ndt};
+               $cpmonitor[$ndt] = $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "pmdftp" ) {
+               $arpmdftp[$ndt] = $rte{$mfile,$ndt};
+               $cppmdftp[$ndt] = $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "upc" ) {
+               $arupc[$ndt] =  $rte{$mfile,$ndt};
+               $cpupc[$ndt] =  $arcpu{$mfile,$ndt};
+               }
+              }
+          }
+
+        $ndt++;
+
+    } # foreach tdate
+
 ######################################  average number of tracks
 
     }elsif( $srate eq "ntracks" ) {
@@ -547,56 +691,32 @@ END
    } # foreach tdate
 
 
-#######################################   cpu, rtime/cpu
+#######################################  number of finished stream jobs
 
- }else{
+ }elsif( $srate eq "njobs"){
 
  @ndate = ();
  $ndt = 0;
 
- @arupsilon = ();
- @armtd = ();
- @arphysics = ();
- @argamma = ();
- @arhlt = ();
- @arfmsfast = ();
- @ndate = ();
- @arht = ();
- @aratomcules = ();
- @arupc = ();
- @armonitor = ();
- @arpmdftp = ();
-
- @rtphysics = ();
- @rtgamma = ();
- @rtmtd = ();
- @rthlt = ();
- @rtfmsfast = ();
- @rtht = ();
- @rtatomcules = ();
- @rtupc = ();
- @rtmonitor = ();
- @rtpmdftp = ();
- @rtupsilon = ();
-
- @cpupsilon = ();
- @cpmtd = ();
- @cpphysics = ();
- @cpgamma = ();
- @cphlt = ();
- @cpfmsfast = ();
- @cpht = ();
- @cpatomcules = ();
- @cpupc = ();
- @cpmonitor = ();
- @cppmdftp = ();
+ @nstphysics = ();
+ @nstgamma = ();
+ @nstmtd = ();
+ @nsthlt = ();
+ @nstfmsfast = ();
+ @nstht = ();
+ @nstatomcules = ();
+ @nstupc = ();
+ @nstmonitor = ();
+ @nstpmdftp = ();
+ @nstupsilon = ();
+ @numstream = ();
 
 
     foreach my $tdate (@arhr) {
 	@jbstat = ();  
 	$nstat = 0;
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 "; 
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND  jobStatus = 'Done' AND NoEvents >= 10 "; 
 
 	    $cursor =$dbh->prepare($sql)
 	      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -612,8 +732,6 @@ END
                 # print "$fname = $fvalue\n" ;
 
 		($$fObjAdr)->vday($fvalue)    if( $fname eq 'PDATE');
-		($$fObjAdr)->cpuv($fvalue)    if( $fname eq 'CPU_per_evt_sec');
-		($$fObjAdr)->rtmv($fvalue)    if( $fname eq 'RealTime_per_evt');
 		($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
 
 
@@ -625,68 +743,41 @@ END
 
      foreach $jset (@jbstat) {
 	    $pday     = ($$jset)->vday;
-	    $pcpu     = ($$jset)->cpuv;
-	    $prtime   = ($$jset)->rtmv;
 	    $pstream  = ($$jset)->strv;
 
-    if( $pcpu >= 0.001) {             
-
-        $rte{$pstream,$ndt} = $rte{$pstream,$ndt} + $prtime/$pcpu;
-        $arcpu{$pstream,$ndt} = $arcpu{$pstream,$ndt} + $pcpu;
-        $nstr{$pstream,$ndt}++;
+           $nstr{$pstream,$ndt}++;
          
             $ndate[$ndt] = $pday;    
 
-	    }
 	  }
 ####################        
 
           foreach my $mfile (@arstream) {      
-              if ($nstr{$mfile,$ndt} >= 3 ) {
-                  $arcpu{$mfile,$ndt} = $arcpu{$mfile,$ndt}/$nstr{$mfile,$ndt};
-                  $rte{$mfile,$ndt} = $rte{$mfile,$ndt}/$nstr{$mfile,$ndt}; 
-                  if ( $rte{$mfile,$ndt} > $maxval ) {
-                $maxval =  $rte{$mfile,$ndt}
-	         }
-                  if ( $arcpu{$mfile,$ndt} > $maxcpu ) {
-                      $maxcpu = $arcpu{$mfile,$ndt} ;
-                  }
+
 		  if ( $mfile eq "physics" ) {
-	       $arphysics[$ndt] = $rte{$mfile,$ndt};
-               $cpphysics[$ndt] = $arcpu{$mfile,$ndt};
+               $nstphysics[$ndt] = $nstr{$mfile,$ndt};
 	      }elsif( $mfile eq "mtd" ) {
-               $armtd[$ndt] = $rte{$mfile,$ndt};
-               $cpmtd[$ndt] = $arcpu{$mfile,$ndt};
+               $nstmtd[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "upsilon" ) {
-               $arupsilon[$ndt] = $rte{$mfile,$ndt};
-               $cpupsilon[$ndt] = $arcpu{$mfile,$ndt};
+               $nstupsilon[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "gamma" ) {
-               $argamma[$ndt] = $rte{$mfile,$ndt};
-               $cpgamma[$ndt] = $arcpu{$mfile,$ndt};
+               $nstgamma[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "hlt" ) {
-               $arhlt[$ndt] = $rte{$mfile,$ndt};
-               $cphlt[$ndt] = $arcpu{$mfile,$ndt};
+               $nsthlt[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "fmsfast" ) {
-               $arfmsfast[$ndt] = $rte{$mfile,$ndt};
-               $cpfmsfast[$ndt] = $arcpu{$mfile,$ndt};
+               $nstfmsfast[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "ht" ) {
-               $arht[$ndt] = $rte{$mfile,$ndt};
-               $cpht[$ndt] = $arcpu{$mfile,$ndt}; 
+               $nstht[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "atomcules" ) {
-               $aratomcules[$ndt] = $rte{$mfile,$ndt};
-               $cpatomcules[$ndt] = $arcpu{$mfile,$ndt};
+               $nstatomcules[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "monitor" ) {
-               $armonitor[$ndt] = $rte{$mfile,$ndt};
-               $cpmonitor[$ndt] = $arcpu{$mfile,$ndt};
+               $nstmonitor[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "pmdftp" ) {
-               $arpmdftp[$ndt] = $rte{$mfile,$ndt};
-               $cppmdftp[$ndt] = $arcpu{$mfile,$ndt};
+               $nstpmdftp[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
-               $arupc[$ndt] =  $rte{$mfile,$ndt};
-               $cpupc[$ndt] =  $arcpu{$mfile,$ndt};
+               $nstupc[$ndt] =  $nstr{$mfile,$ndt};
 	       }
-              }
-          }
+             }
 
         $ndt++;
 
@@ -767,8 +858,16 @@ END
   
       $max_y = $maxtrk + 0.2*$maxtrk;
       $max_y = int($max_y);
-
    
+  }elsif(  $srate eq "njobs" ) {
+
+        $ylabel = "Number of stream jobs finished per hour ";
+        $gtitle = "Number of stream jobs finished per hour for day $qday ";
+
+    @data = ();
+
+ @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstht, \@nstmonitor, \@nstpmdftp, \@nstupc, \@nstatomcules, \@nstmtd ) ;
+
     }
 
 	my $xLabelsVertical = 1;
