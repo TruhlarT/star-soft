@@ -58,7 +58,7 @@ my @prodyear = ("2009","2010");
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("cpu","rtime/cpu","jobtottime","ntracks","stream_rate" );
+my @arrate = ("cpu","rtime/cpu","jobtottime","ntracks","stream_rate","njobs" );
 
 my @arrprod = ();
 my @arstream = ();
@@ -223,7 +223,7 @@ END
 
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Select stream jobs  values: <br> CPU, rtime/CPU, <br>jobs total time on the farm,<br> avg number of tracks,<br> stream jobs rate per finished time</h3>";
+    print "<h3 align=center> Select stream jobs  values: <br> CPU, rtime/CPU, <br>jobs total time on the farm,<br> avg number of tracks,<br> stream jobs rate per finished time,<br>number of stream jobs</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
                                   -values=>\@arrate,
@@ -788,7 +788,7 @@ END
 
 #############################  stream ratios
 
-          }elsif( $srate eq "stream_rate" ) { 
+          }elsif( $srate eq "stream_rate" or $srate eq "njobs" ) { 
  
  %nstr = {};
  @numstream = 0;
