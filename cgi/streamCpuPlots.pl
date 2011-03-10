@@ -1144,13 +1144,13 @@ END
 
        if( $qperiod eq "week") {
 
-        $ylabel = "Ratio of different stream jobs finished per hour ";
-        $gtitle = "Ratio of different stream jobs finished per hour for $qperiod period";
+        $ylabel = "Ratio of different stream jobs finishing per hour ";
+        $gtitle = "Ratio of different stream jobs finishing per hour for $qperiod period";
 
       }else{
 
-        $ylabel = "Ratio of different stream jobs finished per day ";
-        $gtitle = "Ratio of different stream jobs finished per day for $qperiod period";
+        $ylabel = "Ratio of different stream jobs finishing per day ";
+        $gtitle = "Ratio of different stream jobs finishing per day for $qperiod period";
      }
 
  @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc, \@rtatomcules, \@rtmtd ) ;
@@ -1164,12 +1164,12 @@ END
        if( $qperiod eq "week") {
 
 	$ylabel = "Total time jobs stay on the farm in hours";
-	$gtitle = "Total time jobs stay on the farm (finished per hour) for $qperiod period ";
+	$gtitle = "Total time jobs stay on the farm (finishing per hour) for $qperiod period ";
 
       }else{
 
 	$ylabel = "Total time jobs stay on the farm in hours ";
-	$gtitle = "Total time jobs stay on the farm (finished per day) for $qperiod period ";
+	$gtitle = "Total time jobs stay on the farm (finishing per day) for $qperiod period ";
      }
 
  @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd ) ;
@@ -1203,13 +1203,13 @@ END
 
        if( $qperiod eq "week") {
 
-        $ylabel = "Number of stream jobs finished per hour ";
-        $gtitle = "Number of stream jobs finished per hour for $qperiod period";
+        $ylabel = "Number of stream jobs finishing per hour ";
+        $gtitle = "Number of stream jobs finishing per hour for $qperiod period";
 
       }else{
 
-        $ylabel = "Number of stream jobs finished per day ";
-        $gtitle = "Number of stream jobs finished per day for $qperiod period";
+        $ylabel = "Number of stream jobs finishing per day ";
+        $gtitle = "Number of stream jobs finishing per day for $qperiod period";
      }
 
  @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstht, \@nstmonitor, \@nstpmdftp, \@nstupc, \@nstatomcules, \@nstmtd ) ;
