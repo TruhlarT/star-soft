@@ -1196,6 +1196,25 @@ END
       $max_y = $maxtrk + 0.2*$maxtrk;
       $max_y = int($max_y); 
 
+
+ }elsif(  $srate eq "njobs" ) {
+
+  @data = ();
+
+       if( $qperiod eq "week") {
+
+        $ylabel = "Ratio of different stream jobs per hour ";
+        $gtitle = "Ratio of different stream jobs to all jobs per hour for $qperiod period";
+
+      }else{
+
+        $ylabel = "Ratio of different stream jobs per day ";
+        $gtitle = "Ratio of different stream jobs to all jobs per day for $qperiod period";
+     }
+
+ @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstht, \@nstmonitor, \@nstpmdftp, \@nstupc, \@nstatomcules, \@nstmtd ) ;
+
+
      }
   
 	my $xLabelsVertical = 1;
