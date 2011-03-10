@@ -58,7 +58,7 @@ my @prodyear = ("2009","2010");
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("cpu","rtime/cpu","jobtottime","ntracks","stream_rate","njobs");
+my @arrate = ("cpu","rtime/cpu","jobtottime","ntracks","stream_rate" );
 
 my @arrprod = ();
 my @arstream = ();
@@ -223,7 +223,7 @@ END
 
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Select stream jobs  values: <br> CPU, rtime/CPU, <br>jobs total time on the farm,<br> avg number of tracks,<br> stream rate per finished time, <br>number of finished jobs<br></h3>";
+    print "<h3 align=center> Select stream jobs  values: <br> CPU, rtime/CPU, <br>jobs total time on the farm,<br> avg number of tracks,<br> stream jobs rate per finished time</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
                                   -values=>\@arrate,
@@ -343,7 +343,7 @@ END
 
    }else{ 
  
-    $sql="SELECT DISTINCT runDay  FROM $JobStatusT WHERE prodSeries = ?  AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(runDay)) < ?  order by runDay ";
+    $sql="SELECT DISTINCT runDay  FROM $JobStatusT WHERE prodSeries = ?  AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(runDay)) < ?  order by runDay";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -393,7 +393,7 @@ END
 
      if( $qperiod eq "week") {
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 and jobStatus = 'Done' AND NoEvents >= 10  order by createTime ";
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -418,7 +418,7 @@ END
 
      }else{
 
-  $sql="SELECT runDay, CPU_per_evt_sec, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND jobStatus = 'Done' AND NoEvents >= 10 order by runDay ";
+  $sql="SELECT runDay, CPU_per_evt_sec, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND jobStatus = 'Done' AND NoEvents >= 10 ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -543,7 +543,7 @@ END
 
      if( $qperiod eq "week") {
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 order by createTime ";
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -570,7 +570,7 @@ END
 
      }else{
 
-   $sql="SELECT runDay, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10  order by runDay ";
+   $sql="SELECT runDay, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -682,7 +682,7 @@ END
 
      if( $qperiod eq "week") {
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, avg_no_tracks, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND  jobStatus = 'Done' AND avg_no_tracks >= 1 AND NoEvents >= 10  order by createTime ;
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, avg_no_tracks, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND  jobStatus = 'Done' AND avg_no_tracks >= 1 AND NoEvents >= 10 ";
 
 
             $cursor =$dbh->prepare($sql)
@@ -709,7 +709,7 @@ END
 
      }else{
 
-   $sql="SELECT runDay, avg_no_tracks, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries= ? AND jobStatus = 'Done' AND avg_no_tracks >= 1 AND NoEvents >= 10 order by runDay ";
+   $sql="SELECT runDay, avg_no_tracks, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries= ? AND jobStatus = 'Done' AND avg_no_tracks >= 1 AND NoEvents >= 10 ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -788,7 +788,7 @@ END
 
 #############################  stream ratios
 
-    }elsif( $srate eq "stream_rate" or  $srate eq "njobs" ) { 
+          }elsif( $srate eq "stream_rate" ) { 
  
  %nstr = {};
  @numstream = 0;
@@ -825,7 +825,7 @@ END
 
      if( $qperiod eq "week") {
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND  jobStatus = 'Done' AND NoEvents >= 10 order by createTime ";
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND  jobStatus = 'Done' AND NoEvents >= 10 ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -850,7 +850,7 @@ END
 
      }else{
 
-   $sql="SELECT runDay, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND jobStatus = 'Done' AND NoEvents >= 10  order by runDay ";
+   $sql="SELECT runDay, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND jobStatus = 'Done' AND NoEvents >= 10 ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -964,7 +964,7 @@ END
 
      if( $qperiod eq "week") {
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, jobtotalTime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND jobtotalTime > 0.1  AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 order by createTime ";
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, jobtotalTime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND jobtotalTime > 0.1  AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -990,7 +990,7 @@ END
 
      }else{
 
-   $sql="SELECT runDay, jobtotalTime, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND  jobtotalTime > 0.1 AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10  order by runDay ";
+   $sql="SELECT runDay, jobtotalTime, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND  jobtotalTime > 0.1 AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -1138,6 +1138,24 @@ END
        $max_y = $maxcpu + 0.2*$maxcpu;
        $max_y = int($max_y);
 
+  }elsif(  $srate eq "stream_rate" ) {
+
+  @data = ();
+
+       if( $qperiod eq "week") {
+
+        $ylabel = "Ratio of different stream jobs per hour ";
+        $gtitle = "Ratio of different stream jobs to all jobs per hour for $qperiod period";
+
+      }else{
+
+        $ylabel = "Ratio of different stream jobs per day ";
+        $gtitle = "Ratio of different stream jobs to all jobs per day for $qperiod period";
+     }
+
+ @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc, \@rtatomcules, \@rtmtd ) ;
+
+        $max_y = 1.2;
 
     }elsif(  $srate eq "jobtottime" ) {
 
@@ -1177,42 +1195,6 @@ END
     
       $max_y = $maxtrk + 0.2*$maxtrk;
       $max_y = int($max_y); 
-
-  }elsif(  $srate eq "stream_rate" ) {
-
-  @data = ();
-
-       if( $qperiod eq "week") {
-
-        $ylabel = "Ratio of different stream jobs per hour ";
-        $gtitle = "Ratio of different stream jobs to all jobs per hour for $qperiod period";
-
-      }else{
-
-        $ylabel = "Ratio of different stream jobs per day ";
-        $gtitle = "Ratio of different stream jobs to all jobs per day for $qperiod period";
-     }
-
- @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc, \@rtatomcules, \@rtmtd ) ;
-
-        $max_y = 1.2;
-
-  }elsif(  $srate eq "njobs" ) {
-
-  @data = ();
-
-       if( $qperiod eq "week") {
-
-        $ylabel = "Number of finished stream jobs per hour ";
-        $gtitle = "Number of finished stream jobs per hour for $qperiod period";
-
-      }else{
-
-        $ylabel = "Number of finished stream jobs per day ";
-        $gtitle = "Number of finished stream jobs per day for $qperiod period";
-     }
-
- @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstht, \@nstmonitor, \@nstpmdftp, \@nstupc, \@nstatomcules, \@nstmtd ) ;
 
      }
   
