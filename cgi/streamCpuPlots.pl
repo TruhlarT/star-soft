@@ -1144,13 +1144,13 @@ END
 
        if( $qperiod eq "week") {
 
-        $ylabel = "Ratio of different stream jobs per hour ";
-        $gtitle = "Ratio of different stream jobs to all jobs per hour for $qperiod period";
+        $ylabel = "Ratio of different stream jobs finished per hour ";
+        $gtitle = "Ratio of different stream jobs finished per hour for $qperiod period";
 
       }else{
 
-        $ylabel = "Ratio of different stream jobs per day ";
-        $gtitle = "Ratio of different stream jobs to all jobs per day for $qperiod period";
+        $ylabel = "Ratio of different stream jobs finished per day ";
+        $gtitle = "Ratio of different stream jobs finished per day for $qperiod period";
      }
 
  @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc, \@rtatomcules, \@rtmtd ) ;
@@ -1203,13 +1203,13 @@ END
 
        if( $qperiod eq "week") {
 
-        $ylabel = "Ratio of different stream jobs per hour ";
-        $gtitle = "Ratio of different stream jobs to all jobs per hour for $qperiod period";
+        $ylabel = "Number of stream jobs finished per hour ";
+        $gtitle = "Number of stream jobs finished per hour for $qperiod period";
 
       }else{
 
-        $ylabel = "Ratio of different stream jobs per day ";
-        $gtitle = "Ratio of different stream jobs to all jobs per day for $qperiod period";
+        $ylabel = "Number of stream jobs finished per day ";
+        $gtitle = "Number of stream jobs finished per day for $qperiod period";
      }
 
  @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstht, \@nstmonitor, \@nstpmdftp, \@nstupc, \@nstatomcules, \@nstmtd ) ;
