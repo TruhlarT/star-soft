@@ -1,4 +1,4 @@
-void y2011()
+void y2010c()
 {
 //
 //  This file has been generated automatically via the root
@@ -9,7 +9,7 @@ gSystem->Load("libGeom");
 TGeoRotation *rot;
 TGeoNode *Node, *Node1;
 
-TGeoManager *y2011 = new TGeoManager("y2011","y2011.C");
+TGeoManager *y2010c = new TGeoManager("y2010c","y2010c.C");
 
 
 //-----------List of Materials and Mixtures--------------
@@ -5677,8 +5677,20 @@ TGeoVolume *MRGV = gGeoManager->MakePcon("MRGV",med124,0,360,4);
   ((TGeoPcon*)MRGV->GetShape())->DefineSection(2,28.5,263.68,364.29);
   ((TGeoPcon*)MRGV->GetShape())->DefineSection(3,43.79999,263.68,364.29);
   MRGV->SetLineColor(6);
-TGeoVolume *MUTD = gGeoManager->MakeTube("MUTD",med125,364.25,415,300);
+TGeoVolume *MUTD = gGeoManager->MakeTube("MUTD",med125,365.25,435,250);
   MUTD->SetVisibility(0);
+TGeoVolume *MUSC = gGeoManager->MakeTubs("MUSC",med125,365.25,435,250,-5,5);
+  MUSC->SetVisibility(0);
+TGeoVolume *MTRA = gGeoManager->MakeBox("MTRA",med125,5.5,10.795,250);
+  MTRA->SetLineColor(2);
+TGeoVolume *MXTR = gGeoManager->MakeBox("MXTR",med126,4.445,10.795,120.81);
+  MXTR->SetLineColor(2);
+TGeoVolume *MMTC = gGeoManager->MakeBox("MMTC",med127,4.315,10.665,120.68);
+  MMTC->SetLineColor(5);
+TGeoVolume *MPMT = gGeoManager->MakeBox("MPMT",med126,1.56,28.6,250);
+  MPMT->SetLineColor(3);
+TGeoVolume *MMRP = gGeoManager->MakeBox("MMRP",med129,1.25,28.6,105.41);
+  MMRP->SetLineColor(3);
 TGeoVolume *PHMD = gGeoManager->MakeTube("PHMD",med130,22,135,2.98);
   PHMD->SetLineColor(2);
 TGeoVolume *PHMS = gGeoManager->MakePara("PHMS",med130,65.58365,56.79711,2.98,30,0,0);
@@ -6036,6 +6048,10 @@ TGeoVolumeMulti *IBEH = gGeoManager->MakeVolumeMulti("IBEH", med71);
   IBEH->SetLineColor(2);
   IBEH->SetFillStyle(7);
  IBEH->AddVolume(gGeoManager->MakeBox("IBEH",med71,3.81,0.3683,136.017));
+TGeoVolumeMulti *MXSA = gGeoManager->MakeVolumeMulti("MXSA", med128);
+ MXSA->AddVolume(gGeoManager->MakeBox("MXSA",med128,0.5,10.5,56.25));
+  MXSA->SetLineColor(3);
+ MXSA->AddVolume(gGeoManager->MakeBox("MXSA",med128,0.5,10.5,65));
 
 //-----------List of Nodes--------------
 
@@ -13078,6 +13094,15 @@ gGeoManager->SetTopVolume(HALL);
    MAGP->AddNode(MRGV,1,new TGeoTranslation(0,0,313.7));
    MAGP->AddNode(MRGV,2,new TGeoCombiTrans(0,0,-313.7,rot1));
   CAVE->AddNode(MUTD,1,gGeoIdentity);
+   MUTD->AddNode(MUSC,1,rot40);
+    MUSC->AddNode(MTRA,1,new TGeoTranslation(395.593,0,-128.81));
+     MTRA->AddNode(MXTR,1,new TGeoTranslation(1.055,0,2.190002));
+      MXTR->AddNode(MMTC,1,gGeoIdentity);
+       MMTC->AddNode(MXSA->GetVolume(0),1,new TGeoTranslation(1.395,0,64.3));
+       MMTC->AddNode(MXSA->GetVolume(1),2,new TGeoTranslation(-1.775,0,-55.29));
+    MUSC->AddNode(MPMT,1,new TGeoTranslation(367.31,0,0));
+    MUSC->AddNode(MMRP,1,new TGeoTranslation(404.85,0,-128.81));
+    MUSC->AddNode(MTRA,2,new TGeoTranslation(425.593,0,-128.81));
   CAVE->AddNode(PHMD,1,new TGeoTranslation(0,0,-539));
    PHMD->AddNode(PHMS,1,new TGeoCombiTrans(57.29711,32.79183,0,rot33));
     PHMS->AddNode(PHSR,1,new TGeoCombiTrans(11.82963,45.2662,0,rot28));
