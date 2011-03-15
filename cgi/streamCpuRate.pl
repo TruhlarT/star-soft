@@ -57,7 +57,7 @@ my @prodyear = ("2010");
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("cpu","rtime/cpu","jobtottime","ntracks","njobs");
+my @arrate = ("cpu","rtime/cpu","jobtottime","ntracks","stream_rate","njobs");
 
 my @arrprod = ();
 my @arstream = ();
@@ -236,7 +236,7 @@ END
  
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Stream values: <br> CPU, rtime/CPU,<br>jobs total time on the farm,<br> avg number of tracks <br>number of finished jobs</h3>";
+    print "<h3 align=center> Stream values: <br> CPU, rtime/CPU,<br>jobs total time on the farm,<br> avg number of tracks, <br>stream jobs ratios by finish time,<br>number of finished jobs</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
 	                          -values=>\@arrate,
@@ -690,7 +690,7 @@ END
 
 #######################################  number of finished stream jobs
 
- }elsif( $srate eq "njobs"){
+ }elsif( $srate eq "njobs" or $srate eq "stream_rate"){
 
  @ndate = ();
  $ndt = 0;
@@ -708,6 +708,19 @@ END
  @nstupsilon = ();
 
  @numstream = ();
+
+ @rtphysics = ();
+ @rtgamma = ();
+ @rtmtd = ();
+ @rthlt = ();
+ @rtfmsfast = ();
+ @rtht = ();
+ @rtatomcules = ();
+ @rtupc = ();
+ @rtmonitor = ();
+ @rtpmdftp = ();
+ @rtupsilon = ();
+
 
 
     foreach my $tdate (@arhr) {
@@ -779,6 +792,26 @@ END
         $ndt++;
 
     } # foreach tdate
+
+      for($ii = 0; $ii < $ndt; $ii++) {
+      $numstream[$ii] = $nstphysics[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+$nstht[$ii]+$nstmonitor[$ii]+$nstpmdftp[$ii]+ $nstupc[$ii]+ $nstgamma[$ii]+  $nstatomcules[$ii]+ $nstupsilon[$ii];
+
+     if ($numstream[$ii] >= 1) {
+      $rtphysics[$ii] = $nstphysics[$ii]/$numstream[$ii];
+      $rtmtd[$ii] = $nstmtd[$ii]/$numstream[$ii];
+      $rthlt[$ii] = $nsthlt[$ii]/$numstream[$ii];
+      $rtht[$ii] = $nstht[$ii]/$numstream[$ii];
+      $rtmonitor[$ii] = $nstmonitor[$ii]/$numstream[$ii];
+      $rtpmdftp[$ii] = $nstpmdftp[$ii]/$numstream[$ii];
+      $rtupc[$ii] = $nstupc[$ii]/$numstream[$ii];
+      $rtupsilon[$ii] = $nstupsilon[$ii]/$numstream[$ii];
+      $rtgamma[$ii] = $nstgamma[$ii]/$numstream[$ii];
+#      $rtfmsfast[$ii] = $nstfmsfast[$ii]/$numstream[$ii];
+      $rtatomcules[$ii] = $nstatomcules[$ii]/$numstream[$ii];
+
+       }
+  }
+###########################################################
 
  }
 
@@ -864,6 +897,18 @@ END
     @data = ();
 
  @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstht, \@nstmonitor, \@nstpmdftp, \@nstupc, \@nstatomcules, \@nstmtd ) ;
+
+  }elsif(  $srate eq "stream_rate" ) {
+
+        $ylabel = "Ratio of different stream jobs finishing per hour ";
+        $gtitle = "Ratio of different stream jobs finishing per hour for day $qday ";
+
+ @data = ();
+
+ @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc, \@rtatomcules, \@rtmtd, \@rtmtd ) ;
+
+        $max_y = 1.2;
+
 
     }
 
