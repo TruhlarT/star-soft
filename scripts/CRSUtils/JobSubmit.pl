@@ -1245,7 +1245,9 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 	#    }
 	#}
 	#print "Debug ".join(";",@PIPEFILES)."\n";
-	$TOT = 200;
+	$TOTP = $TOT = 50;
+	$pick = 0;
+
 	if( ($obj = rdaq_open_odatabase()) ){
 	    if( substr($TARGET,0,1) eq "X" ){
 		my($user,$i,$kind,$wght);
@@ -1261,32 +1263,67 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		$TARGET=~ s/X\//\//;
 		($TARGET,$user)=split(":",$TARGET);
 
-		undef(@SKIPPED);
-		undef(@RANDREJECT);
 		undef(@OKFILES);
 		undef(@OKFRMT);
-
-		$num = int($TOT/(($#PIPEOFF+1)/2))+1;
+		$cntskipped = $cntreject = 0;
 
 		print "$SELF : $TARGET and user=$user\n";
 		#&rdaq_toggle_debug();
-		for ($i=0 ; $i <= $#PIPEOFF ; $i++){
-		    if ( 2*int(($i+1)/2) == $i ){
-                        # the kind of streams
-			$kind = $PIPEOFF[$i];
-			#print "Recovering i=$i kind=$kind (pending)\n";
-		    } else {
-			# the weight of stream to transfer
-			$wght= $PIPEOFF[$i];
-			#print "$SELF : Trying $kind / $wght\n";
-			@files= rdaq_get_files($obj, 0, $num, 1 , \%Cond, $kind);
-			# ----------------------------^ this will add Status=0 in
-			# conditions - replace by undef otherwise.
-			print "$SELF : Recovering i=$i kind=$kind wght=$wght and $num (".($#files+1)." selected)\n";
-			push(@MySelection,&RandomPick($wght,@files));
+
+		#if  ( ! defined($ENV{JobSubmit_GO}) ){
+		#    print "Debug - leaving\n";
+		#    exit;
+		#}
+
+		do {
+		    undef(@SKIPPED);
+		    undef(@RANDREJECT);
+		    undef(@myfiles);
+
+		    $num = int($TOTP/(($#PIPEOFF+1)/2))+1;		
+		    for ($i=0 ; $i <= $#PIPEOFF ; $i++){
+			if ( 2*int(($i+1)/2) == $i ){
+			    # the kind of streams
+			    $kind = $PIPEOFF[$i];
+			    #print "Recovering i=$i kind=$kind (pending)\n";
+			} else {
+			    # the weight of stream to transfer
+			    $wght= $PIPEOFF[$i];
+			    #print "$SELF : Trying $kind / $wght\n";
+			    @files= rdaq_get_files($obj, 0, $num, 1 , \%Cond, $kind);
+			    # ----------------------------^ this will add Status=0 in
+			    # conditions - replace by undef otherwise.
+			    push(@myfiles,&RandomPick($wght,@files));
+			    print 
+				"$SELF : Recovering i=$i kind=$kind picking $num <=> wght=$wght (".
+				($#files+1)."/".($#myfiles+1)." selected)\n";
+			}
 		    }
-		}
-		#&rdaq_toggle_debug();
+		    # this implies at least one has 100% selection, hence we ensure
+		    # we get out with one file
+		    if ($#myfiles == -1){
+			print "$SELF : No file selected (no candidate)\n";
+			exit;
+		    } else {
+			push(@MySelection,@myfiles);
+		    }
+
+		    #&rdaq_toggle_debug();
+		    $TOTP = $TOT - $#MySelection;
+
+		    # mark right away
+		    if ( $#RANDREJECT != -1){
+			$cntreject += $#RANDREJECT+1;
+			rdaq_set_xstatus($obj,$ID,8,@RANDREJECT);  # mark Random reject
+		    }
+		    if ( $#SKIPPED != -1 ){
+			$cntskipped += $#SKIPPED+1;
+			rdaq_set_xstatus($obj,$ID,4,@SKIPPED);     # mark skipped
+			rdaq_set_files($obj,4,@SKIPPED);           # mark skipped as well as cond are similar
+		    }
+
+		} while ( $#MySelection <  $TOT);
+
 
 		#push(@files,rdaq_get_ffiles($obj,0,$TOT,$kind));
 		#print "We are considering\n";
@@ -1328,8 +1365,8 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		} else {
 		    print "$SELF : Nothing to submit -".
 			 " OKFiles=".(1+$#OKFILES).
-			 " Skipped=".(1+$#SKIPPED).
-			 " Rejected=".(1+$#RANDREJECT)."\n";
+			 " Skipped=$cntskipped".
+			 " Rejected=$cntreject\n";
 		    $status = 0; # but this is OK
 		}
 
@@ -1342,13 +1379,6 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 			rdaq_set_xstatus($obj,$ID,1,@OKFILES);     # mark submitted
 			rdaq_set_files($obj,7,@OKFILES);           # set to External
 			rdaq_set_chain($obj,"Restored-for-external-processing-on-$target",@OKFILES);
-		    }
-		    if ( $#RANDREJECT != -1){
-			rdaq_set_xstatus($obj,$ID,8,@RANDREJECT);  # mark Random reject
-		    }
-		    if ( $#SKIPPED != -1 ){
-			rdaq_set_xstatus($obj,$ID,4,@SKIPPED);     # mark skipped
-			rdaq_set_files($obj,4,@SKIPPED);           # mark skipped as well as cond are similar
 		    }
 		}
 		unlink($FOUT);
