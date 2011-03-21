@@ -1290,23 +1290,34 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 			    # the weight of stream to transfer
 			    $wght= $PIPEOFF[$i];
 			    #print "$SELF : Trying $kind / $wght\n";
-			    @files= rdaq_get_files($obj, 0, $num, 1 , \%Cond, $kind);
+			    @files= rdaq_get_files($obj, 0, int($num/$wght*100), 1 , \%Cond, $kind);
 			    # ----------------------------^ this will add Status=0 in
 			    # conditions - replace by undef otherwise.
 			    push(@myfiles,&RandomPick($wght,@files));
 			    print 
 				"$SELF : Recovering i=$i kind=$kind picking $num <=> wght=$wght (".
-				($#files+1)."/".($#myfiles+1)." selected)\n";
+				($#files+1)."/".($#myfiles+1)."/".($#MySelection+1)." selected)\n";
 			}
 		    }
+
 		    # this implies at least one has 100% selection, hence we ensure
 		    # we get out with one file
-		    if ($#myfiles == -1){
+		    if ($#myfiles == -1 &&  $#MySelection == -1 ){
 			print "$SELF : No file selected (no candidate)\n";
+			# Now, we get back to status 9 and 8 and reset it all to zero and try
+			# again at the next loop
+			undef(%Cond);
+			$Cond{"Status$ID"} = "8|9";
+			&rdaq_toggle_debug(1);
+			@files = rdaq_get_orecord($obj,\%Cond, -1);
+			rdaq_set_xstatus($obj,$ID,0,@files);
+			&rdaq_toggle_debug(0);
 			exit;
 		    } else {
 			push(@MySelection,@myfiles);
+			rdaq_set_xstatus($obj,$ID,9,@myfiles);
 		    }
+
 
 		    #&rdaq_toggle_debug();
 		    $TOTP = $TOT - $#MySelection;
@@ -1322,7 +1333,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 			rdaq_set_files($obj,4,@SKIPPED);           # mark skipped as well as cond are similar
 		    }
 
-		} while ( $#MySelection <  $TOT);
+		} while ( $#MySelection <  $TOT && $#myfiles != -1);
 
 
 		#push(@files,rdaq_get_ffiles($obj,0,$TOT,$kind));
