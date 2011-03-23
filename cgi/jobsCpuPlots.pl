@@ -500,8 +500,8 @@ END
 
            $rte = $prtime/$pcpu; 
 
-	   $ndt = int($rte/$rcpubin);
-           $ndate[$ndt] = $rcpubin*$ndt;  
+	   $ndt = int(($rte - 1)/$rcpubin);
+           $ndate[$ndt] = 1 + $rcpubin*$ndt;  
 
 #
 	       if ( $pstream eq "physics" ) {
