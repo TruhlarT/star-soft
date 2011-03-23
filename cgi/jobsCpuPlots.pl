@@ -485,7 +485,7 @@ END
      }elsif( $srate eq "rtime/cpu" ) {
 
  $ndate[0] = 1;
- $rcpubin = 0.02; 
+ $rcpubin = 0.01; 
 
  for ($i = 0; $i <50; $i++) {
    $ndate[$i] = 1 + $rcpubin*$i; 
