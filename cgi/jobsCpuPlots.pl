@@ -487,6 +487,10 @@ END
  $ndate[0] = 1;
  $rcpubin = 0.02; 
 
+ for ($i = 0; $i <50; $i++) {
+   $ndate[$i] = $rcpubin*$i; 
+ }
+
      foreach $jset (@jbstat) {
 	    $pcpu     = ($$jset)->cpuv;
 	    $prtime   = ($$jset)->rtmv;
