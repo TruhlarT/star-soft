@@ -29,7 +29,6 @@ $dbpass="";
 $dbname="operation";
 
 struct JobAttr => {
-      vday      => '$',
       cpuv      => '$',
       rtmv      => '$',
       jbtot     => '$',
@@ -74,8 +73,7 @@ my $pstream;
 my $jbTottime;
 my $pryear = "2010";
 
-my %rte = {};
-my %nstr = {};
+my $rte = 0;
 
 my @arupsilon = ();
 my @armtd = ();
@@ -119,9 +117,6 @@ my @jbmonitor = ();
 my @jbpmdftp = ();
 
  my $maxval = 1;
- my $maxcpu = 0;
- my $maxjbtime = 0.1;
-
 
 #my @arperiod = ("day","week");
 
@@ -264,8 +259,11 @@ END
   my @jbstat = ();  
   my $nstat = 0;
   my $jset;
-
-     @arstream = ();
+  my $cpubin = 0;
+  my $rcpubin = 0;
+  my $obtotbin = 0;
+ 
+    @arstream = ();
 
 
  &StDbProdConnect();
@@ -298,8 +296,7 @@ END
 
   #####################
 
- %rte = {};
- %nstr = {};
+ $rte = 1;
  
  @arupsilon = ();
  @armtd = ();
@@ -346,7 +343,7 @@ END
 
     foreach  $tdate (@arhr) {
  
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, jobtotalTime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND jobtotalTime > 0.1  AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 order by  createTime "; 
+  $sql="SELECT jobtotalTime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND jobtotalTime > 0.1  AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 order by createTime "; 
 
 	    $cursor =$dbh->prepare($sql)
 	      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -361,7 +358,6 @@ END
 		my $fname=$cursor->{NAME}->[$i];
                 # print "$fname = $fvalue\n" ;
 
-		($$fObjAdr)->vday($fvalue)    if( $fname eq 'PDATE');
                 ($$fObjAdr)->jbtot($fvalue)   if( $fname eq 'jobtotalTime');
 		($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
 
@@ -369,47 +365,44 @@ END
 	    $jbstat[$nstat] = $fObjAdr;
 	    $nstat++;
          }
-  
-  }
+    }
 
 ###########
 
+ $jobtotbin = 5.0;
+ $ndate[0] = 0;
+
      foreach $jset (@jbstat) {
-	    $phr       = ($$jset)->vday;
             $jbTottime = ($$jset)->jbtot;
 	    $pstream   = ($$jset)->strv;
 
-           $ndate[$ndt] = $phr;  
-
-           if ( $jbTottime > $maxjbtime ) {
-            $maxjbtime = $jbTottime ;
-           }
+	   $ndt = int($jbTottime/$jobtotbin);
+           $ndate[$ndt] = $jobtotbin*$ndt;  
 
 	   if ( $pstream eq "physics" ) {
-	       $jbphysics[$ndt] = $jbTottime;
+	       $jbphysics[$ndt]++;
 	   }elsif( $pstream eq "mtd" ) {
-               $jbmtd[$ndt] = $jbTottime;
+               $jbmtd[$ndt]++;
            }elsif( $pstream eq "upsilon" ) {
-               $jbupsilon[$ndt] = $jbTottime; 
+               $jbupsilon[$ndt]++; 
            }elsif( $pstream eq "gamma" ) {
-               $jbgamma[$ndt] = $jbTottime; 
+               $jbgamma[$ndt]++; 
            }elsif( $pstream eq "hlt" ) {
-               $jbhlt[$ndt] = $jbTottime;  
+               $jbhlt[$ndt]++;  
            }elsif( $pstream eq "fmsfast" ) {
-               $jbfmsfast[$ndt] =  $jbTottime; 
+               $jbfmsfast[$ndt]++; 
            }elsif( $pstream eq "ht" ) {
-               $jbht[$ndt] = $jbTottime;  
+               $jbht[$ndt]++;  
            }elsif( $pstream eq "atomcules" ) {
-               $jbatomcules[$ndt] = $jbTottime; 
+               $jbatomcules[$ndt]++; 
            }elsif( $pstream eq "monitor" ) {
-               $jbmonitor[$ndt] = $jbTottime;  
+               $jbmonitor[$ndt]++;  
            }elsif( $pstream eq "pmdftp" ) {
-               $jbpmdftp[$ndt] = $jbTottime;   
+               $jbpmdftp[$ndt]++;   
            }elsif( $pstream eq "upc" ) {
-               $jbupc[$ndt] =  $jbTottime;
+               $jbupc[$ndt]++;
 	       }
-	    $ndt++;
-	    }
+ 	    }
 
 ###################
 
@@ -423,7 +416,7 @@ END
 
     foreach  $tdate (@arhr) {
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 order by createTime "; 
+  $sql="SELECT CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 order by createTime "; 
 
 	    $cursor =$dbh->prepare($sql)
 	      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -438,7 +431,6 @@ END
 		my $fname=$cursor->{NAME}->[$i];
                 # print "$fname = $fvalue\n" ;
 
-		($$fObjAdr)->vday($fvalue)    if( $fname eq 'PDATE');
 		($$fObjAdr)->cpuv($fvalue)    if( $fname eq 'CPU_per_evt_sec');
 		($$fObjAdr)->rtmv($fvalue)    if( $fname eq 'RealTime_per_evt');
 		($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
@@ -447,70 +439,97 @@ END
 	    $jbstat[$nstat] = $fObjAdr;
 	    $nstat++;
          }
-  
-  }
+    }
 
 ###########
 
- $ndt = 0;
- @ndate = ();
+       if( $srate eq "cpu" ) {
+
+ $ndate[0] = 0;
+ $cpubin = 2.0; 
 
      foreach $jset (@jbstat) {
-	    $phr     = ($$jset)->vday;
+	    $pcpu     = ($$jset)->cpuv;
+	    $pstream  = ($$jset)->strv;
+
+	    $ndt = int($pcpu/$cpubin);
+            $ndate[$ndt] = $cpubin*$ndt;  
+
+	       if ( $pstream eq "physics" ) {
+	       $cpphysics[$ndt]++;
+	      }elsif( $pstream eq "mtd" ) {
+               $cpmtd[$ndt]++;
+              }elsif( $pstream eq "upsilon" ) {
+               $cpupsilon[$ndt]++; 
+              }elsif( $pstream eq "gamma" ) {
+               $cpgamma[$ndt]++; 
+              }elsif( $pstream eq "hlt" ) {
+               $cphlt[$ndt]++;  
+              }elsif( $pstream eq "fmsfast" ) {
+               $cpfmsfast[$ndt]++; 
+              }elsif( $pstream eq "ht" ) {
+               $cpht[$ndt]++;  
+              }elsif( $pstream eq "atomcules" ) {
+               $cpatomcules[$ndt]++; 
+              }elsif( $pstream eq "monitor" ) {
+               $cpmonitor[$ndt]++;  
+              }elsif( $pstream eq "pmdftp" ) {
+               $cppmdftp[$ndt]++;   
+              }elsif( $pstream eq "upc" ) {
+               $cpupc[$ndt]++;
+	       }
+	    }
+
+##################################################
+
+     }elsif( $srate eq "rtime/cpu" ) {
+
+ $ndate[0] = 1;
+ $rcpubin = 0.02; 
+
+     foreach $jset (@jbstat) {
 	    $pcpu     = ($$jset)->cpuv;
 	    $prtime   = ($$jset)->rtmv;
 	    $pstream  = ($$jset)->strv;
 
         if( $pcpu >= 0.01) {             
 
-           $rte{$pstream,$ndt} = $prtime/$pcpu;
-           $ndate[$ndt] = $phr; 
+           $rte = $prtime/$pcpu; 
+
+	   $ndt = int($rte/$rcpubin);
+           $ndate[$ndt] = $rcpubin*$ndt;  
+
 #
-           if ( $pcpu > $maxcpu ) {
-           $maxcpu = $pcpu; 
-	   }
-           if ( $rte{$pstream,$ndt} > $maxval ) {
-	       $maxval =  $rte{$pstream,$ndt};
+	       if ( $pstream eq "physics" ) {
+	       $arphysics[$ndt]++ ;
+	      }elsif( $pstream eq "mtd" ) {
+               $armtd[$ndt]++;
+              }elsif( $pstream eq "upsilon" ) {
+               $arupsilon[$ndt]++ ;
+              }elsif( $pstream eq "gamma" ) {
+               $argamma[$ndt]++ ;
+              }elsif( $pstream eq "hlt" ) {
+               $arhlt[$ndt]++;
+              }elsif( $pstream eq "fmsfast" ) {
+               $arfmsfast[$ndt]++ ;
+              }elsif( $pstream eq "ht" ) {
+               $arht[$ndt]++ ;
+              }elsif( $pstream eq "atomcules" ) {
+               $aratomcules[$ndt]++ ;
+              }elsif( $pstream eq "monitor" ) {
+               $armonitor[$ndt]++ ;
+              }elsif( $pstream eq "pmdftp" ) {
+               $arpmdftp[$ndt]++ ;   
+              }elsif( $pstream eq "upc" ) {
+               $arupc[$ndt]++;
+	       }
+	    } 
 	   }
 
-	       if ( $pstream eq "physics" ) {
-	       $arphysics[$ndt] =  $rte{$pstream,$ndt};
-	       $cpphysics[$ndt] = $pcpu;
-	      }elsif( $pstream eq "mtd" ) {
-               $armtd[$ndt] =  $rte{$pstream,$ndt};
-               $cpmtd[$ndt] = $pcpu;
-              }elsif( $pstream eq "upsilon" ) {
-               $arupsilon[$ndt] =  $rte{$pstream,$ndt};
-               $cpupsilon[$ndt] = $pcpu; 
-              }elsif( $pstream eq "gamma" ) {
-               $argamma[$ndt] =  $rte{$pstream,$ndt};
-               $cpgamma[$ndt] = $pcpu; 
-              }elsif( $pstream eq "hlt" ) {
-               $arhlt[$ndt] =  $rte{$pstream,$ndt};
-               $cphlt[$ndt] = $pcpu;  
-              }elsif( $pstream eq "fmsfast" ) {
-               $arfmsfast[$ndt] =  $rte{$pstream,$ndt};
-               $cpfmsfast[$ndt] =  $pcpu; 
-              }elsif( $pstream eq "ht" ) {
-               $arht[$ndt] =  $rte{$pstream,$ndt};
-               $cpht[$ndt] = $pcpu;  
-              }elsif( $pstream eq "atomcules" ) {
-               $aratomcules[$ndt] =  $rte{$pstream,$ndt};
-               $cpatomcules[$ndt] = $pcpu; 
-              }elsif( $pstream eq "monitor" ) {
-               $armonitor[$ndt] =  $rte{$pstream,$ndt};
-               $cpmonitor[$ndt] = $pcpu;  
-              }elsif( $pstream eq "pmdftp" ) {
-               $arpmdftp[$ndt] =  $rte{$pstream,$ndt};
-               $cppmdftp[$ndt] = $pcpu;   
-              }elsif( $pstream eq "upc" ) {
-               $arupc[$ndt] =  $rte{$pstream,$ndt};
-               $cpupc[$ndt] =  $pcpu;
-	       }
-	    $ndt++;
-	    }
-	}
-     }
+############
+        }
+ 
+   }
 
     &StDbProdDisconnect();
 
@@ -546,9 +565,6 @@ my $gtitle;
 	$ylabel = "CPU in sec/evt for every jobs";
 	$gtitle = "CPU in sec/evt for different stream data for $qday day";
 
-      $max_y = $maxcpu + 0.2*$maxcpu; 
-      $max_y = int($max_y);
-
     @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpatomcules, \@cpmtd ) ; 
 
       }elsif( $srate eq "rtime/cpu"){
@@ -558,8 +574,6 @@ my $gtitle;
         $ylabel = "Ratio RealTime/CPU for every jobs";
 	$gtitle = "Ratio RealTime/CPU for different stream data for $qday day";
 
-       $max_y = $maxval + 0.2*$maxval; 
-#      $max_y = int($max_y);
   
     @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@rtatomcules, \@armtd ) ;
 
@@ -570,8 +584,6 @@ my $gtitle;
         $ylabel = "Total jobs time on the farm in hours";
 	$gtitle = "Total jobs time on the farm for different stream data for $qday day";
 
-       $max_y = $maxjbtime + 0.2*$maxjbtime; 
-      $max_y = int($max_y);
   
     @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd ) ;
 
