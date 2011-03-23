@@ -488,7 +488,7 @@ END
  $rcpubin = 0.02; 
 
  for ($i = 0; $i <50; $i++) {
-   $ndate[$i] = $rcpubin*$i; 
+   $ndate[$i] = 1 + $rcpubin*$i; 
  }
 
      foreach $jset (@jbstat) {
@@ -601,7 +601,7 @@ my $gtitle;
  
  $min_y = 0;
 
-  if (scalar(@ndate) >= 40 ) {
+  if (scalar(@ndate) >= 60 ) {
      $skipnum = int(scalar(@ndate)/20);
  }
 
