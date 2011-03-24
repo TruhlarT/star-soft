@@ -369,13 +369,18 @@ END
 
 ###########
 
- $jobtotbin = 5.0;
- $ndate[0] = 0;
+ $jobtotbin = 2.0;
+  $ndate[0] = 0;
+
+ for ($i = 0; $i < 60; $i++) {
+   $ndate[$i] = $cpubin*$i; 
+ }
 
      foreach $jset (@jbstat) {
             $jbTottime = ($$jset)->jbtot;
 	    $pstream   = ($$jset)->strv;
 
+	    if($jbTottime <= 120 )  {
 	   $ndt = int($jbTottime/$jobtotbin);
            $ndate[$ndt] = $jobtotbin*$ndt;  
 
@@ -403,7 +408,7 @@ END
                $jbupc[$ndt]++;
 	       }
  	    }
-
+        }
 ###################
 
    }else{
@@ -448,9 +453,15 @@ END
  $ndate[0] = 0;
  $cpubin = 2.0; 
 
+ for ($i = 0; $i < 50; $i++) {
+   $ndate[$i] = $cpubin*$i; 
+ }
+
      foreach $jset (@jbstat) {
 	    $pcpu     = ($$jset)->cpuv;
 	    $pstream  = ($$jset)->strv;
+
+            if($pcpu <= 100.0 )     {
 
 	    $ndt = int($pcpu/$cpubin);
             $ndate[$ndt] = $cpubin*$ndt;  
@@ -479,6 +490,7 @@ END
                $cpupc[$ndt]++;
 	       }
 	    }
+	}
 
 ##################################################
 
