@@ -500,7 +500,7 @@ END
 
            $rte = $prtime/$pcpu; 
 
-	   if($rte <= 2.0 )     {
+	   if($rte <= 1.5 )     {
 	   $ndt = int(($rte - 1)/$rcpubin);
            $ndate[$ndt] = 1 + $rcpubin*$ndt;  
 
