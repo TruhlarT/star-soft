@@ -567,8 +567,9 @@ my $gtitle;
 
  @data = ();
 
-	$ylabel = "CPU in sec/evt for every jobs";
-	$gtitle = "CPU in sec/evt for different stream data for $qday day";
+	$xlabel = "CPU in sec/evt for every job";
+        $ylabel = "Number of jobs";
+	$gtitle = "CPU in sec/evt for different stream jobs for $qday day";
 
     @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpatomcules, \@cpmtd ) ; 
 
@@ -576,8 +577,9 @@ my $gtitle;
 
  @data = ();
 
-        $ylabel = "Ratio RealTime/CPU for every jobs";
-	$gtitle = "Ratio RealTime/CPU for different stream data for $qday day";
+        $xlabel = "Ratio RealTime/CPU for every job";
+        $ylabel = "Number of jobs";
+	$gtitle = "Ratio RealTime/CPU for different stream jobs for $qday day";
 
   
     @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@rtatomcules, \@armtd ) ;
@@ -586,8 +588,9 @@ my $gtitle;
 
  @data = ();
 
-        $ylabel = "Total jobs time on the farm in hours";
-	$gtitle = "Total jobs time on the farm for different stream data for $qday day";
+        $xlabel = "Total job's time on the farm in hours";
+        $ylabel = "Number of jobs";         
+	$gtitle = "Total jobs time on the farm for different stream jobs for $qday day";
 
   
     @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd ) ;
@@ -608,7 +611,7 @@ my $gtitle;
 
  $xLabelSkip = $skipnum;
 
-	$graph->set(x_label => "Datetime of job's compeletion",
+	$graph->set(x_label => $xlabel,
 	            y_label => $ylabel,
                     title   => $gtitle,
                     y_tick_number => 14,
