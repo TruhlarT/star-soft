@@ -613,7 +613,7 @@ my $gtitle;
  my $xLabelsVertical = 1;
  my $xLabelPosition = 0;
  my $xLabelSkip = 1;
- my $skipnum = 1;
+ my $skipnum = 2;
  
  $min_y = 0;
 
