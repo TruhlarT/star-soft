@@ -4,9 +4,9 @@
 # $Id:
 #
 # L. Didenko 
-# jobsCpuPlotsPlots.pl to make plots for CPU vs run time job's usage
+# jobsCpuPlots.pl to get distribution of CPU, realtime/cpu, total time of stream jobs by production date
 #
-##########################################################
+#########################################################################################################
 
 
 BEGIN {
