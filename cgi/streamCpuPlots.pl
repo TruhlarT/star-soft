@@ -4,9 +4,9 @@
 # $Id:
 #
 # L. Didenko 
-# streamCpuPlots.pl to make plots for average RealTime/CPU job's usage 
+# streamCpuPlots.pl to make plots of average CPU, RealTime/CPU, total time job's usage for extended periods of production time 
 #
-##########################################################
+#########################################################################################################
 
 
 BEGIN {
