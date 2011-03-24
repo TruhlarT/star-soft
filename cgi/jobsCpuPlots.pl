@@ -617,7 +617,7 @@ my $gtitle;
  
  $min_y = 0;
 
-  if (scalar(@ndate) >= 60 ) {
+  if (scalar(@ndate) > 60 ) {
      $skipnum = int(scalar(@ndate)/20);
  }
 
