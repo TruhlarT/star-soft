@@ -177,7 +177,7 @@ END
     print $query->startform(-action=>"$scriptname");
 
     print "<body bgcolor=\"cornsilk\">\n";
-    print "<h1 align=center><u>Production CPU&RealTime usage by individual jobs </u></h1>\n";
+    print "<h1 align=center><u>Production CPU&RealTime distributions of stream jobs </u></h1>\n";
     print "<br>";
     print "<br>";
     print <<END;
@@ -499,7 +499,7 @@ END
  $ndate[0] = 1;
  $rcpubin = 0.01; 
 
- for ($i = 0; $i <50; $i++) {
+ for ($i = 0; $i < 60; $i++) {
    $ndate[$i] = 1 + $rcpubin*$i; 
  }
 
@@ -512,7 +512,7 @@ END
 
            $rte = $prtime/$pcpu; 
 
-	   if($rte <= 1.5 )     {
+	   if($rte <= 1.6 )     {
 	   $ndt = int(($rte - 1)/$rcpubin);
            $ndate[$ndt] = 1 + $rcpubin*$ndt;  
 
