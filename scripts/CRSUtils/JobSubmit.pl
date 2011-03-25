@@ -1245,7 +1245,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 	#    }
 	#}
 	#print "Debug ".join(";",@PIPEFILES)."\n";
-	$TOTP = $TOT = 50;
+	$TOTP = $TOT = 5; #50;
 	$pick = 0;
 
 	if( ($obj = rdaq_open_odatabase()) ){
@@ -1269,6 +1269,30 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 
 		print "$SELF : $TARGET and user=$user\n";
 		#&rdaq_toggle_debug();
+
+		if ( -e "$TARGET/FastOffline-X.conf"){
+		    print "$SELF : Configuration $TARGET/FastOffline-X.conf found - reading\n";
+		    if ( open(CONF,"$TARGET/FastOffline-X.conf") ){
+			while ( defined($line = <CONF>) ){
+			    chomp($line);
+			    $line =~ s/\#.*//;
+			    $line =~ s/^\s*(.*?)\s*$/$1/;
+			    next if ($line eq "");
+			    if ($line =~ m/(.*)(=)(.*)/){
+				$tag = $1;
+				$val = $3;
+				print $line;
+				if ( $tag = "TOTAL"){
+				    $TOTP = $TOT = $val;
+				    print "$SELF : TOTAL set to $val by config\n";
+				}
+			    }
+			}
+			close(CONF);
+		    }
+		}
+		#exit;
+
 
 		#if  ( ! defined($ENV{JobSubmit_GO}) ){
 		#    print "Debug - leaving\n";
