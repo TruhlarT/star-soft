@@ -289,7 +289,7 @@ my $qprod   = $qqr->param('prod');
 my $qperiod = $qqr->param('period');
 my $qvalue  = $qqr->param('pvalue');
 my $qnode   = $qqr->param('pnode');
-my $dnode   = " $qnode"; 
+my $dnode   = "%$qnode"; 
     
     $JobStatusT = "JobStatus".$pryear;
 
@@ -338,7 +338,7 @@ my $dnode   = " $qnode";
 
      if( $qperiod eq "day" or $qperiod eq "week") {
 
-    $sql="SELECT DISTINCT date_format(createTime, '%Y-%m-%d %H') as PDATE  FROM $JobStatusT WHERE prodSeries = ?  AND nodeID like '%$qnode' AND runDay <> '0000-00-00' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) <= ?  order by PDATE ";
+    $sql="SELECT DISTINCT date_format(createTime, '%Y-%m-%d %H') as PDATE  FROM $JobStatusT WHERE prodSeries = ?  AND nodeID like '$dnode' AND runDay <> '0000-00-00' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) <= ?  order by PDATE ";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -353,7 +353,7 @@ my $dnode   = " $qnode";
 
    }else{
 
-    $sql="SELECT DISTINCT runDay  FROM $JobStatusT WHERE prodSeries = ? AND nodeID like '%$qnode'  AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(runDay)) < ?  order by runDay";
+    $sql="SELECT DISTINCT runDay  FROM $JobStatusT WHERE prodSeries = ? AND nodeID like '$dnode'  AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(runDay)) < ?  order by runDay";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -405,7 +405,7 @@ my $dnode   = " $qnode";
     if( $qperiod eq "day" or $qperiod eq "week") {
 
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, jobtotalTime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND nodeID = ' $qnode' AND prodSeries = ? AND jobtotalTime > 0.1  AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10  order by createTime";
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, jobtotalTime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND nodeID like '$dnode' AND prodSeries = ? AND jobtotalTime > 0.1  AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10  order by createTime";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -433,7 +433,7 @@ my $dnode   = " $qnode";
 
      }else{
 
-  $sql="SELECT runDay, jobtotalTime, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND nodeID = ' $qnode' AND prodSeries = ? AND jobtotalTime > 0.1  AND submitAttempt = 1  AND jobStatus = 'Done' AND NoEvents >= 10 order by runDay ";
+  $sql="SELECT runDay, jobtotalTime, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND nodeID like '$dnode' AND prodSeries = ? AND jobtotalTime > 0.1  AND submitAttempt = 1  AND jobStatus = 'Done' AND NoEvents >= 10 order by runDay ";
 
            $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -564,7 +564,7 @@ my $dnode   = " $qnode";
 
     if( $qperiod eq "day" or $qperiod eq "week") {
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND nodeID = ' $qnode' AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 order by createTime ";
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND nodeID like '$dnode' AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 order by createTime ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -592,7 +592,7 @@ my $dnode   = " $qnode";
 
      }else{
 
-  $sql="SELECT runDay, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ?  AND nodeID = ' $qnode' AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 AND jobStatus = 'Done' AND NoEvents >= 10 order by runDay ";
+  $sql="SELECT runDay, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ?  AND nodeID like '$dnode' AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 AND jobStatus = 'Done' AND NoEvents >= 10 order by runDay ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
