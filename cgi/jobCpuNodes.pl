@@ -289,8 +289,8 @@ my $qprod   = $qqr->param('prod');
 my $qperiod = $qqr->param('period');
 my $qvalue  = $qqr->param('pvalue');
 my $qnode   = $qqr->param('pnode');
-#my $dnode   = "".$qnode; 
-my $dnode;
+my $dnode   = "".$qnode; 
+#my $dnode;
 
 my @arnode = ( "rcrs6114.rcf.bnl.gov",
                "rcrs6115.rcf.bnl.gov",
@@ -375,10 +375,10 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
 
      if( $qperiod eq "day" or $qperiod eq "week") {
 
-    for ($k = 0; $k<scalar(@arnode); $k++) {
+#    for ($k = 0; $k<scalar(@arnode); $k++) {
 
 #     $dnode   = "".$arnode[$k]; 
-     $dnode   = " ".$arnode[$k];  
+#     $dnode   = " ".$arnode[$k];  
 
     $sql="SELECT DISTINCT date_format(createTime, '%Y-%m-%d %H') as PDATE  FROM $JobStatusT WHERE prodSeries = ?  AND nodeID = '$dnode' AND runDay <> '0000-00-00' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) <= ?  order by PDATE ";
 
@@ -390,15 +390,15 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
         $ardays[$nday] = $myday;
         $nday++;
     }
- }
+# }
 
 ##############################
 
    }else{
 
-    for ($k = 0; $k<scalar(@arnode); $k++) {
+#    for ($k = 0; $k<scalar(@arnode); $k++) {
 
-     $dnode   = " ".$arnode[$k]; 
+#     $dnode   = " ".$arnode[$k]; 
 
     $sql="SELECT DISTINCT runDay  FROM $JobStatusT WHERE prodSeries = ? AND nodeID = '$dnode'  AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(runDay)) < ?  order by runDay";
 
@@ -411,7 +411,7 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
         $nday++;
       }
     }
-   }
+#   }
 
  %rte = {};
  %nstr = {};
