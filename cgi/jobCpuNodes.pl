@@ -289,7 +289,8 @@ my $qprod   = $qqr->param('prod');
 my $qperiod = $qqr->param('period');
 my $qvalue  = $qqr->param('pvalue');
 my $qnode   = $qqr->param('pnode');
-my $dnode   = "".$qnode; 
+#my $dnode   = "".$qnode; 
+my $dnode;
 
 my @arnode = ( "rcrs6114.rcf.bnl.gov",
                "rcrs6115.rcf.bnl.gov",
@@ -370,7 +371,13 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
     $day_diff = int($day_diff);
 
 
+
+
      if( $qperiod eq "day" or $qperiod eq "week") {
+
+    for ($k = 0; $k<scalar(@arnode); $k++) {
+
+     $dnode   = "".$arnode[$k]; 
 
     $sql="SELECT DISTINCT date_format(createTime, '%Y-%m-%d %H') as PDATE  FROM $JobStatusT WHERE prodSeries = ?  AND nodeID = '$dnode' AND runDay <> '0000-00-00' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) <= ?  order by PDATE ";
 
@@ -382,10 +389,15 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
         $ardays[$nday] = $myday;
         $nday++;
     }
+ }
 
 ##############################
 
    }else{
+
+    for ($k = 0; $k<scalar(@arnode); $k++) {
+
+     $dnode   = "".$arnode[$k]; 
 
     $sql="SELECT DISTINCT runDay  FROM $JobStatusT WHERE prodSeries = ? AND nodeID = '$dnode'  AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(runDay)) < ?  order by runDay";
 
@@ -396,8 +408,8 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
     while($myday = $cursor->fetchrow) {
         $ardays[$nday] = $myday;
         $nday++;
+      }
     }
-
    }
 
  %rte = {};
@@ -436,12 +448,10 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
 	@jbstat = ();  
 	$nstat = 0;
 
-    for ($k = 0; $k<scalar(@arnode); $k++) {
-
-     $dnode   = "".$arnode[$k]; 
-
     if( $qperiod eq "day" or $qperiod eq "week") {
 
+      for ($k = 0; $k<scalar(@arnode); $k++) {
+       $dnode   = "".$arnode[$k]; 
 
   $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, jobtotalTime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND nodeID = '$dnode' AND prodSeries = ? AND jobtotalTime > 0.1  AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10  order by createTime";
 
@@ -467,9 +477,13 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
             }
             $jbstat[$nstat] = $fObjAdr;
             $nstat++;
-        }
+     }
+  }
 
      }else{
+
+    for ($k = 0; $k<scalar(@arnode); $k++) {
+       $dnode   = "".$arnode[$k]; 
 
   $sql="SELECT runDay, jobtotalTime, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND nodeID = '$dnode' AND prodSeries = ? AND jobtotalTime > 0.1  AND submitAttempt = 1  AND jobStatus = 'Done' AND NoEvents >= 10 order by runDay ";
 
@@ -602,11 +616,10 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
         @jbstat = ();
         $nstat = 0;
 
-	for ($k = 0; $k<scalar(@arnode); $k++) {
-
-       $dnode   = "".$arnode[$k]; 
-
     if( $qperiod eq "day" or $qperiod eq "week") {
+
+       for ($k = 0; $k<scalar(@arnode); $k++) {
+       $dnode   = " ".$arnode[$k]; 
 
   $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND nodeID = '$dnode' AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 order by createTime ";
 
@@ -632,9 +645,13 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
             }
             $jbstat[$nstat] = $fObjAdr;
             $nstat++;
-        }
+         }
+       }
 
-     }else{
+    }else{
+
+     for ($k = 0; $k<scalar(@arnode); $k++) {
+     $dnode   = " ".$arnode[$k]; 
 
   $sql="SELECT runDay, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ?  AND nodeID = '$dnode' AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 AND jobStatus = 'Done' AND NoEvents >= 10 order by runDay ";
 
