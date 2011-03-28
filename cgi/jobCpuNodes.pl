@@ -290,6 +290,40 @@ my $qperiod = $qqr->param('period');
 my $qvalue  = $qqr->param('pvalue');
 my $qnode   = $qqr->param('pnode');
 my $dnode   = "".$qnode; 
+
+my @arnode = ( "rcrs6114.rcf.bnl.gov",
+               "rcrs6115.rcf.bnl.gov",
+               "rcrs6116.rcf.bnl.gov",
+               "rcrs6117.rcf.bnl.gov",
+               "rcrs6118.rcf.bnl.gov",
+               "rcrs6119.rcf.bnl.gov",
+               "rcrs6120.rcf.bnl.gov",
+               "rcrs6121.rcf.bnl.gov",
+               "rcrs6122.rcf.bnl.gov",
+               "rcrs6123.rcf.bnl.gov",
+               "rcrs6124.rcf.bnl.gov",
+               "rcrs6125.rcf.bnl.gov",
+               "rcrs6126.rcf.bnl.gov",
+               "rcrs6127.rcf.bnl.gov",
+               "rcrs6128.rcf.bnl.gov", 
+               "rcrs6129.rcf.bnl.gov",
+               "rcrs6130.rcf.bnl.gov",
+               "rcrs6131.rcf.bnl.gov",
+               "rcrs6132.rcf.bnl.gov",
+               "rcrs6133.rcf.bnl.gov",
+               "rcrs6134.rcf.bnl.gov",
+               "rcrs6135.rcf.bnl.gov",
+               "rcrs6136.rcf.bnl.gov",
+               "rcrs6137.rcf.bnl.gov",
+               "rcrs6138.rcf.bnl.gov",
+               "rcrs6139.rcf.bnl.gov",
+               "rcrs6140.rcf.bnl.gov",
+               "rcrs6141.rcf.bnl.gov",
+               "rcrs6142.rcf.bnl.gov",
+               "rcrs6143.rcf.bnl.gov",
+               "rcrs6144.rcf.bnl.gov",
+               "rcrs6145.rcf.bnl.gov"
+	       );
     
     $JobStatusT = "JobStatus".$pryear;
 
@@ -402,6 +436,10 @@ my $dnode   = "".$qnode;
 	@jbstat = ();  
 	$nstat = 0;
 
+    for ($k = 0; $k<scalar(@arnode); $k++) {
+
+     $dnode   = "".$arnode($k); 
+
     if( $qperiod eq "day" or $qperiod eq "week") {
 
 
@@ -458,6 +496,8 @@ my $dnode   = "".$qnode;
             $nstat++;
         }
       }
+     }
+
 
      foreach $jset (@jbstat) {
            $pday      = ($$jset)->vday;
@@ -562,6 +602,10 @@ my $dnode   = "".$qnode;
         @jbstat = ();
         $nstat = 0;
 
+	for ($k = 0; $k<scalar(@arnode); $k++) {
+
+       $dnode   = "".$arnode($k); 
+
     if( $qperiod eq "day" or $qperiod eq "week") {
 
   $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND nodeID = '$dnode' AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 order by createTime ";
@@ -617,7 +661,7 @@ my $dnode   = "".$qnode;
             $nstat++;
         }
       }
-
+    }
 
      foreach $jset (@jbstat) {
             $pday     = ($$jset)->vday;
