@@ -721,7 +721,7 @@ my $dnode   = " $qnode";
        if ( $qvalue eq "rtime/cpu" ) {
 
        $ylabel = "Average ratio RealTime/CPU per hour";
-       $gtitle = "Average ratio RealTime/CPU per hour for different streams for $qday";
+       $gtitle = "Average ratio RealTime/CPU per hour for different streams for $qperiod";
 
     @data = ();
 
@@ -733,7 +733,7 @@ my $dnode   = " $qnode";
   }elsif(  $qvalue eq "cpu" ) {
 
        $ylabel = "Average CPU in sec/evt per hour";
-       $gtitle = "Average CPU in sec/evt per hour for different streams for $qday";
+       $gtitle = "Average CPU in sec/evt per hour for different streams for $qperiod";
 
     @data = ();
 
@@ -747,7 +747,7 @@ my $dnode   = " $qnode";
     @data = ();
 
    $ylabel = "Total average time jobs stay on the farm in hours";
-   $gtitle = "Total average time jobs stay on the farm (finished per hour) for $qday ";
+   $gtitle = "Total average time jobs stay on the farm (finished per hour) for $qperiod ";
 
 @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd ) ;
 
@@ -844,10 +844,10 @@ sub beginHtml {
 print <<END;
   <html>
    <head>
-          <title>Ratio of different stream  data</title>
+          <title>CPU&RealTime usage at CRS nodes</title>
    </head>
    <body BGCOLOR=\"#ccffff\">
-     <h1 align=center>No Data for $qprod production and $qday day </h1>
+     <h1 align=center>No Data for $qprod production on $qnode  for $qperiod period </h1>
      
 
     </body>
