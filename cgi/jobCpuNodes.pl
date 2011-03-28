@@ -289,7 +289,7 @@ my $qprod   = $qqr->param('prod');
 my $qperiod = $qqr->param('period');
 my $qvalue  = $qqr->param('pvalue');
 my $qnode   = $qqr->param('pnode');
-my $dnode   = " ".$qnode; 
+my $dnode   = "".$qnode; 
     
     $JobStatusT = "JobStatus".$pryear;
 
