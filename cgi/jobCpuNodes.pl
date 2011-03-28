@@ -438,7 +438,7 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
 
     for ($k = 0; $k<scalar(@arnode); $k++) {
 
-     $dnode   = "".$arnode($k); 
+     $dnode   = "".$arnode[$k]; 
 
     if( $qperiod eq "day" or $qperiod eq "week") {
 
@@ -604,7 +604,7 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
 
 	for ($k = 0; $k<scalar(@arnode); $k++) {
 
-       $dnode   = "".$arnode($k); 
+       $dnode   = "".$arnode[$k]; 
 
     if( $qperiod eq "day" or $qperiod eq "week") {
 
