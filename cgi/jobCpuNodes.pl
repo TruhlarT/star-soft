@@ -338,7 +338,7 @@ my $dnode   = " $qnode";
 
      if( $qperiod eq "day" or $qperiod eq "week") {
 
-    $sql="SELECT DISTINCT date_format(createTime, '%Y-%m-%d %H') as PDATE  FROM $JobStatusT WHERE prodSeries = ?  AND nodeID = $qnode AND runDay <> '0000-00-00' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) <= $day_diff  order by PDATE ";
+    $sql="SELECT DISTINCT date_format(createTime, '%Y-%m-%d %H') as PDATE  FROM $JobStatusT WHERE prodSeries = ?  AND nodeID = $dnode AND runDay <> '0000-00-00' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) <= $day_diff  order by PDATE ";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -353,7 +353,7 @@ my $dnode   = " $qnode";
 
    }else{
 
-    $sql="SELECT DISTINCT runDay  FROM $JobStatusT WHERE prodSeries = ? AND nodeID = $qnode  AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(runDay)) < ?  order by runDay";
+    $sql="SELECT DISTINCT runDay  FROM $JobStatusT WHERE prodSeries = ? AND nodeID = $dnode  AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(runDay)) < ?  order by runDay";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
