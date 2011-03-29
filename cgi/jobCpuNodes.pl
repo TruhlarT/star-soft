@@ -78,6 +78,7 @@ my %rte = {};
 my %nstr = {};
 my %arcpu = {};
 my %arjbtime = {};
+
 my @arupsilon = ();
 my @armtd = ();
 my @arphysics = ();
@@ -149,7 +150,7 @@ my @jbpmdftp = ();
 #my $nhr = 0;
 
 my @arnode = ();
-my @arperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months");
+my @arperiod = ("week","1_month","2_months","3_months","4_months","5_months","6_months");
 
   &StDbProdConnect();
  
@@ -216,7 +217,7 @@ END
     print $query->startform(-action=>"$scriptname");
 
     print "<body bgcolor=\"cornsilk\">\n";
-    print "<h1 align=center><u>Production CPU&RealTime usage for stream data</u></h1>\n";
+    print "<h1 align=center><u>Production CPU&RealTime usage by node</u></h1>\n";
     print "<br>";
     print "<br>";
     print <<END;
@@ -235,19 +236,10 @@ END
 	                          -default=>P10ik,
       			          -size =>1);
  
+    
     print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Stream values: <br> CPU, rtime/CPU,<br>jobs total time on the farm<br></h3>";
-    print "<h4 align=center>";
-    print  $query->scrolling_list(-name=>'pvalue',
-	                          -values=>\@arval,
-	                          -default=>cpu,
-      			          -size =>1);
-
-
-    print "<p>";
-    print "</td><td>";
-    print "<h3 align=center> Type of node name <br> </h3>";
+    print "<h3 align=center> Node name <br> </h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'pnode',
                                   -values=>\@arrcrs,
@@ -264,6 +256,21 @@ END
                                   -size =>1);
 
     
+    print "<p>";
+    print "</td><td>
+    print "</td> </tr> </table><hr><center>";
+    print "<br>";
+    print "<br>"; 
+    print "<table BORDER=0 align=center width=99% cellspacing=3>"
+    print "<tr ALIGN=center VALIGN=CENTER NOSAVE>"
+    print "<td>"  
+    print "<h3 align=center> Stream values: <br> CPU, rtime/CPU,<br>jobs total time on the farm<br></h3>";
+    print "<h4 align=center>";
+    print  $query->scrolling_list(-name=>'pvalue',
+	                          -values=>\@arval,
+	                          -default=>cpu,
+      			          -size =>1);
+
     print "<p>";
     print "</td><td>";
     print "</td> </tr> </table><hr><center>";
