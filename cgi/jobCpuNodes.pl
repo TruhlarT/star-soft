@@ -262,7 +262,7 @@ END
     print "</h4>";    
     print "<br>";
     print "<br>"; 
-    print "<hr> <table align=center>";
+    print "<table align=center>";
     print "<tr ALIGN=center>";
     print "<td>";  
     print "<h3 align=center> Stream values: <br> CPU, rtime/CPU,<br>jobs total time on the farm<br></h3>";
@@ -274,7 +274,7 @@ END
 
     print "<p>";
     print "</td><td>";
-    print "</td> </tr> </table><hr><center>";
+    print "</td> </tr> </table><center>";
 
     print "</h4>";
     print "<br>";
