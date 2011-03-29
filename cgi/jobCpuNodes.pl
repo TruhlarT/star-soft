@@ -257,7 +257,7 @@ END
 
     
     print "<p>";
-    print "</td><td>
+    print "</td><td>";
     print "</td> </tr> </table><hr><center>";
     print "</h4>";    
     print "<br>";
