@@ -262,8 +262,8 @@ END
     print "</h4>";    
     print "<br>";
     print "<br>"; 
-    print "<hr> <table BORDER=0 align=center width=99% cellspacing=3>";
-    print "<tr ALIGN=center VALIGN=CENTER NOSAVE>";
+    print "<hr> <table align=center>";
+    print "<tr ALIGN=center>";
     print "<td>";  
     print "<h3 align=center> Stream values: <br> CPU, rtime/CPU,<br>jobs total time on the farm<br></h3>";
     print "<h4 align=center>";
