@@ -370,17 +370,9 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
 
     $day_diff = int($day_diff);
 
-
-
-
      if( $qperiod eq "day" or $qperiod eq "week") {
 
-#    for ($k = 0; $k<scalar(@arnode); $k++) {
-
-#     $dnode   = "".$arnode[$k]; 
-#     $dnode   = " ".$arnode[$k];  
-
-    $sql="SELECT DISTINCT date_format(createTime, '%Y-%m-%d %H') as PDATE  FROM $JobStatusT WHERE prodSeries = ?  AND nodeID = '$dnode' AND runDay <> '0000-00-00' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) <= ?  order by PDATE ";
+    $sql="SELECT DISTINCT date_format(createTime, '%Y-%m-%d %H') as PDATE  FROM $JobStatusT WHERE prodSeries = ?  AND jobStatus = 'Done' AND runDay <> '0000-00-00' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) <= ?  order by PDATE ";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -390,17 +382,12 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
         $ardays[$nday] = $myday;
         $nday++;
     }
-# }
 
 ##############################
 
    }else{
 
-#    for ($k = 0; $k<scalar(@arnode); $k++) {
-
-#     $dnode   = " ".$arnode[$k]; 
-
-    $sql="SELECT DISTINCT runDay  FROM $JobStatusT WHERE prodSeries = ? AND nodeID = '$dnode'  AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(runDay)) < ?  order by runDay";
+    $sql="SELECT DISTINCT runDay  FROM $JobStatusT WHERE prodSeries = ? AND jobStatus = 'Done'  AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(runDay)) < ?  order by runDay";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -411,7 +398,6 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
         $nday++;
       }
     }
-#   }
 
  %rte = {};
  %nstr = {};
