@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.81 2011/03/31 16:47:04 fisyak Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.82 2011/03/31 19:51:02 fisyak Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TString.h"
@@ -737,7 +737,7 @@ Bfc_st BFC[] = {
                     "St_ctf,St_ctf_Maker,Minuit,StGenericVertexMaker", "Generic Vertex Finder",kFALSE},
   {"StiUtil" ,"","","", "","StiUtilities","Load StiUtilities library",kFALSE},
   {"StiRnD" ,"","","", "","StiRnD", "Load StiRnD shared library",kFALSE},
-  {"Sti" ,"Sti","","SCL,StEvent,StiLibs,StDbT,TpcIT,StiUtil,compend","StiMaker",
+  {"Sti" ,"Sti","","SCL,StEvent,StiLibs,StDbT,TpcIT,StiUtil,compend,tbutil","StiMaker",
                                                     "StEventUtilities,Sti,StiMaker" ,"ITTF tracker",kFALSE},
   {"StiVMC" ,"StiVMC","","-Sti,SCL,StEvent,StDbT,TpcDb,compend","StiVMCMaker"
    , "StEventUtilities,StiVMC,StiVMCMaker" ,"ITTF VMC tracker",kFALSE},
@@ -1861,7 +1861,7 @@ Bfc_st BFC[] = {
                     "St_ctf,St_ctf_Maker,Minuit,StGenericVertexMaker", "Generic Vertex Finder",kFALSE},
   {"StiUtil" ,"","","", "","StiUtilities","Load StiUtilities library",kFALSE},
   {"StiRnD" ,"","","", "","StiRnD", "Load StiRnD shared library",kFALSE},
-  {"Sti" ,"Sti","","SCL,StEvent,StiLibs,StDbT,TpcIT,StiUtil,compend","StiMaker",
+  {"Sti" ,"Sti","","SCL,StEvent,StiLibs,StDbT,TpcIT,StiUtil,compend,tbutil","StiMaker",
                                                     "StEventUtilities,Sti,StiMaker" ,"ITTF tracker",kFALSE},
   {"StiVMC" ,"StiVMC","","-Sti,SCL,StEvent,StDbT,TpcDb,compend","StiVMCMaker"
    , "StEventUtilities,StiVMC,StiVMCMaker" ,"ITTF VMC tracker",kFALSE},
@@ -3690,8 +3690,11 @@ void StBFChain::SetDbOptions(StMaker *mk){
     }
   }
   // Db blacklist (remove black listed system from St_Db_Maker configuration)
-  if (GetOption("NoSvtIT") && ! GetOption("SvtDb")) mk->SetAttr("blacklist", "svt"); // blacklist svt
-  if (GetOption("NoSsdIT") && ! GetOption("SsdDb")) mk->SetAttr("blacklist", "ssd"); // blacklist ssd
+  if (! GetOption("TpcDb"))  mk->SetAttr("blacklist", "tpc"); // blacklist tpc
+  if (! GetOption("SvtDb"))  mk->SetAttr("blacklist", "svt"); // blacklist svt
+  if (! GetOption("SsdDb"))  mk->SetAttr("blacklist", "ssd"); // blacklist ssd
+  if (! GetOption("EemcDb")) mk->SetAttr("blacklist", "eemc");// blacklist eemc
+  if (! GetOption("FmsDb"))  mk->SetAttr("blacklist", "fms"); // blacklist fms
 }
 //_____________________________________________________________________
 /// Creates output-tree branches
