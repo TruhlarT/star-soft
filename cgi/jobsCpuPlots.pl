@@ -452,6 +452,7 @@ END
 
  $ndate[0] = 0;
  $cpubin = 2.0; 
+  $ndt = 0;
 
  for ($i = 0; $i < 50; $i++) {
    $ndate[$i] = $cpubin*$i; 
@@ -498,8 +499,9 @@ END
 
  $ndate[0] = 1;
  $rcpubin = 0.01; 
+ $ndt = 0;
 
- for ($i = 0; $i < 60; $i++) {
+ for ($i = 0; $i < 100; $i++) {
    $ndate[$i] = 1 + $rcpubin*$i; 
  }
 
@@ -512,8 +514,8 @@ END
 
            $rte = $prtime/$pcpu; 
 
-	   if($rte <= 1.6 )     {
-	   $ndt = int(($rte - 1)/$rcpubin);
+	   if($rte <= 2.0 )     {
+	   $ndt = int(($rte - 1)/$rcpubin + 0.00001);
            $ndate[$ndt] = 1 + $rcpubin*$ndt;  
 
 #
