@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.82 2011/03/31 19:51:02 fisyak Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.83 2011/04/01 14:58:47 fisyak Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TString.h"
@@ -716,7 +716,8 @@ Bfc_st BFC[] = {
 
 
 
-  {"StiLibs","","","StarMagField,StiTpcLib,StiUtil","", "","ITTF:load Sti libraries",kFALSE},
+  {"StiLibs","","","StarMagField,StiTpcLib,StiSvtLib,StiSsdLib,StiRnDLib,StiUtil",""
+   , "","ITTF:load Sti libraries",kFALSE},
   {"StiVMCLibs","","","-StiLibs,detDb,StarMagField,StiUtil","", "","ITTF:load StiVMC libraries",kFALSE},
   {"StiTpcLib","","","","","tpc_T,dbutil,detDb,StarMagField,magF,Sti,StiTpc"
    , "Sti Tpc related libratries",kFALSE},
@@ -1840,7 +1841,8 @@ Bfc_st BFC[] = {
 
 
 
-  {"StiLibs","","","StarMagField,StiTpcLib,StiUtil","", "","ITTF:load Sti libraries",kFALSE},
+  {"StiLibs","","","StarMagField,StiTpcLib,StiSvtLib,StiSsdLib,StiRnDLib,StiUtil",""
+   , "","ITTF:load Sti libraries",kFALSE},
   {"StiVMCLibs","","","-StiLibs,detDb,StarMagField,StiUtil","", "","ITTF:load StiVMC libraries",kFALSE},
   {"StiTpcLib","","","","","tpc_T,dbutil,detDb,StarMagField,magF,Sti,StiTpc"
    , "Sti Tpc related libratries",kFALSE},
