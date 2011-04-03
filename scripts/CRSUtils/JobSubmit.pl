@@ -672,6 +672,8 @@ if ($TARGET !~ m/^\d+$/){
 	# was designed.
 	#
 	$space = "";
+	
+	# input containing hints on disk occupancy and avoid a df
 	if ( -e "$ltarget/FreeSpace"){
 	    $delta = time()-(stat("$ltarget/FreeSpace"))[10];
 	    if ( $delta < 3600){
@@ -688,7 +690,23 @@ if ($TARGET !~ m/^\d+$/){
 	    $space =  $2;
 	}
 
-	#print "$SELF : Target=$TARGET Space=$spcae - checking condition\n";
+	#+
+	# params to control disk
+	#-
+	if ( -e "$ltarget/Threshold"){
+	    open(FI,"$ltarget/Threshold");
+	    while ( defined($cline = <FI> ) ){
+		chomp($cline);
+		if ( $cline =~ m/(MAXFILL=)(\d+)/ ){
+		    $MAXFILL = $2;
+		    print "$SELF : Target=$TARGET Config sets MAXFILL to $MAXFILL\n"; 
+		}
+		# some other params
+	    }
+	    close(FI);
+	}
+
+
 
 	if ( $TARGET =~ m/^C/ ){
 	    if ( $space >= $MAXFILL+$FUZZ4C){
@@ -1237,16 +1255,16 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 	exit;
     } else {
 	print "$SELF : Configuration is correct, ready to proceed\n";
-	#for ($i=0 ; $i <= $#PIPEOFF ; $i++){
+	# for ($i=0 ; $i <= $#PIPEOFF ; $i++){
 	#    if ( int(($i+1)/2) == $i){
 	#	push(@PIPEFILES,$PIPEOFF[$i]);
 	#    } else {
 	#	#push(
 	#    }
-	#}
-	#print "Debug ".join(";",@PIPEFILES)."\n";
-	$TOTP = $TOT = 5; #50;
-	$pick = 0;
+	# }
+	# print "Debug ".join(";",@PIPEFILES)."\n";
+	$TOTP = $TOT = 5; # 50;
+	# $pick = 0;
 
 	if( ($obj = rdaq_open_odatabase()) ){
 	    if( substr($TARGET,0,1) eq "X" ){
