@@ -581,7 +581,7 @@ my $gtitle;
 
  @data = ();
 
-	$xlabel = "CPU in sec/evt for every job";
+	$xlabel = "CPU in sec/evt";
         $ylabel = "Number of jobs";
 	$gtitle = "CPU in sec/evt for different stream jobs for $qday day";
 
@@ -591,9 +591,9 @@ my $gtitle;
 
  @data = ();
 
-        $xlabel = "Ratio RealTime/CPU for every job";
+        $xlabel = "Ratio RealTime/CPU";
         $ylabel = "Number of jobs";
-	$gtitle = "Ratio RealTime/CPU for different stream jobs for $qday day";
+	$gtitle = "Ratios RealTime/CPU for different stream jobs for $qday day";
 
   
     @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@rtatomcules, \@armtd ) ;
@@ -604,7 +604,7 @@ my $gtitle;
 
         $xlabel = "Total job's time on the farm in hours";
         $ylabel = "Number of jobs";         
-	$gtitle = "Total jobs time on the farm for different stream jobs for $qday day";
+	$gtitle = "Total time on the farm for different stream jobs for $qday day";
 
   
     @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd ) ;
