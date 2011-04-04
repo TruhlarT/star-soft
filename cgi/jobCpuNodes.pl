@@ -785,8 +785,8 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
 
 #  	$max_y = $maxval + 0.2*$maxval; 
 
-    $max_y = 1.18 ;
-    $min_y = 0.9;
+    $max_y = 1.2 ;
+    $min_y = 0.5;
 
   }elsif(  $qvalue eq "cpu" ) {
 
