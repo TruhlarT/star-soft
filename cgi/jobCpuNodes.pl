@@ -783,7 +783,10 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
 
   @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@aratomcules, \@armtd ) ;
 
-  	$max_y = $maxval + 0.2*$maxval; 
+#  	$max_y = $maxval + 0.2*$maxval; 
+
+    $max_y = 1.2 ;
+    $min_y = 0.5;
 
   }elsif(  $qvalue eq "cpu" ) {
 
@@ -796,6 +799,7 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
 
     	$max_y = $maxcpu + 0.2*$maxcpu; 
         $max_y = int($max_y);
+        $min_y = 0 ;
 
   }elsif(  $qvalue eq "jobtottime" ) {
 
@@ -808,6 +812,7 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
 
   $max_y = $maxjbtime + 0.2*$maxjbtime;
   $max_y = int($max_y);
+  $min_y = 0 ; 
 
     }
 
@@ -817,7 +822,7 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
 	my $skipnum = 1;
  
 
-	$min_y = 0;
+#	$min_y = 0;
 
 	if (scalar(@ndate) >= 40 ) {
 	    $skipnum = int(scalar(@ndate)/20);
