@@ -1299,8 +1299,8 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 			    if ($line =~ m/(.*)(=)(.*)/){
 				$tag = $1;
 				$val = $3;
-				print $line;
-				if ( $tag = "TOTAL"){
+				print "DEBUG - Found in config [$line]\n";
+				if ( $tag eq "TOTAL"){
 				    $TOTP = $TOT = $val;
 				    print "$SELF : TOTAL set to $val by config\n";
 				}
