@@ -783,10 +783,9 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
 
   @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@aratomcules, \@armtd ) ;
 
-#  	$max_y = $maxval + 0.2*$maxval; 
+      $max_y = $maxval + 0.2*$maxval; 
 
-    $max_y = 1.2 ;
-    $min_y = 0.5;
+     $min_y = 0.6;
 
   }elsif(  $qvalue eq "cpu" ) {
 
