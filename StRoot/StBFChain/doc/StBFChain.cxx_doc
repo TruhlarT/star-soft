@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.85 2011/04/04 15:21:45 fisyak Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.86 2011/04/04 19:17:52 fisyak Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TString.h"
@@ -100,7 +100,7 @@ Bfc_st BFC[] = {
   {"dAuMDCa" ,"" ,"","ppOpt,C2003,trs,tpc_daq,Simu,srs,fss,big,GeantOut,est","","","Chain for d+Au",kFALSE},
   {"CComplete" ,"" ,"","Complete,C2default" ,"","","Turn on chain for Complete STAR",kFALSE},
 
-  {"SvtD" ,"","","SvtDb,SvtSeqAdj,SvtClu,SvtCluAnal,SvtHit", "","","SVT chain for Data",kFALSE},
+  {"SvtD" ,"","","SvtCalDb,SvtSeqAdj,SvtClu,SvtCluAnal,SvtHit", "","","SVT chain for Data",kFALSE},
 
   {"P00h" ,"" ,"","ry1h,in,tpc_daq,tpc,rich,Physics,Cdst,Kalman,tags,Tree,evout,ExB,NoHits","",""
                                                            ,"Production chain for summer 2000 data",kFALSE},
@@ -513,6 +513,8 @@ Bfc_st BFC[] = {
   {"dbutil" ,"" ,"","detDb,StDbT" ,"","StDbUtilities","Load StDbUtilities",kFALSE},
   {"svtDb" ,"svtDb","","tpcDb,SvtCL", "StSvtDbMaker","StSvtDbMaker","Load and run SvtDbMaker",kFALSE},
   {"ssdDb" ,"ssdDb","","tpcDb,SsdUtil","StSsdDbMaker","StSsdDbMaker","Load and run SsdDbMaker",kFALSE},
+  {"svtCalDb" ,"" ,"","svtDb" ,"","","Declare Calibrations/svt as while list member",kFALSE},
+  {"ssdCalDb" ,"" ,"","ssdDb" ,"","","Declare Calibrations/ssd as while list member",kFALSE},
   {"eemcDb" ,"eeDb" ,"","db", "StEEmcDbMaker","StEEmcDbMaker","Load EEmcDbMaker",kFALSE},
   {"fmsDb" ,"fmsDb","","db", "StFmsDbMaker","StFmsDbMaker","Load FmsDbMaker",kFALSE},
 
@@ -613,12 +615,12 @@ Bfc_st BFC[] = {
   {"svt_daq" ,"svt_raw","svtChain","daq,SvtCL" ,"StSvtDaqMaker","StSvtDaqMaker","",kFALSE},
   {"sss" ,"","","SvtSlowSim" ,"","","Short cut for SvtSlowSim",kFALSE},
   {"SvtSlowSim" ,"","","SvtSSim,SvtOnlSeq" ,"","","Short cut for SvtSlowSim and SvtOnlSeq",kFALSE},
-  {"SvtSSim","SvtSSimu","svtChain","svtDb,SvtCL,Simu,SvtSeqAdj,SvtClu,SvtCluAnal,SvtHit"
+  {"SvtSSim","SvtSSimu","svtChain","svtCalDb,SvtCL,Simu,SvtSeqAdj,SvtClu,SvtCluAnal,SvtHit"
    , "StSvtSimulationMaker","StSvtSimulationMaker,StSvtCalibMaker","",kFALSE},
   {"SvtEmbed" ,"","","SvtSSim,SvtEm,SvtOnlSeq" ,"","","Short cutfor SvtSlowSim and SvtOnlSeq",kFALSE},
-  {"SvtEm","SvtEm","svtChain","svtDb,SvtCL,Simu,SvtSeqAdj,SvtClu,SvtCluAnal,SvtHit","StSvtEmbeddingMaker"
+  {"SvtEm","SvtEm","svtChain","svtCalDb,SvtCL,Simu,SvtSeqAdj,SvtClu,SvtCluAnal,SvtHit","StSvtEmbeddingMaker"
    , "StSvtSimulationMaker,StSvtCalibMaker","",kFALSE},
-  {"SvtOnlSeq" ,"SvtOnlSeq","svtChain","svtDb,SvtCL,Simu,SvtSeqAdj,SvtClu,SvtCluAnal,SvtHit"
+  {"SvtOnlSeq" ,"SvtOnlSeq","svtChain","svtCalDb,SvtCL,Simu,SvtSeqAdj,SvtClu,SvtCluAnal,SvtHit"
    , "StSvtOnlineSeqAdjSimMaker","StSvtSimulationMaker","",kFALSE},
   {"srs","","","sfs", "","","WARNING *** Option is OBSOLETE use sfs instead ***",kFALSE},
   {"sfs","svt_hits","svtChain","svtDb,Simu,SvtCL,-sss,-SvtSlowSim,StEvent,MakeEvent"
@@ -646,10 +648,10 @@ Bfc_st BFC[] = {
   {"pixFastSim","","","StMcEvent,StEvent"
    , "StPixelFastSimMaker","StPixelFastSimMaker","FastPixelSimulator",kFALSE},
   {"ssddat" ,"","","ssd_daq" ,"","","SSD full chain for Real Data",kFALSE},
-  {"ssd_daq","","","ssddb,svt_T,-sls,-spa,ssdUtil","StSsdDaqMaker" ,"StSsdDaqMaker", "... SSD Daq",kFALSE},
+  {"ssd_daq","","","ssdCalDb,svt_T,-sls,-spa,ssdUtil","StSsdDaqMaker","StSsdDaqMaker","... SSD Daq",kFALSE},
   {"ssdfast" ,"","","ssdDb,StMcEvent,StEvent","StSsdFastSimMaker","StSsdFastSimMaker",
    "... SSD fast simulator" ,kFALSE},
-  {"ssd" ,"","","sls,spa,spt" ,"","","SSD full chain for simulation",kFALSE},
+  {"ssd" ,"","","ssdCalDb,sls,spa,spt" ,"","","SSD full chain for simulation",kFALSE},
   {"sls","","","McEvent,Simu,svt_T,SvtCL"
    , "St_sls_Maker","StSsdSimulationMaker", "... SSD slow simulator",kFALSE},
   {"spa" ,"SpaStrip","","Simu,svt_T,SvtCL,ssdUtil","St_spa_Maker","StSsdSimulationMaker"
@@ -1225,7 +1227,7 @@ Bfc_st BFC[] = {
   {"dAuMDCa" ,"" ,"","ppOpt,C2003,trs,tpc_daq,Simu,srs,fss,big,GeantOut,est","","","Chain for d+Au",kFALSE},
   {"CComplete" ,"" ,"","Complete,C2default" ,"","","Turn on chain for Complete STAR",kFALSE},
 
-  {"SvtD" ,"","","SvtDb,SvtSeqAdj,SvtClu,SvtCluAnal,SvtHit", "","","SVT chain for Data",kFALSE},
+  {"SvtD" ,"","","SvtCalDb,SvtSeqAdj,SvtClu,SvtCluAnal,SvtHit", "","","SVT chain for Data",kFALSE},
 
   {"P00h" ,"" ,"","ry1h,in,tpc_daq,tpc,rich,Physics,Cdst,Kalman,tags,Tree,evout,ExB,NoHits","",""
                                                            ,"Production chain for summer 2000 data",kFALSE},
@@ -1638,6 +1640,8 @@ Bfc_st BFC[] = {
   {"dbutil" ,"" ,"","detDb,StDbT" ,"","StDbUtilities","Load StDbUtilities",kFALSE},
   {"svtDb" ,"svtDb","","tpcDb,SvtCL", "StSvtDbMaker","StSvtDbMaker","Load and run SvtDbMaker",kFALSE},
   {"ssdDb" ,"ssdDb","","tpcDb,SsdUtil","StSsdDbMaker","StSsdDbMaker","Load and run SsdDbMaker",kFALSE},
+  {"svtCalDb" ,"" ,"","svtDb" ,"","","Declare Calibrations/svt as while list member",kFALSE},
+  {"ssdCalDb" ,"" ,"","ssdDb" ,"","","Declare Calibrations/ssd as while list member",kFALSE},
   {"eemcDb" ,"eeDb" ,"","db", "StEEmcDbMaker","StEEmcDbMaker","Load EEmcDbMaker",kFALSE},
   {"fmsDb" ,"fmsDb","","db", "StFmsDbMaker","StFmsDbMaker","Load FmsDbMaker",kFALSE},
 
@@ -1738,12 +1742,12 @@ Bfc_st BFC[] = {
   {"svt_daq" ,"svt_raw","svtChain","daq,SvtCL" ,"StSvtDaqMaker","StSvtDaqMaker","",kFALSE},
   {"sss" ,"","","SvtSlowSim" ,"","","Short cut for SvtSlowSim",kFALSE},
   {"SvtSlowSim" ,"","","SvtSSim,SvtOnlSeq" ,"","","Short cut for SvtSlowSim and SvtOnlSeq",kFALSE},
-  {"SvtSSim","SvtSSimu","svtChain","svtDb,SvtCL,Simu,SvtSeqAdj,SvtClu,SvtCluAnal,SvtHit"
+  {"SvtSSim","SvtSSimu","svtChain","svtCalDb,SvtCL,Simu,SvtSeqAdj,SvtClu,SvtCluAnal,SvtHit"
    , "StSvtSimulationMaker","StSvtSimulationMaker,StSvtCalibMaker","",kFALSE},
   {"SvtEmbed" ,"","","SvtSSim,SvtEm,SvtOnlSeq" ,"","","Short cutfor SvtSlowSim and SvtOnlSeq",kFALSE},
-  {"SvtEm","SvtEm","svtChain","svtDb,SvtCL,Simu,SvtSeqAdj,SvtClu,SvtCluAnal,SvtHit","StSvtEmbeddingMaker"
+  {"SvtEm","SvtEm","svtChain","svtCalDb,SvtCL,Simu,SvtSeqAdj,SvtClu,SvtCluAnal,SvtHit","StSvtEmbeddingMaker"
    , "StSvtSimulationMaker,StSvtCalibMaker","",kFALSE},
-  {"SvtOnlSeq" ,"SvtOnlSeq","svtChain","svtDb,SvtCL,Simu,SvtSeqAdj,SvtClu,SvtCluAnal,SvtHit"
+  {"SvtOnlSeq" ,"SvtOnlSeq","svtChain","svtCalDb,SvtCL,Simu,SvtSeqAdj,SvtClu,SvtCluAnal,SvtHit"
    , "StSvtOnlineSeqAdjSimMaker","StSvtSimulationMaker","",kFALSE},
   {"srs","","","sfs", "","","WARNING *** Option is OBSOLETE use sfs instead ***",kFALSE},
   {"sfs","svt_hits","svtChain","svtDb,Simu,SvtCL,-sss,-SvtSlowSim,StEvent,MakeEvent"
@@ -1771,10 +1775,10 @@ Bfc_st BFC[] = {
   {"pixFastSim","","","StMcEvent,StEvent"
    , "StPixelFastSimMaker","StPixelFastSimMaker","FastPixelSimulator",kFALSE},
   {"ssddat" ,"","","ssd_daq" ,"","","SSD full chain for Real Data",kFALSE},
-  {"ssd_daq","","","ssddb,svt_T,-sls,-spa,ssdUtil","StSsdDaqMaker" ,"StSsdDaqMaker", "... SSD Daq",kFALSE},
+  {"ssd_daq","","","ssdCalDb,svt_T,-sls,-spa,ssdUtil","StSsdDaqMaker","StSsdDaqMaker","... SSD Daq",kFALSE},
   {"ssdfast" ,"","","ssdDb,StMcEvent,StEvent","StSsdFastSimMaker","StSsdFastSimMaker",
    "... SSD fast simulator" ,kFALSE},
-  {"ssd" ,"","","sls,spa,spt" ,"","","SSD full chain for simulation",kFALSE},
+  {"ssd" ,"","","ssdCalDb,sls,spa,spt" ,"","","SSD full chain for simulation",kFALSE},
   {"sls","","","McEvent,Simu,svt_T,SvtCL"
    , "St_sls_Maker","StSsdSimulationMaker", "... SSD slow simulator",kFALSE},
   {"spa" ,"SpaStrip","","Simu,svt_T,SvtCL,ssdUtil","St_spa_Maker","StSsdSimulationMaker"
@@ -3693,11 +3697,11 @@ void StBFChain::SetDbOptions(StMaker *mk){
   }
   if (this == GetTopChain()) {
     // Db blacklist (remove black listed system from St_Db_Maker Calibrations configuration)
-    if (! GetOption("TpcDb")                        )  mk->SetAttr("blacklist", "tpc"); // blacklist tpc
-    if (! GetOption("SvtDb") || GetOption("NoSvtIT"))  mk->SetAttr("blacklist", "svt"); // blacklist svt
-    if (! GetOption("SsdDb") || GetOption("NoSsdIT"))  mk->SetAttr("blacklist", "ssd"); // blacklist ssd
-    if (! GetOption("EemcDb")                       )  mk->SetAttr("blacklist", "eemc");// blacklist eemc
-    if (! GetOption("FmsDb")                        )  mk->SetAttr("blacklist", "fms"); // blacklist fms
+    if (! GetOption("TpcDb")                        ) {mk->SetAttr("blacklist", "tpc");  gMessMgr->QAInfo() << "blacklist tpc" << endm;}
+    if (! GetOption("SvtDb")||!GetOption("SvtCalDb")) {mk->SetAttr("blacklist", "svt");  gMessMgr->QAInfo() << "blacklist svt" << endm;}
+    if (! GetOption("SsdDb")||!GetOption("SsdCalDb")) {mk->SetAttr("blacklist", "ssd");  gMessMgr->QAInfo() << "blacklist ssd" << endm;}
+    if (! GetOption("EemcDb")                       ) {mk->SetAttr("blacklist", "eemc"); gMessMgr->QAInfo() << "blacklist eemc"<< endm;}
+    if (! GetOption("FmsDb")                        ) {mk->SetAttr("blacklist", "fms");  gMessMgr->QAInfo() << "blacklist fms" << endm;}
   }
 }
 //_____________________________________________________________________
