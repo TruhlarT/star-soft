@@ -543,8 +543,8 @@ my $gtitle;
 
  @data = ();
 
-	$ylabel = "CPU in sec/evt for every jobs";
-	$gtitle = "CPU in sec/evt for different stream data for $qday day";
+	$ylabel = "CPU in sec/evt";
+	$gtitle = "CPU in sec/evt for different stream jobs for $qday day";
 
       $max_y = $maxcpu + 0.2*$maxcpu; 
       $max_y = int($max_y);
@@ -555,8 +555,8 @@ my $gtitle;
 
  @data = ();
 
-        $ylabel = "Ratio RealTime/CPU for every jobs";
-	$gtitle = "Ratio RealTime/CPU for different stream data for $qday day";
+        $ylabel = "Ratio RealTime/CPU";
+	$gtitle = "Ratios RealTime/CPU for different stream jobs for $qday day";
 
        $max_y = $maxval + 0.2*$maxval; 
 #      $max_y = int($max_y);
@@ -568,7 +568,7 @@ my $gtitle;
  @data = ();
 
         $ylabel = "Total jobs time on the farm in hours";
-	$gtitle = "Total jobs time on the farm for different stream data for $qday day";
+	$gtitle = "Total jobs time on the farm for different stream jobs for $qday day";
 
        $max_y = $maxjbtime + 0.2*$maxjbtime; 
       $max_y = int($max_y);
