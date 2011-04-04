@@ -514,7 +514,7 @@ END
 
            $rte = $prtime/$pcpu; 
 
-	   if($rte <= 2.0 )     {
+	   if($rte >= 1.0 and $rte <= 2.0 )     {
 	   $ndt = int(($rte - 1)/$rcpubin + 0.00001);
            $ndate[$ndt] = 1 + $rcpubin*$ndt;  
 
