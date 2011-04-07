@@ -147,15 +147,16 @@ print $query->end_html();
 my $qqr = new CGI;
 
 my $lsite   = $qqr->param('rsite');
+
 my @prt = ();
  @prt = split("_",$tsite); 
 
 my  $tsite = $prt[0];
 
  if($lsite =~ /embed/) {
-   $newpath = "%/new_embed/%ittf%' ;
+   $newpath = "%/new_embed/%ittf%" ;
  } else{
-   $newpath = "%/new/%ittf%' ;
+   $newpath = "%/new/%ittf%" ;
  }
   
 $JobStatusT = "siteJobStatus";
