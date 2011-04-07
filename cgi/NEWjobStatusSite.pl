@@ -222,6 +222,8 @@ $sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, 
  
   &beginHtml(); 
 
+my @spl = ();
+my $dPath;
 
   foreach $eachFile (@dbFiles) {
 
@@ -237,14 +239,25 @@ $sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, 
         $myCtime = ($$eachFile)->timeS;
         $mychain = ($$eachFile)->chOpt;
  
-     if($myPath =~ /daq/)  {
-      $evtype = "realData";
-    }elsif($myPath =~ /trs/ ) {
-        $evtype = "MC";
-    }elsif($myPath =~ /embed/ ) {
-       $evtype = "embedding";
+	@spl= ();
+   if ($myPath =~ /new_embed/ ) {
+       @spl = split("new_embed",$myPath);
+      $dPath = $spl[1];
+   }else{
+       @spl = split("new",$myPath);
+      $dPath = $spl[1];   
    }
-        @prt = split (" ", $myCtime);
+
+    if($dPath =~ /embed/ ) {
+      $evtype = "embedding";
+    }elsif($dPath =~ /daq/)  {
+      $evtype = "realData";
+    }elsif($dPath =~ /trs/ ) {
+       $evtype = "MC";
+    }
+
+    @prt = ();
+    @prt = split (" ", $myCtime);
     $cdate = $prt[0];  
 
         if($mylib eq $lastlib and $myJobS eq "Done") {
