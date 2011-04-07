@@ -126,7 +126,7 @@ set filec
 set fignore=( .o .dvi .aux .toc .log .blg .bbl .bak .BAK .sav .old .trace)
 set noclobber
 set ignoreeof
-set notify
+# set notify
 set savehist=50
 set history=100
 
