@@ -29,22 +29,37 @@ $JobStatusT = "siteJobStatus";
 my $SITE = $ARGV[0];
 my @node_dir = ();
 my $TOP_DIRD;
+my $dsite;
 
 print  $SITE, "\n";
 
  if ($SITE eq "rcf" ) { 
 
+ $dsite = "rcf";
  $TOP_DIRD = "/star/rcf/test/new/";
+  @node_dir = ("daq_sl302.ittf", "daq_sl302.ittf_opt" ,"trs_sl302.ittf", "trs_sl302.ittf_opt"); 
+
+ }elsif($SITE eq "rcf_embed" ) {
+
+  $dsite = "rcf";
+ $TOP_DIRD = "/star/rcf/test/new_embed/";
  @node_dir = ("daq_sl302.ittf", "daq_sl302.ittf_opt" ,"trs_sl302.ittf", "trs_sl302.ittf_opt"); 
 
- }if($SITE eq "pdsf" ) {
- 
+ }elsif($SITE eq "pdsf" ) {
+
+   $dsite = "pdsf"; 
   $TOP_DIRD = "/star/data08/users/didenko/pdsf/new/";
-
-  print $TOP_DIRD, "\n";
-
   @node_dir = ("daq_sl53.ittf", "trs_sl53.ittf");  
+
+ }elsif($SITE eq "pdsf_embed" ) {
+
+  $dsite = "pdsf";  
+  $TOP_DIRD = "/star/data08/users/didenko/pdsf/new_embed/";
+  @node_dir = ("daq_sl53.ittf", "trs_sl53.ittf");  
+
  }
+
+my @prt = ();
 
 my @dir_year = ("year_2000", "year_2001", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008","year_2009", "year_2010", "year_2011");
 
@@ -78,7 +93,7 @@ my $ii = 0;
     @OUT_DIR0 = `ls -d $TDIR[0]`;
     @OUT_DIR1 = `ls -d $TDIR[1]`;
 
-  if ($SITE eq "rcf" ) { 
+  if ($dsite eq "rcf" ) { 
 
     @OUT_DIR2 = `ls -d $TDIR[2]`;
     @OUT_DIR3 = `ls -d $TDIR[3]`;
@@ -98,7 +113,7 @@ my $ii = 0;
      $ii++;
 }
 
-  if ($SITE eq "rcf" ) { 
+  if ($dsite eq "rcf" ) { 
 
   for ($i = 0; $i < scalar(@OUT_DIR2); $i++) {
      $OUT_DIR[$ii] = $OUT_DIR2[$i];
@@ -185,7 +200,6 @@ struct JFileAttr => {
  my $eachOutNDir;
  my $fullname;
  my $flname;
- my @prt;
  my $libL = "n\/a";
  my $libV = "n\/a";
  my $platf;
@@ -370,13 +384,13 @@ my $pyear = 0;
        $fullname = $eachOutLDir."/".$fname;
       $mpath = $eachOutLDir;
       @dirF = split(/\//, $eachOutLDir);
-  if ($SITE eq "rcf" ) { 
+  if ($SITE eq "rcf" or $SITE eq "rcf_embed" ) { 
        $libL = $dirF[4];
        $platf = $dirF[5];
        @prt =split("_", $dirF[6]);
        $pyear = $prt[1]; 
 
-  }elsif($SITE eq "pdsf" ) {
+  }elsif($SITE eq "pdsf" or $SITE eq "pdsf_embed") {
         $libL = $dirF[6];
        $platf = $dirF[7];
         @prt =split("_", $dirF[8]);
@@ -405,7 +419,7 @@ my $pyear = 0;
 #           if( $ltime > 600 && $ltime < 518400 ){         
           if( $ltime > 2400  and $size > 1000 ) { 
 #   print "Log time: ", $ltime, "\n";
-#   print $fullname, "\n";
+   print $fullname, "\n";
         &logInfo("$fullname", "$platf");
      $jobTime = $timeS;  
 
@@ -620,7 +634,7 @@ sub fillJSTable {
 
     $sql="insert into $JobStatusT set ";
     $sql.="jobID='$mjID',";
-    $sql.="site='$SITE',";
+    $sql.="site='$dsite',";
     $sql.="LibLevel='$libL',";
     $sql.="LibTag='$libV',";
     $sql.="rootLevel='$rootL',";
