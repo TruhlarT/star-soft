@@ -237,14 +237,13 @@ $sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, 
         $myCtime = ($$eachFile)->timeS;
         $mychain = ($$eachFile)->chOpt;
  
-    if($myPath =~ /embed/)  {
-       $evtype = "embedding";
-    }elsif($myPath =~ /daq/)  {
+     if($myPath =~ /daq/)  {
       $evtype = "realData";
     }elsif($myPath =~ /trs/ ) {
         $evtype = "MC";
-    }
-
+    }elsif($myPath =~ /embed/ ) {
+       $evtype = "embedding";
+   }
         @prt = split (" ", $myCtime);
     $cdate = $prt[0];  
 
