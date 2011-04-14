@@ -47,7 +47,7 @@ switch ($pkg)
       #source $GROUP_DIR/STAR_SYS
       unsetenv OPTSTAR
       unsetenv QTDIR
-      unsetenv LD_LIBRARY_PATH 
+      setenv LD_LIBRARY_PATH 
       #if ( $?SAVED_PATH ) then
       #	set path=($SAVED_PATH)
       #endif
@@ -61,10 +61,11 @@ switch ($pkg)
     case "32bits":
     case "32b":
       setenv USE_64BITS 0
+      if ( -x $GROUP_DIR/dropit) setenv PATH            `$GROUP_DIR/dropit 64`
       #source $GROUP_DIR/STAR_SYS
       unsetenv OPTSTAR
       unsetenv QTDIR
-      unsetenv LD_LIBRARY_PATH
+      setenv LD_LIBRARY_PATH ""
       #if ( $?SAVED_PATH ) then
       #	set path=($SAVED_PATH)
       #endif
@@ -238,13 +239,40 @@ switch ($pkg)
 	setenv STARCMPL "icc"; starver $STAR_LEVEL
 	breaksw
 
-
+    case "gcc451":
+      if ( -x $GROUP_DIR/dropit ) then
+	setenv PATH            `$GROUP_DIR/dropit alt $STAR_HOST_SYS rcassoft`
+	setenv LD_LIBRARY_PATH `$GROUP_DIR/dropit -p $LD_LIBRARY_PATH alt $STAR_HOST_SYS rcassoft `
+      endif
+      setenv PATH /afs/rhic.bnl.gov/rcassoft/x8664_sl5/gcc451/bin:$PATH
+      if (! $USE_64BITS) then
+	setenv LD_LIBRARY_PATH /afs/rhic.bnl.gov/rcassoft/x8664_sl5/gcc451/lib:/usr/lib/mysql:$LD_LIBRARY_PATH
+      else
+	setenv LD_LIBRARY_PATH /afs/rhic.bnl.gov/rcassoft/x8664_sl5/gcc451/lib64:/usr/lib64/mysql:$LD_LIBRARY_PATH
+      endif
+      setenv IVROOT $OPTSTAR
+      setenv STARCMPL "gcc"; starver $STAR_LEVEL
+      breaksw
+    case "gcc452":
+      if ( -x $GROUP_DIR/dropit ) then
+	setenv PATH            `$GROUP_DIR/dropit alt $STAR_HOST_SYS rcassoft`
+	setenv LD_LIBRARY_PATH `$GROUP_DIR/dropit -p $LD_LIBRARY_PATH alt $STAR_HOST_SYS rcassoft`
+      endif
+      setenv PATH /afs/rhic.bnl.gov/rcassoft/x8664_sl5/gcc452/bin:$PATH
+      if (! $USE_64BITS) then
+	setenv LD_LIBRARY_PATH /afs/rhic.bnl.gov/rcassoft/x8664_sl5/gcc452/lib:/usr/lib/mysql:$LD_LIBRARY_PATH
+      else
+	setenv LD_LIBRARY_PATH /afs/rhic.bnl.gov/rcassoft/x8664_sl5/gcc452/lib64:/usr/lib64/mysql:$LD_LIBRARY_PATH
+      endif
+      setenv IVROOT $OPTSTAR
+      setenv STARCMPL "gcc"; starver $STAR_LEVEL
+      breaksw
     # Alternative or restore of gcc version
     case "gcc":
       unsetenv QTDIR
       if ( -x $GROUP_DIR/dropit ) then
-	setenv PATH            `$GROUP_DIR/dropit alt opt/gcc`
-	setenv LD_LIBRARY_PATH `$GROUP_DIR/dropit -p $LD_LIBRARY_PATH $OPTSTAR/alt opt/gcc`
+	setenv PATH            `$GROUP_DIR/dropit alt opt/gcc rcassoft`
+	setenv LD_LIBRARY_PATH `$GROUP_DIR/dropit -p $LD_LIBRARY_PATH $OPTSTAR/alt opt/gcc rcassoft`
       endif
 
       if ( $version != 0 ) then
