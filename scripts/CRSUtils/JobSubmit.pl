@@ -467,7 +467,7 @@ if ( $ThisYear == 2005 ){
 } elsif ( $ThisYear == 2011 ) {
     $TREEMODE= 1;
     $LIB     = "dev";
-#######
+
     $MAXEVT  = 1000;
     $NUMEVT  = 1000;
     $MINEVT  = 200;
@@ -530,8 +530,8 @@ if ( $ThisYear == 2005 ){
 
 
     # Order is: regular, bypass, calib - do not change
-    @USEQ    = (5,  5, 5);
-    @SPILL   = (0,105, 4);
+    @USEQ    = (5,  5, 3);
+    @SPILL   = (0,  0, 2);
 
 
     # at least, p+p calib
