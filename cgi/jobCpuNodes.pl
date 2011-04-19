@@ -231,7 +231,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'period',
                                   -values=>\@arperiod,
-                                  -default=>day,
+                                  -default=>1_month,
                                   -size =>1);
 
     
@@ -248,7 +248,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'pvalue',
 	                          -values=>\@arval,
-	                          -default=>cpu,
+	                          -default=>rtime/cpu,
       			          -size =>1);
 
     print "<p>";
