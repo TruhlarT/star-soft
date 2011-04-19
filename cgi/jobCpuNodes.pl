@@ -54,7 +54,7 @@ my $dyear = $thisyear - 2000;
 my @prodyear = ("2010");
 #my @arperiod = ("week","1_month","2_months","3_months","4_months","5_months","6_months");
 my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months");
-my @arval = ("cpu","rtime/cpu");
+my @arval = ("rtime/cpu","cpu");
 my @arcrs = ();
 
 my @arrprod = ();
@@ -484,7 +484,7 @@ my $dnode   = "".$qnode;
 ####################
 
           foreach my $mfile (@arstream) {
-              if ($nstr{$mfile,$ndt} >= 3 ) {
+              if ($nstr{$mfile,$ndt} >= 2 ) {
                   $arcpu{$mfile,$ndt} = $arcpu{$mfile,$ndt}/$nstr{$mfile,$ndt};
                   $rte{$mfile,$ndt} = $rte{$mfile,$ndt}/$nstr{$mfile,$ndt};
                   if ( $rte{$mfile,$ndt} > $maxval ) {
