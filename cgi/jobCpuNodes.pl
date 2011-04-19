@@ -353,7 +353,7 @@ my $dnode   = "".$qnode;
  %nstr = {};
  %arcpu = {};
 
-  my $maxval = 1;
+  my $maxval = 1.0;
   my $maxcpu = 0;
  
 ##################################### cpu, rtime/cpu
@@ -487,7 +487,7 @@ my $dnode   = "".$qnode;
                   $arcpu{$mfile,$ndt} = $arcpu{$mfile,$ndt}/$nstr{$mfile,$ndt};
                   $rte{$mfile,$ndt} = $rte{$mfile,$ndt}/$nstr{$mfile,$ndt};
                   if ( $rte{$mfile,$ndt} > $maxval ) {
-                $maxval =  $rte{$mfile,$ndt}
+		      $maxval =  $rte{$mfile,$ndt};
                  }
                   if ( $arcpu{$mfile,$ndt} > $maxcpu ) {
                       $maxcpu = $arcpu{$mfile,$ndt} ;
