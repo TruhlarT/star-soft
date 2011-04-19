@@ -247,7 +247,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'pvalue',
 	                          -values=>\@arval,
-	                          -default=>rtime/cpu,
+	                          -default=>cpu,
       			          -size =>1);
 
     print "<p>";
