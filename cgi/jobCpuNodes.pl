@@ -247,7 +247,6 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'pvalue',
 	                          -values=>\@arval,
-	                          -default=>cpu,
       			          -size =>1);
 
     print "<p>";
@@ -543,6 +542,8 @@ my $dnode   = "".$qnode;
  my $ylabel;
  my $gtitle; 
  my @data = ();
+ my $max_y;
+ my $min_y;
 
     my $graph = new GD::Graph::linespoints(750,650);
 
@@ -572,7 +573,7 @@ my $dnode   = "".$qnode;
 
   @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@aratomcules, \@armtd ) ;
 
-  	$max_y = $maxval + 0.2*$maxval; 
+  	$max_y = 1.2*$maxval; 
 
   }elsif(  $qvalue eq "cpu" ) {
 
@@ -583,7 +584,7 @@ my $dnode   = "".$qnode;
 
   @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpatomcules, \@cpmtd ) ;
 
-    	$max_y = $maxcpu + 0.2*$maxcpu; 
+    	$max_y = 1.2*$maxcpu; 
         $max_y = int($max_y);
     }
 
