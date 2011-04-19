@@ -234,7 +234,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'pnode',
                                   -values=>\@arcrs,
-                                  -default=>rcrs6120.rcf.bnl.gov
+                                  -default=>rcrs6120.rcf.bnl.gov,
                                   -size =>1);
 
 
