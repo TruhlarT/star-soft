@@ -234,6 +234,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'pnode',
                                   -values=>\@arcrs,
+                                  -default=>rcrs6120.rcf.bnl.gov
                                   -size =>1);
 
 
@@ -420,7 +421,7 @@ my $dnode   = "".$qnode;
         @jbstat = ();
         $nstat = 0;
 
-    if( $qperiod eq "day" or $qperiod eq "week") {
+    if(  $qperiod eq "week") {
 
 
   $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND nodeID = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 order by createTime ";
@@ -578,8 +579,8 @@ my $dnode   = "".$qnode;
 
        if ( $qvalue eq "rtime/cpu" ) {
 
-       $ylabel = "Average ratio RealTime/CPU per hour";
-       $gtitle = "Average ratio RealTime/CPU per hour for $qnode and $qperiod period";
+       $ylabel = "Average ratio RealTime/CPU per day";
+       $gtitle = "Average ratio RealTime/CPU per day for $qnode and $qperiod period";
 
     @data = ();
 
@@ -589,8 +590,8 @@ my $dnode   = "".$qnode;
 
   }elsif(  $qvalue eq "cpu" ) {
 
-       $ylabel = "Average CPU in sec/evt per hour";
-       $gtitle = "Average CPU in sec/evt per hour for $qnode and $qperiod period";
+       $ylabel = "Average CPU in sec/evt per day";
+       $gtitle = "Average CPU in sec/evt per day for $qnode and $qperiod period";
 
     @data = ();
 
@@ -598,19 +599,6 @@ my $dnode   = "".$qnode;
 
     	$max_y = $maxcpu + 0.2*$maxcpu; 
         $max_y = int($max_y);
-
-  }elsif(  $qvalue eq "jobtottime" ) {
-
-    @data = ();
-
-   $ylabel = "Total average time jobs stay on the farm in hours";
-   $gtitle = "Total average time jobs stay on the farm  for $qnode and $qperiod period ";
-
-@data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd ) ;
-
-  $max_y = $maxjbtime + 0.2*$maxjbtime;
-  $max_y = int($max_y);
-
     }
 
 	my $xLabelsVertical = 1;
