@@ -131,18 +131,6 @@ my @cpupc = ();
 my @cpmonitor = ();
 my @cppmdftp = ();
 
-my @jbupsilon = ();
-my @jbmtd = ();
-my @jbphysics = ();
-my @jbgamma = ();
-my @jbhlt = ();
-my @jbfmsfast = ();
-my @jbht = ();
-my @jbatomcules = ();
-my @jbupc = ();
-my @jbmonitor = ();
-my @jbpmdftp = ();
-
   &StDbProdConnect();
  
  $JobStatusT = "JobStatus2010";  
@@ -256,7 +244,7 @@ END
     print "<table align=center>";
     print "<tr ALIGN=center>";
     print "<td>";  
-    print "<h3 align=center> Stream values: <br> CPU and rtime/CPU</h3>";
+    print "<h3 align=center> Stream values: <br> CPU <br>rtime/CPU</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'pvalue',
 	                          -values=>\@arval,
@@ -578,8 +566,8 @@ my $dnode   = "".$qnode;
 
        if ( $qvalue eq "rtime/cpu" ) {
 
-       $ylabel = "Average ratio RealTime/CPU per day";
-       $gtitle = "Average ratio RealTime/CPU per day for $qnode and $qperiod period";
+       $ylabel = "Average ratio RealTime/CPU";
+       $gtitle = "Average ratio RealTime/CPU for $qnode and $qperiod period";
 
     @data = ();
 
@@ -589,8 +577,8 @@ my $dnode   = "".$qnode;
 
   }elsif(  $qvalue eq "cpu" ) {
 
-       $ylabel = "Average CPU in sec/evt per day";
-       $gtitle = "Average CPU in sec/evt per day for $qnode and $qperiod period";
+       $ylabel = "Average CPU in sec/evt ";
+       $gtitle = "Average CPU in sec/evt for $qnode and $qperiod period";
 
     @data = ();
 
