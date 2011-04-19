@@ -52,8 +52,9 @@ my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
 my @prodyear = ("2010");
-my @arperiod = ("week","1_month","2_months","3_months","4_months","5_months","6_months");
-my @arval = ("cpu","rtime/cpu","jobtottime");
+#my @arperiod = ("week","1_month","2_months","3_months","4_months","5_months","6_months");
+my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months");
+my @arval = ("cpu","rtime/cpu");
 my @arcrs = ();
 
 my @arrprod = ();
@@ -368,145 +369,10 @@ my $dnode   = "".$qnode;
 
   my $maxval = 1;
   my $maxcpu = 0;
-  my $maxjbtime = 0.1;
  
- if( $qvalue eq "jobtottime" ) {
-
- %arjbtime = {};
-
- @jbupsilon = ();
- @jbmtd = ();
- @jbphysics = ();
- @jbgamma = ();
- @jbhlt = ();
- @jbfmsfast = ();
- @jbht = ();
- @jbatomcules = ();
- @jbupc = ();
- @jbmonitor = ();
- @jbpmdftp = ();
-
- @ndate = ();
- $ndt = 0;
-
-############################# 
-
-   foreach my $tdate (@ardays) {
-	@jbstat = ();  
-	$nstat = 0;
-
-    if( $qperiod eq "day" or $qperiod eq "week") {
-
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, jobtotalTime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND nodeID = ? AND prodSeries = ? AND jobtotalTime > 0.1  AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10  order by createTime";
-
-            $cursor =$dbh->prepare($sql)
-              || die "Cannot prepare statement: $DBI::errstr\n";
-
-            $cursor->execute($$dnode,qprod);
-
-        while(@fields = $cursor->fetchrow) {
-            my $cols=$cursor->{NUM_OF_FIELDS};
-            $fObjAdr = \(JobAttr->new());
-
-            for($i=0;$i<$cols;$i++) {
-                my $fvalue=$fields[$i];
-                my $fname=$cursor->{NAME}->[$i];
-                # print "$fname = $fvalue\n" ;
-
-                ($$fObjAdr)->vday($fvalue)    if( $fname eq 'PDATE');
-                ($$fObjAdr)->jbtot($fvalue)   if( $fname eq 'jobtotalTime');
-                ($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
-
-
-            }
-            $jbstat[$nstat] = $fObjAdr;
-            $nstat++;
-     }
-
-     }else{
-
-  $sql="SELECT runDay, jobtotalTime, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND nodeID = ? AND prodSeries = ? AND jobtotalTime > 0.1  AND submitAttempt = 1  AND jobStatus = 'Done' AND NoEvents >= 10 order by runDay ";
-
-           $cursor =$dbh->prepare($sql)
-              || die "Cannot prepare statement: $DBI::errstr\n";
-
-            $cursor->execute($dnode,$qprod);
-
-        while(@fields = $cursor->fetchrow) {
-            my $cols=$cursor->{NUM_OF_FIELDS};
-            $fObjAdr = \(JobAttr->new());
-
-            for($i=0;$i<$cols;$i++) {
-                my $fvalue=$fields[$i];
-                my $fname=$cursor->{NAME}->[$i];
-                # print "$fname = $fvalue\n" ;
-
-                ($$fObjAdr)->vday($fvalue)    if( $fname eq 'runDay');
-                ($$fObjAdr)->jbtot($fvalue)   if( $fname eq 'jobtotalTime');
-                ($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
-
-            }
-            $jbstat[$nstat] = $fObjAdr;
-            $nstat++;
-        }
-      }
-
-     foreach $jset (@jbstat) {
-           $pday      = ($$jset)->vday;
-           $jbTottime = ($$jset)->jbtot;
-           $pstream   = ($$jset)->strv;
-
-           $arjbtime{$pstream,$ndt} = $arjbtime{$pstream,$ndt} + $jbTottime;
-           $nstr{$pstream,$ndt}++;
-
-           $ndate[$ndt] = $pday;
-
-          }
-
-          foreach my $mfile (@arstream) {
-             if ($nstr{$mfile,$ndt} >= 2 ) {
-           $arjbtime{$mfile,$ndt} = $arjbtime{$mfile,$ndt}/$nstr{$mfile,$ndt};
-
-                if ( $arjbtime{$mfile,$ndt} > $maxjbtime ) {
-                    $maxjbtime = $arjbtime{$mfile,$ndt} ;
-                }
-
-            if ( $mfile eq "physics" ) {
-               $jbphysics[$ndt] =  $arjbtime{$mfile,$ndt};
-            }elsif( $mfile eq "mtd" ) {
-               $jbmtd[$ndt] =  $arjbtime{$mfile,$ndt};
-            }elsif( $mfile eq "upsilon" ) {
-               $jbupsilon[$ndt] = $arjbtime{$mfile,$ndt};
-            }elsif( $mfile eq "gamma" ) {
-               $jbgamma[$ndt] = $arjbtime{$mfile,$ndt};
-            }elsif( $mfile eq "hlt" ) {
-               $jbhlt[$ndt] =  $arjbtime{$mfile,$ndt};
-            }elsif( $mfile eq "fmsfast" ) {
-               $jbfmsfast[$ndt] =  $arjbtime{$mfile,$ndt};
-            }elsif( $mfile eq "ht" ) {
-               $jbht[$ndt] =  $arjbtime{$mfile,$ndt};
-            }elsif( $mfile eq "atomcules" ) {
-               $jbatomcules[$ndt] = $arjbtime{$mfile,$ndt};
-            }elsif( $mfile eq "monitor" ) {
-               $jbmonitor[$ndt] = $arjbtime{$mfile,$ndt};
-            }elsif( $mfile eq "pmdftp" ) {
-               $jbpmdftp[$ndt] = $arjbtime{$mfile,$ndt};
-            }elsif( $mfile eq "upc" ) {
-               $jbupc[$ndt] =  $arjbtime{$mfile,$ndt};
-
-           }else{
-             next;
-           }
-            }
-          }
-
-        $ndt++;
-
-   } # foreach tdate
-
 ##################################### cpu, rtime/cpu
 
-   }elsif( $qvalue eq "cpu" or $qvalue eq "rtime/cpu"  ) {
+   if( $qvalue eq "cpu" or $qvalue eq "rtime/cpu"  ) {
 
  @ndate = ();
  $ndt = 0;
