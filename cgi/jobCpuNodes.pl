@@ -52,12 +52,9 @@ my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
 my @prodyear = ("2010");
-
-
-my @arperiod = ( );
+my @arperiod = ("week","1_month","2_months","3_months","4_months","5_months","6_months");
 my @arval = ("cpu","rtime/cpu","jobtottime");
-my @arrcas = ();
-my @arrcrs = ();
+my @arcrs = ();
 
 my @arrprod = ();
 my @arstream = ();
@@ -73,6 +70,7 @@ my $prtime;
 my $pstream;
 my $jbTottime;
 my $pryear = "2010";
+my $dy;
 
 my %rte = {};
 my %nstr = {};
@@ -144,14 +142,6 @@ my @jbupc = ();
 my @jbmonitor = ();
 my @jbpmdftp = ();
 
-
-#my @arhr = ();
-#my $mhr = 0;
-#my $nhr = 0;
-
-my @arnode = ();
-my @arperiod = ("week","1_month","2_months","3_months","4_months","5_months","6_months");
-
   &StDbProdConnect();
  
  $JobStatusT = "JobStatus2010";  
@@ -168,19 +158,6 @@ my @arperiod = ("week","1_month","2_months","3_months","4_months","5_months","6_
        }
     $cursor->finish();
 
-    $sql="SELECT DISTINCT nodeID  FROM $JobStatusT where nodeID like ' rcas6%' order by nodeID" ;
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
-
-       while( $dy = $cursor->fetchrow() ) {
-          $arrcas[$nn] = $dy;
-          $nn++;
-       }
-    $cursor->finish();
-
-
     $sql="SELECT DISTINCT nodeID  FROM $JobStatusT where nodeID like ' rcrs6%' order by nodeID" ;
 
       $cursor =$dbh->prepare($sql)
@@ -188,10 +165,23 @@ my @arperiod = ("week","1_month","2_months","3_months","4_months","5_months","6_
        $cursor->execute();
 
        while( $dy = $cursor->fetchrow() ) {
-          $arrcrs[$ni] = $dy;
+          $arcrs[$ni] = $dy;
           $ni++;
        }
     $cursor->finish();
+
+    $sql="SELECT DISTINCT nodeID  FROM $JobStatusT where nodeID like ' rcas6%' order by nodeID" ;
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $dy = $cursor->fetchrow() ) {
+          $arcrs[$ni] = $dy;
+          $ni++;
+       }
+    $cursor->finish();
+
 
 &StDbProdDisconnect();
 
@@ -217,7 +207,7 @@ END
     print $query->startform(-action=>"$scriptname");
 
     print "<body bgcolor=\"cornsilk\">\n";
-    print "<h1 align=center><u>Production CPU&RealTime usage by node</u></h1>\n";
+    print "<h1 align=center><u>Production CPU&RealTime usage on each node</u></h1>\n";
     print "<br>";
     print "<br>";
     print <<END;
@@ -242,7 +232,7 @@ END
     print "<h3 align=center> Node name <br> </h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'pnode',
-                                  -values=>\@arrcrs,
+                                  -values=>\@arcrs,
                                   -size =>1);
 
 
@@ -298,43 +288,8 @@ my $qperiod = $qqr->param('period');
 my $qvalue  = $qqr->param('pvalue');
 my $qnode   = $qqr->param('pnode');
 my $dnode   = "".$qnode; 
-#my $dnode;
 
-my @arnode = ( "rcrs6114.rcf.bnl.gov",
-               "rcrs6115.rcf.bnl.gov",
-               "rcrs6116.rcf.bnl.gov",
-               "rcrs6117.rcf.bnl.gov",
-               "rcrs6118.rcf.bnl.gov",
-               "rcrs6119.rcf.bnl.gov",
-               "rcrs6120.rcf.bnl.gov",
-               "rcrs6121.rcf.bnl.gov",
-               "rcrs6122.rcf.bnl.gov",
-               "rcrs6123.rcf.bnl.gov",
-               "rcrs6124.rcf.bnl.gov",
-               "rcrs6125.rcf.bnl.gov",
-               "rcrs6126.rcf.bnl.gov",
-               "rcrs6127.rcf.bnl.gov",
-               "rcrs6128.rcf.bnl.gov", 
-               "rcrs6129.rcf.bnl.gov",
-               "rcrs6130.rcf.bnl.gov",
-               "rcrs6131.rcf.bnl.gov",
-               "rcrs6132.rcf.bnl.gov",
-#               "rcrs6133.rcf.bnl.gov",
-               "rcrs6134.rcf.bnl.gov",
-               "rcrs6135.rcf.bnl.gov",
-               "rcrs6136.rcf.bnl.gov",
-               "rcrs6137.rcf.bnl.gov",
-               "rcrs6138.rcf.bnl.gov",
-               "rcrs6139.rcf.bnl.gov",
-               "rcrs6140.rcf.bnl.gov",
-               "rcrs6141.rcf.bnl.gov",
-               "rcrs6142.rcf.bnl.gov",
-               "rcrs6143.rcf.bnl.gov",
-               "rcrs6144.rcf.bnl.gov",
-               "rcrs6145.rcf.bnl.gov"
-	       );
-    
-    $JobStatusT = "JobStatus".$pryear;
+  $JobStatusT = "JobStatus".$pryear;
 
   my $day_diff = 0;
   my $nmonth = 0;
@@ -380,11 +335,11 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
 
      if( $qperiod eq "day" or $qperiod eq "week") {
 
-    $sql="SELECT DISTINCT date_format(createTime, '%Y-%m-%d %H') as PDATE  FROM $JobStatusT WHERE prodSeries = ?  AND jobStatus = 'Done' AND runDay <> '0000-00-00' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) <= ?  order by PDATE ";
+    $sql="SELECT DISTINCT date_format(createTime, '%Y-%m-%d %H') as PDATE  FROM $JobStatusT WHERE prodSeries = ?  AND nodeID = ? AND jobStatus = 'Done' AND runDay <> '0000-00-00' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) <= ?  order by PDATE ";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
-    $cursor->execute($qprod,$day_diff);
+    $cursor->execute($qprod,$dnode,$day_diff);
 
     while($myday = $cursor->fetchrow) {
         $ardays[$nday] = $myday;
@@ -395,11 +350,11 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
 
    }else{
 
-    $sql="SELECT DISTINCT runDay  FROM $JobStatusT WHERE prodSeries = ? AND jobStatus = 'Done'  AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(runDay)) < ?  order by runDay";
+    $sql="SELECT DISTINCT runDay  FROM $JobStatusT WHERE prodSeries = ? AND nodeID = ? AND jobStatus = 'Done'  AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(runDay)) < ?  order by runDay";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
-    $cursor->execute($qprod,$day_diff);
+    $cursor->execute($qprod,$dnode,$day_diff);
 
     while($myday = $cursor->fetchrow) {
         $ardays[$nday] = $myday;
@@ -415,9 +370,6 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
   my $maxcpu = 0;
   my $maxjbtime = 0.1;
  
- @ndate = ();
- $ndt = 0;
-
  if( $qvalue eq "jobtottime" ) {
 
  %arjbtime = {};
@@ -445,15 +397,12 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
 
     if( $qperiod eq "day" or $qperiod eq "week") {
 
-      for ($k = 0; $k<scalar(@arnode); $k++) {
-       $dnode   = " ".$arnode[$k]; 
-
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, jobtotalTime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND nodeID = '$dnode' AND prodSeries = ? AND jobtotalTime > 0.1  AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10  order by createTime";
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, jobtotalTime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND nodeID = ? AND prodSeries = ? AND jobtotalTime > 0.1  AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10  order by createTime";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
 
-            $cursor->execute($qprod);
+            $cursor->execute($$dnode,qprod);
 
         while(@fields = $cursor->fetchrow) {
             my $cols=$cursor->{NUM_OF_FIELDS};
@@ -473,19 +422,15 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
             $jbstat[$nstat] = $fObjAdr;
             $nstat++;
      }
-  }
 
      }else{
 
-    for ($k = 0; $k<scalar(@arnode); $k++) {
-       $dnode   = " ".$arnode[$k]; 
-
-  $sql="SELECT runDay, jobtotalTime, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND nodeID = '$dnode' AND prodSeries = ? AND jobtotalTime > 0.1  AND submitAttempt = 1  AND jobStatus = 'Done' AND NoEvents >= 10 order by runDay ";
+  $sql="SELECT runDay, jobtotalTime, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND nodeID = ? AND prodSeries = ? AND jobtotalTime > 0.1  AND submitAttempt = 1  AND jobStatus = 'Done' AND NoEvents >= 10 order by runDay ";
 
            $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
 
-            $cursor->execute($qprod);
+            $cursor->execute($dnode,$qprod);
 
         while(@fields = $cursor->fetchrow) {
             my $cols=$cursor->{NUM_OF_FIELDS};
@@ -505,8 +450,6 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
             $nstat++;
         }
       }
-     }
-
 
      foreach $jset (@jbstat) {
            $pday      = ($$jset)->vday;
@@ -613,14 +556,12 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
 
     if( $qperiod eq "day" or $qperiod eq "week") {
 
-       for ($k = 0; $k<scalar(@arnode); $k++) {
-       $dnode   = " ".$arnode[$k]; 
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND nodeID = '$dnode' AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 order by createTime ";
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND nodeID = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 order by createTime ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
-            $cursor->execute($qprod);
+            $cursor->execute($qprod,$dnode);
 
         while(@fields = $cursor->fetchrow) {
             my $cols=$cursor->{NUM_OF_FIELDS};
@@ -641,18 +582,14 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
             $jbstat[$nstat] = $fObjAdr;
             $nstat++;
          }
-       }
 
     }else{
 
-     for ($k = 0; $k<scalar(@arnode); $k++) {
-     $dnode   = " ".$arnode[$k]; 
-
-  $sql="SELECT runDay, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ?  AND nodeID = '$dnode' AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 AND jobStatus = 'Done' AND NoEvents >= 10 order by runDay ";
+  $sql="SELECT runDay, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ?  AND nodeID = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 AND jobStatus = 'Done' AND NoEvents >= 10 order by runDay ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
-            $cursor->execute($qprod);
+            $cursor->execute($qprod,$dnode);
 
         while(@fields = $cursor->fetchrow) {
             my $cols=$cursor->{NUM_OF_FIELDS};
@@ -673,7 +610,6 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
             $nstat++;
         }
       }
-    }
 
      foreach $jset (@jbstat) {
             $pday     = ($$jset)->vday;
@@ -777,20 +713,18 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
        if ( $qvalue eq "rtime/cpu" ) {
 
        $ylabel = "Average ratio RealTime/CPU per hour";
-       $gtitle = "Average ratio RealTime/CPU per hour for different streams for $qperiod";
+       $gtitle = "Average ratio RealTime/CPU per hour for $qnode and $qperiod period";
 
     @data = ();
 
   @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@aratomcules, \@armtd ) ;
 
-      $max_y = $maxval + 0.2*$maxval; 
-
-     $min_y = 0.6;
+  	$max_y = $maxval + 0.2*$maxval; 
 
   }elsif(  $qvalue eq "cpu" ) {
 
        $ylabel = "Average CPU in sec/evt per hour";
-       $gtitle = "Average CPU in sec/evt per hour for different streams for $qperiod";
+       $gtitle = "Average CPU in sec/evt per hour for $qnode and $qperiod period";
 
     @data = ();
 
@@ -798,20 +732,18 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
 
     	$max_y = $maxcpu + 0.2*$maxcpu; 
         $max_y = int($max_y);
-        $min_y = 0 ;
 
   }elsif(  $qvalue eq "jobtottime" ) {
 
     @data = ();
 
    $ylabel = "Total average time jobs stay on the farm in hours";
-   $gtitle = "Total average time jobs stay on the farm (finished per hour) for $qperiod ";
+   $gtitle = "Total average time jobs stay on the farm  for $qnode and $qperiod period ";
 
 @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd ) ;
 
   $max_y = $maxjbtime + 0.2*$maxjbtime;
   $max_y = int($max_y);
-  $min_y = 0 ; 
 
     }
 
@@ -821,7 +753,7 @@ my @arnode = ( "rcrs6114.rcf.bnl.gov",
 	my $skipnum = 1;
  
 
-#	$min_y = 0;
+	$min_y = 0;
 
 	if (scalar(@ndate) >= 40 ) {
 	    $skipnum = int(scalar(@ndate)/20);
