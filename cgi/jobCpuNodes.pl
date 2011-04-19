@@ -256,7 +256,7 @@ END
     print "<table align=center>";
     print "<tr ALIGN=center>";
     print "<td>";  
-    print "<h3 align=center> Stream values: <br> CPU, rtime/CPU,<br>jobs total time on the farm<br></h3>";
+    print "<h3 align=center> Stream values: <br> CPU and rtime/CPU</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'pvalue',
 	                          -values=>\@arval,
