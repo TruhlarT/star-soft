@@ -63,7 +63,8 @@ $INSU::CONSOK=0;
 # Mailing list in case of failure.
 # ------------------------------------------
 $INSU::RELFLNM=".log/afs.release";
-@INSU::MANAGERS=("jlauret\@bnl.gov",
+@INSU::MANAGERS=(#"jlauret\@bnl.gov"
+                 "jlauret\@bnl.gov",
 		 "didenko\@bnl.gov",
 		 "gene\@bnl.gov"
 		 );
