@@ -948,12 +948,15 @@ sub rdaq_get_orecords
     my($file,@files,@items);
     my($flag,$comp,$savev);
 
+    #print "In here\n";
+
     if( ! $obj ){           return undef;}
     if( ! defined($mode) ){ $mode = 1;}
 
     # basic selection
     $cmd = "SELECT * FROM $DBTABLE";
 
+    #$DEBUG = 1;
 
     # backward compatibility is status selection where -1 = all
     # may be achieved by skipping hash element.
@@ -1554,8 +1557,9 @@ sub rdaq_status_string
     $str = "SCalib"    if($sts == 5);   # submitted for calibration
     $str = "FCalib"    if($sts == 6);   # submitted for calibration, ezTree
 
-    $str = "External"  if($sts == 7);   # submitted for external processing
+    $str = "External"     if($sts == 7);# submitted for external processing
     $str = "RandomReject" if($sts == 8);# was rejected from pick by random Num
+    $str = "StatusHeld"   if($sts == 9);# was rejected from pick by random Num
 
     $str = "Bad"       if($sts == 111);
     $str = "Died"      if($sts == 666);
