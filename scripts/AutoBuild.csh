@@ -1,7 +1,7 @@
 #!/bin/csh
 #
 # Wrapper to autobuild
-# J.Lauret 2001 - 2005
+# J.Lauret 2001 - 2011
 #
 # Current target for this script
 #
@@ -14,7 +14,10 @@
 #   SL302
 #   SL305
 #   SL44
-#   SL5
+#              <--- all of those targets were consolidated into one block
+#
+#   64bits     build 64 bits verison of dev, whatever the OS
+#   cal        build "cal" version
 #
 #   gcc [v]    switch to some specific version of gcc
 #   icc [v]    Builds with icc
@@ -94,7 +97,6 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 
 	    case "Insure2":
 		starver .IDEV
-
 	    case "Insure":
 		cd $STAR
 		$SCRIPTD/insbld.pl -c -s >$HOME/log/IN-$DAY.log
@@ -102,14 +104,14 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		breaksw
 
 
-	    # ***** THOSE BLOCKS ARE TEMPORARY *****
-	    # Commands uses whatever is found in 'adev' and compiles
-	    case "du":
-		set LPATH=$AFS_RHIC/star/packages/cal
+	    # other library verison else that "dev"
+	    case "cal":
+		# Commands uses whatever is found in 'adev' and compiles
+		set LPATH=$AFS_RHIC/star/packages/$1
 		set SPATH=$AFS_RHIC/star/doc/www/comp/prod/Sanity
-		perl $SCRIPTD/AutoBuild.pl -k -i -R -1 -t -p $LPATH
-		if( -e $HOME/AutoBuild-dec_osf.html) then
-		    /bin/mv -f $HOME/AutoBuild-dec_osf.html $SPATH/AutoBuild-dec_osf.html
+		perl $SCRIPTD/AutoBuild.pl -k -i -R -1 -v $1 -t -p $LPATH
+		if( -e $HOME/AutoBuild-$1.html) then
+		    /bin/mv -f $HOME/AutoBuild-$1.html $SPATH/AutoBuild-$1.html
 		endif
 		cd $LPATH
 		echo "Cleaning older libraries"
@@ -117,6 +119,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		breaksw
 
 
+	    # ***** THOSE BLOCKS ARE TEMPORARY *****
 	    case "Solaris":
 		set LPATH=$AFS_RHIC/star/packages/adev
 		set SPATH=$AFS_RHIC/star/doc/www/comp/prod/Sanity
@@ -131,9 +134,10 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		echo "Cleaning older libraries"
 		mgr/CleanLibs obj 1
 		breaksw
+	    # ########################################
 
 
-	    # By extendig with -B, we can regroup targets
+	    # By extending with -B, we can regroup targets
 	    case "icc9":
 		# Old backward compat
 		# this was added to provide cross verison support
@@ -192,7 +196,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 
 	    #case "SL5":
 	    #	set XTRACMD="unsetenv PGI"
-	    case "SL5-64":
+	    case "64bits":
 		set XTRACMD="setup 64bits"
 	    case "Linux61":
 	    case "Linux72":
@@ -215,9 +219,11 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		endif
 		cd $LPATH
 		echo "Cleaning older libraries"
-		mgr/CleanLibs obj 1
-		echo "Cleaning emacs flc files"
-		/usr/bin/find StRoot/ -name '*.flc' -exec rm -f {} \;
+		mgr/CleanLibs obj 1	
+		if ( ! $?XTRACMD ) then
+		    echo "Cleaning emacs flc files"
+		    /usr/bin/find StRoot/ -name '*.flc' -exec rm -f {} \;
+		endif
 		breaksw
 
 
