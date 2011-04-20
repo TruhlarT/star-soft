@@ -1309,7 +1309,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 			close(CONF);
 		    }
 		}
-		#exit;
+		exit if ($TOTP <= 0);
 
 
 		#if  ( ! defined($ENV{JobSubmit_GO}) ){
@@ -1323,6 +1323,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		    undef(@myfiles);
 		    undef(@testfls);
 
+		    # ensures at least 1
 		    $num = int($TOTP/(($#PIPEOFF+1)/2))+1;		
 		    for ($i=0 ; $i <= $#PIPEOFF ; $i++){
 			if ( 2*int(($i+1)/2) == $i ){
