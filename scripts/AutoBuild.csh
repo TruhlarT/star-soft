@@ -17,7 +17,7 @@
 #              <--- all of those targets were consolidated into one block
 #
 #   64bits     build 64 bits verison of dev, whatever the OS
-#   cal        build "cal" version
+#   cal [xx]   build "cal" version - xx can be other args like "gcc [v]"
 #
 #   gcc [v]    switch to some specific version of gcc
 #   icc [v]    Builds with icc
@@ -109,9 +109,14 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		# Commands uses whatever is found in 'adev' and compiles
 		set LPATH=$AFS_RHIC/star/packages/$1
 		set SPATH=$AFS_RHIC/star/doc/www/comp/prod/Sanity
-		perl $SCRIPTD/AutoBuild.pl -k -i -R -1 -v $1 -t -p $LPATH
-		if( -e $HOME/AutoBuild-$1.html) then
-		    /bin/mv -f $HOME/AutoBuild-$1.html $SPATH/AutoBuild-$1.html
+		if ("$2" != "") then
+		    # assumes to be args to setup
+		    setup $2 $3
+		    setenv AutoBuild_setup_cmd "setup $2 $3"
+		endif
+		$SCRIPTD/AutoBuild.pl -k -i -R -1 -v $1 -t -B -p $LPATH
+		if( -e $HOME/AutoBuild-$1$2$3.html) then
+		    /bin/mv -f $HOME/AutoBuild-$1$2$3.html $SPATH/AutoBuild-$1$2$3.html
 		endif
 		cd $LPATH
 		echo "Cleaning older libraries"
