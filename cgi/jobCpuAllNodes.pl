@@ -98,6 +98,8 @@ my $ndt = 0;
 my $nn = 0;
 my $ni = 0;
 my $dnode;
+my $bnode;
+my $mnode;
 
 my @nstphysics = ();
 my @nstgamma = ();
@@ -296,8 +298,6 @@ my $qday    = $qqr->param('pday');
 my $qvalue  = $qqr->param('pvalue');
 my $qnode   = $qqr->param('pnode');
 
-my $bnode;
-
   $JobStatusT = "JobStatus".$pryear;
 
   my $day_diff = 0;
@@ -381,18 +381,18 @@ my $bnode;
 
      if($qnode eq "rcrs" ) {
 
-    foreach my $mnode (@arcrs) {
+    foreach $mnode (@arcrs) {
 
   $bnode = "".$mnode;
 
  @jbstat = ();
  $nstat = 0;
 
-  $sql="SELECT  CPU_per_evt_sec, RealTime_per_evt, streamName, nodeID FROM $JobStatusT WHERE  runDay = ? AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and nodeID like ' rcrs6%' and jobStatus = 'Done' AND NoEvents >= 10 order by createTime ";
+  $sql="SELECT  CPU_per_evt_sec, RealTime_per_evt, streamName, nodeID FROM $JobStatusT WHERE  runDay = ? AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and nodeID = ? and jobStatus = 'Done' AND NoEvents >= 10 ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
-            $cursor->execute($qday,$qprod);
+            $cursor->execute($qday,$qprod,$bnode);
 
         while(@fields = $cursor->fetchrow) {
             my $cols=$cursor->{NUM_OF_FIELDS};
