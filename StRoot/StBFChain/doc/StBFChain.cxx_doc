@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.89 2011/04/20 22:33:12 genevb Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.90 2011/04/21 22:37:44 genevb Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TString.h"
@@ -64,6 +64,7 @@ Bfc_st BFC[] = {
   {"PulserSvt" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"alltrigger" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"phys_off" ,"","","" ,"","","Turn off physics in simulation",kFALSE},
+  {"hadr_off" ,"","","" ,"","","Turn off hadronic interactions in simulation",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"C H A I N S ","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
@@ -1216,6 +1217,7 @@ Bfc_st BFC[] = {
   {"PulserSvt" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"alltrigger" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"phys_off" ,"","","" ,"","","Turn off physics in simulation",kFALSE},
+  {"hadr_off" ,"","","" ,"","","Turn off hadronic interactions in simulation",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"C H A I N S ","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
@@ -3645,6 +3647,8 @@ void StBFChain::SetGeantOptions(StMaker *geantMk){
       if (! found) gMessMgr->QAInfo() << "StBFChain::SetGeantOptions() Chain has not found geometry tag. Use " << GeomVersion << endm;
       TString GeometryOpt("detp geometry ");
       GeometryOpt += GeomVersion;
+      if (GetOption("phys_off")) GeometryOpt += " phys_off=1";
+      if (GetOption("hadr_off")) GeometryOpt += " hadr_off=1";
       ProcessLine(Form("((St_geant_Maker *) %p)->LoadGeometry(\"%s\");",geantMk,GeometryOpt.Data()));
     }
     if ((GetOption("fzin") || GetOption("ntin")) && fInFile != "")
