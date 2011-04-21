@@ -250,7 +250,7 @@ END
     print "<h3 align=center> Period of monitoring <br> </h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'pday',
-                                  -values=>\@ardays,
+                                  -values=>\@rvdays,
                                   -default=>$nowdate,
                                   -size =>1);
 
@@ -388,7 +388,7 @@ my $bnode;
  @jbstat = ();
  $nstat = 0;
 
-  $sql="SELECT  CPU_per_evt_sec, RealTime_per_evt, streamName, nodeID FROM $JobStatusT WHERE  runDay = ? AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and nodeID = '$bnode' and jobStatus = 'Done' AND NoEvents >= 10 order by createTime ";
+  $sql="SELECT  CPU_per_evt_sec, RealTime_per_evt, streamName, nodeID FROM $JobStatusT WHERE  runDay = ? AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and nodeID like '%$mnode%' and jobStatus = 'Done' AND NoEvents >= 10 order by createTime ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -412,7 +412,7 @@ my $bnode;
             $jbstat[$nstat] = $fObjAdr;
             $nstat++;
          }
-     }
+       }
 
      foreach $jset (@jbstat) {
             $pcpu    = ($$jset)->cpuv;
@@ -482,7 +482,7 @@ my $bnode;
 
         $ndt++;
 
-    } # foreach tdate
+    } # foreach $mnode
 
 
 
@@ -518,7 +518,7 @@ my $bnode;
        if ( $qvalue eq "rtime/cpu" ) {
 
        $ylabel = "Average ratio RealTime/CPU";
-       $gtitle = "Average ratio RealTime/CPU for rcrs nodes and $qperiod period";
+       $gtitle = "Average ratio RealTime/CPU for rcrs nodes and $qday";
 
     @data = ();
 
@@ -529,7 +529,7 @@ my $bnode;
   }elsif(  $qvalue eq "cpu" ) {
 
        $ylabel = "Average CPU in sec/evt ";
-       $gtitle = "Average CPU in sec/evt for rcrs nodes and $qperiod period";
+       $gtitle = "Average CPU in sec/evt for rcrs nodes and $qday";
 
     @data = ();
 
