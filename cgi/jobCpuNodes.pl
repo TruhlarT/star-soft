@@ -287,22 +287,7 @@ my $dnode   = "".$qnode;
   my $nstat = 0;
   my $jset;
 
-     @arstream = ();
-
  &StDbProdConnect();
-
-      $sql="SELECT DISTINCT streamName  FROM $JobStatusT where prodSeries = ? ";
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute($qprod);
-
-       while( $str = $cursor->fetchrow() ) {
-          $arstream[$nst] = $str;
-          $nst++;
-       }
-    $cursor->finish();
-
 
  #####################
 
@@ -406,6 +391,9 @@ my $dnode   = "".$qnode;
         @jbstat = ();
         $nstat = 0;
 
+ @arstream = ();
+ $nst = 0;
+
     if(  $qperiod eq "week") {
 
 
@@ -435,6 +423,7 @@ my $dnode   = "".$qnode;
             $nstat++;
          }
 
+
     }else{
 
   $sql="SELECT runDay, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ?  AND nodeID = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 AND jobStatus = 'Done' AND NoEvents >= 10 order by runDay ";
@@ -461,6 +450,19 @@ my $dnode   = "".$qnode;
             $jbstat[$nstat] = $fObjAdr;
             $nstat++;
         }
+
+      $sql="SELECT DISTINCT streamName  FROM $JobStatusT where prodSeries = ? and nodeID = ? and runDay = '$tdate' ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute($qprod,$dnode);
+
+       while( $str = $cursor->fetchrow() ) {
+          $arstream[$nst] = $str;
+          $nst++;
+       }
+    $cursor->finish();
+
       }
 
      foreach $jset (@jbstat) {
@@ -471,8 +473,8 @@ my $dnode   = "".$qnode;
 
     if( $pcpu >= 0.001) {
 
-        $rte{$pstream,$ndt} = $rte{$pstream,$ndt} + $prtime/$pcpu;
-        $arcpu{$pstream,$ndt} = $arcpu{$pstream,$ndt} + $pcpu;
+        $rte{$pstream,$ndt} += $prtime/$pcpu;
+        $arcpu{$pstream,$ndt} += $pcpu;
         $nstr{$pstream,$ndt}++;
 
             $ndate[$ndt] = $pday;
