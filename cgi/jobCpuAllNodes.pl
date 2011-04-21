@@ -388,7 +388,7 @@ my $bnode;
  @jbstat = ();
  $nstat = 0;
 
-  $sql="SELECT  CPU_per_evt_sec, RealTime_per_evt, streamName, nodeID FROM $JobStatusT WHERE  runDay = ? AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and nodeID = '$mnode' and jobStatus = 'Done' AND NoEvents >= 10 order by createTime ";
+  $sql="SELECT  CPU_per_evt_sec, RealTime_per_evt, streamName, nodeID FROM $JobStatusT WHERE  runDay = ? AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and nodeID like ' rcrs6%' and jobStatus = 'Done' AND NoEvents >= 10 order by createTime ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
