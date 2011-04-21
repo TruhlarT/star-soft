@@ -412,7 +412,7 @@ my $bnode;
             $jbstat[$nstat] = $fObjAdr;
             $nstat++;
          }
-  }
+     }
 
      foreach $jset (@jbstat) {
             $pcpu    = ($$jset)->cpuv;
@@ -484,7 +484,7 @@ my $bnode;
 
     } # foreach tdate
 
-  }
+
 
 ############################################################################
 
