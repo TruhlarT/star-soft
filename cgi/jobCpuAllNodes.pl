@@ -388,7 +388,7 @@ my $bnode;
  @jbstat = ();
  $nstat = 0;
 
-  $sql="SELECT  CPU_per_evt_sec, RealTime_per_evt, streamName, nodeID FROM $JobStatusT WHERE  runDay = ? AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and nodeID like '%$mnode%' and jobStatus = 'Done' AND NoEvents >= 10 order by createTime ";
+  $sql="SELECT  CPU_per_evt_sec, RealTime_per_evt, streamName, nodeID FROM $JobStatusT WHERE  runDay = ? AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and nodeID like '%rcrs612%' and jobStatus = 'Done' AND NoEvents >= 10 order by createTime ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -630,7 +630,7 @@ print <<END;
           <title>CPU&RealTime usage at CRS nodes</title>
    </head>
    <body BGCOLOR=\"#ccffff\">
-     <h1 align=center>No Data for $qprod production on $qnode  for $qperiod period </h1>
+     <h1 align=center>No Data for $qprod production on $qnode nodes for $qday </h1>
      
 
     </body>
