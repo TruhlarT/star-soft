@@ -52,8 +52,6 @@ my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
 my @prodyear = ("2010");
-#my @arperiod = ("week","1_month","2_months","3_months","4_months","5_months","6_months");
-my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months");
 my @arval = ("rtime/cpu","cpu");
 my @arnode = ("rcrs","rcas");
 my @arcrs = ();
@@ -83,7 +81,6 @@ my $dy;
 my %rte = {};
 my %nstr = {};
 my %arcpu = {};
-my %arjbtime = {};
 
 my @arupsilon = ();
 my @armtd = ();
@@ -163,12 +160,12 @@ my @cppmdftp = ();
        $cursor->execute();
 
        while( $dy = $cursor->fetchrow() ) {
-          $rdays[$ndy] = $dy;
+          $ardays[$ndy] = $dy;
           $ndy++;
        }
     $cursor->finish();
 
-@rvdays = reverse @rdays ;
+@rvdays = reverse @ardays ;
 
     $sql="SELECT DISTINCT nodeID  FROM $JobStatusT where nodeID like ' rcrs6%' order by nodeID" ;
 
