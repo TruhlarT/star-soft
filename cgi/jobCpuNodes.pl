@@ -388,8 +388,9 @@ my $dnode   = "".$qnode;
 ############################# 
 
     foreach my $tdate (@ardays) {
-        @jbstat = ();
-        $nstat = 0;
+
+ @jbstat = ();
+ $nstat = 0;
 
  @arstream = ();
  $nst = 0;
@@ -423,6 +424,18 @@ my $dnode   = "".$qnode;
             $nstat++;
          }
 
+
+     $sql="SELECT DISTINCT streamName  FROM $JobStatusT where prodSeries = ? and nodeID = ? and createTime like '$tdate$' order by createTime ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute($qprod,$dnode);
+
+       while( $str = $cursor->fetchrow() ) {
+          $arstream[$nst] = $str;
+          $nst++;
+       }
+    $cursor->finish();
 
     }else{
 
