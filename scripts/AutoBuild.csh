@@ -216,7 +216,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		if ( ! $?XTRACMD ) then
 		    $SCRIPTD/AutoBuild.pl -k -i -R -1 -T $1 -p $LPATH
 		else
-		    $SCRIPTD/AutoBuild.pl -k -i -R -1 -a "$XTRACMD" -T $1 -p $LPATH
+		    $SCRIPTD/AutoBuild.pl -k -s -i -R -1 -a "$XTRACMD" -T $1 -p $LPATH
 		endif
 
 		if( -e $HOME/AutoBuild-$1.html) then
