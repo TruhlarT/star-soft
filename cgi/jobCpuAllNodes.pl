@@ -61,20 +61,15 @@ my @arcas = ();
 my @arrprod = ();
 my @arstream = ();
 my @ardays = ();
-my @arhr = ();
 my @rvdays = ();
 my $ndy = 0;
 my $nday = ();
-my $nhr = 0;
 my $nst = 0;
 my $str;
-my $npr = 0;
-my $mpr;
 my $pday;
 my $pcpu;
 my $prtime;
 my $pstream;
-my $phr;
 my $pryear = "2010";
 my $dy;
 
@@ -98,7 +93,6 @@ my $ndt = 0;
 my $nn = 0;
 my $ni = 0;
 my $dnode;
-my $bnode;
 my $mnode;
 
 my @nstphysics = ();
@@ -167,32 +161,7 @@ my @cppmdftp = ();
        }
     $cursor->finish();
 
-@rvdays = reverse @ardays ;
-
-    $sql="SELECT DISTINCT nodeID  FROM $JobStatusT where nodeID like ' rcrs6%' order by nodeID" ;
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
-
-       while( $dy = $cursor->fetchrow() ) {
-          $arcrs[$ni] = $dy;
-          $ni++;
-       }
-    $cursor->finish();
-
-    $sql="SELECT DISTINCT nodeID  FROM $JobStatusT where nodeID like ' rcas6%' order by nodeID" ;
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
-
-       while( $dy = $cursor->fetchrow() ) {
-          $arcas[$nn] = $dy;
-          $nn++;
-       }
-    $cursor->finish();
-
+  @rvdays = reverse @ardays ;
 
 &StDbProdDisconnect();
 
@@ -300,30 +269,11 @@ my $qnode   = $qqr->param('pnode');
 
   $JobStatusT = "JobStatus".$pryear;
 
-  my $day_diff = 0;
-  my $nmonth = 0;
-  my @prt = ();
-  my $myday;
-  my $tdate;
   my @jbstat = ();  
   my $nstat = 0;
   my $jset;
 
-     @arstream = ();
-
  &StDbProdConnect();
-
-      $sql="SELECT DISTINCT streamName  FROM $JobStatusT where prodSeries = ? ";
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute($qprod);
-
-       while( $str = $cursor->fetchrow() ) {
-          $arstream[$nst] = $str;
-          $nst++;
-       }
-    $cursor->finish();
 
  %rte = {};
  %nstr = {};
@@ -333,9 +283,6 @@ my $qnode   = $qqr->param('pnode');
   my $maxcpu = 0;
  
 ##################################### cpu, rtime/cpu
-
- @ndate = ();
- $ndt = 0;
 
  @arupsilon = ();
  @armtd = ();
@@ -381,14 +328,30 @@ my $qnode   = $qqr->param('pnode');
 
      if($qnode eq "rcrs" ) {
 
+   $sql="SELECT DISTINCT nodeID  FROM $JobStatusT where nodeID like ' rcrs6%' and runDay = '$qday' order by nodeID" ;
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $dy = $cursor->fetchrow() ) {
+          $arcrs[$ni] = $dy;
+          $ni++;
+       }
+ 
+   $cursor->finish();
+
+#####################################################
+
     foreach $mnode (@arcrs) {
 
-  $bnode = "".$mnode;
+ @arstream = ();
+ $nst = 0;
 
  @jbstat = ();
  $nstat = 0;
 
-  $sql="SELECT  CPU_per_evt_sec, RealTime_per_evt, streamName, nodeID FROM $JobStatusT WHERE  runDay = ? AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and nodeID = ? and jobStatus = 'Done' AND NoEvents >= 10 ";
+  $sql="SELECT  CPU_per_evt_sec, RealTime_per_evt, streamName, FROM $JobStatusT WHERE  runDay = ? AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and nodeID = '$mnode' and jobStatus = 'Done' AND NoEvents >= 10 ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -406,32 +369,44 @@ my $qnode   = $qqr->param('pnode');
                 ($$fObjAdr)->cpuv($fvalue)    if( $fname eq 'CPU_per_evt_sec');
                 ($$fObjAdr)->rtmv($fvalue)    if( $fname eq 'RealTime_per_evt');
                 ($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
-                ($$fObjAdr)->ndid($fvalue)    if( $fname eq 'nodeID');
 
             }
             $jbstat[$nstat] = $fObjAdr;
             $nstat++;
          }
-       }
 
      foreach $jset (@jbstat) {
             $pcpu    = ($$jset)->cpuv;
             $prtime  = ($$jset)->rtmv;
             $pstream = ($$jset)->strv;
-            $dnode   = ($$jset)->ndid;
 
     if( $pcpu >= 0.001) {
 
-        $rte{$pstream,$ndt} = $rte{$pstream,$ndt} + $prtime/$pcpu;
-        $arcpu{$pstream,$ndt} = $arcpu{$pstream,$ndt} + $pcpu;
+        $rte{$pstream,$ndt} += $prtime/$pcpu;
+        $arcpu{$pstream,$ndt} += $pcpu;
         $nstr{$pstream,$ndt}++;
 
-            $ndate[$ndt] = $dnode;
+            $ndate[$ndt] = $mnode;
 
             }
           }
 
 ####################
+
+
+      $sql="SELECT DISTINCT streamName  FROM $JobStatusT where prodSeries = ? and runDay = '$qday' and nodeID = '$mnode'";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute($qprod);
+
+       while( $str = $cursor->fetchrow() ) {
+          $arstream[$nst] = $str;
+          $nst++;
+       }
+    $cursor->finish();
+
+###################
 
           foreach my $mfile (@arstream) {
               if ($nstr{$mfile,$ndt} >= 2 ) {
@@ -484,7 +459,7 @@ my $qnode   = $qqr->param('pnode');
 
     } # foreach $mnode
 
-
+  }
 
 ############################################################################
 
