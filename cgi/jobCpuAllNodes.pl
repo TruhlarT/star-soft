@@ -27,10 +27,8 @@ $dbpass="";
 $dbname="operation";
 
 struct JobAttr => {
-      vday      => '$',
       cpuv      => '$',
       rtmv      => '$', 
-      ndid      => '$', 
       strv      => '$'
 };
 
