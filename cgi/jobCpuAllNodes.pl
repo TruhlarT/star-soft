@@ -385,11 +385,15 @@ my $qnode   = $qqr->param('pnode');
         $arcpu{$pstream,$ndt} += $pcpu;
         $nstr{$pstream,$ndt}++;
 
-            $ndate[$ndt] = $mnode;
-
+#            $ndate[$ndt] = $mnode;
             }
           }
 
+        $dnode = $mnode;
+        $dnode = substr($dnode,0,-12);
+
+        $ndate[$ndt] = $dnode;  
+       
 ####################
 
 
