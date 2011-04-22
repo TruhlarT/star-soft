@@ -20,8 +20,8 @@ use GD::Graph::linespoints;
 use Mysql;
 use Class::Struct;
 
-#$dbhost="fc2.star.bnl.gov:3386";
-$dbhost="duvall.star.bnl.gov";
+$dbhost="fc2.star.bnl.gov:3386";
+#$dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
 $dbpass="";
 $dbname="operation";
