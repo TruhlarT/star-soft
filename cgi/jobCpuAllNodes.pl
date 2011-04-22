@@ -394,17 +394,19 @@ my $qnode   = $qqr->param('pnode');
 ####################
 
 
-      $sql="SELECT DISTINCT streamName  FROM $JobStatusT where prodSeries = ? and runDay = '$qday' and nodeID = '$mnode'";
+      $sql="SELECT DISTINCT streamName  FROM $JobStatusT where prodSeries = ? and runDay = ? and nodeID = '$mnode'";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute($qprod);
+       $cursor->execute($qprod,$qday);
 
        while( $str = $cursor->fetchrow() ) {
           $arstream[$nst] = $str;
           $nst++;
        }
     $cursor->finish();
+
+
 
 ###################
 
