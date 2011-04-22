@@ -20,8 +20,8 @@ use GD::Graph::linespoints;
 use Mysql;
 use Class::Struct;
 
-$dbhost="fc2.star.bnl.gov:3386";
-#$dbhost="duvall.star.bnl.gov";
+#$dbhost="fc2.star.bnl.gov:3386";
+$dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
 $dbpass="";
 $dbname="operation";
@@ -355,7 +355,7 @@ my $qnode   = $qqr->param('pnode');
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
-            $cursor->execute($qday,$qprod,$bnode);
+            $cursor->execute($qday,$qprod);
 
         while(@fields = $cursor->fetchrow) {
             my $cols=$cursor->{NUM_OF_FIELDS};
