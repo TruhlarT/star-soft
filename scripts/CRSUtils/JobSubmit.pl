@@ -530,13 +530,14 @@ if ( $ThisYear == 2005 ){
 
 
     # Order is: regular, bypass, calib - do not change
-    @USEQ    = (5,  5, 3);
-    @SPILL   = (0,  0, 2);
+    @USEQ    = (5,  5,  5);
+    @SPILL   = (0,  0,  0);
 
 
     # at least, p+p calib
 #    $DCHAIN{"AuAu"} = "P2010a,btof,BEmcChkStat,QAalltrigs,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
-    $DCHAIN{"AuAu"} = "P2011a,pmdReco,btof,BEmcChkStat,QAalltrigs,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
+    #$DCHAIN{"AuAu"} = "P2011a,pmdReco,btof,BEmcChkStat,QAalltrigs,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
+    $DCHAIN{"AuAu"} = "P2011a,btof,BEmcChkStat,QAalltrigs,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
     $DCHAIN{"PPPP"} = "pp2011a,btof,VFPPVnoCTB,beamline,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
 
     # allow chain switch on condition matching
@@ -776,7 +777,8 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
     #
     # FAST OFFLINE regular mode
     #
-    print "$SELF : FO regular mode\n";
+    $TST = "regular mode";
+    print "$SELF : FO $TST\n";
 
     undef(@Xfiles);
     undef(@Files);
@@ -939,7 +941,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		    rdaq_set_files($obj,4,@SKIPPED);
 		} else {
 		    # there is nothing to submit
-		    print "$SELF : There is nothing to submit on $time\n";
+		    print "$SELF : There is nothing to submit on $time for $TST\n";
 		    rdaq_set_message($SSELF,"Submitted","There is nothing to submit at this time");
 		}
 	    }
@@ -959,8 +961,8 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
     #
     # Copied from mode 0. Can be merged ...
     #
-
-    print "$SELF : FO bypass $TARGET\n";
+    $TST = "bypass $TARGET";
+    print "$SELF : FO $TST\n";
 
     $TARGET   = $2;
     print "$SELF : Target is now $TARGET - Queue $USEQ[1],$SPILL[1]\n";
@@ -1171,6 +1173,9 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
     # AUTO-CALIBRATION MODE
     #
     # Overwrite queue if necessary
+    $TST = "Auto-calib mode";
+    print "$SELF : FO $TST\n";
+
     $USEQ[2] = $tmpUQ if ( defined($tmpUQ) );
     $SPILL[2]= $tmpSP if ( defined($tmpSP) );
 
@@ -1231,7 +1236,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		rdaq_toggle_debug(0);
 	    } else {
 		# there is nothing to submit
-		print "$SELF : There is nothing to submit on $time\n";
+		print "$SELF : There is nothing to submit on $time for $TST\n";
 	    }
 	    rdaq_close_odatabase($obj);
 	}
@@ -1247,6 +1252,8 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
     # TODO: cleanup globals vars
     #
     #print "$SELF : Z processing is being reshaped\n";
+    $TST = "Extrenal processing";
+    print "$SELF : FO $TST\n";
 
     $pcount = $#PIPEOFF+1;
     $sanity = int(($pcount)/2)*2;
@@ -1525,7 +1532,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		rdaq_set_xstatus($obj,$ID,4,@SKIPPED);  # mark skipped
 	    } else {
 		# there is nothing to submit
-		print "$SELF : There is nothing to submit on $time\n";
+		print "$SELF : There is nothing to submit on $time for $TST\n";
 	    }
 	    rdaq_close_odatabase($obj);
 	}
