@@ -512,7 +512,7 @@ my $qnode   = $qqr->param('pnode');
        if ( $qvalue eq "rtime/cpu" ) {
 
        $ylabel = "Average ratio RealTime/CPU per day";
-       $gtitle = "Ratio RealTime/CPU for different streams on $qnode nodes and $qday";
+       $gtitle = "Ratio RealTime/CPU for different streams on $qnode nodes for day $qday";
 
     @data = ();
 
@@ -523,7 +523,7 @@ my $qnode   = $qqr->param('pnode');
   }elsif(  $qvalue eq "cpu" ) {
 
        $ylabel = "Average CPU in sec/evt per day";
-       $gtitle = "CPU in sec/evt for different streams on $qnode nodes and $qday ";
+       $gtitle = "CPU in sec/evt for different streams on $qnode nodes for day $qday ";
 
     @data = ();
 
