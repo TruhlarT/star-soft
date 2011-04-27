@@ -342,6 +342,23 @@ my $qnode   = $qqr->param('pnode');
 
 #####################################################
 
+   }elsif($qnode eq "rcas" ) {
+
+   $sql="SELECT DISTINCT nodeID  FROM $JobStatusT where nodeID like ' rcas6%' and runDay = '$qday' order by nodeID" ;
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $dy = $cursor->fetchrow() ) {
+          $arcrs[$ni] = $dy;
+          $ni++;
+       }
+ 
+   $cursor->finish();
+
+   }
+
     foreach $mnode (@arcrs) {
 
  @arstream = ();
@@ -385,7 +402,6 @@ my $qnode   = $qqr->param('pnode');
         $arcpu{$pstream,$ndt} += $pcpu;
         $nstr{$pstream,$ndt}++;
 
-#            $ndate[$ndt] = $mnode;
             }
           }
 
@@ -408,8 +424,6 @@ my $qnode   = $qqr->param('pnode');
           $nst++;
        }
     $cursor->finish();
-
-
 
 ###################
 
@@ -464,7 +478,7 @@ my $qnode   = $qqr->param('pnode');
 
     } # foreach $mnode
 
-  }
+#  }
 
 ############################################################################
 
