@@ -186,7 +186,7 @@ END
     print $query->startform(-action=>"$scriptname");
 
     print "<body bgcolor=\"cornsilk\">\n";
-    print "<h1 align=center><u>Production CPU&RealTime usage on each node</u></h1>\n";
+    print "<h1 align=center><u>Production CPU&RealTime usage on every node</u></h1>\n";
     print "<br>";
     print "<br>";
     print <<END;
@@ -208,7 +208,7 @@ END
     
     print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Node name <br> </h3>";
+    print "<h3 align=center> Node type <br> </h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'pnode',
                                   -values=>\@arnode,
@@ -217,7 +217,7 @@ END
 
     print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Period of monitoring <br> </h3>";
+    print "<h3 align=center> Production date <br> </h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'pday',
                                   -values=>\@rvdays,
