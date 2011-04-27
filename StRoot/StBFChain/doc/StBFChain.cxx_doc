@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.90 2011/04/21 22:37:44 genevb Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.91 2011/04/27 22:38:31 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TString.h"
@@ -477,13 +477,9 @@ Bfc_st BFC[] = {
   {"SCL" ,"" ,"","","" ,"StarClassLibrary","Load StarClassLibrary",kFALSE},
   {"SvtCL" ,"" ,"","","" ,"libGeom,StSvtClassLibrary","",kFALSE},
   {"TbUtil" ,"" ,"","sim_T,tpc_t,globT,SCL","" ,"StTableUtilities","Load StTableUtilities",kFALSE},
-
-
-
-
   {"TofUtil" ,"" ,"","","" ,"StTofUtil","Load StTofUtil",kFALSE},
   {"BTofUtil" ,"" ,"","","" ,"StBTofUtil","Load StBTofUtil",kFALSE},
-
+  {"MtdUtil" ,"" ,"","","" ,"StMtdUtil","Load StMtdUtil",kFALSE},
   {"StBichsel" ,"" ,"","","" ,"StBichsel","Load Bichsel model for dE/dx",kFALSE},
   {"StEvent" ,"" ,"","globT,SCL,TRGDef,StBichsel,EmcUtil","" ,"StEvent","Load StEvent",kFALSE},
   {"SsdUtil" ,"" ,"","StarMagField,StEvent","" ,"libGeom,StSsdUtil","Load SSD Util",kFALSE},
@@ -695,11 +691,13 @@ Bfc_st BFC[] = {
 
 
 
-
   {"BtofDat" ,"tof_raw","BTofChain","db,BTofutil","StBTofHitMaker","StEvent,StBTofHitMaker",
                                                                                    "BTOF hit maker",kFALSE},
   {"vpdCalib","","BTofChain","db,BTofUtil","StVpdCalibMaker","StVpdCalibMaker", "VPD calibration",kFALSE},
 
+
+  {"MtdDat" ,"mtd_raw","MtdChain","db,MtdUtil","StMtdHitMaker","StEvent,StMtdHitMaker",
+                                                                                   "MTD hit maker",kFALSE},
 
 
 
@@ -1630,13 +1628,9 @@ Bfc_st BFC[] = {
   {"SCL" ,"" ,"","","" ,"StarClassLibrary","Load StarClassLibrary",kFALSE},
   {"SvtCL" ,"" ,"","","" ,"libGeom,StSvtClassLibrary","",kFALSE},
   {"TbUtil" ,"" ,"","sim_T,tpc_t,globT,SCL","" ,"StTableUtilities","Load StTableUtilities",kFALSE},
-
-
-
-
   {"TofUtil" ,"" ,"","","" ,"StTofUtil","Load StTofUtil",kFALSE},
   {"BTofUtil" ,"" ,"","","" ,"StBTofUtil","Load StBTofUtil",kFALSE},
-
+  {"MtdUtil" ,"" ,"","","" ,"StMtdUtil","Load StMtdUtil",kFALSE},
   {"StBichsel" ,"" ,"","","" ,"StBichsel","Load Bichsel model for dE/dx",kFALSE},
   {"StEvent" ,"" ,"","globT,SCL,TRGDef,StBichsel,EmcUtil","" ,"StEvent","Load StEvent",kFALSE},
   {"SsdUtil" ,"" ,"","StarMagField,StEvent","" ,"libGeom,StSsdUtil","Load SSD Util",kFALSE},
@@ -1848,11 +1842,13 @@ Bfc_st BFC[] = {
 
 
 
-
   {"BtofDat" ,"tof_raw","BTofChain","db,BTofutil","StBTofHitMaker","StEvent,StBTofHitMaker",
                                                                                    "BTOF hit maker",kFALSE},
   {"vpdCalib","","BTofChain","db,BTofUtil","StVpdCalibMaker","StVpdCalibMaker", "VPD calibration",kFALSE},
 
+
+  {"MtdDat" ,"mtd_raw","MtdChain","db,MtdUtil","StMtdHitMaker","StEvent,StMtdHitMaker",
+                                                                                   "MTD hit maker",kFALSE},
 
 
 
@@ -2644,6 +2640,7 @@ Int_t StBFChain::Instantiate()
       }
       else {
 	if (GetOption("phys_off")) mk->SetAttr("phys_off",kTRUE);
+	if (GetOption("hadr_off")) mk->SetAttr("hadr_off",kTRUE);
 	if (fInFile != "")  {
 	  if (ProcessLine(Form("((StVMCMaker *) %p)->SetInputFile(\"%s\")",mk,fInFile.Data())))
 	    goto Error;
