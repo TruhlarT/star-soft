@@ -406,7 +406,7 @@ my $qnode   = $qqr->param('pnode');
           }
 
         $dnode = $mnode;
-        $dnode = substr($dnode,0,-12);
+        $dnode = substr($dnode,0,-13);
 
         $ndate[$ndt] = $dnode;  
        
