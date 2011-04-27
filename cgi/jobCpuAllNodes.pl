@@ -547,7 +547,7 @@ my $qnode   = $qqr->param('pnode');
 
 	$xLabelSkip = $skipnum;
 
-	$graph->set(x_label => "Datetime of jobs completion",
+	$graph->set(x_label => "Node's name",
 	            y_label => $ylabel,
                     title   => $gtitle,
                     y_tick_number => 14,
