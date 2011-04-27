@@ -511,7 +511,7 @@ my $qnode   = $qqr->param('pnode');
 
        if ( $qvalue eq "rtime/cpu" ) {
 
-       $ylabel = "Average ratio RealTime/CPU" per day;
+       $ylabel = "Average ratio RealTime/CPU per day";
        $gtitle = "Ratio RealTime/CPU for different streams on $qnode nodes and $qday";
 
     @data = ();
