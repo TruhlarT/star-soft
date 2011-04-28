@@ -395,49 +395,6 @@ my $dnode   = "".$qnode;
  @arstream = ();
  $nst = 0;
 
-    if(  $qperiod eq "week") {
-
-
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND nodeID = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 order by createTime ";
-
-            $cursor =$dbh->prepare($sql)
-              || die "Cannot prepare statement: $DBI::errstr\n";
-            $cursor->execute($qprod,$dnode);
-
-        while(@fields = $cursor->fetchrow) {
-            my $cols=$cursor->{NUM_OF_FIELDS};
-            $fObjAdr = \(JobAttr->new());
-
-            for($i=0;$i<$cols;$i++) {
-                my $fvalue=$fields[$i];
-                my $fname=$cursor->{NAME}->[$i];
-                # print "$fname = $fvalue\n" ;
-
-
-                ($$fObjAdr)->vday($fvalue)    if( $fname eq 'PDATE');
-                ($$fObjAdr)->cpuv($fvalue)    if( $fname eq 'CPU_per_evt_sec');
-                ($$fObjAdr)->rtmv($fvalue)    if( $fname eq 'RealTime_per_evt');
-                ($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
-
-            }
-            $jbstat[$nstat] = $fObjAdr;
-            $nstat++;
-         }
-
-
-     $sql="SELECT DISTINCT streamName  FROM $JobStatusT where prodSeries = ? and nodeID = ? and createTime like '$tdate$' order by createTime ";
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute($qprod,$dnode);
-
-       while( $str = $cursor->fetchrow() ) {
-          $arstream[$nst] = $str;
-          $nst++;
-       }
-    $cursor->finish();
-
-    }else{
 
   $sql="SELECT runDay, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ?  AND nodeID = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 AND jobStatus = 'Done' AND NoEvents >= 10 order by runDay ";
 
@@ -476,7 +433,6 @@ my $dnode   = "".$qnode;
        }
     $cursor->finish();
 
-      }
 
      foreach $jset (@jbstat) {
             $pday     = ($$jset)->vday;
@@ -581,7 +537,7 @@ my $dnode   = "".$qnode;
 
        if ( $qvalue eq "rtime/cpu" ) {
 
-       $ylabel = "Average ratio RealTime/CPU";
+       $ylabel = "Average ratio RealTime/CPU per day";
        $gtitle = "Average ratio RealTime/CPU for $qnode and $qperiod period";
 
     @data = ();
@@ -592,7 +548,7 @@ my $dnode   = "".$qnode;
 
   }elsif(  $qvalue eq "cpu" ) {
 
-       $ylabel = "Average CPU in sec/evt ";
+       $ylabel = "Average CPU in sec/evt per day";
        $gtitle = "Average CPU in sec/evt for $qnode and $qperiod period";
 
     @data = ();
@@ -617,7 +573,7 @@ my $dnode   = "".$qnode;
 
 	$xLabelSkip = $skipnum;
 
-	$graph->set(x_label => "Datetime of jobs completion",
+	$graph->set(x_label => "Date of jobs completion",
 	            y_label => $ylabel,
                     title   => $gtitle,
                     y_tick_number => 14,
