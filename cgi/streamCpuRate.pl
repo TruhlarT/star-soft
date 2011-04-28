@@ -843,7 +843,7 @@ END
        if ( $srate eq "rtime/cpu" ) {
 
        $ylabel = "Average ratio RealTime/CPU per hour";
-       $gtitle = "Average ratio RealTime/CPU per hour for different streams for $qday";
+       $gtitle = "Average ratio RealTime/CPU for different streams for day $qday";
 
     @data = ();
 
@@ -855,7 +855,7 @@ END
   }elsif(  $srate eq "cpu" ) {
 
        $ylabel = "Average CPU in sec/evt per hour";
-       $gtitle = "Average CPU in sec/evt per hour for different streams for $qday";
+       $gtitle = "Average CPU in sec/evt for different streams for day $qday";
 
     @data = ();
 
@@ -868,8 +868,8 @@ END
 
     @data = ();
 
-   $ylabel = "Total average time jobs stay on the farm in hours";
-   $gtitle = "Total average time jobs stay on the farm (finished per hour) for $qday ";
+   $ylabel = "Average total time jobs stay on the farm";
+   $gtitle = "Average total time jobs stay on the farm  for $qday ";
 
 @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd ) ;
 
@@ -880,7 +880,7 @@ END
  }elsif(  $srate eq "ntracks" ) {
 
 	$ylabel = "Average number of tracks in different streams";
-	$gtitle = "Average number of tracks in different streams per hour for day $qday ";
+	$gtitle = "Average number of tracks in different streams for day $qday ";
 
    @data = ();
 
