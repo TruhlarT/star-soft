@@ -4,9 +4,9 @@
 # $Id:
 #
 # L. Didenko 
-# streamCpuRate.pl to make plots for average RealTime/CPU job's usage and stream rate 
+# jobCpuNodes.pl to make plots for average RealTime/CPU job's usage for stream data for every node 
 #
-#######################################################################################
+#####################################################################################################
 
 
 BEGIN {
