@@ -868,7 +868,7 @@ END
 
     @data = ();
 
-   $ylabel = "Average total time jobs stay on the farm";
+   $ylabel = "Average total time jobs stay on the farm in hours";
    $gtitle = "Average total time jobs stay on the farm  for $qday ";
 
 @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd ) ;
@@ -908,8 +908,6 @@ END
  @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc, \@rtatomcules, \@rtmtd, \@rtmtd ) ;
 
         $max_y = 1.2;
-
-
     }
 
 	my $xLabelsVertical = 1;
@@ -917,7 +915,6 @@ END
 	my $xLabelSkip = 1;
 	my $skipnum = 1;
  
-
 	$min_y = 0;
 
 	if (scalar(@ndate) >= 40 ) {
@@ -966,8 +963,6 @@ END
     }
  }
  
-
-
 
 ###############################
 #  subs and helper routines
