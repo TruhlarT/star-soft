@@ -1720,6 +1720,7 @@ sub Submit
 	 $dets ne "tpx" && $dets !~ m/\.tpx/ &&  $dets !~ m/tpx\./){
 	if ($mode != 1){
 	    print "$SELF : Info : detectors are [$dets] (not including tpc) skipping $file\n";
+	    rdaq_set_message($SSELF,"Skipped","detectors=$dets (not including tpc) for $file");
 	    push(@SKIPPED,$file);
 	    return 0;
 	} else {
@@ -1974,6 +1975,7 @@ __EOF__
 	}
     } else {
 	print "$SELF : Fatal : Could not open $jfile\n";
+	rdaq_set_message($SSELF,"Fatal","Could not open $jfile for write");
 	return 0;
     }
 
