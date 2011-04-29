@@ -594,7 +594,7 @@ sub rdaq_raw_files
 	}
 
 	# skip scaler files added in 2006
-	if ( $res[0] =~ /\.sca/){  next;}
+	if ( $res[0] =~ /\.sca/ || $res[0] =~ m/run\d+\.\d+\.dat/ ){  next;}
 	# even more exotic files are appearing in the DB from 2007 onwards
 	if ( $res[0] !~ /\.daq/){
 	    if ($DEBUG){
@@ -1444,6 +1444,9 @@ sub rdaq_bits2string
 	if($sth){
 	    $sth->execute();
 	    while( @items = $sth->fetchrow_array() ){
+		if ( $DEBUG ){
+		    print "<!-- $items[1] $val $items[0] ".(1 << $items[0])." -->\n";
+		}
 		$str .= "$items[1]." if( $val & (1 << $items[0]) );
 	    }
 	    chop($str);
