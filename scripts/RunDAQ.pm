@@ -1773,45 +1773,55 @@ sub  rdaq_set_message
 }
 sub  rdaq_get_message
 {
-    my($limit,$fld,$sel)=@_;
+    my($limit,$fld,$sel,$ufield)=@_;
     my($obj,$cmd,$sth,$sts,$key,$ii);
     my(@tmp,@rec,%Rec);
+
+    my(@fields)=("Itime","Category","Message","Variablemsg");
     my($Debug)=0;
 
     if ( ! defined($limit) ){ $limit = 10;}
     if ( ! defined($sel) ){   $sel   = "";}
     if ( ! defined($fld) ){   $fld   = -1;}
+    if ( ! defined($ufield) ){$ufield= -1;}
 
     # force type for int
     $limit = int($limit);
     $fld   = int($fld);
 
-    if ( $obj = rdaq_open_odatabase() ){
-	my(@fields)=("Itime","Category","Message","Variablemsg");
-	$cmd = "SELECT ".join(",",@fields)." FROM FOMessages";
+    push(@rec,";ModuleDebug;Begin; [$limit] [$fld] [$sel] [$ufield]") if ($Debug);
 
-	if ( $fld != -1){
-	    # protect string arg - further protect by using prepare with ?
-	    $sel = (split(" ",$sel))[0];
-	    $sel =~ s/%.*//;
-	    $sel =~ s/-/ /g;   # this is an internal convention
-	    $cmd .= " WHERE $fields[$fld]=?";
+    if ( $obj = rdaq_open_odatabase() ){
+	if ( $ufield != -1){
+	    $cmd = "SELECT DISTINCT $fields[$ufield] FROM FOMessages";
+	} else {
+	    $cmd = "SELECT ".join(",",@fields)." FROM FOMessages";
+
+	    if ( $fld != -1){
+		# protect string arg - further protect by using prepare with ?
+		$sel = (split(" ",$sel))[0];
+		$sel =~ s/%.*//;
+		$sel =~ s/-/ /g;   # this is an internal convention
+		$cmd .= " WHERE $fields[$fld]=?";
+	    }
+	    $cmd .= " ORDER BY ITime DESC";
 	}
 	#+
 	# ATTENTION - See http://www.star.bnl.gov/HyperNews-star/protected/get/dbdevel/47.html
 	# This may break
 	#-
 	#$cmd .= " ORDER BY ITime DESC LIMIT ?";
-        #
+	#
 	# YES, broken 2007
 	#
 	#
 	#
 	## now prepare
 	#$sth = $obj->prepare($cmd);
-
-	$cmd .= " ORDER BY ITime DESC LIMIT ".(10*$limit);
+	
+	$cmd .= " LIMIT ".(10*$limit) if ($limit != 0);
 	$sth = $obj->prepare($cmd);
+
 
 	push(@rec,";ModuleDebug;Prepare statement; $cmd + [$sel] [$limit]") if ($Debug);
 	$ii = 0;
@@ -1823,6 +1833,7 @@ sub  rdaq_get_message
 	# Note the logic: if a selector is used, all records otherwise unique
 	# based on key Message/Variablemsg
 	#
+
 	if ( $sel ne ""){
 	    $sts = $sth->execute($sel);
 	} else {
@@ -1831,14 +1842,21 @@ sub  rdaq_get_message
 
 	if ( $sts ){
 	    push(@rec,";ModuleDebug;Execute;Status was OK, ready to execute") if ($Debug);
-	    # print "Execute";
-	    while ( (@tmp = $sth->fetchrow_array()) && $ii < $limit ){
-		$key = $tmp[2]." ".$tmp[3];
-		# print "Got [$key] ";
-		if ( ! defined($Rec{$key}) || $sel ne "" ){
-		    chomp($Rec{$key} = join(";",@tmp));
-		    push(@rec,$Rec{$key});
+	    #print "Execute  $ii < $limit ";
+	    while ( (@tmp = $sth->fetchrow_array()) && ($ii < $limit || $limit ==0) ){
+		#push(@rec,";ModuleDebug;Execute;$#tmp values returned") if ($Debug);
+		if ($#tmp == 0){
+		    # mode all field distinct
+		    push(@rec, $fields[$ufield].";".$tmp[0] );
 		    $ii++;
+		} else {
+		    $key = $tmp[2]." ".$tmp[3];
+		    # print "Got [$key] ";
+		    if ( ! defined($Rec{$key}) || $sel ne "" ){
+			chomp($Rec{$key} = join(";",@tmp));
+			push(@rec,$Rec{$key});
+			$ii++;
+		    }
 		}
 	    }
 	} else {
