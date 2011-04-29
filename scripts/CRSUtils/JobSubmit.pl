@@ -1673,8 +1673,14 @@ sub Submit
 
     } elsif ( $trgrs eq "pedestal"     || $trgrs eq "pulser" ||
 	      $trgsn eq "pedestal"     || $trgsn eq "pulser" ||
-	      $trgsn =~ m/pedAsPhys/i  || $trgrs =~ m/pedAsPhys/i ){
-	print "$SELF : Info : Skipping $file has setup=$trgsn 'triggers'=$items[11]=$trgrs\n";
+	      $trgsn =~ m/pedAsPhys/i  || 
+	      $trgrs =~ m/pedAsPhys/i && $ThisYear < 2011){
+	print 
+	    "$SELF : Info : Skipping pulser,pedestal,pedAsPhys in $file, ",
+	    "has setup=$trgsn 'triggers'=$items[11]=$trgrs\n";
+	rdaq_set_message($SSELF,
+			 "Skipped",
+			 "Skipping pulser,pedestal,pedAsPhy in $file, has setup=$trgsn 'triggers'=$items[11]=$trgrs");
 	push(@SKIPPED,$file);
 	return 0;
 
@@ -1683,13 +1689,18 @@ sub Submit
     } elsif ( ($trgsn =~ m/test/ || $trgsn =~ m/tune/   ) && $mode == 0){
 	if ( $ThisYear == 2002 || $ThisYear == 2010 ){
 	    # start with a warning
-	    print "$SELF : Info : Skipping $file has 'triggers'=$items[11]=$trgrs\n";
+	    print "$SELF : Info : Skipping tune,test in $file, has 'triggers'=$items[11]=$trgrs\n";
+	    rdaq_set_message($SSELF,
+			     "Skipped",
+			     "Skipping tune,test in $file, has 'triggers'=$items[11]=$trgrs");
 	    push(@SKIPPED,$file);
 	    return 0;
 	} else {
 	    print
-		"Info :: $file has 'triggers'=$items[11]=$trgrs ",
+		"$SELF : Info :: $file has 'triggers'=$items[11]=$trgrs ",
 		"but Year=$ThisYear not skipping it\n";
+	    rdaq_set_message($SSELF,"Skipped",
+		"Not skipping $file has 'triggers'=$items[11]=$trgrs (contains tune or test), YEar=$ThisYear");
 	}
     }
 
