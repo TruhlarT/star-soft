@@ -16,7 +16,7 @@ use Date::Manip;
 $query = new CGI;
 $this_script= $query->url();
 
-$author   = "Jerome Lauret (c) 2004-2009";
+$author   = "Jerome Lauret (c) 2004-2011";
 $title    = "Fast Offline Browser";
 #$title   .= "&nbsp;<BLINK><FONT COLOR=\"#FF0000\">UNDER WORK</FONT></BLINK>";
 $BGCOLOR  = "whitesmoke"; # Body color fields
@@ -54,7 +54,7 @@ $FIELDS{"42;ftype"}       = "File type";
 
 $FIELDS{"50;"}            = "Processing selectors";
 $FIELDS{"51;Status"}      = "Status";
-$FIELDS{"52;XStatus1"}    = "ezTree";
+$FIELDS{"52;XStatus1"}    = "Transfer"; #"ezTree";
 
 
 $FIELDS{"60;"}            = "Record range";
@@ -84,6 +84,7 @@ $LINKREF = "http://online.star.bnl.gov/$TARGET/Summary.php?run=";
 $ESLREF  = "http://online.star.bnl.gov/apps/shiftLog/logForFullTextSearch.jsp?text=";
 
 $CACHES  = 120;
+$MLIMIT  = 20;
 
 
 $obj   = rdaq_open_odatabase();
@@ -195,7 +196,7 @@ if( $flag && ! $trace ){
 		 " $ETD$TD NumEvt$ETD",
 		 "$TD Scale$ETD$TD Beam Energy$ETD$TD Collision$ETD$TD Detectors$ETD",
 		 "$TD Trigger Setup $ETD$TD Triggers$ETD",
-		 "$TD ezTree$ETD $TD Status $ETD </TR>\n");
+		 "$TD ".$FIELDS{"52;XStatus1"}."$ETD $TD Status $ETD </TR>\n");
 	} else {
 	    # Low level
 	    push(@RECORD,"<blockquote>\n");
@@ -209,10 +210,14 @@ if( $flag && ! $trace ){
 	$i    =-1;
 	$srun ="";
 	$prun ="";
-	$tot  = 0;
-	$tots = 0;
-	$totp = 0;
-	$qaed = 0;
+
+	$ftot = $tot  = 0;
+	$ftots= $tots = 0;
+	$ftotp= $totp = 0;
+	$fqaed= $qaed = 0;
+	$ftrej= $trej = 0;
+	$ftext= $text = 0;
+
 	foreach $line (@all){
 	    #print "<!-- $line -->\n";
 
@@ -237,10 +242,12 @@ if( $flag && ! $trace ){
 	    #splice(@items,1,1); # run number
 
 	    
-	    $tot  += $items[2];
-	    $tots += $items[2] if($items[$#items] >= 1);
-	    $totp += $items[2] if($items[$#items] >= 2);
-	    $qaed += $items[2] if($items[$#items] == 3);
+	    $tot  += $items[2]; $ftot++;
+	    if ($items[$#items] >= 1){ $tots += $items[2];  $ftots++;}
+	    if($items[$#items] >= 2){  $totp += $items[2];  $ftotp++;}
+	    if($items[$#items] == 3){  $qaed += $items[2];  $fqaed++;}
+	    if($items[$#items] == 7){  $text += $items[2];  $ftext++;}
+	    if($items[$#items-2] == 8){$trej += $items[2];  $ftrej++;}
 
 
 	    if($display == 0 ){
@@ -283,21 +290,43 @@ if( $flag && ! $trace ){
 	    "$BTOP $DLOG<P>\n",
 	    "<A NAME=\"Bottom\"><FONT COLOR=\"#000080\"><b>Summary</b></FONT></A>\n",
 	    "<TABLE BORDER=\"0\" CELLSPACING=\"0\">\n",
-	    "<TR><TD BGCOLOR=\"#e0e0ff\"><FONT COLOR=\"#0000FF\">Available Events</FONT></TD>\n",
-	    "    <TD BGCOLOR=\"#e6e6ff\" ALIGN=\"right\">&nbsp;$tot&nbsp;</TD>\n",
-	    "    <TD BGCOLOR=\"#e6e6e6\">&nbsp;</TD>\n",
+	    "<TR><TD BGCOLOR=\"#e0e0ff\">&nbsp</TD>\n",
+	    "    <TD BGCOLOR=\"#e6e6ff\" ALIGN=\"right\">&nbsp;<b>Events</b></TD><TD BGCOLOR=\"#e6e6e6\" ALIGN=\"right\">&nbsp;</TD>\n",
+	    "    <TD BGCOLOR=\"#e6e6ff\" ALIGN=\"right\">&nbsp;<b>Files </b></TD><TD BGCOLOR=\"#e6e6e6\" ALIGN=\"right\">&nbsp;</TD>\n",
 	    "</TR>\n",
-	    "<TR><TD BGCOLOR=\"#e0e0ff\"><FONT COLOR=\"#0000FF\">Events submitted</FONT></TD>\n",
-	    "    <TD BGCOLOR=\"#e6e6ff\" ALIGN=\"right\">&nbsp;$tots&nbsp;</TD>\n",
-	    "    <TD BGCOLOR=\"#e6e6e6\">&nbsp;".sprintf("%2.2d",$tots/$tot*100)."\%</TD>\n",
+	    "<TR><TD BGCOLOR=\"#e0e0ff\"><FONT COLOR=\"#0000FF\">Available</FONT></TD>\n",
+	    "    <TD BGCOLOR=\"#e6e6ff\" ALIGN=\"right\">&nbsp;$tot </TD><TD BGCOLOR=\"#e6e6e6\" ALIGN=\"right\">&nbsp;</TD>\n",
+	    "    <TD BGCOLOR=\"#e6e6ff\" ALIGN=\"right\">&nbsp;$ftot</TD><TD BGCOLOR=\"#e6e6e6\" ALIGN=\"right\">&nbsp;</TD>\n",
 	    "</TR>\n",
-	    "<TR><TD BGCOLOR=\"#e0e0ff\"><FONT COLOR=\"#0000FF\">Events processed</FONT></TD>",
-	    "    <TD BGCOLOR=\"#e6e6ff\" ALIGN=\"right\">&nbsp;$totp&nbsp;</TD>",
-	    "    <TD BGCOLOR=\"#e6e6e6\">&nbsp;".sprintf("%2.2d",$totp/$tot*100)."\%</TD>\n",
+	    "<TR><TD BGCOLOR=\"#e0e0ff\"><FONT COLOR=\"#0000FF\">Submitted</FONT></TD>\n",
+	    "    <TD BGCOLOR=\"#e6e6ff\" ALIGN=\"right\">&nbsp;$tots </TD><TD ALIGN=\"right\" BGCOLOR=\"#e6e6e6\">&nbsp;".
+	    sprintf("%2.2d",$tots /$tot*100) ."\%</TD>\n",
+	    "    <TD BGCOLOR=\"#e6e6ff\" ALIGN=\"right\">&nbsp;$ftots</TD><TD ALIGN=\"right\" BGCOLOR=\"#e6e6e6\">&nbsp;".
+	    sprintf("%2.2d",$ftots/$ftot*100)."\%</TD>\n",
 	    "</TR>\n",
-	    "<TR><TD BGCOLOR=\"#e0e0ff\"><FONT COLOR=\"#0000FF\">Events with QA</FONT></TD>\n",
-	    "    <TD BGCOLOR=\"#e6e6ff\" ALIGN=\"right\">&nbsp;$qaed&nbsp;</TD>\n",
-	    "    <TD BGCOLOR=\"#e6e6e6\">&nbsp;".sprintf("%2.2d",$qaed/$tot*100)."\%</TD>\n",
+	    "<TR><TD BGCOLOR=\"#e0e0ff\"><FONT COLOR=\"#0000FF\">Processed</FONT></TD>\n",
+	    "    <TD BGCOLOR=\"#e6e6ff\" ALIGN=\"right\">&nbsp;$totp </TD><TD ALIGN=\"right\" BGCOLOR=\"#e6e6e6\">&nbsp;".
+	    sprintf("%2.2d",$totp /$tot*100) ."\%</TD>\n",
+	    "    <TD BGCOLOR=\"#e6e6ff\" ALIGN=\"right\">&nbsp;$ftotp</TD><TD ALIGN=\"right\" BGCOLOR=\"#e6e6e6\">&nbsp;".
+	    sprintf("%2.2d",$ftotp/$ftot*100)."\%</TD>\n",
+	    "</TR>\n",
+	    "<TR><TD BGCOLOR=\"#e0e0ff\"><FONT COLOR=\"#0000FF\">With QA</FONT></TD>\n",
+	    "    <TD BGCOLOR=\"#e6e6ff\" ALIGN=\"right\">&nbsp;$qaed </TD><TD ALIGN=\"right\" BGCOLOR=\"#e6e6e6\">&nbsp;".
+	    sprintf("%2.2d",$qaed /$tot*100) ."\%</TD>\n",
+	    "    <TD BGCOLOR=\"#e6e6ff\" ALIGN=\"right\">&nbsp;$fqaed</TD><TD ALIGN=\"right\" BGCOLOR=\"#e6e6e6\">&nbsp;".
+	    sprintf("%2.2d",$fqaed/$ftot*100)."\%</TD>\n",
+	    "</TR>\n",
+	    "<TR><TD BGCOLOR=\"#e0e0ff\"><FONT COLOR=\"#0000FF\"><i>Not Exter.</i></FONT></TD>\n",
+	    "    <TD BGCOLOR=\"#e6e6ff\" ALIGN=\"right\">&nbsp;$trej </TD><TD ALIGN=\"right\" BGCOLOR=\"#e6e6e6\">&nbsp;".
+	    sprintf("%2.2d",$trej /$tot*100) ."\%</TD>\n",
+	    "    <TD BGCOLOR=\"#e6e6ff\" ALIGN=\"right\">&nbsp;$ftrej</TD><TD ALIGN=\"right\" BGCOLOR=\"#e6e6e6\">&nbsp;".
+	    sprintf("%2.2d",$ftrej/$ftot*100)."\%</TD>\n",
+	    "</TR>\n",
+	    "<TR><TD BGCOLOR=\"#e0e0ff\"><FONT COLOR=\"#0000FF\"><i>External</i></FONT></TD>\n",
+	    "    <TD BGCOLOR=\"#e6e6ff\" ALIGN=\"right\">&nbsp;$text </TD><TD ALIGN=\"right\" BGCOLOR=\"#e6e6e6\">&nbsp;".
+	    sprintf("%2.2d",$text /$tot*100) ."\%</TD>\n",
+	    "    <TD BGCOLOR=\"#e6e6ff\" ALIGN=\"right\">&nbsp;$ftext</TD><TD ALIGN=\"right\" BGCOLOR=\"#e6e6e6\">&nbsp;".
+	    sprintf("%2.2d",$ftext/$ftot*100)."\%</TD>\n",
 	    "</TR>\n",
 	    "</TABLE><P>\n";
 
@@ -525,20 +554,24 @@ if( $flag && ! $trace ){
     } else {
 	# TRACE ENABLED - Showed in both mode
 	# Now for some debug info
+	$MLIMIT= param("MLimit")  if ( defined(param("MLimit")) );
+	#print "Mlimit = $MLIMIT\n";
+
 	if ( $trace eq "1" ){
 	    # print "eq 1";
 	    $dsel  = 1;
-	    @all   = rdaq_get_message(25);	    
+	    @all   = rdaq_get_message($MLIMIT);	    
 	} else {
 	    # print "ne 1 / selector";
 	    $dsel  = 0;	    
 	    @items = split("-",$trace);
 	    $key   = shift(@items);
-	    @all   = rdaq_get_message(25,$key,join("-",@items));
+	    @all   = rdaq_get_message($MLIMIT,$key,join("-",@items));
 	}
 	
 	print 
           "$BBACK $DLOG\n",
+	  "[<A HREF=\"$this_script?Trace=$trace&MLimit=".($MLIMIT*2)."\">+</A>]\n",
 	  "<FONT SIZE=\"-1\">\n",
 	  "<TABLE WIDTH=800 BORDER=\"1\" CELLSPACING=\"0\">\n";
 	foreach $mess (@all){
@@ -568,6 +601,23 @@ if( $flag && ! $trace ){
 	  "</FONT>\n",
 	  "<HR>\n";
 
+	# get all field 1
+	print "<TABLE BORDER=\"0\">\n";
+	foreach $c (("1","2")){
+	    @all   = rdaq_get_message(0,undef,undef,$c);
+	    if ($#all != -1){
+		# should not be but at startup
+		print "<TR><TD><I>".(split(";",$all[0]))[0]."</I></TD><TD>";
+
+		foreach $mess (@all){
+		    @items    = split(";",$mess);
+		    $ref = $items[1]; $ref =~ s/ /-/g;
+		    print "[<A HREF=\"$this_script?Trace=$c-$ref\">$items[1]</A>] ";
+		}
+		print "</TD></TR>\n";
+	    }
+	}
+	print "</TABLE>\n";
     }
 }
 
