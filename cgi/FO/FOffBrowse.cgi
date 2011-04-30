@@ -1,4 +1,4 @@
-#!/usr/bin/env perl 
+#!/usr/bin/env perl
 #
 # This cgi will allow users to browse the FastOffline database
 # Methods will eventually be added to the RunDAQ.pm
@@ -29,18 +29,18 @@ $color[2] = "#dddddd"; # Alternate color 2 (table color 3)
 
 $ocol[0]  = "#9999cc"; # Table BGColor for query form + title
 $ocol[1]  = "#ffffff"; # Main Query form letters color
-$ocol[2]  = "#ff1111"; # color for some writeup 
+$ocol[2]  = "#ff1111"; # color for some writeup
 
 
 # Associative array of field name vs title we want to
-# have displayed and selected. 
+# have displayed and selected.
 #
 # The value of the fields is a positioning in the table
 # a semi-column and the field name. Added in 2007 so we
 # could re-arrange. Anything with only the positioning is
 # intepreted as a header of the next selectors
 #
-$FIELDS{"00;"}            = "Run selector";  
+$FIELDS{"00;"}            = "Run selector";
 $FIELDS{"11;BeamE"}       = "Beam Energy";
 $FIELDS{"21;Collision"}   = "Collision";
 $FIELDS{"31;scaleFactor"} = "Field Scale";
@@ -96,7 +96,7 @@ print $query->start_html(-title=>$title,
                          -LINK=>$LINKCOL),"\n";
 
 
-print $query->h1($title),"\n"; 
+print $query->h1($title),"\n";
 if ( ! $obj ){
     print "Error: Could not connect to the database\n";
     print $query->end_html(),"\n";
@@ -127,8 +127,8 @@ foreach $field (keys %FIELDS){
 		# if any additional args after a space, strip
 		$SEL{$name} = (split(" ",param($name)))[0];
 	    }
-	} 
-    } 
+	}
+    }
 }
 
 $trace = undef;
@@ -149,7 +149,7 @@ if( $flag && ! $trace ){
     }
     if ( defined($flag = param("DiskLoc")) ){
 	if($flag ne ">0"){
-	    if (  flag !~ m/union/i){  
+	    if (  flag !~ m/union/i){
 		# one union injection check although it will
 		# never pass get_orecords() internal treatment
 		$SEL{"DiskLoc"}  = $flag;
@@ -173,7 +173,7 @@ if( $flag && ! $trace ){
     if($#all != -1){
 	# display it.
 	# Small header.
-	print 
+	print
 	    "<A NAME=\"Top\"></A>\n",
 	    "$BBACK $DLOG $BBOT &nbsp;\n";
 	if($limit == -1){
@@ -224,7 +224,7 @@ if( $flag && ! $trace ){
 	    # WARNING -- The apperance of date formats returned with space
 	    # will "add" a fake entry after date. The array will be scaled
 	    # by one for EACH timestamp.
-	    @items = split(" ",$line);   
+	    @items = split(" ",$line);
 
 
 	    if($items[1] ne $prun){
@@ -241,7 +241,7 @@ if( $flag && ! $trace ){
 	    #splice(@items,3,3); # start, end endevent and Current
 	    #splice(@items,1,1); # run number
 
-	    
+
 	    $tot  += $items[2]; $ftot++;
 	    if ($items[$#items] >= 1){ $tots += $items[2];  $ftots++;}
 	    if($items[$#items] >= 2){  $totp += $items[2];  $ftotp++;}
@@ -259,10 +259,10 @@ if( $flag && ! $trace ){
 		    # a preceeding run has been completed
 		    push(@RECORD,&FormatLine($i,$srun,$dol,@prcdt));
 		    undef(@prcdt);
-		} 
+		}
 		# we need to save info for that run
 		# prcdt array will accumulate things up.
-		if( ! defined(@prcdt) ){ 
+		if( ! defined(@prcdt) ){
 		    push(@prcdt,@items);
 		    $prcdt[0]        = $prun;
 		} else {
@@ -286,7 +286,7 @@ if( $flag && ! $trace ){
 	undef(@RECORD);
 
 	# Finish with a summary
-	print	
+	print
 	    "$BTOP $DLOG<P>\n",
 	    "<A NAME=\"Bottom\"><FONT COLOR=\"#000080\"><b>Summary</b></FONT></A>\n",
 	    "<TABLE BORDER=\"0\" CELLSPACING=\"0\">\n",
@@ -333,7 +333,7 @@ if( $flag && ! $trace ){
 
     } else {
 	# There were no records within this selection.
-	print 
+	print
 	    "Nothing was returned for the following selection<br>\n",
 	    "To return, click $BBACK, see the log $DLOG\n",
 	    "<blockquote>\n";
@@ -342,13 +342,13 @@ if( $flag && ! $trace ){
 	    if ($field eq "runNumber"){
 		my($lrun)= rdaq_last_run($obj);
 		if ( $SEL{$field} > $lrun){
-		    print 
+		    print
 			"<BLOCKQUOTE>\n",
 			"This run number is in transit. Latest valid one is $lrun\n",
 			"</BLOCKQUOTE>";
 		} else {
 		    # add helper links
-		    print 
+		    print
 			"<BLOCKQUOTE>\n",
 			"Check the RunLog for <A HREF=\"$LINKREF$SEL{$field}\" TARGET=\"$TARGET\">$SEL{$field}</A><br>\n",
 			"Check the ShiftLog for <A HREF=\"$ESLREF$SEL{$field}\" TARGET=\"ESL\">$SEL{$field}</A><br>\n",
@@ -356,7 +356,7 @@ if( $flag && ! $trace ){
 
 		    print "<B>Below is a trace from FastOffline</B><BR>\n";
 		    $obj2 = rdaq_open_rdatabase();
-		    rdaq_toggle_debug(); 
+		    rdaq_toggle_debug();
 		    rdaq_set_dlevel(1);
 		    rdaq_html_mode();
 		    my(@all)=rdaq_raw_files($obj2,"=".$SEL{$field},1);
@@ -377,8 +377,8 @@ if( $flag && ! $trace ){
 	if ( (time()-$info[10]) > $CACHES || ! -e "/tmp/FOPage.html" ){
 	    if (open(FF,">/tmp/FOPage.html")){
 		# try a second form
-		print FF 
-		    "<FORM ACTION=\"$this_script\">\n", 
+		print FF
+		    "<FORM ACTION=\"$this_script\">\n",
 		    "Enter a specific runNumber\n",
 		    $query->textfield(-size=>(12),-name=>"runNumber",-default=>0),"\n",
 		    $query->submit(),"\n",
@@ -386,7 +386,7 @@ if( $flag && ! $trace ){
 
 		print FF
 		    "<FORM ACTION=\"$this_script\">\n",
-		    "<TABLE WIDTH=800 BORDER=\"0\">\n";   
+		    "<TABLE WIDTH=800 BORDER=\"0\">\n";
 
 		$STDK  = "<TD WIDTH=100 BGCOLOR=\"#e6e6e6\">";
 		$STDV  = "<TD WIDTH=300 BGCOLOR=\"#e6e6ff\">";
@@ -426,7 +426,7 @@ if( $flag && ! $trace ){
 			    $labels{$val} = $fval;
 			}
 		    }
-	    
+
 		    # @values = sort  {$b cmp $a} @values;
 		    if($name eq "TrgMask")   { push(@values,"0:unknown");}
 		    # if($name eq "TrgSetup")  { push(@values,"0:unknown");}
@@ -434,7 +434,7 @@ if( $flag && ! $trace ){
 		    unshift(@values,"All");
 
 		    if ($ii%2){  print FF "<TR>\n";}
-	    
+
 		    print FF
 			"    $STDK $SFONT $FIELDS{$field} $EFONT $ETD\n",
 			"    $STDV ";
@@ -456,7 +456,7 @@ if( $flag && ! $trace ){
 		    if (! $ii%2){  print FF "</TR>\n";}
 		}
 
-		
+
 		# Put a number of records limit
 		%labels = ();
 		@values = (20,50,100,200,500,1000,2000,"All");
@@ -495,7 +495,7 @@ if( $flag && ! $trace ){
 					-default=>0),
 		    "$ETD\n</TR>\n";
 
-		
+
 		# Put a detail level choice
 		print FF
 		    "<TR>\n",
@@ -521,7 +521,7 @@ if( $flag && ! $trace ){
 		    "$ETD\n";
 
 
-		
+
 		# Give the on-disk/not-on disk choice
 		%labels=();
 		@values=(">0","!0");
@@ -560,16 +560,16 @@ if( $flag && ! $trace ){
 	if ( $trace eq "1" ){
 	    # print "eq 1";
 	    $dsel  = 1;
-	    @all   = rdaq_get_message($MLIMIT);	    
+	    @all   = rdaq_get_message($MLIMIT);
 	} else {
 	    # print "ne 1 / selector";
-	    $dsel  = 0;	    
+	    $dsel  = 0;
 	    @items = split("-",$trace);
 	    $key   = shift(@items);
 	    @all   = rdaq_get_message($MLIMIT,$key,join("-",@items));
 	}
-	
-	print 
+
+	print
           "$BBACK $DLOG\n",
 	  "[<A HREF=\"$this_script?Trace=$trace&MLimit=".($MLIMIT*2)."\">+</A>]\n",
 	  "<FONT SIZE=\"-1\">\n",
@@ -577,18 +577,18 @@ if( $flag && ! $trace ){
 	foreach $mess (@all){
 	    @items = split(";",$mess);
 	    $mess = $items[1];
-	    
+
 	    # Go from GMT to EST
 	    $time = $items[0];
 	    $time = &ParseDate($items[0]." GMT");
 	    $time = &UnixDate($time,"%Y-%m-%d %H:%M:%S");
-	
+
 	    # Highlight errors
-	    if ($mess =~ m/warning/i ){   $mess = "<FONT COLOR=\"#1111FF\">$mess</FONT>";}	
+	    if ($mess =~ m/warning/i ){   $mess = "<FONT COLOR=\"#1111FF\">$mess</FONT>";}
 	    if ($mess =~ m/error/i ){     $mess = "<FONT COLOR=\"#EE1111\">$mess</FONT>";}
 	    if ($mess =~ m/bogus/i ){     $mess = "<FONT COLOR=\"#FF0000\">$mess</FONT>";}
-	
-	    print 
+
+	    print
 	      "<TR><TD BGCOLOR=\"#e6e6ff\" ALIGN=\"center\">$time</TD>\n",
 	      "    <TD BGCOLOR=\"#e1e1e1\">&nbsp;".&RefString(1,$mess)."</TD>\n",
 	      "    <TD BGCOLOR=\"#e6e6e6\">&nbsp;".&RefString(2,$items[2])."</TD>\n",
@@ -650,31 +650,33 @@ sub FormatLine
 		# display runnumber and link to this script detail
 		# about this run number
 		$el = "<A HREF=\"$this_script?runNumber=$run\">$el</A>";
-	    } 
+	    }
 	} elsif ($j == 3 || $j == 4 || $j == 5){
 	    # being, end, current event
 	    next;
 
 	    # 6, 7, 8 will be displayed AS-IS
-	} elsif($j == 9){       
+	} elsif($j == 9){
 	    $el = rdaq_bits2string("DetSetMask",$el);
 	    $el =~ s/\./ /g;
 
-	} elsif($j == 10){       
+	} elsif($j == 10){
 	    $el =  rdaq_trgs2string($el); #rdaq_bits2string("TrgSetup",$el);
-	} elsif($j == 11){       
+	} elsif($j == 11){
+	    #rdaq_toggle_debug(1);
 	    $el = rdaq_bits2string("TrgMask",$el);
 	    $el =~ s/\./ /g;
 	    if ( length($el) > 45){
 		$el = substr($el,0,40)."...";
 	    }
-	    
+	    #rdaq_toggle_debug(0);
+
 	    # SKIPPED 12, 13+1 (see comment), 14+2, 15+3,16+3, 17+3
 	} elsif ($j>= 12 && $j <= 17+3){
 	    # ftype, EntryDate, D,D, DiskLoc, Chain
 	    next;
 
-	} elsif($j == 18+3) { 
+	} elsif($j == 18+3) {
 	    # should be ezTree field
 	    $el = rdaq_status_string($el);
 
@@ -682,13 +684,13 @@ sub FormatLine
 	} elsif ($j >= 19+3 && $j < $#vals){
 	    next;
 
-	} elsif($j == $#vals) { 
+	} elsif($j == $#vals) {
 	    # should be status fields
 	    $el = rdaq_status_string($el);
-	} 
+	}
 
 	push(@lines,"\n\t<TD ALIGN=\"center\">$el</TD><!-- $j [$eli] -->");
-    } 
+    }
     push(@lines,"</TR>\n");
     @lines;
 }
@@ -699,7 +701,7 @@ sub RefString
     my($pos,$st)=@_;
     my($arg)=$st;
     $arg =~ s/\s/-/g;
-    
+
     # ($dsel?"<A HREF=\"$this_script?Trace=$pos-$arg\">":"<A HREF=\"$this_script?Trace=1\">")."$st</A>";
     "<A HREF=\"$this_script?Trace=$pos-$arg\">$st</A>";
 }
