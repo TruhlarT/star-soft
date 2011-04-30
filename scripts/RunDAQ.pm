@@ -769,7 +769,7 @@ sub rdaq_fetcher
 		    $mask .= &GetBitValue("TrgMask",$items[0]).".";
 		}
 	    }
-	    chop($mask);
+	    #chop($mask);
 	}
 	if ($mask eq ""){
 	    &info_message("fetcher",1,
