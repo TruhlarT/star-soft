@@ -334,13 +334,17 @@ sub rdaq_update_entries
 	$sth = $obj->prepare("UPDATE $DBTABLE SET scaleFactor=?, ".
 			     "DetSetMask=?, TrgSetup=?, TrgMask=?, ftype=?".
 			     "WHERE file=?");
+
 	if($sth){
 	    foreach $line (@records){
 		@values = split(" ",$line);
+		# print "<!-- DEBUG ".$values[0]." ".$values[11]." -->\n";
 		if($sth->execute($values[6],
 				 $values[9],$values[10],$values[11],$values[12],
 				 $values[0]) ){
 		    $count++;
+		} else {
+		    &info_message("update_entries",1,"Failed to update ".$sth->errstr()."\n");
 		}
 	    }
 	    $sth->finish();
@@ -685,23 +689,28 @@ sub rdaq_fetcher
     if( ! defined($DETSETS{$run}) ){
 	#&info_message("fetcher",3,"Checking DataSet for run $run\n");
 	$stht->execute($run);
+	$mask = 0;
 	if( ! $stht ){
 	    &info_message("fetcher",3,"$run cannot be evaluated. No DataSET info.\n");
 	    return undef;
 	} else {
-	    $mask = 0;
 	    while( defined($line = $stht->fetchrow() ) ){
-		$mask |= (1 << &GetBitValue("DetSetMask",$line));
+		$mask |= (1 << &GetBitValue("DetSetMask",$line,1));
 	    }
+	    #&info_message("fetcher",0,"We have built mask=$mask");
+	    #print "<!-- We have built $run mask=$mask -->\n";
 	}
 
-	if ($mask eq ""){
-	    &info_message("rdaq_fetcher",1,
-			  "Reading detectorTypes table=detectorTypes,detectorSet leaded to [$mask]");
-	    return undef;
-	} else {
-	    $DETSETS{$run} = $mask;
-	}
+	# Note" detectors "daq" and "trg" will lead to mask=0 and a warning
+	# Ideally, we should skip those ... but there are so many. So decided
+	# to give a warning for debugging but save "unknown" (val=0).
+	if ($mask == 0 ){
+	    &info_message("fetcher",1,
+			  "Reading $run table=detectorTypes,detectorSet leaded to [$mask]\n");
+	    #return undef;
+	} # else {
+	$DETSETS{$run} = $mask;
+	#}
     } else {
 	$mask = $DETSETS{$run};
     }
@@ -727,8 +736,8 @@ sub rdaq_fetcher
 	    $mask = &Record_n_Fetch("FOTriggerSetup",$mask);
 	}
 	if ($mask eq ""){
-	    &info_message("rdaq_fetcher",1,
-			  "Reading TrgSet table=runDescriptor field= glbSetupName leaded to [$mask]");
+	    &info_message("fetcher",1,
+			  "Reading $run TrgSet table=runDescriptor field=glbSetupName leaded to [$mask]");
 	    return undef;
 	} else {
 	    $TRGSET{$run} = $mask;
@@ -744,7 +753,7 @@ sub rdaq_fetcher
     #
     if( ! defined($TRGMASK{$run}) ){
 	#&info_message("fetcher",3,"Checking TrgMask for run $run -> ");
-	$mask = 0;
+	$mask = "";
 	$sthl->execute($run);
 	if( ! $sthl ){
 	    &info_message("fetcher",3,"$run cannot be evaluated. No TriggerLabel info.\n");
@@ -752,17 +761,27 @@ sub rdaq_fetcher
 	} else {
 	    while( @items = $sthl->fetchrow_array() ){
 		if($items[1] != 0){
-		    $mask |= (1 << &GetBitValue("TrgMask",$items[0]));
+		    #if (  $run == 12050037 ){
+		    #	print "  $items[0] found -> ".&GetBitValue("TrgMask",$items[0])."\n";
+		    #}
+		    # mask can only go to 64 bits in perl (bummer)
+		    #$mask += (1 << &GetBitValue("TrgMask",$items[0]));
+		    $mask .= &GetBitValue("TrgMask",$items[0]).".";
 		}
 	    }
+	    chop($mask);
 	}
 	if ($mask eq ""){
 	    &info_message("fetcher",1,
-			  "Reading TrgMask table=l0TriggerSet leaded to [$mask]");
-	    return undef;
-	} else {
-	    $TRGMASK{$run} = $mask;
-	}
+			  "Reading $run TrgMask table=l0TriggerSet leaded to [$mask]\n");
+	    #return undef;
+	} #else {
+	    #if ( $run == 12050037 ){
+	    #	print "<!-- For $run TrgMask table=l0TriggerSet mask=$mask -->\n";
+	    #	die;
+	    #}
+	$TRGMASK{$run} = $mask;
+	#}
 
     } else {
 	$mask = $TRGMASK{$run};
@@ -1301,16 +1320,21 @@ sub rdaq_list_field
 #
 sub GetBitValue
 {
-    my($field,$el)=@_;
-    my($tbl,$rv,$sthc,$oobj);
+    my($field,$el,$warn)=@_;
+    my($tbl,$rv);
 
     if( $field eq ""){                       return 0; }
     if( $el    eq ""){                       return 0; }
+    if( ! defined($warn) ){                 $warn = 0; }
 
     # Get the table name from the BITWISE hash configuration
     if( ! defined($tbl = $BITWISE{$field})){ return 0; }
 
-    return &Record_n_Fetch($tbl,$el);
+    $rv = &Record_n_Fetch($tbl,$el);
+    if ( $warn && $rv >= 64){
+	&info_message("GetBitValue",0,"Bit $rv >= 64 in a mask will overflow\n");
+    }
+    return $rv;
 }
 
 #
@@ -1437,17 +1461,37 @@ sub rdaq_bits2string
     if( ! defined($val) ){              return "unknown";}
 
     if( ! defined($BITS2STRING{"$field-$val"}) ){
+	my(@Vals,%AVals);
+
 	$str = "";
+	if ( index("$val",".") != -1){
+	    @Vals = split(/\./,$val);
+	    print "<!-- We splitted to $#Vals -->\n"   if ( $DEBUG );
+	    foreach $el (@Vals){  $AVals{$el} = 1;}
+	} else {
+	    print "<!-- We did not split [$val] -->\n" if ( $DEBUG );
+	}
+
+
 	$oobj= rdaq_open_odatabase();
 	#print "SELECT * FROM $BITWISE{$field}\n";
 	$sth = $oobj->prepare("SELECT * FROM $BITWISE{$field} ORDER BY Label ASC");
+
 	if($sth){
 	    $sth->execute();
 	    while( @items = $sth->fetchrow_array() ){
-		if ( $DEBUG ){
-		    print "<!-- $items[1] $val $items[0] ".(1 << $items[0])." -->\n";
+		if ( $#Vals != -1){
+		    if ( defined($AVals{$items[0]}) ){
+			print "<!-- $val $items[0] $items[1] (in string)  -->\n" if ($DEBUG);
+			$str .= "$items[1].";
+		    } else {
+			print "<!-- $val $items[0] $items[1] (not in str) -->\n" if ($DEBUG);
+		    }
+		} else {
+		    # Normal mask
+		    print "<!-- $val $items[0] $items[1] ".(1 << $items[0])." -->\n" if ($DEBUG);
+		    $str .= "$items[1]." if( $val & (1 << $items[0]) );
 		}
-		$str .= "$items[1]." if( $val & (1 << $items[0]) );
 	    }
 	    chop($str);
 	}
