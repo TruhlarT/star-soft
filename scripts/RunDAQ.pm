@@ -766,10 +766,10 @@ sub rdaq_fetcher
 		    #}
 		    # mask can only go to 64 bits in perl (bummer)
 		    #$mask += (1 << &GetBitValue("TrgMask",$items[0]));
-		    $mask .= &GetBitValue("TrgMask",$items[0]).".";
+		    $mask .= "[".&GetBitValue("TrgMask",$items[0])."].";
 		}
 	    }
-	    #chop($mask);
+	    chop($mask);
 	}
 	if ($mask eq ""){
 	    &info_message("fetcher",1,
@@ -1017,7 +1017,11 @@ sub rdaq_get_orecords
 	    if( $tmp == 0){
 		$val = "($el = 0)";
 	    } else {
-		$val = "($el & (1 << $tmp))";
+		#
+		# TODO: this is NOT correct -  9. will math .9. in a list but
+		# also 19. etc ...
+		#
+		$val = "(($el & (1 << $tmp)) OR ( LOCATE(\"[$tmp]\",$el) != 0 ))";
 	    }
 	} elsif ( index($val,"|") != -1){          # OR syntax in selection
 	    #print "<!-- Received $val -->\n";
@@ -1464,10 +1468,14 @@ sub rdaq_bits2string
 	my(@Vals,%AVals);
 
 	$str = "";
-	if ( index("$val",".") != -1){
+	if ( index("$val","]") != -1 ){
 	    @Vals = split(/\./,$val);
 	    print "<!-- We splitted to $#Vals -->\n"   if ( $DEBUG );
-	    foreach $el (@Vals){  $AVals{$el} = 1;}
+	    foreach $el (@Vals){
+		$el =~ s/\[//; $el =~ s/\]//;
+		print "<!-- we found $el -->\n"        if ( $DEBUG );
+		$AVals{$el} = 1;
+	    }
 	} else {
 	    print "<!-- We did not split [$val] -->\n" if ( $DEBUG );
 	}
