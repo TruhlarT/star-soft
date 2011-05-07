@@ -1673,8 +1673,7 @@ sub Submit
 
     } elsif ( $trgrs eq "pedestal"     || $trgrs eq "pulser" ||
 	      $trgsn eq "pedestal"     || $trgsn eq "pulser" ||
-	      $trgsn =~ m/pedAsPhys/i  || 
-	      $trgrs =~ m/pedAsPhys/i && $ThisYear < 2011){
+	      $trgsn =~ m/pedAsPhys/i  || $trgrs =~ m/pedAsPhys/i ){
 	print 
 	    "$SELF : Info : Skipping pulser,pedestal,pedAsPhys in $file, ",
 	    "has setup=$trgsn 'triggers'=$items[11]=$trgrs\n";
@@ -1687,7 +1686,7 @@ sub Submit
 #    } elsif ( ($trgrs =~ m/test/ || $trgsn =~ m/test/ ||
 #	       $trgrs =~ m/tune/ || $trgsn =~ m/tune/   ) && $mode == 0){
     } elsif ( ($trgsn =~ m/test/ || $trgsn =~ m/tune/   ) && $mode == 0){
-	if ( $ThisYear == 2002 || $ThisYear == 2010 ){
+	if ( $ThisYear == 2002 || $ThisYear >= 2010 ){
 	    # start with a warning
 	    print "$SELF : Info : Skipping tune,test in $file, has 'triggers'=$items[11]=$trgrs\n";
 	    rdaq_set_message($SSELF,
