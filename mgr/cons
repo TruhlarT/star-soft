@@ -31,7 +31,7 @@ use Cwd;
 
 use vars qw( $CVS_id $CVS_ver $ver_num $ver_rev $version );
 
-$CVS_id = '$Id: cons,v 1.107 2011/03/23 22:32:27 jeromel Exp $ ';
+$CVS_id = '$Id: cons,v 1.108 2011/05/09 12:30:26 jeromel Exp $ ';
 $CVS_ver = (split(/\s+/, $CVS_id))[2];
 
 $ver_num = "2.3";
@@ -1408,7 +1408,7 @@ sub wanted_xml {
      ) {$File::Find::prune = 1; return;}
   if ( /^\.\#/) {return;}
   if ( /^\w+Geo.*\.xml$/) { # naming convention
-      print " $File::Find::name\n";
+      # print " $File::Find::name\n";
       push @main::search_files,  $File::Find::name;
   }
 }
