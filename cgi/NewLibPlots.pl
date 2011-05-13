@@ -32,6 +32,8 @@ my @data = ();
 my @legend = ();
 
 my @prod_set = (
+                "daq_ittf/year_2011/AuAu200_production",
+                "daq_ittf/year_2011/AuAu19_production", 
                 "daq_ittf/year_2011/pp500_production_2011",
                 "daq_ittf/year_2010/auau200_production",
                 "daq_ittf/year_2010/auau62_production",
@@ -260,7 +262,7 @@ my $dpth;
  $dpth = $spl[0]; 
  $dpth =~ s/_/%/g;   
 
- my $qupath = "%new%".$dpth."/".$path;
+ my $qupath = "%new/".$dpth."/".$path;
 
 @plotvaldg = ();
 @plotvalop = ();

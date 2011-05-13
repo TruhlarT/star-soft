@@ -35,6 +35,8 @@ my $prepath;
 
 
 my @prod_set = (
+                "daq_ittf/year_2011/AuAu200_production",
+                "daq_ittf/year_2011/AuAu19_production",
                 "daq_sl302/year_2011/pp500_production_2011",
                 "daq_sl302/year_2010/auau200_production",
                 "daq_sl302/year_2010/auau62_production",
@@ -68,6 +70,8 @@ my @prod_set = (
                 "daq_sl302/year_2001/ppMinBias",
                 "daq_sl302/year_2000/minbias",
                 "daq_sl302/year_2000/central",
+                "trs_sl302/year_2011/pp500_minbias",
+                "trs_sl302/year_2011/pp500_pileup", 
                 "trs_sl302/year_2010/auau200_minbias",
                 "trs_sl302/year_2010/auau62_minbias",
                 "trs_sl302/year_2010/auau39_minbias",
