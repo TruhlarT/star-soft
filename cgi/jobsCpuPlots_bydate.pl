@@ -59,7 +59,7 @@ my @prodyear = ("2009","2010");
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("cpu","rtime/cpu","jobtottime");
+my @arrate = ("rtime/cpu","cpu","jobtottime");
 
 my @arrprod = ();
 my @arstream = ();
@@ -208,7 +208,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
                                   -values=>\@arrate,
-                                  -default=>cpu,
+                                  -default=>rtime/cpu,
                                   -size =>1);
 
 
