@@ -307,7 +307,7 @@ $ymax = 1;
 
   $min_y = 0;
   $max_y = $ymax + 50 ;  
-  $ylabel = "Number of jobs per hour";
+  $ylabel = "Number of failed jobs per hour";
   $gtitle = "Number of jobs per hour failed to make HPSS transferring for the period of $fperiod ";
 
     } else{
