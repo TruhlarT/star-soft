@@ -501,8 +501,9 @@ END
  $rcpubin = 0.01; 
  $ndt = 0;
 
- for ($i = 0; $i < 100; $i++) {
-   $ndate[$i] = 1 + $rcpubin*$i; 
+ for ($i = 0; $i < 200; $i++) {
+#   $ndate[$i] = 1 + $rcpubin*$i; 
+   $ndate[$i] = $rcpubin*$i; 
  }
 
      foreach $jset (@jbstat) {
@@ -514,10 +515,11 @@ END
 
            $rte = $prtime/$pcpu; 
 
-	   if($rte >= 1.0 and $rte <= 2.0 )     {
-	   $ndt = int(($rte - 1)/$rcpubin + 0.00001);
-           $ndate[$ndt] = 1 + $rcpubin*$ndt;  
-
+#	   if($rte >= 1.0 and $rte <= 2.0 )     {
+	   if( $rte <= 2.0 )     {
+          $ndt = int(($rte - 1)/$rcpubin + 0.00001);
+#           $ndate[$ndt] = 1 + $rcpubin*$ndt;  
+           $ndate[$ndt] = $rcpubin*$ndt;  
 #
 	       if ( $pstream eq "physics" ) {
 	       $arphysics[$ndt]++ ;
