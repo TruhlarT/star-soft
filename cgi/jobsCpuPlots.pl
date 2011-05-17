@@ -116,12 +116,7 @@ my @jbupc = ();
 my @jbmonitor = ();
 my @jbpmdftp = ();
 
- my $maxval = 1;
-
-#my @arperiod = ("day","week");
-
  $JobStatusT = "JobStatus2010";  
-
 
   &StDbProdConnect();
 
@@ -497,7 +492,7 @@ END
 
      }elsif( $srate eq "rtime/cpu" ) {
 
- $ndate[0] = 1;
+ $ndate[0] = 0;
  $rcpubin = 0.01; 
  $ndt = 0;
 
@@ -518,9 +513,9 @@ END
 #	   if($rte >= 1.0 and $rte <= 2.0 )     {
 	   if( $rte <= 2.0 )     {
 #          $ndt = int(($rte - 1)/$rcpubin + 0.00001);
-          $ndt = int($rte/$rcpubin + 0.00001);
+           $ndt = int($rte/$rcpubin + 0.00001);
 #           $ndate[$ndt] = 1 + $rcpubin*$ndt;  
-           $ndate[$ndt] = $rcpubin*$ndt;  
+            $ndate[$ndt] = $rcpubin*$ndt;  
 #
 	       if ( $pstream eq "physics" ) {
 	       $arphysics[$ndt]++ ;
@@ -576,7 +571,6 @@ my $gtitle;
        $legend[6] = "st_upc      ";
        $legend[7] = "st_atomcules ";
        $legend[8] = "st_mtd       ";
-
 
 #       $legend[3] = "st_upsilon   ";
     
