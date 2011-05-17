@@ -517,7 +517,8 @@ END
 
 #	   if($rte >= 1.0 and $rte <= 2.0 )     {
 	   if( $rte <= 2.0 )     {
-          $ndt = int(($rte - 1)/$rcpubin + 0.00001);
+#          $ndt = int(($rte - 1)/$rcpubin + 0.00001);
+          $ndt = int($rte/$rcpubin + 0.00001);
 #           $ndate[$ndt] = 1 + $rcpubin*$ndt;  
            $ndate[$ndt] = $rcpubin*$ndt;  
 #
