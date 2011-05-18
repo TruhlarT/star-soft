@@ -360,7 +360,7 @@ $minval = 100000;
 		  $minval =  $plotmemfstd[$npn];
 	          }
                 $libtagd[$npn] = $fields[3];
-                 $npk++;                 
+                 $npn++;                 
 	   }else{
  		$plotvaldg[$npn] = $fields[1];
                 if( $plotvaldg[$npn] >= $maxval) {
