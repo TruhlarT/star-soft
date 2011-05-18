@@ -266,7 +266,7 @@ my $tpath;
 # $dpth =~ s/_/%/g;      
  @spl = ();
  @spl = split("_", $tpath);
- $dpth = $spl[0]
+$dpth = $spl[0];
 
  my $qupath = "%new/".$dpth."%/".$path;
 
