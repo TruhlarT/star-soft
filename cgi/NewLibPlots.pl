@@ -264,10 +264,9 @@ my $tpath;
  @spl = split("/", $pth);
  $path = $spl[1]."/". $spl[2];
  $tpath = $spl[0]; 
-# $dpth =~ s/_/%/g;      
  @spl = ();
  @spl = split("_", $tpath);
-$dpth = $spl[0];
+ $dpth = $spl[0];
 
  my $qupath = "%new/".$dpth."%/".$path;
 
@@ -398,11 +397,8 @@ my $graph = new GD::Graph::linespoints(650,500);
 
 
 if ($plotVal eq "MemUsage") {
-#    if(scalar(@libtagd) > scalar(@libtagop) ) {
     @data = (\@libtagd, \@plotmemfsto, \@plotmemlsto, \@plotmemfstd, \@plotmemlstd, \@plotmemfstpdsf, \@plotmemlstpdsf);
-#   }else{
-#    @data = (\@libtagop, \@plotmemfsto, \@plotmemlsto, \@plotmemfstd, \@plotmemlstd, \@plotmemfstpdsf, \@plotmemlstpdsf);
-#   }
+
     $legend[0] = "MemUsageFirst(optimized,rcf)";
     $legend[1] = "MemUsageLast(optimized,rcf)";
     $legend[2] = "MemUsageFirst(nonoptimized,rcf)";
@@ -414,11 +410,8 @@ if ($plotVal eq "MemUsage") {
 
   } else {
 
-#    if(scalar(@libtagd) > scalar(@libtagop) ) {
     @data = (\@libtagd, \@plotvalop, \@plotvaldg, \@plotvalpdsf);
-#   }else{
-#    @data = (\@libtagop, \@plotvalop, \@plotvaldg, \@plotvalpdsf );
-#   }    
+
     $legend[0] = "$plotVal"."(optimized,rcf)";
     $legend[1] = "$plotVal"."(nonoptimized,rcf)";
     $legend[2] = "$plotVal"."(pdsf)";
