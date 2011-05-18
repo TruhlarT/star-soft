@@ -446,7 +446,7 @@ if ($plotVal eq "MemUsage") {
                 y_max_value => $max_y,
                 y_number_format => \&y_format,
                 labelclr => "lblack",
-                dclrs => [ qw(lblack lred lgreen lpink lblue lpurple lorange lyellow ) ],
+                dclrs => [ qw(lblack lred lgreen lgray lpink lblue lpurple lorange lyellow ) ],
                 line_width => 2,
                 markers => [ 2,3,4,5,6,7,8,9],
                 marker_size => 2,
