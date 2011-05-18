@@ -143,6 +143,7 @@ my @libtagd = ();
 my @libtagpdsf = ();
 my $npt = 0;
 my $npk = 0;
+my $npn = 0;
 my @plotmemfstpdsf = ();
 my @plotmemlstpdsf = ();
 my @plotmemfsto = ();
@@ -278,6 +279,7 @@ $dpth = $spl[0];
 @libtagpdsf = ();
 $npt = 0;
 $npk = 0;
+$npn = 0;
 @plotmemfsto = ();
 @plotmemlsto = ();
 @plotmemfstd = ();
@@ -327,49 +329,49 @@ $minval = 100000;
 
             if ($fields[0] =~ /sl302.ittf_opt/) {
               if ($plotVal eq "MemUsage") {
-                $plotmemfsto[$npt] = $fields[1];
-                $plotmemlsto[$npt] = $fields[2];
-                if( $plotmemlsto[$npt] >= $maxval) {
-		    $maxval =  $plotmemlsto[$npt];
+                $plotmemfsto[$npk] = $fields[1];
+                $plotmemlsto[$npk] = $fields[2];
+                if( $plotmemlsto[$npk] >= $maxval) {
+		    $maxval =  $plotmemlsto[$npk];
                   }
-	        if( $plotmemfsto[$npt] >= 0 and $plotmemfsto[$npt] <= $minval ) {
-		  $minval =  $plotmemfsto[$npt];
+	        if( $plotmemfsto[$npk] >= 0 and $plotmemfsto[$npk] <= $minval ) {
+		  $minval =  $plotmemfsto[$npk];
 	          }
-                $libtagop[$npt] = $fields[3];               
+                $libtagop[$npk] = $fields[3];               
                  $npt++;  
 	   }else{
-		$plotvalop[$npt] = $fields[1];
-		if( $plotvalop[$npt] >= $maxval) {
-		    $maxval =  $plotvalop[$npt];
+		$plotvalop[$npk] = $fields[1];
+		if( $plotvalop[$npk] >= $maxval) {
+		    $maxval =  $plotvalop[$npk];
                   }
-	        if( $plotvalop[$npt] >=0 and $plotvalop[$npt] <= $minval ) {
-		  $minval =  $plotvalop[$npt];
+	        if( $plotvalop[$npk] >=0 and $plotvalop[$npk] <= $minval ) {
+		  $minval =  $plotvalop[$npk];
 	          }
-                $libtagop[$npt] = $fields[2];
-                 $npt++;
+                $libtagop[$npk] = $fields[2];
+                 $npk++;
 	       }
 	    }else{                
               if ($plotVal eq "MemUsage") {
-                $plotmemfstd[$npt] = $fields[1];
-                $plotmemlstd[$npt] = $fields[2];
-		if( $plotmemlstd[$npt] >= $maxval) {
-		    $maxval =  $plotmemlstd[$npt];
+                $plotmemfstd[$npn] = $fields[1];
+                $plotmemlstd[$npn] = $fields[2];
+		if( $plotmemlstd[$npn] >= $maxval) {
+		    $maxval =  $plotmemlstd[$npn];
                   }
-	        if( $plotmemfstd[$npt] >= 0 and $plotmemfstd[$npt]  <= $minval ) {
-		  $minval =  $plotmemfstd[$npt];
+	        if( $plotmemfstd[$npn] >= 0 and $plotmemfstd[$npn]  <= $minval ) {
+		  $minval =  $plotmemfstd[$npn];
 	          }
-                $libtagd[$npt] = $fields[3];
+                $libtagd[$npn] = $fields[3];
                  $npk++;                 
 	   }else{
- 		$plotvaldg[$npt] = $fields[1];
-                if( $plotvaldg[$npt] >= $maxval) {
-		    $maxval =  $plotvaldg[$npt];
+ 		$plotvaldg[$npn] = $fields[1];
+                if( $plotvaldg[$npn] >= $maxval) {
+		    $maxval =  $plotvaldg[$npn];
                   }
-	        if( $plotvaldg[$npt] >= 0 and $plotvaldg[$npt] <= $minval ) {
-		  $minval =  $plotvaldg[$npt];
+	        if( $plotvaldg[$npn] >= 0 and $plotvaldg[$npn] <= $minval ) {
+		  $minval =  $plotvaldg[$npn];
 	          }
-                $libtagd[$npt] = $fields[2];
-                $npk++;            
+                $libtagd[$npn] = $fields[2];
+                $npn++;            
             }
 	  }
      	 }
