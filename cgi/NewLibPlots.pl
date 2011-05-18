@@ -264,7 +264,7 @@ my $dpth;
  $dpth = $spl[0]; 
  $dpth =~ s/_/%/g;   
 
- my $qupath = "%new/".$dpth."/".$path;
+ my $qupath = "%new/".$dpth."%/".$path;
 
 @plotvaldg = ();
 @plotvalop = ();
