@@ -262,8 +262,11 @@ my $dpth;
  @spl = split("/", $pth);
  $path = $spl[1]."/". $spl[2];
  $dpth = $spl[0]; 
- $dpth =~ s/_/%/g;   
-
+# $dpth =~ s/_/%/g;      
+  @spl = ();
+  @spl = split("_", $dpth); 
+ $dpth = $spl[0]; 
+ 
  my $qupath = "%new/".$dpth."%/".$path;
 
 @plotvaldg = ();
