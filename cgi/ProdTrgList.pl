@@ -41,7 +41,7 @@ my $nlist = 0;
 
 my $trg0 = "n/a";
 
- $fileC->set_context("filetype=daq_reco_MuDst","storage=hpss","limit=0","distinct");
+ $fileC->set_context("filetype=daq_reco_MuDst","storage=hpss","limit=0");
 
  my @prodset = $fileC->run_query("trgsetupname","ordd(production)");
 
