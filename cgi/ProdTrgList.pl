@@ -41,6 +41,7 @@ my %collHash = (
                  productionHalfHigh => 'auau200',
                  MinBiasVertex => 'auau200',
                  minBias22GeVZDC => 'auau20',
+                 production62GeV => 'auau62',
                  minbias => 'auau130', 
                  central => 'auau130', 
                  LowEnergy_newtier1 => 'auau9', 
@@ -95,7 +96,6 @@ my %collHash = (
                  tof_prepost_himult => 'pp200', 
                  pp2ppStrawMan => 'pp200',
                  vpd_minbias => 'pp500',
-                 vpd_minbias-jan1 => 'pp500',
                  physics2009_early_b => 'pp500',
                  production2009_500GeV => 'pp500',
                  production2009_500GeV_carl => 'pp500',
@@ -121,12 +121,9 @@ my %collHash = (
                  fpdTopBottom => 'pp200',
                  topology => 'pp200',
                  ppFPDTOFu => 'pp200',
-                 ppLong-1 => 'pp200',
-                 ppTrans-1 => 'pp200',
                  ppTune => 'pp200',
                  testppUPC => 'pp200',
                  ppLongRamp => 'pp200',
-                 testJPsi-3 => 'dau200',
                  EmcCheck => 'dau200',
                  dAuTOF => 'dau200',
                  dAuCombined => 'dau200',
@@ -188,9 +185,22 @@ my $trg0 = "n/a";
     $prod[$nlist] = $prt[1];  
     $coll[$nlist] = $collHash{$trig[$nlist]};
 
-	if($trig[$nlist] eq "2007LowLuminosity" or $trig[$nlist] eq "2007ProductionMinBias" or  $trig[$nlist] eq "2007Production2" ) {
+	if($trig[$nlist] eq "2007LowLuminosity" or $trig[$nlist] eq "2007ProductionMinBias" or  $trig[$nlist] eq "2007Production2" or $trig[$nlist] eq "2007TestProduction" ) {
       $coll[$nlist] = "auau200"; 
   }
+	if($trig[$nlist] eq "vpd_minbias-jan1") {
+       $coll[$nlist] = "pp500"; 
+  }           
+
+	if($trig[$nlist] eq "setup-2008" or $trig[$nlist] eq ""testJPsi3")  {
+       $coll[$nlist] = "dau200"; 
+  }           
+
+	if($trig[$nlist] eq "ppProduction2008-2" or $trig[$nlist] eq "ppTrans-1" or $trig[$nlist] eq "ppLong-1")  {
+       $coll[$nlist] = "pp200"; 
+  } 
+
+
      @runevents = ();
      $runevents[0] = 0;  
      @datasize = ();
