@@ -42,6 +42,7 @@ my %collHash = (
                  MinBiasVertex => 'auau200',
                  minBias22GeVZDC => 'auau20',
                  production62GeV => 'auau62',
+                 emcPed => 'auau62',
                  minbias => 'auau130', 
                  central => 'auau130', 
                  LowEnergy_newtier1 => 'auau9', 
