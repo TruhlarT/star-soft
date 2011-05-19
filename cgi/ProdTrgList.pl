@@ -22,13 +22,13 @@ use DBI;
 use Mysql;
 
 my %collHash = (
-#                 AuAu200_production_2011 => 'auau200',
-#                 AuAu200_production => 'auau200',
-#                 AuAu62_production => 'auau62',
-#                 AuAu39_production => 'auau39',                           
-#                 AuAu19_production => 'auau19.6',
-#                 AuAu11_production => 'auau11.5',
-#                 AuAu7_production => 'auau7.7',
+                 AuAu200_production_2011 => 'auau200',
+                 AuAu200_production => 'auau200',
+                 AuAu62_production => 'auau62',
+                 AuAu39_production => 'auau39',                           
+                 AuAu19_production => 'auau19.6',
+                 AuAu11_production => 'auau11.5',
+                 AuAu7_production => 'auau7.7',
 #                 2007LowLuminosity => 'auau200',
 #                 2007Production2 => 'auau200',
 #                 2007ProductionMinBias => 'auau200',
@@ -209,6 +209,7 @@ my $trg0 = "n/a";
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=60 bgcolor=\"#ffdc9f\">
+
 <td HEIGHT=10><h3>$coll[$nlist]</h3></td>
 <td HEIGHT=10><h3>$trig[$nlist]</h3></td>
 <td HEIGHT=10><h3>$prod[$nlist]</h3></td>
