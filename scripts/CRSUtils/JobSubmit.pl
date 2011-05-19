@@ -522,7 +522,7 @@ if ( $ThisYear == 2005 ){
 		 rdaq_string2ftype("zerobias"),20,
 		 rdaq_string2ftype("physics"),  5
 		 );
-    #$XCONDITION{"Status"}     = 0;
+    # $XCONDITION{"Status"}     = 0;
     $ID                       = 1;
     $XCONDITION{"XStatus$ID"} = 0;
     $XCONDITION{"NumEvt"}     = "> $MINEVT";
@@ -530,8 +530,8 @@ if ( $ThisYear == 2005 ){
 
 
     # Order is: regular, bypass, calib - do not change
-    @USEQ    = (5,  5,  5);
-    @SPILL   = (0,  0,  0);
+    @USEQ    = (5,   5,  5);
+    @SPILL   = (0, 105,  4);
 
 
     # at least, p+p calib
