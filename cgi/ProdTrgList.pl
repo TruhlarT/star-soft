@@ -76,7 +76,7 @@ my $trg0 = "n/a";
    $fileC->clear_context( );
 
    $sumevt[$nlist] = $runevents[0];
-   $sumsize$nlist] = int($datasize[0]/1024/1024/1024);
+   $sumsize[$nlist] = int($datasize[0]/1024/1024/1024);
 
  print <<END;
 <TR ALIGN=CENTER HEIGHT=60 bgcolor=\"#ffdc9f\">
