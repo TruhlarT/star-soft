@@ -6,7 +6,7 @@
 #
 # ProdTrgList.pl
 #
-# List of trigger set productions from FileCatalog.
+# List of trigset set productions from FileCatalog.
 # 
 ################################################################################################
 
@@ -40,7 +40,7 @@ my $nline = 0;
 
 my $trg0 = "n/a";
 
- $fileC->set_context("filetype=daq_reco_event","storage=hpss","limit=0");
+ $fileC->set_context("filetype=daq_reco_MuDst","storage=hpss","limit=0");
 
  my @prodset = $fileC->run_query("trgsetupname","collision","ordd(production)");
 
@@ -66,7 +66,7 @@ my $trg0 = "n/a";
 
 	next if($coll[$nlist] eq "0" );
 
-    $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_event","storage=hpss");
+    $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_MuDst","storage=hpss");
  
    @runevents = $fileC->run_query("sum(events)");
    $fileC->clear_context( );
@@ -115,7 +115,7 @@ END
 
 #####################
 sub endHtml {
-my $Date = `/bin/date`;
+my $Date = `date`;
 
 print <<END;
 </TABLE>
