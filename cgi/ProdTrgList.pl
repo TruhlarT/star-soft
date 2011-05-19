@@ -29,9 +29,6 @@ my %collHash = (
                  AuAu19_production => 'auau19.6',
                  AuAu11_production => 'auau11.5',
                  AuAu7_production => 'auau7.7',
-#                 2007LowLuminosity => 'auau200',
-#                 2007Production2 => 'auau200',
-#                 2007ProductionMinBias => 'auau200',
                  ProductionMinBias => 'auau200',
                  productionCentral => 'auau200',
                  productionCentral600 => 'auau200',
@@ -191,6 +188,9 @@ my $trg0 = "n/a";
     $prod[$nlist] = $prt[1];  
     $coll[$nlist] = $collHash{$trig[$nlist]};
 
+	if($trig[$nlist] eq "2007LowLuminosity" or $trig[$nlist] eq "2007ProductionMinBias" or  $trig[$nlist] eq "2007Production2" ) {
+      $coll[$nlist] = "auau200"; 
+  }
      @runevents = ();
      $runevents[0] = 0;  
      @datasize = ();
@@ -209,8 +209,8 @@ my $trg0 = "n/a";
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=60 bgcolor=\"#ffdc9f\">
-<td HEIGHT=10><h3>$coll[$nlist]</h3></td>
 <td HEIGHT=10><h3>$trig[$nlist]</h3></td>
+<td HEIGHT=10><h3>$coll[$nlist]</h3></td>
 <td HEIGHT=10><h3>$prod[$nlist]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nlist]</h3></td>
 <td HEIGHT=10><h3>$sumsize[$nlist]</h3></td>
@@ -238,8 +238,8 @@ print <<END;
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Collision</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Trigger sets</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Collision</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Production Tag</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Number of Events<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Size (GB) of MuDst <h3></B></TD>
