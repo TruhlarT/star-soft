@@ -89,7 +89,7 @@ my $trg0 = "n/a";
 <td HEIGHT=10><h3>$trig[$nlist]</h3></td>
 <td HEIGHT=10><h3>$prod[$nlist]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nlist]</h3></td>
-<td HEIGHT=10><h3>$sumesize[$nlist]</h3></td>
+<td HEIGHT=10><h3>$sumsize[$nlist]</h3></td>
 </TR>
 END
 
