@@ -530,8 +530,8 @@ if ( $ThisYear == 2005 ){
 
 
     # Order is: regular, bypass, calib - do not change
-    @USEQ    = (5,   5,  5);
-    @SPILL   = (0, 105,  4);
+    @USEQ    = (5,   5,    5);
+    @SPILL   = (0,   4,  105);
 
 
     # at least, p+p calib
@@ -627,7 +627,7 @@ if ($TARGET !~ m/^\d+$/){
     $target =~ s/^\^//;
     $target =~ s/:.*//;
 
-    #print "DEBUG $target ".substr($target,1,1)."\n ";
+    # print "DEBUG $target ".substr($target,1,1)."\n ";
 
     if ( substr($target,1,1) eq "/" &&  substr($target,0,1) =~ m/\w/){
 	print "$SELF : Method ".substr($target,0,1)." in target $TARGET not implemented\n";
@@ -794,13 +794,13 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
     print "$SELF : Mode=direct Queue count Tot=$TOT\n";
 
 
-    $TOT = 10;
+    # $TOT = 10;
 
     $time = localtime();
     if ($TOT > 0 && ! -e $LOCKF){
 	open(FL,">$LOCKF");
 	close(FL);
-	#print "$SELF : We need to submit $TOT jobs\n";
+	# print "$SELF : We need to submit $TOT jobs\n";
 
 	# Check $TARGET for sub-mode
 	# If $TARGET starts with a ^, take only the top, otherwise
