@@ -37,13 +37,13 @@ my @prodset = ();
 my @runevents = ();
 my @prt = ();
 my $nline = 0;
+my $nlist = 0;
 
 my $trg0 = "n/a";
 
- $fileC->set_context("filetype=daq_reco_MuDst","storage=hpss","limit=0");
+ $fileC->set_context("filetype=daq_reco_MuDst","storage=hpss","limit=0","distinct");
 
- my @prodset = $fileC->run_query("trgsetupname","collision","ordd(production)");
-
+ my @prodset = $fileC->run_query("trgsetupname","ordd(production)");
 
  $fileC->clear_context( );
 
@@ -61,6 +61,7 @@ my $trg0 = "n/a";
     $coll[$nlist] = $prt[1];
     $prod[$nlist] = $prt[2];  
 
+
     @runevents = ();
      $runevents[0] = 0;  
 
@@ -75,7 +76,6 @@ my $trg0 = "n/a";
 
  print <<END;
 <TR ALIGN=CENTER HEIGHT=60 bgcolor=\"#ffdc9f\">
-<td HEIGHT=10><h3>$coll[$nlist]</h3></td>
 <td HEIGHT=10><h3>$trig[$nlist]</h3></td>
 <td HEIGHT=10><h3>$prod[$nlist]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nlist]</h3></td>
