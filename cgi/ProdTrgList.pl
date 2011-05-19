@@ -58,8 +58,7 @@ my $trg0 = "n/a";
     @prt = split("::",$line); 
 
     $trig[$nlist] = $prt[0];
-    $coll[$nlist] = $prt[1];
-    $prod[$nlist] = $prt[2];  
+    $prod[$nlist] = $prt[1];  
 
 
     @runevents = ();
