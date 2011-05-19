@@ -71,18 +71,18 @@ my $trg0 = "n/a";
 
     $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_MuDst","storage=hpss");
  
-   @runevents = $fileC->run_query("sum(events)","sum(size)");
-#   @datasize = $fileC->run_query("sum(size)");
+   @runevents = $fileC->run_query("sum(events)");
+   @datasize = $fileC->run_query("sum(size)");
 
    $fileC->clear_context( );
 
-#   $sumevt[$nlist] = $runevents[0];
-    $sumline = $runevents[0];
-    @prt = (); 
-    @prt = split("::",$sumline);    
+   $sumevt[$nlist] = $runevents[0];
+#    $sumline = $runevents[0];
+#    @prt = (); 
+#    @prt = split("::",$sumline);    
 
-  $sumevt[$nlist] = $prt[0];
-  $sumsize[$nlist] = int($prt[1]/1000000000);
+#  $sumevt[$nlist] = $prt[0];
+  $sumsize[$nlist] = int($datasize[0]/1000000000);
 
  print <<END;
 <TR ALIGN=CENTER HEIGHT=60 bgcolor=\"#ffdc9f\">
