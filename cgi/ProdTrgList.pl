@@ -192,7 +192,7 @@ my $trg0 = "n/a";
        $coll[$nlist] = "pp500"; 
   }           
 
-	if($trig[$nlist] eq "setup-2008" or $trig[$nlist] eq ""testJPsi3")  {
+	if($trig[$nlist] eq "setup-2008" or $trig[$nlist] eq "testJPsi3")  {
        $coll[$nlist] = "dau200"; 
   }           
 
