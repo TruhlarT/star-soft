@@ -21,16 +21,16 @@ use FileCatalog;
 use DBI;
 use Mysql;
 
-my %dhcoll = (
+my %collHash = (
               AuAu200_production_2011 => 'auau200',
               AuAu200_production => 'auau200',
               AuAu62_production => 'auau62',
               AuAu39_production => 'auau39',                           
               AuAu19_production => 'auau19.6',
-              AuAu11_production => 'auau11.5',
+#              AuAu11_production => 'auau11.5',
 #              AuAu7_production => 'auau7.7',
-#              2007LowLuminosity => 'auau200',
-#              2007Production2 => 'auau200',
+              2007LowLuminosity => 'auau200',
+              2007Production2 => 'auau200',
               2007ProductionMinBias => 'auau200',
               ProductionMinBias => 'auau200',
               productionCentral => 'auau200',
@@ -190,7 +190,7 @@ my $trg0 = "n/a";
 
     $trig[$nlist] = $prt[0];
     $prod[$nlist] = $prt[1];  
-    $coll[$nlist] = $dhcoll{$trig[$nlist]};
+    $coll[$nlist] = $collHash{$trig[$nlist]};
 
      @runevents = ();
      $runevents[0] = 0;  
