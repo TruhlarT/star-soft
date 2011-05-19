@@ -35,6 +35,8 @@ my @prod = ();
 my @sumevt = ();
 my @prodset = ();
 my @runevents = ();
+my @sumsize = ();
+my @datasize = ();
 my @prt = ();
 my $nline = 0;
 my $nlist = 0;
@@ -61,23 +63,27 @@ my $trg0 = "n/a";
     $prod[$nlist] = $prt[1];  
 
 
-    @runevents = ();
+     @runevents = ();
      $runevents[0] = 0;  
-
-	next if($coll[$nlist] eq "0" );
+     @datasize = ();
+     $datasize[0] = 0; 
 
     $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_MuDst","storage=hpss");
  
    @runevents = $fileC->run_query("sum(events)");
+   @datasize = $fileC->run_query("sum(size)");
+
    $fileC->clear_context( );
 
    $sumevt[$nlist] = $runevents[0];
+   $sumsize$nlist] = int($datasize[0]/1024/1024/1024);
 
  print <<END;
 <TR ALIGN=CENTER HEIGHT=60 bgcolor=\"#ffdc9f\">
 <td HEIGHT=10><h3>$trig[$nlist]</h3></td>
 <td HEIGHT=10><h3>$prod[$nlist]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nlist]</h3></td>
+<td HEIGHT=10><h3>$sumesize[$nlist]</h3></td>
 </TR>
 END
 
@@ -105,6 +111,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=60><B><h3>Trigger sets</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Production Tag</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Number of Events<h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Size (GB) of MuDst <h3></B></TD>
 </TR> 
    </head>
     </body>
