@@ -350,11 +350,11 @@ my $trg0 = "n/a";
 	    $yrdat[$nlist] = "year2002";
 	}elsif($trig[$nlist] eq "ppMinBias" and ($prod[$nlist]  eq "P03ie" or $prod[$nlist] eq "P03ih")) {
              $yrdat[$nlist] = "year2003";
-	}elsif{$trig[$nlist] eq "ppMinBias" and ($prod[$nlist]  eq "P04ik" or $prod[$nlist] eq "P04ij")) {
+	}elsif($trig[$nlist] eq "ppMinBias" and ($prod[$nlist]  eq "P04ik" or $prod[$nlist] eq "P04ij")) {
              $yrdat[$nlist] = "year2004";
         }        
 
-	if($trig[$nlist] eq "productionCentral" and ($prod[$nlist] =~ /P02/ or $prod[$nlist] =~ /P03/ ) {
+	if($trig[$nlist] eq "productionCentral" and ($prod[$nlist] =~ /P02/ or $prod[$nlist] =~ /P03/ )) {
 	    $yrdat[$nlist] = "year2001";
         }elsif( $trig[$nlist] eq "productionCentral" and $prod[$nlist] eq "P05ic" ) {
            $yrdat[$nlist] = "year2004";
