@@ -23,6 +23,13 @@ use Mysql;
 
 my %collHash = (
                  AuAu200_production_2011 => 'auau200',
+                 pp500_production_2011  => 'pp500',
+                 pp500_production_2011_noeemc => 'pp500',
+                 pp500_production_2011_fms => 'pp500',
+                 pp500_production_2011_long_fms => 'pp500',
+                 pp500_production_2011_long => 'pp500',
+                 pp500_production_2011_long_noeemc => 'pp500',
+                 Vernier_scan_pp500 => 'pp500',
                  AuAu200_production => 'auau200',
                  AuAu62_production => 'auau62',
                  AuAu39_production => 'auau39',                           
@@ -48,6 +55,7 @@ my %collHash = (
                  LowEnergy_newtier1 => 'auau9', 
                  lowEnergy2008 => 'auau9', 
                  bbcvpd => 'auau9', 
+                 
                  ppMinBias => 'pp200', 
                  pp => 'pp200', 
                  eemcCalibration => 'pp200', 
@@ -197,7 +205,7 @@ my $trg0 = "n/a";
        $coll[$nlist] = "dau200"; 
   }           
 
-	if($trig[$nlist] eq "ppProduction2008-2" or $trig[$nlist] eq "ppTrans-1" or $trig[$nlist] eq "ppLong-1")  {
+     if($trig[$nlist] eq "ppProduction2008-2" or $trig[$nlist] eq "ppTrans-1" or $trig[$nlist] eq "ppLong-1")  {
        $coll[$nlist] = "pp200"; 
   } 
 
