@@ -54,8 +54,7 @@ my %collHash = (
                  central => 'auau130', 
                  LowEnergy_newtier1 => 'auau9', 
                  lowEnergy2008 => 'auau9', 
-                 bbcvpd => 'auau9', 
-                 
+                 bbcvpd => 'auau9',                  
                  ppMinBias => 'pp200', 
                  pp => 'pp200', 
                  eemcCalibration => 'pp200', 
@@ -151,6 +150,141 @@ my %collHash = (
                  cu22ProductionMinBias => 'cucu22', 
 	      );
              
+my %yrHash = (
+                 AuAu200_production_2011 => 'year2011',
+                 pp500_production_2011  => 'year2011',
+                 pp500_production_2011_noeemc => 'year2011',
+                 pp500_production_2011_fms => 'year2011',
+                 pp500_production_2011_long_fms => 'year2011',
+                 pp500_production_2011_long => 'year2011',
+                 pp500_production_2011_long_noeemc => 'year2011',
+                 Vernier_scan_pp500 => 'year2011',
+                 AuAu200_production => 'year2010',
+                 AuAu62_production => 'year2010',
+                 AuAu39_production => 'year2010',                           
+                 AuAu19_production => 'year2011',
+                 AuAu11_production => 'year2010',
+                 AuAu7_production => 'year2010',
+                 ProductionMinBias => 'year2001',
+                 productionCentral => 'year2001',
+                 productionCentral600 => 'year2001',
+                 productionCentral1200 => 'year2001',
+                 vandermeer => 'year2001',
+                 productionHigh => 'year2004',
+                 productionMid => 'year2004',
+                 productionLow => 'year2004',
+                 productionHalfLow => 'year2004',
+                 productionHalfHigh => 'year2004',
+                 MinBiasVertex => 'year2001',
+                 minBias22GeVZDC => 'year2001',
+                 production62GeV => 'year2004',
+                 emcPed => 'year2004',
+                 minbias => 'year2000', 
+                 central => 'year2000', 
+                 LowEnergy_newtier1 => 'year2007', 
+                 lowEnergy2008 => 'year2008', 
+                 bbcvpd => 'year_2008',                  
+                 ppMinBias => 'year2004', 
+                 pp => 'year2004', 
+                 eemcCalibration => 'year2004', 
+                 zdcSMDTest => 'year2004', 
+                 productionPP => 'year2004', 
+                 emcCalPP => 'year2004', 
+                 productionPPnoBarrel => 'year2004', 
+                 productionPPnoEndcap => 'year2004', 
+                 ppProductionMinBias => 'year2005', 
+                 eemc_led => 'year2005', 
+                 ppProduction => 'year2006', 
+                 ppEmcCheck => 'year2006', 
+                 ppAdjJetPatch => 'year2005', 
+                 ppVHM => 'year2005', 
+                 Jpsi => 'year2005', 
+                 ppTransProduction => 'year2005', 
+                 ppTransProductionMinBias => 'year2005', 
+                 ppEmcBackgroundCheck => 'year2006', 
+                 pp2006MinBias => 'year2006', 
+                 barrelBackground => 'year2006', 
+                 muonminbias => 'year2006', 
+                 upsilonTest => 'year2006', 
+                 ppProductionTrans => 'year2006', 
+                 ppProductionTransFPDonly => 'year2006', 
+                 ppProductionTransNoEMC => 'year2006', 
+                 ppLongTest => 'year2006', 
+                 ppProductionLong => 'year2006', 
+                 ppProductionLongNoEmc => 'year2006', 
+                 ppProductionJPsi => 'year2006', 
+                 ppProduction2008 => 'year2008', 
+                 ppProduction2008-2 => 'year2008', 
+                 pp2pp => 'year2008', 
+                 low_luminosity2009 => 'year2009', 
+                 pp2pp_VPDMB => 'year2009', 
+                 pp2pp_Production2009 => 'year2009', 
+                 zdc_polarimetry => 'year2009', 
+                 commission2009_200Gev_Lo => 'year2009', 
+                 commission2009_200Gev_Hi => 'year2009', 
+                 production2009_200Gev_Hi => 'year2009', 
+                 production2009_200Gev_Lo => 'year2009', 
+                 low_luminosity2009 => 'year2009', 
+                 production2009_200Gev_Single => 'year2009', 
+                 vernier_scan => 'year2009', 
+                 tof_production2009_single => 'year2009', 
+                 production2009_200Gev_nocal => 'year2009', 
+                 production2009_200Gev_noendcap => 'year2009', 
+                 tof_prepost_himult => 'year2009', 
+                 pp2ppStrawMan => 'year2009',
+                 vpd_minbias => 'year2009',
+                 physics2009_early_b => 'year2009',
+                 production2009_500GeV => 'year2009',
+                 production2009_500GeV_carl => 'year2009',
+                 test2009_carl => 'year2009',
+                 test2009_carl_hi_thr => 'year2009',
+                 teest2009_carl_b => 'year2009',
+                 productionZDCpolarimetry => 'year2009',
+                 zdc_polarimetry_test => 'year2009',
+                 production2009_500Gev_b => 'year2009',
+                 testtier0325 => 'year2009',
+                 production2009_500Gev_c => 'year2009',
+                 production2009_500Gev_25 => 'year2009',
+                 ppProduction62 => 'year2006',
+                 ppProductionMB62 => 'year2006',
+                 barrelBackground62 => 'year2006',
+                 pp400MinBias => 'year2005',
+                 pp400Production => 'year2005',
+                 FPDtbEMCproduction => 'year2002',
+                 FPDEMCproduction => 'year2002',
+                 fpdTrigger => 'year2002',
+                 FPDXmas => 'year2002',
+                 bbcTrigger => 'year2001',
+                 fpdTopBottom => 'year2002',
+                 topology => 'year2002',
+                 ppFPDTOFu => 'year2003',
+                 ppTune => 'year2003',
+                 testppUPC => 'year2003',
+                 ppLongRamp => 'year2003',
+                 EmcCheck => 'year2008',
+                 dAuTOF => 'year2003',
+                 dAuCombined => 'year2003',
+                 dAuMinBias => 'year2003',
+                 UPCCombined => 'year2003',
+                 dAuFPD => 'year2003',
+                 zeroBias => 'year2003',
+                 HTonly => 'year2003',
+                 production_dAu2008 => 'year2008',
+                 production_mb2008 => 'year2008',
+                 production_PMD2008 => 'year2008',
+                 setup-2008 => 'year2008',
+                 cuProductionMinBias => 'year2005',
+                 cuProductionHighTower => 'year2005',
+                 cu62productionMinBias  => 'year2005',
+                 cu22ProductionMinBias => 'year2005',
+                 2007ProductionMinBias => 'year2007',
+                 2007TestProduction => 'year2007',
+                 2007Production2 => 'year2007',
+                 2007LowLuminosity => 'year2007',
+                 ppTrans-1 => 'year2003',
+                 ppLong-1 => 'year2003',
+	      );
+
 
 my $SITE         = "BNL";
 my $status       = (0==1);
@@ -168,6 +302,7 @@ my @prodset = ();
 my @runevents = ();
 my @sumsize = ();
 my @datasize = ();
+my @yrdat = ();
 my @prt = ();
 my $nline = 0;
 my $nlist = 0;
@@ -193,6 +328,7 @@ my $trg0 = "n/a";
     $trig[$nlist] = $prt[0];
     $prod[$nlist] = $prt[1];  
     $coll[$nlist] = $collHash{$trig[$nlist]};
+    $yrdat[$nlist] = $yrHash{$trig[$nlist]};
 
 	if($trig[$nlist] eq "2007LowLuminosity" or $trig[$nlist] eq "2007ProductionMinBias" or  $trig[$nlist] eq "2007Production2" or $trig[$nlist] eq "2007TestProduction" ) {
       $coll[$nlist] = "auau200"; 
@@ -230,6 +366,7 @@ my $trg0 = "n/a";
 <TR ALIGN=CENTER HEIGHT=60 bgcolor=\"#ffdc9f\">
 <td HEIGHT=10><h3>$trig[$nlist]</h3></td>
 <td HEIGHT=10><h3>$coll[$nlist]</h3></td>
+<td HEIGHT=10><h3>$yrdat[$nlist]</h3></td>
 <td HEIGHT=10><h3>$prod[$nlist]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nlist]</h3></td>
 <td HEIGHT=10><h3>$sumsize[$nlist]</h3></td>
@@ -257,8 +394,9 @@ print <<END;
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
-<TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Trigger sets</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Trigger sets</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Collision</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Year of data taken</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Production Tag</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Number of Events<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Size (GB) of MuDst <h3></B></TD>
