@@ -175,6 +175,7 @@ my %yrHash = (
                  productionLow => 'year2004',
                  productionHalfLow => 'year2004',
                  productionHalfHigh => 'year2004',
+                 productionMinBias => 'year2004',
                  MinBiasVertex => 'year2001',
                  minBias22GeVZDC => 'year2001',
                  production62GeV => 'year2004',
@@ -254,7 +255,7 @@ my %yrHash = (
                  FPDEMCproduction => 'year2002',
                  fpdTrigger => 'year2002',
                  FPDXmas => 'year2002',
-                 bbcTrigger => 'year2001',
+                 bbcTrigger => 'year2002',
                  fpdTopBottom => 'year2002',
                  topology => 'year2002',
                  ppFPDTOFu => 'year2003',
@@ -344,6 +345,20 @@ my $trg0 = "n/a";
     $prod[$nlist] = $prt[1];  
     $coll[$nlist] = $collHash{$trig[$nlist]};
     $yrdat[$nlist] = $yrHash{$trig[$nlist]};
+
+	if($trig[$nlist] eq "ppMinBias" and ($prod[$nlist] eq "P02ge" or $prod[$nlist] eq "P03if")) {
+	    $yrdat[$nlist] = "year2002";
+	}elsif($trig[$nlist] eq "ppMinBias" and ($prod[$nlist]  eq "P03ie" or $prod[$nlist] eq "P03ih")) {
+             $yrdat[$nlist] = "year2003";
+	}elsif{$trig[$nlist] eq "ppMinBias" and ($prod[$nlist]  eq "P04ik" or $prod[$nlist] eq "P04ij")) {
+             $yrdat[$nlist] = "year2004";
+        }        
+
+	if($trig[$nlist] eq "productionCentral" and ($prod[$nlist] =~ /P02/ or $prod[$nlist] =~ /P03/ ) {
+	    $yrdat[$nlist] = "year2001";
+        }elsif( $trig[$nlist] eq "productionCentral" and $prod[$nlist] eq "P05ic" ) {
+           $yrdat[$nlist] = "year2004";
+        }
 
      @runevents = ();
      $runevents[0] = 0;  
