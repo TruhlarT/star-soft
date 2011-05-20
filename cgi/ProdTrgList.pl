@@ -281,11 +281,10 @@ my %yrHash = (
                  ppLong-1 => 'year2003',
 	      );
 
-$yrHash{2007ProductionMinBias} = "year2007";
-$yrHash{2007Production2} = "year2007";
-$yrHash{2007TestProduction} = "year2007";
-$yrHash{2007LowLuminosity} = "year2007";
-$yrHash{2007ProductionMinBias} = "year2007";
+$yrHash{"2007ProductionMinBias"} = "year2007";
+$yrHash{"2007Production2"} = "year2007";
+$yrHash{"2007TestProduction"} = "year2007";
+$yrHash{"2007LowLuminosity"} = "year2007";
 
 
 my $SITE         = "BNL";
