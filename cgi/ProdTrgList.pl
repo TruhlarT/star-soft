@@ -272,19 +272,33 @@ my %yrHash = (
                  production_dAu2008 => 'year2008',
                  production_mb2008 => 'year2008',
                  production_PMD2008 => 'year2008',
-                 setup-2008 => 'year2008',
                  cuProductionMinBias => 'year2005',
                  cuProductionHighTower => 'year2005',
                  cu62productionMinBias  => 'year2005',
                  cu22ProductionMinBias => 'year2005',
-                 ppTrans-1 => 'year2003',
-                 ppLong-1 => 'year2003',
 	      );
 
 $yrHash{"2007ProductionMinBias"} = "year2007";
 $yrHash{"2007Production2"} = "year2007";
 $yrHash{"2007TestProduction"} = "year2007";
 $yrHash{"2007LowLuminosity"} = "year2007";
+$yrHash{"vpd_minbias-jan1"} = "year2009";
+$yrHash{"setup-2008"} = "year2008";
+$yrHash{"ppProduction2008-2"} = "year2008";
+$yrHash{"ppTrans-1"} = "year2003";
+$yrHash{"ppLong-1"} = "year2003";
+$yrHash{"testJPsi-3"} = "year2003";
+
+$collHash{"2007ProductionMinBias"} = "auau200";
+$collHash{"2007Production2"} = "auau200";
+$collHash{"2007TestProduction"} = "auau200";
+$collHash{"2007LowLuminosity"} = "auau200";
+$collHash{"vpd_minbias-jan1"} = "pp500";
+$collHash{"setup-2008"} = "dau200";
+$collHash{"ppProduction2008-2"} = "pp200";
+$collHash{"ppTrans-1"} = "pp200";
+$collHash{"ppLong-1"} = "pp200";
+$collHash{"testJPsi-3"} = "dau200";
 
 
 my $SITE         = "BNL";
@@ -330,22 +344,6 @@ my $trg0 = "n/a";
     $prod[$nlist] = $prt[1];  
     $coll[$nlist] = $collHash{$trig[$nlist]};
     $yrdat[$nlist] = $yrHash{$trig[$nlist]};
-
-	if($trig[$nlist] eq "2007LowLuminosity" or $trig[$nlist] eq "2007ProductionMinBias" or  $trig[$nlist] eq "2007Production2" or $trig[$nlist] eq "2007TestProduction" ) {
-      $coll[$nlist] = "auau200"; 
-  }
-	if($trig[$nlist] eq "vpd_minbias-jan1") {
-       $coll[$nlist] = "pp500"; 
-  }           
-
-	if($trig[$nlist] eq "setup-2008" or $trig[$nlist] eq "testJPsi3")  {
-       $coll[$nlist] = "dau200"; 
-  }           
-
-     if($trig[$nlist] eq "ppProduction2008-2" or $trig[$nlist] eq "ppTrans-1" or $trig[$nlist] eq "ppLong-1")  {
-       $coll[$nlist] = "pp200"; 
-  } 
-
 
      @runevents = ();
      $runevents[0] = 0;  
