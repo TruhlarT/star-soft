@@ -277,13 +277,15 @@ my %yrHash = (
                  cuProductionHighTower => 'year2005',
                  cu62productionMinBias  => 'year2005',
                  cu22ProductionMinBias => 'year2005',
-                 2007ProductionMinBias => 'year2007',
-                 2007TestProduction => 'year2007',
-                 2007Production2 => 'year2007',
-                 2007LowLuminosity => 'year2007',
                  ppTrans-1 => 'year2003',
                  ppLong-1 => 'year2003',
 	      );
+
+$yrHash{2007ProductionMinBias} = "year2007";
+$yrHash{2007Production2} = "year2007";
+$yrHash{2007TestProduction} = "year2007";
+$yrHash{2007LowLuminosity} = "year2007";
+$yrHash{2007ProductionMinBias} = "year2007";
 
 
 my $SITE         = "BNL";
