@@ -14,15 +14,15 @@ use RunDAQ;
 # Mode 1 will quit
 $mode    = 1;     # default mode - overwritten by argument 1
 $sltime  = 60;    # sleep time between default between loops - overwriten by arguments 2
-$file    = "";    # Default file name for LOG - overwirten by argument 3 (i.e. DAQFill.log);
-$EXPIRET = 21600; # 21600 = 6 hours / 14400 = 4 hours / 10800 = 3 hours delays expected
+$FILE    = "";    # Default file name for LOG - overwirten by argument 3 (i.e. DAQFill.log);
+$EXPIRET = 172800;# 172800 = 48 hours / 21600 = 6 hours / 14400 = 4 hours / 10800 = 3 hours delays expected
 
 $SSELF   = "DAQFill";
 
 
 $mode   = shift(@ARGV) if ( @ARGV );
 $arg1   = shift(@ARGV) if ( @ARGV );
-$file   = shift(@ARGV) if ( @ARGV );
+$FILE   = shift(@ARGV) if ( @ARGV );
 
 # We added this in 2004 for a bootstrap by run number
 # range.
@@ -157,16 +157,16 @@ sub Print
 {
     my(@all)=@_;
 
-    if($file ne ""){
-	while( ! open(FO,">>$file")){;}
+    if($FILE ne ""){
+	while( ! open(FO,">>$FILE")){;}
 	$FO = FO;
     } else {
 	$FO = STDOUT;
     }
     foreach $el (@all){
-	print $FO $el;
+	print $FO "$SELF :: ".localtime()." : $el";
     }
-    if($file ne ""){ close(FO);}
+    if($FO ne STDOUT ){ close($FO);}
 }
 
 #
