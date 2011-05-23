@@ -51,7 +51,7 @@ my $arch_dir = "/star/u/starreco/$ProdTag/requests/$Kind/archive/";
 my $datasourse = "DBI:mysql:operation:duvall.star.bnl.gov";
 my $username = "starreco";
 my $SDIR     = "ScanLog";
-
+my $SELF     = "$SDIR :: ".localtime()." : ";
 
 my $logname;
 my $shortname;
@@ -116,7 +116,7 @@ if( ! $sth3 || ! $sth1){
 }
 
 my(%JNAMES);
-print "Opening archive directory $arch_dir\n" if ($DEBUG);
+print "$SELF Opening archive directory $arch_dir\n" if ($DEBUG);
 opendir(ARCH,"$arch_dir") || &Die("Could not open archive directory $arch_dir\n");
 while ( defined($job_name = readdir(ARCH)) ){
   if($job_name !~ /st_/ && $job_name !~ /rcf.*evts/ ){ next;}
@@ -129,7 +129,7 @@ while ( defined($job_name = readdir(ARCH)) ){
 closedir(ARCH);
 
 
-print "Opening log directory $log_dir\n" if ($DEBUG);
+print "$SELF Opening log directory $log_dir\n" if ($DEBUG);
 opendir(LOGDIR,$log_dir) || &Die("can't open $log_dir\n: $!");
 if ( ! -d "$log_dir/$SDIR"){   mkdir("$log_dir/$SDIR",0755);}
 
@@ -138,11 +138,11 @@ while ( defined($logname = readdir(LOGDIR)) ){
     # may contain other files. 
     $count++;
     if ( $count > $max_file){
-	print "$log_dir contains more than $max_file . Please clean.\n" if ($DEBUG);
+	print "$SELF $log_dir contains more than $max_file . Please clean.\n" if ($DEBUG);
 	&Die("$log_dir contains more than $max_file . Please clean.");
     }
 
-    print "Looking at $logname\n" if ($DEBUG);
+    print "$SELF Looking at $logname\n" if ($DEBUG);
 
     if ( $logname =~ /\.log$/ || $logname =~ /\.log\.gz$/) {
 	$shortname = $logname;
@@ -160,17 +160,17 @@ while ( defined($logname = readdir(LOGDIR)) ){
 	    $serr =~ s/\.gz//;
 	    if ( -e $slog && -e $slog){
 		$l = 0; while ( ! unlink($slog) || $l == 10){ $l++; sleep(2);}
-		if ($l == 10){ print "Warning: tried unlink($slog) 10 times and did not succeed\n";}
+		if ($l == 10){ print "$SELF Warning: tried unlink($slog) 10 times and did not succeed\n";}
 
 		$l = 0; while ( ! unlink($serr) || $l == 10){ $l++; sleep(2);}
-		if ($l == 10){ print "Warning: tried unlink($serr) 10 times and did not succeed\n";}
+		if ($l == 10){ print "$SELF Warning: tried unlink($serr) 10 times and did not succeed\n";}
 
-		print "Found .log/.err while analyzing .log.gz / .err.gz for $shortname\n" ;
+		print "$SELF Found .log/.err while analyzing .log.gz / .err.gz for $shortname\n" ;
 	    }
 	}
 
 
-	print " --> stat($logname)\n" if ($DEBUG);
+	print "$SELF  --> stat($logname)\n" if ($DEBUG);
         @fc = stat($logname);
 	if( $#fc != -1){
 	    $deltatime = time() - $fc[9];
@@ -209,7 +209,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		if ( $pmtime > $fc[9] ){
 		    next;
 		} else {
-		    print "  --> Deleting $log_dir/$SDIR/$shortname.parsed\n" if ($DEBUG);
+		    print "$SELF   --> Deleting $log_dir/$SDIR/$shortname.parsed\n" if ($DEBUG);
 		    unlink("$log_dir/$SDIR/$shortname.parsed");
 		}
 	     } elsif ( $deltatime > $max_time ){
@@ -219,7 +219,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		 # if a run is started again, the .parsed file would be
 		 # deleted and the related log file would be treated as
 		 # a new one.
-		 print "  --> Creating $log_dir/$SDIR/$shortname.parsed\n"    if ($DEBUG);
+		 print "$SELF   --> Creating $log_dir/$SDIR/$shortname.parsed\n"    if ($DEBUG);
 		 if ( open(FO,">$log_dir/$SDIR/$shortname.parsed") ){
 		     print FO "$0 (Nikita Man) ".localtime()."\n";
 		     close(FO);
@@ -250,7 +250,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		}
 		$err="";
 		$cmd = &ZSHandle($err_file,"/usr/bin/tail -4");
-		print "  --> Will execute [$cmd]\n" if ($DEBUG);
+		print "$SELF   --> Will execute [$cmd]\n" if ($DEBUG);
 		@job_errs = `$cmd`;
 		for ( $i=0;$i<=$#job_errs;$i++ ){
 		    unless ( $err=~/$job_errs[$i]/ ){
@@ -258,22 +258,23 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		    }
 		}
 		if($DEBUG){
-		    print "$err\n";
+		    print "$SELF $err\n";
 		} else {
-		    if($err ne ""){ print "error type 1 in $logname\n";}
+		    if($err ne ""){ print "$SELF error type 1 in $logname\n";}
 		}
 	    } else {
 		my $tmp="";
 
 		if($DEBUG){
 		    print
-			"Kind       : 2",
-			"Found log  : $logname\n",
-			"Error file : $err_file\n",
-			"Short name : $shortname\n",
-			"Deltatime  : $deltatime\n",
-			"Size       : $fc[7]\n",
-			"Errors in LOG & ERR files --> \n";
+			"$SELF\n",
+			"\tKind       : 2",
+			"\tFound log  : $logname\n",
+			"\tError file : $err_file\n",
+			"\tShort name : $shortname\n",
+			"\tDeltatime  : $deltatime\n",
+			"\tSize       : $fc[7]\n",
+			"\tErrors in LOG & ERR files --> \n";
 		}
 
 		$err="";
@@ -284,7 +285,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		#print "debug [$cmd] | grep 'running on'\n";
 		# head uses SIGPIPE. Prevent STDERR polution.
 		&DupSTDERR;
-		print "  --> Will execute [$cmd | grep 'running on']\n" if ($DEBUG);
+		print "$SELF --> Will execute [$cmd | grep 'running on']\n" if ($DEBUG);
 		$node= `$cmd | grep 'running on'`;
 		&ResSTDERR; 
 		if ( $node =~ m/running/){
@@ -301,11 +302,11 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		$cmd = &ZSHandle($logname,"/usr/bin/tail -5000");
 		# the above grep is not full-path-ed because it uses 
 		# -E (GNU grep)
-		print "  --> Will execute $cmd | grep -E ...\n" if ($DEBUG);
+		print "$SELF   --> Will execute $cmd | grep -E ...\n" if ($DEBUG);
 		@log_errs2 = 
 		    `$cmd | grep -E 'Break|Abort|Assert|relocation error'`;
 		foreach $logerr (@log_errs2){
-		    print "$logerr\n";
+		    print "$SELF $logerr\n";
 		    if ( $logerr=~/(\*+\s+Break\s+\*+)(.*)/ ){
 			unless ( $err=~/$2/ ){
 			    $err.=" $2 |";
@@ -334,7 +335,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 
 		# Get event number - Faster to spilt in two loops
 		$cmd = &ZSHandle($logname,"/usr/bin/tail -5000");
-		print "  --> Will execute $cmd | /bin/grep 'Done with Event'\n" if ($DEBUG);
+		print "$SELF   --> Will execute $cmd | /bin/grep 'Done with Event'\n" if ($DEBUG);
 		@log_errs2 = `$cmd | /bin/grep 'Done with Event'`;
 		foreach $logerr (@log_errs2){
 		    if($logerr =~ m/(\d+)(\/run)/){
@@ -348,11 +349,11 @@ while ( defined($logname = readdir(LOGDIR)) ){
 
 
 		$cmd = &ZSHandle($err_file,"/usr/bin/tail -5");
-		print "  --> Will execute $cmd\n" if ($DEBUG);
+		print "$SELF   --> Will execute $cmd\n" if ($DEBUG);
 		@log_errs1 = `$cmd`;
 		foreach $logerr (@log_errs1){
 		    chomp($logerr);
-		    print "Checking line [$logerr]\n" if ($DEBUG);
+		    print "$SELF Checking line [$logerr]\n" if ($DEBUG);
 		    &define_err("Assertion.* failed",$logerr);
 		    &define_err("Unexpected EOF",$logerr);
 		    &define_err("Fatal in <operator delete>",$logerr);
@@ -363,9 +364,9 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		chop($err);
 
 		if($DEBUG){
-		    print "$err\n";
+		    print "$SELF $err\n";
 		} else {
-		    if($err ne ""){ print "error type 2 [$err] in $logname\n";}
+		    if($err ne ""){ print "$SELF error type 2 [$err] in $logname\n";}
 		}
 	    } #else fsize/minsize compare
 
@@ -379,15 +380,15 @@ while ( defined($logname = readdir(LOGDIR)) ){
 			"new mtime : $fc[9]\n";
 		    if ( $mtime != $fc[9] ){
 			#update record
-			print "Updated $shortname\n";
+			print "$SELF Updated $shortname\n";
 			$sth4->execute($fc[9],$node,$err,$id);
 		    }
 		} else {
 		    #insert record
-		    print "Inserted $shortname\n";
+		    print "$SELF Inserted $shortname\n";
 		    $sth1->execute($ProdTag, $XTrigger, $shortname, $c_time, $fc[9], $node ,$err);
 		}
-		print "----\n";
+		print "$SELF ----\n";
 	    } #if $err
 	    if ($DEBUG){ print "\n==============================\n";}
 	} #if modtime/min_time
@@ -451,7 +452,7 @@ sub define_trigger_old {
     @temp = split(/_/, $jname);
 
     if($#temp == -1){ return;}
-    print "Looking at $jname\n";
+    print "$SELF Looking at $jname\n";
 
     # We assume that the trigger name will be after the Prodtag
     # appearance in the file name.
@@ -478,7 +479,7 @@ sub define_err
     if( $logerr =~ m/$errname/ ){
 	#chomp($logerr);
 	$err .= " $logerr |";
-	print "$err";
+	print "$SELF $err";
     }
 }
 
@@ -522,12 +523,12 @@ sub CheckLockFile
 	if ( (time()-$info[9] ) > $mtime){
 	    # 3 hours
 	    if ( unlink($fllock) ){
-		print "$fllock was older than $mtime secondes. Removed on ".localtime()."\n";
+		print "$SELF $fllock was older than $mtime secondes. Removed on ".localtime()."\n";
 	    } else {
-		print "$fllock is older than $mtime secondes. Cannot remove on ".localtime()."\n";
+		print "$SELF $fllock is older than $mtime secondes. Cannot remove on ".localtime()."\n";
 	    }
 	} else {
-	    print "Found $fllock on ".localtime().". Ignored in [$$]\n";
+	    print "$SELF Found $fllock on ".localtime().". Ignored in [$$]\n";
 	}
 	exit;
     }
