@@ -164,7 +164,7 @@ sub Print
 	$FO = STDOUT;
     }
     foreach $el (@all){
-	print $FO "$SELF :: ".localtime()." : $el";
+	print $FO "$SSELF :: ".localtime()." : $el";
     }
     if($FO ne STDOUT ){ close($FO);}
 }
