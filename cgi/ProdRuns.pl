@@ -34,7 +34,7 @@ my @trig = ();
 my @prod = ();
 
 
- $fileC->set_context("filetype=daq_reco_event","limit=0");
+ $fileC->set_context("filetype=daq_reco_MuDst","limit=0");
 
  my @prodSr = $fileC->run_query('orda(production)');
  my @trig = $fileC->run_query(trgsetupname);
@@ -44,7 +44,7 @@ my @prod = ();
 
  my @detc = ("all","tpc","svt","rich","tof","ftpc","ssd","emc","eemc","bsmd","esmd","fpd","pmd"); 
  my @fieldm = ("all","FullField","ReversedFullField","HalfField","ReversedHalfField","FieldOff");
- my @location = ("HPSS","NFS","local");
+ my @location = ("HPSS","local");
 
 my ($query) = @_;
 
