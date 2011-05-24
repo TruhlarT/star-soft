@@ -289,6 +289,8 @@ $yrHash{"ppProduction2008-2"} = "year2008";
 $yrHash{"ppTrans-1"} = "year2003";
 $yrHash{"ppLong-1"} = "year2003";
 $yrHash{"testJPsi-3"} = "year2003";
+$yrHash{"ProductionMinBias"} = "year2001";
+$yrHash{"productionMinBias"} = "year2004";
 
 $collHash{"2007ProductionMinBias"} = "auau200";
 $collHash{"2007Production2"} = "auau200";
@@ -360,11 +362,11 @@ my $trg0 = "n/a";
            $yrdat[$nlist] = "year2004";
         }
 
-	if($trig[$nlist] eq "ProductionMinBias" and $prod[$nlist] =~ /P02/ ) {
-	    $yrdat[$nlist] = "year2001";
-        }elsif( $trig[$nlist] eq "productionMinBias" and $prod[$nlist] =~ /P05/ ) {
+        if( $trig[$nlist] eq "productionMinBias" and ($prod[$nlist] =~ /P05/ or $prod[$nlist] =~ /P04/ ) ) {
            $yrdat[$nlist] = "year2004";
-        }
+	}elsif($trig[$nlist] eq "ProductionMinBias" and $prod[$nlist] =~ /P02/ ) {
+	    $yrdat[$nlist] = "year2001";
+	}
 
 
      @runevents = ();
