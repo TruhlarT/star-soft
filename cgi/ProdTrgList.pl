@@ -386,7 +386,8 @@ my $trg0 = "n/a";
    $sumsize[$nlist] = int($datasize[0]/1000000000);
 	if($sumsize[$nlist] == 0) {
         $ssize = int($datasize[0]/1000000);
-   $sumsize[$nlist] = 0.$ssize; 
+   $sumsize[$nlist] = 0.$ssize;
+    } 
 
  print <<END;
 
