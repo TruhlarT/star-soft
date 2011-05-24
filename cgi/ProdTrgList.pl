@@ -165,7 +165,7 @@ my %yrHash = (
                  AuAu19_production => 'year2011',
                  AuAu11_production => 'year2010',
                  AuAu7_production => 'year2010',
-                 ProductionMinBias => 'year2001',
+#                 ProductionMinBias => 'year2001',
                  productionCentral => 'year2001',
                  productionCentral600 => 'year2001',
                  productionCentral1200 => 'year2001',
@@ -175,7 +175,7 @@ my %yrHash = (
                  productionLow => 'year2004',
                  productionHalfLow => 'year2004',
                  productionHalfHigh => 'year2004',
-                 productionMinBias => 'year2004',
+#                 productionMinBias => 'year2004',
                  MinBiasVertex => 'year2001',
                  minBias22GeVZDC => 'year2001',
                  production62GeV => 'year2004',
@@ -362,7 +362,7 @@ my $trg0 = "n/a";
            $yrdat[$nlist] = "year2004";
         }
 
-        if( $trig[$nlist] eq "productionMinBias" and ($prod[$nlist] =~ /P05/ or $prod[$nlist] =~ /P04/ ) ) {
+        if( $trig[$nlist] eq "ProductionMinBias" and ($prod[$nlist] =~ /P05/ or $prod[$nlist] =~ /P04/ ) ) {
            $yrdat[$nlist] = "year2004";
 	}elsif($trig[$nlist] eq "ProductionMinBias" and $prod[$nlist] =~ /P02/ ) {
 	    $yrdat[$nlist] = "year2001";
