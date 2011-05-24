@@ -361,11 +361,12 @@ my $trg0 = "n/a";
            $yrdat[$nlist] = "year2004";
         }
 
-#        if( $trig[$nlist] eq "productionMinBias" and ($prod[$nlist] =~ /P05/ or $prod[$nlist] =~ /P04/ ) ) {
-#           $yrdat[$nlist] = "year2004";
-#	}elsif($trig[$nlist] eq "ProductionMinBias" and $prod[$nlist] =~ /P02/ ) {
-#	    $yrdat[$nlist] = "year2001";
-#	}
+        if( $trig[$nlist] eq "ProductionMinBias" and ($prod[$nlist] =~ /P05/ or $prod[$nlist] =~ /P04/ ) ) {
+           $yrdat[$nlist] = "year2004";
+           $trig[$nlist] = "productionMinBias";
+	}elsif($trig[$nlist] eq "ProductionMinBias" and $prod[$nlist] =~ /P02/ ) {
+	    $yrdat[$nlist] = "year2001";
+	}
 
 
      @runevents = ();
