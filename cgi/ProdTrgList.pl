@@ -384,9 +384,10 @@ my $trg0 = "n/a";
 
    $sumevt[$nlist] = $runevents[0];
    $sumsize[$nlist] = int($datasize[0]/1000000000);
+
 	if($sumsize[$nlist] == 0) {
         $ssize = int($datasize[0]/1000000);
-   $sumsize[$nlist] = 0.$ssize;
+   $sumsize[$nlist] = "0".$ssize;
     } 
 
  print <<END;
