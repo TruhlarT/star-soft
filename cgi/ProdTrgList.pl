@@ -360,6 +360,13 @@ my $trg0 = "n/a";
            $yrdat[$nlist] = "year2004";
         }
 
+	if($trig[$nlist] eq "ProductionMinBias" and $prod[$nlist] =~ /P02/ ) {
+	    $yrdat[$nlist] = "year2001";
+        }elsif( $trig[$nlist] eq "productionMinBias" and $prod[$nlist] =~ /P05/ ) {
+           $yrdat[$nlist] = "year2004";
+        }
+
+
      @runevents = ();
      $runevents[0] = 0;  
      @datasize = ();
