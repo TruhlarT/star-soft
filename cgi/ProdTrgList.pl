@@ -391,7 +391,7 @@ my $trg0 = "n/a";
    $ssize = int($datasize[0]/1000000);
    $sumsize[$nlist] = "0.".$ssize;
    }elsif($sumsize[$nlist] < 10 ) {
-   $ssize = int($datasize[0]/1000000);
+   $ssize = int($datasize[0]/1000000) - $dsize;
    $sumsize[$nlist] = $dsize.".".$ssize; 
 
     }else{
