@@ -400,7 +400,7 @@ my $trg0 = "n/a";
 
  print <<END;
 
-<TR ALIGN=CENTER HEIGHT=60 bgcolor=\"#ffdc9f\">
+<TR ALIGN=CENTER HEIGHT=60 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveStreams.pl?trigs=$trig[$nlist];prod=$prod[$nlist]">$trig[$nlist]</h3></td>
 <td HEIGHT=10><h3>$coll[$nlist]</h3></td>
 <td HEIGHT=10><h3>$yrdat[$nlist]</h3></td>
@@ -429,7 +429,7 @@ print <<END;
    <body BGCOLOR=\"cornsilk\"> 
  <h2 ALIGN=CENTER> <B> Real Data Production Summary </B></h2>
 <br>
-<TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
+<TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Trigger sets</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Collision</h3></B></TD>
