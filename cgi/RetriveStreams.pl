@@ -83,7 +83,7 @@ $fileC->set_context("trgsetupname=$qtrg","production=$qprod","sname2=$strline","
 
  print <<END;
 
-<TR ALIGN=CENTER HEIGHT=30 bgcolor=\"#ffdc9f\">
+<TR ALIGN=CENTER HEIGHT=20 bgcolor=\"#ffdc9f\">
 <td HEIGHT=10><h3>$strname[$nlist]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nlist]</h3></td>
 <td HEIGHT=10><h3>$sumsize[$nlist]</h3></td>
