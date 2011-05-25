@@ -33,6 +33,7 @@ my $strline = 0;
 my $strname = 'n/a';
 my $nlist = 0;
 my $ssize = 0;
+my $dsize = 0;
 
 my $query = new CGI;
 
@@ -66,12 +67,19 @@ $fileC->set_context("trgsetupname=$qtrg","production=$qprod","sname2=$strline","
    $fileC->clear_context( );
 
    $sumevt[$nlist] = $runevents[0];
-   $sumsize[$nlist] = int($datasize[0]/1000000000 + 0.5);
+   $sumsize[$nlist] = int($datasize[0]/1000000000);
+   $dsize = $sumsize[$nlist];
 
-	if($sumsize[$nlist] == 0) {
-        $ssize = int($datasize[0]/1000000);
+   if($sumsize[$nlist] < 1 ) {
+   $ssize = int($datasize[0]/1000000);
    $sumsize[$nlist] = "0.".$ssize;
-    } 
+  }elsif($sumsize[$nlist] < 10 ) {
+   $ssize = int($datasize[0]/1000000) - $dsize*1000;
+   $sumsize[$nlist] = $dsize.".".$ssize;
+
+    }else{
+   $sumsize[$nlist] = int($datasize[0]/1000000000 + 0.5);
+    }
 
  print <<END;
 
