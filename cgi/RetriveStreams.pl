@@ -105,7 +105,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\"> 
- <h2 ALIGN=CENTER> <B> $qprod production summary for stream data </B></h2>
+ <h2 ALIGN=CENTER> <B> $qprod production summary for $qtrg stream data </B></h2>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
