@@ -383,11 +383,13 @@ my $trg0 = "n/a";
    $fileC->clear_context( );
 
    $sumevt[$nlist] = $runevents[0];
-   $sumsize[$nlist] = int($datasize[0]/1000000000 + 0.5);
+   $sumsize[$nlist] = int($datasize[0]/1000000000);
 
-	if($sumsize[$nlist] == 0) {
-        $ssize = int($datasize[0]/1000000);
+   if($sumsize[$nlist] < 1 ) {
+   $ssize = int($datasize[0]/1000000);
    $sumsize[$nlist] = "0.".$ssize;
+    }else{
+   $sumsize[$nlist] = int($datasize[0]/1000000000 + 0.5);
     } 
 
  print <<END;
