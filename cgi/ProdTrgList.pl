@@ -379,10 +379,11 @@ my $trg0 = "n/a";
      $datasize[0] = 0; 
      @filelst = ();
 
-    $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_MuDst","storage=hpss");
+    $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_MuDst","storage=hpss","limit=0");
  
    @runevents = $fileC->run_query("sum(events)");
    @datasize = $fileC->run_query("sum(size)");
+   @filelst = $fileC->run_query(filename);
 
    $fileC->clear_context( );
 
@@ -401,12 +402,7 @@ my $trg0 = "n/a";
    $sumsize[$nlist] = int($datasize[0]/1000000000 + 0.5);
     } 
 
-   $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_MuDst","storage=hpss","limit=0" );
-
-   $fileC->clear_context( );
-
-   @filelst = $fileC->run_query(filename);
-   $numfiles[$nlists] = scalar(@filelst);
+   $numfiles[$nlist] = scalar(@filelst);
 
  print <<END;
 
