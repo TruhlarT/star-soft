@@ -29,18 +29,21 @@ my @sumevt = ();
 my @runevents = ();
 my @sumsize = ();
 my @datasize = ();
+my @filelst = (); 
 my $strline = 0;
 my $strname = 'n/a';
 my $nlist = 0;
 my $ssize = 0;
 my $dsize = 0;
+my @numfiles = ();
+
+my @arstream = ();
 
 my $query = new CGI;
 
 my $qtrg = $query->param('trigs');
 my $qprod = $query->param('prod');
 
-my @arstream = ();
 $arstream[0] = 0;
 
 &beginHtml();
@@ -60,9 +63,11 @@ $fileC->set_context("trgsetupname=$qtrg","production=$qprod","sname2=$strline","
      $runevents[0] = 0;  
      @datasize = ();
      $datasize[0] = 0; 
- 
+     @filelst = ();  
+
    @runevents = $fileC->run_query("sum(events)");
    @datasize = $fileC->run_query("sum(size)");
+   @filelst = $fileC->run_query(filename);
 
    $fileC->clear_context( );
 
@@ -81,12 +86,15 @@ $fileC->set_context("trgsetupname=$qtrg","production=$qprod","sname2=$strline","
    $sumsize[$nlist] = int($datasize[0]/1000000000 + 0.5);
     }
 
+   $numfiles[$nlist] = scalar(@filelst);
+
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"#ffdc9f\">
 <td HEIGHT=10><h3>$strname[$nlist]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nlist]</h3></td>
 <td HEIGHT=10><h3>$sumsize[$nlist]</h3></td>
+<td HEIGHT=10><h3>$numfiles[$nlist]</h3></td>
 </TR>
 END
       $nlist++;
@@ -110,8 +118,9 @@ print <<END;
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Stream name</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Number of Events<h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Size (GB) of MuDst <h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Number of Events<h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Size (GB) of MuDst <h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Number of MuDst files <h3></B></TD>
 </TR> 
    </head>
     </body>
