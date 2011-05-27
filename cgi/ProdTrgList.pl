@@ -319,12 +319,14 @@ my @prodset = ();
 my @runevents = ();
 my @sumsize = ();
 my @datasize = ();
+my @filelst = ();
 my @yrdat = ();
 my @prt = ();
 my $nline = 0;
 my $nlist = 0;
 my $ssize = 0;
 my $dsize  = 0;
+my @numfiles = ();
 
 my $trg0 = "n/a";
 
@@ -375,6 +377,7 @@ my $trg0 = "n/a";
      $runevents[0] = 0;  
      @datasize = ();
      $datasize[0] = 0; 
+     @filelst = ();
 
     $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_MuDst","storage=hpss");
  
@@ -398,6 +401,13 @@ my $trg0 = "n/a";
    $sumsize[$nlist] = int($datasize[0]/1000000000 + 0.5);
     } 
 
+   $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_MuDst","storage=hpss","limit=0" );
+
+   $fileC->clear_context( );
+
+   @filelst = $fileC->run_query(filename);
+   $numfiles[$nlists] = scalar(@filelst);
+
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
@@ -407,6 +417,7 @@ my $trg0 = "n/a";
 <td HEIGHT=10><h3>$prod[$nlist]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nlist]</h3></td>
 <td HEIGHT=10><h3>$sumsize[$nlist]</h3></td>
+<td HEIGHT=10><h3>$numfiles[$nlist]</h3></td>
 </TR>
 END
 
@@ -436,7 +447,8 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Year of data taken</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Production Tag</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Number of Events<h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Size (GB) of MuDst <h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Size (GB) of MuDst <h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of files <h3></B></TD>
 </TR> 
    </head>
     </body>
