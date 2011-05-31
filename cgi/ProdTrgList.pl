@@ -406,7 +406,7 @@ my $trg0 = "n/a";
 
    $numfiles[$nlist] = scalar(@filelst);
 
- $prodname = $trig[$nlist].".".$prod[$nlist]."."html";
+ $prodname = $trig[$nlist].".".$prod[$nlist].".html";
 
  print <<END;
 
