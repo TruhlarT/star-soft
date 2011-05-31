@@ -411,7 +411,6 @@ my $trg0 = "n/a";
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
-#<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveStreams.pl?trigs=$trig[$nlist];prod=$prod[$nlist]">$trig[$nlist]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/~didenko/$prodname">$trig[$nlist]</h3></td>
 <td HEIGHT=10><h3>$coll[$nlist]</h3></td>
 <td HEIGHT=10><h3>$yrdat[$nlist]</h3></td>
