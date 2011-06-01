@@ -436,6 +436,7 @@ print <<END;
    <body BGCOLOR=\"cornsilk\"> 
  <h2 ALIGN=CENTER> <B> Real Data Production Summary  </B></h2>
 <br>
+<h4 ALIGN=RIGHT>Link under trigger set name has stream data production summary</h4>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Trigger sets</h3></B></TD>
