@@ -546,18 +546,18 @@ END
 ############
 
       for ($jj = 0; $jj<=$ndt; $jj++) {
-        
-      $arphysics[$jj] = log10($arphysics[$jj]);
-      $armtd[$jj] = log10($armtd[$jj]);
-      $arupsilon[$jj] = log10($arupsilon[$jj]);
-      $argamma[$jj] = log10($argamma[$jj]); 
-      $arhlt[$jj]  = log10($arhlt[$jj]);
-      $arfmsfast[$jj] = log10($arfmsfast[$jj]);
-      $arht[$jj] = log10($arht[$jj]);
-      $aratomcules[$jj] = log10($aratomcules[$jj]);
-      $armonitor[$jj] = log10($armonitor[$jj]);
-      $arpmdftp[$jj] = log10($arpmdftp[$jj]);
-      $arupc[$jj] = log10($arupc[$jj]);
+ 
+      if( $arphysics[$jj] >= 1 ) { $arphysics[$jj] = log10($arphysics[$jj])};
+      if( $armtd[$jj] >= 1 ) { $armtd[$jj] = log10($armtd[$jj])}; 
+      if( $arupsilon[$jj]  >= 1 ) { $arupsilon[$jj]= log10($arupsilon[$jj])};
+      if( $argamma[$jj] >= 1 ) { $argamma[$jj] = log10($argamma[$jj]) }; 
+      if( $arhlt[$jj]  >= 1 ) {$arhlt[$jj]  = log10($arhlt[$jj])};
+      if( $arfmsfast[$jj] >= 1 ) {$arfmsfast[$jj] = log10($arfmsfast[$jj])};
+      if( $arht[$jj] >= 1 ) {$arht[$jj] = log10($arht[$jj])};
+      if( $aratomcules[$jj] >= 1 ) {$aratomcules[$jj] = log10($aratomcules[$jj])};
+      if( $armonitor[$jj] >= 1 ) {$armonitor[$jj] = log10($armonitor[$jj])};
+      if( $arpmdftp[$jj] >= 1 ) { $arpmdftp[$jj] = log10($arpmdftp[$jj])};
+      if( $arupc[$jj] >= 1 ) {$arupc[$jj] = log10($arupc[$jj])};
 
          }
       }
