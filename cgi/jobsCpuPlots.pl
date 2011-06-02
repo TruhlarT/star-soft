@@ -19,7 +19,7 @@ use GD;
 use GD::Graph::linespoints;
 use Mysql;
 use Class::Struct;
-
+use POSIX qw(log10);
 
 #  $dbhost="duvall.star.bnl.gov";
 
@@ -544,7 +544,23 @@ END
 	   }
 	}
 ############
-        }
+
+      for ($jj = 0; $jj<=$ndt; $jj++) {
+        
+      $arphysics[$jj] = log10($arphysics[$jj]);
+      $armtd[$jj] = log10($armtd[$jj]);
+      $arupsilon[$jj] = log10($arupsilon[$jj]);
+      $argamma[$jj] = log10($argamma[$jj]); 
+      $arhlt[$jj]  = log10($arhlt[$jj]);
+      $arfmsfast[$jj] = log10($arfmsfast[$jj]);
+      $arht[$jj] = log10($arht[$jj]);
+      $aratomcules[$jj] = log10($aratomcules[$jj]);
+      $armonitor[$jj] = log10($armonitor[$jj]);
+      $arpmdftp[$jj] = log10($arpmdftp[$jj]);
+      $arupc[$jj] = log10($arupc[$jj]);
+
+         }
+      }
  
    }
 
