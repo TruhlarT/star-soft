@@ -257,7 +257,8 @@ END
   my $cpubin = 0;
   my $rcpubin = 0;
   my $obtotbin = 0;
- 
+  my $jj = 0; 
+
     @arstream = ();
 
 
@@ -545,7 +546,7 @@ END
 	}
 ############
 
-      for ($jj = 0; $jj<=$ndt; $jj++) {
+      for ($jj = 0; $jj<=200; $jj++) {
  
       if( $arphysics[$jj] >= 1 ) { $arphysics[$jj] = log10($arphysics[$jj])};
       if( $armtd[$jj] >= 1 ) { $armtd[$jj] = log10($armtd[$jj])}; 
