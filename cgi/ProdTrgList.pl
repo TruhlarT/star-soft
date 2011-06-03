@@ -23,6 +23,7 @@ use Mysql;
 
 ($sec,$min,$hour,$mday,$mon,$year) = localtime();
 
+my $mon =  $mon + 1;
 
 if( $mon < 10) { $mon = '0'.$mon };
 if( $mday < 10) { $mday = '0'.$mday };
@@ -31,7 +32,7 @@ if( $min < 10) { $min = '0'.$min };
 if( $sec < 10) { $sec = '0'.$sec };
 
 
-my $todate = ($year+1900)."-".($mon+1)."-".$mday;
+my $todate = ($year+1900)."-".$mon."-".$mday;
 
 
 my %collHash = (
@@ -452,7 +453,7 @@ print <<END;
   <html>
    <body BGCOLOR=\"cornsilk\"> 
  <h2 ALIGN=CENTER> <B> Real Data Production Summary  </B></h2>
- <h3 ALIGN=CENTER> $todate</h3>
+ <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <h4 ALIGN=LEFT>Link under trigger set name has stream data production summary</h4>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
