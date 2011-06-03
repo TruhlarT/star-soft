@@ -422,6 +422,24 @@ my $trg0 = "n/a";
 
  $prodname = $trig[$nlist].".".$prod[$nlist].".html";
 
+	if($trig[$nlist] eq "AuAu200_production" and $prod[$nlist] eq "P10ik" ) {
+
+print <<END;
+
+<TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/public/comp/prod/prodsum/$prodname"><font color="#ff0000">$trig[$nlist]</font></h3></td>
+<td HEIGHT=10><h3>$coll[$nlist]</h3></td>
+<td HEIGHT=10><h3>$yrdat[$nlist]</h3></td>
+<td HEIGHT=10><h3>$prod[$nlist]</h3></td>
+<td HEIGHT=10><h3><font color="#ff0000">$sumevt[$nlist]</font></h3></td>
+<td HEIGHT=10><h3><font color="#ff0000">$sumsize[$nlist]</font></h3></td>
+<td HEIGHT=10><h3><font color="#ff0000">$numfiles[$nlist]</font></h3></td>
+</TR>
+END
+
+} else{
+
+
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
@@ -435,6 +453,7 @@ my $trg0 = "n/a";
 </TR>
 END
 
+}
       $nlist++;
 
     }
@@ -456,6 +475,7 @@ print <<END;
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <h4 ALIGN=LEFT>Link under trigger set name has stream data production summary</h4>
+<h4 ALIGN=LEFT><font color="#ff0000">Ongoing </font>production in red color</h4>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Trigger sets</h3></B></TD>
