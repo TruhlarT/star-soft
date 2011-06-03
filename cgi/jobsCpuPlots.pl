@@ -19,7 +19,7 @@ use GD;
 use GD::Graph::linespoints;
 use Mysql;
 use Class::Struct;
-use POSIX qw(log10);
+
 
 #  $dbhost="duvall.star.bnl.gov";
 
@@ -257,8 +257,7 @@ END
   my $cpubin = 0;
   my $rcpubin = 0;
   my $obtotbin = 0;
-  my $jj = 0; 
-
+ 
     @arstream = ();
 
 
@@ -494,12 +493,14 @@ END
      }elsif( $srate eq "rtime/cpu" ) {
 
  $ndate[0] = 0;
- $rcpubin = 0.01; 
+# $rcpubin = 0.01; 
+ $rcpubin = 0.005; 
  $ndt = 0;
 
  for ($i = 0; $i < 200; $i++) {
 #   $ndate[$i] = 1 + $rcpubin*$i; 
-   $ndate[$i] = $rcpubin*$i; 
+#   $ndate[$i] = $rcpubin*$i; 
+ $ndate[$i] = 0.5 + $rcpubin*$i; 
  }
 
      foreach $jset (@jbstat) {
@@ -511,12 +512,12 @@ END
 
            $rte = $prtime/$pcpu; 
 
-#	   if($rte >= 1.0 and $rte <= 2.0 )     {
-	   if( $rte <= 2.0 )     {
-#          $ndt = int(($rte - 1)/$rcpubin + 0.00001);
-           $ndt = int($rte/$rcpubin + 0.00001);
-#           $ndate[$ndt] = 1 + $rcpubin*$ndt;  
-            $ndate[$ndt] = $rcpubin*$ndt;  
+	   if($rte >= 0.5 and $rte <= 1.5 )     {
+#	   if( $rte <= 2.0 )     {
+          $ndt = int(($rte - 0.5)/$rcpubin + 0.00001);
+#           $ndt = int($rte/$rcpubin + 0.00001);
+           $ndate[$ndt] = 0.5 + $rcpubin*$ndt;  
+#            $ndate[$ndt] = $rcpubin*$ndt;  
 #
 	       if ( $pstream eq "physics" ) {
 	       $arphysics[$ndt]++ ;
@@ -545,23 +546,7 @@ END
 	   }
 	}
 ############
-
-      for ($jj = 0; $jj<=200; $jj++) {
- 
-      if( $arphysics[$jj] >= 1 ) { $arphysics[$jj] = log10($arphysics[$jj])};
-      if( $armtd[$jj] >= 1 ) { $armtd[$jj] = log10($armtd[$jj])}; 
-      if( $arupsilon[$jj]  >= 1 ) { $arupsilon[$jj]= log10($arupsilon[$jj])};
-      if( $argamma[$jj] >= 1 ) { $argamma[$jj] = log10($argamma[$jj]) }; 
-      if( $arhlt[$jj]  >= 1 ) {$arhlt[$jj]  = log10($arhlt[$jj])};
-      if( $arfmsfast[$jj] >= 1 ) {$arfmsfast[$jj] = log10($arfmsfast[$jj])};
-      if( $arht[$jj] >= 1 ) {$arht[$jj] = log10($arht[$jj])};
-      if( $aratomcules[$jj] >= 1 ) {$aratomcules[$jj] = log10($aratomcules[$jj])};
-      if( $armonitor[$jj] >= 1 ) {$armonitor[$jj] = log10($armonitor[$jj])};
-      if( $arpmdftp[$jj] >= 1 ) { $arpmdftp[$jj] = log10($arpmdftp[$jj])};
-      if( $arupc[$jj] >= 1 ) {$arupc[$jj] = log10($arupc[$jj])};
-
-         }
-      }
+        }
  
    }
 
