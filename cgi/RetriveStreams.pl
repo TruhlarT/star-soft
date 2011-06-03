@@ -18,6 +18,20 @@ use CGI;
 use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use FileCatalog;
 
+
+($sec,$min,$hour,$mday,$mon,$year) = localtime();
+
+
+if( $mon < 10) { $mon = '0'.$mon };
+if( $mday < 10) { $mday = '0'.$mday };
+if( $hour < 10) { $hour = '0'.$hour };
+if( $min < 10) { $min = '0'.$min };
+if( $sec < 10) { $sec = '0'.$sec };
+
+
+my $todate = ($year+1900)."-".($mon+1)."-".$mday;
+
+
 my $SITE         = "BNL";
 my $status       = (0==1);
 
@@ -114,6 +128,7 @@ print <<END;
   <html>
    <body BGCOLOR=\"cornsilk\"> 
  <h2 ALIGN=CENTER> <B> $qprod production summary for $qtrg stream data </B></h2>
+ <h3 ALIGN=CENTER> $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>

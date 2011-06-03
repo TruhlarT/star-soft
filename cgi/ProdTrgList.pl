@@ -21,6 +21,19 @@ use FileCatalog;
 use DBI;
 use Mysql;
 
+($sec,$min,$hour,$mday,$mon,$year) = localtime();
+
+
+if( $mon < 10) { $mon = '0'.$mon };
+if( $mday < 10) { $mday = '0'.$mday };
+if( $hour < 10) { $hour = '0'.$hour };
+if( $min < 10) { $min = '0'.$min };
+if( $sec < 10) { $sec = '0'.$sec };
+
+
+my $todate = ($year+1900)."-".($mon+1)."-".$mday;
+
+
 my %collHash = (
                  AuAu200_production_2011 => 'auau200',
                  pp500_production_2011  => 'pp500',
@@ -439,6 +452,7 @@ print <<END;
   <html>
    <body BGCOLOR=\"cornsilk\"> 
  <h2 ALIGN=CENTER> <B> Real Data Production Summary  </B></h2>
+ <h3 ALIGN=CENTER> $todate</h3>
 <br>
 <h4 ALIGN=LEFT>Link under trigger set name has stream data production summary</h4>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
