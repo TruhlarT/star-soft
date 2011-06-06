@@ -48,6 +48,7 @@ my %collHash = (
                  AuAu62_production => 'auau62',
                  AuAu39_production => 'auau39',                           
                  AuAu19_production => 'auau19.6',
+                 AuAu19_test1 => 'auau19.6',
                  AuAu11_production => 'auau11.5',
                  AuAu7_production => 'auau7.7',
                  ProductionMinBias => 'auau200',
@@ -177,6 +178,7 @@ my %yrHash = (
                  AuAu62_production => 'year2010',
                  AuAu39_production => 'year2010',                           
                  AuAu19_production => 'year2011',
+                 AuAu19_test1 => 'year2011',
                  AuAu11_production => 'year2010',
                  AuAu7_production => 'year2010',
                  productionCentral => 'year2001',
@@ -358,6 +360,7 @@ my $trg0 = "n/a";
 
 	next if($line =~ /$trg0/);
         next if($line =~ /DEV/);
+        next if($line =~ /CosmicLocalClock/);
 
     @prt = (); 
     @prt = split("::",$line); 
