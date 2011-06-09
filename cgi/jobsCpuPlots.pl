@@ -38,7 +38,7 @@ struct JobAttr => {
 
 ($sec,$min,$hour,$mday,$mon,$year) = localtime();
 
-
+$mon++;
 if( $mon < 10) { $mon = '0'.$mon };
 if( $mday < 10) { $mday = '0'.$mday };
 if( $hour < 10) { $hour = '0'.$hour };
@@ -53,7 +53,7 @@ my $nowdate = $todate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2009","2010");
+my @prodyear = ("2010","2011");
 
 
 my @arperiod = ( );
@@ -144,6 +144,35 @@ my @jbpmdftp = ();
           $ndy++;
        }
     $cursor->finish();
+
+ $JobStatusT = "JobStatus2011";
+
+
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $arrprod[$npr] = $mpr;
+          $npr++;
+       }
+    $cursor->finish();
+
+
+    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2011-06-01' order by runDay" ;
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $dy = $cursor->fetchrow() ) {
+          $rdays[$ndy] = $dy;
+          $ndy++;
+       }
+    $cursor->finish();
+
 
 @rvdays = reverse @rdays ;
 
@@ -239,7 +268,8 @@ END
     
  # Tables
 
-      $pryear = "2010";
+  if( $qprod =~ /P10/ ) {$pryear = "2010"};
+  if( $qprod =~ /P11/ ) {$pryear = "2011"};
 
     $JobStatusT = "JobStatus".$pryear;
 
