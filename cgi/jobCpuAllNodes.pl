@@ -44,7 +44,7 @@ if( $min < 10) { $min = '0'.$min };
 if( $sec < 10) { $sec = '0'.$sec };
 
 
-my $todate = ($year+1900)."-".($mon+1)."-".$mday;
+my $todate = ($year+1900)."-".$mon."-".$mday;
 
 my $nowdate = $todate;
 my $thisyear = $year+1900;
