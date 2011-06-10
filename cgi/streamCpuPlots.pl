@@ -39,7 +39,7 @@ struct JobAttr => {
 
 ($sec,$min,$hour,$mday,$mon,$year) = localtime();
 
-
+$mon++;
 if( $mon < 10) { $mon = '0'.$mon };
 if( $mday < 10) { $mday = '0'.$mday };
 if( $hour < 10) { $hour = '0'.$hour };
@@ -53,7 +53,7 @@ my $nowdate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2009","2010");
+my @prodyear = ("2010","2011");
 
 
 my @arperiod = ( );
@@ -179,6 +179,21 @@ my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months"
        }
     $cursor->finish();
 
+$JobStatusT = "JobStatus2011";  
+
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $arrprod[$npr] = $mpr;
+          $npr++;
+       }
+    $cursor->finish();
+  
+
 &StDbProdDisconnect();
 
 my $query = new CGI;
@@ -268,14 +283,10 @@ END
     
  # Tables
 
-  if( $qprod eq "P10ic" or $qprod eq "P09ig" ) {
-      $pryear = "2009";
 
-  }else{
-      $pryear = "2010";
-  } 
+ if( $qprod =~ /P10/ ) {$pryear = "2010"};
+ if( $qprod =~ /P11/ ) {$pryear = "2011"};
       
-
     $JobStatusT = "JobStatus".$pryear;
 
 
