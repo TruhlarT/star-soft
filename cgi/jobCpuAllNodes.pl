@@ -35,6 +35,7 @@ struct JobAttr => {
 
 ($sec,$min,$hour,$mday,$mon,$year) = localtime();
 
+$mon++;
 
 if( $mon < 10) { $mon = '0'.$mon };
 if( $mday < 10) { $mday = '0'.$mday };
@@ -49,7 +50,7 @@ my $nowdate = $todate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2010");
+my @prodyear = ("2010","2011");
 my @arval = ("rtime/cpu","cpu");
 my @arnode = ("rcrs","rcas");
 my @arcrs = ();
@@ -65,6 +66,7 @@ my $nday = ();
 my $nst = 0;
 my $str;
 my $pday;
+my $npr = 0;
 my $pcpu;
 my $prtime;
 my $pstream;
@@ -149,6 +151,34 @@ my @cppmdftp = ();
 
 
   $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2010-07-20' order by runDay" ;
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $dy = $cursor->fetchrow() ) {
+          $ardays[$ndy] = $dy;
+          $ndy++;
+       }
+    $cursor->finish();
+
+  $JobStatusT = "JobStatus2011";
+
+
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $arrprod[$npr] = $mpr;
+          $npr++;
+       }
+    $cursor->finish();
+
+
+    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2011-06-01' order by runDay" ;
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -265,6 +295,9 @@ my $qprod   = $qqr->param('prod');
 my $qday    = $qqr->param('pday');
 my $qvalue  = $qqr->param('pvalue');
 my $qnode   = $qqr->param('pnode');
+
+ if( $qprod =~ /P10/ ) {$pryear = "2010"};
+ if( $qprod =~ /P11/ ) {$pryear = "2011"};
 
   $JobStatusT = "JobStatus".$pryear;
 
