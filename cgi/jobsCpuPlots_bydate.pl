@@ -39,7 +39,7 @@ struct JobAttr => {
 
 ($sec,$min,$hour,$mday,$mon,$year) = localtime();
 
-
+$mon++;
 if( $mon < 10) { $mon = '0'.$mon };
 if( $mday < 10) { $mday = '0'.$mday };
 if( $hour < 10) { $hour = '0'.$hour };
@@ -155,6 +155,36 @@ my @jbpmdftp = ();
        }
     $cursor->finish();
 
+
+
+ $JobStatusT = "JobStatus2011";
+
+
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $arrprod[$npr] = $mpr;
+          $npr++;
+       }
+    $cursor->finish();
+
+
+    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2011-06-01' order by runDay" ;
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $dy = $cursor->fetchrow() ) {
+          $rdays[$ndy] = $dy;
+          $ndy++;
+       }
+    $cursor->finish();
+
 @rvdays = reverse @rdays ;
 
 &StDbProdDisconnect();
@@ -163,8 +193,6 @@ my $query = new CGI;
 
 my $scriptname = $query->url(-relative=>1);
 
-#my $pryear = $query->param('pyear');
-#my $qperiod = $query->param('period');
 
 my $qprod = $query->param('prod');
 my $srate = $query->param('prate');
@@ -249,8 +277,9 @@ END
     
  # Tables
 
-      $pryear = "2010";
-
+   if( $qprod =~ /P10/ ) {$pryear = "2010"};
+   if( $qprod =~ /P11/ ) {$pryear = "2011"};
+  
     $JobStatusT = "JobStatus".$pryear;
 
 
