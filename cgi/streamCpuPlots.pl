@@ -39,7 +39,7 @@ struct JobAttr => {
 
 ($sec,$min,$hour,$mday,$mon,$year) = localtime();
 
-$mon++;
+
 if( $mon < 10) { $mon = '0'.$mon };
 if( $mday < 10) { $mday = '0'.$mday };
 if( $hour < 10) { $hour = '0'.$hour };
