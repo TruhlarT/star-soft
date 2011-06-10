@@ -35,5 +35,16 @@ global $shiftCookie,$dirCookie;
       if ($ses=="") { $ses = getSesName(); }
       return (getWrkDir() . $ses . "/");
     }
+    function playSesFile($ses="") {
+      return getSesDir($ses) . "PLAY";
+    }
+    function isPlaySes($ses="") {
+      return file_exists(playSesFile($ses));
+    }
+    function setPlaySes($ses="",$play=1) {
+      $file = playSesFile($ses);
+      if ($play) { touch($file); }
+      else { if (file_exists($file)) { unlink($file); } }
+    }
 
 ?>

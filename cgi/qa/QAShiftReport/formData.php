@@ -2,6 +2,7 @@
 
 @(include "setup.php") or die("Problems (0).");
 incl("entry.php");
+incl("issueSearch.php");
 
 # Routes:
 # Add form data from menu: editit=no num=0 (temp)
@@ -47,9 +48,7 @@ jstart();
       form.submit();
     }
     function RemoveIssueN(id) {
-      form = document.dataForm;
-      form.addissue.value = '-' + id;
-      form.submit();
+      AddIssueN('-' + id);
     }
     function EditIssue(id) {
       form = document.issEd;
@@ -71,11 +70,11 @@ jstart();
       form = document.dataForm;
       runidN = Math.floor(form.runid.value);
       fseqN = Math.floor(form.fseq.value);
-      runid7 = (runidN < 1000000);
-      fseq7 = (fseqN < 1000000);
-      if (runid7 || fseq7) {
-        cString = "Do you really intend to have <7 digits?\n\n";
-        if (runid7) cString += "Run ID: " + form.runid.value + "\n\n";
+      runid8 = (runidN < 10000000 || runidN > 30000000);
+      fseq7 = (fseqN < 1000000 || fseqN > 10000000);
+      if (runid8 || fseq7) {
+        cString = "Do you have the right number of digits?\n\n";
+        if (runid8) cString += "Run ID: " + form.runid.value + "\n\n";
         if (fseq7) cString += "File Sequence: " + form.fseq.value + "\n\n";
         if (! confirm(cString) ) { return; }
       }
@@ -151,18 +150,25 @@ File Sequence number:
 
 
 
-Production Job ID:
-<input tabindex=3 name=prodid size=20 value="NA"><br>
-Production job status:
-<input type=radio name=prodstat value=ok>OK
-<input type=radio name=prodstat value=crashed>Crashed<br>
+<?php
+#Production Job ID:
+#<input tabindex=3 name=prodid size=20 value="NA"><br>
+#Production job status:
+#<input type=radio name=prodstat value=ok>OK
+#<input type=radio name=prodstat value=crashed>Crashed<br>
+fhidden("prodid","NA");
+fhidden("prodstat","ok");
+?>
 Number of events in this file:
 <input tabindex=4 name=nevents size=8><br>
 Number of events with reconstructed primary vertex:
 <input tabindex=5 name=nprivs size=8><br>
-QA job status:
-<input type=radio name=jobstat value=ok>OK
-<input type=radio name=jobstat value=crashed>Crashed<p>
+<?php
+#QA job status:
+#<input type=radio name=jobstat value=ok>OK
+#<input type=radio name=jobstat value=crashed>Crashed<p>
+fhidden("jobstat","ok");
+?>
 
 If you would like to enter some additional comments beyond what
 is described by the <b><i><font color="#400000">Active Issues</font></i></b>
@@ -190,13 +196,17 @@ function sectionhead($tit) {
 }
 function listar($arr,$AR) {
   if (!is_array($arr)) { logit("formData.php: listar: " . gettype($arr)); }
-  foreach ($arr as $id => $issName) {
+  foreach ($arr as $id => $issData) {
     print "<tr><td>";
+    $removal = ($AR == "Remove");
+    $isscat = ($removal ? getCategoryForIssue($id) : $issData[1]);
+    $isstxt = ($removal ? $issData : $issData[0]);
     fbutton("${AR}${id}","${AR}:${id}","${AR}IssueN('${id}')");
-    print "</td>\n<td><font color=\"#800000\">";
-    print htmlentities(stripslashes($issName)) . "</font></td>\n<td>";
+    print "</td>\n<td><font color=\"#500000\" size=-1><i>" . $isscat;
+    print "</i></font> : <font color=\"#800000\">";
+    print htmlentities(stripslashes($isstxt)) . "</font></td>\n<td>";
     fbutton("Edit${id}","Edit/Examine","EditIssue('${id}')");
-    if ($AR == "Remove") { fhidden("x${id}","1"); }
+    if ($removal) { fhidden("x${id}","1"); }
     print "</td></tr>\n";
 #    linebreak();
   }
@@ -226,6 +236,11 @@ print "</td></tr><tr><td>&nbsp;</td></tr>\n";
 print "<tr><td align=right colspan=3 bgcolor=\"#ffcc9f\">\n";
 fbutton("issEd","Open/Create New Issue","document.issEd.submit()");
 fbutton("refresh","Refresh Issues","AddIssueN(-${issueYear})");
+print "</td></tr>\n\n";
+
+print "<tr><td colspan=3>\n";
+varsForIssueSearch();
+buildIssueSearch("AddIssueN(-${issueYear})");
 print "</td></tr>\n\n";
 
 

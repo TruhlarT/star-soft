@@ -147,6 +147,19 @@ function readText($file) {
   @(fclose($fp)) or died("Couldn't close input file");
   return decodeText($str,10);
 }
+function readText2Array($file) {
+  cleanFileName($file);
+  $arr = array();
+  if (!is_file($file)) { return $arr; }
+  @($fp = fopen($file,'r')) or died("Couldn't open input file");
+  flock($fp,LOCK_SH);
+  while (@($strtemp = fgets($fp,8192))) {
+    $arr[] = $strtemp;
+  }
+  flock($fp,LOCK_UN);
+  @(fclose($fp)) or died("Couldn't close input file");
+  return $arr;
+}
 
 ###############################
 # Object save/read

@@ -13,7 +13,7 @@ $repFO = array($kFAST,$kOFFL); # 0 => FastOffline, etc.
 
 function cleanRepType(&$var) {
   # either Offline or FastOffline
-  return (preg_match("/^(Fast)?Offline$/",$var,$temparr));
+  return (preg_match("/^(Fast)?Offline$/",$var));
 }
 
 

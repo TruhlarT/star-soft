@@ -4,7 +4,6 @@
 incl("entrytypes.php");
 incl("infohandling.php");
 incl("data2text.php");
-
 getPassedVarStrict("mode");
 
 $ses = needSesName();
@@ -27,6 +26,8 @@ if ($mode == "Delete") {
   if (cleanAlphaFileName($olddir)) {
     cpdir(getSesDir($olddir),$sesDir);
   }
+  getPassedInt("play");
+  setPlaySes($ses,$play);
 }
 
 # Now list the contents
@@ -43,10 +44,21 @@ jstart();
     }
   }
   function Edit(typ,todo,num) {
-    document.editForm.type.value = typ;
-    document.editForm.num.value = num;
-    document.editForm.editit.value = todo;
-    document.editForm.submit();
+    form = document.editForm;
+    form.type.value = typ;
+    form.num.value = num;
+    form.editit.value = todo;
+    form.submit();
+  }
+  var numA = 0;
+  var allChecked = false;
+  function checkAll() {
+    allChecked = !allChecked;
+    form = document.delFiles;
+    for (i = 0; i < numA; i++) {
+      field = eval("form.del" + i);
+      field.checked = allChecked;
+    }
   }
 <?php
 jend();
@@ -119,6 +131,7 @@ foreach ($ents as $typ => $entN) {
 print "</table><p>\n\n";
 
 if ($numA > 0) {
+  fbutton("unselector","(Un)Select All Entries","checkAll()");
   fhidden("mode","Delete");
   fsubmit("Delete Selected Data Entries");
 }
@@ -132,7 +145,8 @@ fhidden("num","0");
 fend();
 
 jstart();
-print "document.showReport.content.value = \"${allents}\";\n";
+print "    document.showReport.content.value = \"${allents}\";\n";
+print "    numA = ${numA};\n";
 jend();
 reloadMenu();
 foot();

@@ -1,6 +1,7 @@
 <?php
 
 incl("issues.php");
+incl("entrytypes.php");
 
 ###############################
 # Class and functions for Data Entry handling
@@ -109,7 +110,7 @@ class qaentry {
     if (count($this->issues) > 0) {
       $str .= "\n   Issues:\n";
       foreach ($this->issues as $issid => $isstxt) {
-        $str .= "  [ID:${issid}]  ${isstxt}\n";
+        $str .= "  [ID:${issid}]  " . getCategoryForIssue($issid) . " : ${isstxt}\n";
       }
     } else {
       $str .= "\n  No issues.\n";
@@ -130,7 +131,8 @@ class qaentry {
       foreach ($this->issues as $issid => $isstxt) {
         $str .= "<li><a href=\"" . getIssWebLink($issid) . "\"";
         $str .= " target=\"QAifr\">";
-        $str .= "[ID:${issid}]  " . stripslashes($isstxt) . "</a>\n";
+        $str .= "[ID:${issid}]  <font size=-1><i>" . getCategoryForIssue($issid);
+        $str .= "</i></font> : " . stripslashes($isstxt) . "</a>\n";
       }
       $str .= "</ul>\n";
     } else {
@@ -162,7 +164,7 @@ class qaentry {
         saveObject($num,$rcntfile);
       }
       $file = fileEntry($this->type,$num);
-      $this->UpdateIssues();
+      if (! isPlaySes()) { $this->UpdateIssues(); }
     }
     saveObject($this,$file);
     logit("Saved Entry: " . $this->type . " $num");
@@ -189,11 +191,8 @@ function readEntry($typ,$num=-1) {
   return readObjectEntry($file);
 }
 
-function isTriggerType($var) {
-  return (preg_match("/^[A-Z][A-Z]$/",$var,$temparr));
-}
 function formatFseq($var) {
-  return (isTriggerType($var) ? $var : nDigits(7,$var));
+  return (existsTrigType($var) ? $var : nDigits(7,$var));
 }
 function formatRun($var) {
   $rundigits = (intval($var)>9999999 ? 8 : 7);

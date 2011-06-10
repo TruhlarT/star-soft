@@ -117,7 +117,7 @@
 #
     function cleanStrict(&$var) {
       # Allow only alphanumeric or underscore characters
-      if (preg_match("/\W/",$var,$temparr)) {
+      if (preg_match("/\W/",$var)) {
         $var = "";
         return false;
       }
@@ -125,7 +125,7 @@
     }
     function cleanInt(&$var) {
       # Allow only integers (with a possible minus sign)
-      if (!preg_match("/^-?\d+$/",$var,$temparr)) {
+      if (!preg_match("/^-?\d+$/",$var)) {
         $var = intval(0);
         return false;
       }
@@ -140,7 +140,7 @@
     function cleanAlphaFileName(&$var) {
       # Require filename to start with an alphanumeric or underscore
       # to prevent absolute filenames, or ones that go up dirs (e.g. ../*)
-      if (preg_match("/^\W/",$var,$temparr)) {
+      if (preg_match("/^\W/",$var)) {
         # just to give something back
         $var = preg_replace("/\W/","",$var);
         return false;
@@ -157,13 +157,55 @@ incl("forms.php");
 
 
 ###############################
-# Java HTML
+# Javascript HTML
 #
     function jstart() {
       print "\n<script type=\"text/javascript\">\n<!--\n";
     }
     function jend() {
       print "\n// -->\n</script>\n\n";
+    }
+    $jHSdone = 0;
+    function jhideshow() {
+    global $jHSdone;
+    if ($jHSdone) return;
+    $jHSdone = 1;
+    ?>
+    function showElem(ename) {
+      elem = eval("document.getElementById('" + ename + "')");
+      if (!elem) return 0;
+      elem.style.display = 'inline';
+      return elem;
+    }
+    function hideElem(ename) {
+      elem = eval("document.getElementById('" + ename + "')");
+      if (!elem) return 0;
+      elem.style.display = 'none';
+      return elem;
+    }
+<?php
+    }
+    $jTransDone = 0;
+    function jTrans() {
+    global $jTransDone;
+    if ($jTransDone) return;
+    $jTransDone = 1;
+    ?>
+    function opaqueElem(ename) {
+      elem = eval("document.getElementById('" + ename + "')");
+      if (!elem) return 0;
+      elem.style.opacity = 1.0;
+      elem.style.filter = 'alpha(opacity=1.0)';
+      return elem;
+    }
+    function transElem(ename) {
+      elem = eval("document.getElementById('" + ename + "')");
+      if (!elem) return 0;
+      elem.style.opacity = 0.3;
+      elem.style.filter = 'alpha(opacity=3)';
+      return elem;
+    }
+<?php
     }
 
 
@@ -188,5 +230,9 @@ incl("forms.php");
       if ($onc != "") { print " onclick=\"${onc}\""; }
       print ">${val}</a>\n";
     }
+
+    $myCols = array("good" => "#dfec9f",
+                    "bad"  => "#ffbc9f",
+                    "emph" => "#ffdc9f");
 
 ?>

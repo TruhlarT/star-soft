@@ -10,6 +10,7 @@ if ($mode == "none") { died("mode not set"); }
 
 $ses = needSesName();
 $sesDir = GetSesDir($ses);
+$play = isPlaySes($ses);
 
 # Save the wrapup:
 saveWrapup($_POST,$ses);
@@ -98,27 +99,31 @@ foreach ($ents as $typ => $entN) {
     }
   }
   $allissues[$typ] = $typeissues;
-  writeIssLast($typeissues,$typ);
+  if (! $play) { writeIssLast($typeissues,$typ); }
   $allRunFileSeqs[$typ] = $runFileSeqs;
 
   # Check for new issues
   $newissues = array();
   foreach ($typeissues as $id => $isstxt) {
-    if (!isset($oldtypeissues[$id])) { $newissues[$id] = $isstxt; }
+    if (!isset($oldtypeissues[$id])) {
+      $newissues[$id] = getCategoryForIssue($id) . " : " . $isstxt;
+    }
   }
   $allnewissues[$typ] = $newissues;
 
   # Check for gone issues
   $goneissues = array();
   foreach ($oldtypeissues as $id => $isstxt) {
-    if (!isset($typeissues[$id])) { $goneissues[$id] = $isstxt; }
+    if (!isset($typeissues[$id])) {
+      $goneissues[$id] = getCategoryForIssue($id) . " : " . $isstxt;
+    }
   }
   $allgoneissues[$typ] = $goneissues;
 
 }
 
 # Update the run-issue index
-updateRunIssueIndex($allRunIssues);
+if (! $play) { updateRunIssueIndex($allRunIssues); }
 
 
 ###################################################################
@@ -192,14 +197,14 @@ function OutputExaminedRunFseq($typ) {
 
 # Main routine for archiving/linking/mailing reports & summaries
 function ArchAndMail($typs, $sendmail=1) {
-  global $startTxt,$info,$sesDir,$webdir,$bdir,$repnum;
+  global $startTxt,$info,$sesDir,$webdir,$bdir,$repnum,$play;
   global $fast,$kFAST,$toFolks,$mode,$typecounts,$shift,$datestr2;
-  Archive();
+  if (! $play) { Archive(); }
 
   $sumTemp = "";
   foreach ($typs as $typ => $entN) {
     if ($typecounts[$typ] > 0) {
-      LinkArchive($typ);
+      if (! $play) { LinkArchive($typ); }
       $sumTemp .= OutputChangedIssues($typ);
     }
   }
@@ -208,7 +213,7 @@ function ArchAndMail($typs, $sendmail=1) {
     if ($typecounts[$typ] > 0) { $sumTemp .= OutputExaminedRunFseq($typ); }
   }
 
-  $fullLink = $webdir . "showRun.php?reptype=${fast}&repnum=${repnum}";
+  $fullLink = ($play ? "Not Archived" : $webdir . "showRun.php?reptype=${fast}&repnum=${repnum}");
 
   # output is the email summary, output2 is for the electronic shift log entry
 
@@ -224,7 +229,7 @@ function ArchAndMail($typs, $sendmail=1) {
     if (strlen($datestr2)<10) { return 11; }
     if (strlen($shift["name"])<2) { return 12; }
     if (strlen($output2)<4) { return 13; }
-    PrepShiftLog($datestr2,$shift["name"],$output2);
+    if (! $play) { PrepShiftLog($datestr2,$shift["name"],$output2); }
   }
 
   $summaryFile = "${sesDir}Summary.${fast}.txt";
@@ -237,6 +242,7 @@ function ArchAndMail($typs, $sendmail=1) {
   $to = $toFolks[$testReal][$fast];
   $toalso = $_POST["originator"];
   if (strlen($toalso) > 0) { $to .= "," . $toalso; }
+  if ($play) { $to = $toalso; }
   logit("submit: (reptype=${fast}) sending mail to $to");
   $mailResult = mail($to,$startTxt[$fast],$output);
   if (!$mailResult) {
@@ -269,12 +275,15 @@ function FailSubmission($code) {
 
 # Output if the submission to the electronic shift log and mail succeeded
 function SuccessSubmission() {
+  global $play;
   head("STAR QA Shift Report Submission");
   body();
   print "<h3>QA Shift Report Form: ";
-  print "<font color=blue>Submission Completed Successfully</font></h3>\n\n";
-  print "<h2>NEVER SELECT YOUR BROWSER'S RELOAD BUTTON AFTER FORM SUBMISSION!</h2>\n\n";
-  PostToShiftLog();
+  print "<font color=blue>";
+  if ($play) { print "Play "; }
+  print "Submission Completed Successfully</font></h3>\n\n";
+  print "<h2>NEVER SELECT YOUR BROWSER'S RELOAD OR BACK (PREVIOUS PAGE) BUTTONS AFTER FORM SUBMISSION!</h2>\n\n";
+  if (! $play) { PostToShiftLog(); }
   foot();
   #exit;
 }
@@ -292,14 +301,15 @@ $output = str2page($start,data2html($allents));
 saveText($output,$reportFile);
 
 
-
 # Summaries
-# If there are any FastOffline entries, archive report and prepare summary,
-# but only mail summary if there are some issue changes...
-if ($typecounts["FRP"] > 0) {
+# If there are any FastOffline entries, archive report and prepare summary
+# For now, also send summary when there are *no* entries of any kind
+if ($typecounts["FRP"] > 0 || $typecounts["all"] == 0) {
   $fast = $kFAST;
   $atyps = array("FRP" => $ents["FRP"]);
-  $nofastchanges = count($allnewissues["FRP"]) + count($allgoneissues["FRP"]);
+  # can use $nofastchanges as second arg of ArchAndMail to mail only when
+  # issues change
+  #$nofastchanges = count($allnewissues["FRP"]) + count($allgoneissues["FRP"]);
   $aamResult = ArchAndMail($atyps);
   if ($aamResult > 0) { FailSubmission($aamResult); }
 }

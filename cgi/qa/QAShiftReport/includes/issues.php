@@ -3,6 +3,8 @@
 incl("db.php");
 incl("entrytypes.php");
 incl("preserve_wordwrap.php");
+incl("issueSearch.php");
+
 
 ###############################
 # Class and functions for Issue handling
@@ -13,8 +15,9 @@ incl("preserve_wordwrap.php");
 # but generally has runs 9xxxxxx, and its issues
 # appear under run year 9).
 
-global $issueList,$issuePrev,$issueYear,$issMinMax,$kPREV,$kLAST;
+global $issueList,$issuePrev,$issueYear,$issMinMax,$kPREV,$kLAST,$issueRestrict;
 $issueList = array();
+$issueRestrict = array(-1);
 $issuePrev = array();
 # default year is this fiscal year:
 $issueYear = intval(date("y"))+1;
@@ -22,9 +25,18 @@ if (intval(date("m"))>9) $issueYear += 1;
 $kPREV = 0;
 $kLAST = 1;
 
-global $IssuesDB,$RunIssuesDB;
+global $IssuesDB,$RunIssuesDB,$IssuesTagsDB,$TagsDBs,$issueTags,$tagsList;
 $IssuesDB = "QAIssues";
 $RunIssuesDB = "QArunIssueIndex";
+$IssuesTagsDB = "QAtagIssueIndex";
+$TagsDBs = array("Categories","Plots","Keywords");
+function tagDB($tagType) {
+  global $TagsDBs;
+  if (in_array($tagType,$TagsDBs)) return "QAissue" . $tagType;
+  died("Asked for a bad issue tag type: " . $tagType);
+}
+$issueTags = array();
+$tagsList = array();
 
 class qaissue {
   var $ID;
@@ -171,6 +183,52 @@ class qaissue {
     $this->Save();
   }
   
+  # Functions for tags specific to an issue object:
+  function GetTags() { return getListOfTagsForIssue($this->ID); }
+  function GetTypedTags($type) { return getListOfTypedTagsForIssue($this->ID,$type); }
+  function GetTypedListOfTags() {
+    $allTags = $this->GetTags();
+    $typedTags = array();
+    foreach ($allTags as $k=>$v) {
+      $typedTags[$v["tagType"]][] = $v["tagID"];
+    }
+    return $typedTags;
+  }
+  function GetTagCategoryID() {
+    $typedTags = $this->GetTypedListOfTags();
+    return (isset($typedTags["Categories"]) ?  $typedTags["Categories"][0] : 0);
+  }
+  function GetTagCategory() {
+    return getCategoryFromID($this->GetTagCategoryID());
+  }
+  function GetTagPlotsIDs() {
+    $typedTags = $this->GetTypedListOfTags();
+    return (isset($typedTags["Plots"]) ?  $typedTags["Plots"] : array());
+  }
+  function GetTagPlots() {
+    $plotIDs = $this->GetTagPlotsIDs();
+    if (count($plotIDs) == 0) return "None";
+    $str = "";
+    foreach ($plotIDS as $k => $v) {
+      if (strlen($str) > 0) $str .= ", ";
+      $str .= getTag($v,"Plots");
+    }
+    return $str;
+  }
+  function GetTagKeywordsIDs() {
+    $typedTags = $this->GetTypedListOfTags();
+    return (isset($typedTags["Keywords"]) ?  $typedTags["Keywords"] : array());
+  }
+  function GetTagKeywords() {
+    $keyIDs = $this->GetTagKeywordsIDs();
+    if (count($keyIDs) == 0) return "None";
+    $str = "";
+    foreach ($keyIDs as $k => $v) {
+      if (strlen($str) > 0) $str .= ", ";
+      $str .= getTag($v,"Keywords");
+    }
+    return $str;
+  }
 }
 
 function setIssMinMax() {
@@ -216,12 +274,194 @@ function getListOfRunsForIssue($id) {
   $str .= " ORDER BY run ASC;";
   return queryDBarray($str,"run");
 }
-
+  
 function getListOfRunsToggleIssue($id) {
   global $RunIssuesDB;
   $str = "SELECT run,bit_or(issueID='$id') FROM $RunIssuesDB";
   $str .= " GROUP BY run ORDER BY run ASC;";
   return queryDB($str);
+}
+  
+# Functions for issue tags
+function getTagsList() {
+  global $tagsList,$TagsDBs;
+  if (count($tagsList) == 0) {
+    foreach ($TagsDBs as $k => $v) {
+      $result = queryDB("SELECT tagID,tag FROM " . tagDB($v) . " ORDER BY tagID asc;");
+      $nextar = array();
+      while ($row = nextDBrow($result)) {
+        $nextar[$row['tagID']] = $row['tag'];
+      }
+      $tagsList[$v] = $nextar;
+    }
+  }
+  return $tagsList;
+}
+
+function getTypedTagsList($tagsType) {
+  global $tagsList;
+  getTagsList();
+  return $tagsList[$tagsType];
+}
+
+function superCategoryID($id) {
+   return round($id,-3); // Limits subcategory IDs to < 500
+}
+
+function printCategorySelector($name,$issue=0,$selID=0) {
+  $id = ($issue ? $issue->GetTagCategoryID() : $selID);
+  $str = "<select name=${name}>\n";
+  if ($issue == 0) $str .= "<option value=0>-</option>\n";
+  foreach (getTypedTagsList("Categories") as $k => $v) {
+    $str .= "<option value=${k}";
+    if ($k == $id) $str .= " selected";
+    $str .= ">" . ($k != superCategoryID($k) ? "... ${v}" : "${v}  (general)");
+    $str .= "</option>\n"; 
+  }
+  $str .= "</select>\n";
+  return $str;
+}
+
+function printPlotSelector($name,$issue=0) {
+  $ids = ($issue ? $issue->GetTagPlotsIDs() : array());
+  $str = "<select name=${name} multiple size=5>\n";
+  foreach (getTypedTagsList("Plots") as $k => $v) {
+    $str .= "<option value=${k}";
+    if (in_array($k,$ids)) $str .= " selected";
+    $str .= ">${v}</option>\n"; 
+  }
+  $str .= "</select>\n";
+  return $str;
+}
+
+function printKeywordSelector($name,$selID=0) {
+  $str = "<select name=${name}>\n";
+  $str .= "<option value=0>-</option>\n";
+  foreach (getTypedTagsList("Keywords") as $k => $v) {
+    $str .= "<option value=${k}";
+    if ($k == $selID) $str .= " selected";
+    $str .= ">${v}</option>\n"; 
+  }
+  $str .= "</select>\n";
+  return $str;
+}
+
+function printKeywordsMultiSelector($name,$issue=0) {
+  $ids = ($issue ? $issue->GetTagKeywordsIDs() : array());
+  $str = "";
+  foreach (getTypedTagsList("Keywords") as $k => $v) {
+    $str .= "<nobr><input type=checkbox name=${name}[] value=${k}";
+    if (in_array($k,$ids)) $str .= " checked";
+    $str .= ">${v}</nobr><br>\n"; 
+  }
+  return $str;
+}
+
+function getTag($tagID,$tagType) {
+  $row = queryDBfirst("SELECT tag FROM " . tagDB($tagType) . " WHERE tagID='$tagID';");
+  return $row['tag'];
+}
+
+function getCategoryFromID($catID) {
+  if ($catID == 0) return "-";
+  $genID = superCategoryID($catID);
+  $genCat = getTag($genID,"Categories");
+  $genCat .= " - " . ($genID == $catID ? "general" : getTag($catID,"Categories"));
+  return $genCat;
+}
+
+function getListOfTagsForIssue($id) {
+  global $issueTags,$IssuesTagsDB;
+  if (!isset($issueTags["$id"])) {
+    $str = "SELECT tagType,tagID FROM $IssuesTagsDB WHERE issueID='$id'";
+    $str .= " ORDER BY tagType ASC, tagID ASC;";
+    $result = queryDB($str);
+    $list = array();
+    while ($row = nextDBrow($result)) { $list[] = $row; }
+    $issueTags["$id"] = $list;
+  }
+  return $issueTags["$id"];
+}
+
+function getListOfTypedTagsForIssue($id,$tagType) {
+  $allTags = getListOfTagsForIssue($id);
+  $typedTags = array();
+  foreach ($allTags as $k=>$v) {
+    if ($v["tagType"] == $tagType) { $typedTags[] = $v["tagID"]; }
+  }
+  return $typedTags;
+}
+
+function getCategoryForIssue($id) {
+  $listOfCategories = getListOfTypedTagsForIssue($id,"Categories");
+  return getCategoryFromID($listOfCategories[0]);
+}
+
+function getListOfIssuesForTags($tagList,$andor = "AND") {
+  global $IssuesTagsDB,$issueRestrict;
+  if (count($tagList) == 0) {
+    $issueRestrict = array();
+  } else {
+    $str = "";
+    foreach ($tagList as $k => $v) {
+      $str .= (strlen($str) > 0 ? $andor : " WHERE");
+      $str .= " (tagType='" . $v[0] . "' AND tagID";
+      if ($v[0] == "Categories" && $v[1] == superCategoryID($v[1])) {
+        $str .= " BETWEEN '" . $v[1] . "' AND '" . ($v[1]+999);
+      } else {
+        $str .= "='" . $v[1];
+      }
+      $str .= "')";
+    }
+    $str = "SELECT issueID FROM $IssuesTagsDB" . $str;
+    $str .= " GROUP BY issueID ORDER BY issueID ASC;";
+    $issueRestrict = queryDBarray($str,"issueID");
+  }
+  return $issueRestrict;
+}
+
+function getListOfIssuesForTagString($string) {
+  global $TagsDBs;
+  $tagsList = array();
+  foreach ($TagsDBs as $k => $v) {
+    $str = "SELECT tagID FROM " . tagDB($v) . " WHERE tag LIKE '%${string}%';";
+    $ids = queryDBarray($str,"tagID");
+    foreach ($ids as $k2 => $v2) {
+      $tagsList[] = array($v,$v2);
+    }
+  }
+  return getListOfIssuesForTags($tagsList,"OR");
+}
+
+function getListOfIssuesForNameString($string) {
+  global $IssuesDB;
+  $str = "SELECT ID FROM $IssuesDB WHERE Name LIKE '%${string}%';";
+  return queryDBarray($str,"ID");
+}
+
+function getListOfIssuesForDescString($string) {
+  global $IssuesDB;
+  $str = "SELECT ID FROM $IssuesDB WHERE Description LIKE '%${string}%';";
+  return queryDBarray($str,"ID");
+}
+
+function addTagForIssue($id,$tagType,$tagID) {
+  global $IssuesTagsDB;
+  queryDB("INSERT INTO $IssuesTagsDB (issueID,tagType,tagID) VALUES ('$id','$tagType','$tagID');");
+}
+
+function clearTagsForIssue($id) {
+  global $IssuesTagsDB;
+  queryDB("DELETE FROM $IssuesTagsDB WHERE issueID='$id';");
+}
+
+function saveTagsForIssue($id,$tagType,$tagIDs) {
+  global $IssuesTagsDB;
+  if (is_array($tagIDs)) {
+    foreach ($tagIDs as $k => $v) {
+      addTagForIssue($id,$tagType,$v);
+    }
+  } else addTagForIssue($id,$tagType,$tagIDs);
 }
 
 # Functions for issue directories and file names
@@ -259,7 +499,7 @@ function readIssue($id,$full=1) {
 # Read the issue list (and prev list) from the DB
 # Will skip DB query if same type as previous query
 function readIssList($typ=QAnull) {
-  global $IssuesDB,$issMinMax,$issueList,$issuePrev,$kPREV,$kLAST;
+  global $IssuesDB,$issMinMax,$issueList,$issuePrev,$issueRestrict,$kPREV,$kLAST;
   static $prevTyp = "none";
   if ($typ == $prevTyp) { return; }
   $prevTyp = $typ;
@@ -275,9 +515,12 @@ function readIssList($typ=QAnull) {
   while ($row = nextDBrow($result)) {
     $coef = (int) ( $row['closed'] ? -1 : 1 );
     $id = strval($row['ID']);
-    $issueList[$id] = array($row['Name'],$coef * (intval($row[$tstr])));
-    if ($typ != QAnull && testFlag($row[$flag],$kPREV))
-      $issuePrev[] = strval($row['ID']);
+    if ($issueRestrict[0]==-1 || in_array($id,$issueRestrict)) {
+      $issueList[$id] = array($row['Name'],$coef * (intval($row[$tstr])),
+                              getCategoryForIssue($id));
+      if ($typ != QAnull && testFlag($row[$flag],$kPREV))
+        $issuePrev[] = strval($row['ID']);
+    }
   }
 }
 
@@ -371,7 +614,7 @@ function getIssList($old,$typ,$exc,$closed=-1) {
     if ($old <= 0) { $daysold *= -1.0; }
     if ($old >= $daysold) {
       $issueA[$ids] = abs($daysold);
-      $issues[$ids] = $idata[0];
+      $issues[$ids] = array($idata[0],$idata[2]);
     }
   }
   # Sort by most recently used
@@ -382,10 +625,11 @@ function getIssList($old,$typ,$exc,$closed=-1) {
 }
 
 function optimizeIssuesDB() {
-  global $IssuesDB,$RunIssuesDB;
+  global $IssuesDB,$RunIssuesDB,$IssuesTagsDB;
   optimizeTable($IssuesDB);
   cleanRunIssueIndex();
   optimizeTable($RunIssuesDB);
+  optimizeTable($IssuesTagsDB);
 } 
 
 

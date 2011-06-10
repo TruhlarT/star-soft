@@ -9,8 +9,11 @@ readWrapup($ses);
 
 jstart();
 ?>
+  var fmsubmitted = 0;
   function subReport() {
     form = document.wrapupForm;
+    form.nsubs.value = fmsubmitted;
+    if (fmsubmitted != 0) { fmsubmitted += 1; return; }
     if ((form.originator.value == "") && (form.origphone.value == "")) { 
       pstr = "An email address or phone number is required!\n";
       alert(pstr);
@@ -30,6 +33,7 @@ jstart();
       alert(pstr);
     }
     if (arguments.length > 1) { form.target=arguments[1]; }
+    fmsubmitted += 1;
     form.submit()
   }
 <?php
@@ -89,6 +93,7 @@ fbutton("keepIt","Save &amp; Submit Report, Keep Session","subReport('KeepIt')")
 print "</div></center>\n";
 
 fhidden("mode","none");
+fhidden("nsubs",0);
 
 
 linebreak();

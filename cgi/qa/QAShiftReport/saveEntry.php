@@ -7,6 +7,7 @@
 @(include "setup.php") or die("Problems (0).");
 incl("entry.php");
 incl("infohandling.php");
+incl("issueSearch.php");
 
 getPassedVarStrict("type");
 
@@ -61,7 +62,8 @@ if ($type == "Info") {
   if ($addissue != 0) {
     $entr->AddIssue($addissue);
     $entr->Save();
-    $passStr = "type=${type}&num=-${num}&editit=yes&issueYear=${issueYear}";
+    $searchStr = varsForIssueSearch();
+    $passStr = "type=${type}&num=-${num}&editit=yes&issueYear=${issueYear}${searchStr}";
     header("location: ${webdir}formData.php?${passStr}");
     exit;
   }

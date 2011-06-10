@@ -10,11 +10,17 @@ $QAdbname = "OfflineQA";
 #
 
 function connectDB() {
-  global $QAdbhost,$QAdbname;
+  global $QAdbhost;
   if (connectedDB()) return;
   @($conn = mysql_connect($QAdbhost)) or died("Could not connect to the DB");
-  mysql_select_db($QAdbname);
   setConnectedDB($conn);
+  selectDB();
+}
+function selectDB($dbname="") {
+  global $QAdbname;
+  if (!strlen($dbname)) { $dbname = $QAdbname; }
+  connectDB();
+  mysql_select_db($dbname);
 }
 function closeDB() {
   global $QAdbconn;
@@ -33,6 +39,9 @@ function queryDB($str) {
 function nextDBrow($result) {
   return mysql_fetch_assoc($result);
 }
+function numDBrows($result) {
+  return mysql_num_rows($result);
+}
 function queryDBfirst($str) {
   # returns the first such row from the DB
   $result = queryDB($str);
@@ -41,15 +50,18 @@ function queryDBfirst($str) {
 }
 function queryDBarray($str,$col) {
   # returns an array of column $col from the DB
-  $res = queryDB($str);
+  $result = queryDB($str);
   $list = array();
-  while ($row = nextDBrow($res)) { $list[] = $row["$col"]; }
+  while ($row = nextDBrow($result)) { $list[] = $row["$col"]; }
   return $list;
 }
 function escapeDB($str) {
   if (get_magic_quotes_gpc()) { $str = stripslashes($str); }
   connectDB();
   return mysql_real_escape_string($str);
+}
+function getDBid() {
+  return mysql_insert_id();
 }
 function optimizeTable($str) {
   $query = "ANALYZE TABLE $str;";

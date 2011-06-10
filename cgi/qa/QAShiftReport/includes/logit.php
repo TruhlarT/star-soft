@@ -57,11 +57,11 @@ function rotateLog() {
 
 function logpage() {
   global $refphp;
-  if (strpos($refphp,"toc.php"))  { return; }
+  if (!(strpos($refphp,"toc") === false))  { return; }
   $logstr  = date("H:i:s m/d/y") . " : ";
   $logstr .= getSesName() . " : ";
   $logstr .= $refphp;
-  if (!strpos($refphp,"saveEntry.php")) {
+  if (strpos($refphp,"saveEntry") === false) {
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
       foreach ( $_POST as $k => $v ) {
         if (($k == "allDirs") || ($k == "idesc") ||

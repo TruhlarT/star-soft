@@ -13,6 +13,7 @@
   # 12 know report year_month
   # 13 know report number
   # 14 know report number and type, but not year_month
+  # 20 search
   
   $mode = 0;
   getPassedInt("mode",1);
@@ -42,24 +43,31 @@
   $byrep = 0;
   $showrep = 0;
   $textFromDB = 0;
+  $searchResults = array();
   
   # Strict checking of passed parameters:
   if ($mode > 0 && $mode < 10) { # By run
     getPassedInt("runIndex",1);
     if ((!$runyear || $runyear > 99) ||
-	($mode > 1 && (!$runday || $runday > 366)) ||
-	($mode > 2 && ($run < 1000000 || $run > 99999999)) ||
-	($mode > 3 && $runIndex>999) ||
-	($mode > 4)) $mode = 0;
+        ($mode > 1 && (!$runday || $runday > 366)) ||
+        ($mode > 2 && ($run < 1000000 || $run > 99999999)) ||
+        ($mode > 3 && $runIndex>999) ||
+        ($mode > 4)) $mode = 0;
     else $byrun = 1;
-  } else if ($mode > 10) { # By report
+  } else if ($mode > 10 && $mode < 20) { # By report
     getPassedVarStrict("reptype");
     getPassedInt("repyrmo",1);
     if ((!cleanRepType($reptype)) ||
-	(($mode > 11 && $mode < 14) && (!$repyrmo || $repyrmo > 209999)) ||
-	($mode > 12 && (!$repnum || intval($repnum) > 9999)) ||
-	($mode > 14)) $mode = 0;
+        (($mode > 11 && $mode < 14) && (!$repyrmo || $repyrmo > 209999)) ||
+        ($mode > 12 && (!$repnum || intval($repnum) > 9999)) ||
+        ($mode > 14)) $mode = 0;
     else $byrep = 1;
+  } else if ($mode == 20) { # Search
+    getPassedVarStrict("searchStr");
+    $qry = "SELECT `RepType`,`RepYear`,`RepMonth`,`RepNum` FROM QAShiftReports"
+       . " WHERE `RepText` LIKE \"%${searchStr}%\" ORDER BY `RepYear` DESC,"
+       . " `RepMonth` DESC, `RepNum` DESC";
+    $searchResults = queryDB($qry);
   } else if ($mode < 0) {
     if ($QAdebug) {
       if ($mode==-99) {
@@ -125,25 +133,53 @@
   # Begin Page
   
   head("STAR QA Shift Report Archives");
+  
+  if ($mode == 20) {
+    jstart();
+    ?>
+    function useSearchRes(rtype,ryearmo,rnum) {
+      form = document.forms.rform;
+      form.reptype.value = rtype;
+      form.repyrmo.value = ryearmo;
+      form.repnum.value = rnum;
+      form.mode.value = 13;
+      form.submit();
+    }
+<?php
+    jend();
+  }
+    
+  $divstr = "<div style=\"position:absolute; top:0; width:98%; z-index:1; \"";
   if ($showrep) {
     jstart();
-?>
-function showMenus() {
-  document.getElementById('menus').style.display = 'block';
-  return false;
-}
-function hideMenus() {
-  document.getElementById('menus').style.display = 'none';
-  return false;
-}
-<?php
-  jend();
+    jhideshow();
+    #jTrans();
+    jend();
+    $divstr .= " onmouseover=\"showElem('menus')\" onmouseout=\"hideElem('menus')\"";
+    #$divstr .= " onmouseover=\"opaqueElem('menus')\" onmouseout=\"transElem('menus')\"";
   }
-  body();
-?>
+  $divstr .= ">\n";
 
-<div style="position:absolute; top:0; width:98%; z-index:1; "
-<?php if ($showrep) { ?>  onmouseover="showMenus()" onmouseout="hideMenus()"<?php } ?>>
+  body();
+
+  #######################
+  # Search box
+  print "<div style=\"position:absolute; top:0; right:0; width:380px; z-index:3; \">\n";
+  fstart("searchForm","","");
+  fhidden("mode",20);
+  print "<p align=right>\n";
+  finput("searchStr",32,"","document.searchForm.submit()");
+  fsubmit("Search");
+  print "</p>\n";
+  fend();
+  print "</div>\n";
+  
+  #######################
+  # Main selections
+  
+  print $divstr;
+  #<div id=menus style="position:relative; z-index:2;
+?>
 
 <h1>STAR QA Shift Report Archives</h1>
 
@@ -155,6 +191,7 @@ display:<?php print ($showrep ? "none" : "block"); ?> " >
 
 
 <?php
+  $QAdebug = 0;
   if ($QAdebug) {
     fstart("fillRFSI","","_top");
     print "<p align=right><font size=-3>";
@@ -173,7 +210,7 @@ display:<?php print ($showrep ? "none" : "block"); ?> " >
   ####### By Run ######
   print "<table cellspacing=5 width=\"98%\"><tr><td width=\"53%\">\n";
   if ($byrun) print "<font color=maroon>\n";
-  print "By Run year / day / number / sequence :<br>\n";
+  print "By Run (year / day / number / sequence) :<br>\n";
   if ($byrun) print "</font>\n";
   
   print "<select name=runyear onchange=\"rform.mode.value=1;submit()\">\n";
@@ -200,48 +237,48 @@ display:<?php print ($showrep ? "none" : "block"); ?> " >
       print "<option value=0 disabled" . ($mode==2 ? " selected" : "") . ">number</option>\n";
       $result = getLinksDB($runyear,$runday);
       while ($row = nextDBrow($result)) {
-	$runs = intval($row['run']);
-	print "<option value=$runs";
-	if ($mode > 2 && $runs == $run) print " selected";
-	print ">$runs</option>\n";
+        $runs = intval($row['run']);
+        print "<option value=$runs";
+        if ($mode > 2 && $runs == $run) print " selected";
+        print ">$runs</option>\n";
       }
       if ($mode > 2) {
         $result = getLinksDB($runyear,$runday,$run);
-	$runIndices = 0;
-	$prevtype = "first";
-	while ($row = nextDBrow($result)) {
-	  $runIndices++;
-	  $reptypes = $repFO[$row['RepType']];
-	  $seq = $row['seq']; # might start with zeros or have "NA"
-	  $idx = intval($row['idx']);
-	  if ($reptypes != $prevtype) {
-	    if ($prevtype == "first"){
-	      print "</select> / <select name=runIndex onchange=\"rform.mode.value=4;submit()\">\n";
-	      print "<option value=0 disabled" . ($mode==3 ? " selected" : "") . ">sequence</option>\n";
-	    } else {
-	      print "</optgroup>\n";  
-	    }
-	    print "<optgroup label=\"$reptypes\">\n";
-	    $prevtype = $reptypes;
-	  }
-	  print "<option value=$runIndices";
-	  if ($mode > 3 && $runIndices == $runIndex) {
-	    print " selected";
+        $runIndices = 0;
+        $prevtype = "first";
+        while ($row = nextDBrow($result)) {
+          $runIndices++;
+          $reptypes = $repFO[$row['RepType']];
+          $seq = $row['seq']; # might start with zeros or have "NA"
+          $idx = intval($row['idx']);
+          if ($reptypes != $prevtype) {
+            if ($prevtype == "first"){
+              print "</select> / <select name=runIndex onchange=\"rform.mode.value=4;submit()\">\n";
+              print "<option value=0 disabled" . ($mode==3 ? " selected" : "") . ">sequence</option>\n";
+            } else {
+              print "</optgroup>\n";  
+            }
+            print "<optgroup label=\"${reptypes}\">\n";
+            $prevtype = $reptypes;
+          }
+          print "<option value=$runIndices";
+          if ($mode > 3 && $runIndices == $runIndex) {
+            print " selected";
             $repnums = strval($row['RepNum']);
             if (strlen($repnums)) {
               $textFromDB = 1;
               $reptype = $reptypes;
               $repnum = $repnums;
             }
-	    $repfile = $row['link'];
-	  }
-	  print ">$seq ($idx)</option>\n";
-	}
-	if ($runIndices) {
-	  print "</optgroup>\n";
-	} else {
-	  $mode = 9; # run not found
-	}
+            $repfile = $row['link'];
+          }
+          print ">$seq ($idx)</option>\n";
+        } 
+        if ($runIndices) {
+          print "</optgroup>\n";
+        } else {
+          $mode = 9; # run not found
+        }
       }
     }
   }
@@ -250,7 +287,7 @@ display:<?php print ($showrep ? "none" : "block"); ?> " >
   print "</select>\n\n";
   print "</td><td width=\"45%\">\n";
   if ($byrep) print "<font color=maroon>\n";
-  print "By Report type / year / month / number :<br>\n";
+  print "By Report (type / year / month / number) :<br>\n";
   if ($byrep) print "</font>\n";
   
   print "<select name=reptype onchange=\"rform.mode.value=11;submit()\">\n";
@@ -270,9 +307,9 @@ display:<?php print ($showrep ? "none" : "block"); ?> " >
       $repyr = intval($row['RepYear']);
       $repmo = intval($row['RepMonth']);
       if ($repyr != $oldyear) {
-	if ($oldyear) print "</optgroup>\n";
-	print "<optgroup label=$repyr\n";
-	$oldyear = $repyr;
+        if ($oldyear) print "</optgroup>\n";
+        print "<optgroup label=${repyr}>\n";
+        $oldyear = $repyr;
       }
       $yrmo = $repyr*100 + $repmo;
       print "<option value=$yrmo";
@@ -288,10 +325,10 @@ display:<?php print ($showrep ? "none" : "block"); ?> " >
       print "<option value=0 disabled" . ($mode==12 ? " selected" : "") . ">number</option>\n";
       $result = getReportNums($reptype,$repyr,$repmo);
       while ($row = nextDBrow($result)) {
-	$repnums = strval($row['RepNum']);
-	print "<option value=\"$repnums\"";
-	if ($mode > 12 && $repnums == $repnum) print " selected";
-	print ">$repnums</option>\n";	
+        $repnums = strval($row['RepNum']);
+        print "<option value=\"$repnums\"";
+        if ($mode > 12 && $repnums == $repnum) print " selected";
+        print ">$repnums</option>\n";	
       }
       if ($mode > 12) $textFromDB = 1;
     }
@@ -299,6 +336,8 @@ display:<?php print ($showrep ? "none" : "block"); ?> " >
   
   print "</select>\n";
   print "</td></tr></table>\n\n<hr size=3 noshade>\n";
+  
+  if ($mode==20) { fhidden("repyrmo"); fhidden("repnum"); }
   
   fend();
   print "</div>\n";
@@ -312,7 +351,6 @@ display:<?php print ($showrep ? "none" : "block"); ?> " >
   }
   print "</div>\n";
   if ($showrep) {
-$QAdebug=1;
     if ($QAdebug) logit("Getting report from DB? $textFromDB");
     if ($textFromDB) {
       $row = readReportDB($repnum,$reptype,0);
@@ -320,9 +358,26 @@ $QAdebug=1;
       $doPre = 1;
       if (substr($reptext,0,6) == "<html>" || substr($reptext,0,14) == "<!doctype html") $doPre = 0;
       print "<div id=vwr style=\"position:absolute; width:98%; bottom:0; height:80%;\n";
-      print "   z-index:0; border-style:groove none none; \" >";
+      print "   overflow:auto; z-index:0; border-style:groove none none; \" >";
+      $oddsegment = "<div style=\"background-color:#ffecaf; \">\n";
+      $headersegment = "<div style=\"background-color:#dfdc9f; \">\n";
       if ($doPre) {
-        print "<pre>${reptext}</pre>";
+        $eoh = strpos($reptext,"SUBMISSION DATE");
+        if (!($eoh === false)) {
+          $eoh = strpos($reptext,chr(10),$eoh) + 2;
+          $reptext2 = substr($reptext,0,$eoh);
+          $reptext1 = substr($reptext,$eoh);
+          print "${headersegment}<pre>${reptext2}</pre></div>\n";
+        } else {
+          $reptext1 = $reptext;
+        }
+        $token = "-->";
+        $segments = split($token,$reptext1);
+        foreach ($segments as $k => $segment) {
+          if ($k % 2) { print "${oddsegment}<pre>${segment}</pre></div>"; }
+          else { print "<pre>${segment}</pre>"; }
+        }
+        #print "<pre>${reptext1}</pre>";
       } else {
         # Remove any HTML "body" wrapping
         $reptext1 = stristr(stristr($reptext,"<body"),"<hr>");
@@ -349,8 +404,16 @@ $QAdebug=1;
             }
           }
         }
-        $reptext1 = substr($reptext1,0,$endofbody);
-        print "$reptext1";
+        $eoh = strpos($reptext1,"<hr>",64);
+        $reptext2 = substr($reptext1,0,$eoh);
+        $reptext1 = substr($reptext1,$eoh,$endofbody-$eoh);
+        print "${headersegment}${reptext2}</div>\n";
+        $token = "<a name=";
+        $segments = split($token,$reptext1);
+        foreach ($segments as $k => $segment) {
+          if (($mode != 4) && (1 - ($k % 2))) { print "${oddsegment}${token}${segment}</div>"; }
+          else { print $token . $segment; }
+        }
       }
       print "\n</div>\n";      
 
@@ -374,6 +437,24 @@ print "<a href=#$repfile>GO</a>\n";
       print "   data=\"$repfile\" >\n";
       print "<a href=\"$repfile\">Report</a>\n</object>\n";      
     }
+  }
+  if ($mode == 20) {
+    print "<div id=srch style=\"position:absolute; width:98%; bottom:0; height:80%;\n";
+    print "   overflow:auto; z-index:0; border-style:groove none none; \" >\n";
+    print "<h3>Search results for: \"${searchStr}\"</h3>\n";
+    if (numDBrows($searchResults)) {
+      print "<ul>\n";
+      while ($row = nextDBrow($searchResults)) {
+        print "<li>\n";
+        fbutton("rbutton" . $row['RepNum'],$row['RepNum'],"useSearchRes('" . $repFO[$row['RepType']] . "'," .
+                ($row['RepYear']*100 + $row['RepMonth']) . ",'" . nDigits(4,$row['RepNum']) . "')");
+        print $row['RepYear'] . " / " . nDigits(2,$row['RepMonth']) . " ( " . $repFO[$row['RepType']] . " )</li>\n";
+      }
+      print "</ul>\n";
+    } else {
+      print "<font color=red><i>Nothing found.</i></font>\n";
+    }
+    print "</div>\n";
   }
   
   foot();

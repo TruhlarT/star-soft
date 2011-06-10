@@ -58,16 +58,21 @@ if (file_exists($slFile)) {
     function OnlyWithCookie(slCookieName) {
       var cookies = document.cookie;
       var cookie_idx = cookies.indexOf(slCookieName);
+      var cookie_val = 999;
       if (cookie_idx != -1) {
         var startpos = cookie_idx + slCookieName.length + 1;
         var endpos = cookies.indexOf(";",startpos);
         if (endpos == -2) endpos = cookies.length;
-        var cookie_val = unescape(cookies.substring(startpos,endpos));
+        cookie_val = unescape(cookies.substring(startpos,endpos));
         if (cookie_val == 1) {
           document.cookie = slCookieName + '<?php cookieEraser(); ?>';
           return true;
         }
       }
+      var str = "Please report the appearance of this message to\n";
+      str += "Gene Van Buren: gene@bnl.gov\n";
+      str += "noting the codes: " + cookie_idx + ":" + cookie_val;
+      alert(str);
       return false;
     }
 <?php

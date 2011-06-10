@@ -15,9 +15,12 @@ if (!defd($work)) {
 }
 
 getPassedVarStrict("mode");
+$play = 0;
+getPassedInt("play",1);
+logit("PLAY $play");
 
 #Set the session
-loadSes($work);
+loadSes($work,$play);
 
 #Check where to route the user:
 # possibilities include
@@ -28,7 +31,7 @@ loadSes($work);
 # e) from info with error (mode = ErrorX) => info
 
 if (substr($mode,0,1) != "E") {
-  header("location: ${webdir}contents.php?mode=" . $mode);
+  header("location: ${webdir}contents.php?mode=${mode}&play=${play}");
   exit;
 }
 

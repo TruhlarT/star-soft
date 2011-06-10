@@ -2,14 +2,23 @@
 
 @(include "setup.php") or die("Problems (0).");
 incl("entry.php");
+incl("sections.php");
+incl("issueAttachments.php");
 
 # Reset all issue indices
 #if (isset($_POST["res"])) { resetIssueIndices(); }
 if (isset($_POST["res"])) { fillDBIssuesFromFiles(); }
-$issue;
+$issue = 0;
+$nattach = 0;
 
 # modes:
 # view: browse an issue
+# new: create a new issue
+# edit: edit an issue
+# add: add a note to an issue
+# save: save edits to an issue
+# close: close an issue
+# isssearch: search for issues
 
 
 
@@ -40,13 +49,13 @@ function PrintRuns($iid) {
     print "<tr valign=top><td>Runs tagged with this issue:</td><td align=right>";
     print "<div id =\"noRunList\"\n";
     print "       style=\"display:block ;z-index:2\">\n";
-    fbutton("showRunsButton","Show full list of runs","showRunList()");
+    fbutton("showRunsButton","Show full list of runs","toggleSection('RunList')");
     print "First-last runs: <b>" . min($runlist) . "-" . max($runlist) . "</b><br>";
     print "</div>\n";
     print "<div id =\"fullRunList\"\n";
     print "       style=\"display:none ;z-index:2\">\n";
     print "<table border=0 cellpadding=0 cellspacing=0><tr valign=top><td>\n";
-    fbutton("hideRunsButton","Show only first-last runs","hideRunList()");
+    fbutton("hideRunsButton","Show only first-last runs","toggleSection('RunList')");
     print "</td><td>";
     foreach ($runlist as $run) print "<b>$run</b><br>\n";
     print "</td></tr></table>\n";
@@ -55,21 +64,52 @@ function PrintRuns($iid) {
 }
 
 
-function ViewDesc($iname,$idesc) {
+function ViewDesc($issue) {
+    print "<u>Tags:</u>\n<table border=0 cellpadding=0 cellspacing=0>\n";
+    print "<tr valign=top><td>Category/Subsytem:</td>\n";
+    print "<td><b><font color=\"#800000\">";
+    print $issue->GetTagCategory() . "</font></b></td></tr>\n";
+    #print "<tr valign=top><td>Relevant Plots:</td>\n";
+    #print "<td><b><font color=\"#800000\">";
+    #print $issue->GetTagPlots() . "</font></b></td></tr>\n";
+    print "<tr valign=top><td>Keywords:</td>\n";
+    print "<td><b><font color=\"#800000\">";
+    print $issue->GetTagKeywords() . "</font></b></td></tr></table><br>\n";
+    print "Name <font size=-1>(short description)</font>:";
     print "\n<b><font color=\"#800000\">";
-    print htmlentities(stripslashes($iname)) . "</font></b><br>\n";
+    print htmlentities(stripslashes($issue->Name)) . "</font></b><br>\n";
     print "Full Description And Notes:\n";
     print "<b><font color=\"#C00000\" size=+1><pre>\n";
-    print preserve_wordwrap(htmlentities(stripslashes($idesc)),75,chr(10));
+    print preserve_wordwrap(htmlentities(stripslashes($issue->Desc)),75,chr(10));
     print "\n</pre></font></b>\n";
 }
 
-function EditDesc($iname,$idesc) {
-    print "<input tabindex=1 name=iname size=50 value=\"";
-    print stripslashes($iname) . "\"><br>\n";
+function EditDesc($mode,$issue) {
+    $iname = "";
+    $idesc = "";
+    if ($mode != "new") {
+      $iname = stripslashes($issue->Name);
+      $idesc = stripslashes($issue->Desc);
+    }
+    print "<i>Please use tags and an issue name which will make it\n";
+    print "easy for others to identify and re-use this issue.</i><p>\n";
+    print "<table border=0 cellpadding=0 cellspacing=0>\n";
+    print "<tr><td colspan=3><u>Tags:</u></td></tr>\n";
+    print "<tr valign=top><td>Category/Subsytem:</td>\n<td>";
+    print printCategorySelector("icateg",$issue);
+    print "</td><td><font size=-1>(required)</font></td></tr>\n";
+    #print "Relevant Plots:" . printPlotsSelector("iplots",$issue);
+    #print "<nobr><font size=-1>(optional, multi-select)</font></nobr><br>\n";
+    print "<tr valign=top><td>Keywords:</td>\n<td>";
+    beginSection("Keywords","List of keywords",3,"");
+    print printKeywordsMultiSelector("ikeyws",$issue);
+    endSection();
+    print "</td><td><nobr><font size=-1>(optional, multi-select)</font></nobr></td></tr></table><br>\n";
+    print "Name <font size=-1>(short description)</font>:";
+    print "<input tabindex=1 name=iname size=50 value=\"${iname}\"><br>\n";
     print "Full Description:<br>\n";
     print "<textarea tabindex=2 name=idesc rows=14 cols=74>";
-    print stripslashes($idesc) . "</textarea>\n\n<br>\n\n";
+    print $idesc . "</textarea>\n\n<br>\n\n";
 }
 
 function EditNote() {
@@ -97,10 +137,7 @@ function EditType($iid,$type) {
         print "<option value=\"${typ}\"";
         if ($marked == 1) { print " disabled"; }
         if ($typ == $type) { print " selected"; }
-        print "><font color=\"#";
-        if ($marked == 1) { print "800000"; }
-        else { print "000080"; }
-        print "\">${entT}</font></option>\n";
+        print ">${entT}</option>\n";
       }
       print "</select>\n";
     } else {
@@ -108,10 +145,17 @@ function EditType($iid,$type) {
     }
 }
 
+function Details2AttachmentSection() {
+  endSection();
+  linebreak();
+  beginSection("Attachments","Image Attachments",4,"#bfdc9f");
+}
+
 function listis($arr,$typ) {
-  foreach ($arr as $id => $issName) {
+  foreach ($arr as $id => $issData) {
     fbutton("brw${id}",$id,"editIssueN(-${id},'${typ}','view')");
-    print " : <font color=\"#800000\">" . htmlentities(stripslashes($issName)) . "</font>";
+    print " : <font color=\"#500000\" size=-1><i>" . $issData[1] . "</i></font>";
+    print " : <font color=\"#800000\">" . htmlentities(stripslashes($issData[0])) . "</font>";
     linebreak();
   }
 }
@@ -141,6 +185,11 @@ jstart();
       form = document.issForm;
       form.type.value = form.ftype.value;
     }
+    function JustView() {
+      form = document.issForm;
+      form.mode.value = 'view';
+      form.submit();
+    }
     function CloseEditor() {
       window.close();
     }
@@ -148,6 +197,11 @@ jstart();
       note = document.issForm.note.value;
       if (note == "") {
         alert("Cannot enter an empty note or resolution!\n");
+        return false;
+      }
+      icateg = document.issForm.icateg;
+      if (icateg && icateg.value == 0) {
+        alert("A category/subsystem must be selected!\n");
         return false;
       }
       auth = document.issForm.auth.value;
@@ -159,22 +213,13 @@ jstart();
       }
       return true;
     }
-    function showRunList() {
-      document.getElementById('noRunList').style.display = 'none';
-      document.getElementById('fullRunList').style.display = 'block';
-      return false;
-    }
-    function hideRunList() {
-      document.getElementById('noRunList').style.display = 'block';
-      document.getElementById('fullRunList').style.display = 'none';
-      return false;
-    }
 
 <?php
+jsToggleSection();
 jend();
 body();
 
-fstart("issIDForm","issueEditor.php","_top");
+fstart("issIDForm","","_top");
 #print "<a href=\"javascript:_top.window.close()\">Close Window</a>\n";
 fbutton("closeit","Close Window","CloseEditor()");
 print "<h2>QA Issue Browser/Editor</h2>\n\n";
@@ -198,38 +243,43 @@ if ($mode != "new") {
   if ($iid>0) {
     print "<br>\n";
     print "<font size=-2>";
-    print "link: ${webdir}${refphp}.php?iid=${iid}</font>\n";
+    print "direct link: <a href=\"${webdir}${refphp}.php?iid=${iid}\">";
+    print "${webdir}${refphp}.php?iid=${iid}</a></font>\n";
   }
 }
 fhidden("mode","view");
 fend();
 
-fstart("issForm","issueEditor.php","_top");
+fstart("issForm","","_top enctype=\"multipart/form-data\"");
 fhidden("issueYear","$issueYear");
 ########################################################
 ### Edit Issues:
-
 
 if ($mode != "none") {
 
   # Setup variables
   getPassedVarStrict("type",1);
-  $iname = "";
-  $idesc = "";
   $isclosed = false;
   if ($mode == "save") {
     getPassedVar("iname");
     getPassedVar("idesc");
+    getPassedInt("icateg");
+    #getPassedVar("iplots",1);
+    getPassedVar("ikeyws",1);
     if ($iid == 0) {
       $issue = new qaissue($iname,$idesc);
     } else {
       ($issue = readIssue($iid)) or died("Could not read issue " . $iid);
       $issue->Name = $iname;
       $issue->Desc = $idesc;
+      clearTagsForIssue($iid);
     }
     if ($type != "none") { $issue->InsureType($type); }
     $issue->Save();
     $iid = intval($issue->ID);
+    saveTagsForIssue($iid,"Categories",$icateg);
+    #saveTagsForIssue($iid,"Plots",$iplots);
+    saveTagsForIssue($iid,"Keywords",$ikeyws);
     $mode = "view";
   } elseif ($mode != "new") {
     if ($issue = readIssue($iid)) {
@@ -246,8 +296,6 @@ if ($mode != "none") {
       }
       $isclosed = $issue->IsClosed();
       if ($isclosed) { $mode = "view"; }
-      $iname = $issue->Name;
-      $idesc = $issue->Desc;
     } else {
       print "<i>Could not read issue $iid</i><br><br>\n";
       #     $iid = 0;
@@ -257,7 +305,8 @@ if ($mode != "none") {
 
   if ($mode != "not") {
 
-  # Date viewing
+    beginSection("Details","Issue details",-7,"#efdc9f");
+    # Date viewing
     if ($iid != 0) {
       if ($isclosed) {
         print "<i><b>THIS ISSUE IS CLOSED/RESOLVED!</b></i><p>\n";
@@ -270,18 +319,21 @@ if ($mode != "none") {
 
     # Description viewing/editing
     linebreak();
-    print "Name <font size=-1>(short description)</font>:";
+
     if (($mode == "edit") || ($mode == "new")) {
-      EditDesc($iname,$idesc,$type);
+      EditDesc($mode,$issue);
       EditType($iid,$type);
       fsubmit("Save Issue","SetType()");
+      Details2AttachmentSection();
+      IAformForAttachment($iid);
     } else {
-      ViewDesc($iname,$idesc);
+      ViewDesc($issue);
       if ($isclosed) {
         fbutton("reopenThis","Re-Open This Issue",
                 "editIssueN(${iid},'${type}','reopen')");
+        Details2AttachmentSection();
       } else {
-        fbutton("editThis","Edit Descriptions and Notes",
+        fbutton("editThis","Edit Tags, Descriptions, Notes",
                 "editIssueN(${iid},'${type}','edit')");
         print "(Please use only for correcting errors!)<p>\n";
         EditNote();
@@ -292,8 +344,17 @@ if ($mode != "none") {
         linebreak();
         EditType($iid,$type);
         fsubmit("Allow Type","SetType()");
+        Details2AttachmentSection();
+        IAformForAttachment($iid);
+        fbutton("attachThis","Upload File","JustView()");
       }
+      if (IAattached()) IAhandleAttachment($iid);
     }
+    linebreak();
+    $nattach = IAtableOfAttachments($iid);
+    endSection(); // Attachments
+    print "<font size=-1>(Currently $nattach attachment" .
+      ($nattach != 1 ? "s" : "") . ".)</font><br>\n";
 
     holines(8);
   }
@@ -302,18 +363,27 @@ if ($mode != "none") {
 ########################################################
 ### List Issues:
 
+print "<div style=\"background-color:#ffcc9f\">\n";
 fbutton("createiss","Open/Create New Issue","CreateIssue()");
-print "\n<br>\n<font size=-1>Issues can only be added.\n";
+print "</div>\n";
+print "<font size=-1>Issues can only be added.\n";
 print " If you feel an issue needs to be removed, please contact ";
-print "<a href=\"mailto:gene@bnl.gov\">Gene Van Buren</a>.</font>\n";
+print "<a href=\"mailto:gene@bnl.gov\">Gene Van Buren</a>.</font><p>\n";
 fhidden("mode","save");
 fhidden("iid","$iid");
 fhidden("type",$type);
+fend();
+
+
+varsForIssueSearch();
+beginSection("Picker","Issue Search",(isIssueSearch() ? -5 : 5),"#ffdc9f");
+buildIssueSearch();
+
 holines(8);
 
 $issueYear1 = $issueYear - 1;
 print "<p align=right><font size=-1>Issues for RHIC Run ${issueYear1} only<br>\n";
-print "(generally STAR run ID numbers ${issueYear}xxxxxx)<font></p>\n\n";
+print "(generally STAR run ID numbers ${issueYear}xxxxxx)</font></p>\n\n";
 
 # Put the list of entry types in the order of whichever
 # type we are examining first
@@ -333,6 +403,8 @@ $entorder[QAnull] = $noent;
 $z = array();
 # An array for excluding all issues with assigned types
 $allarray = array();
+
+fstart("pickIssue","","_top");
 
 foreach ($entorder as $entn => $enttitle) {
 
@@ -374,7 +446,7 @@ foreach ($entorder as $entn => $enttitle) {
 fend();
 
 if ($QAdebug) {
-  fstart("resetIss","issueEditor.php","_top");
+  fstart("resetIss","","_top");
   print "<p align=right><font size=-3>";
   print "For debugging only. Please ignore.\n";
   fhidden("type",$type);
@@ -382,6 +454,14 @@ if ($QAdebug) {
   fsubmit(" ");
   print "</font></p>\n";
   fend();
+}
+
+endSection(); # Picker
+
+if ($nattach>0) {
+  jstart();
+  print "    toggleSection('Attachments');\n";
+  jend();
 }
 
 foot(); ?>

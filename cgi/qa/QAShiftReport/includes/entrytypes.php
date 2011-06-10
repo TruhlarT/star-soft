@@ -30,5 +30,19 @@ function existsTrigType($type) {
   return isset($trigs[$type]);
 }
 
+function cmpTrigTypes($tt1,$tt2) {
+  global $trigs;
+  foreach ($trigs as $type => $v) {
+    if ($tt1 == $type) {
+      if ($tt2 == $type) { return 0; }
+      else { return -1; }
+    } else if ($tt2 == $type) { return 1; }
+  }
+  return 0;
+}
+function sortTrigType(&$ar) {
+  return uksort($ar,"cmpTrigTypes");
+}
+
 $noent = "No data entry type specified";
 ?>

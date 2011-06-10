@@ -37,6 +37,7 @@ $workDirs = dirlist(getWrkDir());
 head("STAR QA Shift Report Sessions");
 jstart();
 ?>
+    var allSes = "";
     function checkSesName() {
       form = document.ses;
       sess = form.work.value;
@@ -48,8 +49,7 @@ jstart();
         return 2;
       }
       w1 = " " + sess + " ";
-      w2 = form.allSes.value;
-      if (w2.indexOf(w1) > -1 ) {
+      if (allSes.indexOf(w1) > -1 ) {
         pstr = "That session name is already being used.\n";
         pstr += "Any new session must have a unique name.\n";
         pstr += "If you do not wish to continue that session,\n";
@@ -68,7 +68,14 @@ jstart();
     }
     function continueSes() {
       form = document.ses;
-      form.work.value = form.owork.value;
+      sess = form.owork.value;
+      form.work.value = sess;
+      w1 = " " + sess + " ";
+      idx = allSes.indexOf(w1);
+      if (idx > -1 ) {
+        play = allSes.substr(idx-1,1);
+	form.play[play].checked = true;
+      }
       form.submit();
     }
     function readyWork(val) {
@@ -97,6 +104,12 @@ special characters, minumum of 2 characters, e.g. John1, Alan_June_15)";
 linebreak();
 finput("work",10);
 fsubmit("Begin New Session","return (checkSesName() < 2)");
+print "&nbsp;&nbsp;&nbsp;&nbsp;<i>Play</i> session:&nbsp;";
+$plays[$play] = "0";
+fradio("radio","play",$plays,0);
+print "no&nbsp;&nbsp;";
+fradio("radio","play",$plays,1);
+print "yes (generate toy reports)";
 linebreak();
 if (count($workDirs) == 0) {
 
@@ -119,8 +132,11 @@ if (count($workDirs) == 0) {
       if ($oldWork == $wDir) { print " checked"; }
       print " onfocus=\"readyWork('$wDir')\"";
       print " onclick=\"readyWork('$wDir')\"";
-      print "> <b>$wDir</b><br>\n";
-      $allSes .= $wDir . " ";
+      print "> <b>$wDir</b>";
+      $play = (isPlaySes($wDir) ? 1 : 0);
+      if ($play) { print "&nbsp;<font size=-1><i>(play)</i></font>"; }
+      print "<br>\n";
+      $allSes .= "$play $wDir ";
     }
     $wDir = prev($workDirs);
   }
@@ -128,8 +144,10 @@ if (count($workDirs) == 0) {
 }
 
 fbutton("stat","Continue Selected Session","continueSes()");
-fhidden("allSes",$allSes);
 fend();
+jstart();
+print "    allSes = \"${allSes}\";";
+jend();
 
 if ($erase == 1) { reloadMenu(); }
 foot(); ?>
