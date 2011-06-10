@@ -40,6 +40,7 @@ struct JobAttr => {
 ($sec,$min,$hour,$mday,$mon,$year) = localtime();
 
 $mon++;
+
 if( $mon < 10) { $mon = '0'.$mon };
 if( $mday < 10) { $mday = '0'.$mday };
 if( $hour < 10) { $hour = '0'.$hour };
@@ -47,7 +48,7 @@ if( $min < 10) { $min = '0'.$min };
 if( $sec < 10) { $sec = '0'.$sec };
 
 
-my $todate = ($year+1900)."-".($mon+1)."-".$mday;
+my $todate = ($year+1900)."-".$mon."-".$mday;
 
 my $nowdate = $todate;
 
