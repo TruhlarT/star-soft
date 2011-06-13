@@ -438,7 +438,6 @@ my $trg0 = "n/a";
 </TR>
 END
 
-}
       $nlist++;
 
     }
