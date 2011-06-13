@@ -425,25 +425,6 @@ my $trg0 = "n/a";
 
  $prodname = $trig[$nlist].".".$prod[$nlist].".html";
 
-	if( ($trig[$nlist] eq "AuAu200_production" and $prod[$nlist] eq "P10ik") or ($trig[$nlist] eq "AuAu19_production" and $prod[$nlist] eq "P11ic") ) {
-
-print <<END;
-
-<TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/public/comp/prod/prodsum/$prodname"><font color="#ff0000">$trig[$nlist]</font></h3></td>
-<td HEIGHT=10><h3><font color="#ff0000">$coll[$nlist]</font></h3></td>
-<td HEIGHT=10><h3><font color="#ff0000">$yrdat[$nlist]</font></h3></td>
-<td HEIGHT=10><h3><font color="#ff0000">$prod[$nlist]</font></h3></td>
-<td HEIGHT=10><h3><font color="#ff0000">$sumevt[$nlist]</font></h3></td>
-<td HEIGHT=10><h3><font color="#ff0000">$sumsize[$nlist]</font></h3></td>
-<td HEIGHT=10><h3><font color="#ff0000">$numfiles[$nlist]</font></h3></td>
-</TR>
-END
-
-
-} else{
-
-
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
