@@ -4,9 +4,9 @@
 #
 # L.Didenko
 #
-# RetriveStreams.pl
+# RetriveChain.pl
 #
-# Retrive stream data productions from FileCatalog.
+# Retrive production chain.
 # 
 ################################################################################################
 
@@ -16,7 +16,7 @@ BEGIN {
 
 
 use DBI;
-use CGI;
+use CGI qw(:standard);
 use Mysql;
 use Class::Struct;
 
@@ -55,6 +55,7 @@ my $np = 0;
 my $chpt;
 my $chset;
 
+  &StDbProdConnect();
 
     $sql="SELECT chainOpt  FROM $chainOptionT  where trgsetName = '$qtrg' and prodTag = '$qprod' ";
 
@@ -70,8 +71,10 @@ my $chset;
   
 $chset = $archain[0];
 
+&StDbProdDisconnect(); 
 
 &beginHtml();
+
 
 
 ######################
@@ -96,7 +99,19 @@ END
 }
 
 
-##############
+######################
+sub StDbProdConnect {
+    $dbh = DBI->connect("dbi:mysql:$dbname:$dbhost", $dbuser, $dbpass)
+        || die "Cannot connect to db server $DBI::errstr\n";
+}
+
+######################
+sub StDbProdDisconnect {
+    $dbh = $dbh->disconnect() || die "Disconnect failure $DBI::errstr\n";
+}
+
+#####################################
+
 sub cgiSetup {
     $q=new CGI;
     if ( exists($ENV{'QUERY_STRING'}) ) { print $q->header };
