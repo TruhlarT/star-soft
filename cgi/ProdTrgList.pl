@@ -390,13 +390,27 @@ my $trg0 = "n/a";
 	}elsif($trig[$nlist] eq "ProductionMinBias" and $prod[$nlist] =~ /P02/ ) {
 	    $yrdat[$nlist] = "year2001";
 	}
+        
+       if( $trig[$nlist] eq "ppProduction" and $prod[$nlist] eq "P05if" ) {
+           $yrdat[$nlist] = "year2005";
+       }elsif( $trig[$nlist] eq "ppEmcBackground" and $prod[$nlist] eq "P05if" ) {
+          $yrdat[$nlist] = "year2005";
+       }elsif( $trig[$nlist] eq "ppEmcCheck" and $prod[$nlist] eq "P05if" ) {  
+          $yrdat[$nlist] = "year2005";
+       }
 
+         if( $trig[$nlist] eq "eemcCalibration" and $prod[$nlist] eq "P04id" ) {          
+	     $coll[$nlist] = "auau62";
+	 }
 
      @runevents = ();
      $runevents[0] = 0;  
      @datasize = ();
      $datasize[0] = 0; 
      @filelst = ();
+
+	next if($trig[$nlist] eq "productionLow" and $prod[$nlist] eq "P04if");
+        next if($prod[$nlist] eq "P02gh1");
 
     $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_MuDst","storage=hpss","limit=0");
  
