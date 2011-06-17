@@ -33,8 +33,8 @@ if( $sec < 10) { $sec = '0'.$sec };
 
 my $todate = ($year+1900)."-".$mon."-".$mday;
 
-$dbhost="fc2.star.bnl.gov:3386";
-#$dbhost="duvall.star.bnl.gov";
+#$dbhost="fc2.star.bnl.gov:3386";
+$dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
 $dbpass="";
 $dbname="operation";
