@@ -87,7 +87,7 @@ print <<END;
    <body BGCOLOR=\"cornsilk\"> 
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
- <TD ALIGN=CENTER> <B><h3> Chain options for $qprod production and  $qtrg dataset </B></h3></TD>
+ <TD ALIGN=CENTER> <B><h3> Chain options for <font color="blue">$qprod </font>production and <font color="blue"> $qtrg </font>dataset </B></h3></TD>
 </TR><TR>
 <TD  ALIGN=CENTER WIDTH=\"100%\" HEIGHT=50><h3>$chset</h3></TD>
 </TR>
