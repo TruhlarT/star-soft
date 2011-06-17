@@ -410,6 +410,9 @@ my $trg0 = "n/a";
      @filelst = ();
 
 	next if($trig[$nlist] eq "productionLow" and $prod[$nlist] eq "P04if");
+
+ 	next if($trig[$nlist] eq "productionCentral" and ($prod[$nlist] eq "P03gb" or $prod[$nlist] eq "P03gc")); 
+     
         next if($prod[$nlist] eq "P02gh1");
 
     $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_MuDst","storage=hpss","limit=0");
