@@ -480,9 +480,8 @@ print <<END;
  <h2 ALIGN=CENTER> <B> Real Data Production Summary  </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
-<h4 ALIGN=LEFT>Link under the trigger set name has stream data production summary <br>
+<h4 ALIGN=LEFT>Link under the trigger set name has stream data production summary <ALIGN=RIGHT><font color="#ff0000">Ongoing production is in red color</font><br>
 Link under production tag has chain options</h4>
-<h4 ALIGN=RIGHT><font color="#ff0000">Ongoing production is in red color</font></h4>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Trigger sets</h3></B></TD>
