@@ -410,6 +410,7 @@ my $trg0 = "n/a";
      @filelst = ();
 
 	next if($trig[$nlist] eq "productionLow" and $prod[$nlist] eq "P04if");
+	next if($trig[$nlist] eq "dAuMinBias" and $prod[$nlist] eq "P03if");
 
         next if($prod[$nlist] eq "P03id");
         next if($prod[$nlist] eq "P03ig");     
