@@ -416,7 +416,8 @@ my $trg0 = "n/a";
         next if($prod[$nlist] eq "P03ig");     
         next if($prod[$nlist] eq "P02gh1");
         next if($prod[$nlist] eq "P03gb");
-        next if($prod[$nlist] eq "P03gc");          
+        next if($prod[$nlist] eq "P03gc"); 
+        next if($prod[$nlist] eq "P03ie");          
 
 
     $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_MuDst","storage=hpss","limit=0");
