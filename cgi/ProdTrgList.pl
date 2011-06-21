@@ -447,6 +447,26 @@ my $trg0 = "n/a";
 
  $prodname = $trig[$nlist].".".$prod[$nlist].".html";
 
+
+        if( $prod[$nlist] eq "P11ic" ) {
+
+print <<END;
+
+<TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/public/comp/prod/prodsum/$prodname"><font color="#ff0000">$trig[$nlist]</font></h3></td>
+<td HEIGHT=10><h3><font color="#ff0000">$coll[$nlist]</font></h3></td>
+<td HEIGHT=10><h3><font color="#ff0000">$yrdat[$nlist]</font></h3></td>
+<td HEIGHT=10><h3><font color="#ff0000"><a href="http://www.star.bnl.gov/devcgi/RetriveChain.pl?trigs=$trig[$nlist];prod=$prod[$nlist]">$prod[$nlist]</font></h3></td>
+<td HEIGHT=10><h3><font color="#ff0000">$sumevt[$nlist]</font></h3></td>
+<td HEIGHT=10><h3><font color="#ff0000">$sumsize[$nlist]</font></h3></td>
+<td HEIGHT=10><h3><font color="#ff0000">$numfiles[$nlist]</font></h3></td>
+</TR>
+END
+
+
+} else{
+
+
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
@@ -460,6 +480,7 @@ my $trg0 = "n/a";
 </TR>
 END
 
+ }
       $nlist++;
 
     }
