@@ -138,14 +138,30 @@
     $combID = rand(1,65535); # seed is now done automatically in PHP
     $str = "";
     
+    #streams = array("jpsi","mtd","upsilon","minbias","gamma","physics");
+    $stream = ""; # default stream is any
+    
     # determine passed run numbers
-    $MAX_RUNS = 20;
+    $MAX_RUNS = 32;
     foreach ($_GET as $k => $v) {
-      if ((substr($k,0,6) === "useRun") && cleanInt(substr($k,6)) && cleanInt($v)) {
-        $useRuns[] = $v;
-        if (count($useRuns) > $MAX_RUNS) {
-          $str .= "<br>Warning, maximum number of runs (${MAX_RUNS}) reached,"
-              .  " ignoring the rest...<br>\n";
+      if ((substr($k,0,6) === "useRun") && cleanInt(substr($k,6))) {
+        $vals = explode(' ',$v); # delimeter is space
+        if (count($vals) == 2 && isRunNum($vals[0]) && cleanStrict($vals[1])) {
+          if (strlen($stream)) {
+            if ($vals[1] != $stream) {
+              $str .= "<b>WARNING: combine request for multiple streams; ignoring run "
+              . $vals[0] . ", st_" . $vals[1] . "* stream</b><br>\n";
+              continue;
+            }
+          } else {
+            $stream = $vals[1]; # for now, only first stream is selected
+          }
+          $useRuns[] = $vals[0];
+          if (count($useRuns) >= $MAX_RUNS) {
+            $str .= "<br>Warning, maximum number of runs (${MAX_RUNS}) reached,"
+                .  " ignoring the rest...<br>\n";
+            break;
+          }
         }
       }
     }
@@ -162,12 +178,9 @@
       $str .= dateChecker("day2",($year2 == $year1 && $month2 == $month1 ? $month1 : 1),31,$status);
       $str .= dateChecker("year2",$year1,2040,$status);
       if ($status < 0) { return $str; }
-      #streams = array("jpsi","mtd","upsilon","minbias","gamma","physics");
-      #for now, only doing "physics"
-      $stream = "physics";
       $qry = "SELECT `file`,`DiskLoc` FROM $dbDAQInfo WHERE `runNumber` IN"
       . " (${runList}) AND `Status` > 1 and `Status` < 4 and `DiskLoc` > 0"
-      . " AND `file` LIKE 'st_${stream}_%'"
+      . " AND `file` LIKE 'st_${stream}%'"
       . " AND `UpdateDate` >= " . sprintf("\"%d-%02d-%02d 00:00:00\"",$year1,$month1,$day1)
       . " AND `UpdateDate` <= " . sprintf("\"%d-%02d-%02d 23:59:59\"",$year2,$month2,$day2)
       . " LIMIT 100";
