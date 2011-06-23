@@ -111,14 +111,23 @@ function getLinksDB($runYear=-1,$runDay=-1,$run=-1) {
   if ($runYear >0) {
     $str .= "WHERE runYear='$runYear' ";
     if ($runDay > 0) {
-      $str .= "and runDay='$runDay' ";
+      $str .= "AND runDay='$runDay' ";
       $rstr = "run";
     } else $rstr = "runDay";
-    if ($run    > 0) $str .= "and run='$run' ";
+    if ($run > 0) $str .= "AND run='$run' ";
   }
-  if ($run < 0) $str .= "GROUP by $xstr ORDER by $xstr DESC;";
-  else $str .= "ORDER by RepType,seq,idx ASC;";
+  if ($run < 0) $str .= "GROUP BY $xstr ORDER BY $xstr DESC;";
+  else $str .= "ORDER BY RepType,seq,idx ASC;";
   return queryDB(str_replace($xstr,$rstr,$str));
+}
+  
+function getRunsInIssYear($issYear) {
+  global $rFSIDB;
+  $run2 = ($issYear*1000 + 274) * 1000;
+  $run1 = $run2 - 1000000;
+  $str = "SELECT run FROM $rFSIDB WHERE run BETWEEN $run1 AND $run2"
+  . " GROUP BY run ORDER BY 1 ASC";
+  return queryDBarray($str,'run');
 }
 
 function optimizeReportsDB() {

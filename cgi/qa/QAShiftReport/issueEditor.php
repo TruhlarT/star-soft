@@ -4,6 +4,7 @@
 incl("entry.php");
 incl("sections.php");
 incl("issueAttachments.php");
+incl("report.php");
 
 # Reset all issue indices
 #if (isset($_POST["res"])) { resetIssueIndices(); }
@@ -25,124 +26,146 @@ $nattach = 0;
 ############## PHP FUNCTIONS TO USE ################
 
 function PrintDates($issue) {
-    global $ents;
-    print "Opened/Created: <b>" . $issue->First() . "</b><br>\n";
-    foreach ($issue->times as $typ => $lt) {
-      if ($typ == QAnull) {
-        print "Last used/modified: <b>";
-        print $issue->Last() . "</b><br>\n";
-        print "<font size=-1>";
-        if (count($issue->times) > 1) { print "Currently allowed types:"; }
-        else { print "No currently allowed types."; }
-        print "</font><br>\n";
-      } else {
-        print "Last used in a " . $ents[$typ] . " entry: <b>";
-        print $issue->Last($typ) . "</b><br>\n";
-      }
+  global $ents;
+  print "Opened/Created: <b>" . $issue->First() . "</b><br>\n";
+  foreach ($issue->times as $typ => $lt) {
+    if ($typ == QAnull) {
+      print "Last used/modified: <b>";
+      print $issue->Last() . "</b><br>\n";
+      print "<font size=-1>";
+      if (count($issue->times) > 1) { print "Currently allowed types:"; }
+      else { print "No currently allowed types."; }
+      print "</font><br>\n";
+    } else {
+      print "Last used in a " . $ents[$typ] . " entry: <b>";
+      print $issue->Last($typ) . "</b><br>\n";
     }
+  }
 }
 
 function PrintRuns($iid) {
-    $runlist = getListOfRunsForIssue($iid);
-    if (count($runlist)<1) return;
-    print "<table border=0 cellpadding=0 cellspacing=0>\n";
-    print "<tr valign=top><td>Runs tagged with this issue:</td><td align=right>";
-    print "<div id =\"noRunList\"\n";
-    print "       style=\"display:block ;z-index:2\">\n";
-    fbutton("showRunsButton","Show full list of runs","toggleSection('RunList')");
-    print "First-last runs: <b>" . min($runlist) . "-" . max($runlist) . "</b><br>";
-    print "</div>\n";
-    print "<div id =\"fullRunList\"\n";
-    print "       style=\"display:none ;z-index:2\">\n";
-    print "<table border=0 cellpadding=0 cellspacing=0><tr valign=top><td>\n";
-    fbutton("hideRunsButton","Show only first-last runs","toggleSection('RunList')");
-    print "</td><td>";
-    foreach ($runlist as $run) print "<b>$run</b><br>\n";
-    print "</td></tr></table>\n";
-    print "</div>\n";
-    print "</td></tr></table>\n";
+  global $issueYear;
+  $runlist = getListOfRunsForIssue($iid);
+  if (count($runlist)<1) return;
+  print "<table border=0 cellpadding=0 cellspacing=0>\n";
+  print "<tr valign=top><td>Runs with this issue active:</td><td align=right>";
+  print "<div id =\"noRunList\"\n";
+  print "       style=\"display:block ;z-index:2\">\n";
+  fbutton("showRunsButton","Show full list of runs","toggleSection('RunList')");
+  print "First-last runs: <b>" . min($runlist) . "-" . max($runlist) . "</b><br>";
+  print "</div>\n";
+  print "<div id =\"fullRunList\"\n";
+  print "       style=\"display:none ;z-index:2\">\n";
+  print "<table border=0 cellpadding=0 cellspacing=0><tr valign=top><td>\n";
+  fbutton("hideRunsButton","Show only first-last runs","toggleSection('RunList')");
+  print "</td><td>";
+  print "<div id =\"noMissList\"\n";
+  print "       style=\"display:block ;z-index:3\">\n";
+  fbutton("showMissButton","...and inactive","toggleSection('MissList')");
+  print "<font size=-1>\n";
+  foreach ($runlist as $run) print "<br><b>$run</b>\n";
+  print "</font>\n</div>\n";
+  print "<div id =\"fullMissList\"\n";
+  print "       style=\"display:none ;z-index:3\">\n";
+  fbutton("hideMissButton","...only active","toggleSection('MissList')");
+  $fullRunList = getRunsInIssYear($issueYear);
+  $bigspace = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+  print "<font size=-1>\n";
+  foreach ($fullRunList as $run) {
+    print "<br><font color=\"";
+    if (in_array($run,$runlist)) {
+      print "red\"><b>${bigspace}${run}</b>";
+    } else {
+      print "blue\" size=-2>${run}";
+    }
+    print "</font>\n";
+  }
+  print "</font>\n</div>\n";
+  print "</td></tr></table>\n";
+  print "</div>\n";
+  print "</td></tr></table>\n";
 }
 
 
 function ViewDesc($issue) {
-    print "<u>Tags:</u>\n<table border=0 cellpadding=0 cellspacing=0>\n";
-    print "<tr valign=top><td>Category/Subsytem:</td>\n";
-    print "<td><b><font color=\"#800000\">";
-    print $issue->GetTagCategory() . "</font></b></td></tr>\n";
-    #print "<tr valign=top><td>Relevant Plots:</td>\n";
-    #print "<td><b><font color=\"#800000\">";
-    #print $issue->GetTagPlots() . "</font></b></td></tr>\n";
-    print "<tr valign=top><td>Keywords:</td>\n";
-    print "<td><b><font color=\"#800000\">";
-    print $issue->GetTagKeywords() . "</font></b></td></tr></table><br>\n";
-    print "Name <font size=-1>(short description)</font>:";
-    print "\n<b><font color=\"#800000\">";
-    print htmlentities(stripslashes($issue->Name)) . "</font></b><br>\n";
-    print "Full Description And Notes:\n";
-    print "<b><font color=\"#C00000\" size=+1><pre>\n";
-    print preserve_wordwrap(htmlentities(stripslashes($issue->Desc)),75,chr(10));
-    print "\n</pre></font></b>\n";
+  print "<u>Tags:</u>\n<table border=0 cellpadding=0 cellspacing=0>\n";
+  print "<tr valign=top><td>Category/Subsytem:</td>\n";
+  print "<td><b><font color=\"#800000\">";
+  print $issue->GetTagCategory() . "</font></b></td></tr>\n";
+  #print "<tr valign=top><td>Relevant Plots:</td>\n";
+  #print "<td><b><font color=\"#800000\">";
+  #print $issue->GetTagPlots() . "</font></b></td></tr>\n";
+  print "<tr valign=top><td>Keywords:</td>\n";
+  print "<td><b><font color=\"#800000\">";
+  print $issue->GetTagKeywords() . "</font></b></td></tr></table><br>\n";
+  print "Name <font size=-1>(short description)</font>:";
+  print "\n<b><font color=\"#800000\">";
+  print htmlentities(stripslashes($issue->Name)) . "</font></b><br>\n";
+  print "Full Description And Notes:\n";
+  print "<b><font color=\"#C00000\" size=+1><pre>\n";
+  print preserve_wordwrap(htmlentities(stripslashes($issue->Desc)),75,chr(10));
+  print "\n</pre></font></b>\n";
 }
 
 function EditDesc($mode,$issue) {
-    $iname = "";
-    $idesc = "";
-    if ($mode != "new") {
-      $iname = stripslashes($issue->Name);
-      $idesc = stripslashes($issue->Desc);
-    }
-    print "<i>Please use tags and an issue name which will make it\n";
-    print "easy for others to identify and re-use this issue.</i><p>\n";
-    print "<table border=0 cellpadding=0 cellspacing=0>\n";
-    print "<tr><td colspan=3><u>Tags:</u></td></tr>\n";
-    print "<tr valign=top><td>Category/Subsytem:</td>\n<td>";
-    print printCategorySelector("icateg",$issue);
-    print "</td><td><font size=-1>(required)</font></td></tr>\n";
-    #print "Relevant Plots:" . printPlotsSelector("iplots",$issue);
-    #print "<nobr><font size=-1>(optional, multi-select)</font></nobr><br>\n";
-    print "<tr valign=top><td>Keywords:</td>\n<td>";
-    beginSection("Keywords","List of keywords",3,"");
-    print printKeywordsMultiSelector("ikeyws",$issue);
-    endSection();
-    print "</td><td><nobr><font size=-1>(optional, multi-select)</font></nobr></td></tr></table><br>\n";
-    print "Name <font size=-1>(short description)</font>:";
-    print "<input tabindex=1 name=iname size=50 value=\"${iname}\"><br>\n";
-    print "Full Description:<br>\n";
-    print "<textarea tabindex=2 name=idesc rows=14 cols=74>";
-    print $idesc . "</textarea>\n\n<br>\n\n";
+  $iname = "";
+  $idesc = "";
+  if ($mode != "new") {
+    $iname = stripslashes($issue->Name);
+    $idesc = stripslashes($issue->Desc);
+  }
+  print "<i>Please use tags and an issue name which will make it\n";
+  print "easy for others to identify and re-use this issue.</i><p>\n";
+  print "<table border=0 cellpadding=0 cellspacing=0>\n";
+  print "<tr><td colspan=3><u>Tags:</u></td></tr>\n";
+  print "<tr valign=top><td>Category/Subsytem:</td>\n<td>";
+  print printCategorySelector("icateg",$issue);
+  print "</td><td><font size=-1>(required)</font></td></tr>\n";
+  #print "Relevant Plots:" . printPlotsSelector("iplots",$issue);
+  #print "<nobr><font size=-1>(optional, multi-select)</font></nobr><br>\n";
+  print "<tr valign=top><td>Keywords:</td>\n<td>";
+  beginSection("Keywords","List of keywords",3,"");
+  print printKeywordsMultiSelector("ikeyws",$issue);
+  endSection();
+  print "</td><td><nobr><font size=-1>(optional, multi-select)</font></nobr></td></tr></table><br>\n";
+  print "Name <font size=-1>(short description)</font>:";
+  print "<input tabindex=1 name=iname size=50 value=\"${iname}\"><br>\n";
+  print "Full Description:<br>\n";
+  print "<textarea tabindex=2 name=idesc rows=14 cols=74>";
+  print $idesc . "</textarea>\n\n<br>\n\n";
 }
 
 function EditNote() {
-    print "Author: ";
-    finput("auth",20);
-    print " Note to add (or <b>resolution</b> if closing):<br>\n";
-    print "<textarea tabindex=1 name=note rows=6 cols=74>";
-    print "</textarea>\n\n<br>\n\n";
+  print "Author: ";
+  finput("auth",20);
+  print " Note to add (or <b>resolution</b> if closing):<br>\n";
+  print "<textarea tabindex=1 name=note rows=6 cols=74>";
+  print "</textarea>\n\n<br>\n\n";
 }
 
 function EditType($iid,$type) {
-    global $ents,$issue;
-    $addtype = array("none" => "----------");
-    $addtype += $ents;
-    $atcount = count($ents);
-    if ($iid != 0) { $atcount = count($issue->times); }
-    if ($atcount > 0) {
-      $addtype["none"] = "----------";
-      print "Allow issue to be used for data entries of: ";
-      print "<select name=\"ftype\">\n";
-      foreach ($addtype as $typ => $entT) {
-        $marked = 0;
-        if (($iid != 0) && ($issue->HasType($typ))) { $marked = 1; }
+  global $ents,$issue;
+  $addtype = array("none" => "----------");
+  $addtype += $ents;
+  $atcount = count($ents);
+  if ($iid != 0) { $atcount = count($issue->times); }
+  if ($atcount > 0) {
+    $addtype["none"] = "----------";
+    print "Allow issue to be used for data entries of: ";
+    print "<select name=\"ftype\">\n";
+    foreach ($addtype as $typ => $entT) {
+      $marked = 0;
+      if (($iid != 0) && ($issue->HasType($typ))) { $marked = 1; }
 
-        print "<option value=\"${typ}\"";
-        if ($marked == 1) { print " disabled"; }
-        if ($typ == $type) { print " selected"; }
-        print ">${entT}</option>\n";
-      }
-      print "</select>\n";
-    } else {
-      fhidden("ftype",$type);
+      print "<option value=\"${typ}\"";
+      if ($marked == 1) { print " disabled"; }
+      if ($typ == $type) { print " selected"; }
+      print ">${entT}</option>\n";
     }
+    print "</select>\n";
+  } else {
+    fhidden("ftype",$type);
+  }
 }
 
 function Details2AttachmentSection() {
