@@ -37,6 +37,7 @@ my $todate = ($year+1900)."-".$mon."-".$mday;
 
 my %collHash = (
                  AuAu200_production_2011 => 'auau200',
+                 AuAu27_production_2011 => 'auau27',
                  pp500_production_2011  => 'pp500',
                  pp500_production_2011_noeemc => 'pp500',
                  pp500_production_2011_fms => 'pp500',
@@ -167,6 +168,7 @@ my %collHash = (
              
 my %yrHash = (
                  AuAu200_production_2011 => 'year2011',
+                 AuAu27_production_2011 => 'year2011',
                  pp500_production_2011  => 'year2011',
                  pp500_production_2011_noeemc => 'year2011',
                  pp500_production_2011_fms => 'year2011',
