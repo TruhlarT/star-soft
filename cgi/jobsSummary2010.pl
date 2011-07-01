@@ -200,22 +200,21 @@ my $nprod = 0;
 
 ########## 
 
-#  print "Job status:   ", $nprod,"   ",$prodtag[$nprod], "  ",$artrg[$nprod], "  ",$strtime[$nprod], "  ",$fntime[$nprod], "  ",$sumevt[$nprod], "  ","created = ",$jbcreat[$nprod], "  ","done = ",$jbdone[$nprod], "  ","crashed = ",$jbcrsh[$nprod], "  ","hung = ",$jbhung[$nprod], "  ","hpss_error = ",$jbhpss[$nprod], "  ","resubmitted = ",$jbresub[$nprod], "\n";
 
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$artrg[$nprod]</h3></td>
-<td HEIGHT=10><h3>$prodtag[$nprod]</h3></td>
+<td HEIGHT=5><h3>$prodtag[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbcreat[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbdone[$nprod]</h3></td>
-<td HEIGHT=10><h3>$jbcrsh[$nprod]</h3></td>
+<td HEIGHT=5><h3>$jbcrsh[$nprod]</h3></td>
 <td HEIGHT=5><h3>$jbhung[$nprod]</h3></td>
 <td HEIGHT=5><h3>$jbhpss[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbresub[$nprod]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nprod]</h3></td>
-<td HEIGHT=10><h3>$strtime[$nprod]</h3></td>
-<td HEIGHT=10><h3>$fntime[$nprod]</h3></td>
+<td HEIGHT=15><h3>$strtime[$nprod]</h3></td>
+<td HEIGHT=15><h3>$fntime[$nprod]</h3></td>
 </TR>
 END
 
@@ -256,16 +255,16 @@ print <<END;
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Trigger set</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Production tag</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Production tag</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>No.jobs created</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>No.jobs done</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Total No.jobs failed</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Total No.jobs failed</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs 'hung'</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs failed due to HPSS problem</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>No.jobs resubmitted</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of Events<h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Start time <h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>End time <h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=60><B><h3>Start time <h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=60><B><h3>End time <h3></B></TD>
 </TR>
    </head>
     </body>
