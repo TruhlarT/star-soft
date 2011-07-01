@@ -215,7 +215,7 @@ my $nprod = 0;
 <td HEIGHT=10><h3>$jbresub[$nprod]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nprod]</h3></td>
 <td HEIGHT=10><h3>$strtime[$nprod]</h3></td>
-<td HEIGHT=10><h3>$fintime[$nprod]</h3></td>
+<td HEIGHT=10><h3>$fntime[$nprod]</h3></td>
 </TR>
 END
 
