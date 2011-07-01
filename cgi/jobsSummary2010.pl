@@ -205,16 +205,16 @@ my $nprod = 0;
 
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$artrg[$nprod]</h3></td>
-<td HEIGHT=5><h3>$prodtag[$nprod]</h3></td>
+<td HEIGHT=10><h3>$prodtag[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbcreat[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbdone[$nprod]</h3></td>
-<td HEIGHT=5><h3>$jbcrsh[$nprod]</h3></td>
-<td HEIGHT=5><h3>$jbhung[$nprod]</h3></td>
-<td HEIGHT=5><h3>$jbhpss[$nprod]</h3></td>
+<td HEIGHT=10><h3>$jbcrsh[$nprod]</h3></td>
+<td HEIGHT=10><h3>$jbhung[$nprod]</h3></td>
+<td HEIGHT=10><h3>$jbhpss[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbresub[$nprod]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nprod]</h3></td>
-<td HEIGHT=15><h3>$strtime[$nprod]</h3></td>
-<td HEIGHT=15><h3>$fntime[$nprod]</h3></td>
+<td HEIGHT=10><h3>$strtime[$nprod]</h3></td>
+<td HEIGHT=10><h3>$fntime[$nprod]</h3></td>
 </TR>
 END
 
