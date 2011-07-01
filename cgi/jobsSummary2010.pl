@@ -202,8 +202,6 @@ my $nprod = 0;
 
 #  print "Job status:   ", $nprod,"   ",$prodtag[$nprod], "  ",$artrg[$nprod], "  ",$strtime[$nprod], "  ",$fntime[$nprod], "  ",$sumevt[$nprod], "  ","created = ",$jbcreat[$nprod], "  ","done = ",$jbdone[$nprod], "  ","crashed = ",$jbcrsh[$nprod], "  ","hung = ",$jbhung[$nprod], "  ","hpss_error = ",$jbhpss[$nprod], "  ","resubmitted = ",$jbresub[$nprod], "\n";
 
-       $nprod++;
-
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
@@ -220,6 +218,8 @@ my $nprod = 0;
 <td HEIGHT=10><h3>$fintime[$nprod]</h3></td>
 </TR>
 END
+
+      $nprod++;
 
 }
 
