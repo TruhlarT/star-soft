@@ -70,7 +70,7 @@ my $nn = 0;
 
   &StDbProdConnect();
 
-   if( $gflag eq "jstat") {
+   if( $qflag eq "jstat") {
  
   &beginJbHtml(); 
 
@@ -99,7 +99,7 @@ my $nn = 0;
          }
 
   
- }elsif($gflag eq "hpss") {
+ }elsif($qflag eq "hpss") {
 
    &beginHpHtml();
 
@@ -140,7 +140,7 @@ my $nn = 0;
        $jbStatus[$nn] = ($$pjob)->jbst;
        $jbEvent[$nn]  = ($$pjob)->jbevt;
 
-    if( $gflag eq "jstat") {
+    if( $qflag eq "jstat") {
 
  print <<END;
 
@@ -151,7 +151,7 @@ my $nn = 0;
 </TR>
 END
 
- }elsif($gflag eq "hpss") {
+ }elsif($qflag eq "hpss") {
 
 print <<END;
 
