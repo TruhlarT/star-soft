@@ -66,8 +66,6 @@ my @jbfName = ();
 my @jbEvent = ();
 my $nn = 0;
 
-  &beginHtml();
-
   &StDbProdConnect();
 
    if( $qflag eq "jstat") {
