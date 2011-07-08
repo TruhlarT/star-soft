@@ -126,7 +126,9 @@ if($Ncreate <= 1000) {
         if ( -f $jbfile) {
 	print  $jbfile, "\n";
 
-      `$CRSDIR/crs_job -create $jbfile -q5 -p20 -drop`;
+#      `$CRSDIR/crs_job -create $jbfile -q3 -p20 -drop`;
+
+      `$CRSDIR/crs_job -create $jbfile -q4 -p20 -drop`;
 #	`$CRSDIR/crs_job -create $jbfile -q5 -p20`;
 
 	`/bin/mv $jbfile $archdir`;
