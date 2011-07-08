@@ -172,7 +172,7 @@ my $nn = 0;
 
  print <<END;
 
-<TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$jbfName[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbStatus[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbEvent[$nn]</h3></td>
@@ -184,7 +184,7 @@ END
 
 print <<END;
 
-<TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$jbfName[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbStatus[$nn]</h3></td>
 </TR>
@@ -194,7 +194,7 @@ END
 
 print <<END;
 
-<TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$jbfName[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbStatus[$nn]</h3></td>
 </TR>
