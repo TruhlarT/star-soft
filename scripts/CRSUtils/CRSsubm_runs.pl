@@ -18,7 +18,7 @@ $dbuser="starreco";
 $dbpass="";
 $dbname="operation";
 
-$JobStatusT = "JobStatus2010";
+$JobStatusT = "JobStatus2011";
 
 
  if( -f $lockfile) {
@@ -126,10 +126,9 @@ if($Ncreate <= 1000) {
         if ( -f $jbfile) {
 	print  $jbfile, "\n";
 
-#      `$CRSDIR/crs_job -create $jbfile -q3 -p20 -drop`;
+      `$CRSDIR/crs_job -create $jbfile -q5 -p20 -drop`;
 
-      `$CRSDIR/crs_job -create $jbfile -q4 -p20 -drop`;
-#	`$CRSDIR/crs_job -create $jbfile -q5 -p20`;
+#      `$CRSDIR/crs_job -create $jbfile -q4 -p20 -drop`;
 
 	`/bin/mv $jbfile $archdir`;
 

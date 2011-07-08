@@ -119,15 +119,12 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
 ############## uncomment next lines
 
      next if( $jobname =~ /dev/);
-     next if( $jobname =~ /P11ic/);
 
       `crs_job -kill $crsjobname`;
 
-  print "Found looping jobs: ", $jobname,"   ", $prt[1],  "\n";
-
       `mv $fullname $loopdir \n`;
 
-#        print "Looping job killed and moved to jobs_looping dir: ", $jobname,"   ", $prt[1],  "\n";
+        print "Looping job killed and moved to jobs_looping dir: ", $jobname,"   ", $prt[1],  "\n";
 
       $sql="update $JobStatusT set jobStatus = 'hung', inputHpssStatus = 'OK'  where jobfileName = '$jobname' ";
       $rv = $dbh->do($sql) || die $dbh->errstr;   
