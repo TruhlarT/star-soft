@@ -12,7 +12,7 @@ $dbuser="starreco";
 $dbpass="";
 $dbname="operation";
 
-$JobStatusT = "JobStatus2010";
+$JobStatusT = "JobStatus2011";
 
 
 my $jobdir;
@@ -118,14 +118,18 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
 
 ############## uncomment next lines
 
-      `crs_job -kill $crsjobname`;
      next if( $jobname =~ /dev/);
+     next if( $jobname =~ /P11ic/);
+
+      `crs_job -kill $crsjobname`;
+
+  print "Found looping jobs: ", $jobname,"   ", $prt[1],  "\n";
 
       `mv $fullname $loopdir \n`;
-        print "Looping job killed and moved to jobs_looping dir: ", $jobname,"   ", $prt[1],  "\n";
-#         print "Found looping jobs: ", $jobname,"   ", $prt[1],  "\n";
 
-      $sql="update $JobStatusT set jobStatus = 'hunging'  where jobfileName = '$jobname' ";
+#        print "Looping job killed and moved to jobs_looping dir: ", $jobname,"   ", $prt[1],  "\n";
+
+      $sql="update $JobStatusT set jobStatus = 'hung', inputHpssStatus = 'OK'  where jobfileName = '$jobname' ";
       $rv = $dbh->do($sql) || die $dbh->errstr;   
 
     }
@@ -184,7 +188,7 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
       $rv = $dbh->do($sql) || die $dbh->errstr;
   
 
-    }elsif($prt[1] eq "hpss_error_-153" or $prt[1] eq "hpss_error_-154" ) {
+    }elsif($prt[1] eq "hpss_error_-153" or $prt[1] eq "hpss_error_-154" or $prt[1] eq "hpss_error_-152" ) {
  
     `crs_job -kill $crsjobname`;
      print "Job killed:  ", $jobname,"   ", $prt[1], "\n";
@@ -192,6 +196,7 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
 
       $sql="update $JobStatusT set inputHpssStatus = '$prt[1]' where jobfileName = '$jobname' ";
       $rv = $dbh->do($sql) || die $dbh->errstr;
+
 
     }elsif($prt[1] =~ /hpss_error/ ) {
  
