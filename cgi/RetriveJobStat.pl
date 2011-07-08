@@ -124,6 +124,36 @@ my $nn = 0;
             $jbstat[$nst] = $fObjAdr;
             $nst++;
          }
+
+ }elsif($qflag eq "hung") {
+
+   &beginHgHtml();
+
+     $sql="SELECT jobfileName, jobStatus, NoEvents FROM $JobStatusT  where jobfileName like '$qtrg%$qprod%' and prodSeries = '$qprod' and jobStatus = 'hung' ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+        while(@fields = $cursor->fetchrow) {
+            my $cols=$cursor->{NUM_OF_FIELDS};
+            $fObjAdr = \(JobAttr->new());
+
+            for($i=0;$i<$cols;$i++) {
+                my $fvalue=$fields[$i];
+                my $fname=$cursor->{NAME}->[$i];
+                # print "$fname = $fvalue\n" ;
+
+                ($$fObjAdr)->jbname($fvalue)   if( $fname eq 'jobfileName');
+                ($$fObjAdr)->jbst($fvalue)     if( $fname eq 'jobStatus');
+                ($$fObjAdr)->jbevt($fvalue)    if( $fname eq 'NoEvents');                
+
+            }
+            $jbstat[$nst] = $fObjAdr;
+            $nst++;
+         }
+
+
    }else{
 
    &beginHtml();
@@ -146,6 +176,17 @@ my $nn = 0;
 <td HEIGHT=10><h3>$jbfName[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbStatus[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbEvent[$nn]</h3></td>
+</TR>
+END
+
+
+ }elsif($qflag eq "hung") {
+
+print <<END;
+
+<TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
+<td HEIGHT=10><h3>$jbfName[$nn]</h3></td>
+<td HEIGHT=10><h3>$jbStatus[$nn]</h3></td>
 </TR>
 END
 
@@ -192,7 +233,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>List of failed jobs for<font color="blue"> $qprod </font> production and <font color="blue">$qtrg </font> dataset  </B></h2>
+ <h2 ALIGN=CENTER> <B>List of jobs crashed due to code problem for<font color="blue"> $qprod </font> production and <font color="blue">$qtrg </font> dataset  </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
@@ -205,6 +246,28 @@ print <<END;
     </body>
 END
 }
+
+#####################################
+
+sub beginHgHtml {
+
+print <<END;
+
+  <html>
+   <body BGCOLOR=\"cornsilk\">
+ <h2 ALIGN=CENTER> <B>List of jobs 'hung' for<font color="blue"> $qprod </font> production and <font color="blue">$qtrg </font> dataset  </B></h2>
+ <h3 ALIGN=CENTER> Generated on $todate</h3>
+<br>
+<TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
+<TR>
+<TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=60><B><h3>Jobfilename</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Job status</h3></B></TD>
+</TR>
+   </head>
+    </body>
+END
+}
+
 
 #####################################
 
