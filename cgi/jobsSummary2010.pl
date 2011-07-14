@@ -64,6 +64,8 @@ my @jbcrsh = ();
 my @jbhung = ();
 my @jbhpss = ();
 my @jbresub  = ();
+my @jbmudst = ();
+my @mismudst = ();
 
 my $nprod = 0;
 
@@ -113,6 +115,8 @@ my $nprod = 0;
     $jbhung[$nprod] = 0;
     $jbhpss[$nprod] = 0;
     $jbresub[$nprod] = 0;
+    $jbmudst[$nprod] = 0;
+    $mismudst[$nprod] = 0;    
 
 
 ###########
@@ -199,6 +203,33 @@ my $nprod = 0;
 
 ########## 
 
+  $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%' and prodSeries = '$prodtag[$nprod]' and outputHpssStatus = 'yes'  ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $jbmudst[$nprod] = $mpr;
+       }
+    $cursor->finish();
+
+########## 
+
+
+  $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%' and prodSeries = '$prodtag[$nprod]' and jobStatus <> 'n/a' and jobStatus <> 'hung' and inputHpssStatus = 'OK' and outputHpssStatus = 'n/a' and NoEvents >= 1 and avg_no_tracks > 0.001 ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $mismudst[$nprod] = $mpr;
+       }
+    $cursor->finish();
+
+########## 
+
 
  print <<END;
 
@@ -210,7 +241,9 @@ my $nprod = 0;
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2010;pflag=jstat">$jbcrsh[$nprod]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2010;pflag=hung">$jbhung[$nprod]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2010;pflag=hpss">$jbhpss[$nprod]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2010;pflag=mudst">$mismudst[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbresub[$nprod]</h3></td>
+<td HEIGHT=10><h3>$jbmudst[$nprod]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nprod]</h3></td>
 <td HEIGHT=10><h3>$strtime[$nprod]</h3></td>
 <td HEIGHT=10><h3>$fntime[$nprod]</h3></td>
@@ -260,10 +293,12 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs crashed</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs 'hung'</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs failed due to HPSS error</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.MuDst missing on HPSS</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs resubmit</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.MuDst files on HPSS</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.events produced<h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=60><B><h3>Start time <h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=60><B><h3>End time <h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Start time <h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>End time <h3></B></TD>
 </TR>
    </head>
     </body>
