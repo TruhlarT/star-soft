@@ -152,7 +152,33 @@ my $nn = 0;
             $jbstat[$nst] = $fObjAdr;
             $nst++;
          }
+ }elsif($qflag eq "mudst") {
 
+   &beginMuHtml();
+
+     $sql="SELECT jobfileName, jobStatus, NoEvents FROM $JobStatusT  where jobfileName like '$qtrg%$qprod%' and prodSeries = '$qprod' and jobStatus <> 'n/a' and jobStatus <> 'hung' and inputHpssStatus = 'OK' and outputHpssStatus = 'n/a' and NoEvents >= 1 and avg_no_tracks > 0.001 ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+        while(@fields = $cursor->fetchrow) {
+            my $cols=$cursor->{NUM_OF_FIELDS};
+            $fObjAdr = \(JobAttr->new());
+
+            for($i=0;$i<$cols;$i++) {
+                my $fvalue=$fields[$i];
+                my $fname=$cursor->{NAME}->[$i];
+                # print "$fname = $fvalue\n" ;
+
+                ($$fObjAdr)->jbname($fvalue)   if( $fname eq 'jobfileName');
+                ($$fObjAdr)->jbst($fvalue)     if( $fname eq 'jobStatus');
+                ($$fObjAdr)->jbevt($fvalue)    if( $fname eq 'NoEvents');                
+
+            }
+            $jbstat[$nst] = $fObjAdr;
+            $nst++;
+         }
 
    }else{
 
@@ -168,7 +194,7 @@ my $nn = 0;
        $jbStatus[$nn] = ($$pjob)->jbst;
        $jbEvent[$nn]  = ($$pjob)->jbevt;
 
-    if( $qflag eq "jstat") {
+    if( $qflag eq "jstat" or $qflag eq "mudst") {
 
  print <<END;
 
@@ -249,6 +275,29 @@ END
 
 #####################################
 
+sub beginMuHtml {
+
+print <<END;
+
+  <html>
+   <body BGCOLOR=\"cornsilk\">
+ <h2 ALIGN=CENTER> <B>List of jobs failed to transfer MuDst files on HPSS for<font color="blue"> $qprod </font> production and <font color="blue">$qtrg </font> dataset  </B></h2>
+ <h3 ALIGN=CENTER> Generated on $todate</h3>
+<br>
+<TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
+<TR>
+<TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=60><B><h3>Jobfilename</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Job status</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>No.events produced</h3></B></TD>
+</TR>
+   </head>
+    </body>
+END
+}
+
+#####################################
+
+
 sub beginHgHtml {
 
 print <<END;
@@ -280,7 +329,7 @@ print <<END;
  <h2 ALIGN=CENTER> <B>List of jobs failed to stage files from HPSS for <font color="blue">$qprod</font> production and <font color="blue">$qtrg </font> dataset  </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
-<TABLE ALIGN=CENTER BORDER=3 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
+<TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
 <TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=60><B><h3>Jobfilename</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>HPSS error</h3></B></TD>
