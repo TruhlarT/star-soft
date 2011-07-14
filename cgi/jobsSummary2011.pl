@@ -238,10 +238,10 @@ my $nprod = 0;
 <td HEIGHT=10><h3>$prodtag[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbcreat[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbdone[$nprod]</h3></td>
-<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2010;pflag=jstat">$jbcrsh[$nprod]</h3></td>
-<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2010;pflag=hung">$jbhung[$nprod]</h3></td>
-<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2010;pflag=hpss">$jbhpss[$nprod]</h3></td>
-<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2010;pflag=mudst">$mismudst[$nprod]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2011;pflag=jstat">$jbcrsh[$nprod]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2011;pflag=hung">$jbhung[$nprod]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2011;pflag=hpss">$jbhpss[$nprod]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2011;pflag=mudst">$mismudst[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbresub[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbmudst[$nprod]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nprod]</h3></td>
