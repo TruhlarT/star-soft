@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.42 2011/05/13 17:49:16 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.43 2011/07/15 19:38:22 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.43  2011/07/15 19:38:22  didenko
+# updated auau 27GeV data
+#
 # Revision 1.42  2011/05/13 17:49:16  didenko
 #  year 2011 pp 500GeV MC test
 #
@@ -131,6 +134,7 @@ my $debugOn = 0;
 my $rand = rand(100);
 my @prod_set = (
                 "daq_sl302/year_2011/AuAu200_production",
+                "daq_sl302/year_2011/AuAu27_production",
                 "daq_sl302/year_2011/AuAu19_production",
                 "daq_sl302/year_2011/pp500_production_2011",
                 "daq_sl302/year_2010/auau200_production",

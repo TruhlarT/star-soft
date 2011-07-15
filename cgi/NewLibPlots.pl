@@ -33,6 +33,7 @@ my @legend = ();
 
 my @prod_set = (
                 "daq_ittf/year_2011/AuAu200_production",
+                "daq_ittf/year_2011/AuAu27_production",
                 "daq_ittf/year_2011/AuAu19_production", 
                 "daq_ittf/year_2011/pp500_production_2011",
                 "daq_ittf/year_2010/auau200_production",
