@@ -75,8 +75,6 @@ my $jobname = $qtrg."%".$qprod."%";
  
   &beginJbHtml(); 
 
-#    $sql="SELECT jobfileName, jobStatus, NoEvents  FROM $JobStatusT  where jobfileName like '$qtrg%$qprod%' and prodSeries = '$qprod' and jobStatus <> 'Done' and jobStatus <> 'n/a' and jobStatus <> 'hung' ";
-
     $sql="SELECT jobfileName, jobStatus, NoEvents  FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and jobStatus <> 'Done' and jobStatus <> 'n/a' and jobStatus <> 'hung' ";
 
       $cursor =$dbh->prepare($sql)
