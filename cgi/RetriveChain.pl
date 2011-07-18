@@ -57,11 +57,11 @@ my $chset;
 
   &StDbProdConnect();
 
-    $sql="SELECT chainOpt  FROM $chainOptionT  where trgsetName = '$qtrg' and prodTag = '$qprod' ";
+    $sql="SELECT chainOpt  FROM $chainOptionT  where trgsetName = ? and prodTag = ? ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
+       $cursor->execute($qtrg,$qprod);
 
        while( $chpt = $cursor->fetchrow() ) {
           $archain[$np] = $chpt;
