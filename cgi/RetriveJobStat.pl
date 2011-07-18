@@ -66,17 +66,22 @@ my @jbfName = ();
 my @jbEvent = ();
 my $nn = 0;
 
+my $jobname = $qtrg."%".$qprod."%";
+
+
   &StDbProdConnect();
 
    if( $qflag eq "jstat") {
  
   &beginJbHtml(); 
 
-    $sql="SELECT jobfileName, jobStatus, NoEvents  FROM $JobStatusT  where jobfileName like '$qtrg%$qprod%' and prodSeries = '$qprod' and jobStatus <> 'Done' and jobStatus <> 'n/a' and jobStatus <> 'hung' ";
+#    $sql="SELECT jobfileName, jobStatus, NoEvents  FROM $JobStatusT  where jobfileName like '$qtrg%$qprod%' and prodSeries = '$qprod' and jobStatus <> 'Done' and jobStatus <> 'n/a' and jobStatus <> 'hung' ";
+
+    $sql="SELECT jobfileName, jobStatus, NoEvents  FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and jobStatus <> 'Done' and jobStatus <> 'n/a' and jobStatus <> 'hung' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
+       $cursor->execute($jobname,$qprod);
 
         while(@fields = $cursor->fetchrow) {
             my $cols=$cursor->{NUM_OF_FIELDS};
@@ -101,11 +106,11 @@ my $nn = 0;
 
    &beginHpHtml();
 
-     $sql="SELECT jobfileName, inputHpssStatus, NoEvents  FROM $JobStatusT  where jobfileName like '$qtrg%$qprod%' and prodSeries = '$qprod' and inputHpssStatus like 'hpss_error%' ";
+     $sql="SELECT jobfileName, inputHpssStatus, NoEvents  FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and inputHpssStatus like 'hpss_error%' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
+       $cursor->execute($jobname,$qprod);
 
         while(@fields = $cursor->fetchrow) {
             my $cols=$cursor->{NUM_OF_FIELDS};
@@ -129,11 +134,11 @@ my $nn = 0;
 
    &beginHgHtml();
 
-     $sql="SELECT jobfileName, jobStatus, NoEvents FROM $JobStatusT  where jobfileName like '$qtrg%$qprod%' and prodSeries = '$qprod' and jobStatus = 'hung' ";
+     $sql="SELECT jobfileName, jobStatus, NoEvents FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and jobStatus = 'hung' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
+       $cursor->execute($jobname,$qprod);
 
         while(@fields = $cursor->fetchrow) {
             my $cols=$cursor->{NUM_OF_FIELDS};
@@ -156,11 +161,11 @@ my $nn = 0;
 
    &beginMuHtml();
 
-     $sql="SELECT jobfileName, jobStatus, NoEvents FROM $JobStatusT  where jobfileName like '$qtrg%$qprod%' and prodSeries = '$qprod' and jobStatus <> 'n/a' and jobStatus <> 'hung' and inputHpssStatus = 'OK' and outputHpssStatus = 'n/a' and NoEvents >= 1 and avg_no_tracks > 0.001 ";
+     $sql="SELECT jobfileName, jobStatus, NoEvents FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and jobStatus <> 'n/a' and jobStatus <> 'hung' and inputHpssStatus = 'OK' and outputHpssStatus = 'n/a' and NoEvents >= 1 and avg_no_tracks > 0.0001 ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
+       $cursor->execute($jobname,$qprod);
 
         while(@fields = $cursor->fetchrow) {
             my $cols=$cursor->{NUM_OF_FIELDS};
@@ -243,7 +248,7 @@ print <<END;
    <body BGCOLOR=\"cornsilk\"> 
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
- <TD ALIGN=CENTER> <B><h3> No failed jobs found for <font color="blue">$qprod </font>production and <font color="blue"> $qtrg </font>dataset </B></h3></TD>
+ <TD ALIGN=CENTER> <B><h3> List of failed jobs found for <font color="blue">$qprod </font>production and <font color="blue"> $qtrg </font>dataset </B></h3></TD>
 </TR>
 </TABLE>
     </body>
