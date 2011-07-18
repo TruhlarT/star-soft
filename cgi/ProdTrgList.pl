@@ -6,7 +6,7 @@
 #
 # ProdTrgList.pl
 #
-# List of trigset set productions from FileCatalog.
+# List of trigset sets and production summary from FileCatalog.
 # 
 ################################################################################################
 

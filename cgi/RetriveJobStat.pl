@@ -4,9 +4,9 @@
 #
 # L.Didenko
 #
-# RetriveChain.pl
+# RetriveJobStat.pl
 #
-# Retrive production chain.
+# Retrive production jobs status
 # 
 ################################################################################################
 
