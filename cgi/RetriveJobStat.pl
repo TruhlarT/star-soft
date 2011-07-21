@@ -42,6 +42,7 @@ $dbname="operation";
 struct JobAttr => {
       jbname    => '$',
       jbst      => '$',
+      jbtrk     => '$',
       jbevt     => '$'
  };
 
@@ -159,7 +160,7 @@ my $jobname = $qtrg."%".$qprod."%";
 
    &beginMuHtml();
 
-     $sql="SELECT jobfileName, jobStatus, NoEvents FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and jobStatus <> 'n/a' and jobStatus <> 'hung' and inputHpssStatus = 'OK' and outputHpssStatus = 'n/a' and NoEvents >= 1 and avg_no_tracks > 0.0001 ";
+     $sql="SELECT jobfileName, jobStatus, NoEvents, avg_no_tracks FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and jobStatus <> 'n/a' and jobStatus <> 'hung' and inputHpssStatus = 'OK' and outputHpssStatus = 'n/a'  ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -176,7 +177,8 @@ my $jobname = $qtrg."%".$qprod."%";
 
                 ($$fObjAdr)->jbname($fvalue)   if( $fname eq 'jobfileName');
                 ($$fObjAdr)->jbst($fvalue)     if( $fname eq 'jobStatus');
-                ($$fObjAdr)->jbevt($fvalue)    if( $fname eq 'NoEvents');                
+                ($$fObjAdr)->jbevt($fvalue)    if( $fname eq 'NoEvents');
+                ($$fObjAdr)->jbtrk($fvalue)    if( $fname eq 'avg_no_tracks');                
 
             }
             $jbstat[$nst] = $fObjAdr;
@@ -197,7 +199,7 @@ my $jobname = $qtrg."%".$qprod."%";
        $jbStatus[$nn] = ($$pjob)->jbst;
        $jbEvent[$nn]  = ($$pjob)->jbevt;
 
-    if( $qflag eq "jstat" or $qflag eq "mudst") {
+    if( $qflag eq "jstat" ) {
 
  print <<END;
 
@@ -208,6 +210,17 @@ my $jobname = $qtrg."%".$qprod."%";
 </TR>
 END
 
+ }elsif($qflag eq "mudst") {
+
+print <<END;
+
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
+<td HEIGHT=10><h3>$jbfName[$nn]</h3></td>
+<td HEIGHT=10><h3>$jbStatus[$nn]</h3></td>
+<td HEIGHT=10><h3>$jbEvent[$nn]</h3></td>
+<td HEIGHT=10><h3>$jbtrack[$nn]</h3></td>
+</TR>
+END
 
  }elsif($qflag eq "hung") {
 
@@ -292,6 +305,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=60><B><h3>Jobfilename</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Job status</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>No.events produced</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Avg.No.tracks</h3></B></TD>
 </TR>
    </head>
     </body>
