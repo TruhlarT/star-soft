@@ -198,6 +198,7 @@ my $jobname = $qtrg."%".$qprod."%";
        $jbfName[$nn]  = ($$pjob)->jbname;      
        $jbStatus[$nn] = ($$pjob)->jbst;
        $jbEvent[$nn]  = ($$pjob)->jbevt;
+       $jbtrack[$nn]  = ($$pjob)->jbtrk;
 
     if( $qflag eq "jstat" ) {
 
