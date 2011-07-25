@@ -238,7 +238,7 @@ my $nprod = 0;
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$artrg[$nprod]</h3></td>
 <td HEIGHT=10><h3>$prodtag[$nprod]</h3></td>
-<td HEIGHT=10><h3>$$calbtag[$nprod]</h3></td>
+<td HEIGHT=10><h3>$calbtag[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbcreat[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbdone[$nprod]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=calib;pflag=jstat">$jbcrsh[$nprod]</h3></td>
@@ -250,7 +250,6 @@ my $nprod = 0;
 <td HEIGHT=10><h3>$sumevt[$nprod]</h3></td>
 <td HEIGHT=10><h3>$strtime[$nprod]</h3></td>
 <td HEIGHT=10><h3>$fntime[$nprod]</h3></td>
-<td HEIGHT=10><h3>$artrg[$nprod]</h3></td>
 </TR>
 END
 
