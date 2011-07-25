@@ -216,6 +216,8 @@ my $nprod = 0;
        }
     $cursor->finish();
 
+    $szmudst[$nprod] = int($szmudst[$nprod]/1000/1000/1000 + 0.01); 
+
 ########## 
 
 
@@ -300,7 +302,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs failed due to HPSS error</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs resubmit</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.<br>of missing MuDst files</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Size of MuDst files</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Size of MuDst files in GB</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.events produced<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Start time <h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>End time <h3></B></TD>
