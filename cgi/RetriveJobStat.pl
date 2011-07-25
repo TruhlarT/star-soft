@@ -55,8 +55,15 @@ my $qtrg = $query->param('trigs');
 my $qprod = $query->param('prod');
 my $qyear = $query->param('pyear');
 my $qflag = $query->param('pflag');
+my $JobStatusT ;
 
-my $JobStatusT = "JobStatus".$qyear; 
+if ($qyear eq "calib") {
+
+ $JobStatusT = "CalibJobStatus";
+
+ }else{
+ $JobStatusT = "JobStatus".$qyear; 
+ };
 
 my @archain = ();
 
