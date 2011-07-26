@@ -32,7 +32,7 @@ struct JobAttr => {
       strtm     => '$',
       fintm     => '$',
       nevt      => '$',
-      pstat     => '$'
+      pstat     => '$',
 };
 
 
@@ -93,8 +93,8 @@ my $nprod = 0;
                 ($$fObjAdr)->trgset($fvalue)   if( $fname eq 'trigsetName');
                 ($$fObjAdr)->prdtag($fvalue)   if( $fname eq 'prodSeries');
                 ($$fObjAdr)->caltg($fvalue)    if( $fname eq 'calibtag');
-                ($$fObjAdr)->nevt($fvalue)     if( $fname eq 'sum(NoEvents)');
                 ($$fObjAdr)->pstat($fvalue)    if( $fname eq 'status');
+                ($$fObjAdr)->nevt($fvalue)     if( $fname eq 'sum(NoEvents)');
                 ($$fObjAdr)->strtm($fvalue)    if( $fname eq 'mintm');
                 ($$fObjAdr)->fintm($fvalue)    if( $fname eq 'maxtm');
 
