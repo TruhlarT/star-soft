@@ -244,20 +244,20 @@ if($prstat[$nprod] eq "removed" ) {
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3>$artrg[$nprod]</h3></td>
-<td HEIGHT=10><h3>$prodtag[$nprod]</h3></td>
-<td HEIGHT=10><h3>$calbtag[$nprod]</h3></td>
-<td HEIGHT=10><h3>$jbcreat[$nprod]</h3></td>
-<td HEIGHT=10><h3>$jbdone[$nprod]</h3></td>
-<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=jstat">$jbcrsh[$nprod]</h3></td>
-<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=hung">$jbhung[$nprod]</h3></td>
-<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=hpss">$jbhpss[$nprod]</h3></td>
-<td HEIGHT=10><h3>$jbresub[$nprod]</h3></td>
-<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=mudst">$mismudst[$nprod]</h3></td>
-<td HEIGHT=10><h3>$szmudst[$nprod]</h3></td>
-<td HEIGHT=10><h3>$sumevt[$nprod]</h3></td>
-<td HEIGHT=10><h3>$strtime[$nprod]</h3></td>
-<td HEIGHT=10><h3>$fntime[$nprod]</h3></td>
+<td HEIGHT=10><h3><font color="blue">$artrg[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="blue">$prodtag[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="blue">$calbtag[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="blue">$jbcreat[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="blue">$jbdone[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="blue"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=jstat">$jbcrsh[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="blue"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=hung">$jbhung[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="blue"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=hpss">$jbhpss[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="blue">$jbresub[$nprod]</h3></td>
+<td HEIGHT=10><h3><font color="blue"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=mudst">$mismudst[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="blue">$szmudst[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="blue">$sumevt[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="blue">$strtime[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="blue">$fntime[$nprod]</font></h3></td>
 </TR>
 END
 
