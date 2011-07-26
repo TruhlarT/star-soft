@@ -239,7 +239,7 @@ my $nprod = 0;
 
 ########## 
 
-if($prstat[$nprod] eq "removed" ) {
+  if($prstat[$nprod] eq "removed" ) {
 
  print <<END;
 
@@ -282,11 +282,12 @@ END
 <td HEIGHT=10><h3>$fntime[$nprod]</h3></td>
 </TR>
  END
-  }
+
+ }
 
       $nprod++;
 
-}
+ }
 
     &StDbProdDisconnect();
 
