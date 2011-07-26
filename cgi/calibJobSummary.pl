@@ -31,7 +31,8 @@ struct JobAttr => {
       caltg     => '$',
       strtm     => '$',
       fintm     => '$',
-      nevt      => '$'
+      nevt      => '$',
+      pstat     => '$'
 };
 
 
@@ -66,13 +67,14 @@ my @jbhpss = ();
 my @jbresub  = ();
 my @szmudst = ();
 my @mismudst = ();
-my @calbtag = 0;
+my @calbtag = ();
+my @prstat = ();
 
 my $nprod = 0;
 
   &StDbProdConnect();
 
-  $sql="SELECT distinct trigsetName, prodSeries, calibtag, date_format(min(createTime), '%Y-%m-%d') as mintm, date_format(max(createTime), '%Y-%m-%d') as maxtm, sum(NoEvents) from $JobStatusT where createTime <> '0000-00-00 00:00:00' group by trigsetName, prodSeries order by max(createTime) ";
+  $sql="SELECT distinct trigsetName, prodSeries, calibtag, status  date_format(min(createTime), '%Y-%m-%d') as mintm, date_format(max(createTime), '%Y-%m-%d') as maxtm, sum(NoEvents) from $JobStatusT where createTime <> '0000-00-00 00:00:00' group by trigsetName, prodSeries order by max(createTime) ";
 
 
             $cursor =$dbh->prepare($sql)
@@ -92,6 +94,7 @@ my $nprod = 0;
                 ($$fObjAdr)->prdtag($fvalue)   if( $fname eq 'prodSeries');
                 ($$fObjAdr)->caltg($fvalue)    if( $fname eq 'calibtag');
                 ($$fObjAdr)->nevt($fvalue)     if( $fname eq 'sum(NoEvents)');
+                ($$fObjAdr)->pstat($fvalue)    if( $fname eq 'status');
                 ($$fObjAdr)->strtm($fvalue)    if( $fname eq 'mintm');
                 ($$fObjAdr)->fintm($fvalue)    if( $fname eq 'maxtm');
 
@@ -111,7 +114,8 @@ my $nprod = 0;
     $sumevt[$nprod]  = ($$pjob)->nevt;
     $strtime[$nprod] =  ($$pjob)->strtm;
     $fntime[$nprod]  =  ($$pjob)->fintm;
-    
+    $prstat[$nprod]  =  ($$pjob)->pstat; 
+   
     $jbcreat[$nprod] = 0;
     $jbdone[$nprod] = 0;
     $jbcrsh[$nprod] = 0;
@@ -120,6 +124,7 @@ my $nprod = 0;
     $jbresub[$nprod] = 0;
     $szmudst[$nprod] = 0;
     $mismudst[$nprod] = 0;    
+
 
 ###########
 
@@ -234,6 +239,29 @@ my $nprod = 0;
 
 ########## 
 
+if($prstat[$nprod] eq "removed" ) {
+
+ print <<END;
+
+<TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
+<td HEIGHT=10><h3><font color="blue">$artrg[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="blue">$prodtag[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="blue">$calbtag[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="blue">$jbcreat[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="blue">$jbdone[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="blue"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=jstat">$jbcrsh[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="blue"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=hung">$jbhung[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="blue"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=hpss">$jbhpss[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="blue">$jbresub[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="blue"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=mudst">$mismudst[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="blue">$szmudst[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="blue">$sumevt[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="blue">$strtime[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="blue">$fntime[$nprod]</font></h3></td>
+</TR>
+END
+
+}else{
 
  print <<END;
 
@@ -253,7 +281,8 @@ my $nprod = 0;
 <td HEIGHT=10><h3>$strtime[$nprod]</h3></td>
 <td HEIGHT=10><h3>$fntime[$nprod]</h3></td>
 </TR>
-END
+ END
+  }
 
       $nprod++;
 
