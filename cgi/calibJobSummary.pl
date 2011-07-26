@@ -3,7 +3,7 @@
 # $Id:
 #
 # L.Didenko
-# jobSummary2011.pl - summary of production jobs status for year 2011
+# calibjobSummary.pl - summary of calibration production jobs status
 #
 ########################################################################################
 
@@ -31,8 +31,8 @@ struct JobAttr => {
       caltg     => '$',
       strtm     => '$',
       fintm     => '$',
-      nevt      => '$',
-      pstat     => '$',
+      prst      => '$',   
+      nevt      => '$'
 };
 
 
@@ -74,7 +74,7 @@ my $nprod = 0;
 
   &StDbProdConnect();
 
-  $sql="SELECT distinct trigsetName, prodSeries, calibtag, status,  date_format(min(createTime), '%Y-%m-%d') as mintm, date_format(max(createTime), '%Y-%m-%d') as maxtm, sum(NoEvents) from $JobStatusT where createTime <> '0000-00-00 00:00:00' group by trigsetName, prodSeries order by max(createTime) ";
+  $sql="SELECT distinct trigsetName, prodSeries, calibtag, status, date_format(min(createTime), '%Y-%m-%d') as mintm, date_format(max(createTime), '%Y-%m-%d') as maxtm, sum(NoEvents) from $JobStatusT where createTime <> '0000-00-00 00:00:00' group by trigsetName, prodSeries order by max(createTime) ";
 
 
             $cursor =$dbh->prepare($sql)
@@ -93,7 +93,7 @@ my $nprod = 0;
                 ($$fObjAdr)->trgset($fvalue)   if( $fname eq 'trigsetName');
                 ($$fObjAdr)->prdtag($fvalue)   if( $fname eq 'prodSeries');
                 ($$fObjAdr)->caltg($fvalue)    if( $fname eq 'calibtag');
-                ($$fObjAdr)->pstat($fvalue)    if( $fname eq 'status');
+                ($$fObjAdr)->prst($fvalue)     if( $fname eq 'status');
                 ($$fObjAdr)->nevt($fvalue)     if( $fname eq 'sum(NoEvents)');
                 ($$fObjAdr)->strtm($fvalue)    if( $fname eq 'mintm');
                 ($$fObjAdr)->fintm($fvalue)    if( $fname eq 'maxtm');
@@ -111,11 +111,11 @@ my $nprod = 0;
     $prodtag[$nprod]  = ($$pjob)->prdtag;
     $artrg[$nprod]   = ($$pjob)->trgset;
     $calbtag[$nprod] = ($$pjob)->caltg;
+    $prstat[$nprod]  = ($$pjob)->prst;
     $sumevt[$nprod]  = ($$pjob)->nevt;
     $strtime[$nprod] =  ($$pjob)->strtm;
     $fntime[$nprod]  =  ($$pjob)->fintm;
-    $prstat[$nprod]  =  ($$pjob)->pstat; 
-   
+    
     $jbcreat[$nprod] = 0;
     $jbdone[$nprod] = 0;
     $jbcrsh[$nprod] = 0;
@@ -124,7 +124,6 @@ my $nprod = 0;
     $jbresub[$nprod] = 0;
     $szmudst[$nprod] = 0;
     $mismudst[$nprod] = 0;    
-
 
 ###########
 
@@ -239,29 +238,6 @@ my $nprod = 0;
 
 ########## 
 
-  if($prstat[$nprod] eq "removed" ) {
-
- print <<END;
-
-<TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3><font color="blue">$artrg[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="blue">$prodtag[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="blue">$calbtag[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="blue">$jbcreat[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="blue">$jbdone[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="blue"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=jstat">$jbcrsh[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="blue"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=hung">$jbhung[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="blue"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=hpss">$jbhpss[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="blue">$jbresub[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="blue"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=mudst">$mismudst[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="blue">$szmudst[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="blue">$sumevt[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="blue">$strtime[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="blue">$fntime[$nprod]</font></h3></td>
-</TR>
-END
-
-}else{
 
  print <<END;
 
@@ -281,13 +257,11 @@ END
 <td HEIGHT=10><h3>$strtime[$nprod]</h3></td>
 <td HEIGHT=10><h3>$fntime[$nprod]</h3></td>
 </TR>
- END
-
- }
+END
 
       $nprod++;
 
- }
+}
 
     &StDbProdDisconnect();
 
@@ -318,8 +292,8 @@ print <<END;
  <h2 ALIGN=CENTER> <B>Summary of calibration production jobs status</h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
-<h4 ALIGN=LEFT><font color="#ff0000">Ongoing production is in red color</font><br>
-<ALIGN=LEFT><font color="blue">Removed production is in blue color</font></h4>
+<h4 ALIGN=LEFT><font color="#ff0000">Ongoing production is in red color</font></h4>
+<h4 ALIGN=LEFT><font color="blue">Removed production is in blue color</font></h4>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Trigger set</h3></B></TD>
@@ -331,7 +305,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs 'hung'</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs failed due to HPSS error</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs resubmit</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.of<br> missing MuDst files</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.of<br>missing MuDst files</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Size of MuDst files in GB</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.<br>events<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Start time <h3></B></TD>
