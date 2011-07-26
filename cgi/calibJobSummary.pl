@@ -238,6 +238,8 @@ my $nprod = 0;
 
 ########## 
 
+if($prstat[$nprod] eq "removed" ) {
+
 
  print <<END;
 
@@ -259,6 +261,29 @@ my $nprod = 0;
 </TR>
 END
 
+  }else{
+
+ print <<END;
+
+<TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
+<td HEIGHT=10><h3>$artrg[$nprod]</h3></td>
+<td HEIGHT=10><h3>$prodtag[$nprod]</h3></td>
+<td HEIGHT=10><h3>$calbtag[$nprod]</h3></td>
+<td HEIGHT=10><h3>$jbcreat[$nprod]</h3></td>
+<td HEIGHT=10><h3>$jbdone[$nprod]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=jstat">$jbcrsh[$nprod]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=hung">$jbhung[$nprod]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=hpss">$jbhpss[$nprod]</h3></td>
+<td HEIGHT=10><h3>$jbresub[$nprod]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=mudst">$mismudst[$nprod]</h3></td>
+<td HEIGHT=10><h3>$szmudst[$nprod]</h3></td>
+<td HEIGHT=10><h3>$sumevt[$nprod]</h3></td>
+<td HEIGHT=10><h3>$strtime[$nprod]</h3></td>
+<td HEIGHT=10><h3>$fntime[$nprod]</h3></td>
+</TR>
+END
+
+ }
       $nprod++;
 
 }
@@ -292,8 +317,8 @@ print <<END;
  <h2 ALIGN=CENTER> <B>Summary of calibration production jobs status</h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
-<h4 ALIGN=LEFT><font color="#ff0000">Ongoing production is in red color</font></h4>
-<h4 ALIGN=LEFT><font color="blue">Removed production is in blue color</font></h4>
+<h4 ALIGN=LEFT><font color="#ff0000">Ongoing production is in red color</font><br>
+<ALIGN=LEFT><font color="blue">Removed production is in blue color</font></h4>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Trigger set</h3></B></TD>
