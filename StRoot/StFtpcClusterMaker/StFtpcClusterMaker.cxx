@@ -1,25 +1,6 @@
 // $Log: StFtpcClusterMaker.cxx,v $
-// Revision 1.105  2010/12/17 14:54:56  jcs
-// For embedding, read raw data from StFtpcMixerMaker tables
-//
-// Revision 1.104  2010/04/08 16:46:16  jcs
-// swap data for RDO6,RDO7 FTPC East when Calibrations_ftpc/ftpcElectronics->swapRDO6RDO7East=1
-//
-// Revision 1.103  2009/11/25 19:50:16  jcs
-// remove all references to StFtpcSoftwareMonitor
-//
-// Revision 1.102  2009/11/18 12:10:02  jcs
-// add USE_LOCAL_DRIFTMAP instructions
-//
-// Revision 1.101  2009/10/14 15:52:43  jcs
-// write out all gas temperature, air pressure info to Run branch of FTPC debug root file
-//
-// Revision 1.100  2009/08/04 08:37:28  jcs
-// When the flaser option is included in the bfc, the 'perfect' gain table and
-// adjustAverageWest = adjustAverageEast = 0.0, will be used for cluster finding
-//
-// Revision 1.99  2008/10/02 16:20:43  jcs
-// standardize m_Mode LOG_INFO messages
+// Revision 1.98.2.1  2011/07/26 13:22:42  didenko
+// commitd for FTPC embedding
 //
 // Revision 1.98  2008/07/30 14:47:29  jcs
 // if microsecondsPerTimebin calculated from RHIC clock, write the new value for mMicrosecondsPerTimebin back into
@@ -386,6 +367,10 @@ extern "C" void gufld(float *, float *);
 #include "StFtpcHitCollection.h"
 #include "StDetectorState.h"
 
+#include "StSoftwareMonitor.h"
+#include "StFtpcSoftwareMonitor.h"
+
+
 ClassImp(StFtpcClusterMaker)
 
   //_____________________________________________________________________________
@@ -509,17 +494,10 @@ Int_t StFtpcClusterMaker::InitRun(int runnumber){
   St_DataSetIter       dblocal_calibrations(ftpc_calibrations_db);
 
   m_efield     = (St_ftpcEField *)dblocal_calibrations("ftpcEField" );
-
-  // USE_LOCAL_DRIFTMAP:
-  //                    To use the FTPC drift map tables in $PWD/StarDb instead of those
-  //                    in the MySQL offline database, comment out the following 4 lines of code
-  //                    Then go to USE_LOCAL_DRIFTMAP: in Int_t StFtpcClusterMaker::Init()
-  //                    and follow the instructions
   m_vdrift     = (St_ftpcVDrift *)dblocal_calibrations("ftpcVDrift" );
   m_deflection = (St_ftpcDeflection *)dblocal_calibrations("ftpcDeflection" );
   m_dvdriftdp     = (St_ftpcdVDriftdP *)dblocal_calibrations("ftpcdVDriftdP" );
   m_ddeflectiondp = (St_ftpcdDeflectiondP *)dblocal_calibrations("ftpcdDeflectiondP" );
-
   m_ampslope = (St_ftpcAmpSlope *)dblocal_calibrations("ftpcAmpSlope" );
   m_ampoffset = (St_ftpcAmpOffset *)dblocal_calibrations("ftpcAmpOffset");
   m_timeoffset = (St_ftpcTimeOffset *)dblocal_calibrations("ftpcTimeOffset");
@@ -538,30 +516,22 @@ Int_t StFtpcClusterMaker::Init(){
   //          0                                  normal setting for production runs
   //          2               fdbg               open special Ftpc root file and fill with cluster information 
   //                                             for analysis in StFtpcCalibMaker
-  //          3               fdbg + flaser      open special Ftpc root file for laser run and fill with cluster information 
-  //                                             for analysis in StFtpcCalibMaker
   //          4               fgain              initialize and fill the special set of Ftpc cluster histograms
   //                                             used to evaluate the Ftpc gain scan runs
 
   LOG_INFO << "StFtpcClusterMaker entered with m_Mode = "<< m_Mode <<endm;
   
   if (m_Mode == 2) {
-    LOG_INFO << "StFtpcClusterMaker running with fdbg option selected"<<endm;
+    LOG_INFO << "StFtpcClusterMaker writing to DEBUGFILE (fdbg option selected)"<<endm;
   }
-  
-  if (m_Mode == 3) {
-    LOG_INFO << "StFtpcClusterMaker writing to DEBUGFILE (fdbg option selected) for laser run (flaser option selected)"<<endm;
-    laserRun = kTRUE;
-  }
-  else {laserRun = kFALSE;}
 
   if (m_Mode == 4) {
-    LOG_INFO << "StFtpcClusterMaker running with fgain option selected"<<endm;
+    LOG_INFO << "Running with fgain option selected"<<endm;
   }
 
   St_DataSet *ftpc = GetDataBase("ftpc");
   if (!ftpc) {
-     LOG_ERROR << "StFtpcClusterMaker exiting - run parameter database StarDb/ftpc not found"<<endm;
+     LOG_ERROR << "Exiting - run parameter database StarDb/ftpc not found"<<endm;
      return kStErr;
   }
   St_DataSetIter       local(ftpc);
@@ -569,15 +539,6 @@ Int_t StFtpcClusterMaker::Init(){
   m_clusterpars  = (St_ftpcClusterPars *)local("ftpcClusterPars");
   m_fastsimgas   = (St_ftpcFastSimGas  *)local("ftpcFastSimGas");
   m_fastsimpars  = (St_ftpcFastSimPars *)local("ftpcFastSimPars");
-
-
-  // USE_LOCAL_DRIFTMAP:
-  //                    To use the FTPC drift map tables in $PWD/StarDb instead of those
-  //                    in the MySQL offline database, uncomment the following 4 lines of code
-  //m_vdrift     = (St_ftpcVDrift *)local("ftpcVDrift" );
-  //m_deflection = (St_ftpcDeflection *)local("ftpcDeflection" );
-  //m_dvdriftdp     = (St_ftpcdVDriftdP *)local("ftpcdVDriftdP" );
-  //m_ddeflectiondp = (St_ftpcdDeflectiondP *)local("ftpcdDeflectiondP" );
 
   // 		Create Histograms
   m_chargestep_West = new TH1F("fcl_chargestepW","FTPC West chargestep",260, -0.5, 259.5);
@@ -639,6 +600,15 @@ Int_t StFtpcClusterMaker::Make()
     }
   } else mFtpcHitColl = 0;
 
+  StFtpcSoftwareMonitor* ftpcMon = NULL;
+  if (mCurrentEvent->softwareMonitor()) {
+     ftpcMon = mCurrentEvent->softwareMonitor()->ftpc();
+     if (!ftpcMon){
+	ftpcMon = new StFtpcSoftwareMonitor();
+        mCurrentEvent->softwareMonitor()->setFtpcSoftwareMonitor(ftpcMon);
+     }
+  }      
+
   // create parameter reader
   StFtpcParamReader paramReader(m_clusterpars,m_fastsimgas,m_fastsimpars);
 
@@ -671,7 +641,6 @@ Int_t StFtpcClusterMaker::Make()
   }
 
   if ( paramReader.gasTemperatureWest() == 0 && paramReader.gasTemperatureEast() == 0) {
-     dbReader.setLaserRun(laserRun);
      LOG_INFO<<"Using the following values from database:"<<endm;
      if (microsecondsPerTimebin > 0.0 ) {
         dbReader.setMicrosecondsPerTimebin(microsecondsPerTimebin);
@@ -679,7 +648,6 @@ Int_t StFtpcClusterMaker::Make()
      } else {
         LOG_INFO<<"          microsecondsPerTimebin    = "<<dbReader.microsecondsPerTimebin()<<" (default value from database)"<<endm;
      }
-     LOG_INFO<<"          SwapRDO6RDO7East          = "<<dbReader.SwapRDO6RDO7East()<<endm;
      LOG_INFO<<"          EastIsInverted            = "<<dbReader.EastIsInverted()<<endm;
      LOG_INFO<<"          Asic2EastNotInverted      = "<<dbReader.Asic2EastNotInverted()<<endm;
      LOG_INFO<<"          tzero                     = "<<dbReader.tZero()<<endm;
@@ -695,10 +663,11 @@ Int_t StFtpcClusterMaker::Make()
      LOG_INFO<<"          angleOffsetWest           = "<<dbReader.angleOffsetWest()<<endm;
      LOG_INFO<<"          angleOffsetEast           = "<<dbReader.angleOffsetEast()<<endm;
      LOG_INFO<<"          minChargeWindow           = "<<dbReader.minChargeWindow()<<endm;
+     if (dbReader.amplitudeSlope(1,1)!=0) {LOG_INFO <<"          ampSlope(1,1)             = " << dbReader.amplitudeSlope(1,1) << endm;}
+     else if (dbReader.amplitudeSlope(2,1)!=0) {LOG_INFO <<"          ampSlope(2,1)             = " << dbReader.amplitudeSlope(2,1) << endm;}
+
   }
         LOG_DEBUG<<" Using microsecondsPerTimebin = "<<dbReader.microsecondsPerTimebin()<<" for this event"<<endm;
-
-  // Test if input data is real data (DAQ)
 
   St_DataSet *daqDataset;
   StDAQReader *daqReader;
@@ -781,12 +750,9 @@ Int_t StFtpcClusterMaker::Make()
 
  
        // Calculate and set adjustedAirPressureWest
-
        paramReader.setAdjustedAirPressureWest(paramReader.normalizedNowPressure()*((dbReader.baseTemperature()+STP_Temperature)/(paramReader.gasTemperatureWest()+STP_Temperature)));
 
-
        // Calculate and set adjustedAirPressureEast
-
       paramReader.setAdjustedAirPressureEast(paramReader.normalizedNowPressure()*((dbReader.baseTemperature()+STP_Temperature)/(paramReader.gasTemperatureEast()+STP_Temperature)));
 
       LOG_INFO << " Using normalizedNowPressure = "<<paramReader.normalizedNowPressure()<<" gasTemperatureWest = "<<paramReader.gasTemperatureWest()<<" gasTemperatureEast = "<<paramReader.gasTemperatureEast()<< " to calculate and set adjustedAirPressureWest = "<<paramReader.adjustedAirPressureWest()<<" and adjustedAirPressureEast = "<<paramReader.adjustedAirPressureEast()<<endm;
@@ -800,14 +766,13 @@ Int_t StFtpcClusterMaker::Make()
   // ghitarray will only be used if fast simulator is active
   TObjArray ghitarray(10000);  
   ghitarray.SetOwner();
- 
-  // Test if input data is embedding data (StFtpcMixerMaker)
 
+  // Test if input data is embedding data (StFtpcMixerMaker)
   St_DataSet *mix = NULL;
   mix = GetDataSet("FtpcMixer");
   if (mix) {
-     LOG_INFO <<" DataSet FtpcMixer found" << endm;  
-     //mix->ls(0);
+     LOG_INFO <<" DataSet FtpcMixer found" << endm;
+     mix->ls(0);
 
     // Create an iterator
     St_DataSetIter ftpc_raw(mix);
@@ -818,23 +783,23 @@ Int_t StFtpcClusterMaker::Make()
    if (adc && sqndx) {
 
       ftpcReader=new StFTPCReader((short unsigned int *) sqndx->GetTable(),
-				  sqndx->GetNRows(),
-				  (char *) adc->GetTable(),
-				  adc->GetNRows());
+                                  sqndx->GetNRows(),
+                                  (char *) adc->GetTable(),
+                                  adc->GetNRows());
 
       LOG_INFO << "Created StFTPCReader from StFtpcMixerMaker(Embedding) tables #fcl_ftpcsqndx rows = "<<sqndx->GetNRows()<<" #fcl_ftpcadc rows = "<<adc->GetNRows() << endm;
       using_FTPC_slow_simulator = 1;
-  
+
       // Set gas temperature to default values so that database values printed only once
       paramReader.setGasTemperatureWest(dbReader.defaultTemperatureWest());
       paramReader.setGasTemperatureEast(dbReader.defaultTemperatureEast());
       LOG_INFO << "Found StFtpcMixerMaker sequences with #fcl_ftpcsqndx rows = "<<sqndx->GetNRows()<<" #fcl_ftpcadc rows = "<<adc->GetNRows() <<endm;
    }
     else {
-      LOG_WARN << "FTPC Embedding Tables are not found:" 
-               << " fcl_ftpcsqndx = " << sqndx 
-	       << " fcl_ftpcadc   = " << adc << endm;
-      return kStWarn;  
+      LOG_WARN << "FTPC Embedding Tables are not found:"
+               << " fcl_ftpcsqndx = " << sqndx
+               << " fcl_ftpcadc   = " << adc << endm;
+      return kStWarn;
     }
   }
 
@@ -863,7 +828,7 @@ Int_t StFtpcClusterMaker::Make()
       paramReader.setGasTemperatureEast(dbReader.defaultTemperatureEast());
     }
     else {
-      LOG_WARN << "FTPC Slow Simulator Tables are not found:" 
+      LOG_WARN << "FTPC Slow Simulator Tables are not found:"
                << " fcl_ftpcsqndx = " << fcl_ftpcsqndx 
 	       << " fcl_ftpcadc   = " << fcl_ftpcadc << endm;
       return kStWarn;  
@@ -878,13 +843,14 @@ Int_t StFtpcClusterMaker::Make()
       
     Int_t searchResult = kStOK;
 
-    if (m_Mode == 2 || m_Mode==3) {
+    if (m_Mode == 2) {
        StFtpcClusterDebug cldebug((int) GetRunNumber(),(int) GetEventNumber());
-       cldebug.fillRun((int) GetRunNumber(), (int) mDbMaker->GetDateTime().GetDate(), (int) mDbMaker->GetDateTime().GetTime(), dbReader.microsecondsPerTimebin(), paramReader.normalizedNowPressure(), paramReader.standardPressure(),dbReader.baseTemperature(), paramReader.gasTemperatureWest(), paramReader.gasTemperatureEast(),paramReader.adjustedAirPressureWest()-paramReader.standardPressure(), paramReader.adjustedAirPressureEast()-paramReader.standardPressure());
+       cldebug.fillRun((int) GetRunNumber(), (int) mDbMaker->GetDateTime().GetDate(), (int) mDbMaker->GetDateTime().GetTime(), dbReader.microsecondsPerTimebin(), paramReader.adjustedAirPressureWest()-paramReader.standardPressure(), paramReader.adjustedAirPressureEast()-paramReader.standardPressure());
 
        StFtpcClusterFinder fcl(                        ftpcReader, 
 						       &paramReader, 
                                                        &dbReader,
+						       ftpcMon,
 						       mHitArray,
 						       m_hitsvspad,
 						       m_hitsvstime,
@@ -901,6 +867,7 @@ Int_t StFtpcClusterMaker::Make()
           StFtpcClusterFinder fcl(          ftpcReader, 
 	 				    &paramReader, 
                                             &dbReader,
+					    ftpcMon,
 					    mHitArray,
 					    m_hitsvspad,
 					    m_hitsvstime,
