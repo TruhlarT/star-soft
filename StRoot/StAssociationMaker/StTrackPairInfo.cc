@@ -1,9 +1,9 @@
 /***************************************************************************
  *
- * $Id: StTrackPairInfo.cc,v 1.9 2011/04/01 19:40:07 perev Exp $
+ * $Id: StTrackPairInfo.cc,v 1.6.2.1 2011/07/27 14:42:18 didenko Exp $
  * $Log: StTrackPairInfo.cc,v $
- * Revision 1.9  2011/04/01 19:40:07  perev
- * const++
+ * Revision 1.6.2.1  2011/07/27 14:42:18  didenko
+ * updates for SL08e_embed
  *
  * Revision 1.8  2010/06/22 22:06:33  fine
  * roll back the previous version to restore the nightly builds
@@ -36,10 +36,10 @@
 #include "StMcTrack.hh"
 #include "StGlobalTrack.h"
 #include "StTrackDetectorInfo.h"
-static const char rcsid[] = "$Id: StTrackPairInfo.cc,v 1.9 2011/04/01 19:40:07 perev Exp $";
+static const char rcsid[] = "$Id: StTrackPairInfo.cc,v 1.6.2.1 2011/07/27 14:42:18 didenko Exp $";
 
-StTrackPairInfo::StTrackPairInfo(const StGlobalTrack* rcTrk,
-				 const StMcTrack*     mcTrk,
+StTrackPairInfo::StTrackPairInfo(StGlobalTrack* rcTrk,
+				 StMcTrack*     mcTrk,
 				 unsigned int tpcPings,
 				 unsigned int svtPings,
 				 unsigned int ssdPings,
@@ -84,9 +84,9 @@ StTrackPairInfo::StTrackPairInfo(const StGlobalTrack* rcTrk,
 
 StTrackPairInfo::~StTrackPairInfo() { /* noop */ }
 
-void StTrackPairInfo::setPartnerMcTrack(const StMcTrack* val) { mPartnerMcTrack = val; }
+void StTrackPairInfo::setPartnerMcTrack(StMcTrack* val) { mPartnerMcTrack = val; }
 
-void StTrackPairInfo::setPartnerTrack(const StGlobalTrack* val) { mPartnerTrack = val; }
+void StTrackPairInfo::setPartnerTrack(StGlobalTrack* val) { mPartnerTrack = val; }
 
 void StTrackPairInfo::setCommonTpcHits(unsigned int val) { mCommonTpcHits = val; }
 

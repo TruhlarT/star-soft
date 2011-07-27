@@ -1,15 +1,9 @@
 /*************************************************
  *
- * $Id: StAssociationMaker.cxx,v 1.57 2011/07/19 19:11:15 perev Exp $
+ * $Id: StAssociationMaker.cxx,v 1.50.2.1 2011/07/27 14:42:01 didenko Exp $
  * $Log: StAssociationMaker.cxx,v $
- * Revision 1.57  2011/07/19 19:11:15  perev
- * Cleanup
- *
- * Revision 1.56  2011/06/03 17:14:09  fisyak
- * Set FtpcHit IdTruth and  QA
- *
- * Revision 1.55  2011/04/01 19:40:07  perev
- * const++
+ * Revision 1.50.2.1  2011/07/27 14:42:01  didenko
+ * updates for SL08e_embed
  *
  * Revision 1.54  2010/10/11 19:15:25  fisyak
  * remove find_if due to bug in logic of its usage
@@ -373,10 +367,10 @@ bool compMcVertex::operator()(const StMcVertex* v1, const StMcVertex* v2) const 
 
 // Print out Track pairs
 ostream& operator<<(ostream& out,
-		    const pair< const StGlobalTrack* const, StTrackPairInfo*>& p)
+		    const pair< StGlobalTrack* const, StTrackPairInfo*>& p)
 {
-  out << "const StGlobalTrack at : " << (void*)p.first << endl;
-  out << "const StMcTrack     at : " << (void*)(p.second->partnerMcTrack()) << endl;
+  out << "StGlobalTrack at : " << (void*)p.first << endl;
+  out << "StMcTrack     at : " << (void*)(p.second->partnerMcTrack()) << endl;
   out << "Common TPC  Hits : " << p.second->commonTpcHits()  << endl;
   out << "Common SVT  Hits : " << p.second->commonSvtHits()  << endl;
   out << "Common SSD  Hits : " << p.second->commonSsdHits()  << endl;
@@ -385,10 +379,10 @@ ostream& operator<<(ostream& out,
   return out;
 }
 ostream& operator<<(ostream& out,
-		    const pair< const StMcTrack* const, StTrackPairInfo*>& p)
+		    const pair< StMcTrack* const, StTrackPairInfo*>& p)
 {
-  out << "const StMcTrack at     : " << (void*)p.first << endl;
-  out << "const StGlobalTrack at : " << (void*)(p.second->partnerTrack()) << endl;
+  out << "StMcTrack at     : " << (void*)p.first << endl;
+  out << "StGlobalTrack at : " << (void*)(p.second->partnerTrack()) << endl;
   out << "Common TPC  Hits : " << p.second->commonTpcHits()  << endl;
   out << "Common SVT  Hits : " << p.second->commonSvtHits()  << endl;
   out << "Common SSD  Hits : " << p.second->commonSsdHits()  << endl;
@@ -1212,7 +1206,6 @@ Int_t StAssociationMaker::Make()
 	      mRcFtpcHitMap->insert(rcFtpcHitMapValType (rcFtpcHit, mcFtpcHit) );
 	      mMcFtpcHitMap->insert(mcFtpcHitMapValType (mcFtpcHit, rcFtpcHit) );
 	      rcFtpcHit->SetBit(StMcHit::kMatched,1);
-	      rcFtpcHit->setIdTruth(mcFtpcHit->parentTrack()->key(),100);
 	      mcFtpcHit->SetBit(StMcHit::kMatched,1);
 	    }
 	    
@@ -1293,7 +1286,7 @@ Int_t StAssociationMaker::Make()
   //
   
   StTrackNode*   trkNode;
-  const StGlobalTrack* rcTrack;
+  StGlobalTrack* rcTrack;
   
   StHit*     rcHit;
   StTpcHit*  rcKeyTpcHit;
@@ -1316,7 +1309,7 @@ Int_t StAssociationMaker::Make()
   const StMcSsdHit* mcValueSsdHit;
   const StMcFtpcHit* mcValueFtpcHit;
   
-  const StMcTrack* trackCand;
+  StMcTrack* trackCand;
   StTrackPairInfo* trkPair;
   
   trackPing initializedTrackPing;
@@ -1346,9 +1339,11 @@ Int_t StAssociationMaker::Make()
 #endif
     trkNode = rcTrackNodes[trkNodeI]; // For a by-pointer collection we need to dereference once
     if (!mEstTracksOn)
-      rcTrack = dynamic_cast<const StGlobalTrack*>(trkNode->track(global));
+      rcTrack = dynamic_cast<StGlobalTrack*>(trkNode->track(global));
     else { // Helen wants to keep the old global track from this node 
-      rcTrack = dynamic_cast<const StGlobalTrack*>(trkNode->track(global));
+      rcTrack = dynamic_cast<StGlobalTrack*>(trkNode->track(estGlobal));
+      if( !rcTrack)
+	rcTrack = dynamic_cast<StGlobalTrack*>(trkNode->track(global));
     }
     if (!rcTrack || !(rcTrack->detectorInfo()->hits().size()))
       continue; // If there are no Tpc Hits, skip track.
@@ -1718,25 +1713,25 @@ Int_t StAssociationMaker::Make()
     
     pair<rcTrackMapIter, rcTrackMapIter> kinkBoundsDaughter, kinkBoundsParent;
     
-    const StMcVertex* primary   = mEvent->primaryVertex();
+    StMcVertex* primary   = mEvent->primaryVertex();
     for (StKinkVertexIterator kvi = kinks.begin(); kvi!=kinks.end(); kvi++) {
       
       StKinkVertex* rcKink = *kvi; // Got Kink ...
       StTrack* kinkDaughter  = rcKink->daughter(0);
-      const StGlobalTrack* gKinkDaughter = dynamic_cast<const StGlobalTrack*>(kinkDaughter);
+      StGlobalTrack* gKinkDaughter = dynamic_cast<StGlobalTrack*>(kinkDaughter);
       if (!gKinkDaughter) continue;
       // Got Daughter
       StTrack* kinkParent  = rcKink->parent();
-      const StGlobalTrack* gKinkParent = dynamic_cast<const StGlobalTrack*>(kinkParent);
+      StGlobalTrack* gKinkParent = dynamic_cast<StGlobalTrack*>(kinkParent);
       if (!gKinkParent) continue;
       // Got Parent
       
       kinkBoundsDaughter = mRcTrackMap->equal_range(gKinkDaughter);
       // Loop over associated tracks of the daughter
       for (rcTrackMapIter trkIter = kinkBoundsDaughter.first; trkIter!=kinkBoundsDaughter.second; trkIter++) {
-	const StMcTrack* mcDaughter = (*trkIter).second->partnerMcTrack(); // Get associated daughter
+	StMcTrack* mcDaughter = (*trkIter).second->partnerMcTrack(); // Get associated daughter
 	
-	const StMcVertex* mcKink = mcDaughter->startVertex(); // Get Kink candidate 
+	StMcVertex* mcKink = mcDaughter->startVertex(); // Get Kink candidate 
 	if (mcKink == primary || mcKink == 0) continue;  // Check that it's not primary
 	const StMcTrack* mcParent = mcKink->parent();
 	
@@ -1775,19 +1770,19 @@ Int_t StAssociationMaker::Make()
       StTrack* v0Daughter1  = rcV0->daughter(0);
       if (mEstTracksOn && rcV0->chiSquared()==-16) continue; //when Est runs, the X^2 is always -24 or less
       if (!mEstTracksOn && rcV0->chiSquared()<-16) continue; //when Est didn't run it's ALWAYS -16.
-      const StGlobalTrack* gV0Daughter1 = dynamic_cast<const StGlobalTrack*>(v0Daughter1);
+      StGlobalTrack* gV0Daughter1 = dynamic_cast<StGlobalTrack*>(v0Daughter1);
       if (!gV0Daughter1) continue;
       // Got Daughter1
       StTrack* v0Daughter2  = rcV0->daughter(1);
-      const StGlobalTrack* gV0Daughter2 = dynamic_cast<const StGlobalTrack*>(v0Daughter2);
+      StGlobalTrack* gV0Daughter2 = dynamic_cast<StGlobalTrack*>(v0Daughter2);
       if (!gV0Daughter2) continue;
       // Got Daughter2
       pair<rcTrackMapIter, rcTrackMapIter> v0Bounds1 = mRcTrackMap->equal_range(gV0Daughter1);
       pair<rcTrackMapIter, rcTrackMapIter> v0Bounds2 = mRcTrackMap->equal_range(gV0Daughter2);
       for (rcTrackMapIter trkIter1 = v0Bounds1.first; trkIter1!=v0Bounds1.second; trkIter1++) {
-	const StMcTrack* mcDaughter1 = (*trkIter1).second->partnerMcTrack();
+	StMcTrack* mcDaughter1 = (*trkIter1).second->partnerMcTrack();
 	for (rcTrackMapIter trkIter2 = v0Bounds2.first; trkIter2!=v0Bounds2.second; trkIter2++) {
-	  const StMcTrack* mcDaughter2 = (*trkIter2).second->partnerMcTrack();
+	  StMcTrack* mcDaughter2 = (*trkIter2).second->partnerMcTrack();
 	  if (mcDaughter1->startVertex() == mcDaughter2->startVertex() &&
 	      mcDaughter1->startVertex() != primary &&
 	      mcDaughter1->startVertex() != 0) {
@@ -1820,16 +1815,16 @@ Int_t StAssociationMaker::Make()
       if (!mEstTracksOn && rcXi->chiSquared()<-16) continue; //when Est didn't run it's ALWAYS -16.
       StV0Vertex* rcV0ofXi = rcXi->v0Vertex();
       StTrack* rcBachelor = rcXi->bachelor();
-      const StGlobalTrack* gRcBachelor = dynamic_cast<const StGlobalTrack*>(rcBachelor);
+      StGlobalTrack* gRcBachelor = dynamic_cast<StGlobalTrack*>(rcBachelor);
       if (!gRcBachelor) continue;
       pair<rcTrackMapIter, rcTrackMapIter> xiBounds = mRcTrackMap->equal_range(gRcBachelor);
       for (rcTrackMapIter trkIter3 = xiBounds.first; trkIter3!= xiBounds.second; trkIter3++){
-	const StMcTrack*  mcBachelor = (*trkIter3).second->partnerMcTrack();
-	const StMcVertex* mcXi = mcBachelor->startVertex();
+	StMcTrack*  mcBachelor = (*trkIter3).second->partnerMcTrack();
+	StMcVertex* mcXi = mcBachelor->startVertex();
 	if (mcXi == primary || mcXi == 0) continue;
 	pair<rcV0MapIter, rcV0MapIter> xiBoundsV0 = mRcV0Map->equal_range(rcV0ofXi);
 	for (rcV0MapIter v0Iter = xiBoundsV0.first; v0Iter!= xiBoundsV0.second; v0Iter++){
-	  const StMcVertex* mcV0 = (*v0Iter).second;
+	  StMcVertex* mcV0 = (*v0Iter).second;
 	  if (mcV0->parent() != 0 && mcXi == mcV0->parent()->startVertex()) {
 	    // Got a Xi candidate
 	    mRcXiMap->insert(rcXiMapValType (rcXi, mcXi));
