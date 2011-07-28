@@ -46,7 +46,7 @@ if( $sec < 10) { $sec = '0'.$sec };
 
 my $todate = ($year+1900)."-".$mon."-".$mday." ".$hour.":".$min.":".$sec;
 
-my $nowdate = $todate;
+my $nowdate = ($year+1900).$mon.$mday;
 
  $JobStatusT = "JobStatus2011";
 
@@ -65,6 +65,9 @@ my @jbhpss = ();
 my @jbresub  = ();
 my @jbmudst = ();
 my @mismudst = ();
+
+my $timedif = 0;
+my $mxtime = 0;
 
 my $nprod = 0;
 
@@ -107,6 +110,10 @@ my $nprod = 0;
     $sumevt[$nprod]  = ($$pjob)->nevt;
     $strtime[$nprod] =  ($$pjob)->strtm;
     $fntime[$nprod]  =  ($$pjob)->fintm;
+
+    $mxtime = $fntime[$nprod];
+    $mxtime =~ s/-//g;
+    $timedif = $nowdate - $mxtime;
     
     $jbcreat[$nprod] = 0;
     $jbdone[$nprod] = 0;
@@ -229,6 +236,28 @@ my $nprod = 0;
 
 ########## 
 
+ if($timedif <= 2){
+
+print <<END;
+
+<TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
+<td HEIGHT=10><h3><font color="red">$artrg[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red">$prodtag[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red">$jbcreat[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red">$jbdone[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2011;pflag=jstat">$jbcrsh[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2011;pflag=hung">$jbhung[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2011;pflag=hpss">$jbhpss[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red">$jbresub[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2011;pflag=mudst">$mismudst[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red">$jbmudst[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red">$sumevt[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red">$strtime[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red">$fntime[$nprod]</font></h3></td>
+</TR>
+END
+
+   }else{
 
  print <<END;
 
@@ -249,6 +278,7 @@ my $nprod = 0;
 </TR>
 END
 
+}
       $nprod++;
 
 }
