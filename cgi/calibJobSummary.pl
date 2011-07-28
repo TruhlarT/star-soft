@@ -48,7 +48,7 @@ if( $sec < 10) { $sec = '0'.$sec };
 
 my $todate = ($year+1900)."-".$mon."-".$mday." ".$hour.":".$min.":".$sec;
 
-my $nowdate = $todate;
+my $nowdate = ($year+1900).$mon.$mday;
 
  $JobStatusT = "CalibJobStatus";
 
@@ -70,6 +70,9 @@ my @mismudst = ();
 my @calbtag = ();
 my @prstat = ();
 
+my $timedif = 0;
+my $mxtime = 0;
+
 my $nprod = 0;
 
   &StDbProdConnect();
@@ -78,7 +81,7 @@ my $nprod = 0;
 
 
             $cursor =$dbh->prepare($sql)
-              || die "Cannot prepare statement: $DBI::errstr\n";
+              || die "Cannot prepare statement: $DBI::errstr\n"; 
             $cursor->execute();
 
         while(@fields = $cursor->fetchrow) {
@@ -115,6 +118,10 @@ my $nprod = 0;
     $sumevt[$nprod]  = ($$pjob)->nevt;
     $strtime[$nprod] =  ($$pjob)->strtm;
     $fntime[$nprod]  =  ($$pjob)->fintm;
+
+    $mxtime = $fntime[$nprod];
+    $mxtime =~ s/-//g;
+    $timedif = $nowdate - $mxtime; 
     
     $jbcreat[$nprod] = 0;
     $jbdone[$nprod] = 0;
@@ -258,6 +265,28 @@ if($prstat[$nprod] eq "removed" ) {
 <td HEIGHT=10><h3><font color="blue">$sumevt[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="blue">$strtime[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="blue">$fntime[$nprod]</font></h3></td>
+</TR>
+END
+
+   }elsif($timedif <= 2){
+
+ print <<END;
+
+<TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
+<td HEIGHT=10><h3><font color="red">$artrg[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red">$prodtag[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red">$calbtag[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red">$jbcreat[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red">$jbdone[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=jstat">$jbcrsh[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=hung">$jbhung[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=hpss">$jbhpss[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red">$jbresub[$nprod]</h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=mudst">$mismudst[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red">$szmudst[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red">$sumevt[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red">$strtime[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red">$fntime[$nprod]</font></h3></td>
 </TR>
 END
 
