@@ -1,6 +1,9 @@
 #! /usr/local/bin/perl -w
 #
 # L. Didenko
+#
+# CRSrmError.pl - script to handle crashed jobs on the CRS farm
+#
 ###############################################################################
 
  my $prodSer = $ARGV[0]; 
@@ -14,6 +17,7 @@ $dbname="operation";
 
 $JobStatusT = "JobStatus2011";
 
+#$JobStatusT = "CalibJobStatus";
 
 my $jobdir;
 my $archdir;
@@ -110,6 +114,8 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
 
    $loopdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobs_looping"; 
 
+#  $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobs_calib";  
+#  $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive_calib";
 
   $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobfiles";  
   $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive";
@@ -167,6 +173,9 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
       $crsjobname = $prt[0];
 
 #      print $jobname,"   ", $prt[1], "\n";
+
+#  $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobs_calib";  
+#  $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive_calib";
 
   $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobfiles";  
   $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive";
