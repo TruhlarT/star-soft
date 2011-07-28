@@ -5,12 +5,26 @@
 
 my $prodSer = $ARGV[0];  
 my $CRSDIR  = "/home/starreco/newcrs/bin";
-my $jobdir  = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobfiles";
-my $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive";
+my $jobdir  = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobs_calib";
+my $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive_calib";
+
+#my $jobdir  = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobfiles";
+#my $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive";
 
 my @statlist = ();
 my @jobslist = ();
 my $timestamp ;
+
+use DBI;
+
+$dbhost="duvall.star.bnl.gov";
+$dbuser="starreco";
+$dbpass="";
+$dbname="operation";
+
+#$JobStatusT = "JobStatus2011";
+
+$JobStatusT = "CalibJobStatus";
 
 @statlist = `$CRSDIR/farmstat`;
 
@@ -29,7 +43,7 @@ if( $mon < 10) { $mon = '0'.$mon };
 if( $mday < 10) { $mday = '0'.$mday };
 if( $hour < 10) { $hour = '0'.$hour };
 if( $min < 10) { $min = '0'.$min };
-if( $sec < 10) { $min = '0'.$sec };
+if( $sec < 10) { $sec = '0'.$sec };
 
 $year = $yr + 1900;
 
@@ -70,13 +84,26 @@ if($Ncreate <= 1000) {
 
     for ( $kk = $n1; $kk<$nlast; $kk++) {
 	$jbfile = $jobslist[$kk];
-	chop $jbfile ;
-        if ( -f $jbfile) {
-	print  $jbfile, "\n";
-	`$CRSDIR/crs_job -create $jbfile -q4 -p20 -drop`;
-	`/bin/mv $jbfile $archdir`;
-       } else {
-                print "[?] $jbfile is not a file\n";
+	chop($jbfile);
+	$lckfile = $jbfile.".lock";
+
+        if ( -f $jbfile && ! -e $lckfile) {
+	    open(FO,">$lckfile"); close(FO);  # create lock file before submission
+	    print  $jbfile, "\n";
+	    `$CRSDIR/crs_job -create $jbfile -q5 -p20 -drop`;
+	    `/bin/mv $jbfile $archdir`;
+         
+      $sql="update $JobStatusT set submitTime = '$timestamp', submitAttempt = 1 where jobfileName = '$jbfile' ";
+      $rv = $dbh->do($sql) || die $dbh->errstr;
+
+	    unlink($lckfile);                 # remove lock file
+
+	} else {
+	    if ( -e  $lckfile ){
+		print "[!] $jbfile has a lock file $lckfile\n"; 
+	    } else {
+		print "[?] $jbfile was not found (skipping)\n";
+	    }
         }
 	
     }
