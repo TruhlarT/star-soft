@@ -119,8 +119,11 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
 ############## uncomment next lines
 
      next if( $jobname =~ /dev/);
+#     next if( $jobname =~ /P11ic/);
 
       `crs_job -kill $crsjobname`;
+
+  print "Found looping jobs: ", $jobname,"   ", $prt[1],  "\n";
 
       `mv $fullname $loopdir \n`;
 
