@@ -209,6 +209,7 @@ my $jobname = $qtrg."%".$qprod."%";
 <td HEIGHT=10><h3>$jbfName[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbStatus[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbEvent[$nn]</h3></td>
+<td HEIGHT=10><h3>$jbtrack[$nn]</h3></td>
 </TR>
 END
 
