@@ -70,8 +70,9 @@ my @mismudst = ();
 my @calbtag = ();
 my @prstat = ();
 
-my $timedif = 0;
+my $daydif = 0;
 my $mxtime = 0;
+my $mondif = 0;
 
 my $nprod = 0;
 
@@ -109,6 +110,8 @@ my $nprod = 0;
 
   &beginHtml();
 
+ my @prt = ();
+
        foreach  $pjob (@jbstat) {
 
     $prodtag[$nprod]  = ($$pjob)->prdtag;
@@ -118,11 +121,18 @@ my $nprod = 0;
     $sumevt[$nprod]  = ($$pjob)->nevt;
     $strtime[$nprod] =  ($$pjob)->strtm;
     $fntime[$nprod]  =  ($$pjob)->fintm;
-
+    @prt = ();
     $mxtime = $fntime[$nprod];
+    @prt = split("-",$mxtime);
     $mxtime =~ s/-//g;
-    $timedif = $nowdate - $mxtime; 
-    
+    $daydif = $nowdate - $mxtime;
+    $mondif = $mon - $prt[1];
+
+   if($mondif == 1 ) {
+    $mxtime = $prt[0].$mon."00";
+    $daydif = $nowdate - $mxtime;
+    };
+
     $jbcreat[$nprod] = 0;
     $jbdone[$nprod] = 0;
     $jbcrsh[$nprod] = 0;
@@ -268,7 +278,8 @@ if($prstat[$nprod] eq "removed" ) {
 </TR>
 END
 
-   }elsif($timedif <= 2){
+ }
+ if($daydif <= 2){
 
  print <<END;
 
