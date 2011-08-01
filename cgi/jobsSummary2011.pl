@@ -120,9 +120,8 @@ my $nprod = 0;
     $daydif = $nowdate - $mxtime;
     $mondif = $mon - $prt[1];
     
-   if($mondif == 1 ) {
-    $mxtime = $prt[0].$mon."00";
-    $daydif = $nowdate - $mxtime;
+   if($mondif == 1 and ($daydiff == 70 or $daydiff == 71 ) {
+    $daydif = $nowdate - $mxtime - $daydiff;
     };
     
     $jbcreat[$nprod] = 0;
