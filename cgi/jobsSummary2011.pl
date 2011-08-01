@@ -246,7 +246,7 @@ my $nprod = 0;
 
 ########## 
 
- if( $daydif <= 2){
+ if( $mondif == 0 and  $daydif <= 2){
 
 print <<END;
 
