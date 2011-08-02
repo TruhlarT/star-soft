@@ -81,6 +81,20 @@ proc ::jobCreate::lremove {args} {
     }
     return $l
 }
+proc ::jobCreate::sumList {l} {
+    set sum 0
+    foreach e $l {
+        set sum [expr $sum + [lindex $e 0]]
+    }
+    return $sum
+}
+proc ::jobCreate::reduceList {l i {j end}} {
+    set r [list]
+    foreach e $l {
+        lappend r [lrange $e $i $j]
+    }
+    return $r
+}
 
 ################################################################################
 # Read and parse schema file.
@@ -288,10 +302,12 @@ proc ::jobCreate::createWindow {} {
     $file add command -label "Read Job Description..." -command [namespace code [list getJobXmlFile]]
     $file add command -label "Create Job Files"        -command [namespace code createJobFiles]
     $file add command -label "Submit Job"              -command [namespace code submitJob] -accelerator "Alt-S"
+    $file add command -label "Filter filelist"         -command [namespace code filterLists] -accelerator "Alt-F"
     $file add command -label "Start jobMonitor"        -command [namespace code startJobMonitor] -accelerator "Alt-M"
     $file add command -label Exit -command [namespace code exit] -accelerator "Ctrl-Q"
     # Accelerators don't seem to actually invoke code.
     bind $::jobCreate::interfaceWindow <Alt-S>     [namespace code submitJob]
+    bind $::jobCreate::interfaceWindow <Alt-F>     [namespace code filterLists]
     bind $::jobCreate::interfaceWindow <Alt-M>     [namespace code startJobMonitor]
     bind $::jobCreate::interfaceWindow <Control-Q> [namespace code exit]
 
@@ -365,12 +381,16 @@ proc ::jobCreate::+listDefaultXml {type t c b} {
                            data_ppProductionMinBias_2005.lis \
                            data_pp400MinBias_2005.lis \
                            data_pp2006MinBias_2006.lis \
+                           data_pp2pp_VPDMB_2009.lis \
                            data_ppProductionMB62_2006.lis \
+                           production2009_200GeV_Single.lis \
                            dataAuAu7_2010_MinBias.lis \
                            dataAuAu11_2010_MinBias.lis \
                            dataAuAu19_2001_MinBias.lis \
+                           dataAuAu19_2011_MinBias.lis \
                            dataAuAu39_2010_MinBias.lis \
                            dataAuAu62_2004_MinBias.lis \
+                           dataAuAu62_2010_MinBias.lis \
                            dataAuAu130_2000_MinBias.lis \
                            dataAuAu200_2001_MinBiasVertex.lis \
                            dataAuAu200_2001_ProductionMinBias.lis \
@@ -385,6 +405,7 @@ proc ::jobCreate::+listDefaultXml {type t c b} {
                            dataAuAu200_2007Production2.lis \
                            dataAuAu200_2007_MinBias.lis \
                            dataAuAu200_2007_PMD.lis \
+                           dataAuAu200_2010_MinBias.lis \
                            dataCuCu22_P05if_cuProductionMinBias.lis \
                            dataCuCu62_2005_ProductionMinBias.lis \
                            dataCuCu62_2007ic_cuProductionMinBias.lis \
@@ -1571,7 +1592,7 @@ proc ::jobCreate::insertElementRow {f el node} {
         $f.combo configure -values $new
     }
 
-    set fE [frame $f.${el}$::jobCreate::numberOfInstances($el)]
+    set fE [frame $f.[string tolower $el 0 0]$::jobCreate::numberOfInstances($el)]
     grid $fE -columnspan 99
     m+XmlAtts $fE $el $node
 
@@ -1947,6 +1968,246 @@ proc ::jobCreate::isReadable { fid fLog } {
         .star-submit.t see end
         .star-submit.b.action configure -text Huh? -fg red
         set ::DONE 3
+    }
+}
+################################################################################
+# filterLists will read the *.dataset file in the scripts directory and sort it
+# chronologically, omitting runs and days with few events.
+################################################################################
+proc ::jobCreate::filterLists {} {
+    set tf [checkListWindow]
+
+    set pwd [pwd]
+    set node [$::jobCreate::jobInfo getElementsByTagName outputDir]
+    set path [$node text]
+    cd $path/scripts
+
+    set tag [glob *.dataset]
+    $tf.t insert end "About to filter $tag\n"
+
+    set currCurs [$tf.t cget -cursor]
+    $tf.t configure -cursor watch
+
+    # Do the filtering, write some messages to $tf.t
+    set dataset [open $tag]
+    set nJobs -1
+    set nFiles 0
+    set nEvents 0
+    set fileList [list]
+    # Scan file for number of jobs as well as list of files.
+    # Ignore files below a certain size.
+    catch {unset run}
+    catch {unset runDay}
+    catch {unset runIndex}
+    catch {unset fileLine}
+    catch {unset fileNEvents}
+    catch {unset rejectFile}
+    while {[gets $dataset line] >= 0} {
+        if {[string first :::::: $line] == 0} {
+            incr nJobs
+        } else {
+            if {[regexp {([0-9]+)$} $line m n] > 0} {
+                if {$n < 50} {
+                    lappend rejectFile $n
+                    continue
+                }
+                set fileLine($nFiles) $line
+                set fileNEvents($nFiles) $n
+                lappend fileList "$n $nFiles"
+                if {[regexp {_([0-9]+)_raw_([0-9]+)} $line m rn en]} {
+                    # Assume the first number in the filename is yydddrrr
+                    # where year can be one or two digits, day is three and run number is three
+                    set d [string range $rn end-5 end-3]
+                    lappend run($rn) "$n $nFiles"
+                    if {[info exists runDay($rn)]} {
+                        if {$runDay($rn) ne $d} {
+                            %tf.t insert end "Found a run $rn that extends over multiple days: $d, $runDay($rn)"
+                        }
+                    }
+                    set runDay($rn) $d
+                } else {
+                    $tf.t insert end "failed to parse $line"
+                }
+                incr nFiles
+                incr nEvents $n
+            }
+        }
+    }
+    close $dataset
+
+    # Create list of files for each day.
+    # Ignore runs below a certain size (may have start up,
+    # end of run or other issues for file to be so small)
+    catch {unset day}
+    catch {unset dayIndex}
+    set rejectRun [list]
+    foreach r [lsort [array names run]] {
+        set n [::jobCreate::sumList $run($r)]
+    #    $tf.f insert end "$r:  $n"
+        set d $runDay($r)
+        if {$n < 1000} {
+            lappend rejectRun $r
+        } else {
+            lappend day($d) "$n [::jobCreate::reduceList $run($r) 1]"
+        }
+    }
+    if {[llength $rejectRun] > 0} {
+        $tf.t insert end "Rejecting the following runs as having too few events\n"
+        foreach r $rejectRun {
+            $tf.t insert end "    $r\n"
+        }
+    }
+
+    # Calculate number of events per day.
+    # Ignore days with few events.
+    catch {unset period}
+    set rejectDay [list]
+    foreach d [lsort -index 0 [array names day]] {
+        set n [::jobCreate::sumList $day($d)]
+        $tf.t insert end "  day $d has $n events\n"
+        if {$n < 20000} {
+            lappend rejectDay $d
+            lappend period 0
+        } else {
+            lappend period $n
+        }
+    }
+    if {[llength $rejectDay] > 0} {
+        $tf.t insert end "Rejecting the following days as having too few events\n"
+        foreach d $rejectDay {
+            $tf.t insert end "    $d\n"
+        }
+    }
+
+    # We want to split files for each day into individual jobs, but
+    # need to calculate how many jobs that will be.
+    catch {unset dayJobs}
+    catch {unset delta}
+    set eventsPerJob [expr ([join $period +])/$nJobs]
+    set i 0
+    foreach ed $period {
+        set nED [expr $ed/$eventsPerJob]
+        if {$ed == 0} {
+            lappend dayJobs 0
+            lappend delta 0
+        } elseif {$nED < 1} {
+            lappend dayJobs 1
+            lappend delta "0 $i"
+        } else {
+            lappend dayJobs $nED
+            lappend delta "[expr (0.0+$ed)/$eventsPerJob-$nED] $i"
+        }
+        incr i
+    }
+
+    # Sum of numbers of jobs per day should be less than
+    # total number of jobs we can have. Distribute extra
+    # jobs to the biggest days.
+    set delta [lsort -decreasing -index 0 $delta]
+    set nDelta [expr $nJobs-([join $dayJobs +])]
+    for {set i 0} {$i < $nDelta} {incr i} {
+        set j [lindex $delta $i 1]
+        set nD [lindex $dayJobs $j]
+        incr nD
+        set dayJobs [lreplace $dayJobs $j $j $nD]
+    }
+
+    catch {unset targetJobs}
+    foreach nD $dayJobs nE $period {
+        lappend targetJobs [expr $nE/($nD+0.01)]
+    }
+
+    # Now split each day into individual jobs.
+    # Want files sorted by run number, then by sequence within the rin.
+    set job -1
+    catch {unset jobList}
+    catch {unset dayList}
+    catch {unset jobSum}
+    foreach d [lsort -index 0 [array names day]] dJobs $dayJobs nT $targetJobs {
+        if {$dJobs > 0} {
+            # Create list of files for each run for this day
+            catch {unset runSeq}
+            foreach l [join [::jobCreate::reduceList $day($d) 1]] {
+                if {[regexp {_([0-9]+)_raw_([0-9]+)} $fileLine($l) m rn en]} {
+                    lappend runSeq($rn) "$en $l"
+                }
+            }
+            # Sort each run according to sequence number, append all files for day
+            set sum 0
+            foreach rs [lsort [array names runSeq]] {
+                foreach s [lsort -index 0 $runSeq($rs)] {
+                    foreach {en l} $s {break}
+                    regexp {([0-9]+)$} $fileLine($l) m n
+                    lappend dayList($d) "$fileLine($l) $n"
+                    incr sum $n
+                }
+            }
+            # Split into dJobs trying to keep number of events per job as nT
+            incr job
+            set nDayJobs 0
+            set jobSum($job) 0
+            set dayTot 0
+            foreach j $dayList($d) {
+                foreach {l n} $j {break}
+                if {($nDayJobs < $dJobs-1) && ($n/2+$dayTot > $nT*($nDayJobs+1))} {
+                    incr job
+                    incr nDayJobs
+                    set jobSum($job) 0
+                }
+                lappend jobList($job) $l
+                incr jobSum($job) $n
+                incr dayTot $n
+            }
+        }
+    }
+
+    # Now write out each jobList separated by = line.
+    set dataset [open [file rootname $tag].newDataset w]
+    puts $dataset ":::::::::::::::::::::::::::::::::::::::::::::::::::::::"
+    for {set j 0} {$j <= $job} {incr j} {
+        foreach l $jobList($j) {
+            puts $dataset $l
+        }
+        puts $dataset ":::::::::::::::::::::::::::::::::::::::::::::::::::::::"
+    }
+    close $dataset
+
+    # mv tag to oldDataset, newDataset to dataset.
+    file rename $tag [file rootname $tag].oldDataset
+    file rename [file rootname $tag].newDataset $tag
+
+    $tf.t insert end "I have rename $tag to [file rootname $tag].oldDataset"
+    $tf.t insert end " and created a new version of the dataset."
+    $tf.t insert end " If you see odd results you should check these files by hand.\n"
+
+    $tf.t conf -cursor $currCurs
+    $tf.b.action configure -text "finished filtering filelist"
+
+    cd $pwd
+}
+proc ::jobCreate::checkListWindow {} {
+    if {![winfo exists .filterList]} {
+        toplevel .filterList
+        grid [label  .filterList.l -text "Filtering file list input file"]
+        text .filterList.t -yscrollcommand {.filterList.y set} \
+                         -xscrollcommand {.filterList.x set} -wrap char \
+                         -undo true
+        scrollbar .filterList.y -command {.filterList.t yview}
+        scrollbar .filterList.x -command {.filterList.t xview} -orient horizontal
+        grid .filterList.t .filterList.y
+        grid .filterList.x x
+        grid .filterList.t -sticky news
+        grid .filterList.y -sticky ns
+        grid .filterList.x -sticky we
+        grid [frame  .filterList.b]
+        grid [button .filterList.b.action -text Cancel \
+                -command "destroy .filterList"]
+        grid columnconfigure .filterList 0 -weight 1
+        grid rowconfigure    .filterList 1 -weight 1
+
+        bind .filterList <Control-w> {destroy .filterList}
+
+        return .filterList
     }
 }
 ################################################################################
@@ -4634,17 +4895,23 @@ proc ::jobCreate::displayHelp {w} {
 
     $w insert end " o File\n" bullet
     $w insert end "- New Schema File...\n" n
-    $w insert end "Primarily for debugging/developing.\n" n
+    $w insert end " Primarily for debugging/developing.\n" n
     $w insert end "- Read Job Description...\n" n
-    $w insert end "Read in previously created xml description of a job. " n
-    $w insert end "This file may have previously been created by this interface. " n
-    $w insert end "Can also give this file name as argument when starting jobCreate.\n" n
+    $w insert end " Read in previously created xml description of a job. " n
+    $w insert end " This file may have previously been created by this interface. " n
+    $w insert end " Can also give this file name as argument when starting jobCreate.\n" n
     $w insert end "- Create Job Files\n" n
-    $w insert end "Create output directory hierarchy and populate with files " n
-    $w insert end "created by this interface. (Does not invoke the scheduler.)\n" n
+    $w insert end " Create output directory hierarchy and populate with files " n
+    $w insert end " created by this interface. (Does not invoke the scheduler.)\n" n
     $w insert end "- Submit Job\n" n
-    $w insert end "Create output directory hierarchy, populate it with files " n
-    $w insert end "created by this interface, then invoke the scheduler.\n" n
+    $w insert end " Create output directory hierarchy, populate it with files " n
+    $w insert end " created by this interface, then invoke the scheduler.\n" n
+    $w insert end "- Filter filelist\n" n
+    $w insert end " Re-order *.dataset file (in scripts directory) so MuDst files are in " n
+    $w insert end " sequential order. Omit MuDst files with few events and days with few events. " n
+    $w insert end " Keep number of jobs the same as SUMS decided but divide into jobs with almost " n
+    $w insert end " equal number of events, although don't mix MuDst files from different days. " n
+    $w insert end " Note: I think this works but it has not been tested on all datasets. " n
     $w insert end "- Start jobMonitor\n" n
     $w insert end "Start a companion program, jobMonitor, which allows " n
     $w insert end "monitoring, killing, fixing and re-submitting batch jobs. " n
