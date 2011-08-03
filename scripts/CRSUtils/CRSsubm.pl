@@ -7,12 +7,11 @@
 ###############################################################################
 
 my $prodSer = $ARGV[0];  
+my $pflag = $ARGV[1];
+ 
 my $CRSDIR  = "/home/starreco/newcrs/bin";
-my $jobdir  = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobs_calib";
-my $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive_calib";
-
-#my $jobdir  = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobfiles";
-#my $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive";
+my $jobdir;
+my $archdir;
 
 my @statlist = ();
 my @jobslist = ();
@@ -25,9 +24,22 @@ $dbuser="starreco";
 $dbpass="";
 $dbname="operation";
 
-#$JobStatusT = "JobStatus2011";
+
+if( $pflag eq "reco" ){
+
+ $jobdir  = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobfiles";
+ $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive";
+  
+ $JobStatusT = "JobStatus2011";
+
+}elsif( $pflag eq "calib" ) {
+
+ $jobdir  = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobs_calib";
+ $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive_calib";
 
 $JobStatusT = "CalibJobStatus";
+
+ }
 
 @statlist = `$CRSDIR/farmstat`;
 
