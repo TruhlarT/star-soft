@@ -2,7 +2,7 @@
 #
 # L. Didenko
 #
-# CRS_submit.pl - submit reco jobs to CRS farm
+# CRSsubmit.pl - submit reco jobs to CRS farm
 #
 ###############################################################################
 
