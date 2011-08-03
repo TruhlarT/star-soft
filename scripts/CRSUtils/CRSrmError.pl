@@ -16,11 +16,11 @@ $dbuser="starreco";
 $dbpass="";
 $dbname="operation";
 
- if($pflag eq "reco" ) {
+ if( $pflag eq "reco" ) {
 
  $JobStatusT = "JobStatus2011";
 
- }elsif($pfalg eq "calib") {
+ }elsif($pflag eq "calib") {
 
  $JobStatusT = "CalibJobStatus";
  }
@@ -61,6 +61,12 @@ my $Nfail = 0;
 my $Nloop = 0;
 my $pathname;
 
+my @nsubm = ();
+my $nn = 0;
+my $nd = 1;
+my $submAt = 0;
+
+
   ($sec,$min,$hour,$mday,$mon,$yr) = localtime;
 
   
@@ -96,6 +102,27 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
 
 ##################################################### remove looping jobs
 
+ $loopdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobs_looping"; 
+ $lostdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobs_lostfiles"; 
+
+     if($pflag eq "reco" ) {
+
+  $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobfiles";  
+  $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive";
+
+   }elsif($pflag eq "calib" ) {
+
+  $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobs_calib";  
+  $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive_calib";
+
+   }else{
+
+  $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobfiles";  
+  $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive";
+
+  }
+
+
   $Nloop = scalar(@jobsloop);
 
    &StDbProdConnect(); 
@@ -118,26 +145,22 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
       @prt = split (" ", $lline);
       $crsjobname = $prt[0];
 
-   $loopdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobs_looping"; 
-
-     if($pflag eq "reco" ) {
-
-  $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobfiles";  
-  $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive";
-
-   }elsif($pflag eq "calib" ) {
-
-  $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobs_calib";  
-  $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive_calib";
-
-   }else{
-
-  $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobfiles";  
-  $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive";
-
-  }
-
      $fullname = $archdir ."/". $jobname;
+
+ $sql="SELECT submitAttempt FROM $JobStatusT WHERE jobfileName = '$jobname'" ;
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $nd = $cursor->fetchrow() ) {
+          $nsubm[$nn] = $nd;
+          $nn++;
+      }
+
+      $cursor->finish();
+
+    $submAt = $nsubm[0]++;
 
 ############## uncomment next lines
 
@@ -191,24 +214,6 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
 
 #      print $jobname,"   ", $prt[1], "\n";
 
-  $lostdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobs_lostfiles"; 
-
-       if($pflag eq "reco" ) {
-
-  $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobfiles";  
-  $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive";
-
-      }elsif($pflag eq "calib" ) {
-
-  $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobs_calib";  
-  $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive_calib";
-
-      }else{
-
-  $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobfiles";  
-  $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive";
-
-      }
 
      $fullname = $archdir ."/". $jobname;
 
@@ -248,42 +253,42 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
     `crs_job -reset $crsjobname`; 
      print "Job was reset:  ", $jobname,"   ", $prt[1], "\n";
 
-      $sql="update $JobStatusT set submitTime = '$timestamp', submitAttempt = 2 where jobfileName = '$jobname' ";
+      $sql="update $JobStatusT set submitTime = '$timestamp', submitAttempt = '$submAt' where jobfileName = '$jobname' ";
       $rv = $dbh->do($sql) || die $dbh->errstr;
 
    }elsif($prt[1] eq "hpss_request_submission_timed_out") {
     `crs_job -reset $crsjobname`; 
      print "Job was reset:  ", $jobname,"   ", $prt[1], "\n";
 
-     $sql="update $JobStatusT set submitTime = '$timestamp', submitAttempt = 2 where jobfileName = '$jobname' ";
+     $sql="update $JobStatusT set submitTime = '$timestamp', submitAttempt = '$submAt' where jobfileName = '$jobname' ";
       $rv = $dbh->do($sql) || die $dbh->errstr;
 
    }elsif($prt[1] eq "hpss_stage_request_timed_out") {
     `crs_job -reset $crsjobname`; 
      print "Job was reset:  ", $jobname,"   ", $prt[1], "\n";
 
-     $sql="update $JobStatusT set submitTime = '$timestamp', submitAttempt = 2 where jobfileName = '$jobname' ";
+     $sql="update $JobStatusT set submitTime = '$timestamp', submitAttempt = '$submAt' where jobfileName = '$jobname' ";
      $rv = $dbh->do($sql) || die $dbh->errstr;
 
    }elsif($prt[1] eq "hpss_busy") {
     `crs_job -reset $crsjobname`; 
      print "Job was reset:  ", $jobname,"   ", $prt[1], "\n";
 
-     $sql="update $JobStatusT set submitTime = '$timestamp', submitAttempt = 2 where jobfileName = '$jobname' ";
+     $sql="update $JobStatusT set submitTime = '$timestamp', submitAttempt = '$submAt' where jobfileName = '$jobname' ";
      $rv = $dbh->do($sql) || die $dbh->errstr;
 
    }elsif($prt[1] eq "pftp_get_failed") {
     `crs_job -reset $crsjobname`; 
      print "Job was reset:  ", $jobname,"   ", $prt[1], "\n";  
 
-     $sql="update $JobStatusT set submitTime = '$timestamp', submitAttempt = 2 where jobfileName = '$jobname' ";
+     $sql="update $JobStatusT set submitTime = '$timestamp', submitAttempt = '$submAt' where jobfileName = '$jobname' ";
      $rv = $dbh->do($sql) || die $dbh->errstr;
 
    }elsif($prt[1] eq "evicted_by_condor") {
     `crs_job -reset $crsjobname`; 
      print "Job was reset:  ", $jobname,"   ", $prt[1], "\n";  
 
-     $sql="update $JobStatusT set submitTime = '$timestamp', submitAttempt = 2 where jobfileName = '$jobname' ";
+     $sql="update $JobStatusT set submitTime = '$timestamp', submitAttempt = '$submAt' where jobfileName = '$jobname' ";
      $rv = $dbh->do($sql) || die $dbh->errstr;
 
    }else{
