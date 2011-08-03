@@ -7,6 +7,7 @@
 ###############################################################################
 
  my $prodSer = $ARGV[0]; 
+ my $pflag = $ARGV[1];
 
 use DBI;
 
@@ -15,9 +16,14 @@ $dbuser="starreco";
 $dbpass="";
 $dbname="operation";
 
-$JobStatusT = "JobStatus2011";
+ if($pflag eq "reco" ) {
 
-#$JobStatusT = "CalibJobStatus";
+ $JobStatusT = "JobStatus2011";
+
+ }elsif($pfalg eq "calib") {
+
+ $JobStatusT = "CalibJobStatus";
+ }
 
 my $jobdir;
 my $archdir;
@@ -114,11 +120,22 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
 
    $loopdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobs_looping"; 
 
-#  $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobs_calib";  
-#  $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive_calib";
+     if($pflag eq "reco" ) {
 
   $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobfiles";  
   $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive";
+
+   }elsif($pflag eq "calib" ) {
+
+  $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobs_calib";  
+  $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive_calib";
+
+   }else{
+
+  $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobfiles";  
+  $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive";
+
+  }
 
      $fullname = $archdir ."/". $jobname;
 
@@ -174,13 +191,24 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
 
 #      print $jobname,"   ", $prt[1], "\n";
 
-#  $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobs_calib";  
-#  $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive_calib";
+  $lostdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobs_lostfiles"; 
+
+       if($pflag eq "reco" ) {
 
   $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobfiles";  
   $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive";
 
-  $lostdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobs_lostfiles"; 
+      }elsif($pflag eq "calib" ) {
+
+  $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobs_calib";  
+  $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive_calib";
+
+      }else{
+
+  $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobfiles";  
+  $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive";
+
+      }
 
      $fullname = $archdir ."/". $jobname;
 
@@ -220,25 +248,43 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
     `crs_job -reset $crsjobname`; 
      print "Job was reset:  ", $jobname,"   ", $prt[1], "\n";
 
+      $sql="update $JobStatusT set submitTime = '$timestamp', submitAttempt = 2 where jobfileName = '$jobname' ";
+      $rv = $dbh->do($sql) || die $dbh->errstr;
+
    }elsif($prt[1] eq "hpss_request_submission_timed_out") {
     `crs_job -reset $crsjobname`; 
      print "Job was reset:  ", $jobname,"   ", $prt[1], "\n";
+
+     $sql="update $JobStatusT set submitTime = '$timestamp', submitAttempt = 2 where jobfileName = '$jobname' ";
+      $rv = $dbh->do($sql) || die $dbh->errstr;
 
    }elsif($prt[1] eq "hpss_stage_request_timed_out") {
     `crs_job -reset $crsjobname`; 
      print "Job was reset:  ", $jobname,"   ", $prt[1], "\n";
 
+     $sql="update $JobStatusT set submitTime = '$timestamp', submitAttempt = 2 where jobfileName = '$jobname' ";
+     $rv = $dbh->do($sql) || die $dbh->errstr;
+
    }elsif($prt[1] eq "hpss_busy") {
     `crs_job -reset $crsjobname`; 
      print "Job was reset:  ", $jobname,"   ", $prt[1], "\n";
+
+     $sql="update $JobStatusT set submitTime = '$timestamp', submitAttempt = 2 where jobfileName = '$jobname' ";
+     $rv = $dbh->do($sql) || die $dbh->errstr;
 
    }elsif($prt[1] eq "pftp_get_failed") {
     `crs_job -reset $crsjobname`; 
      print "Job was reset:  ", $jobname,"   ", $prt[1], "\n";  
 
+     $sql="update $JobStatusT set submitTime = '$timestamp', submitAttempt = 2 where jobfileName = '$jobname' ";
+     $rv = $dbh->do($sql) || die $dbh->errstr;
+
    }elsif($prt[1] eq "evicted_by_condor") {
     `crs_job -reset $crsjobname`; 
      print "Job was reset:  ", $jobname,"   ", $prt[1], "\n";  
+
+     $sql="update $JobStatusT set submitTime = '$timestamp', submitAttempt = 2 where jobfileName = '$jobname' ";
+     $rv = $dbh->do($sql) || die $dbh->errstr;
 
    }else{
 
