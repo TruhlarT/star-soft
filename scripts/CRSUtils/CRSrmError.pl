@@ -2,7 +2,7 @@
 #
 # L. Didenko
 #
-# CRSrmError.pl - script to handle crashed jobs on the CRS farm
+# CRSrmError.pl - script to handle failed jobs on the CRS farm
 #
 ###############################################################################
 
