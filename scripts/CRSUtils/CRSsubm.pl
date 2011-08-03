@@ -1,6 +1,9 @@
 #! /usr/local/bin/perl -w
 #
 # L. Didenko
+#
+# CRS_submit.pl - submit reco jobs to CRS farm
+#
 ###############################################################################
 
 my $prodSer = $ARGV[0];  
