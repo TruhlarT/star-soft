@@ -20,7 +20,7 @@ $dbname="operation";
 
  $JobStatusT = "JobStatus2011";
 
- }elsif($pflag eq "calib") {
+ }elsif( $pflag eq "calib" ) {
 
  $JobStatusT = "CalibJobStatus";
  }
