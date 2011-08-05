@@ -8,7 +8,7 @@
 # filename with list of run numbers, chainName from ProdOptions table and stream name
 # (use "all" if all stream data should be processed)   
 # For example:
-# createJobsbyRunList.pl P07ie runlist2007.list auau200.2007.prod2 all
+# createJobsbyRunList.pl P11id auau19.run2011.prod1 auau19_goodruns.list st_physics
 # 
 #
 # Author:  L.Didenko
