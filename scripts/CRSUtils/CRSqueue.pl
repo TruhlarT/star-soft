@@ -52,6 +52,14 @@ if( $sec < 10) { $sec = '0'.$sec };
 
    &StcrsdbConnect();
  
+# GVB: There is a bug obviated by not initializing
+# these: the code below assumes the 2nd and 3rd reported
+# queues are 3 and 4; presently they are actually 4 and 5
+  for (my $ni = 0; $ni < 6; $ni++) {
+    $queueRun[$ni] = 0;
+    $Rqueue[$ni] = 0;
+  }
+
 my $nn = 0;
 my $nk = 0;
 
@@ -77,12 +85,8 @@ my $nk = 0;
     $nn++;
 
  }
-$queueRun[1] = 0;
-$queueRun[2] = 0;
-$Rqueue[1] = 0;
-$Rqueue[2] = 0; 
-   
-      &fillTable();
+
+   &fillTable();
 
    &StcrsdbDisconnect();
 
