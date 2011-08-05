@@ -126,7 +126,7 @@ my @jobs_set = ();
      &StDbProdDisconnect();
 
 
- my $SITE = "BNL";
+my $SITE = "BNL";
 
 my $fileC = new FileCatalog();
 
