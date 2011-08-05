@@ -137,7 +137,6 @@ my @prt = ();
 my $flname;
 my $jpath;
 my $jfile;
-my $num = 0;
 my $nfiles = 0;
 my $fileSeq;
 my $field;
@@ -188,7 +187,6 @@ my @flsplit = ();
 
 #    print $trig,"   ",$jpath,"   ",$field,"   ",$flname,"\n";
 
-    $num = $fileSeq/10 - int($fileSeq/10);
            $mprodSr = $prodPeriod; 
            $myID = 100000000 + $new_id;
            $mjobID = "Job". $myID . "/" . $prodPeriod ."/". $mlibVer;
