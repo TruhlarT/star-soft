@@ -38,15 +38,6 @@ my $chName = $ARGV[2];
 my $ftype = $ARGV[3];
 
 my $datDisk = "/star/data+20-90";             
-my $trig;
-
-my $listName = "/star/u/starreco/".$fileName;
-
-my @runList = ();
-
- open (RUNLIST, $listName ) or die "cannot open $listName: $!\n";
-
- @runList = <RUNLIST>;
 
 ###Set directories to be created for jobfiles
 
@@ -57,10 +48,6 @@ my $JOB_LOG =  $DISK1 . $prodPeriod . "/log/daq" ;
 my $JOB_DIR =  "/star/u/starreco/" . $prodPeriod ."/requests/daq"; 
 
 my @jobs_set = ();
-
-#####  connect to production DB
-
- &StDbProdConnect();
 
  my $jb_news;
  my $jb_archive;

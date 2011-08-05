@@ -58,10 +58,6 @@ my $JOB_DIR =  "/star/u/starreco/" . $prodPeriod ."/requests/daq";
 
 my @jobs_set = ();
 
-#####  connect to production DB
-
- &StDbProdConnect();
-
  my $jb_news;
  my $jb_archive;
  my $jb_jobfile;
@@ -145,6 +141,8 @@ my $mrunId;
 my $strName; 
 my @flsplit = ();
 
+ &StDbProdConnect();
+
  for ($ii=0; $ii< scalar(@runList); $ii++)  {
 
  chop $runList[$ii];
@@ -165,9 +163,6 @@ my @flsplit = ();
   @jobs_set = $fileC->run_query("trgsetupname","path","filename","fileseq","magscale");
 
     $fileC->clear_context();
-
-  
- &StDbProdConnect();
 
   foreach my $jobline (@jobs_set){
  
