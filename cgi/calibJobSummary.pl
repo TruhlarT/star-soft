@@ -3,7 +3,7 @@
 # $Id:
 #
 # L.Didenko
-# calibjobSummary.pl - summary of calibration production jobs status
+# calibJobSummary.pl - summary of calibration production jobs status
 #
 ########################################################################################
 
@@ -236,7 +236,7 @@ my $nprod = 0;
        }
     $cursor->finish();
 
-    $szmudst[$nprod] = int($szmudst[$nprod]/1000/1000 + 0.01); 
+    $szmudst[$nprod] = int($szmudst[$nprod]/1000/1000/1000 + 0.01); 
 
 ########## 
 
@@ -260,20 +260,20 @@ if($prstat[$nprod] eq "removed" ) {
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3><font color="blue">$artrg[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="blue">$prodtag[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="blue">$calbtag[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="blue">$jbcreat[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="blue">$jbdone[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="blue"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=jstat">$jbcrsh[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="blue"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=hung">$jbhung[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="blue"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=hpss">$jbhpss[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="blue">$jbresub[$nprod]</h3></td>
-<td HEIGHT=10><h3><font color="blue"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=mudst">$mismudst[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="blue">$szmudst[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="blue">$sumevt[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="blue">$strtime[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="blue">$fntime[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="green">$artrg[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="green">$prodtag[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="green">$calbtag[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="green">$jbcreat[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="green">$jbdone[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=jstat">$jbcrsh[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=hung">$jbhung[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=hpss">$jbhpss[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="green">$jbresub[$nprod]</h3></td>
+<td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pflag=mudst">$mismudst[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="green">$szmudst[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="green">$sumevt[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="green">$strtime[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="green">$fntime[$nprod]</font></h3></td>
 </TR>
 END
 
@@ -356,7 +356,7 @@ print <<END;
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <h4 ALIGN=LEFT><font color="#ff0000">Ongoing production is in red color</font><br>
-<ALIGN=LEFT><font color="blue">Removed production is in blue color</font></h4>
+<ALIGN=LEFT><font color="blue">Removed production is in green color</font></h4>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Trigger set</h3></B></TD>
@@ -368,8 +368,8 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs 'hung'</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs failed due to HPSS error</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs resubmit</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.of<br>missing MuDst files</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Size of MuDst files in MB</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.<br>missing MuDst files</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Size of MuDst files in GB</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.<br>events<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Start time <h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>End time <h3></B></TD>
