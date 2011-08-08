@@ -356,7 +356,7 @@ print <<END;
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <h4 ALIGN=LEFT><font color="#ff0000">Ongoing production is in red color</font><br>
-<ALIGN=LEFT><font color="blue">Removed production is in green color</font></h4>
+<ALIGN=LEFT><font color="green">Removed production is in green color</font></h4>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Trigger set</h3></B></TD>
