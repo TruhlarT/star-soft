@@ -78,7 +78,7 @@ my $nprod = 0;
 
   &StDbProdConnect();
 
-  $sql="SELECT distinct trigsetName, prodSeries, calibtag, status, date_format(min(createTime), '%Y-%m-%d') as mintm, date_format(max(createTime), '%Y-%m-%d') as maxtm, sum(NoEvents) from $JobStatusT where createTime <> '0000-00-00 00:00:00' group by trigsetName, prodSeries order by max(createTime) ";
+  $sql="SELECT distinct trigsetName, prodSeries, calibtag, status, date_format(min(createTime), '%Y-%m-%d') as mintm, date_format(max(createTime), '%Y-%m-%d') as maxtm, sum(NoEvents) from $JobStatusT where createTime <> '0000-00-00 00:00:00' group by trigsetName, prodSeries, calibTag order by max(createTime) ";
 
 
             $cursor =$dbh->prepare($sql)
