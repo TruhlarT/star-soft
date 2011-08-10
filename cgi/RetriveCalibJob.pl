@@ -215,9 +215,12 @@ my $jobname = $qtrg."%".$qprod."%";
 
      if($qflag eq "ndisk") {
 
-     for ($ii=0;$ii<$nnd;$ii++) {
+     for (my $ii=0;$ii<$nnd;$ii++) {
+
+	 $disklst[$ii] = "/star/data10";
 
  print <<END;
+
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$disklst[$ii]</h3></td>
 </TR>
