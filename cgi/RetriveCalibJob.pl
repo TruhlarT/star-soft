@@ -67,7 +67,9 @@ my @jbstat = ();
 my @jbStatus = ();
 my @jbfName = ();
 my @jbEvent = ();
+my @disklst = ();
 my $nn = 0;
+my $nnd = 0;
 
 my $jobname = $qtrg."%".$qprod."%";
 
@@ -188,6 +190,22 @@ my $jobname = $qtrg."%".$qprod."%";
             $nst++;
          }
 
+ }elsif($qflag eq "ndisk") {
+
+   &beginDsHtml();
+
+     $sql="SELECT distinct diskName FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and calibTag = ?  and outputStatus <> 'yes'  ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute($jobname,$qprod,$qcalib);
+
+        while( my $dnm = $cursor->fetchrow() ) {
+          $disklst[$nnd] = $dnm;
+          $nnd++;
+       }
+    $cursor->finish();
+ 
    }else{
 
    &beginHtml();
@@ -195,6 +213,18 @@ my $jobname = $qtrg."%".$qprod."%";
 
 &StDbProdDisconnect(); 
 
+     if($qflag eq "ndisk") {
+
+     for ($ii=0;$ii<$nnd;$ii++) {
+
+ print <<END;
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
+<td HEIGHT=10><h3>$disklst[$ii]</h3></td>
+</TR>
+END
+ }
+
+   }else{     
   
        foreach  $pjob (@jbstat) {
 
@@ -247,11 +277,11 @@ print <<END;
 </TR>
 END
 
- }
+    }
       $nn++;
 
-}
-
+    }
+  }
  &endHtml();
 
 ######################
@@ -356,6 +386,26 @@ print <<END;
 <TR>
 <TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=60><B><h3>Jobfilename</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>HPSS error</h3></B></TD>
+</TR>
+   </head>
+    </body>
+END
+}
+
+#####################################
+
+sub beginDsHtml {
+
+print <<END;
+
+  <html>
+   <body BGCOLOR=\"cornsilk\">
+ <h2 ALIGN=CENTER> <B>List of NFS disks name for location of <font color="blue">$qprod</font> production and <font color="blue">$qtrg </font> dataset   </B></h2>
+ <h3 ALIGN=CENTER> Generated on $todate</h3>
+<br>
+<TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
+<TR>
+<TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=60><B><h3>Disk names</h3></B></TD>
 </TR>
    </head>
     </body>
