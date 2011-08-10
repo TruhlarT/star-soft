@@ -201,13 +201,12 @@ my $jobname = $qtrg."%".$qprod."%";
        $cursor->execute($jobname,$qprod,$qcalib);
 
         while( my $dnm = $cursor->fetchrow() ) {
-          $disklst[$nnd] = $dnm;
+#          $disklst[$nnd] = $dnm;
+          $disklst[$nnd] = "/star/data11"; 
           $nnd++;
        }
     $cursor->finish();
 
-   $disklst[$nnd-1] = "/star/data11";
- 
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
