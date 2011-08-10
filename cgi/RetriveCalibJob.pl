@@ -206,6 +206,13 @@ my $jobname = $qtrg."%".$qprod."%";
        }
     $cursor->finish();
  
+ print <<END;
+
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
+<td HEIGHT=10><h3>$disklst[$nnd-1]</h3></td>
+</TR>
+END
+
    }else{
 
    &beginHtml();
@@ -215,17 +222,11 @@ my $jobname = $qtrg."%".$qprod."%";
 
      if($qflag eq "ndisk") {
 
-     for (my $ii=0;$ii<$nnd;$ii++) {
+     for(my $ii=0;$ii<$nnd;$ii++) {
 
 	 $disklst[$ii] = "/star/data10";
 
- print <<END;
-
-<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3>$disklst[$ii]</h3></td>
-</TR>
-END
- }
+  }
 
    }else{     
   
@@ -403,7 +404,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>List of NFS disks name for location of <font color="blue">$qprod</font> production and <font color="blue">$qtrg </font> dataset   </B></h2>
+ <h2 ALIGN=CENTER> <B>List of NFS disk names for <font color="blue">$qprod</font> production and <font color="blue">$qtrg </font> dataset location  </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
