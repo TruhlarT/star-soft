@@ -213,7 +213,7 @@ my $jobname = $qtrg."%".$qprod."%";
              $disklst[$nnd] = $fvalue     if( $fname eq 'diskName');
              $diskname[$nnd] = "/star/".$disklst[$nnd];
              $disksize[$nnd] = $fvalue    if( $fname eq 'sum(mudstsize)');
-            
+             $disksize[$nnd] = int($disksize[$nnd]/1000000000 + 0.5)
             }
 
 print <<END;
