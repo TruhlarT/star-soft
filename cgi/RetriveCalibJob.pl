@@ -70,6 +70,7 @@ my @jbEvent = ();
 my @disklst = ();
 my $nn = 0;
 my $nnd = 0;
+my $dnm = 0;
 
 my $jobname = $qtrg."%".$qprod."%";
 
@@ -200,24 +201,19 @@ my $jobname = $qtrg."%".$qprod."%";
           || die "Cannot prepare statement: $DBI::errstr\n";
        $cursor->execute($jobname,$qprod,$qcalib);
 
-        while( my $dnm = $cursor->fetchrow() ) {
+        while( $dnm = $cursor->fetchrow() ) {
           $disklst[$nnd] = $dnm;
+
+ print <<END;
+
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
+<td HEIGHT=10><h3>$disklst[$nnd]</h3></td>
+</TR>
+END
+
           $nnd++;
        }
     $cursor->finish();
-
-# print <<END;
-
-#<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
-#<td HEIGHT=10><h3>$disklst[$nnd-1]</h3></td>
-#</TR>
-#END
-
-print <<END;
-<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3>"disks"</h3></td>
-</TR>
-END
 
    }else{
 
