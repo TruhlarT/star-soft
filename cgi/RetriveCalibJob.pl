@@ -206,10 +206,16 @@ my $jobname = $qtrg."%".$qprod."%";
        }
     $cursor->finish();
 
- print <<END;
+# print <<END;
 
+#<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
+#<td HEIGHT=10><h3>$disklst[$nnd-1]</h3></td>
+#</TR>
+#END
+
+print <<END;
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3>$disklst[$nnd-1]</h3></td>
+<td HEIGHT=10><h3>"disks"</h3></td>
 </TR>
 END
 
