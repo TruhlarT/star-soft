@@ -195,7 +195,7 @@ my $jobname = $qtrg."%".$qprod."%";
 
    &beginDsHtml();
 
-     $sql="SELECT distinct diskName FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and calibTag = ?  and outputStatus <> 'yes'  ";
+     $sql="SELECT distinct diskName FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and calibTag = ?  and outputStatus = 'yes'  ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -207,7 +207,7 @@ my $jobname = $qtrg."%".$qprod."%";
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3>disk name</h3></td>
+<td HEIGHT=10><h3>$disklst[$nnd]</h3></td>
 </TR>
 END
 
