@@ -277,7 +277,7 @@ if($prstat[$nprod] eq "removed" ) {
 </TR>
 END
 
- }elsif($prstat[$nprod] ne "removed" and $daydif <= 2){
+ }elsif($prstat[$nprod] ne "removed" and $daydif < 2){
 
  print <<END;
 
