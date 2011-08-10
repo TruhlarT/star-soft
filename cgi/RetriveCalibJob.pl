@@ -55,6 +55,7 @@ my $qtrg = $query->param('trigs');
 my $qprod = $query->param('prod');
 #my $qyear = $query->param('pyear');
 my $qflag = $query->param('pflag');
+my $qcalib = $query->param('caltag');
 
 my $JobStatusT = "CalibJobStatus"; 
 
@@ -77,11 +78,11 @@ my $jobname = $qtrg."%".$qprod."%";
  
   &beginJbHtml(); 
 
-    $sql="SELECT jobfileName, jobStatus, NoEvents, avg_no_tracks  FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and jobStatus <> 'Done' and jobStatus <> 'n/a' and jobStatus <> 'hung' ";
+    $sql="SELECT jobfileName, jobStatus, NoEvents, avg_no_tracks  FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and calibTag = ? and jobStatus <> 'Done' and jobStatus <> 'n/a' and jobStatus <> 'hung' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute($jobname,$qprod);
+       $cursor->execute($jobname,$qprod,$qcalib);
 
         while(@fields = $cursor->fetchrow) {
             my $cols=$cursor->{NUM_OF_FIELDS};
@@ -107,11 +108,11 @@ my $jobname = $qtrg."%".$qprod."%";
 
    &beginHpHtml();
 
-     $sql="SELECT jobfileName, inputHpssStatus, NoEvents  FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and inputHpssStatus like 'hpss_error%' ";
+     $sql="SELECT jobfileName, inputHpssStatus, NoEvents  FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and calibTag = ? and inputHpssStatus like 'hpss_error%' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute($jobname,$qprod);
+       $cursor->execute($jobname,$qprod,$qcalib);
 
         while(@fields = $cursor->fetchrow) {
             my $cols=$cursor->{NUM_OF_FIELDS};
@@ -135,11 +136,11 @@ my $jobname = $qtrg."%".$qprod."%";
 
    &beginHgHtml();
 
-     $sql="SELECT jobfileName, jobStatus, NoEvents FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and jobStatus = 'hung' ";
+     $sql="SELECT jobfileName, jobStatus, NoEvents FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and calibTag = ? and jobStatus = 'hung' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute($jobname,$qprod);
+       $cursor->execute($jobname,$qprod,$qcalib);
 
         while(@fields = $cursor->fetchrow) {
             my $cols=$cursor->{NUM_OF_FIELDS};
@@ -162,11 +163,11 @@ my $jobname = $qtrg."%".$qprod."%";
 
    &beginMuHtml();
 
-     $sql="SELECT jobfileName, jobStatus, NoEvents, avg_no_tracks FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and jobStatus <> 'n/a' and jobStatus <> 'hung' and inputHpssStatus = 'OK' and outputStatus <> 'yes'  ";
+     $sql="SELECT jobfileName, jobStatus, NoEvents, avg_no_tracks FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and calibTag = ? and jobStatus <> 'n/a' and jobStatus <> 'hung' and inputHpssStatus = 'OK' and outputStatus <> 'yes'  ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute($jobname,$qprod);
+       $cursor->execute($jobname,$qprod,$qcalib);
 
         while(@fields = $cursor->fetchrow) {
             my $cols=$cursor->{NUM_OF_FIELDS};
