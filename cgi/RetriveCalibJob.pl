@@ -201,8 +201,7 @@ my $jobname = $qtrg."%".$qprod."%";
        $cursor->execute($jobname,$qprod,$qcalib);
 
         while( my $dnm = $cursor->fetchrow() ) {
-#          $disklst[$nnd] = $dnm;
-          $disklst[$nnd] = "/star/data11"; 
+          $disklst[$nnd] = $dnm;
           $nnd++;
        }
     $cursor->finish();
@@ -221,16 +220,7 @@ END
 
 &StDbProdDisconnect(); 
 
-     if($qflag eq "ndisk") {
 
-     for(my $ii=0;$ii<$nnd;$ii++) {
-
-	 $disklst[$ii] = "/star/data10";
-
-  }
-
-   }else{     
-  
        foreach  $pjob (@jbstat) {
 
        $jbfName[$nn]  = ($$pjob)->jbname;      
@@ -286,7 +276,6 @@ END
       $nn++;
 
     }
-  }
  &endHtml();
 
 ######################
