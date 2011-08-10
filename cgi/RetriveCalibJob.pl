@@ -205,6 +205,8 @@ my $jobname = $qtrg."%".$qprod."%";
           $nnd++;
        }
     $cursor->finish();
+
+   $disklst[$nnd-1] = "/star/data11";
  
  print <<END;
 
