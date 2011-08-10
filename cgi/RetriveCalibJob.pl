@@ -209,7 +209,7 @@ my $jobname = $qtrg."%".$qprod."%";
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3>$disklst[$nnd]</h3></td>
+<td HEIGHT=10><h3>$diskname[$nnd]</h3></td>
 </TR>
 END
 
