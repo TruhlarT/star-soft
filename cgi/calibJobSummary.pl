@@ -273,6 +273,7 @@ if($prstat[$nprod] eq "removed" ) {
 <td HEIGHT=10><h3><font color="green">$sumevt[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$strtime[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$fntime[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="green">$prstat[$nprod]</font></h3></td>
 </TR>
 END
 
@@ -295,6 +296,7 @@ END
 <td HEIGHT=10><h3><font color="red">$sumevt[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$strtime[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$fntime[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red">$prstat[$nprod]</font></h3></td>
 </TR>
 END
 
@@ -317,6 +319,7 @@ END
 <td HEIGHT=10><h3>$sumevt[$nprod]</h3></td>
 <td HEIGHT=10><h3>$strtime[$nprod]</h3></td>
 <td HEIGHT=10><h3>$fntime[$nprod]</h3></td>
+<td HEIGHT=10><h3>$prstat[$nprod]</h3></td>
 </TR>
 END
 
@@ -373,6 +376,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.<br>events<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Start time <h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>End time <h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Status<h3></B></TD>
 </TR>
    </head>
     </body>
