@@ -369,6 +369,11 @@ my $qsites = "$qsite%";
 	$overstat = "success";
     }
   
+    if ($jbstat eq "done" and $recoStatus eq "failed") {
+
+	$overstat = "failed";
+    }    
+
     if($jbstat eq "submit" or $jbstat eq "pend" ) {
 
      &printSbRow();
