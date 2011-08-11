@@ -374,6 +374,10 @@ my $qsites = "$qsite%";
 	$overstat = "failed";
     }    
 
+    if ( $jbstat eq "done" and $outStatus = "unknown") {
+	$overstat = "failed";
+    }  
+
     if($jbstat eq "submit" or $jbstat eq "pend" ) {
 
      &printSbRow();
