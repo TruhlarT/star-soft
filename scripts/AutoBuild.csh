@@ -17,7 +17,8 @@
 #              <--- all of those targets were consolidated into one block
 #
 #   64bits     build 64 bits verison of dev, whatever the OS
-#   cal [xx]   build "cal" version - xx can be other args like "gcc [v]"
+#   cal  [xx]  build "cal" version - xx can be other args like "gcc [v]"
+#   eval [xx]  build "eval" version - xx can be other args like "gcc [v]"
 #
 #   gcc [v]    switch to some specific version of gcc
 #   icc [v]    Builds with icc
@@ -105,7 +106,16 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 
 
 	    # other library verison else that "dev"
+	    case "eval":
+		if ( "$3" == "") then
+		    # update if no compiler version is specified
+		    set XArgs="-u"
+		endif
 	    case "cal":
+		if ( ! $?XArgs ) then
+		    # no update otherwise
+		    set XArgs="-i"
+		endif
 		# Commands uses whatever is found in 'adev' and compiles
 		set LPATH=$AFS_RHIC/star/packages/$1
 		set SPATH=$AFS_RHIC/star/doc/www/comp/prod/Sanity
@@ -114,7 +124,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		    setup $2 $3
 		    setenv AutoBuild_setup_cmd "setup $2 $3"
 		endif
-		$SCRIPTD/AutoBuild.pl -k -d -i -T $1$2$3 -R -1 -v $1 -t -B -p $LPATH
+		$SCRIPTD/AutoBuild.pl -k -d $XArgs -T $1$2$3 -R -1 -v $1 -t -B -p $LPATH
 		if( -e $HOME/AutoBuild-$1$2$3-linux.html) then
 		    /bin/mv -f $HOME/AutoBuild-$1$2$3-linux.html $SPATH/AutoBuild-$1$2$3-linux.html
 		endif
