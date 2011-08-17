@@ -166,7 +166,7 @@ $JobStatusT = "evalJobStatus";
 &StDbTJobsConnect();
 
 
-$sql="SELECT path, prodyear, logFile, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where LibTracker = ?  and avail = 'Y' order by prodyear ";
+$sql="SELECT path, prodyear, LibTracker, logFile, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where LibTracker = ?  and avail = 'Y' order by prodyear ";
 
 
     $cursor =$dbh->prepare($sql)
@@ -185,6 +185,7 @@ $sql="SELECT path, prodyear, logFile, jobStatus, NoEventDone, chainOpt, memUsage
 
      ($$fObjAdr)->fpath($fvalue)   if($fname eq 'path'); 
      ($$fObjAdr)->pyear($fvalue)   if($fname eq 'prodyear');
+     ($$fObjAdr)->lbtag($fvalue)   if($fname eq 'LibTracker');
      ($$fObjAdr)->flname($fvalue)  if($fname eq 'logFile');
      ($$fObjAdr)->noEvtD($fvalue)  if($fname eq 'NoEventDone');
      ($$fObjAdr)->jobSt($fvalue)   if($fname eq 'jobStatus');
@@ -206,6 +207,7 @@ $sql="SELECT path, prodyear, logFile, jobStatus, NoEventDone, chainOpt, memUsage
         $myFile  = ($$eachFile)->flname;
         $myPath  = ($$eachFile)->fpath;
         $dtyear  = ($$eachFile)->pyear;
+        $mylib   = ($$eachFile)->lbtag;
         $myEvtD  = ($$eachFile)->noEvtD;
         $myJobS  = ($$eachFile)->jobSt; 
         $myMemF  = ($$eachFile)->memF; 
@@ -326,7 +328,7 @@ print <<END;
 <td><b>$dtyear</b></td>
 <td><b>$evtype</b></td>
 <td>$myFile</td>
-<td>$trklib</td>
+<td>$mylib</td>
 <td><a href="http://www.star.bnl.gov/devcgi/jobChainRetrv.pl?set= $mychain">chain</td>
 <td><b>$myJobS</b></td>
 <td>$myEvtD</td>
@@ -348,7 +350,7 @@ print <<END;
 <td><b>$dtyear</b></td>
 <td><b>$evtype</b></td>
 <td>$myFile</td>
-<td>$trklib</td>
+<td>$mylib</td>
 <td><a href="http://www.star.bnl.gov/devcgi/jobChainRetrv.pl?set= $mychain">chain</td>
 <td><b>$myJobS</b></td>
 <td>$myEvtD</td>
@@ -370,7 +372,7 @@ print <<END;
 <td><b>$dtyear</b></td>
 <td><b>$evtype</b></td>
 <td>$myFile</td>
-<td>$trklib</td>
+<td>$mylib</td>
 <td><a href="http://www.star.bnl.gov/devcgi/jobChainRetrv.pl?set= $mychain">chain</td>
 <td><b>$myJobS</b></td>
 <td>$myEvtD</td>
