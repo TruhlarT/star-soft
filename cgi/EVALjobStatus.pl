@@ -129,7 +129,7 @@ print <<END;
 END
 
 print "<p>";
-print "<h3 align=center>Select site</h3>";
+print "<h3 align=center>Select tracker</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'rlib',
                              -values=>\@arlib,
@@ -152,7 +152,7 @@ print $query->end_html();
 
 my $qqr = new CGI;
 
-my $trklib = $qqr->param('rlib');
+my $trlib = $qqr->param('rlib');
 
 my @prt = ();
 # @prt = split("_",$trklib); 
@@ -171,7 +171,7 @@ $sql="SELECT path, prodyear, LibTracker, logFile, jobStatus, NoEventDone, chainO
 
     $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
-     $cursor->execute($trklib);
+     $cursor->execute($trlib);
 
       my $counter = 0;
     while(@fields = $cursor->fetchrow) {
@@ -298,7 +298,7 @@ print <<END;
           <title>Status of nightly test for the EVAL library</title>
    </head>
    <body BGCOLOR=\"cornsilk\"> 
-     <h1 align=center>Status of test jobs for <font color="#ff0000">$trklib</font> library tracker </h1>
+     <h1 align=center>Status of nightly test jobs for <font color="#ff0000">$trlib</font> tracker </h1>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Path</B></TD>
