@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.92 2011/04/29 22:38:48 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.93 2011/08/18 18:42:57 fisyak Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TString.h"
@@ -24,8 +24,6 @@
 #if 0
 // Keep to be compartible with old documentaion
 #define STR_OBSOLETE "WARNING *** Option is OBSOLETE ***"
-
-
 
 
 
@@ -584,7 +582,7 @@ Bfc_st BFC[] = {
   {"St_svt" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
 
   {"tpc_daq" ,"tpc_raw","tpcChain","detDb,tpc_T","St_tpcdaq_Maker","StTrsMaker,St_tpcdaq_Maker","",kFALSE},
-  {"tcl" ,"","fcf","","", "WARNING *** Option is OBSOLETE *** use fcf instead",kFALSE},
+  {"tcl" ,"","fcf","","","", "WARNING *** Option is OBSOLETE *** use fcf instead",kFALSE},
   {"fcf","","tpcChain","daq,-tcl,tpc_daq,StEvent","StRTSClientFCFMaker","StRTSClientFCF,StRTSClientFCFMaker"
    , "Offline FCF Cluster finder",kFALSE},
 
@@ -1179,8 +1177,6 @@ Bfc_st BFC[] = {
 
 
 
-
-
 Bfc_st BFC[] = {
   {"Key" ,"Name" ,"Chain" ,"Opts" ,"Maker","Libs","Comment",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
@@ -1735,7 +1731,7 @@ Bfc_st BFC[] = {
   {"St_svt" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
 
   {"tpc_daq" ,"tpc_raw","tpcChain","detDb,tpc_T","St_tpcdaq_Maker","StTrsMaker,St_tpcdaq_Maker","",kFALSE},
-  {"tcl" ,"","fcf","","", "WARNING *** Option is OBSOLETE *** use fcf instead",kFALSE},
+  {"tcl" ,"","fcf","","","", "WARNING *** Option is OBSOLETE *** use fcf instead",kFALSE},
   {"fcf","","tpcChain","daq,-tcl,tpc_daq,StEvent","StRTSClientFCFMaker","StRTSClientFCF,StRTSClientFCFMaker"
    , "Offline FCF Cluster finder",kFALSE},
 
