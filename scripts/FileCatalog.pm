@@ -351,7 +351,7 @@ $obsolete{"datetaken"} = "datastarts";
 # $keywrds{"tpc"           }    =   "dTPC"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
 my @DETECTORS=("tpc","svt","tof","emc","eemc","fpd","ftpc",
 	       "pmd","rich","ssd","bbc","bsmd","esmd","zdc",
-	       "ctb","tpx");
+	       "ctb","tpx","fgt");
 
 
 
@@ -4816,7 +4816,7 @@ sub run_query {
 	
 	# possibly handle expiration
 	&print_debug("run_query","Cache age $age");
-	if ( $age > 7200){  unlink($f);}  # 2 hours
+	if ( $age > 7200){  unlink($f);}  # 2 hours / HARD CODED
 	
 	
 	if ( -e $f && ! -z $f ){
