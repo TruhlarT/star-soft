@@ -17,6 +17,8 @@ use CGI qw(:standard);
 use Mysql;
 use Class::Struct;
 
+&cgiSetup();
+
 #$dbhost="fc2.star.bnl.gov:3386";
 
 
@@ -124,6 +126,7 @@ my $nprod = 0;
    if($mondif == 1  and ($daydiff == 70 or $daydiff == 71 )) {
 
     $daydif = $nowdate - $mxtime - $daydiff;
+
     };
 
     $jbcreat[$nprod] = 0;
@@ -318,6 +321,10 @@ sub beginHtml {
 print <<END;
 
   <html>
+   <head>
+          <title>Summary of production jobs</title>
+    </head>    
+
    <body BGCOLOR=\"cornsilk\">
  <h2 ALIGN=CENTER> <B>Summary of production jobs status for<font color="blue"> run 2010 </font>data  </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
@@ -339,7 +346,6 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Start time <h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>End time <h3></B></TD>
 </TR>
-   </head>
     </body>
 END
 }

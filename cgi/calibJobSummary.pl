@@ -17,6 +17,8 @@ use CGI qw(:standard);
 use Mysql;
 use Class::Struct;
 
+&cgiSetup();
+
 #$dbhost="fc2.star.bnl.gov:3386";
 
 
@@ -353,6 +355,11 @@ sub beginHtml {
 print <<END;
 
   <html>
+
+    <head>
+          <title>Summary of production jobs</title>
+    </head>
+
    <body BGCOLOR=\"cornsilk\">
  <h2 ALIGN=CENTER> <B>Summary of calibration production jobs status</h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
@@ -378,7 +385,6 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>End time <h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Status<h3></B></TD>
 </TR>
-   </head>
     </body>
 END
 }

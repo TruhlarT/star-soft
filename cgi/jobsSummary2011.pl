@@ -17,6 +17,8 @@ use CGI qw(:standard);
 use Mysql;
 use Class::Struct;
 
+&cgiSetup();
+
 #$dbhost="fc2.star.bnl.gov:3386";
 
 
