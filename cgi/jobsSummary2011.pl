@@ -317,6 +317,9 @@ sub beginHtml {
 print <<END;
 
   <html>
+    <head>
+          <title>Summary of production jobs</title> 
+    </head>
    <body BGCOLOR=\"cornsilk\">
  <h2 ALIGN=CENTER> <B>Summary of production jobs status for<font color="blue"> run 2011 </font>data  </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
@@ -338,8 +341,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Start time <h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>End time <h3></B></TD>
 </TR>
-   </head>
-    </body>
+   </body>
 END
 }
 
