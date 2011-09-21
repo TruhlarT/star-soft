@@ -320,14 +320,14 @@ print <<END;
 
   <html>
     <head>
-          <title>Summary of production jobs</title> 
+          <title>Summary of production jobs for run 2011</title> 
     </head>
    <body BGCOLOR=\"cornsilk\">
  <h2 ALIGN=CENTER> <B>Summary of production jobs status for<font color="blue"> run 2011 </font>data  </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
-<br>
 <h4 ALIGN=LEFT><font color="#ff0000">Ongoing production is in red color</font></h4>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
+<br>
 <TR>
 <TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=60><B><h3>Trigger set</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Prod.<br>tag</h3></B></TD>

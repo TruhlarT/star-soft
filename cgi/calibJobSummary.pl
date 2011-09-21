@@ -357,7 +357,7 @@ print <<END;
   <html>
 
     <head>
-          <title>Summary of production jobs</title>
+          <title>Summary of calibrations production jobs status</title>
     </head>
 
    <body BGCOLOR=\"cornsilk\">
