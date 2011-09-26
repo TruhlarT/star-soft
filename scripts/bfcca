@@ -8,7 +8,7 @@
 #
 # This one script may therefore handle multiple production.
 #
-# Written J.Lauret July 2001.
+# Written J.Lauret July 2001-2011.
 # Please, follow comments for more information ...
 #
 #  Some info :
@@ -97,7 +97,7 @@ $PERIOD  = 0;                      # See "+" mode
 $GENERICO= "";                     # Default generic output filename
 $SOFFTOL = 0.02;                   # Size offset tolerance (2%)
 $MAXFILL = 95;                     # Maximum disk occupency in %tage for free space algo
-
+@SETUP   = undef;                  # some setup to run before root4star
 
 # DF command allowing for multiple FS type
 $0  =~ m/(.*\/)(.*)/;
@@ -155,7 +155,18 @@ $NUMEVT       = shift @ARGV;
 
 # ---- Chain Option or mode switch ---------------------------------
 $CHAINOPT     = shift @ARGV;
-if( $CHAINOPT eq "/" ){
+if( $CHAINOPT eq "~" ){
+    # other arguments will be options to pass to the the setup command
+    # all dash will be replaced by spaces.
+    do {
+	$SETUP = shift @ARGV;
+	if ( $SETUP ne "~"){
+	    $SETUP =~ s/-/ /g;
+	    push(@SETUP,$SETUP);
+	}
+    } while ( $SETUP ne "~");
+
+} elsif( $CHAINOPT eq "/" ){
     # Change mode, now arguments will be SCRIPT, ARG1,...
     $BFC      = shift @ARGV;
     $MULTIIN  = 1;
@@ -519,6 +530,12 @@ if ( $GENERICO ne ""){
 }
 print "Running condition                ".($OPTOPT?"Optimized":"Non-Optimized")."\n";
 
+if ( $#SETUP != -1){
+    foreach $tmp (@SETUP){
+	print "Before execution, execute    ".$tmp."\n"; 
+    }
+}
+
 if ( $DBCONF ne ""){
     print "DB may take its data from        $DBCONF\n";
 } elsif ( -e "$NFSHOME/dbServers.xml" ){
@@ -565,6 +582,10 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 	"unset noclobber\n";                         # over-write
     print FO
 	"setenv NODEBUG yes\n" if($OPTOPT);          # STAR soft specific env
+
+    # before changing env, also execute the setup commands
+    if ( $#SETUP != -1){  foreach $tmp (@SETUP){   print FO $tmp."\n"; }  }
+
     print FO
 	"$CHVER\n",                                  # load chosen library env
 	"echo \"$PRGM :: Using \`which root4star\`\"\n";  # some info/debug message
