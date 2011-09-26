@@ -456,7 +456,7 @@ my $trg0 = "n/a";
  $prodname = $trig[$nlist].".".$prod[$nlist].".html";
 
 
-        if( $prod[$nlist] eq "P11id" and  ($trig[$nlist] eq "pp500_production_2011" or $trig[$nlist] eq "pp500_production_2011_long" or $trig[$nlist] eq "pp500_production_2011_long_noeemc" or $trig[$nlist] eq "pp500_production_2011_long_fms" $trig[$nlist] eq "pp500_production_2011_fms") ) {
+        if( $prod[$nlist] eq "P11id" and $trig[$nlist] =~ /pp500_production_2011/ ) {
 
 print <<END;
 
