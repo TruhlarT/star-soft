@@ -54,7 +54,7 @@
           ///                             
           /// AgML structure members:     
           ///                             
-          ///Float_t version;     
+          ///Int_t version;     
           ///Float_t alphaz;     
           ///Float_t alphazh;     
           ///Float_t ssst_rmin;     
@@ -230,7 +230,7 @@
           ///                             
           /// AgML structure members:     
           ///                             
-          ///Float_t version;     
+          ///Int_t version;     
           ///Float_t rmin;     
           ///Float_t rmax;     
           ///Float_t len;     
@@ -316,16 +316,16 @@
                       dthk = sfpa.smthk + sfpa.gpthk;           
                       if ( configb>=7 )           
                       {              
-                            _create = AgCreate("SOSH");              
+                            _create = AgCreate("SOSK");              
                             {                 
                                   AgShape myshape; // undefined shape                 
-                                  ///Create SOSH                 
-                                  Create("SOSH");                  
+                                  ///Create SOSK                 
+                                  Create("SOSK");                  
                             }              
-                            { AgPlacement place = AgPlacement("SOSH","SFMO");                 
-                                  /// Add daughter volume SOSH to mother SFMO                 
-                                  _stacker -> Position( AgBlock::Find("SOSH"), place );                 
-                            } // end placement of SOSH              
+                            { AgPlacement place = AgPlacement("SOSK","SFMO");                 
+                                  /// Add daughter volume SOSK to mother SFMO                 
+                                  _stacker -> Position( AgBlock::Find("SOSK"), place );                 
+                            } // end placement of SOSK              
                       }           
                       _create = AgCreate("SFLM");           
                       {              
@@ -4806,23 +4806,23 @@
                 ///@}        
           } // End Block SCVS     
           // ---------------------------------------------------------------------------------------------------     
-          void SOSH::Block( AgCreate create )     
+          void SOSK::Block( AgCreate create )     
           {         
-                ///@addtogroup SOSH_doc        
+                ///@addtogroup SOSK_doc        
                 ///@{           
                         AgBlock *_save = mCurrent;           
                         mCurrent = this;           
                         Bool_t _same_shape = true;           
-                      /// Component C5	a=12	z=6	w=5           
-                      /// Component H4	a=1	z=1	w=4           
-                      /// Component O2	a=16	z=8	w=2           
-                      /// Component Al	a=27	z=13	w=0.0986           
+                      /// Component C5	a=12	z=6	w=10000*5           
+                      /// Component H4	a=1	z=1	w=10000*4           
+                      /// Component O2	a=16	z=8	w=10000*2           
+                      /// Component Al	a=27	z=13	w=10000*0.0986           
                       /// Mixture SSDALMY dens=1.40845           
                       {  AgMaterial &mix = AgMaterial::Get("Ssdalmy");              
-                            mix.Component("C5",12,6,5);              
-                            mix.Component("H4",1,1,4);              
-                            mix.Component("O2",16,8,2);              
-                            mix.Component("Al",27,13,0.0986);              
+                            mix.Component("C5",12,6,10000*5);              
+                            mix.Component("H4",1,1,10000*4);              
+                            mix.Component("O2",16,8,10000*2);              
+                            mix.Component("Al",27,13,10000*0.0986);              
                             mix.par("dens")=1.40845;              
                             mix.lock();              
                             _material = mix;              
@@ -4832,7 +4832,7 @@
                       {  AgMaterial mat = AgMaterial::CopyMaterial("Ssdalmy");              
                             _material = mat;              
                       }           
-                      { AgAttribute attr = AgAttribute("SOSH");              
+                      { AgAttribute attr = AgAttribute("SOSK");              
                             attr.par("seen")=1;              
                             attr.par("colo")=3;              
                             attr.Inherit( AgBlock::previous() );               
@@ -4847,13 +4847,13 @@
                             /// Shape Tube rmin=sfpa.soutrinn rmax=sfpa.soutrout dz=sfpa.soutlen               
                             _same_shape &= _stacker->SearchVolume( shape, _attribute );              
                             _shape = shape;              
-                            if (_same_shape) goto END_OF_SOSH;              
+                            if (_same_shape) goto END_OF_SOSK;              
                             _stacker -> Build(this);              
                       }           
-                      END_OF_SOSH:           
+                      END_OF_SOSK:           
                       mCurrent = _save;           
                 ///@}        
-          } // End Block SOSH     
+          } // End Block SOSK     
     // ----------------------------------------------------------------------- geoctr
        void SisdGeo6::ConstructGeometry()     
        {        
@@ -4920,7 +4920,7 @@
              AddBlock("SCVM");        
              AddBlock("SCVB");        
              AddBlock("SCVS");        
-             AddBlock("SOSH");        
+             AddBlock("SOSK");        
              // ---------------------------------------------------------------------------------------------------        
              ///@addtogroup ssdp_doc        
              ///@{           
@@ -6168,9 +6168,9 @@
              configa = mod(ssdp.config   ,10);        
              configb = mod(ssdp.config/10,10);        
              /// USE sfpa version=configa ;        
-             sfpa.Use("version",(Float_t)configa );        
+             sfpa.Use("version",(Int_t)configa );        
              /// USE sfjp version=2 ;        
-             sfjp.Use("version",(Float_t)2 );        
+             sfjp.Use("version",(Int_t)2 );        
              /// Component Si	a=28.08	z=14	w=0.6*1*28./60.        
              /// Component O	a=16	z=8	w=0.6*2*16./60. + 0.4*4*16./174.        
              /// Component C	a=12	z=6	w=0.4*8*12./174.        

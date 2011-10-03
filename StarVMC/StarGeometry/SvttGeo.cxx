@@ -35,7 +35,7 @@
           /// AgML structure members:     
           ///                             
           ///Float_t version;     
-          ///Float_t nlayer;     
+          ///Int_t nlayer;     
           ///Float_t rsizemin;     
           ///Float_t rsizemax;     
           ///Float_t zsizemax;     
@@ -210,7 +210,7 @@
           ///                             
           /// AgML structure members:     
           ///                             
-          ///Float_t layer;     
+          ///Int_t layer;     
           ///Float_t nladder;     
           ///Float_t nwafer;     
           ///Float_t radius;     
@@ -608,13 +608,13 @@
                             _stacker -> Position( AgBlock::Find("SROD"), place );              
                       } // end placement of SROD           
                       radmax=svtg.rsizemax;           
-                      /// Loop on ilayer from 1 to min(6,nint(svtg.nlayer)) step=1           
-                      for ( ilayer=1; (1>0)? (ilayer<=min(6,nint(svtg.nlayer))):(ilayer>=min(6,nint(svtg.nlayer))); ilayer+=1 )           
+                      /// Loop on ilayer from 1 to min(6,svtg.nlayer) step=1           
+                      for ( ilayer=1; (1>0)? (ilayer<=min(6,svtg.nlayer)):(ilayer>=min(6,svtg.nlayer)); ilayer+=1 )           
                       {              
                             if ( ilayer<6 )              
                             {                 
                                   /// USE svtl layer=ilayer+1 ;                 
-                                  svtl.Use("layer",(Float_t)ilayer+1 );                 
+                                  svtl.Use("layer",(Int_t)ilayer+1 );                 
                                   radmax=svtl.radius;                 
                             }              
                             else              
@@ -622,7 +622,7 @@
                                   radmax=svtg.rsizemax;                 
                             }              
                             /// USE svtl layer=ilayer ;              
-                            svtl.Use("layer",(Float_t)ilayer );              
+                            svtl.Use("layer",(Int_t)ilayer );              
                             _create = AgCreate("SLYD");              
                             {                 
                                   AgShape myshape; // undefined shape                 
@@ -637,7 +637,7 @@
                       if ( svtg.nlayer<0 )           
                       {              
                             /// USE svtl layer=-svtg.nlayer ;              
-                            svtl.Use("layer",(Float_t)-svtg.nlayer );              
+                            svtl.Use("layer",(Int_t)-svtg.nlayer );              
                             _create = AgCreate("SLYD");              
                             {                 
                                   AgShape myshape; // undefined shape                 
@@ -741,7 +741,9 @@
                             _attribute = attr;              
                       }           
                       rmin=svtl.radius-ladthk;           
-                      rmax=sqrt((svtl.radius)*AgPower<Int_t>(2)+(swca.waferwid/2)*AgPower<Int_t>(2))+elethk;           
+                      rmax  = svtl.radius*svtl.radius;           
+                      rmax += swca.waferwid * swca.waferwid / 4.0;           
+                      rmax  = sqrt(rmax) + elethk;           
                       rmax=min(rmax,radmax-ladthk);           
                       {  AgShape shape = AgShape("Tube");              
                             shape     .Inherit( AgBlock::previous() );              
@@ -1743,7 +1745,9 @@
                             attr.Inherit( AgBlock::previous() );               
                             _attribute = attr;              
                       }           
-                      ir_rmin=serg.irngprmn*(cos(pi/8.)+sqrt(tan(pi/8.)*AgPower<Int_t>(2)-sin(pi/8.)*AgPower<Int_t>(2)));           
+                      ir_rmin  = cos(pi/8.0);           
+                      ir_rmin += sqrt( tan(pi/8.0)*tan(pi/8.0) - sin(pi/8.0)*sin(pi/8.0) );           
+                      ir_rmin *= serg.irngprmn;           
                       {  AgShape shape = AgShape("Tube");              
                             shape     .Inherit( AgBlock::previous() );              
                             create     .SetParameters(shape);              
@@ -1778,7 +1782,9 @@
                             attr.Inherit( AgBlock::previous() );               
                             _attribute = attr;              
                       }           
-                      rou=serg.irngtrmx/(cos(pi/8.)+sqrt(tan(pi/8.)*AgPower<Int_t>(2)-sin(pi/8.)*AgPower<Int_t>(2)));           
+                      rou  = cos(pi/8.0);           
+                      rou += sqrt( tan(pi/8.0)*tan(pi/8.0) - sin(pi/8.0)*sin(pi/8.0) );           
+                      rou  = serg.irngtrmx / rou;           
                       {  AgShape shape = AgShape("Pgon");              
                             shape     .Inherit( AgBlock::previous() );              
                             create     .SetParameters(shape);              
@@ -2506,7 +2512,9 @@
                       rmax=ssup.con4idmn+roffset;           
                       zmin=ssup.rodlen/2+ssup.grphthk;           
                       zmax=ssup.cone3zmx;           
-                      cone_len=sqrt((zmax-zmin)*AgPower<Int_t>(2)+(rmax-rmin)*AgPower<Int_t>(2));           
+                      cone_len  = (zmax-zmin)*(zmax-zmin);           
+                      cone_len += (rmax-rmin)*(rmax-rmin);           
+                      cone_len  = sqrt(cone_len);           
                       cone_sin=(rmax-rmin)/cone_len;           
                       cone_cos=(zmax-zmin)/cone_len;           
                       angle=asin(cone_sin)*180/3.1416;           
@@ -2614,7 +2622,9 @@
                       rmax=ssup.con4idmx+roffset;           
                       zmin=ssup.cone3zmx;           
                       zmax=ssup.cone4zmx;           
-                      cone_len=sqrt((zmax-zmin)*AgPower<Int_t>(2)+(rmax-rmin)*AgPower<Int_t>(2));           
+                      cone_len  = (zmax-zmin)*(zmax-zmin);           
+                      cone_len += (rmax-rmin)*(rmax-rmin);           
+                      cone_len  = sqrt(cone_len);           
                       cone_sin=(rmax-rmin)/cone_len;           
                       cone_cos=(zmax-zmin)/cone_len;           
                       angle=asin(cone_sin)*180/3.1416;           
@@ -5351,31 +5361,31 @@
                    _material = mix;           
                    _material.lock();           
              }        
-             /// Component C5	a=12	z=6	w=5        
-             /// Component H4	a=1	z=1	w=4        
-             /// Component O2	a=16	z=8	w=2        
-             /// Component Al	a=27	z=13	w=0.2302        
+             /// Component C5	a=12	z=6	w=10000*5        
+             /// Component H4	a=1	z=1	w=10000*4        
+             /// Component O2	a=16	z=8	w=10000*2        
+             /// Component Al	a=27	z=13	w=10000*0.2302        
              /// Mixture ALKAP dens=1.432        
              {  AgMaterial &mix = AgMaterial::Get("Alkap");           
-                   mix.Component("C5",12,6,5);           
-                   mix.Component("H4",1,1,4);           
-                   mix.Component("O2",16,8,2);           
-                   mix.Component("Al",27,13,0.2302);           
+                   mix.Component("C5",12,6,10000*5);           
+                   mix.Component("H4",1,1,10000*4);           
+                   mix.Component("O2",16,8,10000*2);           
+                   mix.Component("Al",27,13,10000*0.2302);           
                    mix.par("dens")=1.432;           
                    mix.lock();           
                    _material = mix;           
                    _material.lock();           
              }        
-             /// Component C5	a=12	z=6	w=5        
-             /// Component H4	a=1	z=1	w=4        
-             /// Component O2	a=16	z=8	w=2        
-             /// Component Al	a=27	z=13	w=0.0986        
+             /// Component C5	a=12	z=6	w=10000*5        
+             /// Component H4	a=1	z=1	w=10000*4        
+             /// Component O2	a=16	z=8	w=10000*2        
+             /// Component Al	a=27	z=13	w=10000*0.0986        
              /// Mixture SSDALMY dens=1.40845        
              {  AgMaterial &mix = AgMaterial::Get("Ssdalmy");           
-                   mix.Component("C5",12,6,5);           
-                   mix.Component("H4",1,1,4);           
-                   mix.Component("O2",16,8,2);           
-                   mix.Component("Al",27,13,0.0986);           
+                   mix.Component("C5",12,6,10000*5);           
+                   mix.Component("H4",1,1,10000*4);           
+                   mix.Component("O2",16,8,10000*2);           
+                   mix.Component("Al",27,13,10000*0.0986);           
                    mix.par("dens")=1.40845;           
                    mix.lock();           
                    _material = mix;           

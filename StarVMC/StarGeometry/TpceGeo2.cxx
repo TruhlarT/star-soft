@@ -569,9 +569,19 @@
                         AgBlock *_save = mCurrent;           
                         mCurrent = this;           
                         Bool_t _same_shape = true;           
+                      if ( tprs.width<1.5 )           
                       { AgAttribute attr = AgAttribute("TPAD");              
                             attr.par("seen")=0;              
                             attr.par("colo")=2;              
+                            attr.par("serial")=1;              
+                            attr.Inherit( AgBlock::previous() );               
+                            _attribute = attr;              
+                      }           
+                      if ( tprs.width>1.5 )           
+                      { AgAttribute attr = AgAttribute("TPAD");              
+                            attr.par("seen")=0;              
+                            attr.par("colo")=2;              
+                            attr.par("serial")=2;              
                             attr.Inherit( AgBlock::previous() );               
                             _attribute = attr;              
                       }           

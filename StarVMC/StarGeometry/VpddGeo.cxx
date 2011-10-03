@@ -35,7 +35,7 @@
           /// AgML structure members:     
           ///                             
           ///Float_t version;     
-          ///Int_t vpdconfig;     
+          ///Float_t vpdconfig;     
           ///Int_t _index;     
           //     
           Vpdv_t vpdv;     
