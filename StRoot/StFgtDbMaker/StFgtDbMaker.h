@@ -21,7 +21,7 @@ class StFgtDbMaker : public StMaker {
   virtual double gain(double locX, double locY, int iDisk);
 
   virtual const char *GetCVS() const
-  {static const char cvs[]="Tag $Name:  $ $Id: StFgtDbMaker.h,v 1.1 2011/10/03 03:46:57 rfatemi Exp $ built "__DATE__" "__TIME__ ; return cvs;}
+  {static const char cvs[]="Tag $Name:  $ $Id: StFgtDbMaker.h,v 1.1.1.1 2011/10/03 03:46:57 rfatemi Exp $ built "__DATE__" "__TIME__ ; return cvs;}
   ClassDef(StFgtDbMaker,0)   //StAF chain virtual base class for Makers
 };
 
