@@ -74,7 +74,7 @@ my $nn = 0;
 my $nnd = 0;
 my $dnm = 0;
 
-my $jobname = $qtrg."%".$qprod."_".$qtrack%";
+my $jobname = $qtrg."%".$qprod."_".$qtrack."%";
 
 
   &StDbProdConnect();
