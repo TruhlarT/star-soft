@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.239 2011/03/03 19:48:05 jeromel Exp $
+#       $Id: group_env.csh,v 1.240 2011/10/10 19:50:52 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -929,8 +929,16 @@ if ( -x ${GROUP_DIR}/dropit) then
     default:
 	#  ====================
 	setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} -p ${OPTSTAR}/lib`
+	# Note from 2011/10 - Unofrtunately, MySQL has not been there for a while
 	if ( -d ${OPTSTAR}/lib/mysql ) then
 	    setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} -p ${OPTSTAR}/lib/mysql`
+
+	# ... but in the default system path - changing this may chang previous 
+	# behavior however
+	#else if ( -d /usr/lib64/mysql && $USE_64BITS == 1 ) then
+	#    setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} -p /usr/lib64/mysql`
+	#else if ( -d /usr/lib/mysql && $USE_64BITS == 0 ) then
+	#    setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} -p /usr/lib/mysql `
 	endif
 	setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p "$LD_LIBRARY_PATH"`
 	breaksw
