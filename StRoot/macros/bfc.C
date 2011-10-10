@@ -3,7 +3,7 @@
 // Macro for running chain with different inputs                        //
 // owner:  Yuri Fisyak                                                  //
 //                                                                      //
-// $Id: bfc.C,v 1.180 2011/10/10 19:54:13 jeromel Exp $
+// $Id: bfc.C,v 1.178.2.1 2011/10/10 20:04:02 jeromel Exp $
 //////////////////////////////////////////////////////////////////////////
 class StBFChain;        
 class StMessMgr;
@@ -15,15 +15,15 @@ class StMessMgr;
 #include "TInterpreter.h"
 #include "StBFChain.h"
 #include "StMessMgr.h"
-#include "TROOT.h"
+#else
 #endif
+#define UseLogger
 StBFChain    *chain=0; 
 //_____________________________________________________________________
 //_________________ Prototypes _______________________________________________
 void Usage();
 void Load(const Char_t *options="");
-//TString defChain("y2010,gstar,Test.default.Fast.ITTF,NosvtIT,NossdIT,-sfs,-ssdFast");
-TString defChain("y2010,gstar,Test.default.ITTF,NosvtIT,NossdIT,-sfs,-ssdFast,sdt20100107.110000");
+TString defChain("y2005h,Test.default.ITTF");
 void bfc(Int_t First, Int_t Last,const Char_t *Chain = defChain + ",Display",
 	 const Char_t *infile=0, const Char_t *outfile=0, const Char_t *TreeFile=0);
 //	 const Char_t *Chain="gstar,y2005h,MakeEvent,trs,sss,svt,ssd,fss,bbcSim,emcY2,tpcI,fcf,ftpc,SvtCL,svtDb,ssdDb,svtIT,ssdIT,ITTF,genvtx,Idst,event,analysis,EventQA,tags,Tree,EvOut,McEvOut,GeantOut,IdTruth,miniMcMk,StarMagField,FieldOn,McAna,Display",//,,NoSimuDb, display, //McQa, 
@@ -32,8 +32,9 @@ void bfc(Int_t Last, const Char_t *Chain = defChain,
 	 //	 const Char_t *Chain="gstar,y2005h,tpcDb,trs,tpc,Physics,Cdst,Kalman,tags,Tree,EvOut,McEvOut,IdTruth,miniMcMk,StarMagField,FieldOn,McAna", // McQA
 //_____________________________________________________________________
 void Load(const Char_t *options){
-  cout << "Load system libraries\t";
+  cout << "Load system libraries" << endl;
   if ( gClassTable->GetID("TGiant3") < 0) { // ! root4star
+    cout << endl << "Load ";
     if (!TString(options).Contains("nodefault",TString::kIgnoreCase) || 
 	 TString(options).Contains("pgf77",TString::kIgnoreCase)) {
       const Char_t *pgf77 = "libpgf77VMC";
@@ -48,46 +49,44 @@ void Load(const Char_t *options){
     if (!TString(options).Contains("nodefault",TString::kIgnoreCase) || 
 	TString(options).Contains("mysql",TString::kIgnoreCase)) {
       Char_t *mysql = "libmysqlclient";
-
       //
-      // May use USE_64BITS - the x8664 should do it for now
+      // ATTENTION: The below will FAIL for 64 bits systems (JL 2009/10/22)
       //
-      Char_t *libs[]  = {"", "/usr/mysql/lib/","/usr/lib/", "/usr/lib/mysql/", 0}; // "$ROOTSYS/mysql-4.1.20/lib/",
+      Char_t *libs[]  = {"", "/usr/lib/mysql/","/usr/lib/", 0}; // "$ROOTSYS/mysql-4.1.20/lib/",
       //Char_t *libs[]  = {"/usr/lib/", 0};
-      TString Arch( gSystem->GetBuildArch() );
-      Bool_t i64 = kFALSE;
-      if (Arch.Contains("x8664")) i64 = kTRUE;
       Int_t i = 0;
       while ((libs[i])) {
 	TString lib(libs[i]);
-	if (i64) lib.ReplaceAll("/lib","/lib64");
 	lib += mysql;
 	lib = gSystem->ExpandPathName(lib.Data());
 	if (gSystem->DynamicPathName(lib,kTRUE)) {
-	  gSystem->Load(lib.Data()); cout << " + " << lib.Data();
+	  gSystem->Load(lib.Data()); cout << " + " << lib.Data() << endl;
 	  break;
 	}
 	i++;
       }
     }
-    cout << endl;
   }
-  gSystem->Load("libSt_base");                                        //  StMemStat::PrintMem("load St_base");
+  //  if (gClassTable->GetID("TMatrix") < 0) gSystem->Load("StarRoot");// moved to rootlogon.C  StMemStat::PrintMem("load StarRoot");
+#ifdef UseLogger
   // Look up for the logger option
   Bool_t needLogger  = kFALSE;
-  if (gSystem->Load("liblog4cxx.so") >=  0) {             //  StMemStat::PrintMem("load log4cxx");
-    cout << "+liblog4cxx.so";
-    if(gSystem->Load("libStStarLogger.so") >= 0) {              //  StMemStat::PrintMem("load log4cxx");
-      cout << " +libStStarLogger.so";
-      gROOT->ProcessLine("StLoggerManager::StarLoggerInit();"); 
-    }
+  if (!TString(options).Contains("-logger",TString::kIgnoreCase)) {
+    needLogger = gSystem->Load("liblog4cxx.so") <= 0;              //  StMemStat::PrintMem("load log4cxx");
   }
+#endif
+  gSystem->Load("libSt_base");                                        //  StMemStat::PrintMem("load St_base");
+#ifdef UseLogger
+  if (needLogger) {
+    gSystem->Load("libStStarLogger.so");
+    gROOT->ProcessLine("StLoggerManager::StarLoggerInit();");      //  StMemStat::PrintMem("load StStarLogger");
+  }
+#endif
   gSystem->Load("libHtml");
   gSystem->Load("libStChain");                                        //  StMemStat::PrintMem("load StChain");
   gSystem->Load("libStUtilities");                                    //  StMemStat::PrintMem("load StUtilities");
   gSystem->Load("libStBFChain");                                      //  StMemStat::PrintMem("load StBFChain");
   gSystem->Load("libStChallenger");                                   //  StMemStat::PrintMem("load StChallenger");
-  cout << endl;
 }
 //_____________________________________________________________________
 void bfc(Int_t First, Int_t Last,
@@ -179,13 +178,15 @@ void bfc(Int_t First, Int_t Last,
     // skip if any
   chain->EventLoop(First,Last,0);
   gMessMgr->QAInfo() << "Run completed " << endm;
+  gSystem->Exec("date");
 }
 //_____________________________________________________________________
 void bfc(Int_t Last, 
 	 const Char_t *Chain,
 	 const Char_t *infile, 
 	 const Char_t *outfile, 
-	 const Char_t *TreeFile) {
+	 const Char_t *TreeFile)
+{
   bfc(1,Last,Chain,infile,outfile,TreeFile);
 }
 //____________________________________________________________
