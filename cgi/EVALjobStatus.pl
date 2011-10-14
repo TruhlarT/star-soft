@@ -95,7 +95,7 @@ my $ttime = 0;
 my $dftime = 0;
 
 my $nd = 0;
-my @arlib = ("Sti-CA","Sti","Stv", "Stv-CA");
+my @arlib = ("Sti-CA","Sti","Stv","Stv-CA","Sti.AgML","Stv.AgML");
 
 
 my $query=new CGI;
