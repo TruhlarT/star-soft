@@ -1,7 +1,6 @@
-
 /***************************************************************************
  *
- * $Id: StTpcDb.cxx,v 1.57 2011/07/21 16:48:53 fisyak Exp $
+ * $Id: StTpcDb.cxx,v 1.52.2.1 2011/10/16 13:43:04 jeromel Exp $
  *
  * Author:  David Hardtke
  ***************************************************************************
@@ -15,20 +14,8 @@
  ***************************************************************************
  *
  * $Log: StTpcDb.cxx,v $
- * Revision 1.57  2011/07/21 16:48:53  fisyak
- * New schema for Sub Sector Alginement: SuperSectror position (defined by inner sub sector) and Outer sector position wrt SuperSectror position
- *
- * Revision 1.56  2011/01/18 14:39:43  fisyak
- * Clean up TpcDb interfaces and Tpc coordinate transformation
- *
- * Revision 1.55  2010/05/27 19:14:26  fisyak
- * Take out flavoring by 'sim' for tpcGlobalPosition,tpcSectorPosition and starClockOnl tables. remove usage tpcISTimeOffsets and tpcOSTimeOffsets tables
- *
- * Revision 1.54  2010/01/27 21:30:39  perev
- * GetValidity now is static
- *
- * Revision 1.53  2010/01/26 21:04:42  fisyak
- * Add new dE/dx calibration tables: TpcRowQ, tpcMethaneIn, tpcWaterOut, TpcZDC
+ * Revision 1.52.2.1  2011/10/16 13:43:04  jeromel
+ * Import changes from v1.54
  *
  * Revision 1.52  2009/12/07 23:44:58  fisyak
  * Drop coordinate transformation for fortran, remove TpcHitErr
@@ -156,50 +143,285 @@
 // StTpcDb                                                              //
 //                                                                      //
 //                                                                      //
+ 
 #include "StChain.h"
 #include "StTpcDb.h"
+#include "tables/St_tpcDriftVelocity_Table.h"
 #include "tables/St_trgTimeOffset_Table.h"
 #include "tables/St_dst_L0_Trigger_Table.h"
 #include "TUnixTime.h"
 #include "StMessMgr.h"
 #include "St_db_Maker/St_db_Maker.h"
-#include "TVector3.h"
-#include "TGeoManager.h"
-#include "StDetectorDbMaker/StTpcSurveyC.h"
 StTpcDb* gStTpcDb = 0;
+
 // C++ routines:
 //_____________________________________________________________________________
-ClassImp(StTpcDb);
+
+
+#ifdef __ROOT__
+ClassImp(StTpcDb)
+ClassImp(StTpcWirePlaneI)
+ClassImp(StTpcDimensionsI)
+ClassImp(StTpcElectronicsI)
+ClassImp(StTpcPadPlaneI)
+ClassImp(StTpcSlowControlSimI)
+ClassImp(StTpcT0I)
+ClassImp(StTpcFieldCageI)
+#endif
 //_____________________________________________________________________________
-StTpcDb::StTpcDb() {
-  assert(gStTpcDb==0);
-  memset(mBeg,0,mEnd-mBeg+1);
-  mTpc2GlobMatrix = new TGeoHMatrix("Default Tpc2Glob"); 
-  for (Int_t i = 1; i <= 24; i++) {
-    for (Int_t k = 0; k < kTotalTpcSectorRotaions; k++) {
-      mTpcSectorRotations[i-1][k] = new TGeoHMatrix(Form("Default %02i %i",i,k));
-    }
-  }
-  mFlip = new TGeoHMatrix;
-  Double_t DriftDistance = Dimensions()->gatingGridZ();
-  Double_t Rotation[9] = {0, 1, 0, 
-			  1, 0, 0,
-			  0, 0,-1};
-  Double_t Translation[3] = {0, 0, DriftDistance};
-  mFlip->SetName("Flip"); mFlip->SetRotation(Rotation); mFlip->SetTranslation(Translation);
-  gStTpcDb = this;
+StTpcDb::StTpcDb(TDataSet* input) : m_Debug(0) {
+ assert(gStTpcDb==0);
+ memset(this,0,sizeof(StTpcDb));
+ if (input){
+   const Char_t *bases[] = {"Calibrations","Geometry","Conditions"};
+   int lBases = sizeof(bases)/sizeof(Char_t *);
+   TDataSetIter dataBase(input);
+   int i;
+   for (i = 0;i<2;i++,dataBase.Cd("/") )
+     if ( !(tpctrg[i] = dataBase.Cd(bases[i]) ? dataBase("tpc") : 0 ) ){
+       gMessMgr->Warning() << "StTpcDb::Error Getting TPC database: " << bases[i]       << endm;
+     }
+   for (i = 2;i<lBases;i++,dataBase.Cd("/") )   //only need conditions for trg
+     if ( !(tpctrg[i] = dataBase.Cd(bases[i]) ? dataBase("trg") : 0 ) ){
+       gMessMgr->Warning() << "StTpcDb::Error Getting trigger database: " << bases[i]       << endm;
+     }
+ }
+ else{
+   gMessMgr->Message("StTpcDb::Error Creating StTpcDb: Need to specify input DataSet","E");
+ }
+ gMessMgr->SetLimit("StRTpcPadPlane::Invalid Pad number",20);
+ dvelcounter = 0;
+ mExB = 0;
+ mTpc2GlobalMatrix = new TGeoHMatrix("Default Tpc2Global"); 
+#if 0
+ for (Int_t i = 1; i <= 24; i++) {
+   mTpcSectorAlignment[sector-1][0] = new TGeoHMatrix(Form("Default TpcSector%02iAlignment Inner",i));
+   mTpcSectorAlignment[sector-1][1] = new TGeoHMatrix(Form("Default TpcSector%02iAlignment Outer",i));
+ }
+#endif
+ gStTpcDb = this;
+}
+
+//_____________________________________________________________________________
+StTpcDb::StTpcDb(StMaker* maker) : m_Debug(0) {
+ assert(gStTpcDb==0);
+ memset(this,0,sizeof(StTpcDb));
+ mk = maker;
+ if (maker) GetDataBase(maker);
+ gMessMgr->SetLimit("StRTpcPadPlane::Invalid Pad number",20);
+ dvelcounter=0;
+ mTpc2GlobalMatrix = new TGeoHMatrix("Default Tpc2Global"); 
+ gStTpcDb = this;
 }
 //_____________________________________________________________________________
+void StTpcDb::Clear(){
+  trigtype = 0;
+  dvelcounter = 0;
+  return;
+}
+//_____________________________________________________________________________
+void StTpcDb::GetDataBase(StMaker* maker) {
+ if (maker){
+   const Char_t *bases[] = {"Calibrations/","Geometry/","Conditions/"};
+   int lBases = sizeof(bases)/sizeof(Char_t *);
+   int i;
+   for (i = 0;i<2;i++) {
+     TString dbFullPath = "StDb/";
+     TString dbPath = bases[i];
+     dbPath += "tpc";
+     dbFullPath += dbPath;
+     if ( ( tpctrg[i] = maker->GetDataBase(dbPath)) || 
+          ( tpctrg[i] = maker->GetDataBase(dbFullPath)) ) continue;
+     gMessMgr->Warning() << "StTpcDb::Error Getting TPC database: " << bases[i] << "   " << endm;
+   }
+   for (i = 2;i<lBases;i++) {
+     TString dbFullPath = "StDb/";
+     TString dbPath = bases[i];
+     dbPath += "trg";
+     dbFullPath += dbPath;
+     if ( ( tpctrg[i] = maker->GetDataBase(dbPath)) || 
+          ( tpctrg[i] = maker->GetDataBase(dbFullPath)) ) continue;
+     gMessMgr->Warning() << "StTpcDb::Error Getting trg database: " << bases[i] << "   " << endm;
+   }
+ }
+ else{
+   gMessMgr->Message("StTpcDb::Error Getting TPC database","E");
+ }
+}
+
 //_____________________________________________________________________________
 StTpcDb::~StTpcDb() {
-  for (Int_t i = 0;i<24;i++) {
-    for (Int_t k = 0; k < kTotalTpcSectorRotaions; k++) 
-    SafeDelete(mTpcSectorRotations[i][k]);
+#if 0
+  for (int i = 0;i<24;i++) {
+    SafeDelete(mTpcSectorAlignment[i][0]);
+    SafeDelete(mTpcSectorAlignment[i][1]);
   }
-  SafeDelete(mExB);
-  SafeDelete(mTpc2GlobMatrix);
-  SafeDelete(mFlip);
+#endif
+  SafeDelete(mTpc2GlobalMatrix);
   gStTpcDb = 0;
+}
+
+//_____________________________________________________________________________
+
+StTpcPadPlaneI* StTpcDb::PadPlaneGeometry(){
+  if (!PadPlane){            // get pad plane from data base
+    const int dbIndex = kGeometry;
+    if (tpctrg[dbIndex]){
+      //    TDataSet *tpd = tpctrg[dbIndex]->Find("tpcPadPlanes");
+      St_tpcPadPlanes  *tpd = (St_tpcPadPlanes*) FindTable("tpcPadPlanes",dbIndex);
+      if (!tpd) {
+	gMessMgr->Message("StTpcDb::Error Finding Tpc Pad Planes","E");
+	return 0;
+      }   
+      if (Debug()) tpd->Print(0,1);
+      PadPlane = new StRTpcPadPlane(tpd);
+    }
+  }
+  return PadPlane;
+}
+
+//_____________________________________________________________________________
+StTpcWirePlaneI* StTpcDb::WirePlaneGeometry(){
+  if (!WirePlane){            // get wire plane from data base
+    const int dbIndex = kGeometry;
+    if (tpctrg[dbIndex]){
+      //    TDataSet* tpd = tpctrg[dbIndex]->Find("tpcWirePlanes");
+      St_tpcWirePlanes* tpd = (St_tpcWirePlanes*) FindTable("tpcWirePlanes",dbIndex);
+      if (!(tpd && tpd->HasData()) ){
+	gMessMgr->Message("StTpcDb::Error Finding Tpc Wire Planes","E");
+	return 0;
+      }   
+      if (Debug()) tpd->Print(0,1);
+      WirePlane = new StRTpcWirePlane(tpd);
+    }
+  }
+  return WirePlane;
+}
+
+//_____________________________________________________________________________
+StTpcDimensionsI* StTpcDb::Dimensions(){
+  if (!dimensions){            // get wire plane from data base
+    int dbIndex = kGeometry;
+    St_tpcDimensions *tpd=0;
+    St_tpcEffectiveGeom* geo=0;
+    if (tpctrg[dbIndex]){
+      //    tpd = tpctrg[dbIndex]->Find("tpcDimensions");
+      tpd = (St_tpcDimensions*) FindTable("tpcDimensions",dbIndex);
+      if (!(tpd && tpd->HasData()) ){
+	gMessMgr->Message("StTpcDb::Error Finding Tpc Dimensions","E");
+	return 0;
+      }
+      if (Debug()) tpd->Print(0,1);
+    }
+    dbIndex = kCalibration;
+    if (tpctrg[dbIndex]){
+      //    geo = tpctrg[dbIndex]->Find("tpcEffectiveGeom");
+      geo = (St_tpcEffectiveGeom*) FindTable("tpcEffectiveGeom",dbIndex);
+      if (!(geo && geo->HasData()) ){
+	gMessMgr->Message("StTpcDb::Error Finding Tpc Effective Geometry","E");
+	return 0;
+      }
+      if (Debug()) geo->Print(0,1);
+    }
+    StRTpcDimensions* rdimensions =  new StRTpcDimensions(tpd,geo);
+    rdimensions->SetPadPlanePointer(PadPlaneGeometry());
+    rdimensions->SetWirePlanePointer(WirePlaneGeometry());
+    dimensions = (StTpcDimensionsI*)rdimensions;
+  }
+  return dimensions;
+}
+
+//_____________________________________________________________________________
+StTpcSlowControlSimI* StTpcDb::SlowControlSim(){
+  if (!slowControlSim){            // get wire plane from data base
+    const int dbIndex = kCalibration;
+    if (tpctrg[dbIndex]){
+      //    TDataSet* tpd = tpctrg[dbIndex]->Find("tpcSlowControlSim");
+      St_tpcSlowControlSim* tpd = (St_tpcSlowControlSim*) FindTable("tpcSlowControlSim",dbIndex);
+      if (!(tpd && tpd->HasData()) ){
+	gMessMgr->Message("StTpcDb::Error Finding Slow Control Simulations Parameters","E");
+	return 0;
+      }
+      if (Debug()) tpd->Print(0,1);
+      TDataSet *olddb = mk->GetDataBase("tpc");
+      St_tss_tsspar* tss = (St_tss_tsspar*)olddb->Find("tsspars/tsspar");
+      if (!(tss&&tss->HasData())){
+	gMessMgr->Message("StTpcDb::Error Finding tsspars Parameters","E");  
+	return 0;
+      }
+      if (Debug()) tss->Print(0,1);
+      slowControlSim = new StRTpcSlowControlSim(tpd,tss);
+    }
+  }
+  return slowControlSim;
+}
+
+//_____________________________________________________________________________
+StTpcElectronicsI* StTpcDb::Electronics(){
+  if (!electronics){            // get electronics from data base
+    const int dbIndex = kCalibration;
+    if (tpctrg[dbIndex]){
+      //    TDataSet* tpd = tpctrg[dbIndex]->Find("tpcElectronics");
+      St_tpcElectronics* tpd = (St_tpcElectronics*) FindTable("tpcElectronics",dbIndex);
+      if (!(tpd && tpd->HasData()) ){
+	gMessMgr->Message("StTpcDb::Error Finding Tpc Electronics","E");
+	return 0;
+      }
+      if (Debug()) tpd->Print(0,1);
+      electronics = new StRTpcElectronics(tpd);
+    }
+  }
+  return electronics;
+}
+
+//_____________________________________________________________________________
+StTpcFieldCageI* StTpcDb::FieldCage(){
+  if (!FC){            // get field cage from data base
+    const int dbIndex = kGeometry;
+    if (tpctrg[dbIndex]){
+      //    TDataSet* tpd = tpctrg[dbIndex]->Find("tpcFieldCage");
+      St_tpcFieldCage* tpd = (St_tpcFieldCage*) FindTable("tpcFieldCage",dbIndex);
+      if (!(tpd && tpd->HasData()) ){
+	gMessMgr->Message("StTpcDb::Error Finding Tpc Field Cage Info","E");
+	return 0;
+      }
+      if (Debug()) tpd->Print(0,1);
+      FC = new StRTpcFieldCage(tpd);
+    }
+  }
+  return FC;
+}
+//_____________________________________________________________________________
+StTpcT0I* StTpcDb::T0(int sector){
+  if(sector<1||sector>24){
+    gMessMgr->Message("StTpcDb::T0s request for invalid sector","E");
+    return 0;
+  }
+  if(!t0[sector-1]){
+   const int dbIndex = kCalibration;
+   char dbname[40],dbname2[40];
+   sprintf(dbname,"Sector_%.2d/tpcISTimeOffsets",sector);
+   sprintf(dbname2,"Sector_%.2d/tpcOSTimeOffsets",sector);
+   //   printf("Getting %s , %s \n",dbname,dbname2);
+   if (tpctrg[dbIndex]){
+     //    TDataSet* tpd = (TDataSet*)tpctrg[dbIndex]->Find(dbname);
+     //    TDataSet* tpd2 = (TDataSet*)tpctrg[dbIndex]->Find(dbname2);
+     TDataSet *tpd = FindTable(dbname,dbIndex);
+     TDataSet *tpd2 = FindTable(dbname2,dbIndex);
+    if (!(tpd && tpd->HasData() && tpd2 && tpd2->HasData()) ){
+     gMessMgr->Message("StTpcDb::Error Finding Tpc Time Offsets","E");
+     return 0;
+    }
+    StRTpcT0* wptemp = new StRTpcT0((St_tpcISTimeOffsets*)tpd,(St_tpcOSTimeOffsets*)tpd2);
+    wptemp->SetPadPlanePointer(PadPlaneGeometry());
+    t0[sector-1] = (StTpcT0I*)wptemp;
+   }
+  }
+ return t0[sector-1];
+}
+//_____________________________________________________________________________
+TTable *StTpcDb::getTpcTable(int i){
+  return (TTable *)tpctrg[i];
 }
 //-----------------------------------------------------------------------------
 float StTpcDb::DriftVelocity(Int_t sector) {
@@ -218,15 +440,16 @@ void StTpcDb::SetDriftVelocity() {
   // for back compartiblity switch to separated West and East drift velocities after 2007
   static St_tpcDriftVelocity *dvel0 = 0;
   static St_tpcDriftVelocity *dvel1 = 0;
+  static StMaker *mk = StMaker::GetChain();
   static TDatime t[2];
-  UInt_t uc = TUnixTime(StMaker::GetChain()->GetDateTime(),1).GetUTime();
+  UInt_t uc = TUnixTime(mk->GetDateTime(),1).GetUTime();
   if (uc != mUc) {
     if (! dvel0 || (uc < umax && ((uc < u0) || (uc > u1)))) {//First time only
-      dvel0 = (St_tpcDriftVelocity *) StMaker::GetChain()->GetDataBase("Calibrations/tpc/tpcDriftVelocity");
+      dvel0 = (St_tpcDriftVelocity *) mk->GetDataBase("Calibrations/tpc/tpcDriftVelocity");
       if (! dvel0) {
 	gMessMgr->Message("StTpcDb::Error Finding Tpc DriftVelocity","E");
 	mUc = 0;
- 	return;
+	return;
       }
       if (St_db_Maker::GetValidity(dvel0,t) < 0) {
 	gMessMgr->Message("StTpcDb::Error Wrong Validity Tpc DriftVelocity","E");
@@ -237,14 +460,14 @@ void StTpcDb::SetDriftVelocity() {
       u1 = TUnixTime(t[1],1).GetUTime();
       SafeDelete(dvel1);
       if (u1 < umax) 
-	dvel1 = (St_tpcDriftVelocity *) StMaker::GetChain()->GetDataBase("Calibrations/tpc/tpcDriftVelocity",&t[1]);
+	dvel1 = (St_tpcDriftVelocity *) mk->GetDataBase("Calibrations/tpc/tpcDriftVelocity",&t[1]);
     }//End First time only
     
     if (!(u0<=uc && uc<u1)) {//current time out of validity
       
       SafeDelete(dvel1);
       if (u1 < umax && u1 - u0 < 7*24*3600 && uc - u0 < 7*24*3600) {// next drift velocity should within a week from current
-	dvel1 = (St_tpcDriftVelocity *) StMaker::GetChain()->GetDataBase("Calibrations/tpc/tpcDriftVelocity",&t[1]);
+	dvel1 = (St_tpcDriftVelocity *) mk->GetDataBase("Calibrations/tpc/tpcDriftVelocity",&t[1]);
 	if (! dvel1) {
 	  gMessMgr->Message("StTpcDb::Error Finding next Tpc DriftVelocity","W");
 	}
@@ -272,165 +495,70 @@ void StTpcDb::SetDriftVelocity() {
       if (mDriftVel[0] <= 0.0) mDriftVel[0] = d0->cathodeDriftVelocityWest;
       if (mDriftVel[1] <= 0.0) mDriftVel[1] = d0->cathodeDriftVelocityEast;
     }
-#if 0
     LOG_INFO << "Set Tpc Drift Velocity =" << mDriftVel[0]  << " (West) " << mDriftVel[0] << " (East) for "
-	     << StMaker::GetChain()->GetDateTime().AsString() << endm;
-#endif
+	     << mk->GetDateTime().AsString() << endm;
     mUc = uc;
   }
 }
-//_____________________________________________________________________________
-void StTpcDb::SetTpcRotations() {
-  // Pad [== sector12 == localsector (SecL, ideal)] => subsector (SubS,local sector aligned) => flip => sector (SupS) => tpc => global
-  //                                    ------        
-  //old:  global = Tpc2GlobalMatrix() * SupS2Tpc(sector) *                                    Flip() * {SubSInner2SupS(sector) | SubSOuter2SupS(sector)}
-  //new:  global = Tpc2GlobalMatrix() * SupS2Tpc(sector) * StTpcSuperSectorPosition(sector) * Flip() * {                     I | StTpcOuterSectorPosition(sector)}
-  //      StTpcSuperSectorPosition(sector) * Flip() = Flip() * SubSInner2SupS(sector) 
-  // =>  StTpcSuperSectorPosition(sector) = Flip() * SubSInner2SupS(sector) * Flip()^-1
-  //      StTpcSuperSectorPosition(sector) * Flip() * StTpcOuterSectorPosition(sector) = Flip() *  SubSOuter2SupS(sector)
-  // =>  StTpcOuterSectorPosition(sector) = Flip()^-1 * StTpcSuperSectorPosition(sector)^-1 *  Flip() *  SubSOuter2SupS(sector)
-  TGeoTranslation T123(0,123,0); T123.SetName("T123"); if (Debug() > 1) T123.Print();
-  assert(Dimensions()->numberOfSectors() == 24);
-  Double_t phi, theta, psi;
-#define __NEW__SCHEMA_FOR_ROTATION__
-#ifndef  __NEW__SCHEMA_FOR_ROTATION__
-  Double_t s, offset;
-#endif
-  Int_t iphi;
-  TGeoRotation *rotm = 0;
-  TObjArray *listOfMatrices = 0;
-  TString Rot;
-  for (Int_t sector = 0; sector <= 24; sector++) {// loop over Tpc as whole, sectors, inner and outer subsectors
-    Int_t k;
-    Int_t k1 = kSupS2Tpc;
-    Int_t k2 = kTotalTpcSectorRotaions;
-    if (sector == 0) {k2 = k1; k1 = kUndefSector;}
-    for (k = k1; k < k2; k++) {
-      Int_t Id     = 0;
-      TGeoHMatrix rotA; // After alignment
-      if (!sector ) { // TPC Reference System
-	St_tpcGlobalPositionC *tpcGlobalPosition = St_tpcGlobalPositionC::instance();
-	assert(tpcGlobalPosition);
-	Id = 1;
-	phi   = 0.0;  //large uncertainty, so set to 0
-	theta = tpcGlobalPosition->PhiXZ_geom()*TMath::RadToDeg();
-	psi   = tpcGlobalPosition->PhiYZ_geom()*TMath::RadToDeg(); 
-	rotA.RotateX(-psi);
-	rotA.RotateY(-theta);
-	rotA.RotateZ(-phi);
-	Double_t transTpcRefSys[3] = {tpcGlobalPosition->LocalxShift(),
-				      tpcGlobalPosition->LocalyShift(),
-				      tpcGlobalPosition->LocalzShift()};
-	rotA.SetTranslation(transTpcRefSys);
-      } else {
-	Id = 10*sector + k;
-	TGeoTranslation TIO; 
-	TGeoRotation    RIO;
-	switch (k) {
-	case kSupS2Tpc: // SupS => Tpc
-	  if (sector <= 12) {iphi = (360 + 90 - 30* sector      )%360; Rot = Form("R%03i",iphi);}
-	  else              {iphi = (      90 + 30*(sector - 12))%360; Rot = Form("Y%03i",iphi);}
-	  rotm = 0;
-	  if (gGeoManager) {
-	    listOfMatrices =  gGeoManager->GetListOfMatrices();
-	    rotm = (TGeoRotation *) listOfMatrices->FindObject(Rot);
-	  }
-	  if (! rotm) {
-	    if (sector <= 12) rotm = new TGeoRotation(Rot);
-	    else              rotm = new TGeoRotation(Rot,   90.0,    0.0,  90.0,  -90.0,  180.0,    0.00); // Flip (x,y,z) => ( x,-y,-z)
-	    rotm->RotateZ(iphi);
-	  }
-	  rotA = *rotm;
-#ifdef  __NEW__SCHEMA_FOR_ROTATION__
-	  rotA *= StTpcSuperSectorPosition::instance()->GetMatrix(sector-1);
-#endif
-	  if (gGeoManager) rotm->RegisterYourself();
-	  else             SafeDelete(rotm);
-	  break;
-	case kSupS2Glob:      // SupS => Tpc => Glob
-	  rotA = Tpc2GlobalMatrix() * SupS2Tpc(sector); 
-	  break; 
-#ifdef  __NEW__SCHEMA_FOR_ROTATION__
-	case kSubSInner2SupS: rotA = Flip(); break;
-	case kSubSOuter2SupS: rotA = Flip() * StTpcOuterSectorPosition::instance()->GetMatrix(sector-1); break;
-#else /* !__NEW__SCHEMA_FOR_ROTATION__ */
-	case kSubSInner2SupS: // Subs[io] => SupS
-	case kSubSOuter2SupS: // -"-
-	  s = -1;
-	  if (sector > 12) s = +1;
-	  if (k == kSubSInner2SupS) {
-	    offset = s*St_tpcSectorPositionC::instance()->innerPositionOffsetX(sector-1);
-	    phi    = s*St_tpcSectorPositionC::instance()->innerRotation(sector-1);
-	  } else {
-	    offset = s*St_tpcSectorPositionC::instance()->outerPositionOffsetX(sector-1);
-	    phi    = s*St_tpcSectorPositionC::instance()->outerRotation(sector-1);
-	  }
-	  TIO.SetTranslation(-offset, -123, 0); if (Debug() > 1) TIO.Print();
-	  RIO.SetAngles(-phi,0,0);              if (Debug() > 1) RIO.Print();
-	  rotA = T123 * RIO * TIO;
-	  if (k != kSubSInner2SupS)
-	    rotA *= StTpcOuterSectorPosition::instance()->GetMatrix(sector-1);
-	  //	    rotA *= StTpcOuterSectorAlignment::instance()->GetMatrix(sector-1);
-#endif /* __NEW__SCHEMA_FOR_ROTATION__ */
-	  break;
-	case kSubSInner2Tpc:  rotA = SupS2Tpc(sector) * SubSInner2SupS(sector); break; // (Subs[io] => SupS) => Tpc
-	case kSubSOuter2Tpc:  rotA = SupS2Tpc(sector) * SubSOuter2SupS(sector); break; // -"-
 
-	case kSubSInner2Glob: rotA = Tpc2GlobalMatrix() * SubSInner2Tpc(sector);  break; // Subs[io] => SupS => Tpc) => Glob
-	case kSubSOuter2Glob: rotA = Tpc2GlobalMatrix() * SubSOuter2Tpc(sector);  break; // -"-
 
-#ifdef  __NEW__SCHEMA_FOR_ROTATION__
-	case kPadInner2SupS:  rotA = SubSInner2SupS(sector); break; // (Pad == SecL) => (SubS[io] => SupS)
-	case kPadOuter2SupS:  rotA = SubSOuter2SupS(sector); break; // -"-
-#else /* ! __NEW__SCHEMA_FOR_ROTATION__ */
-	case kPadInner2SupS:  rotA = Flip()*SubSInner2SupS(sector); break; // (Pad == SecL) => (SubS[io] => SupS)
-	case kPadOuter2SupS:  rotA = Flip()*SubSOuter2SupS(sector); break; // -"-
-#endif /* __NEW__SCHEMA_FOR_ROTATION__ */
-	case kPadInner2Tpc:   rotA = SupS2Tpc(sector) * PadInner2SupS(sector); break; // (Pad == SecL) => (SubS[io] => SupS => Tpc)
-	case kPadOuter2Tpc:   rotA = SupS2Tpc(sector) * PadOuter2SupS(sector); break; // -"-
 
-	case kPadInner2Glob:  rotA = Tpc2GlobalMatrix() * PadInner2Tpc(sector); break; // (Pad == SecL) => (SubS[io] => SupS => Tpc => Glob)
-	case kPadOuter2Glob:  rotA = Tpc2GlobalMatrix() * PadOuter2Tpc(sector); break; // -"-
-	default:
-	  assert(0);
-	}
+//-----------------------------------------------------------------------------
+float StTpcDb::triggerTimeOffset(){
+  if (!trigtype&&dvelcounter==0) trigtype = (St_dst_L0_Trigger*)mk->GetChain()->GetDataSet("L0_Trigger");
+  dvelcounter++;
+  if(!toff){              // get triggerTimeOffset
+    const int dbIndex = kConditions;
+    if (tpctrg[dbIndex]){
+      //    TDataSet* tpd = tpctrg[dbIndex]->Find("trgTimeOffset");
+      TDataSet *tpd = FindTable("trgTimeOffset",dbIndex);
+      if (!(tpd && tpd->HasData()) ){
+	gMessMgr->Message("StTpcDb::Error Finding Trigger Time Offset","E");
+	return 0;
       }
-      // Normalize
-      Double_t *r = rotA.GetRotationMatrix();
-      Double_t norm;
-      TVector3 d(r[0],r[3],r[6]); norm = 1/d.Mag(); d *= norm;
-      TVector3 t(r[2],r[5],r[8]); norm = 1/t.Mag(); t *= norm;
-      TVector3 n(r[1],r[4],r[7]);
-      TVector3 c = d.Cross(t);
-      if (c.Dot(n) < 0) c *= -1;
-      Double_t rot[9] = {
-	d[0], c[0], t[0],
-	d[1], c[1], t[1],
-	d[2], c[2], t[2]};
-      rotA.SetRotation(rot);
-      const Char_t *names[kTotalTpcSectorRotaions] = {
-	"SupS_%02itoTpc",
-	"SupS_%02itoGlob",
-	"SubS_%02iInner2SupS",
-	"SubS_%02iOuter2SupS",
-	"SubS_%02iInner2Tpc",
-	"SubS_%02iOuter2Tpc",
-	"SubS_%02iInner2Glob",
-	"SubS_%02iOuter2Glob",
-	"PadInner2SupS_%02i",
-	"PadOuter2SupS_%02i",
-	"SupS_%02i12Inner2Tpc",
-	"SupS_%02i12Outer2Tpc",
-	"SupS_%02i12Inner2Glob",
-	"SupS_%02i12Outer2Glob"
-      };
-      if (sector == 0) rotA.SetName("Tpc2Glob"); 
-      else             rotA.SetName(Form(names[k],sector));
-      if (Debug() > 1) {
-	cout << "Id : " << Id << " "; rotA.Print();
-      }
-      SetTpcRotationMatrix(&rotA,sector,k);
+      toff = (St_trgTimeOffset*)tpd;
     }
   }
-#undef  __NEW__SCHEMA_FOR_ROTATION__
+  //  assert(trig);
+  float theoffset = 1e-6*(*toff)[0].offset;
+  if(trigtype&&trigtype->HasData()){if((0xff00 & (*trigtype)[0].TriggerActionWd)==(0xff00 & 36865)) 
+      theoffset = 1e-6*(*toff)[0].laserOffset;}
+  return theoffset;
 }
+//________________________________________________________________________________
+TTable *StTpcDb::FindTable(const Char_t *name, Int_t dbIndex) {
+  TTable *table = 0;
+  if (tpctrg[dbIndex]){
+    table = (TTable *) tpctrg[dbIndex]->Find(name);
+    if (! (table && table->HasData()) ) {
+      gMessMgr->Error() << "StTpcDb::Error Finding " << name << endm;
+    } else if (Debug() && table->GetRowSize()< 1024) {
+      //StMaker *dbMk = StChain::GetChain()->Maker("db");
+      //if (dbMk) {
+      {
+	TDatime t[2];
+	St_db_Maker::GetValidity(table,t);
+	gMessMgr->Warning()  << " Validity:" << t[0].GetDate() << "/" << t[0].GetTime()
+			     << "  -----   " << t[1].GetDate() << "/" << t[1].GetTime() << endm;
+      }
+      if (Debug()) table->Print(0,table->GetNRows());
+    }
+  }
+  return table;
+}
+//________________________________________________________________________________
+St_tpcPedestalC        *StTpcDb::Pedestal() {return St_tpcPedestalC::instance();}
+St_tpcPadResponseC     *StTpcDb::PadResponse() {  return St_tpcPadResponseC::instance();}
+//________________________________________________________________________________
+void StTpcDb::SetTpc2GlobalMatrix(TGeoHMatrix *m) {
+  if (m) {
+    if (! mTpc2GlobalMatrix)  mTpc2GlobalMatrix = new TGeoHMatrix("Default Tpc2Global"); 
+    *mTpc2GlobalMatrix = *m;
+  }
+}
+
+
+
+
+
+
