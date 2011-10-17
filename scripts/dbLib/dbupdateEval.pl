@@ -6,7 +6,7 @@
 #
 # dbupdateEval.pl
 #
-# update siteJobStatus table with test jobs status for 'eval' library different codes options. 
+# update EvalJobStatus table with test jobs status for 'eval' library different codes options. 
 # Author: L.Didenko
 #
 ########################################################################################
@@ -28,7 +28,7 @@ $JobStatusT = "evalJobStatus";
 
 my @node_dir = ();
 my @TOP_DIRD = ();
-my @libTr = ("Sti-CA","Sti","Stv","Stv-CA");
+my @libTr = ("Sti-CA","Sti","Stv","Stv-CA","Sti.AgML","Stv.AgML");
 my $k = 0;
 
  for ($k =0; $k < scalar(@libTr); $k++) {
@@ -41,7 +41,7 @@ my $k = 0;
 
 my @prt = ();
 
-my @dir_year = ( "year_2007", "year_2008","year_2009", "year_2010", "year_2011");
+my @dir_year = ( "year_2007", "year_2008","year_2009","year_2010","year_2011");
 
 my @OUT_DIR0 = ();
 my @OUT_DIR1 = ();
@@ -51,6 +51,10 @@ my @OUT_DIR4 = ();
 my @OUT_DIR5 = ();
 my @OUT_DIR6 = ();
 my @OUT_DIR7 = ();
+my @OUT_DIR8 = ();
+my @OUT_DIR9 = ();
+my @OUT_DIR10 = ();
+my @OUT_DIR11 = ();
 
 my @OUT_DIR = ();
 my @OUTD_DIR = ();
@@ -88,6 +92,11 @@ my $nk = 0;
     @OUT_DIR5 = `ls -d $TDIR[5]`;
     @OUT_DIR6 = `ls -d $TDIR[6]`;
     @OUT_DIR7 = `ls -d $TDIR[7]`;
+    @OUT_DIR8 = `ls -d $TDIR[8]`;
+    @OUT_DIR9 = `ls -d $TDIR[9]`;
+    @OUT_DIR10 = `ls -d $TDIR[10]`;
+    @OUT_DIR11 = `ls -d $TDIR[11]`;
+
 
 my $ndir = scalar(@OUT_DIR0);
 
@@ -150,6 +159,37 @@ my $ndir = scalar(@OUT_DIR0);
       $ii++;
   }
 
+ for ($i = 0; $i <scalar(@OUT_DIR8) ; $i++) {
+      $OUT_DIR[$ii] = $OUT_DIR8[$i];
+      chop $OUT_DIR[$ii];
+  print "Output Dir for EVAL :", $OUT_DIR[$ii],"\n";
+
+      $ii++;
+  }
+
+ for ($i = 0; $i <scalar(@OUT_DIR9) ; $i++) {
+      $OUT_DIR[$ii] = $OUT_DIR9[$i];
+      chop $OUT_DIR[$ii];
+  print "Output Dir for EVAL :", $OUT_DIR[$ii],"\n";
+
+      $ii++;
+  }
+
+ for ($i = 0; $i <scalar(@OUT_DIR10) ; $i++) {
+      $OUT_DIR[$ii] = $OUT_DIR10[$i];
+      chop $OUT_DIR[$ii];
+  print "Output Dir for EVAL :", $OUT_DIR[$ii],"\n";
+
+      $ii++;
+  }
+
+ for ($i = 0; $i <scalar(@OUT_DIR11) ; $i++) {
+      $OUT_DIR[$ii] = $OUT_DIR11[$i];
+      chop $OUT_DIR[$ii];
+  print "Output Dir for EVAL :", $OUT_DIR[$ii],"\n";
+
+      $ii++;
+  }
 
 
 struct JFileAttr => {
