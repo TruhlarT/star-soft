@@ -80,7 +80,7 @@ my $nprod = 0;
 
   &StDbProdConnect();
 
-  $sql="SELECT distinct trigsetName, prodSeries, evaltag, status, date_format(min(createTime), '%Y-%m-%d') as mintm, date_format(max(createTime), '%Y-%m-%d') as maxtm, sum(NoEvents) from $JobStatusT where createTime <> '0000-00-00 00:00:00' group by trigsetName, prodSeries, evaltag order by max(createTime) ";
+  $sql="SELECT distinct trigsetName, prodSeries, evaltag, status, date_format(min(createTime), '%Y-%m-%d') as mintm, date_format(max(createTime), '%Y-%m-%d') as maxtm from $JobStatusT where createTime <> '0000-00-00 00:00:00' group by trigsetName, prodSeries, evaltag order by max(createTime) ";
 
 
             $cursor =$dbh->prepare($sql)
@@ -100,7 +100,6 @@ my $nprod = 0;
                 ($$fObjAdr)->prdtag($fvalue)   if( $fname eq 'prodSeries');
                 ($$fObjAdr)->evltg($fvalue)    if( $fname eq 'evaltag');
                 ($$fObjAdr)->prst($fvalue)     if( $fname eq 'status');
-                ($$fObjAdr)->nevt($fvalue)     if( $fname eq 'sum(NoEvents)');
                 ($$fObjAdr)->strtm($fvalue)    if( $fname eq 'mintm');
                 ($$fObjAdr)->fintm($fvalue)    if( $fname eq 'maxtm');
 
@@ -120,7 +119,6 @@ my $nprod = 0;
     $artrg[$nprod]   = ($$pjob)->trgset;
     $trcktag[$nprod] = ($$pjob)->evltg;
     $prstat[$nprod]  = ($$pjob)->prst;
-    $sumevt[$nprod]  = ($$pjob)->nevt;
     $strtime[$nprod] =  ($$pjob)->strtm;
     $fntime[$nprod]  =  ($$pjob)->fintm;
     @prt = ();
@@ -142,6 +140,8 @@ my $nprod = 0;
     $jbresub[$nprod] = 0;
     $szmudst[$nprod] = 0;
     $mismudst[$nprod] = 0;    
+    $sumevt[$nprod] = 0;
+
 
 ###########
 
@@ -253,6 +253,20 @@ my $nprod = 0;
           $mismudst[$nprod] = $mpr;
        }
     $cursor->finish();
+
+##########
+
+  $sql="SELECT sum(NoEvents)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%' and prodSeries = '$prodtag[$nprod]' and evaltag = '$trcktag[$nprod]' ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $sumevt[$nprod] = $mpr;
+       }
+    $cursor->finish();
+
 
 ########## 
 
