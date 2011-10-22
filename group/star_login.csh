@@ -331,8 +331,11 @@ endif
 
 # Now, display the news if any
 if ($?SILENT == 0 && $?prompt) then
-    if ( -f $STAR_PATH/news/motd ) cat $STAR_PATH/news/motd
-    if ( -f $STAR_PATH/news/motd.$STAR_SYS ) cat $STAR_PATH/news/motd.$STAR_SYS
+    if ( -f $STAR_PATH/news/motd ) then
+	alias motd /bin/cat $STAR_PATH/news/motd
+        /bin/cat $STAR_PATH/news/motd
+    endif
+    if ( -f $STAR_PATH/news/motd.$STAR_SYS ) /bin/cat $STAR_PATH/news/motd.$STAR_SYS
 endif
 
 
