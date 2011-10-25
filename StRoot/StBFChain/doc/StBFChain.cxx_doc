@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.96 2011/10/25 17:08:18 fisyak Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.97 2011/10/25 23:10:55 perev Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TString.h"
@@ -24,6 +24,8 @@
 #if 0
 // Keep to be compartible with old documentaion
 #define STR_OBSOLETE "WARNING *** Option is OBSOLETE ***"
+
+
 
 
 
@@ -1179,6 +1181,8 @@ Bfc_st BFC[] = {
 // Please, preserve the comment after = { . It is used for documentation formatting
 //
 // ITTF Chains
+
+
 
 
 
