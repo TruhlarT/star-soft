@@ -244,6 +244,7 @@ $sql="SELECT path, prodyear, LibTracker, logFile, jobStatus, NoEventDone, chainO
 
       $bdate = $prt[0].$mon."00";
       $dftime = $ddate - $bdate ;
+      $ttime = $dftime;
     }
 
 
