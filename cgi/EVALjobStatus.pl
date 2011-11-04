@@ -237,7 +237,7 @@ $sql="SELECT path, prodyear, LibTracker, logFile, jobStatus, NoEventDone, chainO
     @prt = split ("-", $cdate);
     $lstmon = $prt[1];
 
-    $daydif = $dmonth{$lstmon};
+#    $daydif = $dmonth{$lstmon};
 
     $dfmon = $mon - $lstmon;
     if($dfmon == 1 ) {
