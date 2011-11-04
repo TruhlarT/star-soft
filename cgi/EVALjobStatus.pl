@@ -90,7 +90,7 @@ struct FileAttr => {
 my $ddate = $yr.$mon.$mday;
 my $mdate = $yr."-".$mon."-".$mday;
 
-my $daydif = 77;
+my $daydif = 76;
 my $ttime = 0;
 my $dftime = 0;
 
@@ -244,7 +244,6 @@ $sql="SELECT path, prodyear, LibTracker, logFile, jobStatus, NoEventDone, chainO
 
       $bdate = $prt[0].$mon."00";
       $dftime = $ddate - $bdate ;
-      $ttime = $dftime;
     }
 
 
