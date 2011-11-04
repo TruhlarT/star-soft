@@ -94,6 +94,21 @@ my $daydif = 76;
 my $ttime = 0;
 my $dftime = 0;
 
+my %dmonth = (
+               "01" => 76,
+               "02" => 78,
+               "03" => 76,
+               "04" => 77,
+               "05" => 76,
+               "06" => 77,
+               "07" => 76,
+               "08" => 76,
+               "09" => 77,
+               "10" => 76,
+               "11" => 77,
+               "12" => 76
+	      );
+
 my $nd = 0;
 my @arlib = ("Sti-CA","Sti","Stv","Stv-CA","Sti.AgML","Stv.AgML");
 
@@ -237,7 +252,7 @@ $sql="SELECT path, prodyear, LibTracker, logFile, jobStatus, NoEventDone, chainO
     @prt = split ("-", $cdate);
     $lstmon = $prt[1];
 
-#    $daydif = $dmonth{$lstmon};
+    $daydif = $dmonth{$lstmon};
 
     $dfmon = $mon - $lstmon;
     if($dfmon == 1 ) {
