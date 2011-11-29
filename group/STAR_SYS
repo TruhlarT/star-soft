@@ -6,6 +6,7 @@
 #
 setenv STAR_SYS ""
 source $GROUP_DIR/unix_programs.csh
+set self="STAR_SYS"
 
 #
 # Get it through the AFS fs sysname command which may
@@ -234,6 +235,9 @@ else
 endif
 
 #  $Log: STAR_SYS,v $
+#  Revision 1.52  2011/11/29 18:40:47  jeromel
+#  Define self
+#
 #  Revision 1.51  2011/11/29 18:33:28  jeromel
 #  Added DECHo debugging statements + support for /usr/bin/fs
 #
@@ -398,5 +402,5 @@ endif
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 2011/11/29 18:33:28 $
+#             Last modification $Date: 2011/11/29 18:40:47 $
 #
