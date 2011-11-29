@@ -12,24 +12,36 @@ source $GROUP_DIR/unix_programs.csh
 # be set by the administrator.
 #
 if (-e /usr/arla/bin/fs) then
+    if ( $?DECHO ) echo "$self :: Using /usr/arla/bin/fs"
   setenv STAR_SYS `/usr/arla/bin/fs sysname | $AWK -F\' '{print $2}'`
 else
   if (-e /usr/afsws/bin/fs)  then
+    if ( $?DECHO ) echo "$self :: Using /usr/afsws/bin/fs"
     setenv STAR_SYS `/usr/afsws/bin/fs sysname | $AWK -F\' '{print $2}'`
   else
-    # attempt some cygwin stuff
-    if ( -e /cygdrive/c/PROGRA~1/IBM/AFS/Client/Program/fs) then
-	setenv STAR_SYS `/cygdrive/c/PROGRA~1/IBM/AFS/Client/Program/fs sysname | $AWK -F\' '{print $2}'`
+    if ( -e /usr/bin/fs ) then
+	if ( $?DECHO ) echo "$self :: Using /usr/bin/fs"
+	setenv STAR_SYS `/usr/bin/fs sysname | $AWK -F\' '{print $2}'`
     else
-	# no /bin/sys anywhere (Linux, Solaris, Digital)
-	if (-e /bin/sys) then
-	    setenv STAR_SYS `/bin/sys`
+	# attempt some cygwin stuff
+	if ( -e /cygdrive/c/PROGRA~1/IBM/AFS/Client/Program/fs) then
+	    if ( $?DECHO ) echo "$self :: Using cygwin AFS client IBM/AFS/Client/Program/fs"
+	    setenv STAR_SYS `/cygdrive/c/PROGRA~1/IBM/AFS/Client/Program/fs sysname | $AWK -F\' '{print $2}'`
 	else
-	    if (-e /usr/bin/sys) setenv STAR_SYS `/usr/bin/sys`
+	    # no /bin/sys anywhere (Linux, Solaris, Digital)
+	    if (-e /bin/sys) then
+		if ( $?DECHO ) echo "$self :: Using /bin/sys"
+		setenv STAR_SYS `/bin/sys`
+	    else
+		if ( $?DECHO ) echo "$self :: Will use /usr/bin/sys if found"
+		if (-e /usr/bin/sys) setenv STAR_SYS `/usr/bin/sys`
+	    endif
 	endif
     endif
   endif
 endif
+
+if ( $?DECHO ) echo "$self :: STAR_SYS is now $STAR_SYS"
 
 #
 # Sort it out otherwise via uname command
@@ -222,6 +234,9 @@ else
 endif
 
 #  $Log: STAR_SYS,v $
+#  Revision 1.51  2011/11/29 18:33:28  jeromel
+#  Added DECHo debugging statements + support for /usr/bin/fs
+#
 #  Revision 1.50  2010/12/11 00:27:50  jeromel
 #  Added amd64
 #
@@ -383,5 +398,5 @@ endif
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 2010/12/11 00:27:50 $
+#             Last modification $Date: 2011/11/29 18:33:28 $
 #
