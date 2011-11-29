@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.240 2011/10/10 19:50:52 jeromel Exp $
+#       $Id: group_env.csh,v 1.241 2011/11/29 18:34:45 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -24,6 +24,7 @@ if ($?SILENT == 1) set ECHO = 0
 # This variable was added for the ECHOD debug mode
 set self="group_env"
 if ( $?DECHO && $?STAR_LEVEL ) then
+    # set ECHO = 1
     echo "$self :: Receiving STAR_LEVEL $STAR_LEVEL"
 endif
 
@@ -591,6 +592,8 @@ if ( -x ${GROUP_DIR}/dropit) then
   if ($?SHLIB_PATH == 1)      setenv SHLIB_PATH      `${GROUP_DIR}/dropit -p ${SHLIB_PATH} $STAR_PATH`
 
   setenv PATH `${GROUP_DIR}/dropit -p ${GROUPPATH} -p /usr/afsws/bin -p /usr/afsws/etc -p ${OPTSTAR}/bin -p /usr/sue/bin -p /usr/local/bin -p ${PATH}`
+else
+  if ( $?DECHO ) echo "$self ::  ${GROUP_DIR}/dropit is not -x"
 endif
 
 
@@ -632,6 +635,59 @@ switch ($STAR_SYS)
       limit  coredumpsize 0
       breaksw
 
+
+    case "sun4*":
+      #  ====================
+      # Sun/Solaris version 4
+      #  ====================
+      if ( ! $?SUNWS ) then
+	if ( -r $STAR_MGR/sunWS ) then
+	    setenv SUNWS `/bin/cat $STAR_MGR/sunWS`
+	    if ( ! -d /opt/$SUNWS ) then
+		if ($ECHO) echo "$SUNWS Workshop not found. Reverting to SUNWspro"
+		setenv SUNWS "SUNWspro"
+	    endif
+        else
+	    # default packages distribution directory
+	    setenv SUNWS "SUNWspro"
+	endif
+      endif
+
+      if (! $?SUNOPT) setenv SUNOPT /opt
+
+      set WSVERS=`echo $SUNWS  | /bin/sed "s/WS//"`   # full version number
+      set WSMVER=`echo $WSVERS | /bin/sed "s/\..*//"` # major version number
+
+      if ($?LD_LIBRARY_PATH == 0) setenv LD_LIBRARY_PATH
+      setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p /usr/openwin/lib -p /usr/dt/lib -p /usr/local/lib -p ${LD_LIBRARY_PATH}`
+
+
+      # Rebuild path - Basic
+      if ( -x ${GROUP_DIR}/dropit) then
+	setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} -p $SUNOPT/$SUNWS/lib -p $SUNOPT/$SUNWS/SC$WSVERS/lib -p $SUNOPT/$SUNWS/WS$WSMVER/lib`
+	setenv PATH `${GROUP_DIR}/dropit -p $SUNOPT/$SUNWS/bin -p ${PATH}`
+	setenv MANPATH `${GROUP_DIR}/dropit -p $SUNOPT/$SUNWS/man -p ${MANPATH}`
+
+	if ($?MINE_lib == 1 && $?STAR_lib == 1 ) then
+	    setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${MINE_lib} -p ${MINE_LIB} -p ${STAR_lib} -p ${STAR_LIB} -p ${STAF_LIB} -p ${LD_LIBRARY_PATH}`
+        else
+	    setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${MINE_LIB} -p ${STAR_LIB} -p ${STAF_LIB} -p ${LD_LIBRARY_PATH}`
+        endif
+      endif
+
+      setenv  BFARCH SunOS5
+      if ("${STAR_HOST_SYS}" == "sun4x_56_CC5") setenv BFARCH SunOS5_CC5
+      limit   coredump 0
+      unlimit descriptors
+      breaksw
+
+
+    case "alpha_dux*":
+      limit datasize unlimited
+      limit stacksize unlimited
+      breaksw
+
+    #case "*linux26":
     case "x8664_*":
     case "i386_*":
       #  ====================
@@ -684,58 +740,10 @@ switch ($STAR_SYS)
       endif
       breaksw
 
-    case "sun4*":
-      #  ====================
-      # Sun/Solaris version 4
-      #  ====================
-      if ( ! $?SUNWS ) then
-	if ( -r $STAR_MGR/sunWS ) then
-	    setenv SUNWS `/bin/cat $STAR_MGR/sunWS`
-	    if ( ! -d /opt/$SUNWS ) then
-		if ($ECHO) echo "$SUNWS Workshop not found. Reverting to SUNWspro"
-		setenv SUNWS "SUNWspro"
-	    endif
-        else
-	    # default packages distribution directory
-	    setenv SUNWS "SUNWspro"
-	endif
-      endif
-
-      if (! $?SUNOPT) setenv SUNOPT /opt
-
-      set WSVERS=`echo $SUNWS  | /bin/sed "s/WS//"`   # full version number
-      set WSMVER=`echo $WSVERS | /bin/sed "s/\..*//"` # major version number
-
-      if ($?LD_LIBRARY_PATH == 0) setenv LD_LIBRARY_PATH
-      setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p /usr/openwin/lib -p /usr/dt/lib -p /usr/local/lib -p ${LD_LIBRARY_PATH}`
-
-
-      # Rebuild path - Basic
-      if ( -x ${GROUP_DIR}/dropit) then
-	setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} -p $SUNOPT/$SUNWS/lib -p $SUNOPT/$SUNWS/SC$WSVERS/lib -p $SUNOPT/$SUNWS/WS$WSMVER/lib`
-	setenv PATH `${GROUP_DIR}/dropit -p $SUNOPT/$SUNWS/bin -p ${PATH}`
-	setenv MANPATH `${GROUP_DIR}/dropit -p $SUNOPT/$SUNWS/man -p ${MANPATH}`
-
-	if ($?MINE_lib == 1 && $?STAR_lib == 1 ) then
-	    setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${MINE_lib} -p ${MINE_LIB} -p ${STAR_lib} -p ${STAR_LIB} -p ${STAF_LIB} -p ${LD_LIBRARY_PATH}`
-        else
-	    setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${MINE_LIB} -p ${STAR_LIB} -p ${STAF_LIB} -p ${LD_LIBRARY_PATH}`
-        endif
-      endif
-
-      setenv  BFARCH SunOS5
-      if ("${STAR_HOST_SYS}" == "sun4x_56_CC5") setenv BFARCH SunOS5_CC5
-      limit   coredump 0
-      unlimit descriptors
-      breaksw
-
-    case "alpha_dux*":
-      limit datasize unlimited
-      limit stacksize unlimited
-      breaksw
 
     default:
 	#  ====================
+        if ( $?DECHO ) echo "$self :: The OS was not recognized - entire setup was skipped"
 	breaksw
 endsw
 
