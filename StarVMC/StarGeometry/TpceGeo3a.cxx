@@ -35,6 +35,12 @@
           ///@}     
           ///@addtogroup TpceGeo3a_vars     
           ///@{        
+                Float_t tsas_zoffset=0.0,tsgt_zoffset=0.0;        
+                //        
+                /// Float_t tsas_zoffset=0.0,tsgt_zoffset=0.0        
+          ///@}     
+          ///@addtogroup TpceGeo3a_vars     
+          ///@{        
                 Int_t kinner,kouter;        
                 //        
                 /// Int_t kinner,kouter        
@@ -62,6 +68,18 @@ Float_t inch,cm;
                 Int_t kblack,kred,kgreen,kblue,kyellow,kviolet,klightblue;        
                 //        
                 /// Int_t kblack,kred,kgreen,kblue,kyellow,kviolet,klightblue        
+          ///@}     
+          ///@addtogroup TpceGeo3a_vars     
+          ///@{        
+                Int_t kbbox,kpara,ktrd1,ishape;        
+                //        
+                /// Int_t kbbox,kpara,ktrd1,ishape        
+          ///@}     
+          ///@addtogroup TpceGeo3a_vars     
+          ///@{        
+                int mycount=0;        
+                //        
+                /// int mycount=0        
           ///@}     
           /* Export block
 ///@addtogroup TpceGeo3a_vars
@@ -556,10 +574,10 @@ Float_t sind,cosd,tand;
                       }           
                       // Print<level=%i> fmt=%s fortran format statements not supported           
                       tpgvz  = (tpcg.membthk + tpgvleng)/2;           
-                      zwheel1  = tpcg.lengthw/2 - tpcg.wheelthk;        ;//// write(*,*) "zwheel1 ", zwheel1;           
-                      ztofcend = tpcg.lengthw/2 - tpcg.wheelthk1;       ;//// write(*,*) "ztofcend", ztofcend; ;//// end of tofc;           
-                      ztifcend = tpcg.lengthw/2 + 0.97;                 ;//// write(*,*) "ztifcend", ztifcend; ;//// end of tifc + flange;           
-                      ztifcflangebegin = ztifcend - 1*inch;             ;//// write(*,*) "ztifcflangebegin" , ztifcflangebegin;           
+                      zwheel1  = tpcg.lengthw/2 - tpcg.wheelthk;;           
+                      ztofcend = tpcg.lengthw/2 - tpcg.wheelthk1;;           
+                      ztifcend = tpcg.lengthw/2 + 0.97;;           
+                      ztifcflangebegin = ztifcend - 1*inch;;           
                       _create = AgCreate("TPGV");           
                       {              
                             AgShape myshape; // undefined shape              
@@ -1611,6 +1629,7 @@ Float_t sind,cosd,tand;
                       /// Loop on inout from kinner to kouter step=1           
                       for ( inout=kinner; (1>0)? (inout<=kouter):(inout>=kouter); inout+=1 )           
                       {              
+                            mycount = 0;;              
                             /// USE cool inout=inout ;              
                             cool.Use("inout",(Int_t)inout );              
                             /// USE ribs inout=inout ;              
@@ -1658,6 +1677,8 @@ Float_t sind,cosd,tand;
                             }              
                             { AgPlacement place = AgPlacement("TSAS","TSAW");                 
                                   /// Add daughter volume TSAS to mother TSAW                 
+                                  place.TranslateZ(tsas_zoffset);                 
+                                  /// Translate z = tsas_zoffset                 
                                   place.par("only")=AgPlacement::kMany;                 
                                   /// Overlap: agplacement::kmany                 
                                   _stacker -> Position( AgBlock::Find("TSAS"), place );                 
@@ -1674,20 +1695,23 @@ Float_t sind,cosd,tand;
                                   /// Overlap: agplacement::kmany                 
                                   _stacker -> Position( AgBlock::Find("TWAS"), place );                 
                             } // end placement of TWAS              
-                            _create = AgCreate("TBRW");              
+                            if ( inout==0 )              
                             {                 
-                                  AgShape myshape; // undefined shape                 
-                                  ///Create TBRW                 
-                                  Create("TBRW");                  
+                                  _create = AgCreate("TBRW");                 
+                                  {                    
+                                        AgShape myshape; // undefined shape                    
+                                        ///Create TBRW                    
+                                        Create("TBRW");                     
+                                  }                 
+                                  { AgPlacement place = AgPlacement("TBRW","TSAW");                    
+                                        /// Add daughter volume TBRW to mother TSAW                    
+                                        place.TranslateX(tpcg.wheelr1);                    
+                                        /// Translate x = tpcg.wheelr1                    
+                                        place.TranslateZ(zwheel1+tpcg.wheelthk/2);                    
+                                        /// Translate z = zwheel1+tpcg.wheelthk/2                    
+                                        _stacker -> Position( AgBlock::Find("TBRW"), place );                    
+                                  } // end placement of TBRW                 
                             }              
-                            { AgPlacement place = AgPlacement("TBRW","TSAW");                 
-                                  /// Add daughter volume TBRW to mother TSAW                 
-                                  place.TranslateX(tpcg.wheelr1);                 
-                                  /// Translate x = tpcg.wheelr1                 
-                                  place.TranslateZ(zwheel1+tpcg.wheelthk/2);                 
-                                  /// Translate z = zwheel1+tpcg.wheelthk/2                 
-                                  _stacker -> Position( AgBlock::Find("TBRW"), place );                 
-                            } // end placement of TBRW              
                             x1 = tpcg.wheelr0*cos15;              
                             x2 = tpcg.wheelr2;              
                             dz = tpcg.wheelribheight/2;              
@@ -1794,6 +1818,7 @@ Float_t sind,cosd,tand;
                                         /// G3 Reference: phiz = 0                    
                                         _stacker -> Position( AgBlock::Find("TBRW"), place );                    
                                   } // end placement of TBRW                 
+                                  mycount+=1;;                 
                             }              
                             qwe(1) = -qwe(1);              
                             qwe(2) = -qwe(2);              
@@ -1861,7 +1886,7 @@ Float_t sind,cosd,tand;
                             z  = rcoolingtube;              
                             dx1 = (z-dz)*tan15 - 2*tpcg.rdocoolingdy;              
                             dx2 = (z+dz)*tan15 - 2*tpcg.rdocoolingdy;              
-                            mysha = "trd1";              
+                            ishape = ktrd1;;              
                             mypar.at(0) = dx1;              
                             mypar.at(1) = dx2;              
                             mypar.at(2) = dy;              
@@ -1995,6 +2020,8 @@ Float_t sind,cosd,tand;
                       }           
                       { AgPlacement place = AgPlacement("TSGT","TSAS");              
                             /// Add daughter volume TSGT to mother TSAS              
+                            place.TranslateZ(tsgt_zoffset);              
+                            /// Translate z = tsgt_zoffset              
                             _stacker -> Position( AgBlock::Find("TSGT"), place );              
                       } // end placement of TSGT           
                       dy = (r2 - r1)/2;           
@@ -2008,7 +2035,7 @@ Float_t sind,cosd,tand;
                       /// Loop on irib from 0 to 1 step=1           
                       for ( irib=0; (1>0)? (irib<=1):(irib>=1); irib+=1 )           
                       {              
-                            mysha = "para";              
+                            ishape = kpara;;              
                             mypar.at(0) = dx;              
                             mypar.at(1) = dy;              
                             mypar.at(2) = dz;              
@@ -2083,7 +2110,7 @@ Float_t sind,cosd,tand;
                                   dx2 =  r      *dydx - tecw.widthrib - 2*dxw; ;// tecw.widthlip;                 
                                   dx1 = (r - dr)*dydx - tecw.widthrib - 2*dxw; ;// tecw.widthlip;                 
                                   xc = r - tecw.zsteprib/2;                 
-                                  mysha = "trd1";                 
+                                  ishape = ktrd1;;                 
                                   mypar.at(0) = dx1;                 
                                   mypar.at(1) = dx2;                 
                                   mypar.at(2) = dz;                 
@@ -2115,7 +2142,7 @@ Float_t sind,cosd,tand;
                             }              
                             else              
                             {                 
-                                  mysha = "bbox";                 
+                                  ishape = kbbox;;                 
                                   mypar.at(0) = dr/2;                 
                                   mypar.at(1) = dy/2;                 
                                   mypar.at(2) = dz;                 
@@ -2207,7 +2234,7 @@ Float_t sind,cosd,tand;
                             mypar.at(3) = -(1-2*icoo)*beta;              
                             mypar.at(4) = 0;              
                             mypar.at(5) = 0;              
-                            mysha = "para";              
+                            ishape = kpara;;              
                             _create = AgCreate("TCOO");              
                             {                 
                                   AgShape myshape; // undefined shape                 
@@ -2250,7 +2277,7 @@ Float_t sind,cosd,tand;
                                   dy2 = dy;                 
                                   dy1 = dy - 2*dydx*dx;                 
                             }              
-                            mysha = "trd1";              
+                            ishape = ktrd1;;              
                             mypar.at(0) = dy1;              
                             mypar.at(1) = dy2;              
                             mypar.at(2) = dz;              
@@ -2710,6 +2737,13 @@ Float_t sind,cosd,tand;
                         AgBlock *_save = mCurrent;           
                         mCurrent = this;           
                         Bool_t _same_shape = true;           
+                      /// Medium TWRI_standard           
+                      ///  stmin = 1.15055           
+                      {  AgMedium &med = AgMedium::Get("Twri_standard");              
+                               med.Inherit(this);              
+                            med.par("stmin")=1.15055;              
+                            _medium = med;              
+                      }           
                       {  AgShape shape = AgShape("Pcon");              
                             shape     .Inherit( AgBlock::previous() );              
                             create     .SetParameters(shape);              
@@ -3051,7 +3085,7 @@ Float_t sind,cosd,tand;
                             if (_same_shape) goto END_OF_TRDO;              
                             _stacker -> Build(this);              
                       }           
-                      mysha = "para";           
+                      ishape = kpara;;           
                       mypar.at(0) = tpcg.rdocoolingdy;           
                       mypar.at(1) = tpcg.rdocoolingdx;           
                       mypar.at(2) = tpcg.rdocoolingdz;           
@@ -3083,7 +3117,7 @@ Float_t sind,cosd,tand;
                             /// Axis substitution: XYZ --> YX-Z              
                             _stacker -> Position( AgBlock::Find("TCOO"), place );              
                       } // end placement of TCOO           
-                      mysha = "para";           
+                      ishape = kpara;;           
                       mypar.at(0) = tpcg.rdocoolingdy;           
                       mypar.at(1) = tpcg.rdocoolingdx;           
                       mypar.at(2) = tpcg.rdocoolingdz;           
@@ -3124,7 +3158,7 @@ Float_t sind,cosd,tand;
                             z  = rcoolingtube;              
                             dx1 = (z-dz)*tan15 - 2*tpcg.rdocoolingdy;              
                             dx2 = (z+dz)*tan15 - 2*tpcg.rdocoolingdy;              
-                            mysha = "trd1";              
+                            ishape = ktrd1;;              
                             mypar.at(0) = dx1;              
                             mypar.at(1) = dx2;              
                             mypar.at(2) = dy;              
@@ -3297,7 +3331,7 @@ Float_t sind,cosd,tand;
                             med.par("stmin")=0.0348298;              
                             _medium = med;              
                       }           
-                      if ( mysha=="para" )           
+                      if ( ishape==kpara )           
                       {              
                             {  AgShape shape = AgShape("Para");                 
                                   shape     .Inherit( AgBlock::previous() );                 
@@ -3315,7 +3349,7 @@ Float_t sind,cosd,tand;
                                   _stacker -> Build(this);                 
                             }              
                       }           
-                      if ( mysha=="trd1" )           
+                      if ( ishape==ktrd1 )           
                       {              
                             {  AgShape shape = AgShape("Trd1");                 
                                   shape     .Inherit( AgBlock::previous() );                 
@@ -3451,7 +3485,7 @@ Float_t sind,cosd,tand;
                             med.par("stmin")=0.0334422;              
                             _medium = med;              
                       }           
-                      if ( mysha=="para" )           
+                      if ( ishape==kpara )           
                       {              
                             {  AgShape shape = AgShape("Para");                 
                                   shape     .Inherit( AgBlock::previous() );                 
@@ -3469,7 +3503,7 @@ Float_t sind,cosd,tand;
                                   _stacker -> Build(this);                 
                             }              
                       }           
-                      else if ( mysha=="trd1" )           
+                      else if ( ishape==ktrd1 )           
                       {              
                             {  AgShape shape = AgShape("Trd1");                 
                                   shape     .Inherit( AgBlock::previous() );                 
@@ -3485,7 +3519,7 @@ Float_t sind,cosd,tand;
                                   _stacker -> Build(this);                 
                             }              
                       }           
-                      else if ( mysha=="bbox" )           
+                      else if ( ishape==kbbox )           
                       {              
                             {  AgShape shape = AgShape("Bbox");                 
                                   shape     .Inherit( AgBlock::previous() );                 
@@ -3758,18 +3792,20 @@ Float_t sind,cosd,tand;
                                   /// USE tecw sec=i_sec;                 
                                   tecw.Use("sec",(Float_t)i_sec);                 
                                   zwheel1  = tpcg.lengthw/2 - tpcg.wheelthk;                 
-                                  zbeg = tpcg.membthk/2;                 
-                                  zend = tpcg.zgroundgrid + tprs.danode*2;                 
-                                  zded = tpcg.zgatinggrid - tpcg.deadzone;                 
-                                  zpmt = tpcg.zgatinggrid;                 
-                                  dx=tprs.width/2;                 
+                                  zbeg     = tpcg.membthk/2;                 
+                                  zend     = tpcg.zgroundgrid + tprs.danode*2;                 
+                                  zded     = tpcg.zgatinggrid - tpcg.deadzone;                 
+                                  zpmt     = tpcg.zgatinggrid;                 
+                                  dx       = tprs.width/2;                 
                                   if ( kase==1 )                 
                                   {                    
-                                        dz = (zded - zbeg)/2; z= (zded + zbeg)/2 -tpgvz;                    
+                                        dz = (zded - zbeg)/2;;                    
+                                        z  = (zded + zbeg)/2 - tpgvz;                    
                                   }                 
                                   if ( kase==2 )                 
                                   {                    
-                                        dz = (zend - zpmt)/2; z= (zend + zpmt)/2 -tpgvz;                    
+                                        dz = (zend - zpmt)/2;;                    
+                                        z  = (zend + zpmt)/2 - tpgvz;                    
                                   }                 
                                   /// Loop on i_row from 1 to nint(tprs.nrow) step=1                 
                                   for ( i_row=1; (1>0)? (i_row<=nint(tprs.nrow)):(i_row>=nint(tprs.nrow)); i_row+=1 )                 
@@ -3881,13 +3917,13 @@ Float_t sind,cosd,tand;
                       /// Medium TPAD_p10           
                       ///  stemax = 2.5*tprs_width           
                       ///  deemax = 0.00175367           
-                      ///  stmin = 0.0294056           
+                      ///  stmin = 0.0249056           
                       ///  isvol = 1           
                       {  AgMedium &med = AgMedium::Get("Tpad_p10");              
                                med.Inherit(this);              
                             med.par("stemax")=2.5*tprs.width;              
                             med.par("deemax")=0.00175367;              
-                            med.par("stmin")=0.0294056;              
+                            med.par("stmin")=0.0249056;              
                             med.par("isvol")=1;              
                             _medium = med;              
                       }           
@@ -3980,6 +4016,9 @@ cm=1.;
              kyellow=5;        
              kviolet=6;        
              klightblue=7;        
+             kbbox=0;        
+             kpara=1;        
+             ktrd1=2;        
              cos15=.965925826289068312;        
              sin15=.258819045102520739;        
              tan15=.267949192431122696;        
