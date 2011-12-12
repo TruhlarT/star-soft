@@ -430,7 +430,7 @@ my $trg0 = "n/a";
         next if($prod[$nlist] eq "P03ie");          
 
 
-    $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_MuDst","storage=hpss","limit=0");
+    $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_MuDst","storage=hpss","sanity=1","limit=0");
  
    @runevents = $fileC->run_query("sum(events)");
    @datasize = $fileC->run_query("sum(size)");
@@ -458,7 +458,7 @@ my $trg0 = "n/a";
  $prodname = $trig[$nlist].".".$prod[$nlist].".html";
 
 
-        if( $prod[$nlist] eq "P11id" and ( $trig[$nlist] eq "pp500_production_2011" or $trig[$nlist] eq "AuAu200_production_2011" ) ) {
+        if( $prod[$nlist] eq "P11id" and $trig[$nlist] eq "AuAu200_production_2011" ) {
 
 print <<END;
 
