@@ -31,9 +31,11 @@ struct JobAttr => {
       trgset    => '$',
       prdtag    => '$',
       caltg     => '$',
+      chnm      => '$',        
       strtm     => '$',
       fintm     => '$',
-      prst      => '$',   
+      prst      => '$',
+      evtcpu    => '$',   
       nevt      => '$'
 };
 
@@ -71,6 +73,8 @@ my @szmudst = ();
 my @mismudst = ();
 my @calbtag = ();
 my @prstat = ();
+my @chainm = ();
+my @avcpu  = ();
 
 my $daydif = 0;
 my $mxtime = 0;
@@ -80,7 +84,7 @@ my $nprod = 0;
 
   &StDbProdConnect();
 
-  $sql="SELECT distinct trigsetName, prodSeries, calibtag, status, date_format(min(createTime), '%Y-%m-%d') as mintm, date_format(max(createTime), '%Y-%m-%d') as maxtm, sum(NoEvents) from $JobStatusT where createTime <> '0000-00-00 00:00:00' group by trigsetName, prodSeries, calibTag order by max(createTime) ";
+  $sql="SELECT distinct trigsetName, prodSeries, calibtag, chainName, status, date_format(min(createTime), '%Y-%m-%d') as mintm, date_format(max(createTime), '%Y-%m-%d') as maxtm, sum(NoEvents), avg(CPU_per_evt_sec) from $JobStatusT where createTime <> '0000-00-00 00:00:00' and CPU_per_evt_sec > 0.0001 group by trigsetName, prodSeries, calibTag order by max(createTime) ";
 
 
             $cursor =$dbh->prepare($sql)
@@ -99,8 +103,10 @@ my $nprod = 0;
                 ($$fObjAdr)->trgset($fvalue)   if( $fname eq 'trigsetName');
                 ($$fObjAdr)->prdtag($fvalue)   if( $fname eq 'prodSeries');
                 ($$fObjAdr)->caltg($fvalue)    if( $fname eq 'calibtag');
+                ($$fObjAdr)->chnm($fvalue)     if( $fname eq 'chainName');
                 ($$fObjAdr)->prst($fvalue)     if( $fname eq 'status');
                 ($$fObjAdr)->nevt($fvalue)     if( $fname eq 'sum(NoEvents)');
+                ($$fObjAdr)->evtcpu($fvalue)   if( $fname eq 'avg(CPU_per_evt_sec)');
                 ($$fObjAdr)->strtm($fvalue)    if( $fname eq 'mintm');
                 ($$fObjAdr)->fintm($fvalue)    if( $fname eq 'maxtm');
 
@@ -119,8 +125,10 @@ my $nprod = 0;
     $prodtag[$nprod]  = ($$pjob)->prdtag;
     $artrg[$nprod]   = ($$pjob)->trgset;
     $calbtag[$nprod] = ($$pjob)->caltg;
+    $chainm[$nprod]  = ($$pjob)->chnm;
     $prstat[$nprod]  = ($$pjob)->prst;
     $sumevt[$nprod]  = ($$pjob)->nevt;
+    $avcpu[$nprod]   = ($$pjob)->evtcpu;
     $strtime[$nprod] =  ($$pjob)->strtm;
     $fntime[$nprod]  =  ($$pjob)->fintm;
     @prt = ();
@@ -264,6 +272,7 @@ if($prstat[$nprod] eq "removed" ) {
 <td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=ndisk">$artrg[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$prodtag[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$calbtag[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveCalChain.pl?rchain=$chainm[$nprod]">chain</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$jbcreat[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$jbdone[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=jstat">$jbcrsh[$nprod]</font></h3></td>
@@ -273,6 +282,7 @@ if($prstat[$nprod] eq "removed" ) {
 <td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=mudst">$mismudst[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$szmudst[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$sumevt[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="green">$avcpu[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$strtime[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$fntime[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$prstat[$nprod]</font></h3></td>
@@ -287,6 +297,7 @@ END
 <td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=ndisk">$artrg[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$prodtag[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$calbtag[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveCalChain.pl?rchain=$chainm[$nprod]">chain</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$jbcreat[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$jbdone[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=jstat">$jbcrsh[$nprod]</font></h3></td>
@@ -296,6 +307,7 @@ END
 <td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=mudst">$mismudst[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$szmudst[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$sumevt[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red">$avcpu[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$strtime[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$fntime[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$prstat[$nprod]</font></h3></td>
@@ -310,6 +322,7 @@ END
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=ndisk">$artrg[$nprod]</font></h3></td>
 <td HEIGHT=10><h3>$prodtag[$nprod]</h3></td>
 <td HEIGHT=10><h3>$calbtag[$nprod]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveCalChain.pl?rchain=$chainm[$nprod]">chain</font></h3></td>
 <td HEIGHT=10><h3>$jbcreat[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbdone[$nprod]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=jstat">$jbcrsh[$nprod]</h3></td>
@@ -319,6 +332,7 @@ END
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=mudst">$mismudst[$nprod]</h3></td>
 <td HEIGHT=10><h3>$szmudst[$nprod]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nprod]</h3></td>
+<td HEIGHT=10><h3>$avcpu[$nprod]</font></h3></td>
 <td HEIGHT=10><h3>$strtime[$nprod]</h3></td>
 <td HEIGHT=10><h3>$fntime[$nprod]</h3></td>
 <td HEIGHT=10><h3>$prstat[$nprod]</h3></td>
