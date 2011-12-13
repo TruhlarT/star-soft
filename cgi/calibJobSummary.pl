@@ -142,6 +142,7 @@ my $nprod = 0;
     $daydif = $nowdate - $mxtime - $daydiff;
     };
 
+    $avcpu[$nprod]   = sprintf("%.2f",$avcpu[$nprod]);  
     $jbcreat[$nprod] = 0;
     $jbdone[$nprod] = 0;
     $jbcrsh[$nprod] = 0;
