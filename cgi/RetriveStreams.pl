@@ -69,7 +69,7 @@ $arstream[0] = 0;
 
      foreach $strline (@arstream){
 
-$fileC->set_context("trgsetupname=$qtrg","production=$qprod","sname2=$strline","filetype=daq_reco_MuDst","storage=hpss","limit=0");
+$fileC->set_context("trgsetupname=$qtrg","production=$qprod","sname2=$strline","filetype=daq_reco_MuDst","sanity=1","storage=hpss","limit=0");
 
      $strname[$nlist] = $strline;
      @runevents = ();
