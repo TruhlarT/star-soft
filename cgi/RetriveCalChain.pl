@@ -4,9 +4,9 @@
 #
 # L.Didenko
 #
-# RetriveChain.pl
+# RetriveCalChain.pl
 #
-# Retrive production chain.
+# Retrive calibration production chain.
 # 
 ################################################################################################
 
@@ -47,12 +47,6 @@ my $query = new CGI;
 
 my $qchain = $query->param('rchain');
 
-my @archain = ();
-
-$archain[0] = 0;
-my $np = 0;
-my $chpt;
-my $chset;
 my $chainopt;
 
   &StDbProdConnect();
@@ -65,7 +59,7 @@ my $chainopt;
 
       $chainopt = $cursor->fetchrow();
 
-    $cursor->finish();
+      $cursor->finish();
   
 
 &StDbProdDisconnect(); 
