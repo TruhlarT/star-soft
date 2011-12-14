@@ -212,7 +212,6 @@ my $jobname = $qtrg."%".$qprod."%";
                 my $fname=$cursor->{NAME}->[$i];
 
              $disklst[$nnd] = $fvalue    if( $fname eq 'diskName');
-             $numfile[$nnd] = $fvalue    if( $fname eq 'count(jobfileName)');
              $diskname[$nnd] = "/star/".$disklst[$nnd];
              $disksize[$nnd] = $fvalue    if( $fname eq 'sum(mudstsize)');
              $disksize[$nnd] = int($disksize[$nnd]/1000000000 + 0.5)
@@ -223,7 +222,6 @@ print <<END;
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$diskname[$nnd]</h3></td>
 <td HEIGHT=10><h3>$disksize[$nnd]</h3></td>
-<td HEIGHT=10><h3>$numfile[$nnd]</h3></td>
 </TR>
 END
             $nnd++;
