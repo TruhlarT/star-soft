@@ -79,7 +79,7 @@ print <<END;
    <body BGCOLOR=\"cornsilk\"> 
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
- <TD ALIGN=CENTER> <B><h3> Chain options used for <font color="blue">$qcaltag </font>calibration production</B></h3></TD>
+ <TD ALIGN=CENTER> <B><h3> Chain options used for <font color="blue">$qcaltg </font>calibration production</B></h3></TD>
 </TR><TR>
 <TD  ALIGN=CENTER WIDTH=\"100%\" HEIGHT=50><h3>$chainopt</h3></TD>
 </TR>
