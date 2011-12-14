@@ -6,7 +6,7 @@
 #
 # RetriveJobStat.pl
 #
-# Retrive production jobs status
+# Retrive calibration production jobs status
 # 
 ################################################################################################
 
@@ -70,7 +70,6 @@ my @jbEvent = ();
 my @disklst = ();
 my $diskname = ();
 my $disksize = ();
-my $numfile = ();
 my $nn = 0;
 my $nnd = 0;
 my $dnm = 0;
@@ -198,7 +197,7 @@ my $jobname = $qtrg."%".$qprod."%";
 
    &beginDsHtml();
 
-     $sql="SELECT distinct diskName, sum(mudstsize), count(jobfileName) FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and calibTag = ?  and outputStatus = 'yes' group by diskName ";
+     $sql="SELECT distinct diskName, sum(mudstsize) FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and calibTag = ?  and outputStatus = 'yes' group by diskName ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -211,7 +210,7 @@ my $jobname = $qtrg."%".$qprod."%";
                 my $fvalue=$fields[$i];
                 my $fname=$cursor->{NAME}->[$i];
 
-             $disklst[$nnd] = $fvalue    if( $fname eq 'diskName');
+             $disklst[$nnd] = $fvalue     if( $fname eq 'diskName');
              $diskname[$nnd] = "/star/".$disklst[$nnd];
              $disksize[$nnd] = $fvalue    if( $fname eq 'sum(mudstsize)');
              $disksize[$nnd] = int($disksize[$nnd]/1000000000 + 0.5)
@@ -413,9 +412,8 @@ print <<END;
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
-<TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Disk names</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Size of output files in GB</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Number of MuDst files</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=60><B><h3>Disk names</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=60><B><h3>Size of output files in GB</h3></B></TD>
 </TR>
    </head>
     </body>
