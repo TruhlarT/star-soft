@@ -273,7 +273,7 @@ if($prstat[$nprod] eq "removed" ) {
 <td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=ndisk">$artrg[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$prodtag[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$calbtag[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveCalChain.pl?rchain=$chainm[$nprod];rcaltg=$artrg[$nprod]">chain</font></h3></td>
+<td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveCalChain.pl?rchain=$chainm[$nprod];rcaltag=$artrg[$nprod]">chain</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$jbcreat[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$jbdone[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=jstat">$jbcrsh[$nprod]</font></h3></td>
@@ -298,7 +298,7 @@ END
 <td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=ndisk">$artrg[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$prodtag[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$calbtag[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveCalChain.pl?rchain=$chainm[$nprod];rcaltg=$artrg[$nprod]">chain</font></h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveCalChain.pl?rchain=$chainm[$nprod];rcaltag=$artrg[$nprod]">chain</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$jbcreat[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$jbdone[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=jstat">$jbcrsh[$nprod]</font></h3></td>
@@ -323,7 +323,7 @@ END
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=ndisk">$artrg[$nprod]</font></h3></td>
 <td HEIGHT=10><h3>$prodtag[$nprod]</h3></td>
 <td HEIGHT=10><h3>$calbtag[$nprod]</h3></td>
-<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveCalChain.pl?rchain=$chainm[$nprod];rcaltg=$artrg[$nprod]">chain</font></h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveCalChain.pl?rchain=$chainm[$nprod];rcaltag=$artrg[$nprod]">chain</font></h3></td>
 <td HEIGHT=10><h3>$jbcreat[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbdone[$nprod]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=jstat">$jbcrsh[$nprod]</h3></td>
