@@ -6,7 +6,7 @@
 #
 # RetriveCalChain.pl
 #
-# Retrive calibration production chain.
+# Retrieve calibration production chain.
 # 
 ################################################################################################
 
