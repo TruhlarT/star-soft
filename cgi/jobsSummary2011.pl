@@ -123,6 +123,14 @@ my $nprod = 0;
     $avgtrk[$nprod]   = ($$pjob)->avtrk;
     $strtime[$nprod]  = ($$pjob)->strtm;
     $fntime[$nprod]   = ($$pjob)->fintm;
+    $avcpu[$nprod]    = sprintf("%.2f",$avcpu[$nprod]);
+    if($avgtrk[$nprod] <= 1.0 ) {
+    $avgtrk[$nprod] = sprintf("%.2f",$avgtrk[$nprod]);
+    elsif($avgtrk[$nprod] <= 10.0 ) {
+    $avgtrk[$nprod] = sprintf("%.1f",$avgtrk[$nprod]);
+    }else{
+    $avgtrk[$nprod] = int($avgtrk[$nprod] + 0.5);
+    }
     @prt = ();
     $mxtime = $fntime[$nprod];
     @prt = split("-",$mxtime);
@@ -130,7 +138,7 @@ my $nprod = 0;
     $daydif = $nowdate - $mxtime;
     $mondif = $mon - $prt[1];
     
-   if($mondif == 1 and ($daydiff == 70 or $daydiff == 71 )) {
+    if($mondif == 1 and ($daydiff == 70 or $daydiff == 71 )) {
     $daydif = $nowdate - $mxtime - $daydiff;
     };
     
