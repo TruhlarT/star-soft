@@ -32,6 +32,8 @@ struct JobAttr => {
       prdtag    => '$',
       strtm     => '$',
       fintm     => '$',
+      evtcpu    => '$',
+      avtrk     => '$',
       nevt      => '$'
 };
 
@@ -67,6 +69,8 @@ my @jbhpss = ();
 my @jbresub  = ();
 my @jbmudst = ();
 my @mismudst = ();
+my @avcpu  = ();
+my @avgtrk  = ();
 
 my $daydif = 0;
 my $mxtime = 0;
@@ -76,7 +80,7 @@ my $nprod = 0;
 
   &StDbProdConnect();
 
-  $sql="SELECT distinct trigsetName, prodSeries, date_format(min(createTime), '%Y-%m-%d') as mintm, date_format(max(createTime), '%Y-%m-%d') as maxtm, sum(NoEvents) from $JobStatusT where createTime <> '0000-00-00 00:00:00' and prodSeries not like '%test%' group by trigsetName, prodSeries order by max(createTime) ";
+  $sql="SELECT distinct trigsetName, prodSeries, date_format(min(createTime), '%Y-%m-%d') as mintm, date_format(max(createTime), '%Y-%m-%d') as maxtm, sum(NoEvents), avg(CPU_per_evt_sec), avg(avg_no_tracks) from $JobStatusT where createTime <> '0000-00-00 00:00:00' and prodSeries not like '%test%' and CPU_per_evt_sec > 0.0001  group by trigsetName, prodSeries order by max(createTime) ";
 
 
             $cursor =$dbh->prepare($sql)
@@ -95,6 +99,8 @@ my $nprod = 0;
                 ($$fObjAdr)->trgset($fvalue)   if( $fname eq 'trigsetName');
                 ($$fObjAdr)->prdtag($fvalue)   if( $fname eq 'prodSeries');
                 ($$fObjAdr)->nevt($fvalue)     if( $fname eq 'sum(NoEvents)');
+                ($$fObjAdr)->evtcpu($fvalue)   if( $fname eq 'avg(CPU_per_evt_sec)');
+                ($$fObjAdr)->avtrk($fvalue)    if( $fname eq 'avg(avg_no_tracks)');
                 ($$fObjAdr)->strtm($fvalue)    if( $fname eq 'mintm');
                 ($$fObjAdr)->fintm($fvalue)    if( $fname eq 'maxtm');
 
@@ -111,10 +117,12 @@ my $nprod = 0;
        foreach  $pjob (@jbstat) {
 
     $prodtag[$nprod]  = ($$pjob)->prdtag;
-    $artrg[$nprod]   = ($$pjob)->trgset;
-    $sumevt[$nprod]  = ($$pjob)->nevt;
-    $strtime[$nprod] =  ($$pjob)->strtm;
-    $fntime[$nprod]  =  ($$pjob)->fintm;
+    $artrg[$nprod]    = ($$pjob)->trgset;
+    $sumevt[$nprod]   = ($$pjob)->nevt;
+    $avcpu[$nprod]    = ($$pjob)->evtcpu;
+    $avgtrk[$nprod]   = ($$pjob)->avtrk;
+    $strtime[$nprod]  = ($$pjob)->strtm;
+    $fntime[$nprod]   = ($$pjob)->fintm;
     @prt = ();
     $mxtime = $fntime[$nprod];
     @prt = split("-",$mxtime);
@@ -263,6 +271,8 @@ print <<END;
 <td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2011;pflag=mudst">$mismudst[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$jbmudst[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$sumevt[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red">$avcpu[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red">$avgtrk[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$strtime[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$fntime[$nprod]</font></h3></td>
 </TR>
@@ -284,6 +294,8 @@ END
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2011;pflag=mudst">$mismudst[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbmudst[$nprod]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nprod]</h3></td>
+<td HEIGHT=10><h3>$avcpu[$nprod]</h3></td>
+<td HEIGHT=10><h3>$avgtrk[$nprod]</h3></td>
 <td HEIGHT=10><h3>$strtime[$nprod]</h3></td>
 <td HEIGHT=10><h3>$fntime[$nprod]</h3></td>
 </TR>
@@ -329,7 +341,7 @@ print <<END;
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <br>
 <TR>
-<TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=60><B><h3>Trigger set</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Trigger set</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Prod.<br>tag</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs created</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs done</h3></B></TD>
@@ -340,6 +352,8 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.<br>MuDst files missing on HPSS</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.<br>MuDst files on HPSS</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.events produced<h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Avg.<br>CPU/evt<h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Avg.<br>No.tracks<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Start time <h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>End time <h3></B></TD>
 </TR>
