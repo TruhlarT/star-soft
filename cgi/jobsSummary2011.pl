@@ -126,7 +126,7 @@ my $nprod = 0;
     $avcpu[$nprod]    = sprintf("%.2f",$avcpu[$nprod]);
     if($avgtrk[$nprod] <= 1.0 ) {
     $avgtrk[$nprod] = sprintf("%.2f",$avgtrk[$nprod]);
-    elsif($avgtrk[$nprod] <= 10.0 ) {
+    }elsif($avgtrk[$nprod] <= 10.0 ) {
     $avgtrk[$nprod] = sprintf("%.1f",$avgtrk[$nprod]);
     }else{
     $avgtrk[$nprod] = int($avgtrk[$nprod] + 0.5);
