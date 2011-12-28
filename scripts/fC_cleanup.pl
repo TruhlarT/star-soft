@@ -6,7 +6,8 @@
 #
 # Initially written by Adam Kisiel, Warsaw University of Technology (2002)
 # (service task under J. Lauret)
-# Maintained and modified by J.Lauret, BNL 2002-2010
+#
+# Maintained and modified by J.Lauret, BNL 2002-2011
 #
 
 use Env qw(STAR_SCRIPTS);
@@ -34,9 +35,11 @@ my $keyw;
 my $n;
 my $confirm;
 my $allst;
+my $asite;
 my $class;
 my $instance="";
 my $limit;
+my $sctx=0;
 
 # Connection parameters
 my $user=undef;
@@ -67,6 +70,7 @@ $delay    = 0;
 $mode     = 1;  # check is the default
 $confirm  = 0;
 $allst    = 0;
+$asite    = 0;
 $limit    = 1;
 
 # start timer
@@ -131,18 +135,20 @@ while (defined $ARGV[$count]){
 	$mode      = 2;
 	$delay     = 1;
 	$BATCHSIZE = 250;
+
     } elsif ($ARGV[$count] eq "-alla"){
 	if ($mode != 2){
 	    print "-alla works only with deletion keywords\n";
 	} else {
 	    $mode = -$mode;
 	}
+    } elsif ($ARGV[$count] eq "-allst"){
+	$allst = 1;
+    } elsif ($ARGV[$count] eq "-asite"){
+	$asite = 1;
 
     } elsif ($ARGV[$count] eq "-doit"){
 	$confirm = 1;
-
-    } elsif ($ARGV[$count] eq "-allst"){
-	$allst = 1;
 
     } elsif ($ARGV[$count] eq "-mark"){
 	$mode  = 3;
@@ -168,11 +174,12 @@ while (defined $ARGV[$count]){
 
     } elsif ($ARGV[$count] eq "-cond"){
 	$cond_list = $ARGV[++$count];
-	if ($debug > 0) { &Print("The conditions list is $cond_list"); }
-
+	if ($debug > 0) { 
+	    &Print("The conditions list is $cond_list"); 
+	}
 
     } else {
-	print "Wrong keyword used: ".$ARGV[$count]."\n";
+	&Print("Wrong keyword used: ".$ARGV[$count]);
 	&Usage(1);
     }
     $count++;
@@ -221,7 +228,8 @@ while ($morerecords)
     &Print("--- ($$)") if ($start == 0 && abs($mode) < 5);
     $morerecords = 0;
 
-    if ($mode == 0){
+    if ($mode == 0){ 
+	# -status
 	# First mode of operation - just get the file list and their availability
 	&MyConnect($fileC,"User")  if ($start == 0);
 	&ResetContext($fileC);
@@ -248,7 +256,8 @@ while ($morerecords)
 
 
 
-    } elsif ($mode*$mode == 1){
+    } elsif ($mode*$mode == 1){  
+        # -check/-ucheck
 	# Second mode of operation - get the file list,
 	# select the available ones and check if they
 	# really exist - if not, mark them as unavailable later
@@ -287,6 +296,13 @@ while ($morerecords)
 	    }
 	}
 
+	#
+	# Guess site to protect against issues with m ulti-site and
+	# accessing each other's records (eventually deleting it)
+	#
+	&SiteContext($mode,$fileC);
+	
+
 	# Getting the data
 	@output = $fileC->run_query("path","filename","available","node","site");
 	# @output = "/star/data34/reco/cuProductionMinBias/ReversedFullField/P07ib/2005/030::st_physics_adc_6030096_raw_2080008.tags.root::1::localhost::BNL";
@@ -310,7 +326,7 @@ while ($morerecords)
 
 	    if ( ($mode == 1  && $available <= 0) ||
 		 ($mode == -1 && $available != 0)){
-		print "BOGUS logic or corrupt records !!\n";
+		&Print("BOGUS logic or corrupt records !!");
 		next;
 	    }
 
@@ -369,7 +385,7 @@ while ($morerecords)
 	    # Impose NFS to minimize errors
 	    $store = "NFS";
 	    $fileC->set_context("storage=NFS");
-	    print "NOTE :: storage=NFS is set by default. Use storage keyword to over-write\n";
+	    &Print("NOTE :: storage=NFS is set by default. Use storage keyword to over-write");
 	}
 
 
@@ -396,7 +412,7 @@ while ($morerecords)
 	    $count += ($#items+1);
 	    $morerecords = 1;
 	} else {
-	    print "Running post-deletion bootstrap\n";
+	    &Print("Running post-deletion bootstrap");
 	    &FullBootstrap($confirm);
 	}
 	if ($confirm){
@@ -404,7 +420,7 @@ while ($morerecords)
 	    $start += ($BATCHSIZE - $#items -1) if ($#items < $BATCHSIZE);
 	} else {
 	    $start += $BATCHSIZE;
-	    print "Use -doit to confirm deletion\n";
+	    &Print("Use -doit to confirm deletion");
 	}
 
 
@@ -454,8 +470,7 @@ while ($morerecords)
 	    if( ! defined($newval) ){
 		&Die("  You must specify a new value");
 	    } else {
-		print "Resetting keyword [$kwrd] to new value $newval $start ".
-		    localtime()."\n";
+		&Print("Resetting keyword [$kwrd] to new value $newval $start ".localtime());
 	    }
 	} else {
 	    &Die("Keyword is empty ");
@@ -470,7 +485,7 @@ while ($morerecords)
 	}
 	if (! $confirm ){
 	    $morerecords = 0;
-	    print "Confirmed = $confirm . Use -doit for really updating\n";
+	    &Print("Confirmed = $confirm . Use -doit for really updating");
 	    $fileC->print_delayed();
 	}
 	# only for stat
@@ -570,8 +585,8 @@ while ($morerecords)
 	my @rows;
 	$fileC->set_context("limit=100000000");
 	@rows = $fileC->bootstrap("filename",$confirm);
-	print "Returned IDs $#rows: @rows\n";
-	print "Use -doit to do a real cleaning\n" if (! $confirm);
+	&Print("Returned IDs $#rows: @rows");
+	&Print("Use -doit to do a real cleaning") if (! $confirm);
 
     } elsif ($mode == 7){
 	# Fourth mode of operation - mark selected files as available/unavailable
@@ -583,8 +598,8 @@ while ($morerecords)
 	my @rows;
 	$fileC->set_context("limit=100000000");
 	@rows = $fileC->bootstrap("owner",$confirm);
-	print "Returned IDs $#rows: @rows\n";
-	print "Use -doit to do a real cleaning\n" if (! $confirm);
+	&Print("Returned IDs $#rows: @rows");
+	&Print("Use -doit to do a real cleaning") if (! $confirm);
 
     } elsif ($mode == 8){
 	&MyConnect($fileC,"Admin")  if ($start == 0);
@@ -593,8 +608,8 @@ while ($morerecords)
 	my @rows;
 	$fileC->set_context("limit=100000000");
 	@rows = $fileC->bootstrap("tctwid",$confirm);
-	print "Returned IDs $#rows: @rows\n";
-	print "Use -doit to do a real cleaning\n" if (! $confirm);
+	&Print("Returned IDs $#rows: @rows");
+	&Print("Use -doit to do a real cleaning") if (! $confirm);
 
     } elsif ($mode == 9){
 	&MyConnect($fileC,"Admin")  if ($start == 0);
@@ -606,9 +621,9 @@ while ($morerecords)
 	    my @rows;
 	    $fileC->set_context("limit=100000000");
 	    @rows = $fileC->bootstrap($keyw,$confirm);
-	    print "Returned IDs $#rows: @rows\n";
+	    &Print("Returned IDs $#rows: @rows");
 	}
-	print "Use -doit to do a real cleaning\n" if (! $confirm);
+	&Print("Use -doit to do a real cleaning") if (! $confirm);
     }
 }
 
@@ -768,6 +783,57 @@ sub ResetContext
     }
 }
 
+#
+# Set site context based on ENV and options
+#
+sub SiteContext
+{
+    my($mode,$fileC)=@_;
+
+    if (! $asite){
+	my $site=$fileC->get_context("site");
+	my $tmp;
+
+	if ( ! defined($ENV{DOMAINNAME}) ){
+	    # try defining it
+	    if ( -x "/bin/domainname"){
+		chomp($tmp = `/bin/domainname`);
+		$ENV{DOMAINNAME} = $tmp;
+	    } elsif ( -x "/bin/hostname"){
+		chomp($tmp = `/bin/hostname`);
+		$tmp =~ s/^[^\.]*\.//;
+		$ENV{DOMAINNAME} = $tmp;
+	    }
+	}
+	#print "DEBUG $ENV{DOMAINNAME} \n";
+
+	if ( ! defined($site) ){
+	    # try guessing
+	    if ( $ENV{DOMAINNAME} =~ m/bnl.gov/ || $ENV{HOSTNAME} =~ m/bnl.gov/){
+		$fileC->set_context("site=BNL");
+		&Print("Restricting to site=BNL") if (! $sctx);
+	    } elsif ( $ENV{DOMAINNAME} =~ m/nersc.gov/ || $ENV{HOSTNAME} =~ m/nersc.gov/){
+		$fileC->set_context("site=LBL");
+		&Print("Restricting to site=LBL") if (! $sctx);
+	    } else {
+		print qq~
+ Site cannot be guessed, please specify the site context OR report to the  
+ script developper for extension. Information you need to porvide includes
+ the possible of the environment variable DOMAINNAME or some possible values
+ for the environment variable HOSTNAME.
+ ~;
+		&Die();
+	    }
+	}
+    } else {
+	if ( $mode*$mode == 1 && ! $sctx){
+	    &Print("WARNING check/ucheck with all site is dangerous - pausing 10 seconds, CRT/C to abort");
+	    sleep(10);
+	}
+    }
+    $sctx = 1;
+}
+
 
 sub Die
 {
@@ -778,8 +844,8 @@ sub Exit
 {
     my($val,$mode)=@_;
 
-    if ( !defined($val))  { $val  = 0;} 
     if ( !defined($mode)) { $mode = 0;}
+    if ( !defined($val))  { $val  = ($mode==0?0:"killed");} 
     
     $fileC->destroy() if ( $fileC);
     unlink($instance) if ( $instance ne "");
@@ -872,89 +938,81 @@ sub Usage
 {
     my($sts)=@_;
 
-    print qq~
- Usage: fC_cleanup [option]  [-cond field=value{,filed=value}]
+  print "\n Usage: fC_cleanup [option] -cond field=value{,filed=value}";
+  print "]\n\n The condition list may be listed using the get_file_lis";
+  print "t.pl script.\n\n where option is one of\n\n General modes of ";
+  print "operation (status check)\n ----------------------------------";
+  print "--------\n -status                 show availability status f";
+  print "or each file\n\n -check                  check files with ava";
+  print "ilability > 0, set to 0 if not\n                         foun";
+  print "d\n -ucheck                 check files with availability=0, ";
+  print "set to 1 if found\n -recheck                recheck all files";
+  print " (any availability) and adjust as\n                         n";
+  print "ecessary\n\n -mark {on|off|delf|i}   mark selected files avai";
+  print "lability (1, 0 or the\n                         specified val";
+  print "ue i)\n\n Caveats:\n * Unless specified, the context storage ";
+  print "is set to NFS by default for check\n   operations. HPSS check";
+  print "s are NOT implemented.\n * The default site will be guessed o";
+  print "r the command will abort\n\n marking operations are not auto-";
+  print "restricted to a storage context and you may\n want to specify";
+  print " a condition.\n\n\n Potentially dammaging mode of operation\n ";
+  print "---------------------------------------\n -delete/-{c|d}delet";
+  print "e    delete records with availability=0 (current context\n   ";
+  print "                      applies). cdelete only checks it but do";
+  print " not do\n                         anything. ddelete uses the ";
+  print "delayed mechanism of the\n                         module\n\n\n";
+  print " WARNING!!! The delete operation is irreversible ! Therefore,";
+  print " we made it\n  perticularly combersome to delete records to p";
+  print "revent accidental delete.\n  DO NOT use the below keywords un";
+  print "less you are sure of what will happen.\n\n  -doit      switch";
+  print " MUST now be specified for ALL delete operations\n\n  -allst ";
+  print "    Unless specified, the context storage is set to NFS by de";
+  print "fault for\n             delete operations. -allst is a switch";
+  print " you may want to use to take\n             into account all s";
+  print "torage type in one shot. The default storage=NFS\n           ";
+  print "  is made to prevent accidental deletion of persistent stored";
+  print " files.\n             This should be used with caution.\n\n  ";
+  print "-alla      is a switch you may use to affect availability < 0";
+  print ". The default\n             is to only delete the 0 ones. Pra";
+  print "ctically, -ucheck would check\n             for files previou";
+  print "sly marked unavailable (on more check) and\n             -del";
+  print "ete -alla would delete all records marked with any\n         ";
+  print "    availability <= 0.\n\n Other options to use with extreme ";
+  print "care\n\n -alter keyword=value    alter keyword value for entr";
+  print "y(ies) ** DANGEROUS **\n                         This works o";
+  print "n dictionaries or tables and may allows\n                    ";
+  print "     for gobal updates.\n -modif keyword=value    alter FileD";
+  print "ata/FileLocation association for entry(ies)\n                ";
+  print "         This switch also modify non-dictionary tables but\n ";
+  print "                        within carefull checks (one by one).\n";
+  print "\n Integrety check operations\n --------------------------\n ";
+  print "The -doit switch MUST also be specified for the below options";
+  print "\n -floc                   check the FileLocations for orphan";
+  print " records (no \n                         associated Data)\n -f";
+  print "data                  check the FileData for orphan records (";
+  print "no associated\n                         Locations)\n -trgc   ";
+  print "                check the TriggerCompositions table\n -boots ";
+  print "{X|all}          bootstrap keyword X, using \"all\" will do a";
+  print " sequence of\n                         table cleaning (but no";
+  print "t filename or flid)\n\n Authentication options\n ------------";
+  print "----------\n -u user                 use 'user' db access pri";
+  print "vs\n -p passwd               use 'password' for db access\n -";
+  print "h host                 use 'host' for db access\n -P port    ";
+  print "             use 'port' for db accces\n -db db               ";
+  print "   use dabatase 'db' for db access\n\n Other options\n ------";
+  print "-------\n -debug            turn database module debugging in";
+  print "formation ON  default=OFF)\n -nodebug          turn this scri";
+  print "pt debugging information OFF (default=ON)\n -doit            ";
+  print " switch MUST be specified to really perform the operation.\n ";
+  print "                  Without it, the API will only display the o";
+  print "peration it\n                   intends to perform (i.e. debu";
+  print "g mode). It is wise to start\n                   in debug mod";
+  print "e.\n -o file           Redirect all standard output to 'file'";
+  print "\n -t time           Terminate gracefully after approximately";
+  print " 'time' has elapsed\n -nl               Bypass the load balan";
+  print "cer - do not use this option in cron\n -class XXX        Set ";
+  print "debugging class\n";
 
- The condition list may be listed using the get_file_list.pl script.
-
- where option is one of
-
- General modes of operation (status check)
- ------------------------------------------
- -status                 show availability status for each file
-
- -check                  check files with availability > 0, set to 0 if not found
- -ucheck                 check files with availability =0, set to 1 if found
- -recheck                recheck all files (any availability) and adjust as necessary
-
- -mark {on|off|delf|i}   mark selected files availability (1, 0 or the specified value i)
-
- Unless specified, the context storage is set to NFS by default for check operations.
- HPSS checks is NOT implemented.
- marking operations are not auto-restricted to a storage context and you may want to
- specify a condition.
-
-
- Potentially dammaging mode of operation
- ---------------------------------------
- -delete/-{c|d}delete    delete records with availability=0 (current context applies)
-                         cdelete only checks it but do not do anything
-                         ddelete uses the delayed mechanism of the module
-
-
- WARNING!!! The delete operation is irreversible ! Therefore, we made it perticularly
- combersome to delete records to prevent accidental delete. DO NOT use the above
- keywords unless you are sure of what will happen :
-
-   + -doit  switch MUST now be specified for ALL delete operations.
-   + -allst Unless specified, the context storage is set to NFS by default for
-            delete operations. -allst is a switch you may want to use to take into
-            account all storage type in one shot. The default storage=NFS is made
-            to prevent accidental deletion of persistent stored files. This should
-            be used with caution.
-
-   + -alla  is a switch you may use to affect availability < 0
-            The default is to only delete the 0 ones. Practically, -ucheck would
-            check for files previously marked unavailable (on more check) and
-            -delete -alla would delete all records marked with any availability <= 0.
-
- -alter keyword=value    alter keyword value for entry(ies) ** DANGEROUS **
-                         This works on dictionaries or tables and may allows
-                         for gobal updates. 
- -modif keyword=value    alter FileData/FileLocation association for entry(ies)
-                         This switch also modify non-dictionary tables but within
-                         carefull checks (one by one).
-
- Integrety check operations
- --------------------------
- The -doit switch MUST be specified for the above
- -floc                   check the FileLocations for orphan records (no associated Data)
- -fdata                  check the FileData for orphan records (no associated Locations)
- -trgc                   check the TriggerCompositions table
- -boots {X|all}          bootstrap keyword X, using "all" will do a
-                         sequence of table cleaning (but not filename or flid)
-
- Authentication options
- ----------------------
- -u user                 use 'user' db access privs
- -p passwd               use 'password' for db access
- -h host                 use 'host' for db access
- -P port                 use 'port' for db accces
- -db db                  use dabatase 'db' for db access
-
- Other options
- -------------
- -debug                  turn database module debugging information ON (default=OFF)
- -nodebug                turn this script debugging information OFF (default=ON)
- -doit                   switch MUST be specified to really perform the operation.
-                         Without it, the API will only display the operation it
-                         intends to perform (i.e. debug mode). It is wise to start
-                         in debug mode.
- -o file                 Redirect all standard output to 'file'
- -t time                 Terminate gracefully after approximately 'time' has elapsed
- -nl                     Bypass the load balancer - do not use this option in cron     
- -class XXX              Set debugging class
-~;
 
     if( defined($sts) ){ &Exit();}
 
