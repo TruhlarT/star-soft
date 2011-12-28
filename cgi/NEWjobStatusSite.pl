@@ -183,8 +183,12 @@ $JobStatusT = "siteJobStatus";
     }
       $cursor->finish;
 
- $lastlib = $arlib[$nd-1];
+  if($arlib[$nd-1] eq "n/a" ) {
+     $lastlib = $arlib[$nd-2];
+  }else{
 
+   $lastlib = $arlib[$nd-1];
+  }
 
 $sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '$newpath' AND site = ?  AND LibTag like '$lastlib%' and avail = 'Y' order by prodyear ";
 
