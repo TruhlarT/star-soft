@@ -8,6 +8,9 @@
 # (service task under J. Lauret)
 #
 # Maintained and modified by J.Lauret, BNL 2002-2011
+# Developper notes
+# - use fC_cleanup.new.pl for testing, then 'make'
+# - See also fC_cleanup.txt
 #
 
 use Env qw(STAR_SCRIPTS);
@@ -272,6 +275,8 @@ while ($morerecords)
 	    }
 	}
 	&ResetContext($fileC);
+	&SiteContext($mode,$fileC);
+	
 	
 	&Print("Checking mode=$mode checked=$start (getting +$BATCHSIZE records, cached=".($#MARK+1).") ".localtime());
 	
@@ -296,12 +301,6 @@ while ($morerecords)
 	    }
 	}
 
-	#
-	# Guess site to protect against issues with m ulti-site and
-	# accessing each other's records (eventually deleting it)
-	#
-	&SiteContext($mode,$fileC);
-	
 
 	# Getting the data
 	@output = $fileC->run_query("path","filename","available","node","site");
@@ -362,11 +361,13 @@ while ($morerecords)
 	$start += ($BATCHSIZE - $n) if ($n <= $BATCHSIZE);
 
     } elsif ($mode == 2 || $mode*$mode == 4){
+	# -delete/-ddelete/-cdelete
 	# Delete records. Note that this function is EXTREMELY
 	# dangerous now since any record can be deleted based
 	# on context.
 	&MyConnect($fileC,"Admin")  if ($start == 0);
 	&ResetContext($fileC);
+	&SiteContext($mode,$fileC);
 	
 	my($rec,@items);
 	&Print("Checking mode=$mode treated=$count (getting +$BATCHSIZE records) ".localtime());
@@ -426,10 +427,12 @@ while ($morerecords)
 
 
     } elsif ( $mode == 3 ){
+	# -mark
 	# Fourth mode of operation - mark selected files as available/unavailable
 	# without checking if they exist or not.
 	&MyConnect($fileC,"Admin")  if ($start == 0);
 	&ResetContext($fileC);
+	&SiteContext($mode,$fileC);
 
 	if ($debug>0){
 	    if ($state eq "on"){
@@ -493,6 +496,7 @@ while ($morerecords)
 	# print "$morerecords\n";
 
     } elsif ($mode == 5){
+	# -recheck
 	# Fifth mode of operation - get the file list,
 	# and check if they really exist - if not, mark them as unavailable
 	# if yes - remark them as available
@@ -507,6 +511,7 @@ while ($morerecords)
 	    }
 	}
 	&ResetContext($fileC);
+	&SiteContext($mode,$fileC);
 
 	&Print("Checking mode=$mode checked=$start (getting +$BATCHSIZE records, cached=".($#MARK+1).") ".localtime());
 	$fileC->set_context("limit=$BATCHSIZE");
@@ -576,9 +581,8 @@ while ($morerecords)
 
 
     } elsif ($mode == 6) {
-	# Fourth mode of operation - mark selected files as available/unavailable
-	# without checking if they exist or not.
-	# Marking the file as unavailable
+	# -fdata
+	# Bootstrap FileData for orphan records
 	&MyConnect($fileC,"Admin")  if ($start == 0);
 	&ResetContext($fileC);
 
@@ -589,9 +593,8 @@ while ($morerecords)
 	&Print("Use -doit to do a real cleaning") if (! $confirm);
 
     } elsif ($mode == 7){
-	# Fourth mode of operation - mark selected files as available/unavailable
-	# without checking if they exist or not.
-	# Marking the file as unavailable
+	# -floc
+	# Bootstrap FileLocations for orphan records
 	&MyConnect($fileC,"Admin")  if ($start == 0);
 	&ResetContext($fileC);
 	
@@ -602,6 +605,8 @@ while ($morerecords)
 	&Print("Use -doit to do a real cleaning") if (! $confirm);
 
     } elsif ($mode == 8){
+	# -trgc
+	# Bootstrap TriggerCompositions table (may take a while)
 	&MyConnect($fileC,"Admin")  if ($start == 0);
 	&ResetContext($fileC);
 
@@ -612,6 +617,8 @@ while ($morerecords)
 	&Print("Use -doit to do a real cleaning") if (! $confirm);
 
     } elsif ($mode == 9){
+	# -boots
+	# Boostrap a few tables (all) or a specific keyword
 	&MyConnect($fileC,"Admin")  if ($start == 0);
 	&ResetContext($fileC);
 
@@ -938,7 +945,8 @@ sub Usage
 {
     my($sts)=@_;
 
-  print "\n Usage: fC_cleanup [option] -cond field=value{,filed=value}";
+  # Formatted by text2c V01-122 (Flex V2.5). Last update 31-Dec-2003 
+  print "\n Usage: fC_cleanup [option] -cond field=value{,field=value}";
   print "]\n\n The condition list may be listed using the get_file_lis";
   print "t.pl script.\n\n where option is one of\n\n General modes of ";
   print "operation (status check)\n ----------------------------------";
@@ -955,14 +963,14 @@ sub Usage
   print "s are NOT implemented.\n * The default site will be guessed o";
   print "r the command will abort\n\n marking operations are not auto-";
   print "restricted to a storage context and you may\n want to specify";
-  print " a condition.\n\n\n Potentially dammaging mode of operation\n ";
+  print " a condition.\n\n\n Potentially damaging mode of operation\n ";
   print "---------------------------------------\n -delete/-{c|d}delet";
   print "e    delete records with availability=0 (current context\n   ";
   print "                      applies). cdelete only checks it but do";
   print " not do\n                         anything. ddelete uses the ";
   print "delayed mechanism of the\n                         module\n\n\n";
   print " WARNING!!! The delete operation is irreversible ! Therefore,";
-  print " we made it\n  perticularly combersome to delete records to p";
+  print " we made it\n  particularly cumbersome to delete records to p";
   print "revent accidental delete.\n  DO NOT use the below keywords un";
   print "less you are sure of what will happen.\n\n  -doit      switch";
   print " MUST now be specified for ALL delete operations\n\n  -allst ";
@@ -981,38 +989,37 @@ sub Usage
   print "care\n\n -alter keyword=value    alter keyword value for entr";
   print "y(ies) ** DANGEROUS **\n                         This works o";
   print "n dictionaries or tables and may allows\n                    ";
-  print "     for gobal updates.\n -modif keyword=value    alter FileD";
-  print "ata/FileLocation association for entry(ies)\n                ";
-  print "         This switch also modify non-dictionary tables but\n ";
-  print "                        within carefull checks (one by one).\n";
-  print "\n Integrety check operations\n --------------------------\n ";
-  print "The -doit switch MUST also be specified for the below options";
-  print "\n -floc                   check the FileLocations for orphan";
-  print " records (no \n                         associated Data)\n -f";
-  print "data                  check the FileData for orphan records (";
-  print "no associated\n                         Locations)\n -trgc   ";
-  print "                check the TriggerCompositions table\n -boots ";
-  print "{X|all}          bootstrap keyword X, using \"all\" will do a";
-  print " sequence of\n                         table cleaning (but no";
-  print "t filename or flid)\n\n Authentication options\n ------------";
-  print "----------\n -u user                 use 'user' db access pri";
-  print "vs\n -p passwd               use 'password' for db access\n -";
-  print "h host                 use 'host' for db access\n -P port    ";
-  print "             use 'port' for db accces\n -db db               ";
-  print "   use dabatase 'db' for db access\n\n Other options\n ------";
-  print "-------\n -debug            turn database module debugging in";
-  print "formation ON  default=OFF)\n -nodebug          turn this scri";
-  print "pt debugging information OFF (default=ON)\n -doit            ";
-  print " switch MUST be specified to really perform the operation.\n ";
-  print "                  Without it, the API will only display the o";
-  print "peration it\n                   intends to perform (i.e. debu";
-  print "g mode). It is wise to start\n                   in debug mod";
-  print "e.\n -o file           Redirect all standard output to 'file'";
-  print "\n -t time           Terminate gracefully after approximately";
-  print " 'time' has elapsed\n -nl               Bypass the load balan";
-  print "cer - do not use this option in cron\n -class XXX        Set ";
-  print "debugging class\n";
-
+  print "     for global updates.\n -modif keyword=value    alter File";
+  print "Data/FileLocation association for entry(ies)\n               ";
+  print "          This switch also modify non-dictionary tables but\n ";
+  print "                        within careful checks (one by one).\n\n";
+  print " Integrity check operations\n --------------------------\n Th";
+  print "e -doit switch MUST also be specified for the below options\n ";
+  print "-floc                   check the FileLocations for orphan re";
+  print "cords (no \n                         associated Data)\n -fdat";
+  print "a                  check the FileData for orphan records (no ";
+  print "associated\n                         Locations)\n -trgc      ";
+  print "             check the TriggerCompositions table\n -boots {X|";
+  print "all}          bootstrap keyword X, using \"all\" will do a se";
+  print "quence of\n                         table cleaning (but not f";
+  print "ilename or flid)\n\n Authentication options\n ---------------";
+  print "-------\n -u user                 use 'user' db access privs\n";
+  print " -p passwd               use 'password' for db access\n -h ho";
+  print "st                 use 'host' for db access\n -P port        ";
+  print "         use 'port' for db access\n -db db                  u";
+  print "se database 'db' for db access\n\n Other options\n ----------";
+  print "---\n -debug            turn database module debugging inform";
+  print "ation ON  default=OFF)\n -nodebug          turn this script d";
+  print "ebugging information OFF (default=ON)\n -doit             swi";
+  print "tch MUST be specified to really perform the operation.\n     ";
+  print "              Without it, the API will only display the opera";
+  print "tion it\n                   intends to perform (i.e. debug mo";
+  print "de). It is wise to start\n                   in debug mode.\n ";
+  print "-o file           Redirect all standard output to 'file'\n -t";
+  print " time           Terminate gracefully after approximately 'tim";
+  print "e' has elapsed\n -nl               Bypass the load balancer -";
+  print " do not use this option in cron\n -class XXX        Set debug";
+  print "ging class\n";
 
     if( defined($sts) ){ &Exit();}
 
