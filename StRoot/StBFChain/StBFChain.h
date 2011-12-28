@@ -6,8 +6,7 @@
 
  \class  StBFChain
  \author Yuri Fisyak, Jerome LAURET
- \date   1999/07/29 , 2001-2011
- @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.h,v 1.50 2011/11/28 22:47:04 jeromel Exp $
+ \date   1999/07/29 , 2001-2008
 
  Class to control "BFC" chain
 
@@ -23,7 +22,34 @@
 #include "TFile.h"
 #include "TTable.h"
 #include "Ttypes.h"
-#include "Bfc.h"
+
+/* @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.h,v 1.46.2.1 2011/12/28 20:18:34 jeromel Exp $ */
+struct Bfc_st {
+  Char_t       Key[63];      /* nick name */
+  Char_t       Name[63];     /* maker name */
+  Char_t       Chain[63];    /* its chain */
+  Char_t       Opts[257];    /* required options */
+  Char_t       Maker[63];    /* required Makers */
+  Char_t       Libs[127];    /* libraries to be loaded */
+  Char_t       Comment[257];  
+  Char_t       Flag;         /* F/T to use it in chain */
+};
+class St_Bfc : public TTable {
+ public:
+  ClassDefTable(St_Bfc,Bfc_st)
+  ClassDef(St_Bfc,1) //C++ container for chain/makers status 
+};
+
+struct BFCTimeStamp {
+  Int_t     Type;     //< 1 for DBV and 2 for SDT
+  Int_t     Date;     //< A date in YYYYMMDD format
+  Int_t     Time;     //< A time in HHmmss format
+  TString   Detector; //< This detector tag needs to follow the DB branch
+  TString   Realm;    //< Realm is Calibrations or Geometry or ...
+};
+typedef std::vector<BFCTimeStamp> StVecBFCTS;
+
+
 //_____________________________________________________________________
 
 class StFileI;
@@ -54,12 +80,10 @@ class StBFChain : public StChain {
             StChain(name,UseOwnHeader)
            ,fSetFiles(0),fInFile(""),fFileOut(""),fTFile(0)
 	   ,fNoChainOptions(0), fchainOpt(0), fkChain(-1) {}
-#if 0
-    StBFChain(Int_t /* mode */, const char *name="bfc",const Bool_t UseOwnHeader = kFALSE) :
+  StBFChain(Int_t mode, const char *name="bfc",const Bool_t UseOwnHeader = kFALSE) :
             StChain(name,UseOwnHeader)
            ,fSetFiles(0),fInFile(""),fFileOut(""),fTFile(0)
 	   ,fNoChainOptions(0), fchainOpt(0), fkChain(-1) {}
-#endif
   void Setup(Int_t mode=1);
    virtual            ~StBFChain();
    virtual Int_t       Make(int number){ SetIventNumber(number); return StChain::Make(number);};
@@ -101,10 +125,9 @@ class StBFChain : public StChain {
    virtual Char_t     *GetOptionString(const Char_t  *);
    virtual const TString &GetFileIn()  const {return *(&fInFile);}
    virtual const TString &GetFileOut() const {return *(&fFileOut);}
-               TString GetGeometry() const;
    virtual Long_t      ProcessLine(const char *line);
    virtual const char *GetCVS() const {
-       static const char cvs[]="Tag $Name:  $ $Id: StBFChain.h,v 1.50 2011/11/28 22:47:04 jeromel Exp $ built "__DATE__" "__TIME__ ;
+       static const char cvs[]="Tag $Name:  $ $Id: StBFChain.h,v 1.46.2.1 2011/12/28 20:18:34 jeromel Exp $ built "__DATE__" "__TIME__ ;
        return cvs;
    }
    /// StBFChain control class
