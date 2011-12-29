@@ -293,7 +293,7 @@ my $rtmax = 1;
  my $xLabelPosition = 0;
  my $xLabelSkip = 1;
 
-$xLabelSkip = 2 ;
+$xLabelSkip = 12 ;
 
 $ymax = 1;
   $hmax = 0;
