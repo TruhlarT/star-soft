@@ -149,8 +149,8 @@ my $qqr = new CGI;
  my $plview  =  $qqr->param('plotvw');
 
 
-$fperiod = $fperiod." 00:00:00";
-$lperiod = $lperiod." 00:00:00";
+#$fperiod = $fperiod." 00:00:00";
+#$lperiod = $lperiod." 00:00:00";
 
 my $dyear = $pryear - 2000 ;
 
@@ -293,7 +293,7 @@ my $rtmax = 1;
  my $xLabelPosition = 0;
  my $xLabelSkip = 1;
 
-$xLabelSkip = 12 ;
+$xLabelSkip = 2 ;
 
 $ymax = 1;
   $hmax = 0;
@@ -312,7 +312,7 @@ $ymax = 1;
   $min_y = 0;
   $max_y = $ymax + 50 ;  
   $ylabel = "Number of failed jobs per hour";
-  $gtitle = "Number of jobs per hour failed to make HPSS transferring for the period of $fperiod-$lperiod ";
+  $gtitle = "Number of failed jobs per hour for the period of $fperiod-$lperiod ";
 
     } else{
 
