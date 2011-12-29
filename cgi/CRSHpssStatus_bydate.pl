@@ -154,8 +154,9 @@ my $dyear = $pryear - 2000 ;
  $dyear = 10;
 
 # Tables
-$crsJobStatusT = "crsJobStatusY".$dyear;
-$crsQueueT = "crsQueueY".$dyear;
+#$crsJobStatusT = "crsJobStatusY".$dyear;
+
+$crsJobStatusT = "crsJobStatusY11";
 
 my @numjobs1 = ();
 my @numjobs2 = ();
@@ -225,7 +226,7 @@ my @prt = ();
              $sql="SELECT max(hpss_export_failed), max(hpss_import_failed), max(hpss_no_response), max(hpss_timeout), max(hpss_busy), max(hpss_error), max(error) FROM  $crsJobStatusT WHERE sdate >= $fperiod and sdate <= $lperiod ";
  
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
-	$cursor->execute($day_diff);
+	$cursor->execute();
 	while(@fields = $cursor->fetchrow_array) {  
 
  		$maxvalue[0] = $fields[0];
@@ -242,7 +243,7 @@ my @prt = ();
             $sql="SELECT hpss_export_failed, hpss_import_failed, hpss_no_response, hpss_timeout, hpss_busy, hpss_error, error, done, sdate FROM  $crsJobStatusT WHERE sdate >= $fperiod and sdate <= $lperiod  ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
-	$cursor->execute($day_diff);
+	$cursor->execute();
 	while(@fields = $cursor->fetchrow_array) {
 
 		$numjobs1[$ii] = $fields[0];
