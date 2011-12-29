@@ -23,6 +23,7 @@ $dbname="operation";
 
 my $ndy = 0;
 my @arrdate = ();
+my @rvsdate = ();
 my @prodyear = ("2010","2011");
 my @plotview = ("numbers","percentage");
 
@@ -44,6 +45,8 @@ $crsJobStatusT = "crsJobStatusY11";
 
 
    &StcrsdbDisconnect();
+
+ @rvsdate = reverse @arrdate ;
 
 my $query = new CGI;
 
@@ -101,8 +104,7 @@ print "</td><td>";
 print "<h3 align=center> Select period of monitoring</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'fsdate',
-                             -values=>\@arrdate,
-                             -default=>day,
+                             -values=>\@rvsdate,
                              -size =>1); 
 
 print "<p>";
@@ -111,7 +113,6 @@ print "<h3 align=center> Select period of monitoring</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'lsdate',
                              -values=>\@arrdate,
-                             -default=>day,
                              -size =>1); 
 print "<p>";
 print "</td><td>";
@@ -312,7 +313,7 @@ $ymax = 1;
   $min_y = 0;
   $max_y = $ymax + 50 ;  
   $ylabel = "Number of failed jobs per hour";
-  $gtitle = "Number of failed jobs per hour for the period of $fperiod to$lperiod ";
+  $gtitle = "Number of failed jobs per hour for the period of $fperiod to $lperiod ";
 
     } else{
 
@@ -360,7 +361,7 @@ $ymax = 1;
 
 
   $ylabel = "Number of failed jobs in % to number of jobs finished per hour ";
-  $gtitle = "Number of failed jobs in %  per hour for the period $fperiod to $lperiod ";
+  $gtitle = "Number of failed jobs in %  per hour for the period of $fperiod to $lperiod ";
 
 }
 
