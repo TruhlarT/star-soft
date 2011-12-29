@@ -356,8 +356,8 @@ $ymax = 1;
     @data = (\@Npoint, \@jobrate1, \@jobrate2, \@jobrate3, \@jobrate4, \@jobrate5, \@jobrate6, \@jobrate7 );
 
   $min_y = 0;  
-  $max_y = int($rtmax) + 20 ;
-# $max_y = 140;
+#  $max_y = int($rtmax) + 20 ;
+ $max_y = 10;
 
 
   $ylabel = "Number of failed jobs in % to number of jobs finished per hour ";
