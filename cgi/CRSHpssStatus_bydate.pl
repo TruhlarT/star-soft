@@ -149,6 +149,9 @@ my $qqr = new CGI;
  my $plview  =  $qqr->param('plotvw');
 
 
+$fperiod = $fperiod." 00:00:00";
+$lperiod = $lperiod." 00:00:00";
+
 my $dyear = $pryear - 2000 ;
 
  $dyear = 10;
@@ -223,7 +226,7 @@ my @prt = ();
  @maxvalue = ();
 
  
-             $sql="SELECT max(hpss_export_failed), max(hpss_import_failed), max(hpss_no_response), max(hpss_timeout), max(hpss_busy), max(hpss_error), max(error) FROM  $crsJobStatusT WHERE sdate >= $fperiod and sdate <= $lperiod ";
+             $sql="SELECT max(hpss_export_failed), max(hpss_import_failed), max(hpss_no_response), max(hpss_timeout), max(hpss_busy), max(hpss_error), max(error) FROM  $crsJobStatusT WHERE sdate >= '$fperiod' and sdate <= '$lperiod' ";
  
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute();
@@ -240,7 +243,7 @@ my @prt = ();
 
  my $ii = 0;
 
-            $sql="SELECT hpss_export_failed, hpss_import_failed, hpss_no_response, hpss_timeout, hpss_busy, hpss_error, error, done, sdate FROM  $crsJobStatusT WHERE sdate >= $fperiod and sdate <= $lperiod  ORDER by sdate ";
+            $sql="SELECT hpss_export_failed, hpss_import_failed, hpss_no_response, hpss_timeout, hpss_busy, hpss_error, error, done, sdate FROM  $crsJobStatusT WHERE sdate >= '$fperiod' and sdate <= '$lperiod'  ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute();
