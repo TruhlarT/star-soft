@@ -101,7 +101,7 @@ print  $query->scrolling_list(-name=>'ryear',
 
 print "<p>";
 print "</td><td>";
-print "<h3 align=center> Select period of monitoring</h3>";
+print "<h3 align=center> Select first date</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'fsdate',
                              -values=>\@rvsdate,
@@ -109,10 +109,10 @@ print  $query->scrolling_list(-name=>'fsdate',
 
 print "<p>";
 print "</td><td>";
-print "<h3 align=center> Select period of monitoring</h3>";
+print "<h3 align=center> Select last date</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'lsdate',
-                             -values=>\@arrdate,
+                             -values=>\@rvsdate,
                              -size =>1); 
 print "<p>";
 print "</td><td>";
