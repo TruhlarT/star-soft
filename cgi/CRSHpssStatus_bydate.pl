@@ -30,7 +30,7 @@ $crsJobStatusT = "crsJobStatusY11";
 
   &StcrsdbConnect();
 
- $sql="SELECT DISTINCT  date_format(sdate, '%Y-%m-%d') as PDATE FROM $crsJobStatusT where sdate >= '2011-12-01 00:00:00' order by PDATE " ;
+ $sql="SELECT DISTINCT  date_format(sdate, '%Y-%m-%d') as PDATE FROM $crsJobStatusT where sdate >= '2011-10-01 00:00:00' order by PDATE " ;
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -312,7 +312,7 @@ $ymax = 1;
   $min_y = 0;
   $max_y = $ymax + 50 ;  
   $ylabel = "Number of failed jobs per hour";
-  $gtitle = "Number of failed jobs per hour for the period of $fperiod-$lperiod ";
+  $gtitle = "Number of failed jobs per hour for the period of $fperiod to$lperiod ";
 
     } else{
 
@@ -360,7 +360,7 @@ $ymax = 1;
 
 
   $ylabel = "Number of failed jobs in % to number of jobs finished per hour ";
-  $gtitle = "Number of failed jobs in % to the number of jobs finished per hour for the period $fperiod-$lperiod ";
+  $gtitle = "Number of failed jobs in %  per hour for the period $fperiod to $lperiod ";
 
 }
 
