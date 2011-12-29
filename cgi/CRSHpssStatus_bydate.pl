@@ -306,12 +306,15 @@ $ymax = 1;
        }
     }
 
+
+
   if( $plview eq "numbers") {
  
     @data = (\@Npoint, \@numjobs1, \@numjobs2, \@numjobs3, \@numjobs4, \@numjobs5, \@numjobs6, \@numjobs7 );
 
   $min_y = 0;
-  $max_y = $ymax + 50 ;  
+#  $max_y = $ymax + 50 ;  
+ $max_y = 10;
   $ylabel = "Number of failed jobs per hour";
   $gtitle = "Number of failed jobs per hour for the period of $fperiod to $lperiod ";
 
