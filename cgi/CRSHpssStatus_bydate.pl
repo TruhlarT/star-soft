@@ -360,7 +360,7 @@ $ymax = 1;
 
 
   $ylabel = "Number of failed jobs in % to number of jobs finished per hour ";
-  $gtitle = "Number of failed jobs in % to number of jobs finished per hour for period $fperiod to $lperiod ";
+  $gtitle = "Number of failed jobs in % to the number of jobs finished per hour for the period $fperiod-$lperiod ";
 
 }
 
