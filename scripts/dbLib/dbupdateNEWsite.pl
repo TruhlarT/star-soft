@@ -744,15 +744,13 @@ sub  updateJSTable {
 
 #---------------------------------------------------------
 
- print $fl_log, "\n";
-
-# if( $fl_log eq "/star/rcf/test/new_embed/daq_sl302.ittf_opt/year_2007/2007ProductionMinBias/st_physics_8113044_raw_1040042.log" ) {
+# print $fl_log, "\n";
 
  my @subdr = ();
 
  @subdr = split("/", $fl_log);
 
-  print "Subdirs  ", $subdr[6],"    ",$subdr[7], "\n";
+#  print "Subdirs  ", $subdr[6],"    ",$subdr[7], "\n";
 
  $nevent_vtx = 0;
  $nevent_vtx = `grep 'primary vertex(0):' $fl_log | wc -l ` ;  
@@ -784,7 +782,7 @@ $jrun = "Run not completed";
      $embflag = 0;
 
  }
- print "Embedding flag  = ", $embflag, "\n"; 
+# print "Embedding flag  = ", $embflag, "\n"; 
 
    foreach my $line (@logfile) {
        chop $line ;
@@ -1030,10 +1028,9 @@ $jrun = "Run not completed";
       $mRealTbfc = $part[6];
       $mCPUbfc = substr($mCPUbfc,1) + 0;
       $mRealTbfc = substr($mRealTbfc,1) + 0;
-#     print "CPU ", $mCPUbfc,"   %   ", $mRealTbfc, "\n";
+   print "CPU ", $mCPUbfc,"   %   ", $mRealTbfc, "\n";
      $mCPU = $mCPUbfc/$EvCom;
      $mRealT = $mRealTbfc/$EvCom;
-#   print "CPU and RealTime  ",$EvCom,"   ",$mCPU, "    ",$mRealT, "\n";
 
    }else{
     next;
