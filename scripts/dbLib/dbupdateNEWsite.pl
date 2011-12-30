@@ -744,13 +744,15 @@ sub  updateJSTable {
 
 #---------------------------------------------------------
 
-# print $fl_log, "\n";
+ print $fl_log, "\n";
+
+# if( $fl_log eq "/star/rcf/test/new_embed/daq_sl302.ittf_opt/year_2007/2007ProductionMinBias/st_physics_8113044_raw_1040042.log" ) {
 
  my @subdr = ();
 
  @subdr = split("/", $fl_log);
 
-#  print "Subdirs  ", $subdr[6],"    ",$subdr[7], "\n";
+  print "Subdirs  ", $subdr[6],"    ",$subdr[7], "\n";
 
  $nevent_vtx = 0;
  $nevent_vtx = `grep 'primary vertex(0):' $fl_log | wc -l ` ;  
@@ -774,14 +776,15 @@ $Err_messg = "none";
 $jrun = "Run not completed";
 
 
-#  if($fl_log =~ /embed/) {
-
  if($subdr[7] =~ /embed/) {
 
    $embflag = 1;
- }
+ }else{
 
-# print "Embedding flag  = ", $embflag, "\n"; 
+     $embflag = 0;
+
+ }
+ print "Embedding flag  = ", $embflag, "\n"; 
 
    foreach my $line (@logfile) {
        chop $line ;
@@ -804,6 +807,8 @@ $jrun = "Run not completed";
       if ( $line =~ /={3} You are in (\w+)/ ) {
         if( $Anflag == 0 or $embflag == 1 ) {
         $libV = $1;
+   print "Library tag   ",$libV, "\n"; 
+
       }else{
        next;
        }
@@ -1005,7 +1010,7 @@ $jrun = "Run not completed";
      @part = split (" ", $end_line); 
       $mCPUbfc = $part[8];
       $mRealTbfc = $part[6];
-# print "CPU,  RealTime  ",$mCPUbfc,"   ",$mRealTbfc, "\n";
+ print "CPU,  RealTime  ",$mCPUbfc,"   ",$mRealTbfc, "\n";
       $mCPUbfc = substr($mCPUbfc,1) + 0;
       $mRealTbfc = substr($mRealTbfc,1) + 0;
 
@@ -1081,6 +1086,9 @@ $jrun = "Run not completed";
  
    close (LOGFILE);
  }
+
+#}
+
 
 ######################
 sub StDbTJobsConnect {
