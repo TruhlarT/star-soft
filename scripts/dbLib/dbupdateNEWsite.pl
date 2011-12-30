@@ -746,6 +746,12 @@ sub  updateJSTable {
 
 # print $fl_log, "\n";
 
+ my @subdr = ();
+
+ @subdr = split("/", $fl_log);
+
+#  print "Subdirs  ", $subdr[6],"    ",$subdr[7], "\n";
+
  $nevent_vtx = 0;
  $nevent_vtx = `grep 'primary vertex(0):' $fl_log | wc -l ` ;  
 
@@ -768,12 +774,15 @@ $Err_messg = "none";
 $jrun = "Run not completed";
 
 
-  if($fl_log =~ /embed/) {
+#  if($fl_log =~ /embed/) {
+
+ if($subdr[7] =~ /embed/) {
 
    $embflag = 1;
  }
 
- 
+# print "Embedding flag  = ", $embflag, "\n"; 
+
    foreach my $line (@logfile) {
        chop $line ;
         $num_line++; 
@@ -990,9 +999,13 @@ $jrun = "Run not completed";
 
    if($embflag == 0 ) {
    if ($end_line =~ /QAInfo:Chain/ and $end_line =~ /StBFChain::bfc/) {
+
+# print $end_line, "\n";
+
      @part = split (" ", $end_line); 
       $mCPUbfc = $part[8];
       $mRealTbfc = $part[6];
+# print "CPU,  RealTime  ",$mCPUbfc,"   ",$mRealTbfc, "\n";
       $mCPUbfc = substr($mCPUbfc,1) + 0;
       $mRealTbfc = substr($mRealTbfc,1) + 0;
 
@@ -1068,7 +1081,6 @@ $jrun = "Run not completed";
  
    close (LOGFILE);
  }
-
 
 ######################
 sub StDbTJobsConnect {
