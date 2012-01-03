@@ -61,7 +61,7 @@ my $dyear = $thisyear - 2000;
 my @prodyear = ("2006","2007","2008","2009","2010","2011","2012");
 
 # Tables
-$JobStatusT = "JobStatus_12";
+$JobStatusT = "JobStatus_11";
 
 my @arsites = ( );
 my $mydate;
@@ -175,7 +175,7 @@ print "<h3 align=center> Select year</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'ryear',
                              -values=>\@prodyear,
-                             -default=>2011,
+                             -default=>2012,
       			     -size =>1);
 
 
