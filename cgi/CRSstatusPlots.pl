@@ -1,10 +1,10 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSstatusPlots.pl,v 1.26 2012/01/03 19:59:30 didenko Exp $
+# $Id: CRSstatusPlots.pl,v 1.25 2012/01/03 19:57:46 didenko Exp $
 #
 # $Log: CRSstatusPlots.pl,v $
-# Revision 1.26  2012/01/03 19:59:30  didenko
+# Revision 1.25  2012/01/03 19:57:46  didenko
 # add 2012
 #
 # Revision 1.24  2011/01/04 19:33:39  didenko
@@ -298,7 +298,7 @@ if ( ! $graph){
  my $xLabelSkip = 1;
 
 $xLabelSkip = 1  if( $fperiod eq "day" );
-$xLabelSkip = 8 if( $fperiod eq "week" );
+$xLabelSkip = 4 if( $fperiod eq "week" );
 $xLabelSkip = 24 if( $fperiod eq "1_month" );
 $xLabelSkip = 48 if( $fperiod eq "2_months" );
 $xLabelSkip = 72 if( $fperiod eq "3_months" );
