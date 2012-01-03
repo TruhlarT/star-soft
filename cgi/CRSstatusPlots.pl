@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSstatusPlots.pl,v 1.24 2011/01/04 19:33:39 didenko Exp $
+# $Id: CRSstatusPlots.pl,v 1.26 2012/01/03 19:59:30 didenko Exp $
 #
 # $Log: CRSstatusPlots.pl,v $
+# Revision 1.26  2012/01/03 19:59:30  didenko
+# add 2012
+#
 # Revision 1.24  2011/01/04 19:33:39  didenko
 # updated for 2011 year
 #
@@ -92,7 +95,7 @@ $query = new CGI;
 
  my $fstatus   =  $query->param('statusfield');
  my $fperiod   =  $query->param('period');
- my @prodyear = ("2005","2006","2007","2008","2009","2010","2011");
+ my @prodyear = ("2005","2006","2007","2008","2009","2010","2011","2012");
 
   if( $fperiod eq "" and $fstatus eq "" and $pryear eq "" ) {
 
@@ -123,7 +126,7 @@ print "<h3 align=center> Select year of production</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'ryear',
                              -values=>\@prodyear,
-                             -default=>2011,
+                             -default=>2012,
                              -size =>1); 
 
 print "<p>";
@@ -166,7 +169,7 @@ my $qqr = new CGI;
 
  my $dyear = $pryear - 2000 ;
 
- $dyear = 10;
+ $dyear = 11;
 
 # Tables
 $crsJobStatusT = "crsJobStatusY".$dyear;
@@ -295,7 +298,7 @@ if ( ! $graph){
  my $xLabelSkip = 1;
 
 $xLabelSkip = 1  if( $fperiod eq "day" );
-$xLabelSkip = 4 if( $fperiod eq "week" );
+$xLabelSkip = 8 if( $fperiod eq "week" );
 $xLabelSkip = 24 if( $fperiod eq "1_month" );
 $xLabelSkip = 48 if( $fperiod eq "2_months" );
 $xLabelSkip = 72 if( $fperiod eq "3_months" );

@@ -50,7 +50,7 @@ my $nowdate = $todate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2010","2011");
+my @prodyear = ("2010","2011","2012");
 my @arval = ("rtime/cpu","cpu");
 my @arnode = ("rcrs","rcas");
 my @arcrs = ();
