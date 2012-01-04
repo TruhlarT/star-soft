@@ -61,7 +61,7 @@ my $nowdate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2008","2009","2010","2011");
+my @prodyear = ("2008","2009","2010","2011","2012");
 
 # Tables
 
@@ -175,7 +175,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'ryear',
 	                          -values=>\@prodyear,
-	                          -default=>2011,
+	                          -default=>2012,
       			          -size =>1);
 
     print "<p>";
