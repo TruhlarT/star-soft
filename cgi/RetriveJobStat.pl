@@ -197,6 +197,8 @@ my $jobname = $qtrg."%".$qprod."%";
 
  }elsif($qflag eq "strcpu") {
 
+   &beginStrHtml();
+
      $sql="SELECT distinct streamName, avg(CPU_per_evt_sec), avg(avg_no_tracks) FROM $JobStatusT  where prodSeries = ? and trigsetName = ? and jobStatus <> 'n/a' and  CPU_per_evt_sec >= 0.001 and avg_no_tracks >= 1 group by streamName ";
 
       $cursor =$dbh->prepare($sql)
@@ -389,6 +391,28 @@ print <<END;
 <TR>
 <TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=60><B><h3>Jobfilename</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>HPSS error</h3></B></TD>
+</TR>
+   </head>
+    </body>
+END
+}
+
+##########################
+
+sub beginStrHtml {
+
+print <<END;
+
+  <html>
+   <body BGCOLOR=\"cornsilk\">
+ <h2 ALIGN=CENTER> <B>Average CPU/evt and No.tracks for stream jobs for<font color="blue"> $qprod </font> production and <font color="blue">$qtrg </font> dataset  </B></h2>
+ <h3 ALIGN=CENTER> Generated on $todate</h3>
+<br>
+<TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
+<TR>
+<TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Stream name</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Average CPU/evt</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Average No.tracks</h3></B></TD>
 </TR>
    </head>
     </body>
