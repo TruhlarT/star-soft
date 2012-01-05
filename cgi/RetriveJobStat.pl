@@ -230,6 +230,28 @@ my $jobname = $qtrg."%".$qprod."%";
 
 &StDbProdDisconnect(); 
 
+     if( $qflag eq "strcpu" ) {
+
+      foreach  $pjob (@jbstat) {
+
+       $strName[$nk] = ($$pjob)->stname;
+       $avgcpu[$nk]  = ($$pjob)->stcpu;
+       $avgtrk[$nk]  = ($$pjob)->jbtrk;
+
+print <<END;
+
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
+<td HEIGHT=10><h3>$strName[$nk]</h3></td>
+<td HEIGHT=10><h3>$avgcpu[$nk]</h3></td>
+<td HEIGHT=10><h3>$avgtrk[$nk]</h3></td>
+</TR>
+END
+
+    $nk++;
+     }
+
+  }
+
   
        foreach  $pjob (@jbstat) {
 
