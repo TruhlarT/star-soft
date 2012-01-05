@@ -279,7 +279,7 @@ print <<END;
 <td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2011;pflag=mudst">$mismudst[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$jbmudst[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$sumevt[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="red">$avcpu[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2011;pflag=strcpu">$avcpu[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$avgtrk[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$strtime[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$fntime[$nprod]</font></h3></td>
@@ -302,7 +302,7 @@ END
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2011;pflag=mudst">$mismudst[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbmudst[$nprod]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nprod]</h3></td>
-<td HEIGHT=10><h3>$avcpu[$nprod]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtg[$nprod];pyear=2011;pflag=strcpu">$avcpu[$nprod]</h3></td>
 <td HEIGHT=10><h3>$avgtrk[$nprod]</h3></td>
 <td HEIGHT=10><h3>$strtime[$nprod]</h3></td>
 <td HEIGHT=10><h3>$fntime[$nprod]</h3></td>
