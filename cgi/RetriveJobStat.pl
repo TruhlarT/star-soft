@@ -387,7 +387,6 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=60><B><h3>Jobfilename</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Job status</h3></B></TD>
 </TR>
-   </head>
     </body>
 END
 }
@@ -409,7 +408,6 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=60><B><h3>Jobfilename</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>HPSS error</h3></B></TD>
 </TR>
-   </head>
     </body>
 END
 }
@@ -430,7 +428,6 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Stream name</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Average CPU/evt</h3></B></TD>
 </TR>
-   </head>
     </body>
 END
 }
