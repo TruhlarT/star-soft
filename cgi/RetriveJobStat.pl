@@ -237,6 +237,15 @@ my $jobname = $qtrg."%".$qprod."%";
        $strName[$nk] = ($$pjob)->stname;
        $avgcpu[$nk]  = ($$pjob)->stcpu;
        $avgtrk[$nk]  = ($$pjob)->jbtrk;
+       $avgcpu[$nk]  = sprintf("%.2f",$avgcpu[$nk]);
+    if($avgtrk[$nk] <= 1.0 ) {
+    $avgtrk[$nk] = sprintf("%.2f",$avgtrk[$nk]);
+    }elsif($avgtrk[$nk] <= 10.0 ) {
+    $avgtrk[$nk] = sprintf("%.1f",$avgtrk[$nk]);
+    }else{
+    $avgtrk[$nk] = int($avgtrk[$nk] + 0.5);
+    }
+
 
 print <<END;
 
@@ -252,7 +261,6 @@ END
 
   }
 
-  
        foreach  $pjob (@jbstat) {
 
        $jbfName[$nn]  = ($$pjob)->jbname;      
@@ -427,7 +435,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>Average CPU/evt and No.tracks for stream jobs for<font color="blue"> $qprod </font> production and <font color="blue">$qtrg </font> dataset  </B></h2>
+ <h2 ALIGN=CENTER> <B>Average CPU/evt and No.of tracks for diffrent streams in<font color="blue"> $qprod </font> production and <font color="blue">$qtrg </font> dataset  </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
