@@ -72,7 +72,6 @@ my $nn = 0;
 
 my @strName = ();
 my @avgcpu = ();
-my @avgtrk = ();
 my $nsm = 0;
 my $nk = 0;
 
@@ -199,7 +198,7 @@ my $jobname = $qtrg."%".$qprod."%";
 
    &beginStrHtml();
 
-     $sql="SELECT distinct streamName, avg(CPU_per_evt_sec), avg(avg_no_tracks) FROM $JobStatusT  where prodSeries = ? and trigsetName = ? and jobStatus <> 'n/a' and  CPU_per_evt_sec >= 0.001 and avg_no_tracks >= 1 group by streamName ";
+     $sql="SELECT distinct streamName, avg(CPU_per_evt_sec), avg(avg_no_tracks) FROM $JobStatusT  where prodSeries = ? and trigsetName = ? and jobStatus <> 'n/a' and  CPU_per_evt_sec >= 0.0001 group by streamName ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -216,7 +215,6 @@ my $jobname = $qtrg."%".$qprod."%";
 
                 ($$fObjAdr)->stname($fvalue)   if( $fname eq 'streamName');
                 ($$fObjAdr)->stcpu($fvalue)    if( $fname eq 'avg(CPU_per_evt_sec)');
-                ($$fObjAdr)->jbtrk($fvalue)    if( $fname eq 'avg(avg_no_tracks)');
 
            }
             $jbstat[$nsm] = $fObjAdr;
@@ -236,23 +234,14 @@ my $jobname = $qtrg."%".$qprod."%";
 
        $strName[$nk] = ($$pjob)->stname;
        $avgcpu[$nk]  = ($$pjob)->stcpu;
-       $avgtrk[$nk]  = ($$pjob)->jbtrk;
        $avgcpu[$nk]  = sprintf("%.2f",$avgcpu[$nk]);
-    if($avgtrk[$nk] <= 1.0 ) {
-    $avgtrk[$nk] = sprintf("%.2f",$avgtrk[$nk]);
-    }elsif($avgtrk[$nk] <= 10.0 ) {
-    $avgtrk[$nk] = sprintf("%.1f",$avgtrk[$nk]);
-    }else{
-    $avgtrk[$nk] = int($avgtrk[$nk] + 0.5);
-    }
-
+ 
 
 print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$strName[$nk]</h3></td>
 <td HEIGHT=10><h3>$avgcpu[$nk]</h3></td>
-<td HEIGHT=10><h3>$avgtrk[$nk]</h3></td>
 </TR>
 END
 
@@ -435,14 +424,13 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>Average CPU/evt and No.of tracks for diffrent streams in<font color="blue"> $qprod </font> production <br> and <font color="blue">$qtrg </font> dataset  </B></h2>
+ <h2 ALIGN=CENTER> <B>Average CPU/evt  for diffrent streams in<font color="blue"> $qprod </font> production <br> and <font color="blue">$qtrg </font> dataset  </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
 <TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Stream name</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Average CPU/evt</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Average No.tracks</h3></B></TD>
 </TR>
    </head>
     </body>
