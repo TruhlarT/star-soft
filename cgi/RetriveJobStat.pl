@@ -43,6 +43,8 @@ struct JobAttr => {
       jbname    => '$',
       jbst      => '$',
       jbtrk     => '$',
+      stname    => '$',
+      stcpu     => '$',
       jbevt     => '$'
  };
 
@@ -67,6 +69,13 @@ my @jbStatus = ();
 my @jbfName = ();
 my @jbEvent = ();
 my $nn = 0;
+
+my @strName = ();
+my @avgcpu = ();
+my @avgtrk = ();
+my $nsm = 0;
+my $nk = 0;
+
 
 my $jobname = $qtrg."%".$qprod."%";
 
@@ -185,6 +194,32 @@ my $jobname = $qtrg."%".$qprod."%";
             $jbstat[$nst] = $fObjAdr;
             $nst++;
          }
+
+ }elsif($qflag eq "strcpu") {
+
+     $sql="SELECT distinct streamName, avg(CPU_per_evt_sec), avg(avg_no_tracks) FROM $JobStatusT  where prodSeries = ? and trigsetName = ? and jobStatus <> 'n/a' and  CPU_per_evt_sec >= 0.001 and avg_no_tracks >= 1 group by streamName ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute($qprod,$qtrg);
+
+        while(@fields = $cursor->fetchrow) {
+            my $cols=$cursor->{NUM_OF_FIELDS};
+            $fObjAdr = \(JobAttr->new());
+
+            for($i=0;$i<$cols;$i++) {
+                my $fvalue=$fields[$i];
+                my $fname=$cursor->{NAME}->[$i];
+                # print "$fname = $fvalue\n" ;
+
+                ($$fObjAdr)->stname($fvalue)   if( $fname eq 'streamName');
+                ($$fObjAdr)->stcpu($fvalue)    if( $fname eq 'avg(CPU_per_evt_sec)');
+                ($$fObjAdr)->jbtrk($fvalue)    if( $fname eq 'avg(avg_no_tracks)');
+
+           }
+            $jbstat[$nsm] = $fObjAdr;
+            $nsm++;
+      }
 
    }else{
 
