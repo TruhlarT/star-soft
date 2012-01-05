@@ -400,7 +400,7 @@ END
 
 #######################################
 
-sub beginStrHtml (
+sub beginStrHtml {
 
 print <<END;
 
@@ -418,9 +418,6 @@ print <<END;
    </head>
     </body>
 END
-
-
-
 }
 
 #####################################
