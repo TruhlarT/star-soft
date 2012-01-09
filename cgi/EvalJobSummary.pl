@@ -119,7 +119,7 @@ my $nprod = 0;
 
     $prodtag[$nprod]  = ($$pjob)->prdtag;
     $artrg[$nprod]   = ($$pjob)->trgset;
-    $trcktag[$nprod] = ($$pjob)->evltg;
+    $trcktag[$nprod] = ($$pjob)->evltg;    
     $prstat[$nprod]  = ($$pjob)->prst;
     $strtime[$nprod] =  ($$pjob)->strtm;
     $fntime[$nprod]  =  ($$pjob)->fintm;
@@ -144,7 +144,7 @@ my $nprod = 0;
     $mismudst[$nprod] = 0;    
     $sumevt[$nprod] = 0;
     $avgcpu[$nprod] = 0;
-    $avgtrk[$nprod] = 0;    
+    $avgtrk[$nprod] = 0;   
 
 
 ###########
@@ -320,6 +320,7 @@ if($prstat[$nprod] eq "removed" ) {
 <td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=ndisk">$artrg[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$prodtag[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$trcktag[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=qchain">chain</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$jbcreat[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$jbdone[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=jstat">$jbcrsh[$nprod]</font></h3></td>
@@ -345,6 +346,7 @@ END
 <td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=ndisk">$artrg[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$prodtag[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$trcktag[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=qchain">chain</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$jbcreat[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$jbdone[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=jstat">$jbcrsh[$nprod]</font></h3></td>
@@ -370,6 +372,7 @@ END
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=ndisk">$artrg[$nprod]</font></h3></td>
 <td HEIGHT=10><h3>$prodtag[$nprod]</h3></td>
 <td HEIGHT=10><h3>$trcktag[$nprod]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=qchain">chain</h3></td>
 <td HEIGHT=10><h3>$jbcreat[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbdone[$nprod]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=jstat">$jbcrsh[$nprod]</h3></td>
@@ -434,6 +437,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Trigger set</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Prod.<br>tag</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Tracker code name<br></h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Chain options</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs created</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs done</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs crashed</h3></B></TD>
@@ -443,7 +447,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.<br>missing MuDst files</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Size of output files in GB</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.<br>events<h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Avg<br>CPU/evt<h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Avg<br>CPU/evt<br>in sec<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Avg No.<br>tracks<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Start time <h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>End time <h3></B></TD>
