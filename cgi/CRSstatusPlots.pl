@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSstatusPlots.pl,v 1.27 2012/01/03 20:01:07 didenko Exp $
+# $Id: CRSstatusPlots.pl,v 1.28 2012/01/09 16:24:55 didenko Exp $
 #
 # $Log: CRSstatusPlots.pl,v $
+# Revision 1.28  2012/01/09 16:24:55  didenko
+# added note if no data
+#
 # Revision 1.27  2012/01/03 20:01:07  didenko
 # change skip label
 #
@@ -336,9 +339,18 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
     $graph->set_y_label_font(gdMediumBoldFont);
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
+
+
+           if ( scalar(@Npoint) <= 1 ) {
+            print $qqr->header(-type => 'text/html')."\n";
+            &beginHtml();
+
+        } else {
+
      print STDOUT $graph->plot(\@data)->$format();
 
-}
+   }
+  }
 }
 
 sub y_format
@@ -360,3 +372,21 @@ sub StcrsdbConnect {
 sub StcrsdbDisconnect {
     $dbh = $dbh->disconnect() || die "Disconnect failure $DBI::errstr\n";
 }
+
+#########################
+sub beginHtml {
+
+print <<END;
+  <html>
+   <head>
+          <title>CRS farm status</title>
+   </head>
+   <body BGCOLOR=\"#ccffff\">
+     <h1 align=center>No data for the period of $fperiod </h1>
+
+
+    </body>
+   </html>
+END
+}
+
