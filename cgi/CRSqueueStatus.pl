@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSqueueStatus.pl,v 1.19 2012/01/09 15:59:20 didenko Exp $
+# $Id: CRSqueueStatus.pl,v 1.20 2012/01/09 16:00:39 didenko Exp $
 #
 # $Log: CRSqueueStatus.pl,v $
-# Revision 1.19  2012/01/09 15:59:20  didenko
-# added note if no data
+# Revision 1.20  2012/01/09 16:00:39  didenko
+# changed default year to 2012
 #
 # Revision 1.18  2011/01/04 19:26:25  didenko
 # more fixes
@@ -125,7 +125,7 @@ print "<h3 align=center> Select year of production</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'ryear',
                              -values=>\@prodyear,
-                             -default=>2011,
+                             -default=>2012,
                              -size =>1); 
 
 print "<p>";
