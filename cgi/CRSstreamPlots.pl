@@ -154,9 +154,9 @@ my $plview    =  $qqr->param('plotvw');
 my $dyear = $pryear - 2000 ;
 
 # Tables
-# $crsJobStreamsT = "crsJobStreamsY".$dyear;
+ $crsJobStreamsT = "crsJobStreamsY".$dyear;
 
-$crsJobStreamsT = "crsJobStreamsY11";
+#$crsJobStreamsT = "crsJobStreamsY11";
 
 ($sec,$min,$hour,$mday,$mon,$year) = localtime;
 
