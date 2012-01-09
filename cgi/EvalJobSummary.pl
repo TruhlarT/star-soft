@@ -279,6 +279,7 @@ my $nprod = 0;
 
        while( $mpr = $cursor->fetchrow() ) {
           $avgcpu[$nprod] = $mpr;
+          $avgcpu[$nprod] = sprintf("%.2f",$avgcpu[$nprod]);
        }
     $cursor->finish();
 
