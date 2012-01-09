@@ -426,12 +426,12 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>Chain options used for <font color="blue">$qprod</font> production, <font color="blue">$qtrg </font> dataset and <font color="blue">$qtrack</font> tracker  </B></h2>
+ <h2 ALIGN=CENTER> <B>Chain options used for <font color="blue">$qprod</font> production of <font color="blue">$qtrg </font> dataset and <font color="blue">$qtrack</font> tracker  </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
-<TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=60><B><h3>$chainop[0]</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"90%\" HEIGHT=60><B><h3>$chainop[0]</h3></B></TD>
 </TR>
    </head>
     </body>
@@ -446,7 +446,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>List of NFS disk names for <font color="blue">$qprod</font> production of <font color="blue">$qtrg </font> dataset location  </B></h2>
+ <h2 ALIGN=CENTER> <B>List of NFS disk names for <font color="blue">$qprod</font> production of <font color="blue">$qtrg </font> dataset and <font color="blue">$qtrack</font> tracker </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
