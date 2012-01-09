@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSqueueStatus.pl,v 1.18 2011/01/04 19:26:25 didenko Exp $
+# $Id: CRSqueueStatus.pl,v 1.19 2012/01/09 15:59:20 didenko Exp $
 #
 # $Log: CRSqueueStatus.pl,v $
+# Revision 1.19  2012/01/09 15:59:20  didenko
+# added note if no data
+#
 # Revision 1.18  2011/01/04 19:26:25  didenko
 # more fixes
 #
@@ -82,8 +85,7 @@ $dbname="operation";
 
 my @reqperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months","7_months","8_months","9_months","10_months","11_months","12_months");
 my @plotview = ("numbers","percentage");
-#my @prodyear = ("2005","2006","2007","2008","2009","2010");
-my @prodyear = ("2009","2010","2011");
+my @prodyear = ("2009","2010","2011","2012");
 
 my $query = new CGI;
 
@@ -171,7 +173,7 @@ my $plview    =  $qqr->param('plotvw');
 
 my $dyear = $pryear - 2000 ;
 
-$dyear = 10;
+$dyear = 11;
 
 # Tables
 $crsJobStatusT = "crsJobStatusY".$dyear;
@@ -389,11 +391,19 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
  
+
+           if ( scalar(@Npoint) <= 1 ) {
+            print $qqr->header(-type => 'text/html')."\n";
+            &beginHtml();
+
+        } else {
+
     print STDOUT $graph->plot(\@data)->$format();
 
+   }
+ }
 }
 
-}
 ####################
 sub y_format
 {
@@ -411,4 +421,22 @@ sub StcrsdbConnect {
 ######################
 sub StcrsdbDisconnect {
     $dbh = $dbh->disconnect() || die "Disconnect failure $DBI::errstr\n";
+}
+
+
+#########################
+sub beginHtml {
+
+print <<END;
+  <html>
+   <head>
+          <title>CRS queue status</title>
+   </head>
+   <body BGCOLOR=\"#ccffff\">
+     <h1 align=center>No data for the period of $fperiod </h1>
+
+
+    </body>
+   </html>
+END
 }
