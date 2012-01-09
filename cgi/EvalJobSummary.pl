@@ -72,6 +72,7 @@ my @mismudst = ();
 my @trcktag = ();
 my @prstat = ();
 my @avgcpu = ();
+my @avgtrk = ();
 
 my $daydif = 0;
 my $mxtime = 0;
@@ -142,6 +143,8 @@ my $nprod = 0;
     $szmudst[$nprod] = 0;
     $mismudst[$nprod] = 0;    
     $sumevt[$nprod] = 0;
+    $avgcpu[$nprod] = 0;
+    $avgtrk[$nprod] = 0;    
 
 
 ###########
@@ -271,7 +274,7 @@ my $nprod = 0;
 
 ########## 
 
-  $sql="SELECT avg(CPU_per_evt_sec)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%' and trigsetName = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and evaltag = '$trcktag[$nprod]' and jobStatus <> 'n/a' and  CPU_per_evt_sec > 0.0001 ";
+  $sql="SELECT avg(CPU_per_evt_sec) FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%' and trigsetName = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and evaltag = '$trcktag[$nprod]' and jobStatus <> 'n/a' and  CPU_per_evt_sec > 0.0001 ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -285,6 +288,28 @@ my $nprod = 0;
 
 
 ########## 
+
+  $sql="SELECT avg(avg_no_tracks) FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%' and trigsetName = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and evaltag = '$trcktag[$nprod]' and jobStatus <> 'n/a' and avg_no_tracks >= 1 ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $avgtrk[$nprod] = $mpr;
+         if($avgtrk[$nprod] <= 1.0 ) {
+         $avgtrk[$nprod] = sprintf("%.2f",$avgtrk[$nprod]);
+        }elsif($avgtrk[$nprod] <= 10.0 ) {
+          $avgtrk[$nprod] = sprintf("%.1f",$avgtrk[$nprod]);
+        }else{
+          $avgtrk[$nprod] = int($avgtrk[$nprod] + 0.5);
+        }
+       }
+    $cursor->finish();
+
+
+########## 
+
 
 
 if($prstat[$nprod] eq "removed" ) {
@@ -305,6 +330,7 @@ if($prstat[$nprod] eq "removed" ) {
 <td HEIGHT=10><h3><font color="green">$szmudst[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$sumevt[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$avgcpu[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="green">$avgtrk[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$strtime[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$fntime[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$prstat[$nprod]</font></h3></td>
@@ -329,6 +355,7 @@ END
 <td HEIGHT=10><h3><font color="red">$szmudst[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$sumevt[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$avgcpu[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red">$avgtrk[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$strtime[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$fntime[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$prstat[$nprod]</font></h3></td>
@@ -353,6 +380,7 @@ END
 <td HEIGHT=10><h3>$szmudst[$nprod]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nprod]</h3></td>
 <td HEIGHT=10><h3>$avgcpu[$nprod]</h3></td>
+<td HEIGHT=10><h3>$avgtrk[$nprod]</h3></td>
 <td HEIGHT=10><h3>$strtime[$nprod]</h3></td>
 <td HEIGHT=10><h3>$fntime[$nprod]</h3></td>
 <td HEIGHT=10><h3>$prstat[$nprod]</h3></td>
@@ -416,8 +444,9 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Size of output files in GB</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.<br>events<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Avg<br>CPU/evt<h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Start time <h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>End time <h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Avg No.<br>tracks<h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Start time <h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>End time <h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Status<h3></B></TD>
 </TR>
     </body>
