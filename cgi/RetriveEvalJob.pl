@@ -73,6 +73,7 @@ my $disksize = ();
 my $nn = 0;
 my $nnd = 0;
 my $dnm = 0;
+my @chainop  = ();
 
 my $jobname = $qtrg."%".$qprod."_".$qtrack."%";
 
@@ -193,6 +194,24 @@ my $jobname = $qtrg."%".$qprod."_".$qtrack."%";
             $nst++;
          }
 
+   }elsif($qflag eq "qchain") {
+
+
+     $sql="SELECT distinct chainOpt FROM $JobStatusT  where trigsetName = ? and prodSeries = ? and evaltag = ? ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute($qtrg,$qprod,$qtrack);
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $chainop[$nst] = $mpr;
+         $nst++; 
+       }
+     $cursor->finish();
+
+   &beginChHtml();
+
+
  }elsif($qflag eq "ndisk") {
 
    &beginDsHtml();
@@ -301,7 +320,7 @@ print <<END;
    <body BGCOLOR=\"cornsilk\"> 
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
- <TD ALIGN=CENTER> <B><h3> List of failed jobs found for <font color="blue">$qprod </font>production and <font color="blue"> $qtrg </font>dataset </B></h3></TD>
+ <TD ALIGN=CENTER> <B><h3> List of failed jobs found for <font color="blue">$qprod </font>production and <font color="blue"> $qtrg </font>dataset and <font color="blue">$qtrack</font> tracker</B></h3></TD>
 </TR>
 </TABLE>
     </body>
@@ -317,7 +336,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>List of jobs crashed for<font color="blue"> $qprod </font> production and <font color="blue">$qtrg </font> dataset  </B></h2>
+ <h2 ALIGN=CENTER> <B>List of jobs crashed for<font color="blue"> $qprod </font> production and <font color="blue">$qtrg </font> dataset  and <font color="blue">$qtrack</font> tracker</B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
@@ -340,7 +359,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>List of jobs failed to create MuDst files on disk for<font color="blue"> $qprod </font> production and <font color="blue">$qtrg </font> dataset  </B></h2>
+ <h2 ALIGN=CENTER> <B>List of jobs failed to create MuDst files on disk for<font color="blue"> $qprod </font> production and <font color="blue">$qtrg </font> dataset and <font color="blue">$qtrack</font> tracker </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
@@ -364,7 +383,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>List of jobs 'hung' for<font color="blue"> $qprod </font> production and <font color="blue">$qtrg </font> dataset  </B></h2>
+ <h2 ALIGN=CENTER> <B>List of jobs 'hung' for<font color="blue"> $qprod </font> production and <font color="blue">$qtrg </font> dataset  and <font color="blue">$qtrack</font> tracker</B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
@@ -386,13 +405,33 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>List of jobs failed to stage files from HPSS for <font color="blue">$qprod</font> production and <font color="blue">$qtrg </font> dataset  </B></h2>
+ <h2 ALIGN=CENTER> <B>List of jobs failed to stage files from HPSS for <font color="blue">$qprod</font> production and <font color="blue">$qtrg </font> dataset and <font color="blue">$qtrack</font> tracker </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
 <TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=60><B><h3>Jobfilename</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>HPSS error</h3></B></TD>
+</TR>
+   </head>
+    </body>
+END
+}
+
+#####################################
+
+sub beginChHtml {
+
+print <<END;
+
+  <html>
+   <body BGCOLOR=\"cornsilk\">
+ <h2 ALIGN=CENTER> <B>Chain options used for <font color="blue">$qprod</font> production, <font color="blue">$qtrg </font> dataset and <font color="blue">$qtrack</font> tracker  </B></h2>
+ <h3 ALIGN=CENTER> Generated on $todate</h3>
+<br>
+<TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
+<TR>
+<TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=60><B><h3>$chainop[0]</h3></B></TD>
 </TR>
    </head>
     </body>
