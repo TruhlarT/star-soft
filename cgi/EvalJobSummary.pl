@@ -19,10 +19,10 @@ use Class::Struct;
 
 &cgiSetup();
 
-#$dbhost="fc2.star.bnl.gov:3386";
+$dbhost="fc2.star.bnl.gov:3386";
 
 
-$dbhost="duvall.star.bnl.gov";
+#$dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
 $dbpass="";
 $dbname="operation";
@@ -71,6 +71,7 @@ my @szmudst = ();
 my @mismudst = ();
 my @trcktag = ();
 my @prstat = ();
+my @avgcpu = ();
 
 my $daydif = 0;
 my $mxtime = 0;
@@ -227,7 +228,7 @@ my $nprod = 0;
 
 ########## 
 
-  $sql="SELECT sum(mudstsize)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%' and prodSeries = '$prodtag[$nprod]' and evaltag = '$trcktag[$nprod]' and outputStatus = 'yes'  ";
+  $sql="SELECT sum(mudstsize)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%' and trigsetName = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and evaltag = '$trcktag[$nprod]' and outputStatus = 'yes'  ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -256,7 +257,7 @@ my $nprod = 0;
 
 ##########
 
-  $sql="SELECT sum(NoEvents)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%' and prodSeries = '$prodtag[$nprod]' and evaltag = '$trcktag[$nprod]' ";
+  $sql="SELECT sum(NoEvents)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%' and trigsetName = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and evaltag = '$trcktag[$nprod]' and jobStatus <> 'n/a' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -269,6 +270,21 @@ my $nprod = 0;
 
 
 ########## 
+
+  $sql="SELECT avg(CPU_per_evt_sec)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%' and trigsetName = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and evaltag = '$trcktag[$nprod]' and jobStatus <> 'n/a' and  CPU_per_evt_sec > 0.0001 ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $avgcpu[$nprod] = $mpr;
+       }
+    $cursor->finish();
+
+
+########## 
+
 
 if($prstat[$nprod] eq "removed" ) {
 
@@ -287,6 +303,7 @@ if($prstat[$nprod] eq "removed" ) {
 <td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=mudst">$mismudst[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$szmudst[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$sumevt[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="green">$avgcpu[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$strtime[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$fntime[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$prstat[$nprod]</font></h3></td>
@@ -310,6 +327,7 @@ END
 <td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=mudst">$mismudst[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$szmudst[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$sumevt[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red">$avgcpu[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$strtime[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$fntime[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$prstat[$nprod]</font></h3></td>
@@ -333,6 +351,7 @@ END
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=mudst">$mismudst[$nprod]</h3></td>
 <td HEIGHT=10><h3>$szmudst[$nprod]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nprod]</h3></td>
+<td HEIGHT=10><h3>$avgcpu[$nprod]</h3></td>
 <td HEIGHT=10><h3>$strtime[$nprod]</h3></td>
 <td HEIGHT=10><h3>$fntime[$nprod]</h3></td>
 <td HEIGHT=10><h3>$prstat[$nprod]</h3></td>
@@ -395,6 +414,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.<br>missing MuDst files</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Size of output files in GB</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.<br>events<h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Avg<br>CPU/evt<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Start time <h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>End time <h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Status<h3></B></TD>
