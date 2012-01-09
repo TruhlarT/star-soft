@@ -387,9 +387,17 @@ $ymax = 1;
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
 
+           if ( scalar(@Npoint) <= 1 ) {
+            print $qqr->header(-type => 'text/html')."\n";
+            &beginHtml();
+
+        } else {
+
     print STDOUT $graph->plot(\@data)->$format();      
+   }
  }
 }
+
 ######################
 sub y_format
 {
@@ -408,4 +416,22 @@ sub StcrsdbConnect {
 ######################
 sub StcrsdbDisconnect {
     $dbh = $dbh->disconnect() || die "Disconnect failure $DBI::errstr\n";
+}
+
+
+#########################
+sub beginHtml {
+
+print <<END;
+  <html>
+   <head>
+          <title>HPSS status</title>
+   </head>
+   <body BGCOLOR=\"#ccffff\">
+     <h1 align=center>No data for the period of $fperiod </h1>
+
+
+    </body>
+   </html>
+END
 }
