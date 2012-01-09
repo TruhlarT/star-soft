@@ -155,7 +155,8 @@ my $dyear = $pryear - 2000 ;
 
 # Tables
 # $crsJobStreamsT = "crsJobStreamsY".$dyear;
-$crsJobStreamsT = "crsJobStreamsY10";
+
+$crsJobStreamsT = "crsJobStreamsY11";
 
 ($sec,$min,$hour,$mday,$mon,$year) = localtime;
 
