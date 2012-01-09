@@ -20,8 +20,8 @@ use GD::Graph::linespoints;
 use Mysql;
 use Class::Struct;
 
-$dbhost="fc2.star.bnl.gov:3386";
-#$dbhost="duvall.star.bnl.gov";
+#$dbhost="fc2.star.bnl.gov:3386";
+$dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
 $dbpass="";
 $dbname="operation";
@@ -52,7 +52,7 @@ my $nowdate = $todate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2010");
+my @prodyear = ("2010","2011");
 
 
 my @arperiod = ( );
@@ -73,7 +73,7 @@ my $prtime;
 my $pstream;
 my $ptrack;
 my $jbTottime;
-my $pryear = "2010";
+my $pryear = "2011";
 
 my %rte = {};
 my %nstr = {};
