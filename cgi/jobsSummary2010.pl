@@ -3,9 +3,9 @@
 # $Id:
 #
 # L.Didenko
-# jobsSummary2010.pl - summary of jobs status for year 2010 production
+# jobSummary2010.pl - summary of production jobs status for year 2010
 #
-###############################################################################
+########################################################################################
 
 
 BEGIN {
@@ -32,6 +32,8 @@ struct JobAttr => {
       prdtag    => '$',
       strtm     => '$',
       fintm     => '$',
+      evtcpu    => '$',
+      avtrk     => '$',
       nevt      => '$'
 };
 
@@ -67,6 +69,8 @@ my @jbhpss = ();
 my @jbresub  = ();
 my @jbmudst = ();
 my @mismudst = ();
+my @avcpu  = ();
+my @avgtrk  = ();
 
 my $daydif = 0;
 my $mxtime = 0;
@@ -76,7 +80,7 @@ my $nprod = 0;
 
   &StDbProdConnect();
 
-  $sql="SELECT distinct trigsetName, prodSeries, date_format(min(createTime), '%Y-%m-%d') as mintm, date_format(max(createTime), '%Y-%m-%d') as maxtm, sum(NoEvents) from $JobStatusT where createTime <> '0000-00-00 00:00:00' and prodSeries not like '%test%' group by trigsetName, prodSeries order by max(createTime) ";
+  $sql="SELECT distinct trigsetName, prodSeries, date_format(min(createTime), '%Y-%m-%d') as mintm, date_format(max(createTime), '%Y-%m-%d') as maxtm, sum(NoEvents), avg(CPU_per_evt_sec), avg(avg_no_tracks) from $JobStatusT where createTime <> '0000-00-00 00:00:00' and prodSeries not like '%test%' and CPU_per_evt_sec > 0.0001  group by trigsetName, prodSeries order by max(createTime) ";
 
 
             $cursor =$dbh->prepare($sql)
@@ -95,6 +99,8 @@ my $nprod = 0;
                 ($$fObjAdr)->trgset($fvalue)   if( $fname eq 'trigsetName');
                 ($$fObjAdr)->prdtag($fvalue)   if( $fname eq 'prodSeries');
                 ($$fObjAdr)->nevt($fvalue)     if( $fname eq 'sum(NoEvents)');
+                ($$fObjAdr)->evtcpu($fvalue)   if( $fname eq 'avg(CPU_per_evt_sec)');
+                ($$fObjAdr)->avtrk($fvalue)    if( $fname eq 'avg(avg_no_tracks)');
                 ($$fObjAdr)->strtm($fvalue)    if( $fname eq 'mintm');
                 ($$fObjAdr)->fintm($fvalue)    if( $fname eq 'maxtm');
 
@@ -106,29 +112,36 @@ my $nprod = 0;
 
   &beginHtml();
 
-  my @prt = ();
+ my @prt = ();
 
        foreach  $pjob (@jbstat) {
 
     $prodtag[$nprod]  = ($$pjob)->prdtag;
-    $artrg[$nprod]   = ($$pjob)->trgset;
-    $sumevt[$nprod]  = ($$pjob)->nevt;
-    $strtime[$nprod] =  ($$pjob)->strtm;
-    $fntime[$nprod]  =  ($$pjob)->fintm;
-
+    $artrg[$nprod]    = ($$pjob)->trgset;
+    $sumevt[$nprod]   = ($$pjob)->nevt;
+    $avcpu[$nprod]    = ($$pjob)->evtcpu;
+    $avgtrk[$nprod]   = ($$pjob)->avtrk;
+    $strtime[$nprod]  = ($$pjob)->strtm;
+    $fntime[$nprod]   = ($$pjob)->fintm;
+    $avcpu[$nprod]    = sprintf("%.2f",$avcpu[$nprod]);
+    if($avgtrk[$nprod] <= 1.0 ) {
+    $avgtrk[$nprod] = sprintf("%.2f",$avgtrk[$nprod]);
+    }elsif($avgtrk[$nprod] <= 10.0 ) {
+    $avgtrk[$nprod] = sprintf("%.1f",$avgtrk[$nprod]);
+    }else{
+    $avgtrk[$nprod] = int($avgtrk[$nprod] + 0.5);
+    }
     @prt = ();
     $mxtime = $fntime[$nprod];
     @prt = split("-",$mxtime);
     $mxtime =~ s/-//g;
     $daydif = $nowdate - $mxtime;
     $mondif = $mon - $prt[1];
-
-   if($mondif == 1  and ($daydiff == 70 or $daydiff == 71 )) {
-
+    
+    if($mondif == 1 and ($daydiff == 70 or $daydiff == 71 )) {
     $daydif = $nowdate - $mxtime - $daydiff;
-
     };
-
+    
     $jbcreat[$nprod] = 0;
     $jbdone[$nprod] = 0;
     $jbcrsh[$nprod] = 0;
@@ -141,7 +154,7 @@ my $nprod = 0;
 
 ###########
 
-   $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%' and prodSeries = '$prodtag[$nprod]' ";
+   $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%' and trigsetName = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -155,7 +168,7 @@ my $nprod = 0;
   
 ############
 
-   $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%'  and prodSeries = '$prodtag[$nprod]' and jobStatus = 'Done' ";
+   $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%'  and prodSeries = '$prodtag[$nprod]' and trigsetName  = '$artrg[$nprod]' and jobStatus = 'Done' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -169,7 +182,7 @@ my $nprod = 0;
 
 ###########
 
-   $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%' and prodSeries = '$prodtag[$nprod]' and jobStatus <> 'Done' and jobStatus <> 'n/a' and jobStatus <> 'hung'  ";
+   $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%'  and trigsetName  = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and jobStatus <> 'Done' and jobStatus <> 'n/a' and jobStatus <> 'hung'  ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -183,7 +196,7 @@ my $nprod = 0;
 
 ##########
 
-   $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%' and prodSeries = '$prodtag[$nprod]' and jobStatus = 'hung' ";
+   $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%'  and trigsetName  = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and jobStatus = 'hung' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -196,7 +209,7 @@ my $nprod = 0;
 
 ########## 
 
-   $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%' and prodSeries = '$prodtag[$nprod]' and inputHpssStatus like 'hpss_error%'  ";
+   $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%'  and trigsetName  = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and inputHpssStatus like 'hpss_error%'  ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -210,7 +223,7 @@ my $nprod = 0;
 
 ########## 
 
-   $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%' and prodSeries = '$prodtag[$nprod]' and submitAttempt >=2  ";
+   $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%'  and trigsetName  = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and submitAttempt >=2  ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -223,7 +236,7 @@ my $nprod = 0;
 
 ########## 
 
-  $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%' and prodSeries = '$prodtag[$nprod]' and outputHpssStatus = 'yes'  ";
+  $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%' and trigsetName   = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and outputHpssStatus = 'yes'  ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -237,7 +250,7 @@ my $nprod = 0;
 ########## 
 
 
-  $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%' and prodSeries = '$prodtag[$nprod]' and jobStatus <> 'n/a' and jobStatus <> 'hung' and inputHpssStatus = 'OK' and outputHpssStatus = 'n/a' ";
+  $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%'  and trigsetName  = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and jobStatus <> 'n/a' and jobStatus <> 'hung' and inputHpssStatus = 'OK' and outputHpssStatus = 'n/a' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -250,7 +263,7 @@ my $nprod = 0;
 
 ########## 
 
-   if($daydif <= 2){
+ if( $daydif <= 2){
 
 print <<END;
 
@@ -266,6 +279,8 @@ print <<END;
 <td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2010;pflag=mudst">$mismudst[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$jbmudst[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$sumevt[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2010;pflag=strcpu">$avcpu[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red">$avgtrk[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$strtime[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$fntime[$nprod]</font></h3></td>
 </TR>
@@ -287,6 +302,8 @@ END
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2010;pflag=mudst">$mismudst[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbmudst[$nprod]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nprod]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2010;pflag=strcpu">$avcpu[$nprod]</h3></td>
+<td HEIGHT=10><h3>$avgtrk[$nprod]</h3></td>
 <td HEIGHT=10><h3>$strtime[$nprod]</h3></td>
 <td HEIGHT=10><h3>$fntime[$nprod]</h3></td>
 </TR>
@@ -294,6 +311,7 @@ END
 
 }
       $nprod++;
+
 }
 
     &StDbProdDisconnect();
@@ -321,18 +339,17 @@ sub beginHtml {
 print <<END;
 
   <html>
-   <head>
-          <title>Summary of production jobs for run 2010</title>
-    </head>    
-
+    <head>
+          <title>Summary of production jobs for run 2011</title> 
+    </head>
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>Summary of production jobs status for<font color="blue"> run 2010 </font>data  </B></h2>
+ <h2 ALIGN=CENTER> <B>Summary of production jobs status for<font color="blue"> run 2011 </font>data  </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
-<br>
 <h4 ALIGN=LEFT><font color="#ff0000">Ongoing production is in red color</font></h4>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
+<br>
 <TR>
-<TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=60><B><h3>Trigger set</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Trigger set</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Prod.<br>tag</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs created</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs done</h3></B></TD>
@@ -343,10 +360,12 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.<br>MuDst files missing on HPSS</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.<br>MuDst files on HPSS</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.events produced<h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Avg.<br>CPU/evt<br> in sec<h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Avg.No.<br>tracks<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Start time <h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>End time <h3></B></TD>
 </TR>
-    </body>
+   </body>
 END
 }
 
