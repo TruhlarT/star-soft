@@ -372,11 +372,11 @@ print <<END;
   <html>
 
     <head>
-          <title>Summary of calibrations production jobs status</title>
+          <title>Summary of calibration productions jobs status</title>
     </head>
 
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>Summary of calibration production jobs status</h2>
+ <h2 ALIGN=CENTER> <B>Summary of calibration productions jobs status</h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <h4 ALIGN=LEFT><font color="#ff0000">Ongoing production is in red color</font><br>
