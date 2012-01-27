@@ -53,7 +53,7 @@ my $chainopt;
 
   &StDbProdConnect();
 
-    $sql="SELECT chainOpt  FROM $chainOptionT  where prodSeries = ? and simuID = ? and trackerName = ? ";
+    $sql="SELECT chainOpts  FROM $chainOptionT  where prodSeries = ? and simuID = ? and trackerName = ? ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -80,7 +80,7 @@ print <<END;
    <body BGCOLOR=\"cornsilk\"> 
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
- <TD ALIGN=CENTER> <B><h3> Chain options used for <font color="blue">$qsimid dataset and $qprod production with $qtrk tracker </font></B></h3></TD>
+ <TD ALIGN=CENTER> <B><h3> Chain options used for <font color="blue">$qsimid </font>dataset and <font color="blue">$qprod </font> production with <font color="blue">$qtrk </font> tracker </font></B></h3></TD>
 </TR><TR>
 <TD  ALIGN=CENTER WIDTH=\"100%\" HEIGHT=50><h3>$chainopt</h3></TD>
 </TR>
