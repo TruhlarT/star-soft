@@ -78,10 +78,10 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\"> 
-<TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
+ <h2 ALIGN=CENTER> <B><h2> Chain options used for <font color="blue">$qsimid </font>dataset and <font color="blue">$qprod </font> production with <font color="blue">$qtrk </font> tracker </font></B></h2>
+<br>
+<TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
- <TD ALIGN=CENTER> <B><h3> Chain options used for <font color="blue">$qsimid </font>dataset and <font color="blue">$qprod </font> production with <font color="blue">$qtrk </font> tracker </font></B></h3></TD>
-</TR><TR>
 <TD  ALIGN=CENTER WIDTH=\"100%\" HEIGHT=50><h3>$chainopt</h3></TD>
 </TR>
 
