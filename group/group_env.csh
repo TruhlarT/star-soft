@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.241 2011/11/29 18:34:45 jeromel Exp $
+#       $Id: group_env.csh,v 1.242 2012/01/30 21:15:00 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -476,9 +476,13 @@ setenv STAR_SCRIPTS $STAR_PATH/scripts
 setenv STAR_CGI  $STAR_PATH/cgi
 setenv STAR_MGR  $STAR/mgr
 setenv STAR_PAMS $STAR/pams;            if ($ECHO) echo   "Setting up STAR_PAMS = ${STAR_PAMS}"
-setenv STAR_DATA ${STAR_ROOT}/data;     if ($ECHO) echo   "Setting up STAR_DATA = ${STAR_DATA}"
-setenv CVSROOT   $STAR_PATH/repository; if ($ECHO) echo   "Setting up CVSROOT   = ${CVSROOT}"
 
+if ( -e ${STAR_ROOT}/data ) then
+setenv STAR_DATA ${STAR_ROOT}/data;     if ($ECHO) echo   "Setting up STAR_DATA = ${STAR_DATA}"
+endif
+if ( -e $STAR_PATH/repository ) then
+setenv CVSROOT   $STAR_PATH/repository; if ($ECHO) echo   "Setting up CVSROOT   = ${CVSROOT}"
+endif
 
 
 # The block below will be enabled only if there is botha ROOT_LEVEL
