@@ -3,7 +3,7 @@
   inclR("refData.php");
   inclR("refDisplayPlots.php");
   
-  global $id,$inputfile,$res,$cuts,$trigs,$viewmode,$edit;
+  global $refID,$inputfile,$res,$cuts,$trigs,$viewmode,$edit,$doPageCell;
   global $user_dir,$go_back,$combJob,$singleFile,$combID;
 
   # viewmodes:
@@ -67,8 +67,9 @@
            : " only");
   }
   print ")</nobr></h3>\n";
-  print "<table border=0 cellpadding=0 cellspacing=3 width=\"96%\">\n";
-  print "<tr>${thl}Page</th>${thl}Cell</th>${thl}Histogram Name</th>\n";
+  print "<table border=0 cellpadding=0 cellspacing=3 width=\"96%\">\n<tr>\n";
+  if ($doPageCell) { print "<tr>${thl}Page</th>${thl}Cell</th>"; }
+  print "${thl}Histogram Name</th>\n";
   print "${thr}( Result</th>${thc}&le;&ge;</th><th align=left colspan=2>Cut )</th></tr>\n";
   
   $user = "";
@@ -96,6 +97,7 @@
 
   $any_yet = 1;
   $hist_idx = 1;
+  $colspan = ($doPageCell ? 7 : 5);
   
   foreach ($res as $TR => $typdata) {
     $none_yet = 1;
@@ -108,11 +110,11 @@
         
         $failed = ($analRes < $cut);
         $questionable = ($analRes >= $cut && $analRes - $cut < 0.1 * (1 - $cut));
-        if ($viewmode == 3 && $id >= 0) { recordResultsForFiles($user,$name,$analRes,$id,$cut,$files); }
+        if ($viewmode == 3 && $refID >= 0) { recordResultsForFiles($user,$name,$analRes,$refID,$cut,$files); }
         $list_it = ($viewmode == 2 ? markExists($name) : ($failed || $viewmode));
         if ($list_it) {
           if ($none_yet) {
-            print "<tr><td colspan=7 align=center><br><i><u>" . $trigs[$TR]
+            print "<tr><td colspan=${colspan} align=center><br><i><u>" . $trigs[$TR]
                 . " Histograms</u></i></td></tr>\n";
             $none_yet = 0;
             $any_yet = 0;
@@ -121,8 +123,8 @@
           $bcol = $bcols[$colkey][1 - $hist_idx % 2];
           $tdl2 = "<td align=left bgcolor=\"${bcol}\">";
           $tdl3 = "<td align=left bgcolor=\"${bcol}\" ondblclick=\"ViewHistTitle(${hist_idx},'${name}')\">";
-          print "<tr>${tdl}${pg}</td>";
-          print "${tdl}${cl}</td>";
+          print "<tr>";
+          if ($doPageCell) { print "${tdl}${pg}</td>${tdl}${cl}</td>"; }
           print "${tdl3}<b>${name}</b><div id=\"histTitle${hist_idx}\" style=\"width:225px;\">";
           print "</div></td>";
 
@@ -134,7 +136,7 @@
           print "</td></tr>\n";
           # GGG
           if ($viewmode == 11) {
-            print "<tr><td colspan=7 align=left><div style=\"background-color:${bcol}; display: table; \">\n";
+            print "<tr><td colspan=${colspan} align=left><div style=\"background-color:${bcol}; display: table; \">\n";
             displayPlots($name);
             print "</div><p>";
             print "</td></tr>\n";
@@ -147,7 +149,8 @@
   }
   
   if ($any_yet) {
-    print "<tr><td colspan=6 align=center><br><i><u>none found</u></i></td></tr>\n";
+    $colspan--;
+    print "<tr><td colspan=${colspan} align=center><br><i><u>none found</u></i></td></tr>\n";
   }
   print "</table>\n";
 

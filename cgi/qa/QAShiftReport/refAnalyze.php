@@ -9,7 +9,7 @@
   getPassedVarStrict("inputfile");
   getPassedVarStrict("format");
   getPassedVarStrict("user");
-  getPassedInt("id");
+  getPassedInt("refID");
   getPassedInt("combID");
 
   function copyCombLogs($dir,$mode) {
@@ -37,8 +37,8 @@
   $status=1;
   $infile = $inputfile;
   
-  if ($id >= 0) {
-    if (strlen(getFileById($id))==0) { $status = -99; }
+  if ($refID >= 0) {
+    if (strlen(getFileById($refID))==0) { $status = -99; }
   }
 
   if ($combID >= 0) {
@@ -59,29 +59,30 @@
     $cutsID = -1;
     $refCacheExists = false;
     $cacheDir = ""; $cacheTempDir = "";
-    if ($id >=0) {
-      $info = getInfoById($id);
+    if ($refID >=0) {
+      $info = getInfoById($refID);
       $cutsID = getLatestCutsID($info['runYear'],$info['trig']);
       # Check on reference cache existence
-      $cacheDir = userRefDir($QARefCache,$id);
+      $cacheDir = userRefDir($QARefCache,$refID);
       if (is_dir($cacheDir) && file_exists($cacheDir . "/fullCopy")) {
         $refCacheExists = true;
       } else {
         # Maybe a produced cache is waiting for copy
-        $cacheTempDir = $DAEMON_OUTPUT_DIR . $QARefCache . "_" . $id;
+        $cacheTempDir = $DAEMON_OUTPUT_DIR . $QARefCache . "_" . $refID;
         $refCacheExists = is_dir($cacheTempDir);
       }
     }
-    $procID = refProcRequest($id,$cutsID);
+    $procID = refProcRequest($refID,$cutsID);
     if ($procID < 0) {
       $status = -91; # unable to process
     } else {
-      if (! $refCacheExists) { refProcRequest($id,$cutsID,true); }
+      if (($refID >= 0) && (! $refCacheExists)) { refProcRequest($refID,$cutsID,true); }
       # Wait for the results...
       $res = waitForProc(0,$procID,-98,-96,-97);
       if (strlen($cacheTempDir) && is_dir($cacheTempDir)) {
         # Copy a waiting produced reference cache
         cpdir($cacheTempDir,$cacheDir);
+        system("/bin/csh -f -c \"/usr/bin/bunzip2 ${cacheDir}/*.bz2 >& /dev/null &\"");
         touch($cacheDir . "/fullCopy");
       }
       $status = $res[0];
@@ -92,7 +93,7 @@
     fstart("successForm","refOutput.php","QARofr");
     fhidden("inputfile",$infile);
     fhidden("format",$format);
-    fhidden("id",$id);
+    fhidden("refID",$refID);
     fhidden("cutsID",$cutsID);
     fhidden("newRefHists",$results['refFile']);
     fhidden("refResults",$results['refCuts']);

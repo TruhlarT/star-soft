@@ -3,19 +3,19 @@
 @(include "refSetup.php") or die("Problems (0).");
 inclR("refData.php");
 
-getPassedInt("id");
+getPassedInt("refID");
 
 head("QA Refence Histograms: Info for Selected Set");
 body();
 
 print "<h3>Info for Selected Reference Histogram Set:</h3>\n";
 
-if ($id < 0) {
+if ($refID < 0) {
   print "</i>No reference set selected for analysis.";
-  if ($id == -999) { print "Plots made without comparison to reference set."; }
+  if ($refID == -999) { print "Plots made without comparison to reference set."; }
   print "</i>";
 } else {
-  $info = getInfoById($id);
+  $info = getInfoById($refID);
   if ($info == 0) {
     print "<i>Invalid set requested.</i>\n";
   } else {
@@ -27,7 +27,7 @@ if ($id < 0) {
     print "<tr><td align=right><b>Version <font size=-1><nobr>(date entered)</nobr></font>:</b></td>";
     print "<td align=left>" . $info['vers'] . " <font size=-1>(" . $info['entryTime'] . " GMT)</font></td></tr>\n";
     print "<tr><td align=right><b><nobr>Set id #:</nobr></b></td>";
-    print "<td align=left>${id}</td></tr>\n";
+    print "<td align=left>${refID}</td></tr>\n";
     print "<tr><td align=right><b><nobr>Entered by:</nobr></b></td>";
     print "<td align=left>" . $info['user'] . "</td></tr>\n";
     print "<tr><td align=right valign=top><b>Comments:</b></td>";

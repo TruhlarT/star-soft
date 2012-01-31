@@ -199,7 +199,7 @@
   
   fend();
   
-  fbutton("viewTrends","View Trends","ViewTrends(1)");
+  fbutton("viewTrends","View Trends","ViewTrends('')");
   endSection();  
   linebreak();
   
@@ -213,7 +213,7 @@
 
   print "</div>\n<div id=\"trendGraph\" ";
   print "style=\"position:absolute; bottom:10px; left:10px; z-index:200; display:none; ";
-  print "background-color:#ffdc9f; border: 2px solid rgb(0, 64, 128); \">";
+  print "background-color:" . $myCols["emph"] . "; border: 2px solid rgb(0, 64, 128); \">";
   print "</div>\n<div id=\"jhelpers\">\n";
   
   jstart();
@@ -222,16 +222,16 @@
     ?>
     function UpdateSubmit(formToSub) {
       setTimeout("document." + formToSub + ".submit()",0);
-      str = "<?php print ${strRunEdit1}; ?>";
+      str = "<?php print $strRunEdit1; ?>";
       setTimeout(str,250);
     }
     function SetDeleteCut() {
       document.cutForm.cut.value = -999;
     }
 <?php } ?>
-    function ViewTrends(opt) {
+    function ViewTrends(args) {
       $.ajax({
-              url : <?php print "\"refGraph.php?name=${name}&opt=\" + opt,";?>
+              url : "refGraph.php?name=<?php print $name; ?>" + args,
               success : function (data) {
                 $("#trendGraph").html(data);
                 document.getElementById("trendGraph").style.display = 'block';

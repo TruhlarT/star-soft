@@ -57,8 +57,8 @@
   
   
   function makemenu($enums,$level,$parent,$parent_idx,$defaultEnum=-1) {
-    global $refMenuMode,$idcnt,$jfuncstr,$defSelTag,$whichBrowser;
-    $fstr = ""; $fullySelected = false;
+    global $refMenuMode,$idcnt,$jfuncstr,$defSelTag;
+    $action = ""; $fullySelected = false;
     $cnt = count($enums);
     $idcnt++;
     $showing = (selectedTag($parent,$parent_idx) == $defSelTag);
@@ -79,18 +79,8 @@
     } else {
       # $force==1 makes the submit button appear (forces past level 2)
       $force = ($level==1 && $refMenuMode==1 ? 1 : 0);
-      $fstr = "showSel(${idcnt},${force})";
-      $str.= "<select name=$ename";
-      if (!($whichBrowser === "Safari")) {
-        # Chrome + Firefox + others
-        $str.= " onchange=\"setTimeout('${fstr}',100)\"";
-        #$str.= " onblur=\"setTimeout('${fstr}',100)\"";
-      }
-      if (!(($whichBrowser === "Chrome") || ($whichBrowser === "Firefox"))) {
-        # Safari + others
-        $str.= " onclick=\"setTimeout('${fstr}',100)\"";
-      }
-      $str.= ">\n";
+      $action = "showSel(${idcnt},${force})";
+      $str.= onSelect($ename,$action);
       
       $enumI = 0;
       foreach ($enums as $k => $v) {
@@ -114,12 +104,12 @@
       }
       $str.= "</select>\n";
       $str.= "<input type=button name=\"advance${idcnt}\" value=\"&"
-      . ($level==2 ? "c" : "") . "rarr;\" onclick=\"${fstr}\">\n";
+      . ($level==2 ? "c" : "") . "rarr;\" onclick=\"${action}\">\n";
     }
     $str.= "</span>\n";
     $jfuncstr .= "    selectors[${idcnt}] ="
     . " new refSelector(${level},${cnt},${parent},${parent_idx});\n";
-    if ($fullySelected) { $jfuncstr .= "    setTimeout('${fstr}',150);\n"; }
+    if ($fullySelected) { $jfuncstr .= "    setTimeout('${action}',150);\n"; }
     return $str;
   }
   
@@ -132,7 +122,6 @@
     #   2 : existing versions menu
     global $l0str,$l1str,$l2str,$refMenuMode,$idcnt;
     $refMenuMode = $mode;
-    getWhichBrowser();
     $runYearTrig = getYTfromRun($runNumber);
     $runYears = array();
     if ($refMenuMode == 1) { $runYears[] = $runYearTrig['runYear']; }

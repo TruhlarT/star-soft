@@ -111,7 +111,7 @@
   function helpButton($topic) {
     if (!cleanInt($topic)) { return; }
     $rtmrgn = ($topic>10 ? 20 : 5);
-    print "<div id=\"helpButton\" style=\"position:absolute; top:3px; right:${rtmrgn}px; z-index:1020; \">\n";
+    print "<div id=\"helpButton${topic}\" style=\"position:absolute; top:3px; right:${rtmrgn}px; z-index:1020; \">\n";
     fstart("helpForm${topic}","refHelp.php","QARhelp");
     fhidden("topic",$topic);
     fbutton("Help${topic}","Help","loadWindow('helpForm${topic}','QARhelp')");
@@ -121,7 +121,7 @@
       
       
 ###############################
-# Browser Info
+# Browser Info and Uses
 #
 
   $whichBrowser = "unknown";
@@ -144,6 +144,22 @@
     } else {
       $whichBrowser = "unknown";
     }
+  }
+  function onSelect($name,$action) {
+    global $whichBrowser;
+    if ($whichBrowser == "unknown") { getWhichBrowser(); }
+    $tiout = 100;
+    $str = "<select name=$name";
+    if (!($whichBrowser === "Safari")) {
+      # Chrome + Firefox + others
+      $str.= " onchange=\"setTimeout('${action}',${tiout})\"";
+      #$str.= " onblur=\"setTimeout('${action}',${tiout})\"";
+    }
+    if (!(($whichBrowser === "Chrome") || ($whichBrowser === "Firefox"))) {
+      # Safari + others
+      $str.= " onclick=\"setTimeout('${action}',${tiout})\"";
+    }
+    return $str . ">\n";
   }
 
 ?>

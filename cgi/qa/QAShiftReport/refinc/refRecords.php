@@ -80,18 +80,28 @@
     if (rand(1,1000)==2) { optimizeResultsTable(); } # Slow on big table
   }
   
-  function getRecordedResults($name,$idx) {
+  function getRecordedResults($name,$idx,$min=false,$max=false) {
     global $dbResultsTable;
     # Only obtain results since the last October 1st
     $qry = "SELECT `result`,`refId`,`cut`,`runNumber`"
-    . ",unix_timestamp(`entryTime`) as eTime,DATE_FORMAT(`entryTime`,\"%Y-%m-%d\") as enTime"
-    . ",unix_timestamp(`procTime`) as pTime,DATE_FORMAT(`procTime`,\"%Y-%m-%d\") as prTime"
-    . ",unix_timestamp(`seenTime`) as sTime,DATE_FORMAT(`seenTime`,\"%Y-%m-%d\") as seTime"
+    . ",UNIX_TIMESTAMP(`entryTime`) AS eTime,DATE_FORMAT(`entryTime`,\"%Y-%m-%d\") AS enTime"
+    . ",UNIX_TIMESTAMP(`procTime`) AS pTime,DATE_FORMAT(`procTime`,\"%Y-%m-%d\") AS prTime"
+    . ",UNIX_TIMESTAMP(`seenTime`) AS sTime,DATE_FORMAT(`seenTime`,\"%Y-%m-%d\") AS seTime"
     #. " FROM $dbResultsTable WHERE `name`='${name}' AND FLOOR(YEAR(NOW())+QUARTER(NOW())/4)="
     #. "FLOOR(YEAR(entryTime)+QUARTER(entryTime)/4) ORDER BY `${idx}` ASC";
     . " FROM $dbResultsTable WHERE `name`='${name}' AND "
     #    . "entryTime>\"2011-03-15\" ORDER BY `${idx}` ASC";
-    . "entryTime>\"2011-04-03\" ORDER BY `${idx}` ASC";
+    . "entryTime>\"2011-04-03\""
+    . " GROUP BY `runNumber`,`cut`,`refId`,`result`";
+    if ($min || $max) {
+      $qry .= " HAVING";
+      if ($min !== false) { $qry .= " ${idx}>=${min}"; }
+      if ($max !== false) { 
+        if ($min !== false) {$qry .= " AND"; }
+        $qry .= " ${idx}<=${max}";
+      }
+    }
+    $qry .= " ORDER BY `${idx}` ASC";
     return queryDB($qry);
   }
 

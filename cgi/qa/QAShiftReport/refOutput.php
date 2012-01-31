@@ -11,7 +11,7 @@
   getPassedVarStrict("user_dir");
   getPassedVar("newRefHists");
   getPassedVar("refResults");
-  getPassedInt("id");
+  getPassedInt("refID");
   getPassedInt("cutsID");
   $combJob = getPassedVarStrict("combID",1);
   
@@ -69,6 +69,8 @@
   
   helpButton(3);
   $sectColor = $myCols[($exists_plots || $format=="none" ? "good" : "bad")];
+
+  if ($format!="none") {
   beginSection("plots","Output plots",800,$sectColor);
   if ($exists_plots) {
     foreach ($trigs as $type => $v) {
@@ -82,13 +84,12 @@
         print "<br>\n";
       }
     }
-  } elseif ($format=="none") {
-    print "<i>None requested.</i>\n";
   } else {
     print "<i>None found!</i>\n";
   }
   endSection();
   linebreak();
+  } #Output plots if requested
   
   $sectColor = $myCols[($exists_stdout && $exists_stderr ? "good" : "bad")];
   beginSection("logs","Logs",801,$sectColor);
@@ -120,10 +121,11 @@
   
   if ($exists_plots || $format=="none") {
     fstart("statusForm","refShowAnalysis.php","QARmfr");
-    fhidden("id",$id);
+    fhidden("refID",$refID);
     fhidden("cutsID",$cutsID);
     fhidden("inputfile",$inputfile);
     fhidden("page",0);
+    fhidden("doPageCell",($format=="none" ? 0 : 1));
     fhidden("user_dir",$user_dir);
     fhidden("newRefHists",$newRefHists);
     fhidden("refResults",$refResults);

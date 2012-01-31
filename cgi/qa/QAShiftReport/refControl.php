@@ -6,11 +6,14 @@
   inclR("requestHandling.php");
   incl("sections.php");
   
+  # Defaults
   $oooer = "viewRef";
+  $fileFormat = "none";
+  $whichHist = "reg";
 
-  getPassedVarStrict("fileFormat");
   getPassedVarStrict("textUserName");
-  getPassedVarStrict("whichHist");
+  getPassedVarStrict("fileFormat",1);
+  getPassedVarStrict("whichHist",1);
   getPassedVarStrict("oooer",1);
   $formats = array("ps" => "PostScript",
                    "pdf" => "PDF",
@@ -65,8 +68,8 @@ a.items:hover {color: maroon; text-decoration: none; }
   initRefSelectors(2,$useRuns[0]);  
   ?>
     function prepReady(val) {
-      document.showInfoForm.id.value = val;
-      document.analyzeForm.id.value = val;
+      document.showInfoForm.refID.value = val;
+      document.analyzeForm.refID.value = val;
     }
     function prepAnalysis() {
       aForm = document.analyzeForm;
@@ -78,10 +81,10 @@ a.items:hover {color: maroon; text-decoration: none; }
       window.parent.setFirst();
     }
     function noAnalysis() {
-      id = document.analyzeForm.id.value;
+      refID = document.analyzeForm.refID.value;
       prepReady(-999);
       prepAnalysis();
-      setTimeout('prepReady(' + id + ');',300);
+      setTimeout('prepReady(' + refID + ');',300);
     }
     function backToQA(val) {
       bForm = document.backForm;
@@ -157,7 +160,7 @@ a.items:hover {color: maroon; text-decoration: none; }
 
     # For showing info about the selected reference histogram set:
     fstart("showInfoForm","refShowInfo.php","QARinfo");
-    fhidden("id","-1");
+    fhidden("refID","-1");
     fend();
     
     # For starting the analysis:
@@ -166,7 +169,7 @@ a.items:hover {color: maroon; text-decoration: none; }
     fhidden("format",$fileFormat);
     fhidden("user",$textUserName);
     fhidden("whichHist",$whichHist);
-    fhidden("id","-1");
+    fhidden("refID","-1");
     fhidden("combID",$combID);
     if (!($oooer === "viewRef")) fhidden("useRuns",$useRunsStr);
     fend();

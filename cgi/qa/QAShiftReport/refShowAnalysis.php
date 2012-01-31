@@ -8,19 +8,19 @@
 
   global $DAEMON_OUTPUT_DIR,$marks_exist,$go_back,$singleFile,$myCols;
   
-  getPassedInt("id");
+  getPassedInt("refID");
   getPassedInt("cutsID");
   getPassedVarStrict("inputfile");
   getPassedInt("page"); # page > 0 means we are editing/examining
   getPassedVarStrict("user_dir");
+  getPassedInt("doPageCell");
   getPassedVar("newRefHists");
   getPassedVar("refResults");
   $edit = 0;
   getPassedInt("edit",1);
 
   $combJob = getPassedVarStrict("combID",1);
-  $singleFile = (strlen($inputfile) < 1 || $id < 0);
-
+  $singleFile = (strlen($inputfile) < 1 || $refID < 0);
   
   headR("QA Reference Histogram Analysis");
   
@@ -112,7 +112,7 @@
     print (isRunNum($inputfile) ? "run " : "")
     . ($combJob ? "combined files (see selections above)" : $inputfile);
   } else {
-    print "reference set ${id}";
+    print "reference set ${refID}";
   }
   print "</b>\n<p>\n";
   
@@ -127,12 +127,13 @@
   linebreak();
   fbutton("apbutton","All + Plots","viewmode.value=11;submit()");
 
-  fhidden("id",$id);
+  fhidden("refID",$refID);
   fhidden("cutsID",$cutsID);
   fhidden("inputfile",$inputfile);
   fhidden("user_dir",$user_dir);
   fhidden("newRefHists",$newRefHists);
   fhidden("refResults",$refResults);
+  fhidden("doPageCell",$doPageCell);
   fhidden("viewmode",0);
   fhidden("ttyp","");
   fhidden("page",0);
@@ -147,10 +148,13 @@
   print ($singleFile ? "plots" : "analysis") . " for:</b><br>\n";
   print "<span id=\"prever\" style=\"display:none ;z-index:102 \">\n";
   fbutton("prevEdit","Prev","eval(prevStr)");
-  print "</span>\n<span id=\"nexter\" style=\"display:none ;z-index:103 \">\n";
+  print "</span>\n<span id=\"noneer\" style=\"display:none ;z-index:103 \">\n";
+  fbutton("noneEdit","----","");
+  print "</span>\n<span id=\"nexter\" style=\"display:none ;z-index:104 \">\n";
   fbutton("nextEdit","Next","eval(nextStr)");
   print "</span>\n<br>\n\n";
   
+  print "<span id=\"trButtonss\" style=\"display:none ;z-index:105 \">\n";
   foreach ($res as $TR => $typdata) {
     if (count($typdata) < 1) continue;
     print "<input type=\"radio\" name=\"trButtons\" value=\"${TR}\""
@@ -159,9 +163,11 @@
     if ($TR==$ttyp) { print " checked"; }
     print ">" . $trigs[$TR] . "<br>\n";
   }
+  print "</span>\n<br>\n\n";
+
   fend(); #dispForm
   
-  $zin = 103;
+  $zin = 106;
   $prevStr = false;
   $nextStr = false;
   $lastStr = false;
@@ -208,25 +214,58 @@
     print "</div>\n\n"; #div${TR}
     
   }
+
   endSection();
   print "</div>\n\n"; #refMenu
   #print "</div>\n</div>\n\n"; #bordered box; refMenu
+
+  print "<div id=\"zoomPlot\" ";
+  print "style=\"position:absolute; top:10px; left:10px; z-index:201; display:none; ";
+  print "background-color:" . $myCols["emph"] . "; border: 2px solid rgb(0, 64, 128); \">";
+  print "</div>\n\n";
   
   # initial values for Menu
   jstart();
+  ?>
+    function LoadZoom(args) {
+      ops = 'fullscreen=yes,toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes';
+      window.open(args,'QARzfr',ops);
+    }
+    function ViewZoom(args) {
+      alert("GGGG :: " + args);
+      $.ajax({
+              url : args,
+              success : function (data) {
+                $("#zoomPlot").html(data);
+                document.getElementById("zoomPlot").style.display = 'block';
+              }
+             });
+    }
+    function HideZoom() {
+      $("#zoomPlot").html("");
+      document.getElementById("zoomPlot").style.display = 'none';
+    }
+<?php
   if ($prevStr) {
     print "    setTimeout('showElem(\"prever\")',100);\n";
     print "    prevStr=\"${prevStr}\";\n";
+  } else {
+    print "    setTimeout('showElem(\"noneer\")',100);\n";
   }
   if ($nextStr) {
     print "    setTimeout('showElem(\"nexter\")',100);\n";
     print "    nextStr=\"${nextStr}\";\n";
-  }
-  if ($page > 0) {
-    print "    setTimeout('showOnlyElem(\"div${ttyp}\")',100);\n";
   } else {
-    print "    setTimeout('document.dispForm.trButtons[0].checked=true',100);\n";
-    print "    setTimeout('showOnlyElem(\"div\" + document.dispForm.trButtons[0].value)',100);\n";
+    print "    setTimeout('showElem(\"noneer\")',100);\n";
+  }
+  if ($doPageCell) {
+    if ($page > 0) {
+      print "    setTimeout('showOnlyElem(\"div${ttyp}\")',100);\n";
+    } else {
+      print "    setTimeout('document.dispForm.trButtons[0].checked=true',100);\n";
+      print "    setTimeout('showOnlyElem(\"div\" + document.dispForm.trButtons[0].value)',100);\n";
+    }
+    print "    setTimeout('showElem(\"trButtonss\")',100);\n";
   }
   if ($go_back) {
     ?>
