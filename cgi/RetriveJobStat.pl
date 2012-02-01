@@ -45,6 +45,7 @@ struct JobAttr => {
       jbtrk     => '$',
       stname    => '$',
       stcpu     => '$',
+      jbcrtime  => '$',
       jbevt     => '$'
  };
 
@@ -68,6 +69,8 @@ my @jbstat = ();
 my @jbStatus = ();
 my @jbfName = ();
 my @jbEvent = ();
+my @jbctime = ();
+my @jbtrack = ();
 my $nn = 0;
 
 my @strName = ();
@@ -169,7 +172,7 @@ my $jobname = $qtrg."%".$qprod."%";
 
    &beginMuHtml();
 
-     $sql="SELECT jobfileName, jobStatus, NoEvents, avg_no_tracks FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and trigsetName = ? and jobStatus <> 'n/a' and jobStatus <> 'hung' and inputHpssStatus = 'OK' and outputHpssStatus = 'n/a'  ";
+     $sql="SELECT jobfileName, jobStatus, NoEvents, avg_no_tracks, createTime FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and trigsetName = ? and jobStatus <> 'n/a' and jobStatus <> 'hung' and inputHpssStatus = 'OK' and outputHpssStatus = 'n/a'  ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -187,7 +190,8 @@ my $jobname = $qtrg."%".$qprod."%";
                 ($$fObjAdr)->jbname($fvalue)   if( $fname eq 'jobfileName');
                 ($$fObjAdr)->jbst($fvalue)     if( $fname eq 'jobStatus');
                 ($$fObjAdr)->jbevt($fvalue)    if( $fname eq 'NoEvents');
-                ($$fObjAdr)->jbtrk($fvalue)    if( $fname eq 'avg_no_tracks');                
+                ($$fObjAdr)->jbtrk($fvalue)    if( $fname eq 'avg_no_tracks'); 
+                ($$fObjAdr)->jbcrtime($fvalue)    if( $fname eq 'createTime');               
 
             }
             $jbstat[$nst] = $fObjAdr;
@@ -271,6 +275,8 @@ END
 
  }elsif($qflag eq "mudst") {
 
+ $jbctime[$nn]  = ($$pjob)->jbcrtime; 
+
 print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
@@ -278,6 +284,7 @@ print <<END;
 <td HEIGHT=10><h3>$jbStatus[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbEvent[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbtrack[$nn]</h3></td>
+<td HEIGHT=10><h3>$jbctime[$nn]</h3></td>
 </TR>
 END
 
@@ -364,7 +371,8 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=60><B><h3>Jobfilename</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Job status</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>No.events produced</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Avg.No.tracks</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Avg.No.<br>tracks</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Date-time</h3></B></TD>
 </TR>
     </body>
 END
