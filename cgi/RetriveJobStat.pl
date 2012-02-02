@@ -46,6 +46,7 @@ struct JobAttr => {
       stname    => '$',
       stcpu     => '$',
       jbcrtime  => '$',
+      sttrk     => '$',
       jbevt     => '$'
  };
 
@@ -75,6 +76,8 @@ my $nn = 0;
 
 my @strName = ();
 my @avgcpu = ();
+my @avgtrck = ();
+
 my $nsm = 0;
 my $nk = 0;
 
@@ -202,7 +205,7 @@ my $jobname = $qtrg."%".$qprod."%";
 
    &beginStrHtml();
 
-     $sql="SELECT distinct streamName, avg(CPU_per_evt_sec), avg(avg_no_tracks) FROM $JobStatusT  where prodSeries = ? and trigsetName = ? and jobStatus <> 'n/a' and  CPU_per_evt_sec >= 0.0001 group by streamName ";
+     $sql="SELECT distinct streamName, avg(CPU_per_evt_sec) FROM $JobStatusT  where prodSeries = ? and trigsetName = ? and jobStatus <> 'n/a' and  CPU_per_evt_sec >= 0.0001 group by streamName ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -225,12 +228,41 @@ my $jobname = $qtrg."%".$qprod."%";
             $nsm++;
       }
 
+ }elsif($qflag eq "sttrack") {
+
+   &beginSttrkHtml();
+
+     $sql="SELECT distinct streamName, avg(avg_no_tracks) FROM $JobStatusT  where prodSeries = ? and trigsetName = ? and jobStatus <> 'n/a' and  avg_no_tracks >= 1 group by streamName ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute($qprod,$qtrg);
+
+        while(@fields = $cursor->fetchrow) {
+            my $cols=$cursor->{NUM_OF_FIELDS};
+            $fObjAdr = \(JobAttr->new());
+
+            for($i=0;$i<$cols;$i++) {
+                my $fvalue=$fields[$i];
+                my $fname=$cursor->{NAME}->[$i];
+                # print "$fname = $fvalue\n" ;
+
+                ($$fObjAdr)->stname($fvalue)   if( $fname eq 'streamName');
+                ($$fObjAdr)->sttrk($fvalue)    if( $fname eq 'avg(avg_no_tracks)');
+
+           }
+            $jbstat[$nsm] = $fObjAdr;
+            $nsm++;
+      }
+
    }else{
 
    &beginHtml();
  }
 
 &StDbProdDisconnect(); 
+
+ $nk =0;
 
      if( $qflag eq "strcpu" ) {
 
@@ -246,6 +278,28 @@ print <<END;
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$strName[$nk]</h3></td>
 <td HEIGHT=10><h3>$avgcpu[$nk]</h3></td>
+</TR>
+END
+
+    $nk++;
+     }
+
+  }
+
+ $nk = 0;
+
+     if( $qflag eq "sttrack" ) {
+
+      foreach  $pjob (@jbstat) {
+
+       $strName[$nk] = ($$pjob)->stname;
+       $avgtrck[$nk]  = ($$pjob)->sttrk;
+
+print <<END;
+
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
+<td HEIGHT=10><h3>$strName[$nk]</h3></td>
+<td HEIGHT=10><h3>$avgtrck[$nk]</h3></td>
 </TR>
 END
 
@@ -436,6 +490,26 @@ print <<END;
 <TR>
 <TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Stream name</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Average CPU/evt<br> in sec</h3></B></TD>
+</TR>
+    </body>
+END
+}
+
+##########################
+
+sub beginSttrkHtml {
+
+print <<END;
+
+  <html>
+   <body BGCOLOR=\"cornsilk\">
+ <h2 ALIGN=CENTER> <B>Average no. of tracks  for diffrent streams in<font color="blue"> $qprod </font> production <br> and <font color="blue">$qtrg </font> dataset  </B></h2>
+ <h3 ALIGN=CENTER> Generated on $todate</h3>
+<br>
+<TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
+<TR>
+<TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Stream name</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Average no.tracks</h3></B></TD>
 </TR>
     </body>
 END
