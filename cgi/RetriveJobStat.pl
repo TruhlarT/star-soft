@@ -295,6 +295,15 @@ END
        $strName[$nk] = ($$pjob)->stname;
        $avgtrck[$nk]  = ($$pjob)->sttrk;
 
+    if($avgtrck[$nk] <= 1.0 ) {
+    $avgtrck[$nk] = sprintf("%.2f",$avgtrck[$nk]);
+    }elsif($avgtrck[$nk] <= 10.0 ) {
+    $avgtrck[$nk] = sprintf("%.1f",$avgtrck[$nk]);
+    }else{
+    $avgtrck[$nk] = int($avgtrck[$nk] + 0.5);
+    }
+
+
 print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
