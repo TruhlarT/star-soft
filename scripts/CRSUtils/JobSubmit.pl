@@ -80,7 +80,7 @@ use RunDAQ;
 use CRSQueues;
 
 
-$ThisYear = 2011;                 # Block to consider. Completely artificial
+$ThisYear = 2012;                 # Block to consider. Completely artificial
                                   # and used to preserve older options in if
                                   # block along with current option.
 $HPSS     = 1;                    # turn to 0 for UNIX staging only
@@ -127,6 +127,8 @@ $DEBUG    = 0;
 
 # variables default value before they were implemented
 $FRACTT = 100;                    # %tage sent when AllFiles is TRUE - feature starts 2009
+
+#@QUARANTEEN=("data11")
 
 #
 # Default values Year9 data
@@ -464,7 +466,7 @@ if ( $ThisYear == 2005 ){
 
 
 
-} elsif ( $ThisYear == 2011 ) {
+} elsif ( $ThisYear == 2011 || $ThisYear == 2012 ) {
     $TREEMODE= 1;
     $LIB     = "dev";
 
@@ -535,9 +537,14 @@ if ( $ThisYear == 2005 ){
 
 
     # at least, p+p calib
-#    $DCHAIN{"AuAu"} = "P2010a,btof,BEmcChkStat,QAalltrigs,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
-    $DCHAIN{"AuAu"} = "P2011a,mtdDat,pmdReco,btof,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
-    $DCHAIN{"PPPP"} = "pp2011a,btof,VFPPVnoCTB,beamline,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
+    #$DCHAIN{"AuAu"} = "P2010a,btof,BEmcChkStat,QAalltrigs,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
+    if ( $ThisYear == 2011 ){
+	$DCHAIN{"AuAu"} = "P2011a,mtdDat,pmdReco,btof,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
+	$DCHAIN{"PPPP"} = "pp2011a,btof,VFPPVnoCTB,beamline,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
+    } else {
+	#$DCHAIN{"AuAu"} = "P2012a,QAalltrigs,mtdDat,btof,BEmcChkStat,-hitfilt";
+	$DCHAIN{"PPPP"} = "pp2012a,QAalltrigs,btof,fmsdat,VFPPVnoCTB,beamline,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
+    }
 
     # allow chain switch on condition matching
     # introduced in 2010, syntax is
