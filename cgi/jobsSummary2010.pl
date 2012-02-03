@@ -280,7 +280,7 @@ print <<END;
 <td HEIGHT=10><h3><font color="red">$jbmudst[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$sumevt[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2010;pflag=strcpu">$avcpu[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="red">$avgtrk[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2010;pflag=sttrack">$avgtrk[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$strtime[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$fntime[$nprod]</font></h3></td>
 </TR>
@@ -303,7 +303,7 @@ END
 <td HEIGHT=10><h3>$jbmudst[$nprod]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nprod]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2010;pflag=strcpu">$avcpu[$nprod]</h3></td>
-<td HEIGHT=10><h3>$avgtrk[$nprod]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2010;pflag=sttrack">$avgtrk[$nprod]</h3></td>
 <td HEIGHT=10><h3>$strtime[$nprod]</h3></td>
 <td HEIGHT=10><h3>$fntime[$nprod]</h3></td>
 </TR>
@@ -340,10 +340,10 @@ print <<END;
 
   <html>
     <head>
-          <title>Summary of production jobs for run 2011</title> 
+          <title>Summary of production jobs for run 2010</title> 
     </head>
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>Summary of production jobs status for<font color="blue"> run 2011 </font>data  </B></h2>
+ <h2 ALIGN=CENTER> <B>Summary of production jobs status for<font color="blue"> run 2010 </font>data  </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <h4 ALIGN=LEFT><font color="#ff0000">Ongoing production is in red color</font></h4>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
