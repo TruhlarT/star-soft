@@ -542,8 +542,8 @@ if ( $ThisYear == 2005 ){
 	$DCHAIN{"AuAu"} = "P2011a,mtdDat,pmdReco,btof,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
 	$DCHAIN{"PPPP"} = "pp2011a,btof,VFPPVnoCTB,beamline,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
     } else {
-	$DCHAIN{"AuAu"} = "P2012a,QAalltrigs,mtdDat,btof,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
-	$DCHAIN{"PPPP"} = "pp2012a,QAalltrigs,btof,fmsdat,VFPPVnoCTB,beamline,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
+	$DCHAIN{"AuAu"} = "P2012a,QAalltrigs,mtdDat,btof,fmsdat,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
+	$DCHAIN{"PPPP"} = "pp2012a,QAalltrigs,mtdDat,btof,fmsdat,VFPPVnoCTB,beamline,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
     }
 
     # allow chain switch on condition matching
@@ -918,7 +918,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 			# pattern match run-number / security pattern check
 			# (should not really validate and a redundant test)
 			if ( $file !~ m/(\D+)(\d+)(_raw)/){
-			    print "$SELF : File [$file] did not match pattern\n";
+			    print "$SELF : File [$file] did not match pattern at pass $ii ($#Xfiles,$#Files)\n";
 			    push(@SKIPPED,$file);
 			} else {
 			    $run  = $2;
