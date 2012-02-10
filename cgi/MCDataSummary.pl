@@ -149,8 +149,8 @@ my $prodname = "n/a";
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$mcset[$nlist]</h3></td>
 <td HEIGHT=10><h3>$coll[$nlist]</h3></td>
-<td HEIGHT=10><h3>$prod[$nlist]</h3></td>
 <td HEIGHT=10><h3>$yrgeom[$nlist]</h3></td>
+<td HEIGHT=10><h3>$prod[$nlist]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nlist]</h3></td>
 <td HEIGHT=10><h3>$sumsize[$nlist]</h3></td>
 <td HEIGHT=10><h3>$totsize[$nlist]</h3></td>
