@@ -84,7 +84,7 @@ my $prodname = "n/a";
 
     @prt = (); 
     @prt = split("/",$recopath[$nlist]);
-    $mcset = $prt[4]."/".$prt[5]."/". $prt[6]."/". $prt[7]."/".$prt[8]."/". $prt[9]; 
+    $mcset[$nlist] = $prt[4]."/".$prt[5]."/". $prt[6]."/". $prt[7]."/".$prt[8]."/". $prt[9]; 
 
      @runevents = ();
      $runevents[0] = 0;  
@@ -149,6 +149,7 @@ my $prodname = "n/a";
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$mcset[$nlist]</h3></td>
 <td HEIGHT=10><h3>$coll[$nlist]</h3></td>
+<td HEIGHT=10><h3>$prod[$nlist]</h3></td>
 <td HEIGHT=10><h3>$yrgeom[$nlist]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nlist]</h3></td>
 <td HEIGHT=10><h3>$sumsize[$nlist]</h3></td>
