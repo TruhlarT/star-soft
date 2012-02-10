@@ -177,7 +177,7 @@ print <<END;
  <h2 ALIGN=CENTER> <B> MC Data Production Summary  </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
-<h4 ALIGN=LEFT><font color="blue">Description of production can be found on the <a href="http://www.star.bnl.gov/public/comp/prod/MCProdList.html"> page</a></font></h4>
+<h4 ALIGN=LEFT><font color="blue">Production description can be found on  <a href="http://www.star.bnl.gov/public/comp/prod/MCProdList.html"> the page</a></font></h4>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Dataset name</h3></B></TD>
