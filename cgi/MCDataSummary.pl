@@ -136,7 +136,7 @@ my $prodname = "n/a";
    $ssize = int($mcsize[0]/1000000);
    $totsize[$nlist] = "0.".$ssize;
    }elsif($totsize[$nlist] < 10 ) {
-   $ssize = int($mcsize[0]/1000000) - $dsize*1000;
+   $ssize = int($mcsize[0]/1000000) - $dsize*10000;
    $totsize[$nlist] = $dsize.".".$ssize; 
 
     }else{
