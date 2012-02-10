@@ -109,7 +109,7 @@ my $prodname = "n/a";
    $ssize = int($datasize[0]/1000000);
    $sumsize[$nlist] = "0.".$ssize;
    }elsif($sumsize[$nlist] < 10 ) {
-   $ssize = int($datasize[0]/1000000) - $dsize*1000;
+   $ssize = int($datasize[0]/10000000) - $dsize*100;
    $sumsize[$nlist] = $dsize.".".$ssize; 
 
     }else{
