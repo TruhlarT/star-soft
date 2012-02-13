@@ -311,13 +311,12 @@ my $nprod = 0;
 ########## 
 
 
-
 if($prstat[$nprod] eq "removed" ) {
 
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=ndisk">$artrg[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="green">$artrg[$nprod]<br><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=ndisk">location</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$prodtag[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$trcktag[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=qchain">chain</font></h3></td>
@@ -343,7 +342,7 @@ END
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=ndisk">$artrg[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red">$artrg[$nprod]<br><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=ndisk">location</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$prodtag[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$trcktag[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=qchain">chain</font></h3></td>
@@ -369,7 +368,7 @@ END
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=ndisk">$artrg[$nprod]</font></h3></td>
+<td HEIGHT=10><h3>$artrg[$nprod]<br><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=ndisk">location</font></h3></td>
 <td HEIGHT=10><h3>$prodtag[$nprod]</h3></td>
 <td HEIGHT=10><h3>$trcktag[$nprod]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=qchain">chain</h3></td>
