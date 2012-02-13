@@ -21,6 +21,8 @@ use FileCatalog;
 use DBI;
 use Mysql;
 
+&cgiSetup();
+
 ($sec,$min,$hour,$mday,$mon,$year) = localtime();
 
 my $mon =  $mon + 1;
