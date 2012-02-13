@@ -88,6 +88,10 @@ my $prodname = "n/a";
     @prt = split("/",$recopath[$nlist]);
     $mcset[$nlist] = $prt[4]."/".$prt[5]."/". $prt[6]."/". $prt[7]."/".$prt[8]."/". $prt[9]; 
 
+    if($prod[$nlist] eq "eval" ) {
+       $prod[$nlist] = $prt[10];
+    }
+
      @runevents = ();
      $runevents[0] = 0;  
      @datasize = ();
