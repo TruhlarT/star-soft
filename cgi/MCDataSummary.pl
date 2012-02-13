@@ -67,9 +67,7 @@ my $prodname = "n/a";
 
  $fileC->set_context("filetype=MC_reco_MuDst","storage=hpss","limit=0");
 
-# my @prodset = $fileC->run_query("path","collision","geometry","runnumber","ordd(production)");
-
-  my @prodset = $fileC->run_query("path","collision","geometry","ordd(runnumber)","production");
+ my @prodset = $fileC->run_query("path","collision","geometry","runnumber","ordd(production)");
 
  $fileC->clear_context( );
 
