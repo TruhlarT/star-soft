@@ -46,6 +46,7 @@ my @coll = ();
 my @mcset = ();
 my @recopath = ();
 my @prod = ();
+my @runs = ();
 my @sumevt = ();
 my @prodset = ();
 my @runevents = ();
@@ -66,7 +67,7 @@ my $prodname = "n/a";
 
  $fileC->set_context("filetype=MC_reco_MuDst","storage=hpss","limit=0");
 
- my @prodset = $fileC->run_query("path","collision","geometry","ordd(production)");
+ my @prodset = $fileC->run_query("path","collision","geometry","runnumber","ordd(production)");
 
  $fileC->clear_context( );
 
@@ -78,9 +79,10 @@ my $prodname = "n/a";
     @prt = split("::",$line); 
 
     $recopath[$nlist] = $prt[0];
-    $prod[$nlist]   = $prt[3];  
     $coll[$nlist]   = $prt[1];
-    $yrgeom[$nlist]  = $prt[2];
+    $yrgeom[$nlist] = $prt[2];
+    $runs[$nlist]   = $prt[3]; 
+    $prod[$nlist]   = $prt[4]; 
 
     @prt = (); 
     @prt = split("/",$recopath[$nlist]);
@@ -150,6 +152,7 @@ my $prodname = "n/a";
 <td HEIGHT=10><h3>$mcset[$nlist]</h3></td>
 <td HEIGHT=10><h3>$coll[$nlist]</h3></td>
 <td HEIGHT=10><h3>$yrgeom[$nlist]</h3></td>
+<td HEIGHT=10><h3>$runs[$nlist]</h3></td>
 <td HEIGHT=10><h3>$prod[$nlist]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nlist]</h3></td>
 <td HEIGHT=10><h3>$sumsize[$nlist]</h3></td>
@@ -182,8 +185,9 @@ print <<END;
 <TR>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Dataset name</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Collision</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Geometry</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Production Tag</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Geometry</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Run number</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Production Tag</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of Events<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Size (GB) of MuDst <h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Total Size (GB) <h3></B></TD>
