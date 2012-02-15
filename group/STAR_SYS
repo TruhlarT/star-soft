@@ -194,19 +194,25 @@ else
 	#    STARCMPL can be defined outside (see 'setup' for example)
 	#
 	if ( ! $?STARCMPL) setenv STARCMPL "gcc"
-
+	set vers = ""
 	switch ($STARCMPL)
 	 case "icc":
 	    #set vers = `which icc | /bin/sed 's/.*compiler//i;s/\/.*//'`
 	    #set vers = `icc -V -dryrun > & /tmp/icc_version; \
 	    #/bin/awk '{ if (NR==1) print $8 }' /tmp/icc_version | /bin/awk -F\. '{print $1$2}'; \
 	    #/bin/rm  /tmp/icc_version;`
-	    set vers =  `icc -v >&/tmp/icc_version$$ ; $AWK '{print $2}' /tmp/icc_version$$ | /bin/sed "s/\.//" && /bin/rm  /tmp/icc_version$$;`
+	    set test=`which icc | /bin/grep "not found"`
+	    if ( "$test" == "") then
+		set vers =  `icc -v >&/tmp/icc_version$$ ; $AWK '{print $2}' /tmp/icc_version$$ | /bin/sed "s/\.//" && /bin/rm  /tmp/icc_version$$;`
+	    endif
 	    breaksw
 
 	 default:
 	    setenv STARCMPL "gcc"
-	    set vers = `gcc -dumpversion | $AWK -F. '{print $1$2$3}'`
+	    set test=`which gcc | /bin/grep "not found"`
+	    if ( "$test" == "") then
+		set vers = `gcc -dumpversion | $AWK -F. '{print $1$2$3}'`
+	    endif
        endsw
 
        # The below was made to exclude 7.2 Redhat using i386_linux24
@@ -235,6 +241,9 @@ else
 endif
 
 #  $Log: STAR_SYS,v $
+#  Revision 1.53  2012/02/15 20:47:34  jeromel
+#  Patch for nodes without a gcc or icc compiler (nx nodes example)
+#
 #  Revision 1.52  2011/11/29 18:40:47  jeromel
 #  Define self
 #
@@ -402,5 +411,5 @@ endif
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 2011/11/29 18:40:47 $
+#             Last modification $Date: 2012/02/15 20:47:34 $
 #
