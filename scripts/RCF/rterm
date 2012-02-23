@@ -1,9 +1,9 @@
 #!/bin/csh
 #
 # Written J.Lauret Fri May 25 2001
-# (c) J. Lauret 2001-2011
+# (c) J. Lauret 2001-2012
 #
-# Version: V1.500 [will increment and compare with ssh GK]
+# Version: V1.501 [will increment and compare with ssh GK]
 #
 # Generic enough to work everywhere.
 # Possible environment variables and features :
@@ -35,6 +35,7 @@ set AWK=/bin/awk
 set ID=/usr/bin/id
 set SED=/bin/sed
 set SORT=/bin/sort
+set HOSTNM=/bin/hostname
 
 # default argument value	    
 set X11Opt="-X"
@@ -225,33 +226,41 @@ if ("$node" == "") then
     # needs this script functionality
     switch ($GROUP)
        case "rhstar":
-	set node="rcas6+"
-        set pool="condor02.rcf.bnl.gov:9664"
+        # also support the strap domain
+        if ( `$HOSTNM | $GREP starp` ne "") the
+	    # support STAR online domain 
+	    set node="onl+";
+	    set pool="";   # JL
+ 	else
+	    # RCF
+	    set node="rcas6+"
+	    set pool="-pool  condor02.rcf.bnl.gov:9664"
+        endif
 	breaksw;
 
        case "rhphobos":
         set node="rcas4+"
-        set pool="condor02.rcf.bnl.gov:9663"
+        set pool="-pool  condor02.rcf.bnl.gov:9663"
 	breaksw;
 
        case "rhphenix":
 	set node="rcas2+"
-        set pool="condor01.rcf.bnl.gov:9662"
+        set pool="-pool condor01.rcf.bnl.gov:9662"
 	breaksw;
 
        case "rhbrahms":
         set node="rcas0+"
-        set pool="condor01.rcf.bnl.gov:9661"
+        set pool="-pool condor01.rcf.bnl.gov:9661"
 	breaksw;
 
        case "usatlas":
         set node="acas+"
-        set pool="condor03.usatlas.bnl.gov:9660"
+        set pool="-pool condor03.usatlas.bnl.gov:9660"
 	breaksw;
 
        case "rhstaff":
         set node="acas+"
-        set pool="condor03.usatlas.bnl.gov:9660"
+        set pool="-pool condor03.usatlas.bnl.gov:9660"
 	breaksw;
 
        default:
@@ -261,24 +270,28 @@ if ("$node" == "") then
     endsw
 else
     switch ($node)
+       case "onl*":
+        set pool="";    # JL
+	breaksw;
+
        case "rcas6*":
-        set pool="condor02.rcf.bnl.gov:9664"
+        set pool="-pool condor02.rcf.bnl.gov:9664"
         breaksw;
 
        case "rcas4*":
-        set pool="condor02.rcf.bnl.gov:9663"
+        set pool="-pool condor02.rcf.bnl.gov:9663"
         breaksw;
 
        case "rcas2*":
-        set pool="condor01.rcf.bnl.gov:9662"
+        set pool="-pool condor01.rcf.bnl.gov:9662"
         breaksw;
 
        case "rcas0*":
-        set pool="condor01.rcf.bnl.gov:9661"
+        set pool="-pool condor01.rcf.bnl.gov:9661"
         breaksw;
 
        case "acas*":
-        set pool="condor03.usatlas.bnl.gov:9660"
+        set pool="-pool condor03.usatlas.bnl.gov:9660"
         breaksw;
 
        default:
@@ -320,7 +333,7 @@ The 'NodeSpec' argument may be a node name (specific login to a given node)
 or a partial node name followed by the '+' sign (wildcard). For example,
   % $prgm $node
 
-will open a connection on the least loaded node amongst all LSF-available 
+will open a connection on the least loaded node amongst all batch-available 
 $wnode* nodes. By default, this command will determine the appropriate
 wildcarded node specification for your GroupID. However, if this help
 is displayed when the command '% $prgm' is used, contact the RCF support 
@@ -388,7 +401,7 @@ if ("$TEST" != "$node") then
     if( "$LOAD" != "") then    
 	# set CANDIDATES=`$LOAD -R "select[inter] order[r1m:pg]" | $GREP $TEST | $GREP -i " ok" | $AWK '{print $1}'`
         setenv CONDOR_CONFIG /dev/null
-        set CANDIDATES=`$LOAD -pool $pool -constraint 'interactive_node == True' -format "%s " Machine -format "%f\n" TotalLoadAvg | $SORT -un -k 2 | $GREP $TEST | $AWK '{print $1}'`
+        set CANDIDATES=`$LOAD $pool -constraint 'interactive_node == True' -format "%s " Machine -format "%f\n" TotalLoadAvg | $SORT -un -k 2 | $GREP $TEST | $AWK '{print $1}'`
 	if ( $#CANDIDATES != 0) then
 	    set i=1
 	    AGAIN:
@@ -409,7 +422,7 @@ if ("$TEST" != "$node") then
 		    endif
 		endif
 	else
-	    echo "Illegal node specification or LSF problem detected."
+	    echo "Illegal node specification or queue problem detected."
 	    echo "Please check/correct syntax and try again."
 	    exit
 	endif
