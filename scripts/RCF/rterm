@@ -227,7 +227,7 @@ if ("$node" == "") then
     switch ($GROUP)
        case "rhstar":
         # also support the strap domain
-        if ( `$HOSTNM | $GREP starp` ne "") the
+        if ( `$HOSTNM | $GREP starp` != "") then
 	    # support STAR online domain 
 	    set node="onl+";
 	    set pool="";   # JL
