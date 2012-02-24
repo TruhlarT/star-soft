@@ -3,7 +3,9 @@
 # Written J.Lauret Fri May 25 2001
 # (c) J. Lauret 2001-2012
 #
-# Version: V1.501 [will increment and compare with ssh GK]
+# Version: [will increment and compare with ssh GK]
+set VERSION="V1.502";
+
 #
 # Generic enough to work everywhere.
 # Possible environment variables and features :
@@ -14,7 +16,8 @@
 # - Argument 1 is the nodename or the + pattern
 # - Argument 2 is a possible username
 #
-# Revision history moved at bottom ...
+# Revision history moved at bottom.
+# Moved in CVS for easier management in 2006
 #
 
 # default values
@@ -47,11 +50,18 @@ while ( $count <= $#argv)
     @ count++
 
     switch ($arg)
-	# this is the option section
+	# this is the option section	
+	case "-v":
+	case "-V":
+	case "--version":
+	    echo "rterm - $VERSION"
+	    exit
+	    breaksw
 	case "-h":
 	case "--help":
 	    set help=1
 	    breaksw
+
 	case "-i":
 	    set inter=1
 	    breaksw
@@ -69,7 +79,7 @@ while ( $count <= $#argv)
 	    breaksw
 
 	case "-coffee":
-	    # J.Lauret software trademark :)
+	    # J. Lauret software trademark :)
 	    set DEBUG=1
 	    breaksw
 
@@ -230,7 +240,7 @@ if ("$node" == "") then
         if ( `$HOSTNM | $GREP starp` != "") then
 	    # support STAR online domain 
 	    set node="onl+";
-	    set pool="";   # JL
+	    set pool="-pool onlam2.starp.bnl.gov:9618";     
  	else
 	    # RCF
 	    set node="rcas6+"
@@ -264,14 +274,24 @@ if ("$node" == "") then
 	breaksw;
 
        default:
-	echo "no default node for group $GROUP"
-	set help=1
+        if ( "$GROUP" == "root") then
+	    echo "WARN - Group [root] does not have default nodes setup"
+	else
+	    echo "WARN - No default node(s) for group [$GROUP]"
+	    echo "       Contact the administrator to extend support"
+	endif
+	if ( $#argv != 0) then
+	    set help=1
+	else
+	    echo "INFO - Use -h or -help for help"
+	    exit
+	endif
 	breaksw;
     endsw
 else
     switch ($node)
        case "onl*":
-        set pool="";    # JL
+        set pool="-pool onlam2.starp.bnl.gov:9618";
 	breaksw;
 
        case "rcas6*":
@@ -313,9 +333,10 @@ if ($help) then
    set wnode=`echo $node | $SED "s/+//"`
    cat <<EOF | more
 
-Written by J. Lauret 2001 - This command will open a connection to 
-any remote node using the slogin command and, without node precision
-open a terminal on the least loaded node.
+rterm, $VERSION - Written by J. Lauret 2001 
+This command will open a connection to any remote node using the slogin 
+command and, without node precision open a terminal on the least loaded 
+node.
 
 Syntax is
   % $prgm [Options] [NodeSpec] [UserName]
@@ -491,7 +512,7 @@ if ("$SLOGIN" == "") then
     echo "Could not find slogin program"
 else
     if ($inter) then
-	echo "Opening a connection to $node for $user $extra"
+	echo "Opening a connection to [$node] for $user $extra"
 	$SLOGIN $port $user@$node
     else
 	echo "Opening a $col terminal on $node for $user $extra"
@@ -501,6 +522,17 @@ endif
 
 
 
+# 
+# Note - a reminder that the current condor way relies
+#        on the 'interactive_node' to be set and selectable
+#        with constraint
+#
+# Revised 2012
+# - messages and reference to LSF removed
+# - more explicit messages for the case of wrong usage
+# - modified $pool to allow no pool name even if all have
+#   a pool specified (separate specific options in one var)
+# - added -{v|V|-version}
 #
 # Revised 2006
 # - RCF personel added Condor support
