@@ -61,7 +61,7 @@ print  $SITE, "\n";
 
 my @prt = ();
 
-my @dir_year = ("year_2000", "year_2001", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008","year_2009", "year_2010", "year_2011");
+my @dir_year = ("year_2000", "year_2001", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008","year_2009", "year_2010", "year_2011", "year_2012");
 
 my @OUT_DIR0 = ();
 my @OUT_DIR1 = ();
@@ -755,6 +755,8 @@ sub  updateJSTable {
  $nevent_vtx = 0;
  $nevent_vtx = `grep 'primary vertex(0):' $fl_log | wc -l ` ;  
 
+# print "Number of verteces  ", $nevent_vtx, "\n";
+
   open (LOGFILE, $fl_log ) or die "cannot open $fl_log: $!\n";
 
  my @logfile = ();
@@ -773,8 +775,10 @@ my $evtcomp = 0;
 $Err_messg = "none";
 $jrun = "Run not completed";
 
+ if($fl_log =~ /pdsf/ and $subdr[9] =~ /embed/ ) {
+   $embflag = 1;
 
- if($subdr[7] =~ /embed/) {
+ }elsif($fl_log =~ /rcf/ and $subdr[7] =~ /embed/) {
 
    $embflag = 1;
  }else{
@@ -782,6 +786,7 @@ $jrun = "Run not completed";
      $embflag = 0;
 
  }
+
 # print "Embedding flag  = ", $embflag, "\n"; 
 
    foreach my $line (@logfile) {
@@ -803,7 +808,7 @@ $jrun = "Run not completed";
        }
 #   get library version
       if ( $line =~ /={3} You are in (\w+)/ ) {
-        if( $Anflag == 0 or $embflag == 1 ) {
+        if(  $Anflag == 0 or $embflag == 1 ) {
         $libV = $1;
    print "Library tag   ",$libV, "\n"; 
 
@@ -819,9 +824,7 @@ $jrun = "Run not completed";
          $mchain = $part[1]; 
          $mchain =~ s/ /,/g;  
 #   print  $mchain, "\n";
-    }else{
-       next;
-        }
+     }
 
     }elsif ( $line =~ /$mixline/ ) {
      @part = ();
@@ -833,8 +836,10 @@ $jrun = "Run not completed";
       @part = split( ".C", $mixer) ;
       $mchain = $part[0].".C";
  
-       }
- 
+# print "Embedding macros   ",$mchain,"   ", $mixer, "\n";
+
+     }
+   
 #   get  number of events
     if ( $line =~ /Done with Event/ ) {
         $no_event++;
@@ -949,27 +954,28 @@ $jrun = "Run not completed";
 #  check if job crashed due to break_buss_error
       if($line =~ /bus error/) {
           $Err_messg = "Break bus error";
-        }
 
 #  check if job crashed due to segmentation violation
-     elsif ($line =~ /segmentation violation/) {
+     }elsif ($line =~ /segmentation violation/) {
            $Err_messg = "segmentation violation";
-  }
-      elsif ($line =~ /Stale NFS file handle/) {
+     }elsif ($line =~ /segmentation fault/) {
+         $Err_messg = "segmentation fault";
+     }elsif ($line =~ /Stale NFS file handle/) {
   
        $Err_messg = "Stale NFS file handle";
-  } 
-       elsif ( $line =~ /Assertion/ & $line =~ /failed/)  {
-         $Err_messg = "Assertion failed";
-  } 
-       elsif ($line =~ /Fatal in <operator delete>/) {
+     }elsif ( $line =~ /Assertion/ & $line =~ /failed/)  {
+          $Err_messg = "Assertion failed";
+     }elsif ($line =~ /Catch exception FATAL/) {
+
+         $Err_messg = "FATAL";
+
+     }elsif ($line =~ /Fatal in <operator delete>/) {
   
        $Err_messg = "Fatal in <operator delete>";   
-  }
-       elsif ($line =~ /Fatal in <operator new>/) {
+     }elsif ($line =~ /Fatal in <operator new>/) {
   
        $Err_messg = "Fatal in <operator new>";   
-  }
+     }
 
        if ( $line =~ /INFO  - QAInfo:Run/ and $line =~ /Total events processed/) {
 
@@ -978,9 +984,17 @@ $jrun = "Run not completed";
     }      
 # check if job is completed
 
-     if ( $line =~ /Run completed/) {
+     if ( $line =~ /Run completed/  and $Err_messg eq "none") {
           
            $jrun = "Done";      
+      }elsif($Err_messg ne "none" ){
+
+      $jrun = "$Err_messg";
+
+         }else{
+
+      $jrun = "Run not completed";
+
          }
 #############
        } 
@@ -995,7 +1009,7 @@ $jrun = "Run not completed";
 
    @cpu_output = ();
 
-    @cpu_output = `tail -2000 $fl_log`;
+    @cpu_output = `tail -4000 $fl_log`;
  
   foreach $end_line (@cpu_output){
           chop $end_line;
