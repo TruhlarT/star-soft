@@ -22,7 +22,7 @@ require "/afs/rhic.bnl.gov/star/packages/scripts/dbLib/dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/dev/";
 
-my @dir_year = ("year_2000", "year_2001", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008","year_2009", "year_2010", "year_2011");
+my @dir_year = ("year_2000", "year_2001", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008","year_2009", "year_2010", "year_2011", "year_2012");
 my @node_dir = ("daq_sl302.ittf", "daq_sl302.ittf_opt" ,"trs_sl302.ittf", "trs_sl302.ittf_opt");
 
 
@@ -1553,23 +1553,26 @@ $jrun = "Run not completed";
 #  check if job crashed due to break_buss_error
       if($line =~ /bus error/) {
           $Err_messg = "Break bus error";
-        }
 
 #  check if job crashed due to segmentation violation
-     elsif ($line =~ /segmentation violation/) {
-           $Err_messg = "segmentation violation";
-  }
-      elsif ($line =~ /Stale NFS file handle/) {
+   }elsif ($line =~ /segmentation violation/) {
+          $Err_messg = "segmentation violation";
+   }elsif ($line =~ /segmentation fault/) {
+          $Err_messg = "segmentation fault";
+
+   } elsif ($line =~ /Stale NFS file handle/) {
   
-       $Err_messg = "Stale NFS file handle";
-  } 
-       elsif ( $line =~ /Assertion/ & $line =~ /failed/)  {
+         $Err_messg = "Stale NFS file handle";
+   } elsif ( $line =~ /Assertion/ & $line =~ /failed/)  {
          $Err_messg = "Assertion failed";
-  } 
-       elsif ($line =~ /Fatal in <operator delete>/) {
+   } elsif ($line =~ /Catch exception FATAL/) {
   
-       $Err_messg = "Fatal in <operator delete>";   
-  }
+         $Err_messg = "FATAL";
+   
+   } elsif ($line =~ /Fatal in <operator delete>/) {
+  
+         $Err_messg = "Fatal in <operator delete>";   
+   }
        elsif ($line =~ /Fatal in <operator new>/) {
   
        $Err_messg = "Fatal in <operator new>";   
@@ -1580,10 +1583,18 @@ $jrun = "Run not completed";
         $EvSkip = $part[4];
      }      
 # check if job is completed
-     if ( $line =~ /Run completed/) {
+     if ( $line =~ /Run completed/ and $Err_messg eq "none") {
           
            $jrun = "Done";      
-         }
+      }elsif($Err_messg ne "none" ){
+
+      $jrun = "$Err_messg";
+
+         }else{
+
+      $jrun = "Run not completed";
+      }
+
 ###### 
      
        }
