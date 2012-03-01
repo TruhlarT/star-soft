@@ -316,7 +316,9 @@ my @prt;
 
       &printRow();
 
-       }elsif( $dftime <= 6  and $myJobS eq "Run not completed") {
+#       }elsif( $dftime <= 6  and $myJobS eq "Run not completed") {
+      
+     }elsif( $dftime <= 6  and $myJobS ne "Done") {
 
       &printRowFd(); 
 
