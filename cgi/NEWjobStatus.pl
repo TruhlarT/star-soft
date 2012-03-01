@@ -183,7 +183,9 @@ $sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, 
 
       &printRow();
 
-       }elsif( $mylib eq $lastlib  and $myJobS eq "Run not completed") {
+#       }elsif( $mylib eq $lastlib  and $myJobS eq "Run not completed") {
+
+       }elsif( $mylib eq $lastlib  and $myJobS ne "Done") {
 
       &printRowFd();
 
