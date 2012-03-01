@@ -320,7 +320,7 @@ END
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=ndisk">$artrg[$nprod]</font></h3></td>
+<td HEIGHT=10><h3>$artrg[$nprod]<br><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=ndisk">location</font></h3></td>
 <td HEIGHT=10><h3>$prodtag[$nprod]</h3></td>
 <td HEIGHT=10><h3>$calbtag[$nprod]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveCalChain.pl?rchain=$chainm[$nprod];rcaltag=$calbtag[$nprod]">chain</font></h3></td>
