@@ -268,7 +268,9 @@ my $dPath;
 
       &printRow();
 
-       }elsif( $mylib eq $lastlib  and $myJobS eq "Run not completed") {
+#       }elsif( $mylib eq $lastlib  and $myJobS eq "Run not completed") {
+
+       }elsif( $mylib eq $lastlib  and $myJobS ne "Done") {
 
       &printRowFd();
 
