@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.43 2011/07/15 19:38:22 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.44 2012/03/01 20:07:47 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.44  2012/03/01 20:07:47  didenko
+# added year 2012  real data and MC tests
+#
 # Revision 1.43  2011/07/15 19:38:22  didenko
 # updated auau 27GeV data
 #
@@ -133,10 +136,13 @@ my $debugOn = 0;
 
 my $rand = rand(100);
 my @prod_set = (
+                "daq_sl302/year_2012/pp200_production_2012",
                 "daq_sl302/year_2011/AuAu200_production",
                 "daq_sl302/year_2011/AuAu27_production",
                 "daq_sl302/year_2011/AuAu19_production",
                 "daq_sl302/year_2011/pp500_production_2011",
+                "daq_sl302/year_2011/pp500_embed",
+                "daq_sl302/year_2011/AuAu200_embed",
                 "daq_sl302/year_2010/auau200_production",
                 "daq_sl302/year_2010/auau62_production",
                 "daq_sl302/year_2010/auau39_production",
@@ -169,6 +175,10 @@ my @prod_set = (
                 "daq_sl302/year_2001/ppMinBias",
                 "daq_sl302/year_2000/minbias",
                 "daq_sl302/year_2000/central",
+                "trs_sl302/year_2012/pp500_minbias",
+                "trs_sl302/year_2012/pp200_minbias",
+                "trs_sl302/year_2012/CuAu200_minbias",
+                "trs_sl302/year_2012/UU200_minbias",
                 "trs_sl302/year_2011/pp500_minbias",
                 "trs_sl302/year_2011/pp500_pileup",
                 "trs_sl302/year_2010/auau200_minbias",
