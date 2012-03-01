@@ -772,7 +772,7 @@ my $mixline = "/StRoot/macros/embedding";
 my $mixer;
 my @tmm = ();
 my $evtcomp = 0;
-$Err_messg = "none";
+my $Err_messg = "none";
 $jrun = "Run not completed";
 
  if($fl_log =~ /pdsf/ and $subdr[9] =~ /embed/ ) {
@@ -987,13 +987,12 @@ $jrun = "Run not completed";
      if ( $line =~ /Run completed/  and $Err_messg eq "none") {
           
            $jrun = "Done";      
+
       }elsif($Err_messg ne "none" ){
 
       $jrun = "$Err_messg";
 
          }else{
-
-      $jrun = "Run not completed";
 
          }
 #############

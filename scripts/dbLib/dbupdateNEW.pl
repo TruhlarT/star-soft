@@ -1232,7 +1232,7 @@ my $embflag = 0;
 my $mixline = "/StRoot/macros/embedding";
 my @tmm = ();
 my $evtcomp = 0;
-$Err_messg = "none";
+my $Err_messg = "none";
 $jrun = "Run not completed";
 
 
@@ -1397,6 +1397,8 @@ $jrun = "Run not completed";
 
   }
 
+ #
+
 #  check if job crashed due to break_buss_error
       if($line =~ /bus error/) {
           $Err_messg = "Break bus error";
@@ -1431,17 +1433,18 @@ $jrun = "Run not completed";
     }      
 # check if job is completed
 
-     if ( $line =~ /Run completed/ and $Err_messg eq "none") {
-          
+    if ( $line =~ /Run completed/ and $Err_messg eq "none") {
+ 
+#     print "ERROR messages  ",   $Err_messg, "\n";
+        
            $jrun = "Done"; 
+
       }elsif($Err_messg ne "none" ){
 
       $jrun = "$Err_messg";
 
          }else{
 
-      $jrun = "Run not completed";
-     
          }
 #############
        } 
