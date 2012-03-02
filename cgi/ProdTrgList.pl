@@ -458,7 +458,9 @@ my $trg0 = "n/a";
  $prodname = $trig[$nlist].".".$prod[$nlist].".html";
 
 
-        if( $prod[$nlist] eq "P11id" and $trig[$nlist] eq "AuAu200_production_2011" ) {
+#        if( $prod[$nlist] eq "P11id" and $trig[$nlist] eq "AuAu200_production_2011" ) {
+
+       if( $prod[$nlist] eq "P11id" and $trig[$nlist] eq "none" ) {
 
 print <<END;
 
