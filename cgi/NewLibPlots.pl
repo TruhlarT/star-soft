@@ -32,10 +32,13 @@ my @data = ();
 my @legend = ();
 
 my @prod_set = (
+                "daq_ittf/year_2012/pp200_production_2012",                
                 "daq_ittf/year_2011/AuAu200_production",
                 "daq_ittf/year_2011/AuAu27_production",
                 "daq_ittf/year_2011/AuAu19_production", 
                 "daq_ittf/year_2011/pp500_production_2011",
+                "daq_ittf/year_2011/pp500_embed",
+                "daq_ittf/year_2011/AuAu200_embed",
                 "daq_ittf/year_2010/auau200_production",
                 "daq_ittf/year_2010/auau62_production",
                 "daq_ittf/year_2010/auau39_production",
@@ -68,6 +71,10 @@ my @prod_set = (
                 "daq_ittf/year_2001/ppMinBias",
                 "daq_ittf/year_2000/minbias",
                 "daq_ittf/year_2000/central",
+                "trs_ittf/year_2012/pp500_minbias",
+                "trs_ittf/year_2012/pp200_minbias",
+                "trs_ittf/year_2012/CuAu200_minbias",
+                "trs_ittf/year_2012/UU200_minbias",
                 "trs_ittf/year_2011/pp500_minbias",
                 "trs_ittf/year_2011/pp500_pileup",
                 "trs_ittf/year_2010/auau200_minbias",
