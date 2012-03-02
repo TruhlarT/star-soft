@@ -41,7 +41,7 @@ my $k = 0;
 
 my @prt = ();
 
-my @dir_year = ( "year_2007", "year_2008","year_2009","year_2010","year_2011");
+my @dir_year = ( "year_2007", "year_2008","year_2009","year_2010","year_2011","year_2012");
 
 my @OUT_DIR0 = ();
 my @OUT_DIR1 = ();
@@ -1003,19 +1003,23 @@ $jrun = "Run not completed";
 #  check if job crashed due to segmentation violation
      elsif ($line =~ /segmentation violation/) {
            $Err_messg = "segmentation violation";
-  }
-      elsif ($line =~ /Stale NFS file handle/) {
+    }elsif ($line =~ /segmentation fault/) {
+         $Err_messg = "segmentation fault";
+
+    }elsif ($line =~ /Stale NFS file handle/) {
   
-       $Err_messg = "Stale NFS file handle";
-  } 
-       elsif ( $line =~ /Assertion/ & $line =~ /failed/)  {
-         $Err_messg = "Assertion failed";
-  } 
-       elsif ($line =~ /Fatal in <operator delete>/) {
+        $Err_messg = "Stale NFS file handle";
+    }elsif ( $line =~ /Assertion/ & $line =~ /failed/)  {
+        $Err_messg = "Assertion failed";
+
+    }elsif ($line =~ /Catch exception FATAL/) {
+
+         $Err_messg = "FATAL";
+
+    }elsif ($line =~ /Fatal in <operator delete>/) {
   
-       $Err_messg = "Fatal in <operator delete>";   
-  }
-       elsif ($line =~ /Fatal in <operator new>/) {
+        $Err_messg = "Fatal in <operator delete>";   
+    }elsif ($line =~ /Fatal in <operator new>/) {
   
        $Err_messg = "Fatal in <operator new>";   
   }
@@ -1027,9 +1031,16 @@ $jrun = "Run not completed";
     }      
 # check if job is completed
 
-     if ( $line =~ /Run completed/) {
+     if ( $line =~ /Run completed/  and $Err_messg eq "none") {
           
            $jrun = "Done";      
+
+         }elsif($Err_messg ne "none" ){
+
+           $jrun = "$Err_messg";
+
+         }else{
+
          }
 #############
        } 
