@@ -120,8 +120,13 @@ if( ! $?X11BIN || ! $?PATH) then
 	setenv X11BIN "/usr/X11R6/bin"
     endif
 
-    set SYSPATH="/usr/bin /bin $X11BIN"
-    set ROOTPATH="$X11BIN"
+    if (  $?X11BIN ) then
+	set SYSPATH="/usr/bin /bin $X11BIN"
+	set ROOTPATH="$X11BIN"
+    else
+	set SYSPATH="/usr/bin /bin"
+	set ROOTPATH=""	
+    endif
     # Here is a bunch of paths to check for (in reverse order)
     set DIRS="/usr/dt/bin /usr/ccs/bin /usr/ucb /usr/sbin /bin /usr/bin /usr/local/bin/X11 /usr/kerberos/bin /usr/local/bin"
     foreach tdir ($DIRS)
