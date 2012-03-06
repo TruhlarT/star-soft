@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.242 2012/01/30 21:15:00 jeromel Exp $
+#       $Id: group_env.csh,v 1.243 2012/03/06 18:47:37 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -702,20 +702,23 @@ switch ($STAR_SYS)
       # PGI
       if ( $?redhat ) then
 	# from SL5 onward, stop loading PGI automatically
-	set loadPGI=`echo "$redhat < 50" | /usr/bin/bc`
-	if ( $loadPGI  ) then
-	    if ( $?DECHO ) echo "$self :: RH/SL < 5.0 - will attempt to load PGI"
-	    if( -x $GROUP_DIR/setup ) then
-		if ( $?DECHO ) echo "$self :: Executing setup PGI"
-		source $GROUP_DIR/setup PGI
-		if ( $?DECHO ) then
-		    echo "$self :: PGI = $PGI"
+        if ( -x "/usr/bin/bc") then 
+	    # not tha bc may not be installed
+	    set loadPGI=`echo "$redhat < 50" | /usr/bin/bc`
+	    if ( $loadPGI  ) then
+		if ( $?DECHO ) echo "$self :: RH/SL < 5.0 - will attempt to load PGI"
+		if( -x $GROUP_DIR/setup ) then
+		    if ( $?DECHO ) echo "$self :: Executing setup PGI"
+		    source $GROUP_DIR/setup PGI
+		    if ( $?DECHO ) then
+			echo "$self :: PGI = $PGI"
+		    endif
+		else
+		    if ($ECHO)    echo   "Could not setup PGI environment"
 		endif
-	    else
-		if ($ECHO)    echo   "Could not setup PGI environment"
 	    endif
+	    unset loadPGI
 	endif
-	unset loadPGI
       endif
 
 
