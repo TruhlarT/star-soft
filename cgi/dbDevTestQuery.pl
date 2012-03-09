@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.44 2012/03/01 20:07:47 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.45 2012/03/09 16:03:26 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.45  2012/03/09 16:03:26  didenko
+# extand number of weeks
+#
 # Revision 1.44  2012/03/01 20:07:47  didenko
 # added year 2012  real data and MC tests
 #
@@ -269,7 +272,7 @@ print "</td> </tr> </table><hr><center>";
 
 print "<h4 align=center> How many weeks do you want to show: ";
 print $query->popup_menu(-name=>'weeks',
-			 -values=>['1','2','3','4','5','6','7','8'],
+			 -values=>['1','2','3','4','5','6','7','8','9','10','12','13','14','15','16'],
 			 -defaults=>1);
 print "</h4>";
 
