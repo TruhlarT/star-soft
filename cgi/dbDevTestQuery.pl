@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.45 2012/03/09 16:03:26 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.46 2012/03/14 14:50:45 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.46  2012/03/14 14:50:45  didenko
+# add auau 200GeV year2011
+#
 # Revision 1.45  2012/03/09 16:03:26  didenko
 # extand number of weeks
 #
@@ -182,6 +185,7 @@ my @prod_set = (
                 "trs_sl302/year_2012/pp200_minbias",
                 "trs_sl302/year_2012/CuAu200_minbias",
                 "trs_sl302/year_2012/UU200_minbias",
+                "trs_sl302/year_2011/auau200_central",
                 "trs_sl302/year_2011/pp500_minbias",
                 "trs_sl302/year_2011/pp500_pileup",
                 "trs_sl302/year_2010/auau200_minbias",

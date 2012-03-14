@@ -75,6 +75,7 @@ my @prod_set = (
                 "trs_ittf/year_2012/pp200_minbias",
                 "trs_ittf/year_2012/CuAu200_minbias",
                 "trs_ittf/year_2012/UU200_minbias",
+                "trs_ittf/year_2011/auau200_central",
                 "trs_ittf/year_2011/pp500_minbias",
                 "trs_ittf/year_2011/pp500_pileup",
                 "trs_ittf/year_2010/auau200_minbias",
