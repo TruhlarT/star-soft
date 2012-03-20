@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.243 2012/03/06 18:47:37 jeromel Exp $
+#       $Id: group_env.csh,v 1.244 2012/03/20 20:31:29 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -401,6 +401,10 @@ if ( ! $?SITE ) then
 	case "cluster.phy.uic.edu":
 	    setenv SITE "UIC"
 	    breaksw
+
+        case "sdfarm.kr":
+            setenv SITE "KISTI"
+            breaksw
 
 	default:
 	    # Not implemented
