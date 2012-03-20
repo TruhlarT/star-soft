@@ -223,3 +223,10 @@ endif
 if ( $?pself ) then
     set self=$pself
 endif
+
+
+# befeore leaving unset
+unset p x
+unset test1 testq test3 test4
+unset level
+
