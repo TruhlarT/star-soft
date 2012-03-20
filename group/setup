@@ -187,9 +187,9 @@ switch ($pkg)
 	    endif
 	    # some of the path below are historical
 	    if ( $USE_64BITS == 1) then
-		set x="/cern64 /cern ${AFS_RHIC}/asis/@sys/cern64 ${AFS_RHIC}/asis/@sys/cern /usr/local/cern64 /usr/local/cern"
+		set x="/cern64 /cern ${AFS_RHIC}/asis/@sys/cern64 ${AFS_RHIC}/asis/@sys/cern /usr/local/cern64 /usr/local/cern /common/star/cern64 /common/star/cern"
 	    else
-		set x="/cern ${AFS_RHIC}/asis/@sys/cern /usr/local/cern"
+		set x="/cern ${AFS_RHIC}/asis/@sys/cern /usr/local/cern /common/star/cern"
 	    endif
 	    foreach d ($x)
 		if ( -e $d ) then
