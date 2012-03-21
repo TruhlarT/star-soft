@@ -2287,12 +2287,10 @@
     ///@}     
     ///@addtogroup EcalGeo6_vars     
     ///@{        
-          Float_t tan_theta_min,tan_theta_max;        
+          Float_t tan_theta_min=0.275720567,tan_theta_max=0.761952162;        
           //        
-          /// Float_t tan_theta_min,tan_theta_max        
+          /// Float_t tan_theta_min=0.275720567,tan_theta_max=0.761952162        
     ///@}     
-    tan_theta_min = tanf( etamax );     
-    tan_theta_max = tanf( etamin );     
     if ( cut == 1 )     
     {        
           rdel    = 3.938;        

@@ -534,24 +534,7 @@ Float_t sind,cosd,tand;
                             _material = mat;              
                       }           
                       /// Medium Standard           
-                      ///  ifield = 1           
-                      ///  fieldm = 20           
-                      ///  tmaxfd = 20           
-                      ///  epsil = 0.01           
-                      ///  stemax = 10           
-                      ///  deemax = 0.248853           
-                      ///  stmin = 1.15055           
-                      ///  isvol = 0           
-                      {  AgMedium &med = AgMedium::Get("Standard");              
-                               med.Inherit(this);              
-                            med.par("ifield")=1;              
-                            med.par("fieldm")=20;              
-                            med.par("tmaxfd")=20;              
-                            med.par("epsil")=0.01;              
-                            med.par("stemax")=10;              
-                            med.par("deemax")=0.248853;              
-                            med.par("stmin")=1.15055;              
-                            med.par("isvol")=0;              
+                      {  AgMedium med = AgMedium::CopyMedium("Standard");              
                             _medium = med;              
                       }           
                       { AgAttribute attr = AgAttribute("TPCE");              
@@ -714,27 +697,6 @@ Float_t sind,cosd,tand;
                       {  AgMaterial mat = AgMaterial::CopyMaterial("Mylar");              
                             _material = mat;              
                       }           
-                      /// Medium TPCM_Mylar           
-                      ///  ifield = 1           
-                      ///  fieldm = 20           
-                      ///  tmaxfd = 20           
-                      ///  epsil = 0.01           
-                      ///  stemax = 10           
-                      ///  deemax = 0.212557           
-                      ///  stmin = 0.0311385           
-                      ///  isvol = 0           
-                      {  AgMedium &med = AgMedium::Get("Tpcm_mylar");              
-                               med.Inherit(this);              
-                            med.par("ifield")=1;              
-                            med.par("fieldm")=20;              
-                            med.par("tmaxfd")=20;              
-                            med.par("epsil")=0.01;              
-                            med.par("stemax")=10;              
-                            med.par("deemax")=0.212557;              
-                            med.par("stmin")=0.0311385;              
-                            med.par("isvol")=0;              
-                            _medium = med;              
-                      }           
                       { AgAttribute attr = AgAttribute("TPCM");              
                             attr.par("seen")=1;              
                             attr.par("colo")=kblue;              
@@ -768,27 +730,6 @@ Float_t sind,cosd,tand;
                       /// Material ALUMINIUM            
                       {  AgMaterial mat = AgMaterial::CopyMaterial("Aluminium");              
                             _material = mat;              
-                      }           
-                      /// Medium TIFC_aluminium           
-                      ///  ifield = 1           
-                      ///  fieldm = 20           
-                      ///  tmaxfd = 20           
-                      ///  epsil = 0.01           
-                      ///  stemax = 10           
-                      ///  deemax = 0.18296           
-                      ///  stmin = 0.0334422           
-                      ///  isvol = 0           
-                      {  AgMedium &med = AgMedium::Get("Tifc_aluminium");              
-                               med.Inherit(this);              
-                            med.par("ifield")=1;              
-                            med.par("fieldm")=20;              
-                            med.par("tmaxfd")=20;              
-                            med.par("epsil")=0.01;              
-                            med.par("stemax")=10;              
-                            med.par("deemax")=0.18296;              
-                            med.par("stmin")=0.0334422;              
-                            med.par("isvol")=0;              
-                            _medium = med;              
                       }           
                       { AgAttribute attr = AgAttribute("TIFC");              
                             attr.par("seen")=1;              
@@ -872,27 +813,6 @@ Float_t sind,cosd,tand;
                       {  AgMaterial mat = AgMaterial::CopyMaterial("Mylar");              
                             _material = mat;              
                       }           
-                      /// Medium TIKA_mylar           
-                      ///  ifield = 1           
-                      ///  fieldm = 20           
-                      ///  tmaxfd = 20           
-                      ///  epsil = 0.01           
-                      ///  stemax = 10           
-                      ///  deemax = 0.212557           
-                      ///  stmin = 0.0311385           
-                      ///  isvol = 0           
-                      {  AgMedium &med = AgMedium::Get("Tika_mylar");              
-                               med.Inherit(this);              
-                            med.par("ifield")=1;              
-                            med.par("fieldm")=20;              
-                            med.par("tmaxfd")=20;              
-                            med.par("epsil")=0.01;              
-                            med.par("stemax")=10;              
-                            med.par("deemax")=0.212557;              
-                            med.par("stmin")=0.0311385;              
-                            med.par("isvol")=0;              
-                            _medium = med;              
-                      }           
                       { AgAttribute attr = AgAttribute("TIKA");              
                             attr.par("seen")=1;              
                             attr.par("colo")=kviolet;              
@@ -926,27 +846,6 @@ Float_t sind,cosd,tand;
                       /// Material Nomex            
                       {  AgMaterial mat = AgMaterial::CopyMaterial("Nomex");              
                             _material = mat;              
-                      }           
-                      /// Medium TINX_nomex           
-                      ///  ifield = 1           
-                      ///  fieldm = 20           
-                      ///  tmaxfd = 20           
-                      ///  epsil = 0.01           
-                      ///  stemax = 10           
-                      ///  deemax = 0.242015           
-                      ///  stmin = 135061           
-                      ///  isvol = 0           
-                      {  AgMedium &med = AgMedium::Get("Tinx_nomex");              
-                               med.Inherit(this);              
-                            med.par("ifield")=1;              
-                            med.par("fieldm")=20;              
-                            med.par("tmaxfd")=20;              
-                            med.par("epsil")=0.01;              
-                            med.par("stemax")=10;              
-                            med.par("deemax")=0.242015;              
-                            med.par("stmin")=135061;              
-                            med.par("isvol")=0;              
-                            _medium = med;              
                       }           
                       { AgAttribute attr = AgAttribute("TINX");              
                             attr.par("seen")=1;              
@@ -982,27 +881,6 @@ Float_t sind,cosd,tand;
                       {  AgMaterial mat = AgMaterial::CopyMaterial("Adhesive");              
                             _material = mat;              
                       }           
-                      /// Medium TIAD_adhesive           
-                      ///  ifield = 1           
-                      ///  fieldm = 20           
-                      ///  tmaxfd = 20           
-                      ///  epsil = 0.01           
-                      ///  stemax = 10           
-                      ///  deemax = 0.21521           
-                      ///  stmin = 0.033412           
-                      ///  isvol = 0           
-                      {  AgMedium &med = AgMedium::Get("Tiad_adhesive");              
-                               med.Inherit(this);              
-                            med.par("ifield")=1;              
-                            med.par("fieldm")=20;              
-                            med.par("tmaxfd")=20;              
-                            med.par("epsil")=0.01;              
-                            med.par("stemax")=10;              
-                            med.par("deemax")=0.21521;              
-                            med.par("stmin")=0.033412;              
-                            med.par("isvol")=0;              
-                            _medium = med;              
-                      }           
                       { AgAttribute attr = AgAttribute("TIKA");              
                             attr.par("seen")=1;              
                             attr.par("colo")=kviolet;              
@@ -1036,27 +914,6 @@ Float_t sind,cosd,tand;
                       /// Material ALUMINIUM            
                       {  AgMaterial mat = AgMaterial::CopyMaterial("Aluminium");              
                             _material = mat;              
-                      }           
-                      /// Medium TOFC_aluminium           
-                      ///  ifield = 1           
-                      ///  fieldm = 20           
-                      ///  tmaxfd = 20           
-                      ///  epsil = 0.01           
-                      ///  stemax = 10           
-                      ///  deemax = 0.18296           
-                      ///  stmin = 0.0334422           
-                      ///  isvol = 0           
-                      {  AgMedium &med = AgMedium::Get("Tofc_aluminium");              
-                               med.Inherit(this);              
-                            med.par("ifield")=1;              
-                            med.par("fieldm")=20;              
-                            med.par("tmaxfd")=20;              
-                            med.par("epsil")=0.01;              
-                            med.par("stemax")=10;              
-                            med.par("deemax")=0.18296;              
-                            med.par("stmin")=0.0334422;              
-                            med.par("isvol")=0;              
-                            _medium = med;              
                       }           
                       { AgAttribute attr = AgAttribute("TOFC");              
                             attr.par("seen")=1;              
@@ -1225,27 +1082,6 @@ Float_t sind,cosd,tand;
                       {  AgMaterial mat = AgMaterial::CopyMaterial("Mylar");              
                             _material = mat;              
                       }           
-                      /// Medium TOKA_mylar           
-                      ///  ifield = 1           
-                      ///  fieldm = 20           
-                      ///  tmaxfd = 20           
-                      ///  epsil = 0.01           
-                      ///  stemax = 10           
-                      ///  deemax = 0.212557           
-                      ///  stmin = 0.0311385           
-                      ///  isvol = 0           
-                      {  AgMedium &med = AgMedium::Get("Toka_mylar");              
-                               med.Inherit(this);              
-                            med.par("ifield")=1;              
-                            med.par("fieldm")=20;              
-                            med.par("tmaxfd")=20;              
-                            med.par("epsil")=0.01;              
-                            med.par("stemax")=10;              
-                            med.par("deemax")=0.212557;              
-                            med.par("stmin")=0.0311385;              
-                            med.par("isvol")=0;              
-                            _medium = med;              
-                      }           
                       { AgAttribute attr = AgAttribute("TOKA");              
                             attr.par("seen")=1;              
                             attr.par("colo")=kgreen;              
@@ -1279,27 +1115,6 @@ Float_t sind,cosd,tand;
                       /// Material Nomex            
                       {  AgMaterial mat = AgMaterial::CopyMaterial("Nomex");              
                             _material = mat;              
-                      }           
-                      /// Medium TONX_nomex           
-                      ///  ifield = 1           
-                      ///  fieldm = 20           
-                      ///  tmaxfd = 20           
-                      ///  epsil = 0.01           
-                      ///  stemax = 10           
-                      ///  deemax = 0.242015           
-                      ///  stmin = 0.135061           
-                      ///  isvol = 0           
-                      {  AgMedium &med = AgMedium::Get("Tonx_nomex");              
-                               med.Inherit(this);              
-                            med.par("ifield")=1;              
-                            med.par("fieldm")=20;              
-                            med.par("tmaxfd")=20;              
-                            med.par("epsil")=0.01;              
-                            med.par("stemax")=10;              
-                            med.par("deemax")=0.242015;              
-                            med.par("stmin")=0.135061;              
-                            med.par("isvol")=0;              
-                            _medium = med;              
                       }           
                       { AgAttribute attr = AgAttribute("TONX");              
                             attr.par("seen")=1;              
@@ -1353,27 +1168,6 @@ Float_t sind,cosd,tand;
                       {  AgMaterial mat = AgMaterial::CopyMaterial("Mylar");              
                             _material = mat;              
                       }           
-                      /// Medium TOAD_mylar           
-                      ///  ifield = 1           
-                      ///  fieldm = 20           
-                      ///  tmaxfd = 20           
-                      ///  epsil = 0.01           
-                      ///  stemax = 10           
-                      ///  deemax = 0.212557           
-                      ///  stmin = 0.0311385           
-                      ///  isvol = 0           
-                      {  AgMedium &med = AgMedium::Get("Toad_mylar");              
-                               med.Inherit(this);              
-                            med.par("ifield")=1;              
-                            med.par("fieldm")=20;              
-                            med.par("tmaxfd")=20;              
-                            med.par("epsil")=0.01;              
-                            med.par("stemax")=10;              
-                            med.par("deemax")=0.212557;              
-                            med.par("stmin")=0.0311385;              
-                            med.par("isvol")=0;              
-                            _medium = med;              
-                      }           
                       { AgAttribute attr = AgAttribute("TOAD");              
                             attr.par("seen")=1;              
                             attr.par("colo")=klightblue;              
@@ -1407,27 +1201,6 @@ Float_t sind,cosd,tand;
                       /// Material NITROGEN_GAS            
                       {  AgMaterial mat = AgMaterial::CopyMaterial("Nitrogen_gas");              
                             _material = mat;              
-                      }           
-                      /// Medium TOIG_nitrogen_gas           
-                      ///  ifield = 1           
-                      ///  fieldm = 20           
-                      ///  tmaxfd = 20           
-                      ///  epsil = 0.01           
-                      ///  stemax = 10           
-                      ///  deemax = 0.248893           
-                      ///  stmin = 1.14554           
-                      ///  isvol = 0           
-                      {  AgMedium &med = AgMedium::Get("Toig_nitrogen_gas");              
-                               med.Inherit(this);              
-                            med.par("ifield")=1;              
-                            med.par("fieldm")=20;              
-                            med.par("tmaxfd")=20;              
-                            med.par("epsil")=0.01;              
-                            med.par("stemax")=10;              
-                            med.par("deemax")=0.248893;              
-                            med.par("stmin")=1.14554;              
-                            med.par("isvol")=0;              
-                            _medium = med;              
                       }           
                       { AgAttribute attr = AgAttribute("TOAD");              
                             attr.par("seen")=1;              
@@ -1463,27 +1236,6 @@ Float_t sind,cosd,tand;
                       {  AgMaterial mat = AgMaterial::CopyMaterial("Al_honeycomb");              
                             _material = mat;              
                       }           
-                      /// Medium TOHA_al_honeycomb           
-                      ///  ifield = 1           
-                      ///  fieldm = 20           
-                      ///  tmaxfd = 20           
-                      ///  epsil = 0.01           
-                      ///  stemax = 10           
-                      ///  deemax = 0.23328           
-                      ///  stmin = 0.0707689           
-                      ///  isvol = 0           
-                      {  AgMedium &med = AgMedium::Get("Toha_al_honeycomb");              
-                               med.Inherit(this);              
-                            med.par("ifield")=1;              
-                            med.par("fieldm")=20;              
-                            med.par("tmaxfd")=20;              
-                            med.par("epsil")=0.01;              
-                            med.par("stemax")=10;              
-                            med.par("deemax")=0.23328;              
-                            med.par("stmin")=0.0707689;              
-                            med.par("isvol")=0;              
-                            _medium = med;              
-                      }           
                       { AgAttribute attr = AgAttribute("TOHA");              
                             attr.par("seen")=1;              
                             attr.par("colo")=kviolet;              
@@ -1514,13 +1266,8 @@ Float_t sind,cosd,tand;
                         AgBlock *_save = mCurrent;           
                         mCurrent = this;           
                         Bool_t _same_shape = true;           
-                      /// Medium TSWH_STANDARD           
-                      ///  deemax = 0.248853           
-                      ///  stmin = 1.15055           
-                      {  AgMedium &med = AgMedium::Get("Tswh_standard");              
-                               med.Inherit(this);              
-                            med.par("deemax")=0.248853;              
-                            med.par("stmin")=1.15055;              
+                      /// Medium STANDARD           
+                      {  AgMedium med = AgMedium::CopyMedium("Standard");              
                             _medium = med;              
                       }           
                       { AgAttribute attr = AgAttribute("TSWH");              
@@ -1590,12 +1337,7 @@ Float_t sind,cosd,tand;
                         mCurrent = this;           
                         Bool_t _same_shape = true;           
                       /// Medium STANDARD           
-                      ///  deemax = 0.248853           
-                      ///  stmin = 1.15055           
-                      {  AgMedium &med = AgMedium::Get("Standard");              
-                               med.Inherit(this);              
-                            med.par("deemax")=0.248853;              
-                            med.par("stmin")=1.15055;              
+                      {  AgMedium med = AgMedium::CopyMedium("Standard");              
                             _medium = med;              
                       }           
                       { AgAttribute attr = AgAttribute("TSAW");              
@@ -1969,15 +1711,6 @@ Float_t sind,cosd,tand;
                         AgBlock *_save = mCurrent;           
                         mCurrent = this;           
                         Bool_t _same_shape = true;           
-                      /// Medium TSAS_STANDARD           
-                      ///  deemax = 0.248853           
-                      ///  stmin = 1.15055           
-                      {  AgMedium &med = AgMedium::Get("Tsas_standard");              
-                               med.Inherit(this);              
-                            med.par("deemax")=0.248853;              
-                            med.par("stmin")=1.15055;              
-                            _medium = med;              
-                      }           
                       {  AgShape shape = AgShape("Pgon");              
                             shape     .Inherit( AgBlock::previous() );              
                             create     .SetParameters(shape);              
@@ -2176,14 +1909,10 @@ Float_t sind,cosd,tand;
                         AgBlock *_save = mCurrent;           
                         mCurrent = this;           
                         Bool_t _same_shape = true;           
-                      /// Medium TWAS_STANDARD           
-                      ///  deemax = 0.248853           
-                      ///  stmin = 1.15055           
-                      {  AgMedium &med = AgMedium::Get("Twas_standard");              
-                               med.Inherit(this);              
-                            med.par("deemax")=0.248853;              
-                            med.par("stmin")=1.15055;              
-                            _medium = med;              
+                      { AgAttribute attr = AgAttribute("TWAS");              
+                            attr.par("seen")=0;              
+                            attr.Inherit( AgBlock::previous() );               
+                            _attribute = attr;              
                       }           
                       {  AgShape shape = AgShape("Pgon");              
                             shape     .Inherit( AgBlock::previous() );              
@@ -2203,11 +1932,6 @@ Float_t sind,cosd,tand;
                             _shape = shape;              
                             if (_same_shape) goto END_OF_TWAS;              
                             _stacker -> Build(this);              
-                      }           
-                      { AgAttribute attr = AgAttribute("TWAS");              
-                            attr.par("seen")=0;              
-                            attr.Inherit( AgBlock::previous() );               
-                            _attribute = attr;              
                       }           
                       dx =   tpcg.widtube*cm/2;           
                       dz =   depthiof(inout+1)/2;           
@@ -2342,15 +2066,6 @@ Float_t sind,cosd,tand;
                         AgBlock *_save = mCurrent;           
                         mCurrent = this;           
                         Bool_t _same_shape = true;           
-                      /// Medium FEEA_STD           
-                      ///  deemax = 0.248853           
-                      ///  stmin = 1.15055           
-                      {  AgMedium &med = AgMedium::Get("Feea_std");              
-                               med.Inherit(this);              
-                            med.par("deemax")=0.248853;              
-                            med.par("stmin")=1.15055;              
-                            _medium = med;              
-                      }           
                       { AgAttribute attr = AgAttribute("FEEA");              
                             attr.par("seen")=1;              
                             attr.par("colo")=kgreen;              
@@ -2433,15 +2148,6 @@ Float_t sind,cosd,tand;
                       {  AgMaterial mat = AgMaterial::CopyMaterial("Aluminium");              
                             _material = mat;              
                       }           
-                      /// Medium FEEP_aluminium           
-                      ///  deemax = 0.18296           
-                      ///  stmin = 0.0334422           
-                      {  AgMedium &med = AgMedium::Get("Feep_aluminium");              
-                               med.Inherit(this);              
-                            med.par("deemax")=0.18296;              
-                            med.par("stmin")=0.0334422;              
-                            _medium = med;              
-                      }           
                       {  AgShape shape = AgShape("Bbox");              
                             shape     .Inherit( AgBlock::previous() );              
                             create     .SetParameters(shape);              
@@ -2475,15 +2181,6 @@ Float_t sind,cosd,tand;
                       /// Material ALUMINIUM            
                       {  AgMaterial mat = AgMaterial::CopyMaterial("Aluminium");              
                             _material = mat;              
-                      }           
-                      /// Medium FEER_aluminium           
-                      ///  deemax = 0.18296           
-                      ///  stmin = 0.0334422           
-                      {  AgMedium &med = AgMedium::Get("Feer_aluminium");              
-                               med.Inherit(this);              
-                            med.par("deemax")=0.18296;              
-                            med.par("stmin")=0.0334422;              
-                            _medium = med;              
                       }           
                       {  AgShape shape = AgShape("Bbox");              
                             shape     .Inherit( AgBlock::previous() );              
@@ -2519,15 +2216,6 @@ Float_t sind,cosd,tand;
                       {  AgMaterial mat = AgMaterial::CopyMaterial("G10");              
                             _material = mat;              
                       }           
-                      /// Medium FEEI_g10           
-                      ///  deemax = 0.20313           
-                      ///  stmin = 0.0333806           
-                      {  AgMedium &med = AgMedium::Get("Feei_g10");              
-                               med.Inherit(this);              
-                            med.par("deemax")=0.20313;              
-                            med.par("stmin")=0.0333806;              
-                            _medium = med;              
-                      }           
                       {  AgShape shape = AgShape("Bbox");              
                             shape     .Inherit( AgBlock::previous() );              
                             create     .SetParameters(shape);              
@@ -2561,15 +2249,6 @@ Float_t sind,cosd,tand;
                       /// Material ALUMINIUM            
                       {  AgMaterial mat = AgMaterial::CopyMaterial("Aluminium");              
                             _material = mat;              
-                      }           
-                      /// Medium TALS_aluminium           
-                      ///  deemax = 0.18296           
-                      ///  stmin = 0.0334422           
-                      {  AgMedium &med = AgMedium::Get("Tals_aluminium");              
-                               med.Inherit(this);              
-                            med.par("deemax")=0.18296;              
-                            med.par("stmin")=0.0334422;              
-                            _medium = med;              
                       }           
                       {  AgShape shape = AgShape("Pgon");              
                             shape     .Inherit( AgBlock::previous() );              
@@ -2642,15 +2321,6 @@ Float_t sind,cosd,tand;
                       {  AgMaterial mat = AgMaterial::CopyMaterial("G10");              
                             _material = mat;              
                       }           
-                      /// Medium TSGT_G10           
-                      ///  deemax = 0.20313           
-                      ///  stmin = 0.0333806           
-                      {  AgMedium &med = AgMedium::Get("Tsgt_g10");              
-                               med.Inherit(this);              
-                            med.par("deemax")=0.20313;              
-                            med.par("stmin")=0.0333806;              
-                            _medium = med;              
-                      }           
                       {  AgShape shape = AgShape("Pgon");              
                             shape     .Inherit( AgBlock::previous() );              
                             create     .SetParameters(shape);              
@@ -2692,15 +2362,6 @@ Float_t sind,cosd,tand;
                       {  AgMaterial mat = AgMaterial::CopyMaterial("Aluminium");              
                             _material = mat;              
                       }           
-                      /// Medium TWBT_aluminium           
-                      ///  deemax = 0.18296           
-                      ///  stmin = 0.0334422           
-                      {  AgMedium &med = AgMedium::Get("Twbt_aluminium");              
-                               med.Inherit(this);              
-                            med.par("deemax")=0.18296;              
-                            med.par("stmin")=0.0334422;              
-                            _medium = med;              
-                      }           
                       {  AgShape shape = AgShape("Pcon");              
                             shape     .Inherit( AgBlock::previous() );              
                             create     .SetParameters(shape);              
@@ -2737,13 +2398,6 @@ Float_t sind,cosd,tand;
                         AgBlock *_save = mCurrent;           
                         mCurrent = this;           
                         Bool_t _same_shape = true;           
-                      /// Medium TWRI_standard           
-                      ///  stmin = 1.15055           
-                      {  AgMedium &med = AgMedium::Get("Twri_standard");              
-                               med.Inherit(this);              
-                            med.par("stmin")=1.15055;              
-                            _medium = med;              
-                      }           
                       {  AgShape shape = AgShape("Pcon");              
                             shape     .Inherit( AgBlock::previous() );              
                             create     .SetParameters(shape);              
@@ -2804,7 +2458,7 @@ Float_t sind,cosd,tand;
                             {                 
                                   myg2 = myrmax*mycos;                 
                             }              
-                            alpha = acos(mycos)/pi*180;              
+                            alpha = acos(mycos)*raddeg;;              
                             _create = AgCreate("TWRG");              
                             {                 
                                   AgShape myshape; // undefined shape                 
@@ -2842,15 +2496,6 @@ Float_t sind,cosd,tand;
                       /// Material ALUMINIUM            
                       {  AgMaterial mat = AgMaterial::CopyMaterial("Aluminium");              
                             _material = mat;              
-                      }           
-                      /// Medium TWRG_aluminium           
-                      ///  deemax = 0.18296           
-                      ///  stmin = 0.0334422           
-                      {  AgMedium &med = AgMedium::Get("Twrg_aluminium");              
-                               med.Inherit(this);              
-                            med.par("deemax")=0.18296;              
-                            med.par("stmin")=0.0334422;              
-                            _medium = med;              
                       }           
                       {  AgShape shape = AgShape("Pgon");              
                             shape     .Inherit( AgBlock::previous() );              
@@ -2892,15 +2537,6 @@ Float_t sind,cosd,tand;
                       /// Material ALUMINIUM            
                       {  AgMaterial mat = AgMaterial::CopyMaterial("Aluminium");              
                             _material = mat;              
-                      }           
-                      /// Medium TWRC_aluminium           
-                      ///  deemax = 0.18296           
-                      ///  stmin = 0.0334422           
-                      {  AgMedium &med = AgMedium::Get("Twrc_aluminium");              
-                               med.Inherit(this);              
-                            med.par("deemax")=0.18296;              
-                            med.par("stmin")=0.0334422;              
-                            _medium = med;              
                       }           
                       {  AgShape shape = AgShape("Pcon");              
                             shape     .Inherit( AgBlock::previous() );              
@@ -2948,15 +2584,6 @@ Float_t sind,cosd,tand;
                       {  AgMaterial mat = AgMaterial::CopyMaterial("Aluminium");              
                             _material = mat;              
                       }           
-                      /// Medium TWTR_aluminium           
-                      ///  deemax = 0.18296           
-                      ///  stmin = 0.0334422           
-                      {  AgMedium &med = AgMedium::Get("Twtr_aluminium");              
-                               med.Inherit(this);              
-                            med.par("deemax")=0.18296;              
-                            med.par("stmin")=0.0334422;              
-                            _medium = med;              
-                      }           
                       myg1=tpcg.wheelr2 - (tpcg.wheeltotalribwidth-tpcg.wheelribwidth)/2;           
                       {  AgShape shape = AgShape("Pgon");              
                             shape     .Inherit( AgBlock::previous() );              
@@ -2998,15 +2625,6 @@ Float_t sind,cosd,tand;
                       /// Material ALUMINIUM            
                       {  AgMaterial mat = AgMaterial::CopyMaterial("Aluminium");              
                             _material = mat;              
-                      }           
-                      /// Medium TWMR_aluminium           
-                      ///  deemax = 0.18296           
-                      ///  stmin = 0.0334422           
-                      {  AgMedium &med = AgMedium::Get("Twmr_aluminium");              
-                               med.Inherit(this);              
-                            med.par("deemax")=0.18296;              
-                            med.par("stmin")=0.0334422;              
-                            _medium = med;              
                       }           
                       myg1=tpcg.wheelr2 - (tpcg.wheeltotalribwidth-tpcg.wheelribwidth)/2;           
                       {  AgShape shape = AgShape("Pgon");              
@@ -3056,15 +2674,6 @@ Float_t sind,cosd,tand;
                             attr.par("colo")=kyellow;              
                             attr.Inherit( AgBlock::previous() );               
                             _attribute = attr;              
-                      }           
-                      /// Medium TRDO_whatever           
-                      ///  deemax = 0.248853           
-                      ///  stmin = 1.15055           
-                      {  AgMedium &med = AgMedium::Get("Trdo_whatever");              
-                               med.Inherit(this);              
-                            med.par("deemax")=0.248853;              
-                            med.par("stmin")=1.15055;              
-                            _medium = med;              
                       }           
                       {  AgShape shape = AgShape("Pgon");              
                             shape     .Inherit( AgBlock::previous() );              
@@ -3233,15 +2842,6 @@ Float_t sind,cosd,tand;
                       {  AgMaterial mat = AgMaterial::CopyMaterial("Aluminium");              
                             _material = mat;              
                       }           
-                      /// Medium TBRW_aluminium           
-                      ///  deemax = 0.18296           
-                      ///  stmin = 0.0334422           
-                      {  AgMedium &med = AgMedium::Get("Tbrw_aluminium");              
-                               med.Inherit(this);              
-                            med.par("deemax")=0.18296;              
-                            med.par("stmin")=0.0334422;              
-                            _medium = med;              
-                      }           
                       {  AgShape shape = AgShape("Bbox");              
                             shape     .Inherit( AgBlock::previous() );              
                             create     .SetParameters(shape);              
@@ -3275,15 +2875,6 @@ Float_t sind,cosd,tand;
                       /// Material ALUMINIUM            
                       {  AgMaterial mat = AgMaterial::CopyMaterial("Aluminium");              
                             _material = mat;              
-                      }           
-                      /// Medium TWRB_aluminium           
-                      ///  deemax = 0.18296           
-                      ///  stmin = 0.0334422           
-                      {  AgMedium &med = AgMedium::Get("Twrb_aluminium");              
-                               med.Inherit(this);              
-                            med.par("deemax")=0.18296;              
-                            med.par("stmin")=0.0334422;              
-                            _medium = med;              
                       }           
                       {  AgShape shape = AgShape("Para");              
                             shape     .Inherit( AgBlock::previous() );              
@@ -3321,15 +2912,6 @@ Float_t sind,cosd,tand;
                       /// Material Water_Pipe            
                       {  AgMaterial mat = AgMaterial::CopyMaterial("Water_pipe");              
                             _material = mat;              
-                      }           
-                      /// Medium TCOO_h2o_pipe           
-                      ///  deemax = 0.184746           
-                      ///  stmin = 0.0348298           
-                      {  AgMedium &med = AgMedium::Get("Tcoo_h2o_pipe");              
-                               med.Inherit(this);              
-                            med.par("deemax")=0.184746;              
-                            med.par("stmin")=0.0348298;              
-                            _medium = med;              
                       }           
                       if ( ishape==kpara )           
                       {              
@@ -3387,15 +2969,6 @@ Float_t sind,cosd,tand;
                       {  AgMaterial mat = AgMaterial::CopyMaterial("Cables");              
                             _material = mat;              
                       }           
-                      /// Medium TCAB_Cables           
-                      ///  deemax = 0.172513           
-                      ///  stmin = 0.0388322           
-                      {  AgMedium &med = AgMedium::Get("Tcab_cables");              
-                               med.Inherit(this);              
-                            med.par("deemax")=0.172513;              
-                            med.par("stmin")=0.0388322;              
-                            _medium = med;              
-                      }           
                       {  AgShape shape = AgShape("Para");              
                             shape     .Inherit( AgBlock::previous() );              
                             create     .SetParameters(shape);              
@@ -3433,15 +3006,6 @@ Float_t sind,cosd,tand;
                       {  AgMaterial mat = AgMaterial::CopyMaterial("G10");              
                             _material = mat;              
                       }           
-                      /// Medium TRDC_g10           
-                      ///  deemax = 0.20313           
-                      ///  stmin = 0.0333806           
-                      {  AgMedium &med = AgMedium::Get("Trdc_g10");              
-                               med.Inherit(this);              
-                            med.par("deemax")=0.20313;              
-                            med.par("stmin")=0.0333806;              
-                            _medium = med;              
-                      }           
                       {  AgShape shape = AgShape("Bbox");              
                             shape     .Inherit( AgBlock::previous() );              
                             create     .SetParameters(shape);              
@@ -3475,15 +3039,6 @@ Float_t sind,cosd,tand;
                       /// Material ALUMINIUM            
                       {  AgMaterial mat = AgMaterial::CopyMaterial("Aluminium");              
                             _material = mat;              
-                      }           
-                      /// Medium TRIB_aluminium           
-                      ///  deemax = 0.18296           
-                      ///  stmin = 0.0334422           
-                      {  AgMedium &med = AgMedium::Get("Trib_aluminium");              
-                               med.Inherit(this);              
-                            med.par("deemax")=0.18296;              
-                            med.par("stmin")=0.0334422;              
-                            _medium = med;              
                       }           
                       if ( ishape==kpara )           
                       {              
@@ -3556,15 +3111,6 @@ Float_t sind,cosd,tand;
                       {  AgMaterial mat = AgMaterial::CopyMaterial("G10");              
                             _material = mat;              
                       }           
-                      /// Medium TWIR_g10           
-                      ///  deemax = 0.20313           
-                      ///  stmin = 0.0333806           
-                      {  AgMedium &med = AgMedium::Get("Twir_g10");              
-                               med.Inherit(this);              
-                            med.par("deemax")=0.20313;              
-                            med.par("stmin")=0.0333806;              
-                            _medium = med;              
-                      }           
                       {  AgShape shape = AgShape("Para");              
                             shape     .Inherit( AgBlock::previous() );              
                             create     .SetParameters(shape);              
@@ -3601,15 +3147,6 @@ Float_t sind,cosd,tand;
                       /// Material Air            
                       {  AgMaterial mat = AgMaterial::CopyMaterial("Air");              
                             _material = mat;              
-                      }           
-                      /// Medium THOL_Air           
-                      ///  deemax = 0.248853           
-                      ///  stmin = 1.15055           
-                      {  AgMedium &med = AgMedium::Get("Thol_air");              
-                               med.Inherit(this);              
-                            med.par("deemax")=0.248853;              
-                            med.par("stmin")=1.15055;              
-                            _medium = med;              
                       }           
                       {  AgShape shape = AgShape("Bbox");              
                             shape     .Inherit( AgBlock::previous() );              
@@ -3648,15 +3185,6 @@ Float_t sind,cosd,tand;
                       /// Material G10            
                       {  AgMaterial mat = AgMaterial::CopyMaterial("G10");              
                             _material = mat;              
-                      }           
-                      /// Medium FEES_g10           
-                      ///  deemax = 0.20313           
-                      ///  stmin = 0.0333806           
-                      {  AgMedium &med = AgMedium::Get("Fees_g10");              
-                               med.Inherit(this);              
-                            med.par("deemax")=0.20313;              
-                            med.par("stmin")=0.0333806;              
-                            _medium = med;              
                       }           
                       { AgAttribute attr = AgAttribute("FEES");              
                             attr.par("seen")=1;              
@@ -3697,15 +3225,6 @@ Float_t sind,cosd,tand;
                       /// Material P10            
                       {  AgMaterial mat = AgMaterial::CopyMaterial("P10");              
                             _material = mat;              
-                      }           
-                      /// Medium TPGV_p10           
-                      ///  deemax = 0.248246           
-                      ///  stmin = 1.60594           
-                      {  AgMedium &med = AgMedium::Get("Tpgv_p10");              
-                               med.Inherit(this);              
-                            med.par("deemax")=0.248246;              
-                            med.par("stmin")=1.60594;              
-                            _medium = med;              
                       }           
                       {  AgShape shape = AgShape("Tube");              
                             shape     .Inherit( AgBlock::previous() );              
@@ -3760,15 +3279,6 @@ Float_t sind,cosd,tand;
                             attr.par("colo")=kblue;              
                             attr.Inherit( AgBlock::previous() );               
                             _attribute = attr;              
-                      }           
-                      /// Medium TPSS_whatever           
-                      ///  deemax = 0.248246           
-                      ///  stmin = 1.60594           
-                      {  AgMedium &med = AgMedium::Get("Tpss_whatever");              
-                               med.Inherit(this);              
-                            med.par("deemax")=0.248246;              
-                            med.par("stmin")=1.60594;              
-                            _medium = med;              
                       }           
                       {  AgShape shape = AgShape("Tubs");              
                             shape     .Inherit( AgBlock::previous() );              

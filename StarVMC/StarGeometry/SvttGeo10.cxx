@@ -6104,13 +6104,13 @@
              /// Component C5	a=12	z=6	w=10000*5        
              /// Component H4	a=1	z=1	w=10000*4        
              /// Component O2	a=16	z=8	w=10000*2        
-             /// Component Al	a=27	z=13	w=10000*0.0986        
+             /// Component Al	a=27	z=13	w=986        
              /// Mixture SSDALMY dens=1.40845        
              {  AgMaterial &mix = AgMaterial::Get("Ssdalmy");           
                    mix.Component("C5",12,6,10000*5);           
                    mix.Component("H4",1,1,10000*4);           
                    mix.Component("O2",16,8,10000*2);           
-                   mix.Component("Al",27,13,10000*0.0986);           
+                   mix.Component("Al",27,13,986);           
                    mix.par("dens")=1.40845;           
                    mix.lock();           
                    _material = mix;           
