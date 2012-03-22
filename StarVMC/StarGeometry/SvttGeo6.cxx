@@ -5240,7 +5240,7 @@
                 ///@}        
           } // End Block SOSH     
     // ----------------------------------------------------------------------- geoctr
-       void SvttGeo6::ConstructGeometry()     
+       void SvttGeo6::ConstructGeometry( const Char_t *dummy )     
        {        
              ///@addtogroup SvttGeo6_revision        
              ///@{           

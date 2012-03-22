@@ -3874,7 +3874,7 @@
                 ///@}        
           } // End Block BRWG     
     // ----------------------------------------------------------------------- geoctr
-       void BtofGeo5::ConstructGeometry()     
+       void BtofGeo5::ConstructGeometry( const Char_t *dummy )     
        {        
              ///@addtogroup BtofGeo5_revision        
              ///@{           

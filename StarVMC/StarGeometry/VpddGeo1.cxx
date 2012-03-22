@@ -2481,7 +2481,7 @@
                 ///@}        
           } // End Block IBEW     
     // ----------------------------------------------------------------------- geoctr
-       void VpddGeo1::ConstructGeometry()     
+       void VpddGeo1::ConstructGeometry( const Char_t *dummy )     
        {        
              ///@addtogroup VpddGeo1_revision        
              ///@{           

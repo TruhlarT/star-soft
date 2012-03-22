@@ -4764,7 +4764,7 @@
                 ///@}        
           } // End Block SCVS     
     // ----------------------------------------------------------------------- geoctr
-       void SisdGeo5::ConstructGeometry()     
+       void SisdGeo5::ConstructGeometry( const Char_t *dummy )     
        {        
              ///@addtogroup SisdGeo5_revision        
              ///@{           

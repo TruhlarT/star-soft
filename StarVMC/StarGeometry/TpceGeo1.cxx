@@ -2483,7 +2483,7 @@
                 ///@}        
           } // End Block TRDC     
     // ----------------------------------------------------------------------- geoctr
-       void TpceGeo1::ConstructGeometry()     
+       void TpceGeo1::ConstructGeometry( const Char_t *dummy )     
        {        
              ///@addtogroup TpceGeo1_revision        
              ///@{           

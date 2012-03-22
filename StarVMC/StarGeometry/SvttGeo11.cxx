@@ -5244,7 +5244,7 @@
                 ///@}        
           } // End Block SOSH     
     // ----------------------------------------------------------------------- geoctr
-       void SvttGeo11::ConstructGeometry()     
+       void SvttGeo11::ConstructGeometry( const Char_t *dummy )     
        {        
              ///@addtogroup SvttGeo11_revision        
              ///@{           

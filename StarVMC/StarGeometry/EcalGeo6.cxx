@@ -2281,15 +2281,9 @@
     ///@}     
     ///@addtogroup EcalGeo6_vars     
     ///@{        
-          Float_t etamin=1.086,etamax=2.000;        
+          Float_t tan_theta_max=0.761952162;        
           //        
-          /// Float_t etamin=1.086,etamax=2.000        
-    ///@}     
-    ///@addtogroup EcalGeo6_vars     
-    ///@{        
-          Float_t tan_theta_min=0.275720567,tan_theta_max=0.761952162;        
-          //        
-          /// Float_t tan_theta_min=0.275720567,tan_theta_max=0.761952162        
+          /// Float_t tan_theta_max=0.761952162        
     ///@}     
     if ( cut == 1 )     
     {        
@@ -2380,7 +2374,7 @@
     return;     
  } // subroutine ecal_get_strip  
  // ----------------------------------------------------------------------- geoctr
-    void EcalGeo6::ConstructGeometry()  
+    void EcalGeo6::ConstructGeometry( const Char_t *dummy )  
     {     
           ///@addtogroup EcalGeo6_revision     
           ///@{        

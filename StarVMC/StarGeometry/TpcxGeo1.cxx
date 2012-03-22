@@ -3948,7 +3948,7 @@ Float_t sind,cosd,tand;
                 ///@}        
           } // End Block TPAD     
     // ----------------------------------------------------------------------- geoctr
-       void TpcxGeo1::ConstructGeometry()     
+       void TpcxGeo1::ConstructGeometry( const Char_t *dummy )     
        {        
              ///@addtogroup TpcxGeo1_revision        
              ///@{           

@@ -3812,7 +3812,7 @@
                 ///@}        
           } // End Block BRWG     
     // ----------------------------------------------------------------------- geoctr
-       void BtofGeo3::ConstructGeometry()     
+       void BtofGeo3::ConstructGeometry( const Char_t *dummy )     
        {        
              ///@addtogroup BtofGeo3_revision        
              ///@{           

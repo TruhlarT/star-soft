@@ -3553,7 +3553,7 @@
                 ///@}        
           } // End Block IBSH     
     // ----------------------------------------------------------------------- geoctr
-       void VpddGeo2::ConstructGeometry()     
+       void VpddGeo2::ConstructGeometry( const Char_t *dummy )     
        {        
              ///@addtogroup VpddGeo2_revision        
              ///@{           

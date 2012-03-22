@@ -4855,7 +4855,7 @@
                 ///@}        
           } // End Block SOSK     
     // ----------------------------------------------------------------------- geoctr
-       void SisdGeo6::ConstructGeometry()     
+       void SisdGeo6::ConstructGeometry( const Char_t *dummy )     
        {        
              ///@addtogroup SisdGeo6_revision        
              ///@{           

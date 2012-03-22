@@ -3459,7 +3459,7 @@ Float_t sind,cosd,tand;
                 ///@}        
           } // End Block TPAD     
     // ----------------------------------------------------------------------- geoctr
-       void TpceGeo3a::ConstructGeometry()     
+       void TpceGeo3a::ConstructGeometry( const Char_t *dummy )     
        {        
              ///@addtogroup TpceGeo3a_revision        
              ///@{           
