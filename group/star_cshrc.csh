@@ -14,7 +14,7 @@ if ( $?FLOGIN || $?GNOME_DESKTOP_SESSION_ID ) then
    unsetenv star_login_csh
 endif
 
-if ( $?DECHO ) echo "$self :: we are setting ourselves a defined"
+if ( $?DECHO ) echo "$self :: begin - we are setting ourselves as defined"
 setenv star_cshrc_csh 1
 
 if ( ! $?star_login_csh ) then
@@ -181,5 +181,5 @@ endif
 setprompt
 
 
-
+if ( $?DECHO ) echo "$self :: end"
 

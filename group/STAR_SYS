@@ -6,6 +6,9 @@
 #
 setenv STAR_SYS ""
 source $GROUP_DIR/unix_programs.csh
+if ( $?self ) then
+    set STAR_SYS_pself=${self}
+endif
 set self="STAR_SYS"
 
 #
@@ -240,7 +243,17 @@ else
    endif
 endif
 
+# restore if previously defined
+if ( $?STAR_SYS_pself ) then
+    set self=$STAR_SYS_pself
+    unset STAR_SYS_pself
+endif
+
+
 #  $Log: STAR_SYS,v $
+#  Revision 1.54  2012/03/22 22:07:48  jeromel
+#  Better debuggin in DECHO mode
+#
 #  Revision 1.53  2012/02/15 20:47:34  jeromel
 #  Patch for nodes without a gcc or icc compiler (nx nodes example)
 #
@@ -411,5 +424,5 @@ endif
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 2012/02/15 20:47:34 $
+#             Last modification $Date: 2012/03/22 22:07:48 $
 #

@@ -9,6 +9,9 @@
 # Based on some Hepix script content written by A. Taddei
 #
 # do not do it again, do not even continue
+if ( $?self ) then
+    set GRPL_pself=${self}
+endif
 set self="star_login_csh"
 
 # have a way to force reloading full login
@@ -365,4 +368,10 @@ if ( "$PATH" == "" && $?SAVED_PATH) then
     if ( $?DECHO )  echo "$self :: Something went wrong (probably dropit). Restoring initial PATH"
     set path=($SAVED_PATH)
     unsetenv star_login_csh
+endif
+
+if ( $?DECHO )  echo "$self :: end"
+if ( $?GRPL_pself ) then
+    set self=$GRPL_pself
+    unset GRPL_pself
 endif
