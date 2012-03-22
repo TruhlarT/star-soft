@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.244 2012/03/20 20:31:29 jeromel Exp $
+#       $Id: group_env.csh,v 1.245 2012/03/22 22:08:24 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -22,6 +22,9 @@ if ( ! $?prompt)   set ECHO = 0
 if ($?SILENT == 1) set ECHO = 0
 
 # This variable was added for the ECHOD debug mode
+if ( $?self ) then
+    set GRPE_pself=${self}
+endif
 set self="group_env"
 if ( $?DECHO && $?STAR_LEVEL ) then
     # set ECHO = 1
@@ -198,17 +201,17 @@ if ( $?DECHO) echo "$self :: Setting STAR_VERSION"
 setenv STAR_VERSION ${STAR_LEVEL}
 if ($STAR_LEVEL  == "old" || $STAR_LEVEL  == "pro" || $STAR_LEVEL  == "new" || $STAR_LEVEL  == "dev" || $STAR_LEVEL  == ".dev") then
   # i.e. replace with link value instead
-  if ( $?DECHO ) echo "Will test -e $STAR_PATH/${STAR_LEVEL}"
+  if ( $?DECHO ) echo "$self :: Will test -e $STAR_PATH/${STAR_LEVEL}"
   # exit
 
   if( -e $STAR_PATH/${STAR_LEVEL}) then
     # be carefull, it may not be "seen" as a soft link
     # at all ... Some AFS client do not show the link.
     # No even speaking of absolute path ...
-    if ( $?DECHO ) echo "Will ls -ld $STAR_PATH/${STAR_LEVEL}"
+    if ( $?DECHO ) echo "$self :: Will ls -ld $STAR_PATH/${STAR_LEVEL}"
     set a = `/bin/ls -ld $STAR_PATH/${STAR_LEVEL}`
     set b = `/bin/ls -ld $STAR_PATH/${STAR_LEVEL} | /usr/bin/cut -f2 -d">"`
-    if ( $?DECHO ) echo "Checked $a $b"
+    if ( $?DECHO ) echo "$self :: Checked $a $b"
     if ( "$a" != "$b") then
 	setenv STAR_VERSION $b
     else
@@ -521,7 +524,7 @@ if ( -f $STAR/mgr/ROOT_LEVEL && -f $STAR/mgr/CERN_LEVEL ) then
   # now check if CERN exists
   if ( $?CERN ) then
     if ( ! -e $CERN/$CERN_LEVEL ) then
-	if ( $?DECHO) echo "$self :: Caught $CERN_LEVEL from config in $STAR/mgr/ but not found"
+	if ( $?DECHO) echo "$self :: Caught $CERN_LEVEL from config in $STAR/mgr/ but not found - reverting to pro"
 	setenv CERN_LEVEL pro
     endif
   endif
@@ -530,6 +533,7 @@ else
  # this block should really not be expanded - use the
  # method above instead to change version so we do not
  # have to maintain this long list of switch statements  
+ if ( $?DECHO) echo "$self :: We will use old logic of hard-coding LEVEL to a specific SL"
  switch ( $STAR_VERSION )
 
   case SL98l:
@@ -572,13 +576,29 @@ endif
 if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
 
 
-if ( $?DECHO ) echo "$self :: Paths alter for STAR_MGR, STAR_SCRIPTS STAR_CGI etc ..."
+if ( $?DECHO ) echo "$self :: Paths alteration for STAR_MGR, STAR_SCRIPTS STAR_CGI etc ... begins"
 if ( -x ${GROUP_DIR}/dropit) then
     setenv GROUPPATH `${GROUP_DIR}/dropit -p ${GROUP_DIR} -p mgr -p ${STAR_MGR} -p ${STAR_SCRIPTS} -p ${STAR_CGI} -p ${MY_BIN} -p ${STAR_BIN} -p ${STAF}/mgr -p ${STAF_BIN}`
     setenv PATH `${GROUP_DIR}/dropit -p ${OPTSTAR}/bin -p $PATH`
 else
     setenv GROUPPATH ${GROUP_DIR}:mgr:${STAR_MGR}:${STAR_SCRIPTS}:${STAR_CGI}:${MY_BIN}:${STAR_BIN}:${STAF}/mgr:${STAF_BIN}
     setenv PATH  ${OPTSTAR}/bin:$PATH
+endif
+
+# test return value of PTEST from dropit
+if ( $?DECHO && $?DUMPENV ) then
+    if ( -e /tmp/dropit.$USER ) then
+	set tmp=`/bin/cat /tmp/dropit.$USER`
+	echo "$self :: $tmp"
+	unset tmp
+	/bin/rm -f /tmp/dropit.$USER
+	if ( -e /tmp/dropit.ENV.$USER ) then
+	    echo "$self :: ENV dump now --->"
+	    /bin/cat /tmp/dropit.ENV.$USER
+	    /bin/rm -f /tmp/dropit.ENV.$USER
+	    echo "$self :: <-- END of ENV dump"
+	endif
+    endif
 endif
 
 
@@ -1013,6 +1033,11 @@ if ($ECHO) then
     unset ECHO
 endif
 
+# restore if previously defined
+if ( $?GRPE_pself ) then
+    set self=$GRPE_pself
+    unset GRPE_pself
+endif
 
 
 

@@ -30,12 +30,22 @@ foreach perl (/usr/bin/perl /usr/local/bin/perl $OPTSTAR/bin/perl )
     endif
 end
 
+# Echo here will break this script
+# if ( $?DECHO ) echo "dropit :: PTEST is [$PTEST]"
+if ( $?DECHO && $?DUMPENV ) then
+    /usr/bin/test -e /tmp/dropit.$USER && /bin/rm -f /tmp/dropit.$USER
+    printenv              >&/tmp/dropit.ENV.$USER
+    echo "PTEST=[$PTEST]" >&/tmp/dropit.$USER
+endif
 
 if ("$PTEST" != "") then
     $PTEST $0.pl $*
 else
     $0.csh $*
 endif
+
+
+
 
 # For debugging only 
 #switch ($STAR_SYS)
