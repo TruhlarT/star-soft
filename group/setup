@@ -186,20 +186,22 @@ switch ($pkg)
 		setenv USE_64BITS 0
 	    endif
 	    # some of the path below are historical
-	    if ( $USE_64BITS == 1) then
-		set x="/cern64 /cern ${AFS_RHIC}/asis/@sys/cern64 ${AFS_RHIC}/asis/@sys/cern /usr/local/cern64 /usr/local/cern /common/star/cern64 /common/star/cern"
-	    else
-		set x="/cern ${AFS_RHIC}/asis/@sys/cern /usr/local/cern /common/star/cern"
-	    endif
-	    foreach d ($x)
-		if ( -e $d ) then
-		    setenv CERN $d
-		    break
-		endif
-	    end
 	    if ( ! $?CERN ) then
-		echo "Could not find a valid path for defining CERN, default to /cern"
-		setenv CERN /cern
+		if ( $USE_64BITS == 1) then
+		    set x="/cern64 /cern ${AFS_RHIC}/asis/@sys/cern64 ${AFS_RHIC}/asis/@sys/cern /usr/local/cern64 /usr/local/cern /common/star/cern64 /common/star/cern"
+		else
+		    set x="/cern ${AFS_RHIC}/asis/@sys/cern /usr/local/cern /common/star/cern"
+		endif
+		foreach d ($x)
+		    if ( -e $d ) then
+			setenv CERN $d
+			break
+		    endif
+		end
+		if ( ! $?CERN ) then
+		    echo "Could not find a valid path for defining CERN, default to /cern"
+		    setenv CERN /cern
+		endif
 	    endif
         endif
 	if ( $version != 0 ) then
