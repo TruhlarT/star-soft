@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.245 2012/03/22 22:08:24 jeromel Exp $
+#       $Id: group_env.csh,v 1.246 2012/03/28 00:35:36 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -568,10 +568,12 @@ endif
 
 # At this point, CERN_LEVEL should be defined but if not,
 # the global setup will define it to a default
-if ( -x $GROUP_DIR/setup  ) then
-    source $GROUP_DIR/setup CERN
-else
-    setenv CERN_ROOT  $CERN/$CERN_LEVEL
+if ( ! $?CERN ) then
+    if ( -x $GROUP_DIR/setup  ) then
+	source $GROUP_DIR/setup CERN
+    else
+	setenv CERN_ROOT  $CERN/$CERN_LEVEL
+    endif
 endif
 if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
 
