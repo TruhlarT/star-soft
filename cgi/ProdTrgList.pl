@@ -513,7 +513,7 @@ print <<END;
  <h2 ALIGN=CENTER> <B> Real Data Production Summary  </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
-<h4 ALIGN=LEFT><font color="blue">Production descriptions can be found on  <a href="http://www.star.bnl.gov/public/comp/prod/ProdList.html"> the page</a></font> <ALIGN=RIGHT><font color="#ff0000">Ongoing production is in red color</font></h4>
+<h4 ALIGN=LEFT><font color="blue">Production descriptions can be found on  <a href="http://www.star.bnl.gov/public/comp/prod/ProdList.html"> the page</a></font></h4> <h4><ALIGN=RIGHT><font color="#ff0000">Ongoing production is in red color</font></h4>
 <h4 ALIGN=LEFT>Link under the trigger set name has stream data production summary <br>
 Link under production tag has chain options<br></h4>
 
