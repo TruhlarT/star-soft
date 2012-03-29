@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.57 2010/10/29 15:39:31 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.58 2012/03/29 20:01:25 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.58  2012/03/29 20:01:25  didenko
+# add AgML test
+#
 # Revision 1.57  2010/10/29 15:39:31  didenko
 # change mark size
 #
@@ -142,6 +145,9 @@ my @point5 = ();
 my @point6 = ();
 my @point7 = ();
 my @point8 = ();
+my @point10 = ();
+my @point11 = ();
+
 
 my @Nday;
 for($i=0;$i<7*$weeks;$i++) {
@@ -153,6 +159,8 @@ for($i=0;$i<7*$weeks;$i++) {
     $point5[$i]=undef;
     $point6[$i]=undef;
     $point7[$i]=undef;
+    $point10[$i]=undef;
+    $point11[$i]=undef;
     $Nday[$i] = undef;
 }
 
@@ -195,8 +203,10 @@ for($i=1;$i<$weeks;$i++) {
 &StDbTJobsConnect();
 
 my $path;
-my $path;
-my$sql; 
+my $sql; 
+my $agmlpath;
+my $pth;
+my $agml;
 
 my $n_weeks = $weeks - 1;
 while($n_weeks >= 0) {
@@ -223,11 +233,16 @@ while($n_weeks >= 0) {
    @spl = split("/", $set1);
    $pth = $spl[0]."%" ;
    $path =~ s($spl[0])($pth)g;
-
+   $agml = $spl[1].".AgML" ;
 
 #	$path =~ s(/)(%)g;
 
-	    my $qupath = "%$path%";
+ my $qupath = "%$path%";
+
+#       $agmlpath = "%$pth".$agml."/".$Nday[$d_week]."/".$spl[2];
+
+  $agmlpath = "%$path%";
+  $agmlpath =~ s($spl[1])($agml)g;
 
 	if ($n_weeks == 0) {
 
@@ -316,8 +331,48 @@ while($n_weeks >= 0) {
 		    }
 		}
 	    }
+	  }
+
+############
+
+	if ($n_weeks == 0) {
+
+	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE ? AND avail='Y' AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? ORDER by createTime DESC LIMIT 5";
+
+ 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
+	$cursor->execute($agmlpath,$day_diff);
+
+	} else {
+	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE ? AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) > ? ORDER by createTime DESC LIMIT 5";
+
+	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
+	$cursor->execute($agmlpath,$day_diff, $day_diff1);
+
+       }
+	while(@fields = $cursor->fetchrow_array) {
+
+             if($fields[0] =~ /sl302.ittf/) {
+		$point6[$d_week+7*$rn_weeks] = $fields[1];
+		if($point10[$d_week+7*$rn_weeks] > $max_y) {
+		    $max_y = $point10[$d_week+7*$rn_weeks];
+		}
+		if($point10[$d_week+7*$rn_weeks] < $min_y) {
+		    $min_y = $point10[$d_week+7*$rn_weeks];
+		}
+		if ($plotVal eq "MemUsage") {
+		    $point11[$d_week+7*$rn_weeks] = $fields[2];
+		    if ($point11[$d_week+7*$rn_weeks] > $max_y) {
+			$max_y = $point11[$d_week+7*$rn_weeks];
+		    }
+		    if ($point11[$d_week+7*$rn_weeks] < $min_y) {
+			$min_y = $point11[$d_week+7*$rn_weeks];
+		    }
+		}
+	     }
+	  }
+#############
+
 	}
-    }
     $n_weeks--;
 }
 
@@ -326,19 +381,29 @@ while($n_weeks >= 0) {
 
 if ($plotVal eq "MemUsage") {
 #    @data = (\@Nday, \@point0, \@point1, \@point2, \@point3, \@point4, \@point5, \@point6, \@point7 );
-    @data = (\@Nday, \@point2,  \@point3, \@point6, \@point7 );
-    $legend[0] = "MemUsgaeF(ittf.optimized)";
-    $legend[1] = "MemUsgaeL(ittf.optimized)";
-    $legend[2] = "MemUsgaeF(ittf)";
-    $legend[3] = "MemUsageL(ittf)";
+#    @data = (\@Nday, \@point2,  \@point3, \@point6, \@point7 );
+
+    @data = (\@Nday, \@point2,  \@point3, \@point6, \@point7, \@point10, \@point11 );
+
+    $legend[0] = "MemUsgaeFirst(ittf.optimized)";
+    $legend[1] = "MemUsgaeLast(ittf.optimized)";
+    $legend[2] = "MemUsgaeFirst(ittf)";
+    $legend[3] = "MemUsageLast(ittf)";
+    $legend[4] = "MemUsgaeFirst(ittf,AgML)";
+    $legend[5] = "MemUsageLast(ittf,AgML)";    
+
+
     $mplotVal="MemUsageFirstEvent,MemUsageLastEvent";
 } else {
 
 #     @data = (\@Nday, \@point0, \@point2, \@point4, \@point6 );
+#    @data = (\@Nday, \@point2, \@point6 );
 
-    @data = (\@Nday, \@point2, \@point6 );
+    @data = (\@Nday, \@point2, \@point6, \@point10 );
+
     $legend[0] = "$plotVal"."(ittf.optimized)";
     $legend[1] = "$plotVal"."(ittf)";
+    $legend[2] = "$plotVal"."(ittf,AgML)";    
 }
 
 
