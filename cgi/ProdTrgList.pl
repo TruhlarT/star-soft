@@ -514,10 +514,10 @@ print <<END;
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <h4 ALIGN=LEFT><font color="blue">Production descriptions can be found on  <a href="http://www.star.bnl.gov/public/comp/prod/ProdList.html"> the page</a></font></h4>
-
+<h4 ALIGN=RIGHT><font color="#ff0000">Ongoing production is in red color</font></h4>
 <h4 ALIGN=LEFT>Link under the trigger set name has stream data production summary <br>
 Link under production tag has chain options<br></h4>
-<h4 ALIGN=RIGHT><font color="#ff0000">Ongoing production is in red color</font></h4>
+
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Trigger sets</h3></B></TD>
