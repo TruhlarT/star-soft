@@ -1,10 +1,10 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.58 2012/03/29 20:01:25 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.59 2012/03/29 20:10:40 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.58  2012/03/29 20:01:25  didenko
+# Revision 1.59  2012/03/29 20:10:40  didenko
 # add AgML test
 #
 # Revision 1.57  2010/10/29 15:39:31  didenko
@@ -352,7 +352,7 @@ while($n_weeks >= 0) {
 	while(@fields = $cursor->fetchrow_array) {
 
              if($fields[0] =~ /sl302.ittf/) {
-		$point6[$d_week+7*$rn_weeks] = $fields[1];
+		$point10[$d_week+7*$rn_weeks] = $fields[1];
 		if($point10[$d_week+7*$rn_weeks] > $max_y) {
 		    $max_y = $point10[$d_week+7*$rn_weeks];
 		}
