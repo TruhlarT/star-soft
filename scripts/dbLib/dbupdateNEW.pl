@@ -1351,14 +1351,11 @@ $jrun = "Run not completed";
 
            if( $string =~ /primary vertex/ and $string =~ /QA :INFO/ ) {
              $no_prvertx++;
-           }
-
-           if( $string =~ /primary tracks:/) {          
 
               @word_tr = split /:/,$string;
-              @nmb =  split /</,$word_tr[2];
+              @nmb =  split (",",$word_tr[6]);
               $no_prtracks[$npr] = $nmb[0];
-              @nmbx =  split /</,$word_tr[4];
+              @nmbx =  split (" ",$word_tr[6]);
               $no_prtrck_nfit15[$npr]  = $nmbx[0];
  
                if( $no_prtrck_nfit15[$npr] >= $max_npr_nfit15) {
