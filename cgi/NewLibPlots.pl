@@ -350,7 +350,7 @@ $minval = 100000;
 		  $minval =  $plotmemfsto[$npk];
 	          }
                 $libtagop[$npk] = $fields[3];               
-                 $npt++;  
+                 $npk++;  
 	   }else{
 		$plotvalop[$npk] = $fields[1];
 		if( $plotvalop[$npk] >= $maxval) {
