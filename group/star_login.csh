@@ -1,6 +1,6 @@
 #
 # This login has been added for the STAR collaboration.
-# it prupose is to replace the multiple layer of HEPIX
+# it purpose is to replace the multiple layer of HEPIX
 # software and avoid loading, sourcing so many level
 # of files that mother-duck herself would lose her
 # children on the way ....
@@ -174,40 +174,12 @@ if ( -r "/etc/man.config" ) then
 else
    setenv SYSMAN "/usr/man"
 endif
-setenv MANPATH "${HOME}/man:${SYSMAN}:/usr/local/man:/usr/share/man:/cern/man"
+setenv MANPATH "${HOME}/man:${SYSMAN}:/usr/local/man:/usr/share/man"
 setenv XFILESEARCHPATH "/usr/openwin/lib/app-defaults/%N:/usr/lib/X11/app-defaults/%N:/usr/local/lib/X11/app-defaults/%N"
 setenv LESSCHARSET latin1
 #setenv PRINT_CMD   "xprint"
 
 
-
-# CERN stuff
-if ( $?DECHO ) echo "$self :: Checking CERN stuff"
-
-if ($?CERN == 0) then
-    # should be defined by now but ...
-    if ( -x $GROUP_DIR/setup  ) then
-	source $GROUP_DIR/setup CERN
-    endif
-    if ($?ECHO == 1) then
-	if ( ! $?CERN ) then
-	    echo "$self :: Could not find a suitable CERN path"
-	else
-	    echo "$self :: Set CERN to $CERN"
-	endif
-    endif
-endif
-
-# If still undefined, set it to /cern and proceed
-# This will act as a safety net / minimal setup
-if ($?CERN == 0)       setenv CERN "/cern"
-if ($?CERN_LEVEL == 0) setenv CERN_LEVEL pro
-# add one more check - if does not existing, switch to pro
-if ( ! -e $CERN/$CERN_LEVEL ) then
-    if ( $?DECHO ) echo "$self :: $CERN/$CERN_LEVEL not found, switch to pro"
-    setenv CERN_LEVEL pro
-endif
-setenv CERN_ROOT "$CERN/$CERN_LEVEL"
 
 
 
@@ -338,7 +310,7 @@ if ( ! $?star_cshrc_csh) then
 endif
 
 # Now, display the news if any
-if ($?SILENT == 0 && $?prompt) then
+if ( ! $?SILENT && $?prompt) then
     if ( -f $STAR_PATH/news/motd ) then
 	alias motd /bin/cat $STAR_PATH/news/motd
         /bin/cat $STAR_PATH/news/motd
