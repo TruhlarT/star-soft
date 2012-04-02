@@ -93,7 +93,7 @@ do {
 		my($count,$N);
 
 		&Print("Bootstrap case, run = $run ( >= 0) ; prun = $prun\n");
-		$count = 0;
+		$count = -1;
 		rdaq_set_dlevel(1);
 
 		# we use prun instead on run but do not want to use 0.0
@@ -115,13 +115,14 @@ do {
 
 			# record entries
 			$N = rdaq_add_entries($dbObj,@records);
-			&Print("Adding $N entr".($N==1?"y":"ies")." to $tot so far\n");
+			&Print("Adding $N entr".($N==1?"y":"ies").($tot==0?"\n":" to $tot so far\n"));
 			$tot += $N;
 		    }
 		    $begin += $by;
 		} while ($#records != -1);
-		&Print("Got $tot records in $count passes\n");
-		rdaq_set_message($SSELF,"Fetched new records","$tot records in $count pass".($count==1?"":"es")) if ($tot != 0);
+		&Print("Got $tot records in $count pass".($count==1?"":"es")."\n");
+		rdaq_set_message($SSELF,"Fetched new records",
+				 "$tot records in $count pass".($count==1?"":"es")) if ($tot != 0);
 
 	    } else {
 		&Print("Checking entries on ".localtime()."\n");
