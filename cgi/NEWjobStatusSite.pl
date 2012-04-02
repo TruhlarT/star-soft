@@ -86,6 +86,7 @@ struct FileAttr => {
 my $ddate = $yr.$mon.$mday;
 
 my @arlibst = ();
+my @libsite = ();
 my @arlib = ();
 my @arsite = ();
 my $nd = 0;
@@ -104,8 +105,6 @@ my $nd = 0;
       my $cols=$cursor->{NUM_OF_FIELDS};
 
        for($i=0;$i<$cols;$i++) {
-     my $fvalue=$fields[$i];
-     my $fname=$cursor->{NAME}->[$i];
 
         $arlib[$nd] = $fields[0] ;
         $arsite[$nd] = $fields[1];
@@ -120,8 +119,10 @@ my $nd = 0;
      for($j=0;$j<$nd;$j++) {
 
 	 $arlibst[$j] = $arlib[$j]."-".$arsite[$j];
-#	 $arlibst = $arlib[$j];
      }
+
+ @libsite = reverse @arlibst ;
+
 
  &StDbTJobsDisconnect(); 
 
@@ -164,8 +165,7 @@ print "<p>";
 print "<h3 align=center>Select library and site</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'rsite',
-                             -values=>\@arlibst,
-                             -default=>SL12a-rcf,
+                             -values=>\@libsite,
                              -size=>1);
 
 print "</td> </tr> </table><hr><center>";
