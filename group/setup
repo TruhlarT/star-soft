@@ -45,6 +45,7 @@ switch ($pkg)
     case "64b":
       setenv USE_64BITS 1
       #source $GROUP_DIR/STAR_SYS
+      if ( -x $GROUP_DIR/dropit) setenv PATH `${GROUP_DIR}/dropit $STAR_HOST_SYS -p $PATH`
       unsetenv OPTSTAR
       unsetenv QTDIR
       unsetenv LD_LIBRARY_PATH 
@@ -62,6 +63,7 @@ switch ($pkg)
     case "32b":
       setenv USE_64BITS 0
       #source $GROUP_DIR/STAR_SYS
+      if ( -x $GROUP_DIR/dropit) setenv PATH `${GROUP_DIR}/dropit $STAR_HOST_SYS -p $PATH`
       unsetenv OPTSTAR
       unsetenv QTDIR
       unsetenv LD_LIBRARY_PATH
@@ -176,34 +178,57 @@ switch ($pkg)
     case "CERN":
     case "cern":
 	if ( $location != 0 ) then
-	    # use the specified location
+	    # use the specified location, no double check
 	    setenv CERN $location
         else
 	    # try to determine the location according to pre-2010 logic
 	    if ( ! $?USE_64BITS ) then
 		# this is also defined in STAR_SYS but ensuring
-		# a defula tis needed for the test below
+		# a default value is needed for the test below
 		setenv USE_64BITS 0
 	    endif
-	    # some of the path below are historical
 	    if ( ! $?CERN ) then
+		# Define one value - some of the path below are historical
 		if ( $USE_64BITS == 1) then
 		    set x="/cern64 /cern ${AFS_RHIC}/asis/@sys/cern64 ${AFS_RHIC}/asis/@sys/cern /usr/local/cern64 /usr/local/cern /common/star/cern64 /common/star/cern"
 		else
 		    set x="/cern ${AFS_RHIC}/asis/@sys/cern /usr/local/cern /common/star/cern"
 		endif
-		foreach d ($x)
-		    if ( -e $d ) then
-			setenv CERN $d
-			break
-		    endif
-		end
-		if ( ! $?CERN ) then
-		    echo "Could not find a valid path for defining CERN, default to /cern"
-		    setenv CERN /cern
+            else
+		# Either it was set before by the search above or there is an 
+		# external definition. In all cases, if it ends by 64, set as-is
+		# otherwise append
+		set test=`echo $CERN | /bin/grep 64`
+		if ( "$test" != "") then
+		    # strip it
+		    setenv CERN `echo ${CERN} | /bin/sed "s/64//"`
 		endif
+		if ( $USE_64BITS == 1 ) then
+		    set x="${CERN}64 ${CERN}"
+                else
+		    set x="${CERN}"
+		endif
+		unset test
+	    endif
+
+	    # NOW we have "x" defined as a search path or a unique path
+	    # In case of a unique path set by a site, this will redefine to itself
+	    # But this odditiy is needed to deal with the 64 bits convention
+	    # ${CERN} ${CERN}64
+	    foreach d ($x)
+		if ( -e $d ) then
+		    setenv CERN $d
+		    break
+		endif
+	    end
+	    unset x d
+	    if ( ! $?CERN ) then
+		# this can happen only when the full search path finds nothing
+		echo "Could not find a valid path for defining CERN, default to /cern"
+		setenv CERN /cern
 	    endif
         endif
+	
 	if ( $version != 0 ) then
 	    # if specified, use specific version
 	    if ( -e $CERN/$version ) then
@@ -215,8 +240,16 @@ switch ($pkg)
 		setenv CERN_LEVEL pro
 	    endif
 	endif
-	# check of existence will be done in the star login
-	setenv CERN_ROOT $CERN/$CERN_LEVEL
+
+	# Finally, check of existence of this path and revert to 
+	# pro if not found
+	if ( ! -e $CERN/$CERN_LEVEL ) then
+	    if ( $?DECHO ) echo "$self :: $CERN/$CERN_LEVEL not found, switch to pro"
+		setenv CERN_LEVEL pro
+		setenv CERN_ROOT "$CERN/$CERN_LEVEL"
+	    endif
+	    setenv CERN_ROOT $CERN/$CERN_LEVEL
+	endif
 	breaksw
 
     # Parasoft/Isure++ software
