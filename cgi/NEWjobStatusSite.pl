@@ -107,7 +107,7 @@ my $nd = 0;
      my $fvalue=$fields[$i];
      my $fname=$cursor->{NAME}->[$i];
 
-   print "$fname = $fvalue\n" ;
+#   print "$fname = $fvalue\n" ;
 
         $arlib[$nd] = $fvalue   if($fname='LibTag');
         $arsite[$nd] = $fvalue  if($fname='site') ;
