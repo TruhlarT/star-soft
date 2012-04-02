@@ -178,8 +178,8 @@ sub GetRun
     my(@info,$delta,$lrv);
 
     $cv = $rv = "0.0";
-    if( $file ne ""){
-	@lines = `/usr/bin/tail -20 $file`;
+    if( $FILE ne ""){
+	@lines = `/usr/bin/tail -20 $FILE`;
 	foreach $line (@lines){
 	    if ($line =~ m/(Run=)(\d+)\.(\d+)/){
 		# this run information comes from rdaq_last_run() which will look
