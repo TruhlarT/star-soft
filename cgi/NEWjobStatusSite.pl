@@ -94,7 +94,7 @@ my $nd = 0;
 &StDbTJobsConnect();
 
  
- $sql="SELECT distinct LibTag, rsite  FROM $JobStatusT where LibTag <> 'n/a' and rsite <> 'n/a' order by LibTag ";
+ $sql="SELECT distinct LibTag, site  FROM $JobStatusT where LibTag <> 'n/a' and site <> 'n/a' order by LibTag ";
 
   $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
