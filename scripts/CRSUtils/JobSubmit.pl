@@ -796,7 +796,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
     # Default mode is submit. Target is a path
     # get the number of possible jobs per queue.
     $TOT = CRSQ_getcnt($USEQ[0],$SPILL[0],$PAT);
-    $TOT = 1 if ($DEBUG);
+    $TOT = 1 if ($DEBUG || defined($ENV{FO_FORCE_SUBMIT}) );
 
     print "$SELF : Mode=direct Queue count Tot=$TOT\n";
 
@@ -804,7 +804,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
     # $TOT = 10;
 
     $time = localtime();
-    if ($TOT > 0 && ! -e $LOCKF){
+    if ( $TOT > 0 && ! -e $LOCKF ){
 	open(FL,">$LOCKF");
 	close(FL);
 	# print "$SELF : We need to submit $TOT jobs\n";
@@ -898,7 +898,15 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 
 	    print "$SELF : Xfiles=$#Xfiles Files=$#Files $TARGET\n";
 
-	    #undef($files);
+	    print "\tDEBUG Xfiles [".join(",",@Xfiles)."]\n" if ($#Xfiles != -1);
+	    print "\tDEBUG Files  [".join(",",@Files)."]\n"  if ($#Files  != -1);
+
+	    if ( $#Xfiles == -1 && $#Files == -1){
+		print "$SELF : We have no records to work with\n";
+		&Exit();
+	    }
+
+	    undef(@files);
 	    for($ii=0; $ii<=1 ; $ii++){
 		# we loop twice and separate special cases and other cases
 		@files = @Xfiles if ($ii==0);
@@ -986,10 +994,13 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 	&Exit();
     }
 
+    #print "$SELF : Opening DB & Checking lock\n";
+
     if( ! ($obj = rdaq_open_odatabase()) ){ &Exit("no db connection - abort");} # no ddb abort
     if( -e $LOCKF){ &Exit("$LOCKF exists - exiting");}                          # leave if lockf
 
     # read conf
+    #print "$SELF : Reading $CONFF\n";
     open(FI,$CONFF) || die "Could not open $CONFF for read\n";
     chomp(@all = <FI>);
     close(FI);
@@ -1002,6 +1013,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
     }
 
     # alter queue offset to allow for a higher fill
+    print "$SELF :: Creating a queue Offset of 80 slots for this mode\n";
     CRSQ_Offset(80);
 
     # get number of slots. Work is spill mode.
