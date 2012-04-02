@@ -107,23 +107,25 @@ my $nd = 0;
      my $fvalue=$fields[$i];
      my $fname=$cursor->{NAME}->[$i];
 
-        $arlib[$nd] = $fields[0]  ;
-        $arsite[$nd] = $fields[1] ;
+   print "$fname = $fvalue\n" ;
+
+        $arlib[$nd] = $fvalue   if($fname='LibTag');
+        $arsite[$nd] = $fvalue  if($fname='site' ;
 
       }  
         
         $nd++;
     }
-      $cursor->finish;
-
- &StDbTJobsDisconnect(); 
+#      $cursor->finish;
 
 
      for($j=0;$j<$nd;$j++) {
 
-#	 $arlibst = $arlib[$j]."-".$arsite[$j];
-	 $arlibst = $arlib[$j];
+	 $arlibst = $arlib[$j]."-".$arsite[$j];
+#	 $arlibst = $arlib[$j];
      }
+
+ &StDbTJobsDisconnect(); 
 
 
 my $newlib;
@@ -165,7 +167,7 @@ print "<h3 align=center>Select library and site</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'rsite',
                              -values=>\@arlibst,
-                             -default=>SL12a-rcf,
+#                             -default=>SL12a-rcf,
                              -size=>1);
 
 print "</td> </tr> </table><hr><center>";
