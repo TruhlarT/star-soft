@@ -706,7 +706,7 @@ sub rdaq_fetcher
 	# to give a warning for debugging but save "unknown" (val=0).
 	if ($mask == 0 ){
 	    &info_message("fetcher",1,
-			  "Reading $run table=detectorTypes,detectorSet leaded to [$mask]\n");
+			  "Reading $run table=detectorTypes,detectorSet was 0 [$mask] (daq/trg run only)\n");
 	    #return undef;
 	} # else {
 	$DETSETS{$run} = $mask;
