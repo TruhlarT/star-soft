@@ -1,6 +1,9 @@
 #!/usr/bin/env perl
-#  $Id: dropit.pl,v 1.3 2004/12/14 20:50:13 jeromel Exp $
+#  $Id: dropit.pl,v 1.4 2012/04/02 22:48:17 jeromel Exp $
 #  $Log: dropit.pl,v $
+#  Revision 1.4  2012/04/02 22:48:17  jeromel
+#  Some indent for readability
+#
 #  Revision 1.3  2004/12/14 20:50:13  jeromel
 #  Few more fully specified path execs
 #
@@ -70,20 +73,21 @@
 
 my $FS=":";
 my $DS=":";
-my $string= $ENV{PATH};# print "string $string\n";
+my $string= $ENV{PATH};    # default value
 my @string=();
 my @substring=();
-for ( my $i=0; $i<scalar(@ARGV); $i++)
-{
-  my $test = @ARGV[$i];
-  ##print $i, $test, "\n";
-  if ($test =~ /^-/  && @ARGV[$i+1] =~ /^-/) {next;}    
-  if ($test eq '-c') {next;}
-  if ($test eq '-i') {$FS = @ARGV[++$i]; next;}      
-  if ($test eq '-d') {$DS = @ARGV[++$i]; next;}     
-  if ($test eq '-p') {push @string,@ARGV[++$i]; next; } 
-  if ($test =~ /^-/) {next;}    
-  push @substring, $test;
+
+# parse arguments
+for ( my $i=0; $i<scalar(@ARGV); $i++){
+    my $test = @ARGV[$i];
+    ##print $i, $test, "\n";
+    if ($test =~ /^-/  && @ARGV[$i+1] =~ /^-/) {next;}    
+    if ($test eq '-c') {next;}
+    if ($test eq '-i') {$FS = @ARGV[++$i]; next;}      
+    if ($test eq '-d') {$DS = @ARGV[++$i]; next;}     
+    if ($test eq '-p') {push @string,@ARGV[++$i]; next; } 
+    if ($test =~ /^-/) {next;}    
+    push @substring, $test;
  }
 
 if (scalar(@string)) {$string = join $FS,@string ;}
@@ -94,30 +98,38 @@ my @newwords = ();
 
 # remove words containing substring
 foreach my $word (@words) {
-  foreach my $s (@substring) {if ($word =~ $s) {goto NEXT};}
-  push @newwords, $word;
- NEXT:
+    foreach my $s (@substring) {
+	if ($word =~ m/$s/) {
+	    goto NEXT;
+	}
+    }
+    push @newwords, $word;
+  NEXT:
 }
+
 # remove duplications
 @words = ();
 foreach my $word (@newwords) {# print "word = $word\n";
-  foreach my $w (@words) {
-      # print "word $word and w = $w\n";
-      goto LAST if $w eq $word;
-  }
-  #  print "Check $word\n";
-  #$word =~ /lsf/ || 
-  if ($word =~ /scratch/ || $word =~ /ROOT/){
-      push @words, $word; 
-      next;
-  }
-  if ( (!( -d $word)) and $word !~ /^\./ ) {next;}
-  #if ( $0 =~ m/$word/ ){ next;}
+    foreach my $w (@words) {
+	# print "word $word and w = $w\n";
+	goto LAST if $w eq $word;
+    }
+    #  print "Check $word\n";
+    #$word =~ /lsf/ || 
 
-  push @words, $word;
-  # print "                    add $word\n";
- LAST:
+    ## JL 2012 - Hidden undocumented business logic in a script 
+    ## aimed to perform a generic task (???)
+    if ( $word =~ /scratch/ || $word =~ /ROOT/){
+	push @words, $word; 
+	next;
+    }
+    if ( (!( -d $word)) and $word !~ /^\./ ) {next;}
+    
+    push @words, $word;
+    # print "                    add $word\n";
+  LAST:
 }
+
 $string = join $DS,@words;
-if ($string) {print "$string\n";}
-else         {print "$ostring\n";}
+if ($string) {  print "$string\n";}
+else         {  print "$ostring\n";}
