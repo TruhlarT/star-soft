@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.246 2012/03/28 00:35:36 jeromel Exp $
+#       $Id: group_env.csh,v 1.247 2012/04/02 23:09:37 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -565,17 +565,19 @@ else
   endsw
 endif
 
+if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
+
 
 # At this point, CERN_LEVEL should be defined but if not,
 # the global setup will define it to a default
-if ( ! $?CERN ) then
-    if ( -x $GROUP_DIR/setup  ) then
-	source $GROUP_DIR/setup CERN
-    else
-	setenv CERN_ROOT  $CERN/$CERN_LEVEL
-    endif
+if ( $?CERN_LEVEL ) then
+    source $GROUP_DIR/setup CERN ${CERN_LEVEL}
+else
+    source $GROUP_DIR/setup CERN
 endif
-if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
+
+
+
 
 
 if ( $?DECHO ) echo "$self :: Paths alteration for STAR_MGR, STAR_SCRIPTS STAR_CGI etc ... begins"
@@ -843,19 +845,19 @@ endif
 
 
 # Support for GraXML
-if ( ! $?GRAXML_HOME && -d ${STAR_PATH}/GeoM ) then
-    if ( -d ${STAR_PATH}/GeoM/${STAR_LEVEL}/GraXML ) then
-	setenv GRAXML_HOME ${STAR_PATH}/GeoM/${STAR_LEVEL}/GraXML
-    else
-	# revert to a default if exists
-	if ( -e ${STAR_PATH}/GeoM/dev/GraXML ) then
-	    setenv GRAXML_HOME ${STAR_PATH}/GeoM/dev/GraXML
-	endif
-    endif
-endif
-if ( $?GRAXML_HOME ) then
-    set path=($path $GRAXML_HOME/bin)
-endif
+#if ( ! $?GRAXML_HOME && -d ${STAR_PATH}/GeoM ) then
+#    if ( -d ${STAR_PATH}/GeoM/${STAR_LEVEL}/GraXML ) then
+#	setenv GRAXML_HOME ${STAR_PATH}/GeoM/${STAR_LEVEL}/GraXML
+#    else
+#	# revert to a default if exists
+#	if ( -e ${STAR_PATH}/GeoM/dev/GraXML ) then
+#	    setenv GRAXML_HOME ${STAR_PATH}/GeoM/dev/GraXML
+#	endif
+#    endif
+#endif
+#if ( $?GRAXML_HOME ) then
+#    set path=($path $GRAXML_HOME/bin)
+#endif
 
 
 # Support for subversion if installed in a sub-directory
