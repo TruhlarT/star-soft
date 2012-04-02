@@ -84,11 +84,43 @@ struct FileAttr => {
   if( $mday < 10) { $mday = '0'.$mday };
 
 my $ddate = $yr.$mon.$mday;
-my $newlib;
+
+my @arlibst = ();
 my @arlib = ();
+my @arsite = ();
 my $nd = 0;
-my @arsite = ("rcf","pdsf","rcf_embed", "pdsf_embed");
-my $lastlib;
+
+
+&StDbTJobsConnect();
+
+ 
+ $sql="SELECT distinct LibTag, rsite  FROM $JobStatusT where LibTag <> 'n/a' and rsite <> 'n/a' order by LibTag ";
+
+  $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute();
+
+      while(@fields = $cursor->fetchrow) {
+
+
+        $arlib[$nd] = $fields[0];
+        $arsite[$nd] = $fields[1];
+        
+        $nd++;
+    }
+      $cursor->finish;
+
+ &StDbTJobsDisconnect(); 
+
+
+     for($j=0;$j<$nd;$j++) {
+
+	 $arlibst = $arlib[$j]."%".$arsite[$j];
+     }
+
+
+my $newlib;
+my $newsite;
 my $newpath;
 
 my $query=new CGI;
@@ -122,11 +154,11 @@ print <<END;
 END
 
 print "<p>";
-print "<h3 align=center>Select site</h3>";
+print "<h3 align=center>Select library and site</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'rsite',
-                             -values=>\@arsite,
-                             -default=>rcf,
+                             -values=>\@arlibst,
+                             -default=>SL12a%rcf,
                              -size=>1);
 
 print "</td> </tr> </table><hr><center>";
@@ -149,9 +181,9 @@ my $qqr = new CGI;
 my $lsite   = $qqr->param('rsite');
 
 my @prt = ();
- @prt = split("_",$tsite); 
-
-my  $tsite = $prt[0];
+ @prt = split("%",$lsite);
+ $newlib = $prt[0];
+ $newsite = $prt[1];  
 
  if($lsite =~ /embed/) {
    $newpath = "%/new_embed/%ittf%" ;
@@ -168,34 +200,12 @@ $JobStatusT = "siteJobStatus";
 
 &StDbTJobsConnect();
 
- @arlib = ();
-
- $sql="SELECT distinct LibTag FROM $JobStatusT where path LIKE '$newpath' and site = ? and avail = 'Y' and LibTag <> 'n/a' order by createTime ";
-
-  $cursor =$dbh->prepare($sql)
-      || die "Cannot prepare statement: $DBI::errstr\n";
-   $cursor->execute($tsite);
-
-     while($newlib = $cursor->fetchrow) {
-
-        $arlib[$nd] = $newlib;
-        $nd++;
-    }
-      $cursor->finish;
-
-#  if($arlib[$nd-1] eq "n/a" ) {
-#     $lastlib = $arlib[$nd-2];
-#  }else{
-
-   $lastlib = $arlib[$nd-1];
-#  }
-
-$sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '$newpath' AND site = ?  AND LibTag like '$lastlib%' and avail = 'Y' order by prodyear ";
+$sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '$newpath' AND site = ?  AND LibTag = ?  order by prodyear ";
 
 
     $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
-     $cursor->execute($tsite);
+     $cursor->execute($newsite,$newlib);
 
       my $counter = 0;
     while(@fields = $cursor->fetchrow) {
@@ -264,17 +274,17 @@ my $dPath;
     @prt = split (" ", $myCtime);
     $cdate = $prt[0];  
 
-        if($mylib eq $lastlib and $myJobS eq "Done") {
+        if($mylib eq $newlib and $myJobS eq "Done") {
 
       &printRow();
 
-#       }elsif( $mylib eq $lastlib  and $myJobS eq "Run not completed") {
+#       }elsif( $mylib eq $newlib  and $myJobS eq "Run not completed") {
 
-       }elsif( $mylib eq $lastlib  and $myJobS ne "Done") {
+       }elsif( $mylib eq $newlib  and $myJobS ne "Done") {
 
       &printRowFd();
 
-      }elsif(  $mylib ne $lastlib ) {
+      }elsif(  $mylib ne $newlib ) {
 
       $myJobS = "n/a";
       $myMemF = 0;
@@ -304,7 +314,7 @@ print <<END;
           <title>Status of nightly test for the new library</title>
    </head>
    <body BGCOLOR=\"cornsilk\"> 
-     <h1 align=center>Status of test jobs for <font color="#ff0000">$lastlib</font> library on <font color="#ff0000">$tsite</font></h1>
+     <h1 align=center>Status of test jobs for <font color="#ff0000">$newlib</font> library on <font color="#ff0000">$newsite</font></h1>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Path</B></TD>
