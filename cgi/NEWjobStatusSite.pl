@@ -101,10 +101,16 @@ my $nd = 0;
    $cursor->execute();
 
       while(@fields = $cursor->fetchrow) {
+      my $cols=$cursor->{NUM_OF_FIELDS};
 
+       for($i=0;$i<$cols;$i++) {
+     my $fvalue=$fields[$i];
+     my $fname=$cursor->{NAME}->[$i];
 
-        $arlib[$nd] = $fields[0];
-        $arsite[$nd] = $fields[1];
+        $arlib[$nd] = $fvalue     if($fname = 'LibTag') ;
+        $arsite[$nd] = $fvalue    if($fname = 'site') ;
+
+      }  
         
         $nd++;
     }
@@ -115,8 +121,7 @@ my $nd = 0;
 
      for($j=0;$j<$nd;$j++) {
 
-#	 $arlibst = $arlib[$j]."%".$arsite[$j];
-         $arlibst = $arlib[$j];
+	 $arlibst = $arlib[$j]."-".$arsite[$j];
      }
 
 
@@ -159,7 +164,7 @@ print "<h3 align=center>Select library and site</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'rsite',
                              -values=>\@arlibst,
-                             -default=>SL12a,
+                             -default=>SL12a-rcf,
                              -size=>1);
 
 print "</td> </tr> </table><hr><center>";
@@ -182,7 +187,7 @@ my $qqr = new CGI;
 my $lsite   = $qqr->param('rsite');
 
 my @prt = ();
- @prt = split("%",$lsite);
+ @prt = split("-",$lsite);
  $newlib = $prt[0];
  $newsite = $prt[1];  
 
