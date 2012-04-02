@@ -968,7 +968,7 @@ sub rdaq_get_orecords
     my($flag,$comp,$savev);
 
     #print "In here\n";
-
+    @files = undef;
     if( ! $obj ){           return undef;}
     if( ! defined($mode) ){ $mode = 1;}
 
@@ -1089,7 +1089,8 @@ sub rdaq_get_orecords
 	}
 	print "<!-- No more returned values -->\n"                    if ($DEBUG);
     }
-    @files;
+
+    return @files;
 }
 
 
