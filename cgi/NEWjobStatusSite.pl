@@ -110,7 +110,7 @@ my $nd = 0;
    print "$fname = $fvalue\n" ;
 
         $arlib[$nd] = $fvalue   if($fname='LibTag');
-        $arsite[$nd] = $fvalue  if($fname='site' ;
+        $arsite[$nd] = $fvalue  if($fname='site') ;
 
       }  
         
