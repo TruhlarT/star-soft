@@ -542,7 +542,8 @@ if ( $ThisYear == 2005 ){
 	$DCHAIN{"AuAu"} = "P2011a,mtdDat,pmdReco,btof,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
 	$DCHAIN{"PPPP"} = "pp2011a,btof,VFPPVnoCTB,beamline,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
     } else {
-	$DCHAIN{"AuAu"} = "P2012a,QAalltrigs,mtdDat,btof,fmsDat,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
+	# QAalltrigs
+	$DCHAIN{"AuAu"} = "P2012a,AgML,mtdDat,btof,fmsDat,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
 	$DCHAIN{"PPPP"} = "pp2012a,AgML,mtdDat,btof,fmsDat,VFPPVnoCTB,beamline,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
 	$DCHAIN{"UU"}   = $DCHAIN{"AuAu"};
     }
