@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.247 2012/04/02 23:09:37 jeromel Exp $
+#       $Id: group_env.csh,v 1.248 2012/04/05 13:38:25 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -719,7 +719,7 @@ switch ($STAR_SYS)
       limit stacksize unlimited
       breaksw
 
-    #case "*linux26":
+    case "*linux26":   # amd64_linux26 would be valid
     case "x8664_*":
     case "i386_*":
       #  ====================
@@ -735,14 +735,10 @@ switch ($STAR_SYS)
 	    set loadPGI=`echo "$redhat < 50" | /usr/bin/bc`
 	    if ( $loadPGI  ) then
 		if ( $?DECHO ) echo "$self :: RH/SL < 5.0 - will attempt to load PGI"
-		if( -x $GROUP_DIR/setup ) then
-		    if ( $?DECHO ) echo "$self :: Executing setup PGI"
-		    source $GROUP_DIR/setup PGI
-		    if ( $?DECHO ) then
-			echo "$self :: PGI = $PGI"
-		    endif
-		else
-		    if ($ECHO)    echo   "Could not setup PGI environment"
+
+		source $GROUP_DIR/setup PGI
+		if ( $?DECHO ) then
+		    echo "$self :: PGI = $PGI"
 		endif
 	    endif
 	    unset loadPGI
