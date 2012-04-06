@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx,v 1.592 2012/03/16 18:29:56 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx,v 1.554.2.1 2012/04/06 21:15:00 didenko Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -20,12 +20,13 @@
 #include "StEnumerations.h"
 #include "TTree.h"
 #define STAR_LOGGER 1
+#define __KEEP_TPCDAQ_FCF__
+//_____________________________________________________________________
 // PLease, preserve the comment after = { . It is used for documentation formatting
 //
 #if 0
-// Keep to be compatible with old documentaion
+// Keep to be compartible with old documentaion
 #define STR_OBSOLETE "WARNING *** Option is OBSOLETE ***"
-
 //#include "BFC.h"
 // ITTF Chain will be put here. Option list starting from minimalistic requirements
 // and may not initially work.
@@ -38,9 +39,7 @@
 // JL - define this once, use two places
 #define BFC_DBREGEXP "(dbv|sdt)(\\d+)(_)(.*)(_)(.*)"
 
-
 // NoChainOptions -> Number of chain options auto-calculated
-#define __KEEP_TPCDAQ_FCF__ /* remove St_tpcdaq_Maker and StRTSClientFCFMaker. not yet ready */
 TableImpl(Bfc);
 ClassImp(StBFChain);
 
@@ -61,8 +60,8 @@ void StBFChain::Setup(Int_t mode) {
   TString chain("BFC.C");
   Char_t *file = gSystem->Which(path,chain,kReadPermission);
 #ifdef STAR_LOGGER
-  if (! file) { LOG_FATAL  << Form("StBFChain::Setup\tFile %s has not been found in path %s",chain.Data(),path) << endm; }
-  else        { LOG_WARN   << Form("StBFChain::Setup\tFile %s has been found as %s",chain.Data(),file) << endm; }
+  if (! file) { LOG_FATAL  << Form("StBFChain::Setup","File %s has not been found in path %s",chain.Data(),path) << endm; }
+  else        { LOG_WARN   << Form("StBFChain::Setup","File %s has been found as %s",chain.Data(),file) << endm; }
 #else
 
   if (! file)   Fatal("StBFChain::Setup","File %s has not been found in path %s",chain.Data(),path);
@@ -101,7 +100,7 @@ void StBFChain::Setup(Int_t mode) {
   Gvalue     = "";
   Gpattern   = "*";
 
-
+  
 }
 //_____________________________________________________________________________
 /// Destructor. Call Finish() . See this method for detail on what is cleaned.
@@ -144,7 +143,6 @@ Int_t StBFChain::Load()
 	  TString libL("");
 	  for (Int_t j = 0; j < 3; j++) {
 	    libL = prefix[j]; libL += libN;
-	    //LOG_QA  << "    Checking " << libL << endm;
 	    if ((path = gSystem->DynamicPathName(libL,kTRUE))) break;
 	  }
 	  iok = -1;
@@ -153,20 +151,14 @@ Int_t StBFChain::Load()
 	    TObjString *LoadedLib;
 	    while ((LoadedLib = (TObjString *) next())){
 	      TString Base(LoadedLib->GetName());
-	      //LOG_QA  << "    Checking " << Base << endm;
 	      if (Base == libN) {iok = 1; break;}
 	    }
 	    if (iok > 0) continue;
-
-
-	    //LOG_QA  << "Trying to load Library " << libL << endm;
-
-
 	    iok = gSystem->Load(libL);
 	    if (iok < 0)  {
 
-	      LOG_QA  << "problem with loading of " << libL.Data() << endm;
-	      LOG_QA  <<  fBFC[i].Key << " is switched off \t!!!!" << endm;
+         LOG_QA  << "problem with loading of " << libL.Data() << endm;
+         LOG_QA  <<  fBFC[i].Key << " is switched off \t!!!!" << endm;
 
 	      fBFC[i].Flag = kFALSE;
 	      status = kStErr;
@@ -175,14 +167,9 @@ Int_t StBFChain::Load()
 	    } else {
 	      if (Debug() > 1) {  TString ts("load "); ts += libL; StMemStat::PrintMem(ts.Data());}
 
-	      LOG_QA  << "Library " << Form("%-20s\t(%s)\tis loaded",libL.Data(),path) << endm;
+         LOG_QA  << "Library " << Form("%-20s\t(%s)\tis loaded",libL.Data(),path) << endm;
 
 	      LoadedLibs.Add(new TObjString(libN));
-	    }
-	  } else {
-	    if ( ! index(fBFC[i].Libs,',') || Debug() > 1 ) {
-	      LOG_WARN << "No path for Key=" << fBFC[i].Key << "-> Searched for [" << libL 
-		       << "] from Libs=" << fBFC[i].Libs << " (will proceed)" << endm;
 	    }
 	  }
 	}
@@ -257,10 +244,9 @@ Int_t StBFChain::Instantiate()
 	  if (GetOption("NoMySQLDb"))   {MySQLDb = "";}
 	  // Removed twice already and put back (start to be a bit boring)
 	  // DO NOT REMOVE THE NEXT OPTION - Used in AutoCalibration
-	  if (GetOption("NoLocalCintDb")) {MyCintDb = "";}
-	  if (GetOption("NoStarCintDb") ) {MainCintDb = "";}
-	  if (GetOption("NoCintDb")     ) {MainCintDb = ""; MyCintDb = "";}
-	  
+	  if (GetOption("NoCintCalDb")) {MyCintDb = "";}
+	  if (GetOption("NoCintDb"))    {MainCintDb = ""; MyCintDb = "";}
+	
 	  TString Dirs[3];
 	  Int_t j;
 	  for (j = 0; j < 3; j++) Dirs[j] = "";
@@ -270,8 +256,8 @@ Int_t StBFChain::Instantiate()
 	  if (MyCintDb   != "") {Dirs[j] = MyCintDb;   j++;}
 	  dbMk = new St_db_Maker(fBFC[i].Name,Dirs[0],Dirs[1],Dirs[2]);
 	  if (!dbMk) goto Error;
-	  strcpy (fBFC[i].Name, (Char_t *) dbMk->GetName());
 	  mk = dbMk;
+	  strcpy (fBFC[i].Name, (Char_t *) dbMk->GetName());
 	  if (GetOption("Simu") && ! GetOption("NoSimuDb")) dbMk->SetFlavor("sim+ofl");
 	  else                                              dbMk->SetFlavor("ofl");
 	}
@@ -296,9 +282,9 @@ Int_t StBFChain::Instantiate()
 	if (GetOption("ReadAll")) {	//activate all branches
 	  // inpMk->SetBranch("*",0,"r");
 	  const Char_t *allBranches[] = {
-	    "emc_rawBranch","eventBranch","ftpc_rawBranch",
+	    "dstBranch","dstHitsBranch","emc_rawBranch","eventBranch","ftpc_rawBranch",
 	    "geantBranch","globalBranch","McEventBranch","svt_hitsBranch","svt_tracksBranch",
-	    "tpc_hitsBranch","trgBranch",0};
+	    "tpc_hitsBranch","tpc_rawBranch","tpc_tracksBranch","trgBranch",0};
 	  for (Int_t i = 0; allBranches[i]; i++) inpMk->SetBranch(allBranches[i],0,"r");
 	}
         if (GetOption("adcOnly")) mk->SetAttr("adcOnly",1);                        ;
@@ -348,15 +334,15 @@ Int_t StBFChain::Instantiate()
       ProcessLine(Form("((St_geant_Maker *) %p)->SetNwGEANT(%i);",mk,NwGeant));
       if (GetOption("Higz")) ProcessLine(Form("((St_geant_Maker *) %p)->SetIwtype(1);",mk));
       if (GetOption("paw"))  ProcessLine(Form("((St_geant_Maker *) %p)->SetNwPAW(2);",mk));
-      if (GetOption("fzin") || GetOption("ntin") || GetOption("gstar") || GetOption("PrepEmbed") || GetOption("mtin")) {
+      if (GetOption("fzin") || GetOption("ntin") || GetOption("gstar") || GetOption("PrepEmbed")) {
 	mk->SetActive(kTRUE);
 	if (GetOption("PrepEmbed")) mk->SetMode(10*(mk->GetMode()/10)+1);
       }
-      else mk->SetActive(kFALSE);
+      else   mk->SetActive(kFALSE);
       if (! mk) goto Error;
-      SetGeantOptions(mk);
+	SetGeantOptions(mk);
     }
-
+    
     // special maker options
     // m_Mode xyz
     //        x = 1 phys_off
@@ -364,24 +350,18 @@ Int_t StBFChain::Instantiate()
     //        z = 1 Mixer Mode
     if (maker == "StVMCMaker") {
       if (GetOption("VMCPassive")) {// don't use mk->SetActive(kFALSE) because we want to have InitRun
-	mk->SetAttr("VMCPassive",kTRUE);
+	mk->SetMode(mk->GetMode() + TMath::Sign(10,mk->GetMode()));
       }
       else {
-	if (GetOption("phys_off")) mk->SetAttr("phys_off",kTRUE);
-	if (GetOption("hadr_off")) mk->SetAttr("hadr_off",kTRUE);
+	if (GetOption("phys_off")) mk->SetMode(mk->GetMode() + TMath::Sign(100,mk->GetMode()));
 	if (fInFile != "")  {
 	  if (ProcessLine(Form("((StVMCMaker *) %p)->SetInputFile(\"%s\")",mk,fInFile.Data())))
 	    goto Error;
 	}
       }
-      if (GetOption("Embedding")) mk->SetAttr("Embedding",kTRUE);
     }
     //		Sti(ITTF) start
-    if (maker == "StiMaker" || maker == "StiVMCMaker" || maker == "StvMaker") {
-      if ( maker == "StvMaker" &&  GetOption("StvCA")) {
-	//      mk->SetAttr("seedFinders","CA","Stv");              // for CA seed finder
-	mk->SetAttr("seedFinders","CA,Default","Stv");      // for CA + Default seed finders
-      }
+    if (maker == "StiMaker" || maker == "StiVMCMaker") {
       if (GetOption("NoSvtIT")) mk->SetAttr("useSvt"	,kFALSE);
       else
 	if (GetOption("SvtIT")){
@@ -389,7 +369,7 @@ Int_t StBFChain::Instantiate()
 	  mk->SetAttr("activeSvt"	,kTRUE);
 	}
       if (GetOption("NoSsdIT")) mk->SetAttr("useSsd"	,kFALSE);
-      else
+      else 
 	if (GetOption("SsdIT")){
 	  mk->SetAttr("useSsd"	,kTRUE);
 	  mk->SetAttr("activeSsd"	,kTRUE);
@@ -402,71 +382,73 @@ Int_t StBFChain::Instantiate()
 	mk->SetAttr("useIst"  ,kTRUE);
 	mk->SetAttr("activeIst",kTRUE);
       }
-
+      
       if (GetOption("HpdIT")){
 	mk->SetAttr("useHpd"  ,kTRUE);
 	mk->SetAttr("activeHpd",kTRUE);
       }
-
-      if (GetOption("StiPulls") || 
-	  GetOption("StvPulls"))  mk->SetAttr("makePulls"  ,kTRUE);
+      
+      if (GetOption("StiPulls"))  mk->SetAttr("makePulls"  ,kTRUE);
       if (GetOption("skip1row"))  mk->SetAttr("skip1row"   ,kTRUE);
       if (GetOption("EastOff"))   mk->SetAttr("EastOff"    ,kTRUE);
       if (GetOption("WestOff"))   mk->SetAttr("WestOff"    ,kTRUE);
       if (GetOption("laserIT"))   mk->SetAttr("laserIT"    ,kTRUE);
-      if (GetOption("Alignment")) mk->SetAttr("Alignment"  ,kTRUE);
       mk->PrintAttr();
     }
     //		Sti(ITTF) end
     if (maker=="StGenericVertexMaker") {
+      int                   VtxOpt = 0;
       // VertexFinder methods
-      if (GetOption("Sti") || GetOption("StiCA") ||
-	  GetOption("Stv") ||
-	  GetOption("StiVMC"     ) ) mk->SetAttr("ITTF"         , kTRUE);
-      if (GetOption("VFMinuit"   ) ) mk->SetAttr("VFMinuit"   	, kTRUE);
-      if (GetOption("VFppLMV"    ) ) mk->SetAttr("VFppLMV"    	, kTRUE);
-      if (GetOption("VFppLMV5"   ) ) mk->SetAttr("VFppLMV5"   	, kTRUE);
-      if (GetOption("VFPPV"      ) ) mk->SetAttr("VFPPV"      	, kTRUE);
-      if (GetOption("VFPPVnoCTB" ) ) mk->SetAttr("VFPPVnoCTB" 	, kTRUE);
-      if (GetOption("VFFV"       ) ) mk->SetAttr("VFFV"       	, kTRUE);
-      if (GetOption("VFMCE"      ) ) mk->SetAttr("VFMCE"      	, kTRUE);
-      if (GetOption("VFMinuit2"  ) ) mk->SetAttr("VFMinuit2"  	, kTRUE);
-      if (GetOption("VFMinuit3"  ) ) mk->SetAttr("VFMinuit3"  	, kTRUE);
-      if (GetOption("beamLine"   ) ) mk->SetAttr("BeamLine"   	, kTRUE);
-      if (GetOption("CtbMatchVtx") ) mk->SetAttr("CTB"        	, kTRUE);
-      if (GetOption("min2trkVtx" ) ) mk->SetAttr("minTracks" 	, 2);
-      if (GetOption("VtxSeedCalG") ) mk->SetAttr("calibBeamline", kTRUE);
-      if (GetOption("usePct4Vtx" ) ) mk->SetAttr("PCT"          , kTRUE);
-      if (GetOption("useBTOF4Vtx") ) mk->SetAttr("BTOF"         , kTRUE);
-      mk->PrintAttr();
+      if ( GetOption("VFMinuit") ){  VtxOpt |= (0x1 << 0);} //  1 0x01
+      if ( GetOption("VFppLMV") ){   VtxOpt |= (0x1 << 1);} //  2 0x02
+      if ( GetOption("VFppLMV5") ){  VtxOpt |= (0x1 << 2);} //  4 0x04
+      if ( GetOption("VFPPV") ){     VtxOpt |= (0x1 << 3);} //  8 0x08
+      if ( GetOption("VFPPVnoCTB") ){VtxOpt |= (0x1 << 4);} // 16 0x10
+      if ( GetOption("VFFV") ){      VtxOpt |= (0x1 << 5);} // 32 0x20
+      if ( GetOption("VFMCE") ){     VtxOpt |= (0x1 << 6);} // 64 0x40
+      if ( GetOption("VFMinuit2") ){ VtxOpt |= (0x1 << 7);} //128 0x80
+      if ( GetOption("VFMinuit3") ){ VtxOpt |= (0x1 << 8);} //256 0x100
+      mk->SetMode(VtxOpt);
+      
+      // All VertexFinders implement those (or not)
+      if (GetOption("beamLine") || GetOption("CtbMatchVtx") || GetOption("min2trkVtx") ||
+          GetOption("usePct4Vtx") || GetOption("VtxSeedCalG")) {
+	TString  cmd(Form("StGenericVertexMaker* gvtxMk = (StGenericVertexMaker*) %p;",mk));
+	if (GetOption("beamLine"))    {cmd += "gvtxMk->UseBeamLine();";}
+	if (GetOption("CtbMatchVtx")) {cmd += "gvtxMk->UseCTB();";}
+	if (GetOption("min2trkVtx"))  {cmd += "gvtxMk->SetMinimumTracks(2);";}
+	if (GetOption("VtxSeedCalG")) {cmd += "gvtxMk->CalibBeamLine();";}
+
+        // WARNING: introduction of this option (usePct4Vtx) with default:false
+        // breaks backward compatibility for any StGenericVertexMaker
+        // which implements dropping of Post-Crossing Tracks via a UsePCT()
+        // function. Use this option (make it true) to reproduce results
+        // from before the introduction of this option.
+	if (GetOption("usePct4Vtx"))  {cmd += "gvtxMk->UsePCT();";}
+	ProcessLine(cmd);
+      }
     }
     if (maker=="StAssociationMaker") {
-
+      
       LOG_QA << "StBFChain::Instantiate Setting the Parameters for the Association Maker" << endm;
-
+      
       TString cmd("");
-      if (GetOption("ITTF") || GetOption("StiVMC") || GetOption("useInTracker"))
+      if (GetOption("ITTF") || GetOption("StiVMC") || GetOption("useInTracker")) 
 	cmd = Form ("((StAssociationMaker *) %p)->useInTracker();",mk);
       cmd += "StMcParameterDB* parameterDB = StMcParameterDB::instance();";
       // TPC
-#if 0
       cmd += "parameterDB->setXCutTpc(.5);"; // 5 mm
       cmd += "parameterDB->setYCutTpc(.5);"; // 5 mm
       cmd += "parameterDB->setZCutTpc(.5);"; // 5 mm
-#endif
       cmd += "parameterDB->setReqCommonHitsTpc(3);"; // Require 3 hits in common for tracks to be associated
       // FTPC
-#if 0
       cmd += "parameterDB->setRCutFtpc(.3);"; // 3 mm
       cmd += "parameterDB->setPhiCutFtpc(5*(3.1415927/180.0));"; // 5 degrees
-#endif
       cmd += "parameterDB->setReqCommonHitsFtpc(3);"; // Require 3 hits in common for tracks to be associated
       // SVT
-#if 0
       cmd += "parameterDB->setXCutSvt(.08);"; // 800 um
       cmd += "parameterDB->setYCutSvt(.08);"; // 800 um
       cmd += "parameterDB->setZCutSvt(.08);"; // 800 um
-#endif
       cmd += "parameterDB->setReqCommonHitsSvt(1);"; // Require 1 hits in common for tracks to be associated
       if (GetOption("IdTruth")) cmd += Form("((StAssociationMaker *) %p)->useIdAssoc();",mk);
       ProcessLine(cmd);
@@ -482,7 +464,7 @@ Int_t StBFChain::Instantiate()
       if (maker == "StTrsMaker")
 	mk->SetMode(1);       // Pile-up correction
     }
-
+    
     if (maker == "StStrangeMuDstMaker" && GetOption("CMuDST")&& GetOption("StrngMuDST") ) {
       TString cmd(Form("StStrangeMuDstMaker *pSMMk = (StStrangeMuDstMaker*) %p;",mk));
       cmd += "pSMMk->DoV0();";                                 // Set StrangeMuDstMaker parameters
@@ -491,16 +473,16 @@ Int_t StBFChain::Instantiate()
       cmd += "pSMMk->SetNoKeep();";                            // Set flag for output OFF
       ProcessLine(cmd);
     }
-
+    
     // Alex requested an option (not turned by default) to disable all
     // hit reco cuts. This will make allm hits saved to MuDST /ezTree.
     if ( maker == "StEmcRawMaker" && GetOption("BEmcDebug"))
       mk->SetMode(1); // only one option now, bit a bitmask
-
+    
     // Use status tables for raw BEMC data (helpful for QA)
     if ( maker == "StEmcRawMaker" && GetOption("BEmcChkStat"))
       mk->SetAttr("BEmcCheckStatus",kTRUE);
-
+    
     // MuDST and ezTree. Combinations are
     //  ezTree         -> ezTree only
     //  CMuDST         -> regular MuDST only
@@ -511,31 +493,89 @@ Int_t StBFChain::Instantiate()
       cmd += "pMuMk->SetStatus(\"EztAll\",1);";
       ProcessLine(cmd);
     }
-
+    
+    if (maker == "St_dst_Maker") SetInput("dst",".make/dst/.data/dst");
+    if (maker == "St_dst_Maker" && GetOption("HitsBranch")) mk->SetMode(2);
+    if (maker == "StMatchMaker" && !GetOption("Kalman")) mk->SetMode(-1);
     if (maker == "StLaserEventMaker"){
       // Bill stuff - Empty place-holder
     }
     if (maker == "StDetectorDbMaker") {
       if ( GetOption("DbRichSca") ) mk->SetMode(1);
     }
+    
+    if (maker == "St_tpt_Maker" && (GetOption("MINIDAQ") || GetOption("Eval"))) {
+      TString cmd(Form("St_tpt_Maker *tptMk = (St_tpt_Maker *) %p;",mk));
+      if (GetOption("MINIDAQ")) cmd += "tptMk->Set_final(kTRUE);";// Turn on the final ntuple.
+      if (GetOption("Eval")) {
+	cmd += "tptMk->tteEvalOn();";   //Turn on the tpc evaluation
+	cmd += "tptMk->tptResOn();";    // Turn on the residual table
+      }
+      ProcessLine(cmd);
+    }
+    if ( (maker == "StTpcHitMover" || maker == "St_tpt_Maker") && GetOption("ExB")){
+      // bit 0 is ExB ON or OFF
+      // The next 3 bits are reserved for yearly changes.
+      // Backward compatibility preserved.
+      int mask=1;                                    // Al Saulys request
+      if( GetOption("EB1") ){
+	// Do nothing (i.e. bit 1 at 0)
+      } else if ( GetOption("EB2") ){
+	// Force bit 1 at 1 regardless
+	mask = mask | 2;
+      } else {
+	// depend on RY option i.e. take default for that RealYear data
+	// expectations.
+	if(GetOption("RY1H")    ||
+	   GetOption("RY2000")  ||
+	   GetOption("RY2001")  ||
+	   GetOption("RY2001N") ||
+	   GetOption("RY2003")  ||
+	   GetOption("RY2003X")) mask = mask | 2 ;  // Jim Thomas request
+      }
+      // Other options introduced in October 2001 for distortion corrections
+      // studies and year1 re-production. Those are OR additive to the mask.
+      //(void) printf("StBFChain:: Options list : %d %d %d %d %d %d %d %d\n",
+      //		  kPadrow13,kTwist,kClock,kMembrane,kEndcap,
+      //            kIFCShift,kSpaceCharge,kSpaceChargeR2);
+      if( GetOption("OBmap")      ){	mask |=   (kBMap          << 1); }
+      if( GetOption("OBMap2d")    ){    mask |=   (kFast2DBMap    << 1); }
+      if( GetOption("OPr13")      ){	mask |=   (kPadrow13      << 1); }
+      if( GetOption("OTwist")     ){	mask |=   (kTwist         << 1); }
+      if( GetOption("OClock")     ){	mask |=   (kClock         << 1); }
+      if( GetOption("OCentm")     ){	mask |=   (kMembrane      << 1); }
+      if( GetOption("OECap")      ){	mask |=   (kEndcap        << 1); }
+      if( GetOption("OIFC")       ){	mask |=   (kIFCShift      << 1); }
+      if( GetOption("OSpaceZ")    ){	mask |=   (kSpaceCharge   << 1); }
+      if( GetOption("OSpaceZ2")   ){    mask |=   (kSpaceChargeR2 << 1); }
+      if( GetOption("OShortR")    ){    mask |=   (kShortedRing   << 1); }
+      if( GetOption("OGridLeak")  ){    mask |=   (kGridLeak      << 1); }
+      if( GetOption("OGridLeak3D")){    mask |=   (k3DGridLeak    << 1); }
+      LOG_QA << "StBFChain::Instantiate ExB The option passed will be " << Form("%d 0x%X\n",mask,mask) << endm;
+      if (GetOption("Embedding"))       mask = - mask; // don't move embedded hits
+      mk->SetMode(mask);
+    }
+    if (maker == "StTpcHitMover" && GetOption("AlignSectors"))
+      ProcessLine(Form("((StTpcHitMover *)%p)->AlignHits(kTRUE);",mk));
     if (maker == "StTpcRSMaker") {
       if (! GetOption("TrsToF")) {
 	Int_t mode = mk->GetMode();
 	mode |= (1 << 10); // kNoToflight   //10 don't account for particle time of flight
 	mk->SetMode(mode);
       }
+      
     }
     if (maker == "StTrsMaker") {
       Int_t mode = 0;
       if (GetOption("TrsPileUp")) mode += 1; // Pile-up correction
-      if (GetOption("TrsToF"))    mode += 2; // account for particle time of flight
+      if (GetOption("TrsToF"))    mode += 2; // accoutn for particle time of flight
       if (mode) mk->SetMode(mode);
     }
 #ifdef __KEEP_TPCDAQ_FCF__
     if (maker == "St_tpcdaq_Maker") {
       Int_t DMode=0;
       TString cmd(Form("St_tpcdaq_Maker *tcpdaqMk = (St_tpcdaq_Maker *) %p;",mk));
-
+      
       // Beware of those ...
       Int_t                                                  mode = 0; // daq
       if      (GetOption("Trs") || GetOption("Embedding") || GetOption("TpcRS"))
@@ -545,7 +585,7 @@ Int_t StBFChain::Instantiate()
       // DAQ100 or Raw switch options -- Please, adjust StRTSClientFCFMaker block as well
       if ( GetOption("onlcl") )   DMode = DMode | 0x2;  // use the online TPC clusters (DAQ100) info if any
       if ( GetOption("onlraw") )  DMode = DMode | 0x1;  // use the TPC raw hit information
-
+      
       if (DMode != 0) // set flag, leave default = 1
 	cmd += Form("tcpdaqMk->SetDAQFlag(%i);",DMode);
       // Correction depending on DAQ100 or not
@@ -570,11 +610,9 @@ Int_t StBFChain::Instantiate()
       ProcessLine(cmd);
     }
 #endif
-#if 0 /* probably bug 2106 : mismatch N_fit_points */
     if (maker == "StTpcRTSHitMaker") {
       if (GetOption("Trs") || GetOption("Embedding"))  mk->SetMode(2); // daq, no gain
     }
-#endif
 #ifdef __KEEP_TPCDAQ_FCF__
     if (maker == "StRTSClientFCFMaker"){
       Int_t DMode=0;
@@ -592,12 +630,28 @@ Int_t StBFChain::Instantiate()
       LOG_QA << " => mask = " << mask << endm;
       mk->SetMode(mask);
     }
-#endif
+#endif    
+    if (maker == "StRchMaker") {
+      if (GetOption("Rrs")) mk->SetMode(1); // rrs
+      else                  mk->SetMode(0); // daq
+    }
+    
     // Place-holder. Would possibly be a bitmask
     if (maker == "StTofrMatchMaker"){
       mk->SetMode(0);
     }
-
+    
+    // Turn on alternative V0 method
+    if (maker == "StV0Maker") {
+      if (GetOption("Ev03")) mk->SetMode(1);
+      if (GetOption("Eval")) ProcessLine(Form("((StV0Maker *) %p)->ev0EvalOn();",mk));
+    }
+    //if (maker == "StKinkMaker"){
+    // // Placeholder for KinkMaker control.
+    // // - SetMode(1)   TPT,
+    // // - SetMode(2)   ITTF
+    // // Default = Both
+    //}
     if (maker == "StSpaceChargeEbyEMaker") {
       if ( GetOption("SpcChgCal") ||
 	   GetOption("SpcChgCalG"))   mk->SetMode(2);
@@ -621,59 +675,45 @@ Int_t StBFChain::Instantiate()
       cmd += "Ximk->SetXiLanguageUsage(5);";
       ProcessLine(cmd);
     }
-    if (maker == "StTpcDbMaker"){
-      if (GetOption("Simu") && ! GetOption("NoSimuDb")) mk->SetAttr("Simu",kTRUE);
-      if ( GetOption("useLDV")    ) mk->SetAttr("useLDV",kTRUE) ;// uses laserDV database
-      if ( GetOption("useCDV")    ) mk->SetAttr("useCDV",kTRUE) ;// uses ofl database
-      if ( GetOption("useNewLDV") ) mk->SetAttr("useNewLDV",kTRUE);// uses new laserDV
-      if (GetOption("ExB")){
-	mk->SetAttr("ExB", kTRUE);	// bit 0 is ExB ON or OFF
-	if      ( GetOption("EB1") ) mk->SetAttr("EB1", kTRUE);
-	else if ( GetOption("EB2") ) mk->SetAttr("EB2", kTRUE);
-	else {
-	  // depend on RY option i.e. take default for that RealYear data
-	  // expectations.
-	  if(GetOption("RY1H")    ||
-	     GetOption("RY2000")  ||
-	     GetOption("RY2001")  ||
-	     GetOption("RY2001N") ||
-	     GetOption("RY2003")  ||
-	     GetOption("RY2003X"))   mk->SetAttr("OldRuns", kTRUE);
-	}
-	// Other options introduced in October 2001 for distortion corrections
-	// studies and year1 re-production. Those are OR additive to the mask.
-	//(void) printf("StBFChain:: Options list : %d %d %d %d %d %d %d %d\n",
-	//		  kPadrow13,kTwist,kClock,kMembrane,kEndcap,
-	//            kIFCShift,kSpaceCharge,kSpaceChargeR2);
-	if( GetOption("OBmap")      ) mk->SetAttr("OBmap"      , kTRUE);
-	if( GetOption("OPr13")      ) mk->SetAttr("OPr13"      , kTRUE);
-	if( GetOption("OTwist")     ) mk->SetAttr("OTwist"     , kTRUE);
-	if( GetOption("OClock")     ) mk->SetAttr("OClock"     , kTRUE);
-	if( GetOption("OCentm")     ) mk->SetAttr("OCentm"     , kTRUE);
-	if( GetOption("OECap")      ) mk->SetAttr("OECap"      , kTRUE);
-	if( GetOption("OIFC")       ) mk->SetAttr("OIFC"       , kTRUE);
-	if( GetOption("OSpaceZ")    ) mk->SetAttr("OSpaceZ"    , kTRUE);
-	if( GetOption("OSpaceZ2")   ) mk->SetAttr("OSpaceZ2"   , kTRUE);
-	if( GetOption("OShortR")    ) mk->SetAttr("OShortR"    , kTRUE);
-	if( GetOption("OBMap2d")    ) mk->SetAttr("OBMap2d"    , kTRUE);
-	if( GetOption("OGridLeak")  ) mk->SetAttr("OGridLeak"  , kTRUE);
-	if( GetOption("OGridLeak3D")) mk->SetAttr("OGridLeak3D", kTRUE);
-	if( GetOption("OGGVoltErr") ) mk->SetAttr("OGGVoltErr" , kTRUE);
-	if( GetOption("OSectorAlign"))mk->SetAttr("OSectorAlign",kTRUE);
+#ifndef YF_CLeanUp
+    if (maker == "St_trg_Maker") {
+      Int_t mode = 0;
+      if (! GetOption("alltrigger")){
+	if (GetOption("Physics"))   mode += 1;
+	if (GetOption("LaserTest")) mode += 2;
+	if (GetOption("PulserSvt")) mode += 4;
+      } else {
+	LOG_QA << "'alltrigger' option on. All others ignored" << endm;
       }
-      mk->PrintAttr();
+      if (mode) mk->SetMode(mode);
     }
-    if ((maker == "StdEdxY2Maker"  || maker == "StTpcHitMover") &&
-	GetOption("EmbeddingShortCut"))  {
-      mk->SetAttr("EmbeddingShortCut", kTRUE);
-      mk->PrintAttr();
+#endif
+    if (maker == "StdEdxMaker" || maker == "StdEdxY2Maker" ) {
+      if (GetOption("Simu"))      mk->SetMode(-10);
+      if (GetOption("Embedding")) mk->SetMode(-11);
+    }
+    if (maker == "StTpcDbMaker"){
+      mk->SetMode(0);
+      // this change may be temporary i.e. if Simulation includes
+      // rotation/translation, this won't be necessarily true.
+      // Will investigate further.
+      if (GetOption("Simu") && ! GetOption("NoSimuDb")) mk->SetMode(1);
+      // This is commented for now but may be used. Those extensions
+      // were implemented by David H. on Jan 2 2002. DEfault is ofl+laserDV
+      //mk->UseOnlyLaserDriftVelocity();    // uses laserDV database
+      //mk->UseOnlyCathodeDriftVelocity();  // uses offl database
+      if ( GetOption("useLDV") || GetOption("useCDV") || GetOption("useNewLDV") ) {
+	if ( GetOption("useLDV")    ) mk->SetMode(mk->GetMode()%1000000 + 2000000);// uses laserDV database
+	if ( GetOption("useCDV")    ) mk->SetMode(mk->GetMode()%1000000 + 1000000);// uses ofl database
+	if ( GetOption("useNewLDV") ) mk->SetMode(mk->GetMode()%1000000 + 3000000);// uses new laserDV 
+      }
     }
     if (maker == "StSvtDbMaker" || maker == "StSsdDbMaker"){
       mk->SetMode(0);
       // If simulation running make sure pick up simu stuff from db
       if (GetOption("Simu") && ! GetOption("NoSimuDb")) mk->SetMode(1);
     }
-
+    
     // FTPC
     if ((maker == "StFtpcClusterMaker" ||
 	 maker == "StFtpcTrackMaker"    )  &&
@@ -685,14 +725,14 @@ Int_t StBFChain::Instantiate()
     if ((maker == "StFtpcClusterMaker" ||
 	 maker == "StFtpcTrackMaker"    )  &&
 	GetOption("fgain"))                    mk->SetMode(mk->GetMode()+4);
-
+ 
     // FTPC
 
     // PMD
     if ( maker == "StPmdReadMaker"         &&
          GetOption("pmdRaw"))                  mk->SetAttr("pmdRaw",kTRUE);
     // PMD
-
+    
     // Hit filtering will be made from a single maker in
     // future with flexible filtering method
     if (maker == "StHitFilterMaker") {
@@ -713,6 +753,12 @@ Int_t StBFChain::Instantiate()
       if (GetOption("KeepSvtHit")) mode |= (1 << kSvtId);
       mk->SetMode(mode);
     }
+    if (GetOption("dst") && GetOption("NoHits") && maker == "StEventMaker") {
+      ProcessLine(Form("((StEventMaker *) %p)->doLoadTpcHits  = kFALSE;", mk));
+      ProcessLine(Form("((StEventMaker *) %p)->doLoadFtpcHits = kFALSE;", mk));
+      ProcessLine(Form("((StEventMaker *) %p)->doLoadSvtHits  = kFALSE;", mk));
+      ProcessLine(Form("((StEventMaker *) %p)->doLoadSsdHits  = kFALSE;", mk));
+    }
     if (maker == "StMiniMcMaker" && fFileOut != "") {
       ProcessLine(Form("((StMiniMcMaker *) %p)->setFileName(\"%s\");", mk, fFileOut.Data()));
     }
@@ -721,10 +767,9 @@ Int_t StBFChain::Instantiate()
       if (GetOption("McAnaTpc")) mode += 0x1;
       if (GetOption("McAnaSvt")) mode += 0x2;
       if (GetOption("McAnaSsd")) mode += 0x4;
-      if (mode)
+      if (mode) 
 	ProcessLine(Form("((StMaker *) %p)->SetMode(%i);", mk, mode));
     }
-    if (maker == "StBTofCalibMaker" && GetOption("UseProjectedVertex")) mk->SetAttr("UseProjectedVertex",kTRUE);
   Add2Chain:
     if (! mk) continue;
     if (name == "") strcpy (fBFC[i].Name,(Char_t *) mk->GetName());
@@ -751,9 +796,6 @@ Int_t StBFChain::Instantiate()
   if (GetOption("NoRepeat")) gMessMgr->IgnoreRepeats();
 
   if (GetOption("svt1hit"))  SetAttr("minPrecHits",1,"Sti");
-  if (GetOption("svt1hit"))  SetAttr("minPrecHits",1,"StiCA");
-  if (GetOption("svt1hit"))  SetAttr("minPrecHits",1,"Stv");
-  if (GetOption("svt1hit"))  SetAttr("minPrecHits",1,"StiVMC");
 
   gMessMgr->QAInfo() << "+++ Setting attribute " << Gproperty.Data() << " = " << Gvalue.Data() << endm;
   SetAttr(Gproperty.Data(),Gvalue.Data(),Gpattern.Data());
@@ -762,11 +804,11 @@ Int_t StBFChain::Instantiate()
 }
 //_____________________________________________________________________
 Int_t StBFChain::Init() {
-
+  
   SetChainOpt(new StBFChainOpt(this));
   //  SetDbOptions(); moved to Instantiation
   if (fNoChainOptions) {
-    //  SetGeantOptions(); move back to Init
+    //  SetGeantOptions(); move back to Init 
     if (GetOption("Simu")) {
       StEvtHddr *fEvtHddr = (StEvtHddr*)GetDataSet("EvtHddr");
       if (!fEvtHddr) {
@@ -789,44 +831,32 @@ Int_t StBFChain::Init() {
       SetAttr(".call","SetActive(0)","StTagsMaker::");
       SetAttr(".call","SetActive(0)","StStrangeMuDstMaker::");
     }
-#if 1
     // force load of geometry for VMC and Sti
-    
-    if (GetOption("Sti") || GetOption("StiCA") || 
-	GetOption("Stv") || 
-	GetOption("StiVMC") ||GetOption("VMC") || 
-	GetOption("VMCPassive")) {
+    if (GetOption("Sti") || GetOption("StiVMC") ||GetOption("VMC") || GetOption("VMCPassive")) {
       const DbAlias_t *DbAlias = GetDbAliases();
       for (Int_t i = 0; DbAlias[i].tag; i++) {
 	TString dbTag("r");
 	dbTag += DbAlias[i].tag;
 	if (GetOption(dbTag)) {
-	  TString path("./StarDb/AgiGeometry:$STAR/StarDb/AgiGeometry");
-	  if (GetOption("AgML")) {
-	    path  = "./StarDb/AgMLGeometry:$STAR/StarDb/AgMLGeometry";
-	  }
-	  if (GetOption("VmcGeo")) {
-	    path  = "./StarDb/VmcGeo:$STAR/StarDb/VmcGeo";
-	  }
+	  const Char_t *path  = "./StarDb/VmcGeometry:$STAR/StarDb/VmcGeometry";
 	  TString geom("Geometry.");
 	  geom +=  DbAlias[i].geometry;
 	  geom += ".C";
-	  Char_t *file = gSystem->Which(path.Data(),geom,kReadPermission);
+	  Char_t *file = gSystem->Which(path,geom,kReadPermission);
 	  if (file) {
-	    LOG_INFO << "StBFChain::Init force load of " << file << endm;
+	    LOG_INFO << "StBFChain::Init force load of " << file << endm; 
 	    TString command = ".L "; command += file;
 	    gInterpreter->ProcessLine(command);
 	    gInterpreter->Calc("CreateTable()");
-	    command.ReplaceAll(".L ",".U ");
+	    command.ReplaceAll(".L ",".U "); 
 	    gInterpreter->ProcessLine(command);
 	  } else {
-	    LOG_INFO << "StBFChain::Init file for geometry tag  " << geom << " has not been found in path" << path << endm;
+	    LOG_INFO << "StBFChain::Init file for geomtry tag  " << geom << " has not been found"  << endm; 
 	  }
-	  break;
+	  break; 
 	}
       }
     }
-#endif
   }
   return iok;
 }
@@ -840,7 +870,6 @@ Int_t StBFChain::Finish()
   fBFC = 0;
   TFile *tf = GetTFile();
   if (tf) {tf->Write(); tf->Flush(); tf->Close(); delete tf; SetTFile(0);}
-//  delete gMessMgr; gMessMgr = 0;
   return ians;
 }
 
@@ -996,24 +1025,21 @@ void StBFChain::SetOptions(const Char_t *options, const Char_t *chain) {
 	  if (Tag.BeginsWith("Test.",TString::kIgnoreCase) && Comment.BeginsWith("/star/") ) {
 	    fkChain = kgo;
 	    gMessMgr->QAInfo() << "Default Test chain set " << fBFC[fkChain].Key << " with input " << fBFC[fkChain].Comment << endm;
-	  }
+	  } 
 	}
       } else {
-	// it is 0 i.e. was not recognized. 
-	// Check if it is a (dbv|sdt)YYYYMMDD or (dbv|sdt)YYYYMMDD.HHMMSS and derivative
-	// We really set the options only once later in SetDbOptions() (removing the fBFC[i].Flag check) 
-	// but the goal here is to avoid user's histeria by displaying extra messages NOW.
-	//
-	// Note that kOpt() has already validated the pattern (so it has to be right here).
-	//
-	// !!! Debug: dbv20040917
+	// it is 0 i.e. was not recognized. Check if it is a (dbv|sdt)YYYYMMDD or (dbv|sdt)YYYYMMDD.HHMMSS
+	// We can do all of that in the
+	// SetDbOptions() only (removing the fBFC[i].Flag check) but the
+	// goal here is to avoid user's histeria by displaying extra
+	// messages NOW !!! Debug: dbv20040917
 	if (Tag.BeginsWith("dbv")) {
 	  if (Tag.Length() == 11)  (void) sscanf(Tag.Data(),"dbv%8d",&FDate);
 	  if (Tag.Length() == 18)  (void) sscanf(Tag.Data(),"dbv%8d.%6d",&FDate,&FTime);
 	  if (Tag.Length() == 11 || Tag.Length() == 18) {
 	    gMessMgr->QAInfo() << Tag.Data() << " ... but still will be considered as a dynamic timestamp (Max DB EntryTime) "
 			       << FDate  << "." << FTime << endm;
-	  } else {
+          } else {
 	    // we passed kOpt() parsing was fine
 	    //if ( TPRegexp(BFC_DBREGEXP).Match(Tag)  == 7) return 0;
 	    TObjArray *subStrL = TPRegexp(BFC_DBREGEXP).MatchS(Tag);
@@ -1031,13 +1057,14 @@ void StBFChain::SetOptions(const Char_t *options, const Char_t *chain) {
 
 	    GTSOptions.push_back(TS);
 
-	    LOG_WARN << "Override timestamp for detector requested\n\t" 
+	    LOG_WARN << "Override timestamp for detector requested\n\t"
 	             << "Detector " << TS.Detector  << "\n\t"
 	             << "Realm    " << realm        << "\n\t"
-		     << "Date     " << TS.Date      << "\n\t"
+	             << "Date     " << TS.Date      << "\n\t"
 	             << "Time     " << TS.Time      << endm;
-
 	  }
+
+
 
 	} else if (Tag.BeginsWith("sdt")) {
 	  if (Tag.Length() == 11)  (void) sscanf(Tag.Data(),"sdt%8d",&FDateS);
@@ -1045,37 +1072,34 @@ void StBFChain::SetOptions(const Char_t *options, const Char_t *chain) {
 	  if (Tag.Length() == 11 || Tag.Length() == 18) {
 	    gMessMgr->QAInfo() << Tag.Data() << " ... but still will be considered as a dynamic timestamp (Event Time) "
 			       << FDateS  << "." << FTimeS << endm;
-
 	    // <<< same logic for GTSOptions can be inserted here
 	    // <<< if so, use TS.Type     = 2
-	  }
 
+	  }
 	} else if ( Tag.BeginsWith("gopt") && Tag.Length() == 13){
 	  char GOptName[3],GOptValue[6];
 	  //TString property(".gopt.");
 	  //TString pattern("*");
-
+	  
 	  (void) sscanf(Tag.Data(),"gopt%3s%6s",GOptName,GOptValue);
-
+	  
 	  // see StBFChain::Setup() for default values
 	  Gproperty += GOptName;
-
-	  // JL - this is not finished, see comment in kOpt()
-	  
+	  // JL
 	  // pattern is case sensitive, need more checks on this before
 	  // setting to something else than "*"
 	  //Gpattern  += GOptName;
 	  //Gpattern  += "*";
 	  Gvalue = GOptValue;
 
-	  gMessMgr->QAInfo() << Tag.Data() << " ... this will set an general attribute "
-			     << Gproperty.Data() << " with value " << GOptValue << " to "
+	  gMessMgr->QAInfo() << Tag.Data() << " ... this will set an general attribute " 
+			     << Gproperty.Data() << " with value " << GOptValue << " to " 
 			     << Gpattern.Data() << endm;
 	  // Attr() need to be set after the maker exist
 	  //SetAttr(property.Data(),GOptValue,pattern.Data());
 	  //SetAttr(property.Data(),GOptValue,pattern.Data());
 
-
+	  
 	} else { // Check for predefined db time stamps ?
 	  kgo = kOpt(Tag.Data(),kFALSE);
 	  if (kgo != 0){
@@ -1114,7 +1138,6 @@ void StBFChain::SetOptions(const Char_t *options, const Char_t *chain) {
 /// Enable/disable valid command line options
 void StBFChain::SetOption(const Int_t k, const Char_t *chain) {
   if (k > 0) {
-    assert(k<fNoChainOptions);
     Int_t n = strlen(fBFC[k].Opts);
     if (n >  0) SetOptions(fBFC[k].Opts,fBFC[k].Key);
     if (!fBFC[k].Flag) {
@@ -1122,7 +1145,6 @@ void StBFChain::SetOption(const Int_t k, const Char_t *chain) {
       gMessMgr->QAInfo() << Form(" Switch On  %20s by %s", fBFC[k].Key, chain) << endm;
     }
   } else {
-    assert(-k<fNoChainOptions);
     if (k < 0 && fBFC[-k].Flag) {
       fBFC[-k].Flag = kFALSE;
       gMessMgr->QAInfo() << Form(" Switch Off %20s by %s", fBFC[-k].Key, chain) << endm;
@@ -1181,10 +1203,10 @@ Char_t *StBFChain::GetOptionString(const Char_t *Opt)
   want to decouple Geant geometry and database calibration constants.
   This may also be used to get database values when you do not run over
   a raw data file.
-  - The geometry options are now dynamic. This includes BOTH Y(ear) based
-  geometries and RY geometry (Real data) options. They are defined now in
+  - The geometry options are now dynamic. This includes BOTH Y(ear) based 
+  geometries and RY geometry (Real data) options. They are defined now in 
   StMaker as a static map.
-
+  
   The <tt>GOptXXXvvvvvv</tt> options are used to pass an flexible option
   value <tt>vvvvvv</tt> to makers in the chain matching the name <tt>XXX</tt>.
   The three letter acronym will be following the detector sub-systems naming.
@@ -1224,12 +1246,10 @@ void StBFChain::SetFlags(const Char_t *Chain)
       SetOption("-VMCPassive","Default,TGiant3");
       SetOption("-VMCAppl","Default,TGiant3");
       SetOption("-RootVMC","Default,TGiant3");
-#if 1 /* Not Active geant is not needed any more, except BTofUtil */
       if (!( GetOption("fzin") || GetOption("ntin") || GetOption("gstar") || GetOption("PrepEmbed"))) {// Not Active geant
 	SetOption("geant","Default,-fzin,-ntin,-gstar,TGiant3");
 	SetOption("MagF","Default,-fzin,-ntin,-gstar,TGiant3");
       }
-#endif
     } else {                                  // root
       if (GetOption("fzin")) {
 	gMessMgr->Error() << "Option fzin cannot be used in root.exe. Use root4star" << endm;
@@ -1239,39 +1259,21 @@ void StBFChain::SetFlags(const Char_t *Chain)
 	gMessMgr->Error() << "Option ntin cannot be used in root.exe. Use root4star" << endm;
 	abort();
       }
-      if (! (GetOption("Stv"))) {
-	if (GetOption("gstar")) {
-	  SetOption("VMC","Default,-TGiant3,gstar");
-	  SetOption("-gstar","Default,-TGiant3");
-	}
+      if (GetOption("gstar")) {
+	SetOption("VMC","Default,-TGiant3,gstar");
+	SetOption("-gstar","Default,-TGiant3");
       }
       SetOption("-geant","Default,-TGiant3");
       SetOption("-geantL","Default,-TGiant3");
       SetOption("-geometry","Default,-TGiant3");
       SetOption("-geomNoField","Default,-TGiant3");
-      if (! (GetOption("Stv"))) {
-	if (! (GetOption("VMC") || GetOption("VMCPassive"))) {
-	  SetOption("VMCPassive","Default,-TGiant3");
-	}
-	SetOption("pgf77","Default,-TGiant3");
-	SetOption("mysql","Default,-TGiant3");
-	SetOption("minicern","Default,-TGiant3");
+      if (! (GetOption("VMC") || GetOption("VMCPassive"))) {
+	SetOption("VMCPassive","Default,-TGiant3");
       }
+      SetOption("pgf77","Default,-TGiant3");
+      SetOption("mysql","Default,-TGiant3");
+      SetOption("minicern","Default,-TGiant3");
     }
-    if (GetOption("ITTF") && ! (GetOption("Sti") || GetOption("StiCA")  || GetOption("Stv") || GetOption("StiVMC"))) {
-      TString STAR_LEVEL(gSystem->Getenv("STAR_LEVEL"));
-      if (STAR_LEVEL == ".DEV2")  SetOption("StiCA","Default,ITTF");
-      else                        SetOption("Sti"  ,"Default,ITTF");
-    }  
-    if (GetOption("Stv")) {
-      SetOption("-TpcIT","Default,Stv");
-      SetOption("-SvtIT","Default,Stv");
-      SetOption("-SsdIT","Default,Stv");
-      SetOption("-HpdIT","Default,Stv");
-      SetOption("-PixelIT","Default,Stv");
-      SetOption("-IstIT","Default,Stv");
-    }  
-    
   }
   if (!GetOption("Eval") && GetOption("AllEvent"))  SetOption("Eval","-Eval,AllEvent");
   // Print set values
@@ -1346,10 +1348,8 @@ void StBFChain::SetGC (const Char_t *queue){
 void StBFChain::SetInputFile (const Char_t *infile){
   // define input file
   if (infile) fInFile = infile;
-  if (fInFile != "") {
-    fInFile.ReplaceAll("\n",";");
-    gMessMgr->QAInfo() << "Input file name = " << fInFile.Data() << endm;
-  } else {
+  if (fInFile != "") gMessMgr->QAInfo() << "Input file name = " << fInFile.Data() << endm;
+  else {
     if (fkChain >= 0) {
       fInFile = fBFC[fkChain].Comment;
       gMessMgr->QAInfo() << "Default Input file name = " << fInFile.Data() << " for chain : " << fBFC[fkChain].Key << endm;
@@ -1413,15 +1413,15 @@ void StBFChain::SetOutputFile (const Char_t *outfile){
       }
     }
   }
-  if (fFileOut != "")  gMessMgr->QAInfo() << "Output root file name " <<  fFileOut.Data() << endm;
-  else                 SetOption("NoOutput","No Output File");
+  if (fFileOut != "")  gMessMgr->QAInfo() << "Output root file name " <<  fFileOut.Data() << endm;  
+  else                 SetOption("NoOutput","No Output File"); 
   if (!GetTFile()) {
-//   if (GetOption("tags")  &&  (
-//				 (fFileOut != "")    ||
+//   if (GetOption("tags")  &&  ( 
+//				 (fFileOut != "")    || 
 //				 GetOption("lana")   ||  GetOption("Laser") ||
 //				 GetOption("lanaDV") ||  GetOption("lanaDVtpx")  )
 //	) {
-
+     
      if ( ( GetOption("tags")  || GetOption("lana") ) &&  (fFileOut != "") ){
 	TString TagsName = fFileOut;
 	if( GetOption("lana") ){
@@ -1464,13 +1464,11 @@ void StBFChain::SetGeantOptions(StMaker *geantMk){
       if (! found) gMessMgr->QAInfo() << "StBFChain::SetGeantOptions() Chain has not found geometry tag. Use " << GeomVersion << endm;
       TString GeometryOpt("detp geometry ");
       GeometryOpt += GeomVersion;
-      if (GetOption("phys_off")) GeometryOpt += " phys_off=1";
-      if (GetOption("hadr_off")) GeometryOpt += " hadr_off=1";
       ProcessLine(Form("((St_geant_Maker *) %p)->LoadGeometry(\"%s\");",geantMk,GeometryOpt.Data()));
     }
-    if ((GetOption("fzin") || GetOption("ntin") || GetOption("mtin")) && fInFile != "")
+    if ((GetOption("fzin") || GetOption("ntin")) && fInFile != "")
       ProcessLine(Form("((St_geant_Maker *) %p)->SetInputFile(\"%s\")",geantMk,fInFile.Data()));
-  }
+  } 
 }
 //_____________________________________________________________________
 /// Treats the DbV options used for database timestamp.
@@ -1488,100 +1486,83 @@ void StBFChain::SetGeantOptions(StMaker *geantMk){
 */
 void StBFChain::SetDbOptions(StMaker *mk){
   if (! mk ) return;
-  if      (GetOption("AgML")  ) mk->SetAlias("VmcGeometry","db/.const/StarDb/AgMLGeometry");
-  else if (GetOption("VmcGeo")) mk->SetAlias("VmcGeometry","db/.const/StarDb/VmcGeo");
-  else                          mk->SetAlias("VmcGeometry","db/.const/StarDb/AgiGeometry");
   Int_t i;
   Int_t Idate=0,Itime=0;
-
-  // First possibility
   for (i = 1; i < fNoChainOptions; i++) {
     if (fBFC[i].Flag && !strncmp(fBFC[i].Key ,"DbV",3)){
-      // JL - we use to set timestamp as a chain option (any) starting with dbv and followed
-      // by an arbitrary set of numbers. The real stamp was taken from the comment.
-      // This supports this old mode.
       gMessMgr->QAInfo() << "StBFChain::SetDbOptions  Found time-stamp " << fBFC[i].Key << " [" << fBFC[i].Comment << "]" << endm;
       (void) sscanf(fBFC[i].Comment,"%d/%d",&Idate,&Itime);
     }
   }
 
-  // If FDate is set and we do not have the old mode, then a dynamic timestamp was used
-  // Overwrite
   if( ! Idate && FDate){
-    gMessMgr->QAInfo() << "StBFChain::SetDbOptions Switching to user chosen dynamic time-stamp (MaxEntry) "
+      gMessMgr->QAInfo() << "StBFChain::SetDbOptions  watching to user chosen dynamic time-stamp (MaxEntry) "
 			 << FDate << " " << FTime << endm;
-    gMessMgr->QAInfo() << "Chain may crash if time-stamp is not validated by db interface" << endm;
+      gMessMgr->QAInfo() << "Chain may crash if time-stamp is not validated by db interface" << endm;
 
     Idate = FDate;
     Itime = FTime;
   }
-
   St_db_Maker *db = (St_db_Maker *) mk;
   // Startup date over-write
   if (FDateS){
     gMessMgr->QAInfo() << "StBFChain::SetDbOptions Switching to user chosen dynamic time-stamp (Start)"
 		       << FDateS << " " << FTimeS << endm;
     gMessMgr->QAInfo() << "Chain may crash if time-stamp is not validated by db interface" << endm;
-
+    
     db->SetDateTime(FDateS,FTimeS);
   } else {
-    if (! GetOption("mtin")) {
-      const DbAlias_t *DbAlias = GetDbAliases();
-      Int_t found = 0;
-      for (Int_t i = 0; DbAlias[i].tag; i++) {
-	if (GetOption(DbAlias[i].tag,kFALSE)) {
-	  db->SetDateTime(DbAlias[i].tag);
-	  found = i;
-	  break;
-	}
-      }
-      if (! found) {gMessMgr->QAInfo() << "StBFChain::SetDbOptions() Chain has not set a time-stamp" << endm;}
-      // Show date settings
-      gMessMgr->QAInfo() << db->GetName()
-			 << " Maker set time = "
-			 << db->GetDateTime().GetDate() << "."
-			 << db->GetDateTime().GetTime() << endm;
-      if (GetOption("SIMU") && m_EvtHddr) {
-	gMessMgr->QAInfo() << GetName() << " Chain set time from  " << db->GetName() << endm;
-	m_EvtHddr->SetDateTime(db->GetDateTime());
+    const DbAlias_t *DbAlias = GetDbAliases();
+    Int_t found = 0;
+    for (Int_t i = 0; DbAlias[i].tag; i++) {
+      if (GetOption(DbAlias[i].tag,kFALSE)) {
+	db->SetDateTime(DbAlias[i].tag);
+	found = i;
+	break;
       }
     }
+    if (! found) {gMessMgr->QAInfo() << "StBFChain::SetDbOptions() Chain has not set a time-stamp" << endm;}
+    // Show date settings
+    gMessMgr->QAInfo() << db->GetName()
+		       << " Maker set time = "
+		       << db->GetDateTime().GetDate() << "."
+		       << db->GetDateTime().GetTime() << endm;
+    if (GetOption("SIMU") && m_EvtHddr) {
+      gMessMgr->QAInfo() << GetName() << " Chain set time from  " << db->GetName() << endm;
+      m_EvtHddr->SetDateTime(db->GetDateTime());
+    }
   }
-
-  // MaxEntry over-write - default and global for all realm and detectors
+  // MaxEntry over-write
   if (Idate) {
     db->SetMaxEntryTime(Idate,Itime);
     gMessMgr->Info() << "\tSet DataBase max entry time " << Idate << "/" << Itime
 		     << " for St_db_Maker(\"" << db->GetName() <<"\")" << endm;
-  } 
+  } // check if maker is St_db_Maker
 
-  //
+  //        
   // Now treat the detector specific options
-  //
+  //        
   TString realm;
   for (unsigned int i = 0; i < GTSOptions.size() ; i++){
     if ( (GTSOptions[i].Realm).IsNull() ){ realm = "*";}
     else {                                 realm = GTSOptions[i].Realm;}
-
-    //LOG_INFO << "DEBUG MORE [" << (GTSOptions[i].Realm).Data() << "]" << endm;
-    //LOG_INFO << "DEBUG MORE [" << realm.Data() << "]" << endm;
-
+            
     if ( GTSOptions[i].Type == 1){
       db->AddMaxEntryTimeOverride(GTSOptions[i].Date,0,
 				  (char *) realm.Data(),
 				  (char *) GTSOptions[i].Detector.Data());
-
-      LOG_INFO << "Recovering override stamp " << i << " :: " 
-	       << GTSOptions[i].Detector << ", " << realm << ", "  
+            
+      LOG_INFO << "Recovering override stamp " << i << " :: "
+	       << GTSOptions[i].Detector << ", " << realm << ", "
 	       << GTSOptions[i].Date     << ", " << GTSOptions[i].Time  << endm;
     } else {
-      LOG_WARN << "Found override type " << GTSOptions[i].Type << " no treated yet" 
-	       << GTSOptions[i].Detector << ", " << realm << ", "  
+      LOG_WARN << "Found override type " << GTSOptions[i].Type << " no treated yet"
+	       << GTSOptions[i].Detector << ", " << realm << ", "
 	       << GTSOptions[i].Date     << ", " << GTSOptions[i].Time  << endm;
     }
   }
+  //abort(); <-- for debugging
 
-  //abort();
 
 
   if (!GetOption("fzin")) {
@@ -1608,7 +1589,7 @@ void StBFChain::SetDbOptions(StMaker *mk){
       SetFlavor(FieldOptions[k].name,        "MagFactor");
       gMessMgr->QAInfo() << "StBFChain::SetDbOptions SetFlavor(\"" << FieldOptions[k].name
 			 << "\",\"MagFactor\")" << endm;
-      if ( gClassTable->GetID("StarMagField") >= 0 && gClassTable->GetID("StMagFMaker") < 0) {
+      if ( gClassTable->GetID("StarMagField") >= 0) {
 	TString cmd =
 	  Form("if (!StarMagField::Instance()) new StarMagField( 2, %f, kTRUE);",
 	       FieldOptions[k].scale);
@@ -1616,20 +1597,12 @@ void StBFChain::SetDbOptions(StMaker *mk){
       }
     }
   }
-  if (this == GetTopChain()) {
-    // Db blacklist (remove black listed system from St_Db_Maker Calibrations configuration)
-    if (! GetOption("TpcDb")                        ) {mk->SetAttr("blacklist", "tpc");  gMessMgr->QAInfo() << "blacklist tpc" << endm;}
-    if (! GetOption("SvtDb")||!GetOption("SvtCalDb")) {mk->SetAttr("blacklist", "svt");  gMessMgr->QAInfo() << "blacklist svt" << endm;}
-    if (! GetOption("SsdDb")||!GetOption("SsdCalDb")) {mk->SetAttr("blacklist", "ssd");  gMessMgr->QAInfo() << "blacklist ssd" << endm;}
-    if (! GetOption("EemcDb")                       ) {mk->SetAttr("blacklist", "eemc"); gMessMgr->QAInfo() << "blacklist eemc"<< endm;}
-    if (! GetOption("FmsDb")                        ) {mk->SetAttr("blacklist", "fms");  gMessMgr->QAInfo() << "blacklist fms" << endm;}
-  }
 }
 //_____________________________________________________________________
 /// Creates output-tree branches
 void StBFChain::SetTreeOptions()
 {
-
+  
   StTreeMaker *treeMk = (StTreeMaker *) GetMaker("outputStream");
   if (!treeMk) return;
   if (GetOption("EvOut")){
@@ -1637,8 +1610,18 @@ void StBFChain::SetTreeOptions()
     treeMk->IntoBranch("eventBranch","StEvent");
     if (GetOption("EvOutOnly")) return;
   }
-  if (! GetOption("nohistos"))     treeMk->SetBranch("histBranch");
-  if (! GetOption("norunco"))    treeMk->SetBranch("runcoBranch");
+  if (! GetOption("nohistos")) 
+    treeMk->SetBranch("histBranch");
+  if (GetOption("dstOut"))      {
+    treeMk->IntoBranch("dstBranch","dst");
+    if (GetOption("HitsBranch")) {
+      treeMk->SetBranch("dstHitsBranch");
+      treeMk->IntoBranch("dstHitsBranch","dst/.data/Hits");
+    }
+    else treeMk->IntoBranch("dstBranch","dst/.data/Hits");
+    treeMk->IntoBranch("dstBranch","dst/.data/dst");
+    treeMk->SetBranch("runcoBranch");
+  }
   if (GetOption("McEvent") && GetOption("McEvOut")){
     gMessMgr->QAInfo() << "Will Write StMcEvent out, treeMk->GetFile() = "  << treeMk->GetFile() << endm;
     treeMk->IntoBranch("McEventBranch","StMcEvent");
@@ -1650,6 +1633,18 @@ void StBFChain::SetTreeOptions()
       treeMk->IntoBranch("geantBranch","geant/.data/particle");
       treeMk->IntoBranch("geantBranch","geant/.data/g2t_rch_hit");
     }
+#ifdef __NEVER__
+    if (GetOption("fss"))    treeMk->IntoBranch("ftpc_rawBranch","ftpc_raw/.data");
+    if (GetOption("tpc_daq") || GetOption("TpcRS"))
+      treeMk->IntoBranch("tpc_rawBranch","tpc_raw/.data");
+    if (GetOption("ems"))    treeMk->IntoBranch("emc_rawBranch","emc_raw/.data");
+    if (GetOption("fcf"))    treeMk->IntoBranch("tpc_hitsBranch","tpc_hits/.data");
+    if (GetOption("tpt"))    treeMk->IntoBranch("tpc_tracksBranch","tpc_tracks/.data");
+    if (GetOption("srs"))    treeMk->IntoBranch("svt_hitsBranch","svt_hits/.data");
+    if (GetOption("stk"))    treeMk->IntoBranch("svt_tracksBranch","svt_tracks/.data");
+    if (GetOption("trg"))    treeMk->IntoBranch("trgBranch","ctf mwc trg");
+    if (GetOption("global")) treeMk->IntoBranch("globalBranch","global/.data");
+#endif
   }
 }
 //________________________________________________________________________________
@@ -1664,21 +1659,3 @@ Long_t  StBFChain::ProcessLine(const char *line) {
   }
   return res;
 }
-//________________________________________________________________________________
-TString StBFChain::GetGeometry() const
-{
-  int n = fchainOpt->GetNRows();
-  for (int i=0;i<n;i++) {
-    if (!fchainOpt->GetTable()[i].Flag) continue;
-    TString k(fchainOpt->GetTable()[i].Key);
-    k.ToLower();
-    if (k[0]!='y') 		continue;
-    if (k[1]!='2') 		continue;
-    if (k[2] <'0' || k[2]>'9') 	continue;
-    if (k[3] <'0' || k[3]>'9') 	continue;
-    if (k[4] <'0' || k[4]>'9') 	continue;
-    return k;
-  }
-  return TString(""); 
-}   
-   
