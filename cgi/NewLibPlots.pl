@@ -150,12 +150,13 @@ my %plotHash = (
 
 
 my @libtag = ();
-
+my @libtagp = ();
 my @plotvaldg = ();
 my @plotvalop = ();
 my @plotvalpdsf = ();
 my $npt = 0;
 my $nl = 0;
+my $nn = 0;
 my @plotmemfstpdsf = ();
 my @plotmemlstpdsf = ();
 my @plotmemfsto = ();
@@ -287,8 +288,11 @@ my $tpath;
 @plotvalpdsf = ();
 
 @libtag = ();
+@libtagp = ();
+
 
 $npt = 0;
+$nn = 0;
 $nl = 0;
 @plotmemfsto = ();
 @plotmemlsto = ();
@@ -303,7 +307,7 @@ $maxval = 0;
 $minval = 100000;
 
 
-    $sql="SELECT distinct LibTag  FROM $JobStatusT WHERE site = 'rcf' and  (TO_DAYS(\"$todate\") - TO_DAYS(createTime)) <= $day_diff  ORDER by createTime";
+    $sql="SELECT distinct LibTag  FROM $JobStatusT WHERE site = 'rcf' ";
 
         $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
         $cursor->execute();
@@ -317,7 +321,7 @@ $minval = 100000;
 for ($npt = 0; $npt<scalar(@libtag); $npt++)  {
   
 
-    $sql="SELECT path, $mplotVal, site, createTime  FROM $JobStatusT WHERE path LIKE ?  AND LibTag = '$libtag[$npt]' AND jobStatus= 'Done'  ORDER by createTime";
+    $sql="SELECT path, $mplotVal, site, createTime  FROM $JobStatusT WHERE path LIKE ?  AND LibTag like '$libtag[$npt]%' AND jobStatus= 'Done' AND  (TO_DAYS(\"$todate\") - TO_DAYS(createTime)) <= $day_diff ORDER by createTime";
 
         $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
         $cursor->execute($qupath);
