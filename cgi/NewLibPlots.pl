@@ -388,6 +388,7 @@ for ($npt = 0; $npt<scalar(@libtag); $npt++)  {
 	  }
      	 }
 	}
+ }
 
 &StDbTJobsDisconnect();
 
