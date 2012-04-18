@@ -35,6 +35,7 @@ my $prepath;
 
 
 my @prod_set = (
+                "daq_sl302/year_2012/pp500_production_2012",
                 "daq_sl302/year_2012/pp200_production_2012",
                 "daq_sl302/year_2011/AuAu200_production",
                 "daq_sl302/year_2011/AuAu27_production",
@@ -149,10 +150,9 @@ my %plotHash = (
 
 my @plotvaldg = ();
 my @plotvalop = ();
-my @libtagop = ();
-my @libtagd = ();
+my @libtag = ();
 my $npt = 0;
-my $npk = 0;
+my $nl = 0;
 
 my @plotmemfsto = ();
 my @plotmemlsto = ();
@@ -273,10 +273,9 @@ $prepath = "%new/".$spl[0].".ittf";
 
 @plotvaldg = ();
 @plotvalop = ();
-@libtagop = ();
-@libtagd = ();
+@libtag = ();
 $npt = 0;
-$npk = 0;
+$nl = 0;
 @plotmemfsto = ();
 @plotmemlsto = ();
 @plotmemfstd = ();
@@ -287,8 +286,20 @@ $max_y = 1000;
 $maxval = 0;
 $minval = 100000;
 
+    $sql="SELECT distinct LibTag  FROM $JobStatusT WHERE path LIKE ? AND  (TO_DAYS(\"$todate\") - TO_DAYS(createTime)) <= $day_diff ORDER by createTime ";
 
-    $sql="SELECT path, $mplotVal, LibTag, createTime  FROM $JobStatusT WHERE path LIKE ?  AND jobStatus= 'Done' AND  (TO_DAYS(\"$todate\") - TO_DAYS(createTime)) <= $day_diff  ORDER by createTime";
+        $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
+        $cursor->execute($qupath);
+
+       while( $mlib = $cursor->fetchrow() ) {
+          $libtag[$nl] = $mlib;
+          $nl++;
+       }
+    $cursor->finish();
+
+  for ($npt = 0; $npt<scalar(@libtag); $npt++)  {
+
+    $sql="SELECT path, $mplotVal, createTime  FROM $JobStatusT WHERE path LIKE ?  AND LibTag = '$libtag[$npt]' AND jobStatus= 'Done' AND  (TO_DAYS(\"$todate\") - TO_DAYS(createTime)) <= $day_diff  ORDER by createTime";
 
         $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
         $cursor->execute($qupath);
@@ -305,8 +316,6 @@ $minval = 100000;
 	        if( $plotmemfsto[$npt] >= 0 and $plotmemfsto[$npt] <= $minval ) {
 		  $minval =  $plotmemfsto[$npt];
 	          }
-                $libtagop[$npt] = $fields[3];               
-                 $npt++;  
 	   }else{
 		$plotvalop[$npt] = $fields[1];
 		if( $plotvalop[$npt] >= $maxval) {
@@ -315,35 +324,30 @@ $minval = 100000;
 	        if( $plotvalop[$npt] >=0 and $plotvalop[$npt] <= $minval ) {
 		  $minval =  $plotvalop[$npt];
 	          }
-                $libtagop[$npt] = $fields[2];
-                 $npt++;
 	       }
 	    }else{                
               if ($plotVal eq "MemUsage") {
-                $plotmemfstd[$npk] = $fields[1];
-                $plotmemlstd[$npk] = $fields[2];
-		if( $plotmemlstd[$npk] >= $maxval) {
-		    $maxval =  $plotmemlstd[$npk];
+                $plotmemfstd[$npt] = $fields[1];
+                $plotmemlstd[$npt] = $fields[2];
+		if( $plotmemlstd[$npt] >= $maxval) {
+		    $maxval =  $plotmemlstd[$npt];
                   }
-	        if( $plotmemfstd[$npk] >= 0 and $plotmemfstd[$npk]  <= $minval ) {
-		  $minval =  $plotmemfstd[$npk];
+	        if( $plotmemfstd[$npt] >= 0 and $plotmemfstd[$npt]  <= $minval ) {
+		  $minval =  $plotmemfstd[$npt];
 	          }
-                $libtagd[$npk] = $fields[3];
-                 $npk++;                 
 	   }else{
- 		$plotvaldg[$npk] = $fields[1];
-                if( $plotvaldg[$npk] >= $maxval) {
-		    $maxval =  $plotvaldg[$npk];
+ 		$plotvaldg[$npt] = $fields[1];
+                if( $plotvaldg[$npt] >= $maxval) {
+		    $maxval =  $plotvaldg[$npt];
                   }
-	        if( $plotvaldg[$npk] >= 0 and $plotvaldg[$npk] <= $minval ) {
-		  $minval =  $plotvaldg[$npk];
+	        if( $plotvaldg[$npt] >= 0 and $plotvaldg[$npt] <= $minval ) {
+		  $minval =  $plotvaldg[$npt];
 	          }
-                $libtagd[$npk] = $fields[2];
-                $npk++;            
             }
 	  }
 
 	}
+      }
 
 &StDbTJobsDisconnect();
 
@@ -365,11 +369,8 @@ my $graph = new GD::Graph::linespoints(650,500);
  } else {
 
 if ($plotVal eq "MemUsage") {
-    if(scalar(@libtagd) > scalar(@libtagop) ) {
-    @data = (\@libtagd, \@plotmemfsto, \@plotmemlsto, \@plotmemfstd, \@plotmemlstd );
-   }else{
-    @data = (\@libtagop, \@plotmemfsto, \@plotmemlsto, \@plotmemfstd, \@plotmemlstd );
-   }
+    @data = (\@libtag, \@plotmemfsto, \@plotmemlsto, \@plotmemfstd, \@plotmemlstd );
+
     $legend[0] = "MemUsageFirst(optimized)";
     $legend[1] = "MemUsageLast(optimized)";
     $legend[2] = "MemUsageFirst(nonoptimized)";
@@ -378,11 +379,8 @@ if ($plotVal eq "MemUsage") {
     $mplotVal="MemUsageFirstEvent,MemUsageLastEvent";
   } else {
 
-    if(scalar(@libtagd) > scalar(@libtagop) ) {
-    @data = (\@libtagd, \@plotvalop, \@plotvaldg );
-   }else{
-    @data = (\@libtagop, \@plotvalop, \@plotvaldg );
-   }    
+    @data = (\@libtag, \@plotvalop, \@plotvaldg );
+
     $legend[0] = "$plotVal"."(optimized)";
     $legend[1] = "$plotVal"."(nonoptimized)";
 }
@@ -432,7 +430,7 @@ if ($plotVal eq "MemUsage") {
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
 
-         if ( scalar(@libtagd) < 1 and scalar(@libtagop) < 1 ) {
+         if ( scalar(@libtag) < 1 ) {
             print $qqr->header(-type => 'text/html')."\n";
             &beginHtml();
         } else {
