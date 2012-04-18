@@ -307,7 +307,7 @@ $maxval = 0;
 $minval = 100000;
 
 
-    $sql="SELECT distinct LibTag  FROM $JobStatusT WHERE site = 'rcf' ";
+    $sql="SELECT distinct LibTag  FROM $JobStatusT WHERE site = 'rcf' AND  (TO_DAYS(\"$todate\") - TO_DAYS(createTime)) <= $day_diff ORDER by createTime ";
 
         $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
         $cursor->execute();
@@ -321,7 +321,7 @@ $minval = 100000;
 for ($npt = 0; $npt<scalar(@libtag); $npt++)  {
   
 
-    $sql="SELECT path, $mplotVal, site, createTime  FROM $JobStatusT WHERE path LIKE ?  AND LibTag like '$libtag[$npt]%' AND jobStatus= 'Done' AND  (TO_DAYS(\"$todate\") - TO_DAYS(createTime)) <= $day_diff ORDER by createTime";
+    $sql="SELECT path, $mplotVal, site, createTime  FROM $JobStatusT WHERE path LIKE ?  AND LibTag = '$libtag[$npt]' AND jobStatus= 'Done' AND  (TO_DAYS(\"$todate\") - TO_DAYS(createTime)) <= $day_diff ORDER by createTime";
 
         $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
         $cursor->execute($qupath);
@@ -481,7 +481,7 @@ if ($plotVal eq "MemUsage") {
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
 
-         if ( scalar(@libtagd) < 1 and scalar(@libtagop) < 1 ) {
+         if ( scalar(@libtag) < 1 ) {
 #        if ( scalar(@libtagop) < 1 or scalar(@plotvalop) < 1  ) {           
             print $qqr->header(-type => 'text/html')."\n";
             &beginHtml();
