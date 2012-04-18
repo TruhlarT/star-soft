@@ -306,11 +306,10 @@ $max_y = 1000;
 $maxval = 0;
 $minval = 100000;
 
-
-    $sql="SELECT distinct LibTag  FROM $JobStatusT WHERE site = 'rcf' AND  (TO_DAYS(\"$todate\") - TO_DAYS(createTime)) <= $day_diff ORDER by createTime ";
+    $sql="SELECT distinct LibTag  FROM $JobStatusT WHERE site = 'rcf' AND path LIKE ? AND  (TO_DAYS(\"$todate\") - TO_DAYS(createTime)) <= $day_diff ORDER by createTime ";
 
         $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
-        $cursor->execute();
+        $cursor->execute($qupath);
 
        while( $mlib = $cursor->fetchrow() ) {
           $libtag[$nl] = $mlib;
