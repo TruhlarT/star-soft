@@ -150,13 +150,13 @@ my %plotHash = (
 
 
 my @libtag = ();
-my @libtagp = ();
+
 my @plotvaldg = ();
 my @plotvalop = ();
 my @plotvalpdsf = ();
 my $npt = 0;
 my $nl = 0;
-my $nn = 0;
+
 my @plotmemfstpdsf = ();
 my @plotmemlstpdsf = ();
 my @plotmemfsto = ();
@@ -288,12 +288,10 @@ my $tpath;
 @plotvalpdsf = ();
 
 @libtag = ();
-@libtagp = ();
-
 
 $npt = 0;
-$nn = 0;
 $nl = 0;
+
 @plotmemfsto = ();
 @plotmemlsto = ();
 @plotmemfstd = ();
