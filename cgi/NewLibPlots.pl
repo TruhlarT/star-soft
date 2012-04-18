@@ -149,15 +149,13 @@ my %plotHash = (
                );
 
 
+my @libtag = ();
+
 my @plotvaldg = ();
 my @plotvalop = ();
 my @plotvalpdsf = ();
-my @libtagop = ();
-my @libtagd = ();
-my @libtagpdsf = ();
 my $npt = 0;
-my $npk = 0;
-my $npn = 0;
+my $nl = 0;
 my @plotmemfstpdsf = ();
 my @plotmemlstpdsf = ();
 my @plotmemfsto = ();
@@ -287,12 +285,11 @@ my $tpath;
 @plotvaldg = ();
 @plotvalop = ();
 @plotvalpdsf = ();
-@libtagop = ();
-@libtagd = ();
-@libtagpdsf = ();
+
+@libtag = ();
+
 $npt = 0;
-$npk = 0;
-$npn = 0;
+$nl = 0;
 @plotmemfsto = ();
 @plotmemlsto = ();
 @plotmemfstd = ();
@@ -306,14 +303,28 @@ $maxval = 0;
 $minval = 100000;
 
 
-    $sql="SELECT path, $mplotVal, LibTag, site, createTime  FROM $JobStatusT WHERE path LIKE ?  AND jobStatus= 'Done'  AND (TO_DAYS(\"$todate\") - TO_DAYS(createTime)) <= $day_diff  ORDER by createTime";
+    $sql="SELECT distinct LibTag  FROM $JobStatusT WHERE site = 'rcf' and  (TO_DAYS(\"$todate\") - TO_DAYS(createTime)) <= $day_diff  ORDER by createTime";
+
+        $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
+        $cursor->execute();
+
+       while( $mlib = $cursor->fetchrow() ) {
+          $libtag[$nl] = $mlib;
+          $nl++;
+       }
+    $cursor->finish();
+
+for ($npt = 0; $npt<scalar(@libtag); $npt++)  {
+  
+
+    $sql="SELECT path, $mplotVal, site, createTime  FROM $JobStatusT WHERE path LIKE ?  AND LibTag = '$libtag[$npt]' AND jobStatus= 'Done'  ORDER by createTime";
 
         $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
         $cursor->execute($qupath);
 
         while(@fields = $cursor->fetchrow_array) {
 
-            if ($fields[3] eq "pdsf" or $fields[4] eq "pdsf") {
+            if ($fields[2] eq "pdsf" or $fields[3] eq "pdsf") {
           
              if ($plotVal eq "MemUsage") {
                 $plotmemfstpdsf[$npt] = $fields[1];
@@ -324,8 +335,6 @@ $minval = 100000;
 	        if( $plotmemfstpdsf[$npt] >= 0 and $plotmemfstpdsf[$npt] <= $minval ) {
 		  $minval =  $plotmemfstpdsf[$npt];
 	          }
-                $libtagpdsf[$npt] = $fields[3];               
-                 $npt++;  
 	   }else{
 		$plotvalpdsf[$npt] = $fields[1];
 		if( $plotvalpdsf[$npt] >= $maxval) {
@@ -334,57 +343,47 @@ $minval = 100000;
 	        if( $plotvalpdsf[$npt] >=0 and $plotvalpdsf[$npt] <= $minval ) {
 		  $minval =  $plotvalpdsf[$npt];
 	          }
-                $libtagop[$npt] = $fields[2];
-                 $npt++;
 	       }
 
-	    }elsif($fields[3] eq "rcf" or $fields[4] eq "rcf") {
+	    }elsif($fields[2] eq "rcf" or $fields[3] eq "rcf") {
 
             if ($fields[0] =~ /sl302.ittf_opt/) {
               if ($plotVal eq "MemUsage") {
-                $plotmemfsto[$npk] = $fields[1];
-                $plotmemlsto[$npk] = $fields[2];
-                if( $plotmemlsto[$npk] >= $maxval) {
-		    $maxval =  $plotmemlsto[$npk];
+                $plotmemfsto[$npt] = $fields[1];
+                $plotmemlsto[$npt] = $fields[2];
+                if( $plotmemlsto[$npt] >= $maxval) {
+		    $maxval =  $plotmemlsto[$npt];
                   }
-	        if( $plotmemfsto[$npk] >= 0 and $plotmemfsto[$npk] <= $minval ) {
-		  $minval =  $plotmemfsto[$npk];
+	        if( $plotmemfsto[$npt] >= 0 and $plotmemfsto[$npt] <= $minval ) {
+		  $minval =  $plotmemfsto[$npt];
 	          }
-                $libtagop[$npk] = $fields[3];               
-                 $npk++;  
 	   }else{
-		$plotvalop[$npk] = $fields[1];
-		if( $plotvalop[$npk] >= $maxval) {
-		    $maxval =  $plotvalop[$npk];
+		$plotvalop[$npt] = $fields[1];
+		if( $plotvalop[$npt] >= $maxval) {
+		    $maxval =  $plotvalop[$npt];
                   }
-	        if( $plotvalop[$npk] >=0 and $plotvalop[$npk] <= $minval ) {
-		  $minval =  $plotvalop[$npk];
+	        if( $plotvalop[$npt] >=0 and $plotvalop[$npt] <= $minval ) {
+		  $minval =  $plotvalop[$npt];
 	          }
-                $libtagop[$npk] = $fields[2];
-                 $npk++;
 	       }
 	    }else{                
               if ($plotVal eq "MemUsage") {
-                $plotmemfstd[$npn] = $fields[1];
-                $plotmemlstd[$npn] = $fields[2];
-		if( $plotmemlstd[$npn] >= $maxval) {
-		    $maxval =  $plotmemlstd[$npn];
+                $plotmemfstd[$npt] = $fields[1];
+                $plotmemlstd[$npt] = $fields[2];
+		if( $plotmemlstd[$npt] >= $maxval) {
+		    $maxval =  $plotmemlstd[$npt];
                   }
-	        if( $plotmemfstd[$npn] >= 0 and $plotmemfstd[$npn]  <= $minval ) {
-		  $minval =  $plotmemfstd[$npn];
+	        if( $plotmemfstd[$npt] >= 0 and $plotmemfstd[$npt]  <= $minval ) {
+		  $minval =  $plotmemfstd[$npt];
 	          }
-                $libtagd[$npn] = $fields[3];
-                 $npn++;                 
 	   }else{
- 		$plotvaldg[$npn] = $fields[1];
-                if( $plotvaldg[$npn] >= $maxval) {
-		    $maxval =  $plotvaldg[$npn];
+ 		$plotvaldg[$npt] = $fields[1];
+                if( $plotvaldg[$npt] >= $maxval) {
+		    $maxval =  $plotvaldg[$npt];
                   }
-	        if( $plotvaldg[$npn] >= 0 and $plotvaldg[$npn] <= $minval ) {
-		  $minval =  $plotvaldg[$npn];
+	        if( $plotvaldg[$npt] >= 0 and $plotvaldg[$npt] <= $minval ) {
+		  $minval =  $plotvaldg[$npt];
 	          }
-                $libtagd[$npn] = $fields[2];
-                $npn++;            
             }
 	  }
      	 }
@@ -411,7 +410,7 @@ my $graph = new GD::Graph::linespoints(650,500);
 
 
 if ($plotVal eq "MemUsage") {
-    @data = (\@libtagd, \@plotmemfsto, \@plotmemlsto, \@plotmemfstd, \@plotmemlstd, \@plotmemfstpdsf, \@plotmemlstpdsf);
+    @data = (\@libtag, \@plotmemfsto, \@plotmemlsto, \@plotmemfstd, \@plotmemlstd, \@plotmemfstpdsf, \@plotmemlstpdsf);
 
     $legend[0] = "MemUsageFirst(optimized,rcf)";
     $legend[1] = "MemUsageLast(optimized,rcf)";
@@ -424,7 +423,7 @@ if ($plotVal eq "MemUsage") {
 
   } else {
 
-    @data = (\@libtagd, \@plotvalop, \@plotvaldg, \@plotvalpdsf);
+    @data = (\@libtag, \@plotvalop, \@plotvaldg, \@plotvalpdsf);
 
     $legend[0] = "$plotVal"."(optimized,rcf)";
     $legend[1] = "$plotVal"."(nonoptimized,rcf)";
