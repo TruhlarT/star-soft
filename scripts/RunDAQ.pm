@@ -968,14 +968,14 @@ sub rdaq_get_orecords
     my($flag,$comp,$savev);
 
     #print "In here\n";
-    @files = undef;
+    #@files = undef;
     if( ! $obj ){           return undef;}
     if( ! defined($mode) ){ $mode = 1;}
 
     # basic selection
     $cmd = "SELECT * FROM $DBTABLE";
 
-    #$DEBUG = 1;
+    #$DEBUG = defined($ENV{RunDAQ_DEBUG})||0;
 
     # backward compatibility is status selection where -1 = all
     # may be achieved by skipping hash element.
@@ -1082,7 +1082,7 @@ sub rdaq_get_orecords
 		    if ( ! defined($items[$i]) ){ $items[$i] = "?";}
 		}
 		$file = join(" ",@items);
-		#print "<!-- Returning ".join("::",@items)." -->\n"    if ($DEBUG);
+		print "<!-- Returning ".join("::",@items)." -->\n"    if ($DEBUG);
 		chomp($file);
 	    }
 	    push(@files,$file);
