@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.46 2012/04/30 16:12:32 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.47 2012/04/30 20:34:49 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -46,8 +46,9 @@ $DFILE   = "RELEASE.date";
 	    #"mgr/CleanLibs && /usr/bin/find /tmp -type f -user \$USER -exec /bin/rm -f {} \\;");
 
 #
-# Patterns to exclude fro reporting CVS uknown
-# Please, only use this for auto-generated sources
+# Patterns to exclude from reporting ...
+# Please, only use this for auto-generated sources as those
+# patterns will be matched globally from Execute().
 #
 @IGNUNKNOWN=("StarVMC\/StarGeometry","StarVMC\/xgeometry");
 
@@ -395,16 +396,6 @@ if($NIGNOR){
 	    } elsif ($line !~ m/^\? /){
 		push(@DONOTKNOW,$line);
 	    }
-
-
-#		my($skip)=0;
-#		my($pat);
-#		foreach $pat (@IGNUNKNOWN){
-#		    if ($line =~ m/$pat/){
-#			$skip=1;
-#			last;
-#		    }
-#		}
 	}
     }
 
@@ -1215,19 +1206,39 @@ sub Execute
     }
 
 
-    # results from output requested
+    #
+    # Results from output requested - but we need to filter
+    # in real errors detected by patter & exclude what is known
+    # to be OK.
+    #
     if($mode == 1 && -e "$FLNMSG.out"){
+	my(@BuffRESULTS);
+	my($pat,$skip);
+
 	open(FI,"$FLNMSG.out");
-	push(@REPORT,"<BR><U>STDOUT relevant results</U>\n<PRE>");
 	while (defined($line = <FI>) ){
 	    chomp($line);
-	    if(IUError($line)){
-		push(@REPORT,IUl2pre($line,"%%REF%%"));
+
+	    # treat patterns to skip in addition of IUError
+	    # IUIfAnyMatchExclude is a "if found NOT OK" func so, need 
+	    # negate as if found, OK to skip.
+	    next if ( ! IUIfAnyMatchExclude($line,@IGNUNKNOWN) );
+
+	    # check if really an error
+	    if ( IUError($line) ){
+		push(@BuffRESULTS,IUl2pre($line,"%%REF%%"));
 	    }
 	}
-	push(@REPORT,"</PRE>");
 	close(FI);
 	ABUnlink("$FLNMSG.out");
+
+	# prepare block afterward - now allows filtering
+	if ( $#BuffRESULTS != -1){
+	    push(@REPORT,"<BR><U>STDOUT relevant results</U>\n<PRE>");
+	    push(@REPORT,@BuffRESULTS);
+	    push(@REPORT,"</PRE>");
+	}
+
     }
     return $rc;
 }
