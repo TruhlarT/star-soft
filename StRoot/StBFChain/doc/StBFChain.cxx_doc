@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.100 2012/03/20 15:41:55 fisyak Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.101 2012/04/30 14:31:56 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -25,6 +25,8 @@
 #if 0
 // Keep to be compatible with old documentaion
 #define STR_OBSOLETE "WARNING *** Option is OBSOLETE ***"
+
+
 
 
 
@@ -58,9 +60,9 @@ Bfc_st BFC[] = {
   {"DbV1211" ,"" ,"","db,ry1h" ,"","", "20011211/0 Db Version for prod p01gl",kFALSE},
 
   {"AgML" ,"" ,"","-Agi,-VmcGeo","","StarAgmlLib,StarGeometry,Geometry"
-   , "alias VmcGeomtry to AgMLGeometry",kFALSE},
-  {"Agi" ,"" ,"","-AgML,-VmcGeo","","","alias VmcGeomtry to AgiGeometry (gstar original geometry)",kFALSE},
-  {"VmcGeo" ,"" ,"","-AgML,-Agi" ,"","" ,"alias VmcGeomtry to VmcGeo",kFALSE},
+   , "Alias VmcGeometry to AgMLGeometry",kFALSE},
+  {"Agi" ,"" ,"","-AgML,-VmcGeo","","","Alias VmcGeometry to AgiGeometry (gstar original geometry)",kFALSE},
+  {"VmcGeo" ,"" ,"","-AgML,-Agi" ,"","" ,"Alias VmcGeometry to VmcGeo",kFALSE},
 
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"Trigger Type","-----------","-----------","------------------------------------------","","","",kFALSE},
@@ -261,6 +263,8 @@ Bfc_st BFC[] = {
    , "Base chain for 2009 ITTF (tpc)",kFALSE},
   {"B2009.2","","","ry2009a,in,tpcX,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
    , "Base chain for 2009 ITTF (tpc)",kFALSE},
+  {"B2009.3","","","ry2009d,in,tpcX,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
+   , "Base chain for 2009 ITTF (tpc)",kFALSE},
 
   {"pp2009a" ,"" ,"",
    "B2009.1,IAna,hitfilt,ppOpt,VFMinuit,l3onl,emcDY2,fpd,ftpc,trgd,ZDCvtx,NosvtIT,NossdIT,analysis"
@@ -271,7 +275,9 @@ Bfc_st BFC[] = {
   {"pp2009c" ,"" ,"",
    "B2009.2,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,ftpc,trgd,ZDCvtx,NosvtIT,NossdIT,analysis","",""
    , "Production chain for 2009 data - no Corr, no VF (+l3, bcc/fpd, ftpc, e/b-emc, trig)",kFALSE},
-
+  {"pp2009d" ,"" ,"",
+   "B2009.3,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,ftpc,trgd,ZDCvtx,NosvtIT,NossdIT,analysis","",""
+   , "Production chain for 2009 data - no Corr, no VF (+l3, bcc/fpd, ftpc, e/b-emc, trig)",kFALSE},
 
 
 
@@ -489,6 +495,7 @@ Bfc_st BFC[] = {
   {"geometry" ,"" ,"","","" ,"geometry","geometry+Mag.Field",kFALSE},
   {"StarMagField","", "","magF" ,"","StarMagField","Load StarMagField",kFALSE},
   {"geomNoField" ,"" ,"","-geometry,StarMagField" ,"","geometryNoField","geometry-Mag.Field",kFALSE},
+  {"xgeometry" ,"" ,"","" ,"","xgeometry","AgML geometry-Mag.Field",kFALSE},
   {"UseProjectedVertex" ,"" ,"","" ,"","","Run StBTofCalibMaker w/wo Primary Vertex",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"vpd" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
@@ -539,6 +546,7 @@ Bfc_st BFC[] = {
   {"miniDAQ" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"fzin" ,"geant","","Simu,-gstar,-ntin,-geant,geantL","St_geant_Maker",""
    , "read gstar fz-file",kFALSE},
+  {"UseXgeom","","","-geometry,-geomNoField,xgeometry","","","suppress mortran version of geometry",kFALSE},
   {"in" ,"" ,"","" , "StIOMaker","StIOMaker","Read [DAQ|ROOT] input file",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"Db makers   ","-----------","-----------","------------------------------------------","","","",kFALSE},
@@ -632,7 +640,7 @@ Bfc_st BFC[] = {
    , "TPC+TPX pixel dump to NTuple", kFALSE},
   {"TpxRaw","TpxRaw","tpcChain","rts,detDb,StEvent","StTpcHitMaker","StTpcHitMaker"
    , "TPC+TPX convert DAQ Tpc Raw Data to TpcRawEvent used by TpcMixer and/or TpxClu", kFALSE},
-  {"TpcMixer","","tpcChain","StEvent,rts,-Mixer" ,"StTpcMixerMaker","StTpcHitMaker","",kFALSE},
+  {"TpcMixer","","tpcChain","StEvent,rts,-Mixer,-tpx,TpxClu" ,"StTpcMixerMaker","StTpcHitMaker","",kFALSE},
   {"TpxClu","tpc_hits","tpcChain","rts,tpcDb,detDb,-tpx,-tpc_daq,-fcf","StTpcRTSHitMaker"
    ,"StTpcHitMaker", "RTS(online) cluster maker",kFALSE},
   {"Velo" ,"","tpcChain","tpc_T" ,"StVeloMaker","StVeloMaker","",kFALSE},
@@ -1213,6 +1221,8 @@ Bfc_st BFC[] = {
 
 
 
+
+
 Bfc_st BFC[] = {
   {"Key" ,"Name" ,"Chain" ,"Opts" ,"Maker","Libs","Comment",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
@@ -1240,9 +1250,9 @@ Bfc_st BFC[] = {
   {"DbV1211" ,"" ,"","db,ry1h" ,"","", "20011211/0 Db Version for prod p01gl",kFALSE},
 
   {"AgML" ,"" ,"","-Agi,-VmcGeo","","StarAgmlLib,StarGeometry,Geometry"
-   , "alias VmcGeomtry to AgMLGeometry",kFALSE},
-  {"Agi" ,"" ,"","-AgML,-VmcGeo","","","alias VmcGeomtry to AgiGeometry (gstar original geometry)",kFALSE},
-  {"VmcGeo" ,"" ,"","-AgML,-Agi" ,"","" ,"alias VmcGeomtry to VmcGeo",kFALSE},
+   , "Alias VmcGeometry to AgMLGeometry",kFALSE},
+  {"Agi" ,"" ,"","-AgML,-VmcGeo","","","Alias VmcGeometry to AgiGeometry (gstar original geometry)",kFALSE},
+  {"VmcGeo" ,"" ,"","-AgML,-Agi" ,"","" ,"Alias VmcGeometry to VmcGeo",kFALSE},
 
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"Trigger Type","-----------","-----------","------------------------------------------","","","",kFALSE},
@@ -1443,6 +1453,8 @@ Bfc_st BFC[] = {
    , "Base chain for 2009 ITTF (tpc)",kFALSE},
   {"B2009.2","","","ry2009a,in,tpcX,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
    , "Base chain for 2009 ITTF (tpc)",kFALSE},
+  {"B2009.3","","","ry2009d,in,tpcX,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
+   , "Base chain for 2009 ITTF (tpc)",kFALSE},
 
   {"pp2009a" ,"" ,"",
    "B2009.1,IAna,hitfilt,ppOpt,VFMinuit,l3onl,emcDY2,fpd,ftpc,trgd,ZDCvtx,NosvtIT,NossdIT,analysis"
@@ -1453,7 +1465,9 @@ Bfc_st BFC[] = {
   {"pp2009c" ,"" ,"",
    "B2009.2,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,ftpc,trgd,ZDCvtx,NosvtIT,NossdIT,analysis","",""
    , "Production chain for 2009 data - no Corr, no VF (+l3, bcc/fpd, ftpc, e/b-emc, trig)",kFALSE},
-
+  {"pp2009d" ,"" ,"",
+   "B2009.3,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,ftpc,trgd,ZDCvtx,NosvtIT,NossdIT,analysis","",""
+   , "Production chain for 2009 data - no Corr, no VF (+l3, bcc/fpd, ftpc, e/b-emc, trig)",kFALSE},
 
 
 
@@ -1671,6 +1685,7 @@ Bfc_st BFC[] = {
   {"geometry" ,"" ,"","","" ,"geometry","geometry+Mag.Field",kFALSE},
   {"StarMagField","", "","magF" ,"","StarMagField","Load StarMagField",kFALSE},
   {"geomNoField" ,"" ,"","-geometry,StarMagField" ,"","geometryNoField","geometry-Mag.Field",kFALSE},
+  {"xgeometry" ,"" ,"","" ,"","xgeometry","AgML geometry-Mag.Field",kFALSE},
   {"UseProjectedVertex" ,"" ,"","" ,"","","Run StBTofCalibMaker w/wo Primary Vertex",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"vpd" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
@@ -1721,6 +1736,7 @@ Bfc_st BFC[] = {
   {"miniDAQ" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"fzin" ,"geant","","Simu,-gstar,-ntin,-geant,geantL","St_geant_Maker",""
    , "read gstar fz-file",kFALSE},
+  {"UseXgeom","","","-geometry,-geomNoField,xgeometry","","","suppress mortran version of geometry",kFALSE},
   {"in" ,"" ,"","" , "StIOMaker","StIOMaker","Read [DAQ|ROOT] input file",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"Db makers   ","-----------","-----------","------------------------------------------","","","",kFALSE},
@@ -1814,7 +1830,7 @@ Bfc_st BFC[] = {
    , "TPC+TPX pixel dump to NTuple", kFALSE},
   {"TpxRaw","TpxRaw","tpcChain","rts,detDb,StEvent","StTpcHitMaker","StTpcHitMaker"
    , "TPC+TPX convert DAQ Tpc Raw Data to TpcRawEvent used by TpcMixer and/or TpxClu", kFALSE},
-  {"TpcMixer","","tpcChain","StEvent,rts,-Mixer" ,"StTpcMixerMaker","StTpcHitMaker","",kFALSE},
+  {"TpcMixer","","tpcChain","StEvent,rts,-Mixer,-tpx,TpxClu" ,"StTpcMixerMaker","StTpcHitMaker","",kFALSE},
   {"TpxClu","tpc_hits","tpcChain","rts,tpcDb,detDb,-tpx,-tpc_daq,-fcf","StTpcRTSHitMaker"
    ,"StTpcHitMaker", "RTS(online) cluster maker",kFALSE},
   {"Velo" ,"","tpcChain","tpc_T" ,"StVeloMaker","StVeloMaker","",kFALSE},
@@ -3130,7 +3146,6 @@ Int_t StBFChain::Init() {
       }
     }
   }
-  Int_t iok = StChain::Init();
   if (fNoChainOptions) {
     if (GetOption("NoOutput") || GetOption("EvOutOnly")) {
       SetAttr(".call","SetActive(0)","MuDst");		//NO MuDst
@@ -3180,6 +3195,7 @@ Int_t StBFChain::Init() {
     }
 #endif
   }
+  Int_t iok = StChain::Init();
   return iok;
 }
 //_____________________________________________________________________
