@@ -14,7 +14,7 @@ use Digest::MD5;
 
 @ISA = (Exporter);
 @EXPORT=qw(IUbody IUcmt IUhead IUtrail IUGetRef IUl2pre IUresource
-	   IUFuncMatch IUExcluded IUSourceDirs IUError IUconsOK
+	   IUFuncMatch IUExcluded IUIfAnyMatchExclude IUSourceDirs IUError IUconsOK
 	   IULoad JPLoad VLGLoad
 	   IURTFormat JPRFFormat VLGFormat
 	   JPRExec
