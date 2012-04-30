@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.45 2011/02/07 23:54:33 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.46 2012/04/30 16:12:32 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -45,6 +45,12 @@ $DFILE   = "RELEASE.date";
 	    #"no newline at end of file",
 	    #"mgr/CleanLibs && /usr/bin/find /tmp -type f -user \$USER -exec /bin/rm -f {} \\;");
 
+#
+# Patterns to exclude fro reporting CVS uknown
+# Please, only use this for auto-generated sources
+#
+@IGNUNKNOWN=("StarVMC\/StarGeometry","StarVMC\/xgeometry");
+
 
 # this a counter for each recoverrable errors
 foreach $re (keys %RECOVER){   $GRECOVER{$re} = 0;}
@@ -82,6 +88,9 @@ $OPTCONS = "";
 # name of the HTML output report. ONLY the main name
 # is expected here. Extension .html will be added.
 $FLNM    = "AutoBuild";
+
+# file to recover the STAR_HOST_SYS version
+$RECSTARLVL= "/tmp/$FLNM.STAR_HOST_SYS.$$";
 
 # HTML colors for warnings. Experimental
 # Used to display error messages.
@@ -386,6 +395,16 @@ if($NIGNOR){
 	    } elsif ($line !~ m/^\? /){
 		push(@DONOTKNOW,$line);
 	    }
+
+
+#		my($skip)=0;
+#		my($pat);
+#		foreach $pat (@IGNUNKNOWN){
+#		    if ($line =~ m/$pat/){
+#			$skip=1;
+#			last;
+#		    }
+#		}
 	}
     }
 
@@ -690,10 +709,19 @@ COMPILE_BEGIN:
 	print $FILO " - Preparing command [$line]\n";
 	print FO
 	    "#!/bin/csh\n",
+	    "# Change directory to target\n",
 	    "cd $COMPDIR\n",
 	    "\n",
+	    "# Set SKIP_DIRS according to config\n",
 	    "setenv SKIP_DIRS \"".join(" ",@SKIP)."\"\n",
-	    "$line $OPTCONS\n";
+	    "# Compilation command execution\n",
+	    "$line $OPTCONS\n",
+	    "\n",
+	    "# below a few lines to handle return status and CHVER\n",
+	    "set sts=\$status\n",
+	    "test -e $RECSTARLVL && /bin/rm -f $RECSTARLVL\n",
+	    "echo \$STAR_HOST_SYS >$RECSTARLVL\n",
+	    "exit \$sts\n";
 
 
 	close(FO);
@@ -872,10 +900,20 @@ sub Exit()
 		    push(@REPORT," <LI>No dir for creating $tmp\n");
 		} 
 
-		if ( defined($ENV{STAR_HOST_SYS}) ){
+		# this would not always work because the CHVER would be in a COMPILC
+		# spawn. We need to recover the version
+		#if ( defined($ENV{STAR_HOST_SYS}) ){
+		my($STAR_level)=undef;
+		if ( -e $RECSTARLVL){
+		    open(RECV,$RECSTARLVL);
+		    chomp($STAR_level = <RECV>);
+		    close(RECV);
+		    unlink($RECSTARLVL);
+		}
+		if ( defined($STAR_level) ){
 		    my($subf,$subd);
 		    
-		    $subd = $subf =".".$ENV{STAR_HOST_SYS}."/".$tmp;
+		    $subd = $subf =".".$STAR_level."/".$tmp;
 		    $subd =~ m/(.*\/)(.*)/; $subd = $1;
 		    if ( -e $subd ){
 			ABUnlink($subf);
