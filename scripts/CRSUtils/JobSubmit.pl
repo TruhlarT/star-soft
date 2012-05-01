@@ -500,6 +500,7 @@ if ( $ThisYear == 2005 ){
 		rdaq_string2ftype("centralpro"), # <-- was added in U+U, 2012
 		rdaq_string2ftype("gamma"),
 		rdaq_string2ftype("mtd"),
+		#rdaq_string2ftype("cosmic"),     # <-- 2012, U+U /MTD in this stream
 	        rdaq_string2ftype("hlt"),
 		rdaq_string2ftype("muon"),
 		rdaq_string2ftype("upcjpsi"),
@@ -557,6 +558,7 @@ if ( $ThisYear == 2005 ){
     # and a partial match such as "Au" will also pass the criteria.
     #
     $MCHAIN{"AuAu;upc"}  = $DCHAIN{"PPPP"};
+    $MCHAIN{"UU;upc"}    = $DCHAIN{"PPPP"};
 
     $SCALIB{"AuAu"}      = "OptLaser";
     $SCALIB{"PPPP"}      = "OptLaser";
@@ -1126,7 +1128,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		    last if ($TOT <= 0);       # max available queues
 		    last if (($cnt-$k) <= 0);  # max file seq for this run
 
-		    #print "$SELF : Submitting $file\n";
+		    #print "$SELF : Submitting [$file]\n";
 		    $TOT = $TOT-1;
 		    $k   = $k+1;
 
@@ -1156,9 +1158,10 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		# supress redundant runs from the $CONFF files when
 		# the count is null. Can be done only when both
 		# count matches.
-		$tot = $#OKFILES;
+		$tot  = $#OKFILES;
 		$tot += $#SKIPPED if ($#SKIPPED != -1);
-		if ($k == $tot){
+		if ($k == $tot ){ 
+		    print "$SELF : count=$cnt candidates=$k skipped+OK=$tot\n";
 		    # Save the remaining record count for that run
 		    # When it will reach 0, no longer record that run.
 		    if( $cnt > 0){
