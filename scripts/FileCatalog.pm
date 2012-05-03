@@ -130,7 +130,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.380";
+$VERSION   =   "V01.385";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -147,10 +147,8 @@ no strict "refs";
 # define to print debug information
 my $NCTRY     =  6;
 my $NCSLP     =  5;
-my $DEBUG     =  0;
 my $PCLASS    = "";
 my $DELAY     =  0;
-my $SILENT    =  0;
 my $OPTIMLIMIT= 10;                      # purely empirical I am afraid (just run query with -limit)
 my @DCMD;
 
@@ -165,11 +163,15 @@ my $dbpass    =   "FCatalog";
 my $sth;
 
 # Some other name-spaced globals
+$FC::DEBUG        =  0;                  # enable debuging -debug
+$FC::SILENT       =  0;                  # if SILENT is enabled, all messages are suppressed
+
 $FC::DBH          = undef;
 $FC::INTENT       = "User";              # Default intent / do not change
 
 $FC::DBCONTIMEOUT = 5;                   # << NOT USED YET
 $FC::TIMEOUT      = 2700;                # timeout of 45 mnts for query
+$FC::CACHELIFE    = 7200;                # query cache lifetime will be 2 hours
 
 @FC::LOADMANAGE   = (50,10,15);          # s,i,d - default values / no update count for now
 
@@ -462,7 +464,7 @@ $operators[0] = "<=";
 $operators[1] = ">=";
 $operators[2] = "<>";
 $operators[3] = "!="; # this operator mysteriously works in MySQL as well
-$operators[4] = "=="; # this operator is fake
+$operators[4] = "=="; # this operator is fake and equivalent of "="
 $operators[5] = "!~";
 $operators[6] = "=";
 $operators[7] = "][";
@@ -1284,7 +1286,7 @@ sub disentangle_param
 	}
     }
 
-    if ($DEBUG > 0 && defined($keyword) ) {
+    if ($FC::DEBUG > 0 && defined($keyword) ) {
 	&print_debug("disentangle_param",
 		     " Keyword: |".$keyword."|",
 		     " Value: |".$value."|");
@@ -1339,8 +1341,8 @@ sub _context {
       }
 
       if ( exists $keywrds{$keyw}) {
-	  if ($DEBUG > 0) {
-	      &print_debug("_context","Query accepted $DEBUG: $keyw = $valu ($mode)");
+	  if ($FC::DEBUG > 0) {
+	      &print_debug("_context","Query accepted $FC::DEBUG: $keyw = $valu ($mode)");
 	  }
 	  if ($mode == 1){
 	      $optoperset{$keyw} = $oper;
@@ -1422,7 +1424,7 @@ sub get_id_from_dictionary {
       # be an issue for accessing Path information.
       #
       $sqlquery = &_CACHED_SELECT()."$idname FROM $params[0] WHERE UPPER($params[1]) = UPPER(\"$params[2]\")";
-      if ($DEBUG > 0) {  &print_debug("get_id_from_dictionary","Executing: $sqlquery");}
+      if ($FC::DEBUG > 0) {  &print_debug("get_id_from_dictionary","Executing: $sqlquery");}
       $sth = $FC::DBH->prepare($sqlquery);
 
       if( ! $sth){
@@ -1470,7 +1472,7 @@ sub get_value_from_dictionary {
 
   if ( ($id = &_CachedValue($params[0],$idx)) == 0 ){
       $sqlquery = &_CACHED_SELECT()."$valname FROM $params[0] WHERE UPPER($params[1]) = $params[2]";
-      if ($DEBUG > 0) {  &print_debug("get_value_from_dictionary","Executing: $sqlquery");}
+      if ($FC::DEBUG > 0) {  &print_debug("get_value_from_dictionary","Executing: $sqlquery");}
       $sth = $FC::DBH->prepare($sqlquery);
 
       if( ! $sth){
@@ -1656,7 +1658,7 @@ sub insert_dictionary_value {
 	  $valuset{$keyname} = &_GetLogin();
 	  $del_onexit = 1;
       } else {
-	  if ($DEBUG > 0) {
+	  if ($FC::DEBUG > 0) {
 	      &print_debug("insert_dictionary_value",
 			   "ERROR: No value for keyword $keyname.",
 			   "Cannot add record to dictionary table.");
@@ -1671,7 +1673,7 @@ sub insert_dictionary_value {
     my ($fieldnamet, $tabnamet, $restt) = split(",",$keywrds{$kwrd});
 
     if ($tabnameo eq $tabnamet && $keyname ne $kwrd) {
-      if ($DEBUG > 0) {
+      if ($FC::DEBUG > 0) {
 	  &print_debug("insert_dictionary_value",
 		       "The field $fieldnamet $tabnamet is from the same table as $fieldnameo $tabnameo");
       }
@@ -1734,7 +1736,7 @@ sub insert_dictionary_value {
   } else {
       if ( $sth->execute() ) {
 	  $retid = &get_last_id();
-	  if ($DEBUG > 0) { &print_debug("insert_dictionary_value","Returning: $retid");}
+	  if ($FC::DEBUG > 0) { &print_debug("insert_dictionary_value","Returning: $retid");}
       } elsif ( $FC::DBH->err == 1054) {
 	  # wrong field name
 	  &die_message("insert_dictionary_value","logic error for $tabname ".$FC::DBH->err." >> ".$FC::DBH->errstr);
@@ -1952,7 +1954,7 @@ sub insert_detector_configuration {
   $dtinsert .= ")";
   $dtvalues .= ")";
 
-  if ($DEBUG > 0) {  &print_debug("insert_detector_configuration","Execute $dtinsert$dtvalues");}
+  if ($FC::DEBUG > 0) {  &print_debug("insert_detector_configuration","Execute $dtinsert$dtvalues");}
 
   $retid = 0;
   $sth   = $FC::DBH->prepare( $dtinsert.$dtvalues );
@@ -2083,7 +2085,7 @@ sub get_collision_collection {
       $sqlquery .= " AND ROUND(collisionEnergy) = ROUND($energy)";
   }
 
-  if ($DEBUG > 0) {
+  if ($FC::DEBUG > 0) {
       &print_debug("get_collision_collection",
 		   "First particle : $firstParticle",
 		   "Second particle: $secondParticle",
@@ -2270,7 +2272,7 @@ sub insert_run_param_info {
   if (defined $valuset{"collision"}) {
       # only one value matters
       $collision = &get_collision_type($valuset{"collision"});
-      if ($DEBUG > 0) {
+      if ($FC::DEBUG > 0) {
 	  &print_debug("insert_run_param_info","insert_run_param_info","Collision      : $collision");
       }
   } else {
@@ -2368,7 +2370,7 @@ sub insert_run_param_info {
       " $triggerSetup, $collision, $simulation, $runType, ".
       " $detConfiguration, $detState, '".$valuset{"magscale"}."', $magvalue, ".
       " NOW()+0, ".&_GetILogin().", $comment)";
-  if ($DEBUG > 0) {  &print_debug("insert_run_param_info","Execute $rpinsert");}
+  if ($FC::DEBUG > 0) {  &print_debug("insert_run_param_info","Execute $rpinsert");}
 
 
   my $sth;
@@ -2381,7 +2383,7 @@ sub insert_run_param_info {
       # Insert the event counts for a given FileData
       if ( $sth->execute() ) {
 	  $retid = &get_last_id();
-	  if ($DEBUG > 0) { &print_debug("insert_run_param_info","Returning: $retid");}
+	  if ($FC::DEBUG > 0) { &print_debug("insert_run_param_info","Returning: $retid");}
       }
       $sth->finish();
   }
@@ -2561,7 +2563,7 @@ sub insert_file_data {
       " $production, $nevents, $md5sum, $fileType,$fileComment,$fileSeq,$filestream, ".
       " NOW()+0, ".&_GetILogin().")";
 
-  if ($DEBUG > 0) { &print_debug("insert_file_data","Execute $fdinsert");}
+  if ($FC::DEBUG > 0) { &print_debug("insert_file_data","Execute $fdinsert");}
 
 
   my $sth;
@@ -2888,7 +2890,7 @@ sub get_current_file_data {
       return 0;
   }
   $sqlquery = "SELECT fileDataID FROM FileData WHERE $sqlquery";
-  if ($DEBUG > 0) {
+  if ($FC::DEBUG > 0) {
       &print_debug("get_current_file_data","Executing query: $sqlquery");
   }
 
@@ -2915,7 +2917,7 @@ sub get_current_file_data {
 			 "Add more data to unambiguously identify file data");
 
       } elsif ( $sth->fetch() ) {
-	  if ($DEBUG > 0) { &print_debug("get_current_file_data","Returning: $id");}
+	  if ($FC::DEBUG > 0) { &print_debug("get_current_file_data","Returning: $id");}
 
 	  $retv = $id;
       }
@@ -2964,7 +2966,7 @@ sub insert_simulation_params {
   }
 
   my $sqlquery =  &_CACHED_SELECT()."eventGeneratorID FROM EventGenerators WHERE eventGeneratorName = '".$valuset{"generator"}."' AND eventGeneratorVersion = '".$valuset{"genversion"}."' AND eventGeneratorParams = '".$valuset{"genparams"}."'";
-  if ($DEBUG > 0) {
+  if ($FC::DEBUG > 0) {
       &print_debug("insert_simulation_params","Executing query: $sqlquery");
   }
 
@@ -2988,7 +2990,7 @@ sub insert_simulation_params {
       my $eginsert   = "INSERT IGNORE INTO EventGenerators ";
       $eginsert  .= "(eventGeneratorName, eventGeneratorVersion, eventGeneratorComment, eventGeneratorParams)";
       $eginsert  .= " VALUES('".$valuset{"generator"}."', '".$valuset{"genversion"}."', $evgenComments, '".$valuset{"genparams"}."')";
-      if ($DEBUG > 0) {
+      if ($FC::DEBUG > 0) {
 	  &print_debug("insert_simulation_params","Execute $eginsert");
       }
       my $sthe = $FC::DBH->prepare( $eginsert );
@@ -2996,7 +2998,7 @@ sub insert_simulation_params {
       if ( $sthe ){
 	  if ( $sthe->execute() ) {
 	      $eventGenerator = &get_last_id();
-	      if ($DEBUG > 0) {
+	      if ($FC::DEBUG > 0) {
 		  &print_debug("insert_simulation_params","Returning: $eventGenerator");
 	      }
 	  } else {
@@ -3012,7 +3014,7 @@ sub insert_simulation_params {
       }
   } else {
       $sth->fetch();
-      if ($DEBUG > 0) {
+      if ($FC::DEBUG > 0) {
 	  &print_debug("insert_simulation_params","Got eventGenerator: $id");
       }
       $eventGenerator = $id;
@@ -3022,7 +3024,7 @@ sub insert_simulation_params {
   my $spinsert   = "INSERT IGNORE INTO SimulationParams ";
   $spinsert  .= "(eventGeneratorID, simulationParamIDate, simulationParamCreator, simulationParamComment)";
   $spinsert  .= " VALUES($eventGenerator,  NOW()+0, ".&_GetILogin().", $simComments)";
-  if ($DEBUG > 0) {
+  if ($FC::DEBUG > 0) {
       &print_debug("insert_simulation_params","Execute $spinsert");
   }
 
@@ -3033,7 +3035,7 @@ sub insert_simulation_params {
   }
   if ( $sth->execute() ) {
       my $retid = &get_last_id();
-      if ($DEBUG > 0) {
+      if ($FC::DEBUG > 0) {
 	  &print_debug("insert_simulation_params","Returning: $retid");
       }
       $sth->finish();
@@ -3074,7 +3076,7 @@ sub get_current_simulation_params {
       return 0;
   }
   $sqlquery =  &_CACHED_SELECT()."simulationParamsID FROM SimulationParams, EventGenerators WHERE eventGeneratorName = '".$valuset{"generator"}."' AND eventGeneratorVersion = '".$valuset{"genversion"}."' AND eventGeneratorParams = '".$valuset{"genparams"}."' AND SimulationParams.eventGeneratorID = EventGenerators.eventGeneratorID";
-  if ($DEBUG > 0) {
+  if ($FC::DEBUG > 0) {
       &print_debug("get_current_simulation_params","Executing query: $sqlquery");
   }
 
@@ -3097,7 +3099,7 @@ sub get_current_simulation_params {
 	  return $newid;
       } else {
 	  if ( $sth->fetch() ) {
-	      if ($DEBUG > 0) { &print_debug("get_current_simulation_params","Returning: $id");}
+	      if ($FC::DEBUG > 0) { &print_debug("get_current_simulation_params","Returning: $id");}
 	      $sth->finish();
 	      return $id;
 	  }
@@ -3648,7 +3650,7 @@ sub get_intersect {
   for ($count=$params[0]+2; $count < $#params+1; $count++) {
     $second[$count-$params[0]-2] = $params[$count];
   }
-  if ($DEBUG > 0) {
+  if ($FC::DEBUG > 0) {
       &print_debug("get_intersect",
 		   "First set: [".join(" ", (@first)."]"),
 		   "Second set: [".join(" ", (@second)."]"));
@@ -3656,7 +3658,7 @@ sub get_intersect {
   for ($cf=0; $cf<$#first+1; $cf++) {
     for ($cs=0; $cs<$#second+1; $cs++) {
       if ($first[$cf] eq $second[$cs]) {
-	if ($DEBUG > 0) {
+	if ($FC::DEBUG > 0) {
 	    &print_debug("get_intersect","Got intersect: $cf, $cs");
 	}
 	return ($cf, $cs);
@@ -3699,7 +3701,7 @@ sub connect_fields {
       ($stable, $ftable, $slevel, $flevel) =
 	($begtable, $endtable, $blevel, $elevel)
       }
-  if ($DEBUG > 0) {
+  if ($FC::DEBUG > 0) {
       &print_debug("connect_fields",
 		   "\tFirst: $ftable , $flevel",
 		   "\tSecond: $stable , $slevel");
@@ -3751,7 +3753,7 @@ sub connect_fields {
       @slevelfields = $stable;
       ($findex, $sindex) = &get_intersect($#flevelfields, @flevelfields, @slevelfields);
       while ($findex == -1) {
-	if ($DEBUG > 0) {
+	if ($FC::DEBUG > 0) {
 	    &print_debug("connect_fields",
 			 "Index        : ".$findex,
 			 "First fields : [".join(" ",(@flevelfields)."]"),
@@ -3763,7 +3765,7 @@ sub connect_fields {
 	  # Get all the fields that are connected to this one
 	  # and one level up
 	  (@flower) = &get_all_upper($flevelfields[$fcount]);
-	  if ($DEBUG > 0) {
+	  if ($FC::DEBUG > 0) {
 	      &print_debug("connect_fields","All first descendants: ".join(" ",(@flower)));
 	  }
 	  for (my $cflow = 0; $cflow <= $#flower; $cflow++) {
@@ -3775,7 +3777,7 @@ sub connect_fields {
 		  $froads{$flower[$cflow]} = " ".
 		      &_get_connection($flower[$cflow], $flevelfields[$fcount]);
 	      }
-	      if ($DEBUG > 0) {
+	      if ($FC::DEBUG > 0) {
 		  &print_debug("connect_fields",
 			       "Added road $froads{$flower[$cflow]}");
 	      }
@@ -3785,7 +3787,7 @@ sub connect_fields {
 	  # Get all the fields that are connected to this one
 	  # and one level up
 	  (@slower) = &get_all_upper($slevelfields[$scount]);
-	  if ($DEBUG > 0) {
+	  if ($FC::DEBUG > 0) {
 	      &print_debug("connect_fields",
 			   "All second descendants: ".join(" ",(@slower)));
 	  }
@@ -3799,7 +3801,7 @@ sub connect_fields {
 		      &_get_connection($slower[$cslow], $slevelfields[$scount]);
 	      }
 
-	    if ($DEBUG > 0) {
+	    if ($FC::DEBUG > 0) {
 		&print_debug("connect_fields",
 			     "Added road $sroads{$slower[$cslow]}");
 	    }
@@ -3936,7 +3938,7 @@ sub run_query {
   # Little debugging of the table size. This information was
   # taken during the call to connect(). This information may
   # be used later to improve queries.
-  #if($DEBUG > 0){
+  #if($FC::DEBUG > 0){
   #    &print_debug("run_query", "By the way ...");
   #    foreach (keys(%rowcounts)){
   #        &print_debug("run_query","\t$_ count is ".$rowcounts{$_}."\n");
@@ -3950,8 +3952,6 @@ sub run_query {
   &print_debug("run_query","BEGIN Receiving opt cond   [".join(",",keys %optvaluset)."]");
 
   #&print_debug("run_query","BEGIN FLRELATED ".join(",",%FC::FLRELATED));
-
-
 
   #+
   # Check the validity of the keywords
@@ -4121,6 +4121,18 @@ sub run_query {
 
 
 
+  # TODO: not used yet, can save and use for stats
+  # This could be a hash or a monitoring of user's queries
+  my $user_usage="keys [".join(",",@keywords)."] cond [";
+  foreach my $k (sort keys %valuset){ 
+      $user_usage .= lc($k).($operset{$k}?$operset{$k}:"=").$valuset{$k}.",";
+  }
+  chop($user_usage); $user_usage .= "]";
+  #&print_debug("run_query","User requested ".$user_usage);
+
+
+
+
   # destructor (don't need them anymore)
   undef(%XTableUSED);
   undef(%TableUSED);
@@ -4252,7 +4264,7 @@ sub run_query {
 		  #$sqlquery .= "$fieldname ".$operset{$keyw}." ".$valuset{$keyw};
 		  #}
 	      }
-	      if ($DEBUG > 0) {  &print_debug("run_query","\tExecuting special: $sqlquery");}
+	      if ($FC::DEBUG > 0) {  &print_debug("run_query","\tExecuting special: $sqlquery");}
 	      $sth = $FC::DBH->prepare($sqlquery);
 
 	      if( ! $sth){
@@ -4534,7 +4546,7 @@ sub run_query {
 
 
   # Extra debug line
-  #if($DEBUG){
+  #if($FC::DEBUG){
   #    &print_debug("run_query","--> order is --> ".join(" ",@select));
   #}
 
@@ -4545,7 +4557,7 @@ sub run_query {
   for (my $ii=0 ; $ii <= $#select ; $ii++){
       my $el = $select[$ii];
       my $kel= $kstack[$ii];
-      if ($DEBUG > 0) {
+      if ($FC::DEBUG > 0) {
 	  &print_debug("run_query","Adding $el");
       }
       if ((not $selectunique[$#selectunique]) || ($selectunique[$#selectunique] ne $el)) {
@@ -4648,13 +4660,12 @@ sub run_query {
 
 
   if ( $floc > 0 && defined($valuset{"all"}) ){
-    if ( $valuset{"all"} == 0 && ! defined($valuset{"available"}) ){
-	push ( @constraint, "FileLocations.availability > 0");
-	&print_debug("run_query","Detecting we do NOT have 'availability' specified and 'all' is null -> adding availability > 0");
-    } else {
-	&print_debug("run_query","Either 'available' is set or all is not null");
-    }
+      if ( $valuset{"all"} == 0 && ! defined($valuset{"available"}) ){
+	  push ( @constraint, "FileLocations.availability > 0");
+	  &print_debug("run_query","Detecting we do NOT have 'availability' specified and 'all' is null -> adding availability > 0");
+      }
   }
+
 
   my $constraint = join(" AND ",@constraint);
 
@@ -4798,41 +4809,66 @@ sub run_query {
 
     &print_debug("run_query","Using query: $sqlquery");
 
-    my $sth;
-    
-    # in rlimit, we benefit from caching
-    my $qhash=Digest::MD5->new();
+    #+
+    # Cache handling
+    #-
+    # TODO: limit 0 could always be used for any other limit
+    # TODO: docache can be controlled via option
+    #
+    # in rlimit, we benefit from caching         
+    my $qhash=Digest::MD5->new();                     
     my $md5=$qhash->add($sqlquery.$delimeter)->hexdigest();
     my $FHDL=undef;
-    &print_debug("run_query","Query digest is [$md5]");
+    &print_debug("run_query","Query digest is [$md5] rlimit=$rlimit");
 
-    # TODO: finish this logic - FHDL if defined is ready for write
-    # delimeter may be part of add()
-    if ( $rlimit != 0){
-	use FileHandle;
-	my($f)="/tmp/STAR-FC-$md5.dat";
-	my(@stat)=stat($f);
-	my($age)=time()-$stat[10];
-	
-	# possibly handle expiration
-	&print_debug("run_query","Cache age $age");
-	if ( $age > 7200){  unlink($f);}  # 2 hours / HARD CODED
-	
-	
-	if ( -e $f && ! -z $f ){
-	    # logic reading from cache
-	    my($line);
-	    my($previd,$curid,$idcnt);
-	    my(@result,@cols);
-	    $idcnt = 0;
-	    $count = 0;
+    use FileHandle;
 
-	    &print_debug("run_query","Cache file exists - reading from it");
-	    if ( defined($FHDL = FileHandle->new("$f")) ){
-		while ( defined($line = $FHDL->getline() ) ){
-		    chomp($line);
-		    @cols = split($delimeter,$line);
+    my($cachedir) = "/tmp/FC_cache_".(getpwuid($<))[3];
+    if ( ! -d $cachedir ){  
+	&print_debug("run_query","Creating $cachedir");
+	if ( ! mkdir($cachedir,0775) ){  $cachedir = "tmp";}
+    }
+
+    my($f)="$cachedir/$md5.dat";
+    my(@stat)=stat($f);
+    my($age)=time()-$stat[10];
+    my($docache)=1;                                    
+
+
+    # possibly handle expiration
+    if ( $age > $FC::CACHELIFE || -z $f ){
+	# be sure that regardless of whether the cache file can be
+	# deflted or not, we disable cache after expiration
+	$docache = 0;
+	unlink($f);
+    }  
+    &print_debug("run_query","Cache age $age (lifetime=$FC::CACHELIFE, docache=$docache)");
+	
+	
+    if ( -e $f && $docache){
+	#+
+	# WILL RETURN FROM CACHE 
+	#-
+	my($line);
+	my($previd,$curid,$idcnt);
+	my(%result,@cols);
+	$idcnt = 0;
+	$count = 0;
+	
+	&print_debug("run_query","Cache file exists - reading from it");
+	if ( defined($FHDL = FileHandle->new("$f")) ){
+	    &print_debug("run_query","File is opened, reading line rlimit=$rlimit idpushed=$idpushed");
+	    while ( defined($line = $FHDL->getline() ) ){
+		chomp($line);
+
+		next if ( $line =~ m/^\#/);       # skip comment lines
+
+		# now split by separator
+		@cols = split($delimeter,$line);
+
+		#&print_debug("run_query","Read one line");
 		    
+		if ( $rlimit != 0){
 		    # COMMON CODE LOGIC AAB
 		    if ( $idpushed ){
 			$curid = shift(@cols);
@@ -4847,26 +4883,39 @@ sub run_query {
 			last if ( $idcnt > $rlimit+$offset);
 		    }
 		    if ( $offset < $idcnt ){
-			$result[$count++] = join($delimeter,@cols);
+			#$result[$count++] = join($delimeter,@cols);
+			$result{join($delimeter,@cols)}=$count++;
 		    } 
+		} else {
+		    # since the delimeter is part of the hash, we can read line as-is
+		    #push(@result,$line);
+		    $result{$line}=$count++;
 		}
-		return @result;
 	    }
-	} else {
-	    if ( defined($FHDL = FileHandle->new(">$f")) ){
-		chmod(0775,$f);
-	    }
+	    &print_debug("run_query","Will return values from cache right away and skip query");
+	    return sort { $result{$a} <=> $result{$b} } keys %result;
+	}
+	#
+	# note -> if we fail opening cache, it will revert to do a query below
+	#
 
+    } else {
+	# no cache, prepare a cache file
+	if ( defined($FHDL = FileHandle->new(">$f")) ){
+	    chmod(0775,$f);
 	}
     }
     
-    
-    $sth = $FC::DBH->prepare($sqlquery);
-    if ( ! $sth ){
+    #+
+    # WILL DO A SQL QUERY
+    #-
+    my ($sth)= $FC::DBH->prepare($sqlquery);
+    if ( ! $sth ){ # we failed to prepare, there is a no-go
 	&print_debug("run_query","Failed to prepare [$sqlquery]");
 	return;
-    } else {
-	my (@result,$res,$rescount);
+
+    } else {        # sth prepare was fine
+	my (%result,$res,$rescount);
 	my (@cols);
 	my ($success)=0;
 
@@ -4897,7 +4946,8 @@ sub run_query {
 	$count = 0;
 	if ( $success ){
 	    my($previd,$curid,$idcnt);
-
+	    my($rkey);
+	    
 	    $idcnt = 0;
 
 	    &print_debug("run_query","rlimit=$rlimit limit=$limit - fetching");
@@ -4914,8 +4964,8 @@ sub run_query {
 			eval("\$cols[$i] = ".(split(";",$ktransform{$kstackunique[$i]}))[0]."($cols[$i]);");
 		    }
 		}
-
-
+		
+		    
 		# We are not done ...
 		foreach $flkey (@setkeys){
 		    $res = "\@cols = $keyset{$flkey}";
@@ -4925,8 +4975,8 @@ sub run_query {
 		    eval("\@cols = $res;");
 		}
 
-		# need to print prior
-		print $FHDL join($delimeter,@cols)."\n" if ( defined($FHDL) );
+		# need to print prior <-- true only for previous for old logic
+		# print $FHDL join($delimeter,@cols)."\n" if ( defined($FHDL) );
 		
 		if ( $rlimit > 0 ){
 		    # rlimit mode
@@ -4945,11 +4995,23 @@ sub run_query {
 		    }
 		    # if ( $offset < $idcnt ){
 		    if ( ($offset < $idcnt) && ( $idcnt <= $rlimit+$offset) ){
-			$result[$count++] = join($delimeter,@cols);
+			#$result[$count++] = join($delimeter,@cols);
+			$rkey = join($delimeter,@cols);
+			if ( ! defined($result{$rkey}) ){
+			    $result{$rkey}=$count;
+			    print $FHDL "$rkey\n" if ( defined($FHDL) );
+			}
+			$count++;
 		    }
 		} else {
 		    # Normal mode
-		    $result[$count++] = join($delimeter,@cols);
+		    #$result[$count++] = join($delimeter,@cols);
+		    $rkey = join($delimeter,@cols);
+		    if ( ! defined($result{$rkey}) ){
+			$result{$rkey}=$count;
+			print $FHDL "$rkey\n" if ( defined($FHDL) );
+		    }
+		    $count++;
 		}
 	    }
 
@@ -4958,17 +5020,31 @@ sub run_query {
 	}
 	$sth->finish();
 
+	# disable alarm
 	alarm(0);
-	close($FHDL) if ( defined($FHDL) );
 
-	# end
+	# end-timer
 	$tf  = time(); &print_debug("run_query","END Time DBRef:$FC::DBRef ".localtime($tf));
-	$tf -= $ts;    &print_debug("run_query","DELTA Time DBRef:$FC::DBRef $tf nfiles=".($#result+1));
+	$tf -= $ts;    &print_debug("run_query","DELTA Time DBRef:$FC::DBRef $tf nfiles=$count");
 
+	# close file
+	if ( defined($FHDL) ){
+	    print $FHDL "# count=$count,delta=$tf\n";
+	    close($FHDL) ;
+	    # If too small or not expensive, delete to keep number of files under control
+	    # Note: spiders checks nearly all files individually ...
+	    if ($count <= 1 || $tf <= 2){ 
+		&print_debug("run_query","(count=$count,delta=$tf) <= (1,2) - delete cache $f");
+		unlink($f);
+	    }
+	}
 
-	return (@result);
-    } # sth prepare
+	# now return results sorted
+	return (sort { $result{$a} <=> $result{$b} } keys %result);
+
+    }
 }
+
 
 
 # 2 examples of eval() routines
@@ -5514,7 +5590,7 @@ sub _bootstrap_data
 	  if ( $DELAY ){
 	      push(@DCMD,$dcdelete);
 	  } else {
-	      if ($DEBUG > 0) { &print_debug("_bootstrap_data","Executing $dcdelete"); }
+	      if ($FC::DEBUG > 0) { &print_debug("_bootstrap_data","Executing $dcdelete"); }
 	      my $stfdd = $FC::DBH->prepare($dcdelete);
 	      if ($stfdd){
 		  $stfdd->execute();
@@ -6283,22 +6359,22 @@ sub debug_on
     my($mode)=@_;
 
     #print "Debug is $mode\n";
-    $DEBUG  = 1;
+    $FC::DEBUG  = 1;
     if( defined($mode) ){
-	if(    $mode =~ m/html/i){ $DEBUG = 2;}  # html, display as text
-	elsif( $mode =~ m/cmth/i){ $DEBUG = 3;}  # comments in html
-	else {                     $DEBUG = 1;}  # revert to default, plain text
+	if(    $mode =~ m/html/i){ $FC::DEBUG = 2;}  # html, display as text
+	elsif( $mode =~ m/cmth/i){ $FC::DEBUG = 3;}  # comments in html
+	else {                     $FC::DEBUG = 1;}  # revert to default, plain text
     }
 }
 
-sub debug_off {    $DEBUG = 0;}
-sub get_debug {    $DEBUG;}
+sub debug_off {    $FC::DEBUG = 0;}
+sub get_debug {    $FC::DEBUG;}
 sub set_debug {
     if ($_[0] =~ m/FileCatalog/) {  shift @_;}
 
     my ($d)=@_;
-    $DEBUG = defined($d)?$d:1;
-    $DEBUG;
+    $FC::DEBUG = defined($d)?$d:1;
+    $FC::DEBUG;
 }
 
 sub print_debug
@@ -6306,7 +6382,7 @@ sub print_debug
     my($head,@lines)=@_;
     my($line);
 
-    return if ($DEBUG==0);
+    return if ($FC::DEBUG==0);
     if ($PCLASS ne ""){
 	if ( lc($head) !~ m/$PCLASS/i){
 	    #print "$head do not match class $PCLASS\n";
@@ -6316,9 +6392,9 @@ sub print_debug
 
     foreach $line (@lines){
 	chomp($line);
-	if($DEBUG==2){
+	if($FC::DEBUG==2){
 	    print "<b>$head</b> <tt>$line<tt><br>\n";
-	} elsif($DEBUG==3) {
+	} elsif($FC::DEBUG==3) {
 	    print "<!-- $head $line -->\n";
 	} else {
 	    printf "FC-DBG :: %20.20s %s\n",$head,$line;
@@ -6335,8 +6411,8 @@ sub set_silent
     }
     my($mode)=@_;
 
-    $SILENT = $mode & 1;
-    $SILENT;
+    $FC::SILENT = $mode & 1;
+    $FC::SILENT;
 }
 
 sub die_message
@@ -6350,7 +6426,7 @@ sub print_message
     my($routine,@lines)=@_;
     my($line);
 
-    if ( $SILENT ){ return;}
+    if ( $FC::SILENT ){ return;}
     if ( $PCLASS ne ""){ if ( lc($routine) !~ m/$PCLASS/i){  return;}}
 
     foreach $line (@lines){
