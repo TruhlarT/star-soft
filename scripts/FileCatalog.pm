@@ -4823,6 +4823,7 @@ sub run_query {
 
     use FileHandle;
 
+    umask(0000);
     my($cachedir) = "/tmp/FC_cache_".(getpwuid($<))[3];
     if ( ! -d $cachedir ){  
 	&print_debug("run_query","Creating $cachedir");
