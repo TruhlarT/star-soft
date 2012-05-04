@@ -4831,18 +4831,26 @@ sub run_query {
     }
 
     my($f)="$cachedir/$md5.dat";
-    my(@stat)=stat($f);
-    my($age)=time()-$stat[10];
     my($docache)=1;                                    
+    my($age)=0;
 
+    # check age of file if exists
+    if ( -e $f){
+	my(@stat);
+	@stat=stat($f);
+	if ($#stat != -1){
+	    $age=time()-$stat[10];
 
-    # possibly handle expiration
-    if ( $age > $FC::CACHELIFE || -z $f ){
-	# be sure that regardless of whether the cache file can be
-	# deflted or not, we disable cache after expiration
-	$docache = 0;
-	unlink($f);
-    }  
+	    # possibly handle expiration
+	    if ( $age > $FC::CACHELIFE || -z $f ){
+		# be sure that regardless of whether the cache file can be
+		# deflted or not, we disable cache after expiration
+		$docache = 0;
+		unlink($f);
+	    }  
+	}
+    }
+
     &print_debug("run_query","Cache age $age (lifetime=$FC::CACHELIFE, docache=$docache)");
 	
 	
