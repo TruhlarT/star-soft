@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.59 2012/03/29 20:10:40 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.60 2012/05/07 14:40:25 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.60  2012/05/07 14:40:25  didenko
+# added AgML test
+#
 # Revision 1.59  2012/03/29 20:10:40  didenko
 # add AgML test
 #
@@ -147,6 +150,8 @@ my @point7 = ();
 my @point8 = ();
 my @point10 = ();
 my @point11 = ();
+my @point12 = ();
+my @point13 = ();
 
 
 my @Nday;
@@ -161,6 +166,8 @@ for($i=0;$i<7*$weeks;$i++) {
     $point7[$i]=undef;
     $point10[$i]=undef;
     $point11[$i]=undef;
+    $point12[$i]=undef;
+    $point13[$i]=undef;
     $Nday[$i] = undef;
 }
 
@@ -351,7 +358,23 @@ while($n_weeks >= 0) {
        }
 	while(@fields = $cursor->fetchrow_array) {
 
-             if($fields[0] =~ /sl302.ittf/) {
+	    if ($fields[0] =~ /sl302.ittf_opt/) {
+		$point12[$d_week+7*$rn_weeks] = $fields[1];
+		if($point12[$d_week+7*$rn_weeks] > $max_y) {
+		    $max_y = $point12[$d_week+7*$rn_weeks];
+		}
+		if($point12[$d_week+7*$rn_weeks] < $min_y) {
+		    $min_y = $point12[$d_week+7*$rn_weeks];
+		}
+		if ($plotVal eq "MemUsage") {
+		    $point13[$d_week+7*$rn_weeks] = $fields[2];
+		    if ($point13[$d_week+7*$rn_weeks] > $max_y) {
+			$max_y = $point13[$d_week+7*$rn_weeks];
+		    }
+		    if ($point13[$d_week+7*$rn_weeks] < $min_y) {
+			$min_y = $point13[$d_week+7*$rn_weeks];
+		    }
+		} elsif($fields[0] =~ /sl302.ittf/) {
 		$point10[$d_week+7*$rn_weeks] = $fields[1];
 		if($point10[$d_week+7*$rn_weeks] > $max_y) {
 		    $max_y = $point10[$d_week+7*$rn_weeks];
@@ -383,14 +406,16 @@ if ($plotVal eq "MemUsage") {
 #    @data = (\@Nday, \@point0, \@point1, \@point2, \@point3, \@point4, \@point5, \@point6, \@point7 );
 #    @data = (\@Nday, \@point2,  \@point3, \@point6, \@point7 );
 
-    @data = (\@Nday, \@point2,  \@point3, \@point6, \@point7, \@point10, \@point11 );
+    @data = (\@Nday, \@point2,  \@point3, \@point6, \@point7, \@point10, \@point11, \@point12, \@point13);
 
     $legend[0] = "MemUsgaeFirst(ittf.optimized)";
     $legend[1] = "MemUsgaeLast(ittf.optimized)";
     $legend[2] = "MemUsgaeFirst(ittf)";
     $legend[3] = "MemUsageLast(ittf)";
     $legend[4] = "MemUsgaeFirst(ittf,AgML)";
-    $legend[5] = "MemUsageLast(ittf,AgML)";    
+    $legend[5] = "MemUsageLast(ittf,AgML)";
+    $legend[6] = "MemUsgaeFirst(ittf.optimized,AgML)";
+    $legend[7] = "MemUsageLast(ittf.optimized,AgML)";    
 
 
     $mplotVal="MemUsageFirstEvent,MemUsageLastEvent";
@@ -399,11 +424,12 @@ if ($plotVal eq "MemUsage") {
 #     @data = (\@Nday, \@point0, \@point2, \@point4, \@point6 );
 #    @data = (\@Nday, \@point2, \@point6 );
 
-    @data = (\@Nday, \@point2, \@point6, \@point10 );
+    @data = (\@Nday, \@point2, \@point6, \@point10, \@point12 );
 
     $legend[0] = "$plotVal"."(ittf.optimized)";
     $legend[1] = "$plotVal"."(ittf)";
     $legend[2] = "$plotVal"."(ittf,AgML)";    
+    $legend[3] = "$plotVal"."(ittf.optimized,AgML)"; 
 }
 
 
