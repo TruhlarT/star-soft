@@ -154,6 +154,9 @@ my @libtag = ();
 
 my @plotvaldg = ();
 my @plotvalop = ();
+my @plotvalvmcdg = ();
+my @plotvalvmcop = ();
+
 my @plotvalpdsf = ();
 my $npt = 0;
 my $nl = 0;
@@ -164,6 +167,12 @@ my @plotmemfsto = ();
 my @plotmemlsto = ();
 my @plotmemfstd = ();
 my @plotmemlstd = ();
+
+my @plotmemvmcfsto = ();
+my @plotmemvmclsto = ();
+my @plotmemvmcfstd = ();
+my @plotmemvmclstd = ();
+
 my $min_y = 0;
 my $max_y = 5000;
 my $maxval = 0;
@@ -270,6 +279,8 @@ my $path;
 my $pth;
 my $dpth;
 my $tpath;
+my $agmlpath;
+my $agml;
 
  @spl = ();
  @spl = split(" ", $tset);
@@ -277,16 +288,22 @@ my $tpath;
  @spl = ();
  @spl = split("/", $pth);
  $path = $spl[1]."/". $spl[2];
+ $agml = $spl[1].".AgML"."/". $spl[2] ;
  $tpath = $spl[0]; 
  @spl = ();
  @spl = split("_", $tpath);
  $dpth = $spl[0];
+ 
+
 
  my $qupath = "%new/".$dpth."%/".$path;
+ $agmlpath = "%new/".$dpth."%/".$agml;
 
 @plotvaldg = ();
 @plotvalop = ();
 @plotvalpdsf = ();
+@plotvalvmcdg = ();
+@plotvalvmcop = ();
 
 @libtag = ();
 
@@ -297,6 +314,10 @@ $nl = 0;
 @plotmemlsto = ();
 @plotmemfstd = ();
 @plotmemlstd = ();
+@plotmemvmcfsto = ();
+@plotmemvmclsto = ();
+@plotmemvmcfstd = ();
+@plotmemvmclstd = ();
 @plotmemfstpdsf = ();
 @plotmemlstpdsf = ();
 
@@ -390,7 +411,61 @@ for ($npt = 0; $npt<scalar(@libtag); $npt++)  {
 	  }
      	 }
 	}
- }
+############
+
+    $sql="SELECT path, $mplotVal, site, createTime  FROM $JobStatusT WHERE path LIKE ?  AND LibTag = '$libtag[$npt]' AND jobStatus= 'Done' AND  (TO_DAYS(\"$todate\") - TO_DAYS(createTime)) <= $day_diff ORDER by createTime";
+
+        $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
+        $cursor->execute($agmlpath);
+
+        while(@fields = $cursor->fetchrow_array) {
+
+	    if($fields[2] eq "rcf" or $fields[3] eq "rcf") {
+
+            if ($fields[0] =~ /sl302.ittf_opt/) {
+              if ($plotVal eq "MemUsage") {
+                $plotmemvmcfsto[$npt] = $fields[1];
+                $plotmemvmclsto[$npt] = $fields[2];
+                if( $plotmemvmclsto[$npt] >= $maxval) {
+		    $maxval =  $plotmemvmclsto[$npt];
+                  }
+	        if( $plotmemvmcfsto[$npt] >= 0 and $plotmemvmcfsto[$npt] <= $minval ) {
+		  $minval =  $plotmemvmcfsto[$npt];
+	          }
+	   }else{
+		$plotvalvmcop[$npt] = $fields[1];
+		if( $plotvalvmcop[$npt] >= $maxval) {
+		    $maxval =  $plotvalvmcop[$npt];
+                  }
+	        if( $plotvalvmcop[$npt] >=0 and $plotvalvmcop[$npt] <= $minval ) {
+		  $minval =  $plotvalvmcop[$npt];
+	          }
+	       }
+	    }else{                
+              if ($plotVal eq "MemUsage") {
+                $plotmemvmcfstd[$npt] = $fields[1];
+                $plotmemvmclstd[$npt] = $fields[2];
+		if( $plotmemvmclstd[$npt] >= $maxval) {
+		    $maxval =  $plotmemvmclstd[$npt];
+                  }
+	        if( $plotmemvmcfstd[$npt] >= 0 and $plotmemvmcfstd[$npt]  <= $minval ) {
+		  $minval =  $plotmemvmcfstd[$npt];
+	          }
+	   }else{
+ 		$plotvaldg[$npt] = $fields[1];
+                if( $plotvalvmcdg[$npt] >= $maxval) {
+		    $maxval =  $plotvalvmcdg[$npt];
+                  }
+	        if( $plotvalvmcdg[$npt] >= 0 and $plotvalvmcdg[$npt] <= $minval ) {
+		  $minval =  $plotvalvmcdg[$npt];
+	          }
+              }
+	    }
+	  }
+	}
+
+#########
+}
 
 &StDbTJobsDisconnect();
 
@@ -413,7 +488,7 @@ my $graph = new GD::Graph::linespoints(650,500);
 
 
 if ($plotVal eq "MemUsage") {
-    @data = (\@libtag, \@plotmemfsto, \@plotmemlsto, \@plotmemfstd, \@plotmemlstd, \@plotmemfstpdsf, \@plotmemlstpdsf);
+    @data = (\@libtag, \@plotmemfsto, \@plotmemlsto, \@plotmemfstd, \@plotmemlstd, \@plotmemfstpdsf, \@plotmemlstpdsf,\@plotmemvmcfsto, \@plotmemvmclsto, \@plotmemvmcfstd, \@plotmemvmclstd );
 
     $legend[0] = "MemUsageFirst(optimized,rcf)";
     $legend[1] = "MemUsageLast(optimized,rcf)";
@@ -421,16 +496,22 @@ if ($plotVal eq "MemUsage") {
     $legend[3] = "MemUsageLast(nonoptimized,rcf)";
     $legend[4] = "MemUsageFirst(pdsf)";
     $legend[5] = "MemUsageLast(pdsf)";
+    $legend[6] = "MemUsageFirst(optimized.AgML,rcf)";
+    $legend[7] = "MemUsageLast(optimized.AgML,rcf)";
+    $legend[8] = "MemUsageFirst(nonoptimized.AgML,rcf)";
+    $legend[9] = "MemUsageLast(nonoptimized.AgML,rcf)";
 
     $mplotVal="MemUsageFirstEvent,MemUsageLastEvent";
 
   } else {
 
-    @data = (\@libtag, \@plotvalop, \@plotvaldg, \@plotvalpdsf);
+    @data = (\@libtag, \@plotvalop, \@plotvaldg, \@plotvalpdsf, \@plotvalvmcop, \@plotvalvmcdg );
 
     $legend[0] = "$plotVal"."(optimized,rcf)";
     $legend[1] = "$plotVal"."(nonoptimized,rcf)";
     $legend[2] = "$plotVal"."(pdsf)";
+    $legend[3] = "$plotVal"."(optimized.AgML,rcf)";
+    $legend[4] = "$plotVal"."(nonoptimized.AgML,rcf)";
 
 }
 
@@ -462,7 +543,7 @@ if ($plotVal eq "MemUsage") {
                 y_max_value => $max_y,
                 y_number_format => \&y_format,
                 labelclr => "lblack",
-                dclrs => [ qw(lblack lred lgreen lpurple lgray lblue ) ],
+                dclrs => [ qw(lblack lred lgreen lpurple lgray lblue lorange lyellow lpink ) ],
                 line_width => 2,
                 markers => [ 2,3,4,5,6,7,8,9],
                 marker_size => 2,
