@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.61 2012/05/07 14:44:27 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.62 2012/05/07 15:06:41 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.62  2012/05/07 15:06:41  didenko
+# added AgML test
+#
 # Revision 1.61  2012/05/07 14:44:27  didenko
 # added AgML test
 #
@@ -338,7 +341,7 @@ while($n_weeks >= 0) {
 		    }
 		}
 	    }
-	  }
+	}
 
 ############
 
@@ -374,6 +377,7 @@ while($n_weeks >= 0) {
 		    if ($point13[$d_week+7*$rn_weeks] < $min_y) {
 			$min_y = $point13[$d_week+7*$rn_weeks];
 		    }
+		 }
 		} elsif($fields[0] =~ /sl302.ittf/) {
 		$point10[$d_week+7*$rn_weeks] = $fields[1];
 		if($point10[$d_week+7*$rn_weeks] > $max_y) {
@@ -392,13 +396,12 @@ while($n_weeks >= 0) {
 		    }
 		}
 	     }
-	  }
+	    }
 	}
 #############
 
-	}
     $n_weeks--;
-}
+ }
 
 &StDbTJobsDisconnect();
 @data = ();
