@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.62 2012/05/07 15:06:41 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.63 2012/05/07 19:25:08 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.63  2012/05/07 19:25:08  didenko
+# add color
+#
 # Revision 1.62  2012/05/07 15:06:41  didenko
 # added AgML test
 #
@@ -477,7 +480,7 @@ $graph = new GD::Graph::linespoints(550+50*$weeks,500);
 		y_max_value => $max_y,
 		y_number_format => \&y_format,
 		labelclr => "lred",
-		dclrs => [ qw(lblack lred lblue lgreen lpink lpurple lorange lyellow ) ],
+		dclrs => [ qw(lblack lred lblue lgreen lpink lpurple lorange lyellow dbrown ) ],
 		line_width => 2,
 		markers => [ 2,3,4,5,6,7,8,9],
 		marker_size => 2,
