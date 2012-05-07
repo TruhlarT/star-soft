@@ -1,10 +1,10 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.60 2012/05/07 14:40:25 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.61 2012/05/07 14:44:27 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.60  2012/05/07 14:40:25  didenko
+# Revision 1.61  2012/05/07 14:44:27  didenko
 # added AgML test
 #
 # Revision 1.59  2012/03/29 20:10:40  didenko
@@ -393,6 +393,7 @@ while($n_weeks >= 0) {
 		}
 	     }
 	  }
+	}
 #############
 
 	}
