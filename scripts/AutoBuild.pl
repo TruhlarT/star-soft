@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.47 2012/04/30 20:34:49 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.48 2012/05/08 14:20:00 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -39,8 +39,7 @@ $DFILE   = "RELEASE.date";
 #
 # For now, we have only one case but there may be many.
 #
-%RECOVER = ("Disk quota exceeded",
-	    "mgr/CleanLibs");
+%RECOVER = ("Disk quota exceeded",     "mgr/CleanLibs");
 
 	    #"no newline at end of file",
 	    #"mgr/CleanLibs && /usr/bin/find /tmp -type f -user \$USER -exec /bin/rm -f {} \\;");
@@ -747,8 +746,10 @@ COMPILE_BEGIN:
 			    chmod(0770,"$RECVF$i.recover");
 
 			    push(@REPORT,"<P>");
-			    push(@REPORT,"%%REF%%<LI>Recovery for $line<BR>");
 			    if( &Execute("$RECVF$i.recover") == 0){
+				push(@REPORT,"%%REF%%<LI>Error Recovery was a SUCCESS for [$re] - ".
+				     "If subsequent pass succeeds, ignore previous failure<BR>");
+				#push(@REPORT,"%%REF%%<LI>");
 				# we recovered successfully, start all over again
 				$PASSN++;                     # increment counter
 				ABUnlink("$TMPNM$i");          # clean-up compile pass exec
