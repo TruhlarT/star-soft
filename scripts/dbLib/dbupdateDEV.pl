@@ -12,11 +12,11 @@
 
 
 use DBI;
-use Mysql;
 use File::Find;
 use Net::FTP;
 use Class::Struct;
 use File::Basename;
+use Mysql;
 
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
@@ -24,7 +24,7 @@ $dbpass="";
 $dbname="LibraryJobs";
 
 $JobStatusT = "JobStatus";
-$FilesCatalog = "FilesCatalog";
+$FilesCatalogT = "FilesCatalog";
 
 my $TOP_DIRD = "/star/rcf/test/dev/";
 
@@ -342,6 +342,7 @@ struct JFileAttr => {
 #####  select all files from JobStatusT from testDay direcroties
 
  $sql="SELECT jobID, path, logFile, createTime, avail FROM $JobStatusT WHERE path LIKE '%/dev/%$testDay%' AND avail = 'Y' ";
+
    $cursor =$dbh->prepare($sql)
     || die "Cannot prepare statement: $DBI::errstr\n";
    $cursor->execute;
@@ -987,10 +988,10 @@ foreach  $eachOutNDir (@OUT_DIR) {
 
 #####  select all files from FilesCatalog from testDay directories
 
- $sql="SELECT jobID, path, fName, createTime, component, avail FROM $FilesCatalogT WHERE path LIKE '%$testDay%' AND avail = 'Y'";
+ $sql="SELECT jobID, path, fName, createTime, component, avail FROM $FilesCatalogT WHERE path LIKE '%$testDay%' AND avail = 'Y' ";
    $cursor =$dbh->prepare($sql)
     || die "Cannot prepare statement: $DBI::errstr\n";
-   $cursor->execute;
+    $cursor->execute;
  
     while(@fields = $cursor->fetchrow) {
      my $cols=$cursor->{NUM_OF_FIELDS};
