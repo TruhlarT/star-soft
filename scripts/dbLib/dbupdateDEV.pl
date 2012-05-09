@@ -281,6 +281,7 @@ struct JFileAttr => {
  my @maker_size = ();
  my $jrun = "Run not completed";
  my $nevent_vtx = 0;
+ my $numevt_vtx = 0;
  my $tot_tracks = 0;
  my $tot_vertices = 0;
  my $tot_prtracks = 0;
@@ -439,6 +440,7 @@ my $pyear = 0;
  $jrun = "Run not completed";
  $EvDone = 0;
  $nevent_vtx = 0;
+ $numevt_vtx = 0;
  $perct_usb = 0;
  $avr_tracks = 0;
  $avr_vertices = 0;
@@ -1502,7 +1504,7 @@ $jrun = "Run not completed";
               $no_prtracks_1vtx = 0;
               $no_prtrck_nfit15_1vtx = 0;
               @vrank = ();
-              $vrank[0] = -0.1;              
+              $vrank[0] = -0.01 ;              
 
             for ($ik = 1; $ik< 120; $ik++)  { 
               $string = $logfile[$num_line + $ik];
@@ -1561,8 +1563,8 @@ $jrun = "Run not completed";
         } 
        }
 
-             if ($vrank[0] >= 0.0000001) {
-             $nevent_vtx++;
+             if ($vrank[0] > 0.00000001) {
+              $numevt_vtx++;
               $no_prtracks_1vtx = $no_prtracks[0];
               $no_prtrck_nfit15_1vtx  = $no_prtrck_nfit15[0]; 
 
@@ -1572,6 +1574,10 @@ $jrun = "Run not completed";
               $tot_prtrck_nfit15_1vtx += $no_prtrck_nfit15_1vtx;                  
 
            }
+             if ($npr >= 1 ) {
+              $nevent_vtx++;
+          }
+
       }
    }
 
@@ -1680,11 +1686,7 @@ $jrun = "Run not completed";
     $perct_usb        = ($nevt/$EvCom)*100;
     $avr_tracks       = $tot_tracks/$EvCom;
     $avr_vertices     = $tot_vertices/$EvCom;
-    $avr_prtracks     = $tot_prtracks/$EvCom;
     $avr_trck_nfit15  = $tot_trck_nfit15/$EvCom;   
-    $avr_prtrck_nfit15  = $tot_prtrck_nfit15/$EvCom; 
-    $avr_prtracks_1vtx = $tot_prtracks_1vtx/$EvCom;
-    $avr_prtrck_nfit15_1vtx = $tot_prtrck_nfit15_1vtx/$EvCom;  
 
     $avr_knvertices = $tot_knvertices/$EvCom;
     $avr_xivertices = $tot_xivertices/$EvCom;
@@ -1697,6 +1699,20 @@ $jrun = "Run not completed";
     $avr_kink_usb = $tot_knvertices/$nevt;
     $avr_xi_usb =$tot_xivertices/$nevt ;
 }
+
+       if($numevt_vtx >= 1 ) {
+    $avr_prtracks     = $tot_prtracks/$numevt_vtx;
+    $avr_prtrck_nfit15  = $tot_prtrck_nfit15/$numevt_vtx; 
+    $avr_prtracks_1vtx = $tot_prtracks_1vtx/$numevt_vtx;
+    $avr_prtrck_nfit15_1vtx = $tot_prtrck_nfit15_1vtx/$numevt_vtx;  
+ 
+    }else{
+    $avr_prtracks = 0;
+    $avr_prtrck_nfit15  = 0; 
+    $avr_prtracks_1vtx = 0 ;
+    $avr_prtrck_nfit15_1vtx = 0 ;
+   } 
+
        if($nevent_vtx >= 1 ) {
    $avr_prvertx      = $no_prvertx/$nevent_vtx;
     }else{
@@ -1704,7 +1720,7 @@ $jrun = "Run not completed";
    } 
 
 
-  print "Number of vertices = ", $no_prvertx,"   ", "Number of events ", $no_event,"  ",$EvCom,"  ",$nevent_vtx, "  Average No vtx = ", $avr_prvertx,"   ","Avg no primary tracks   ", $avr_prtracks,"   ",$avr_prtrck_nfit15, "\n"; 
+  print "Number of vertices = ", $no_prvertx,"   ", "Number of events ", $no_event,"  ",$EvCom,"  ",$nevent_vtx,"  ",$numevt_vtx, "  Average No vtx = ", $avr_prvertx,"   ","Avg no primary tracks   ", $avr_prtracks,"   ",$avr_prtrck_nfit15, "\n"; 
 
     if ( defined $maker_size[0]) { 
     $memFst = $maker_size[0];
