@@ -10,15 +10,21 @@
 # Run this script next day after jobs have been submitted
 ##############################################################################
 
+
+use DBI;
 use Mysql;
 use File::Find;
 use Net::FTP;
 use Class::Struct;
 use File::Basename;
 
-require "/afs/rhic.bnl.gov/star/packages/scripts/dbLib/dbTJobsSetup.pl";
+$dbhost="duvall.star.bnl.gov";
+$dbuser="starreco";
+$dbpass="";
+$dbname="LibraryJobs";
 
-#require "dbTJobsSetup.pl";
+$JobStatusT = "JobStatus";
+$FilesCatalog = "FilesCatalog";
 
 my $TOP_DIRD = "/star/rcf/test/dev/";
 
@@ -562,7 +568,7 @@ my $pyear = 0;
           $newAvail = "N";
   print  "Changing availability for test files", "\n";
   print  "files to be updated:", $pvjbId, " % ",$pvpath, " % ",$pvTime, " % ",$newAvail, "\n"; 
-    &updateJSTable();
+   &updateJSTable();
 
       $mavail = 'Y';
       $myID = 100000000 + $new_id;
@@ -570,9 +576,8 @@ my $pyear = 0;
       $crCode = "n/a"; 
       $idHash{$fullname} = $mjID;
 
-  print  "Filling JobStatus with DEV log files for testDay and beforeDay\n";
   print  "files to be inserted:", $mjID, " % ",$mpath, " % ",$timeS , " % ", $memFst," % ",$memLst," % ", $mavail, "\n";  
-     &fillJSTable();
+    &fillJSTable();
 
    }else{
    }  
@@ -689,7 +694,7 @@ my $pyear = 0;
 	  if($mpath eq  $pvpath) {
             $newAvail = "N";
    print  "Changing avalability for files have been replaced  :", $pvjbId, " % ",$pvpath," % ",$pvfile, "\n";
-     &updateJSTable();
+    &updateJSTable();
 
     }
 	}
@@ -1331,9 +1336,8 @@ sub  updateJSTable {
  my $end_line; 
  my $npr = 0;
  my $nevt = 0;
- my $max_npr = 0;
- my $max_npr_nfit15 = 0;
  my $no_prvertx = 0;
+ my @vrank = ();
 
     $tot_tracks = 0;
     $tot_vertices = 0;
@@ -1359,9 +1363,9 @@ sub  updateJSTable {
 
  $nevent_vtx = 0;
 
-#  if($fl_log =~ /st_physics_13044030_raw_2010001.log.log/) {
+#  if($fl_log =~ /st_physics_13115004_raw_2010002.log/ ) {
 
-  $nevent_vtx = `grep '# primary vertex(  0)' $fl_log | wc -l ` ;
+# $nevent_vtx = `grep '#V\[  0\]' $fl_log | wc -l` ;
 
 # print "Number of events with primary vertex  ",$nevent_vtx, "\n";
 
@@ -1449,9 +1453,9 @@ $jrun = "Run not completed";
 #  get memory size
       if ($num_line > 500){
 	if( $line =~ /EndMaker/ and $line =~ /total/ ) {
+
         @size_line = split(" ",$line); 
-        
-          $mymaker = $size_line[3];
+        $mymaker = $size_line[3];
         @memSize = split("=",$size_line[6]);
         if( $mymaker eq "outputStream:"){
 
@@ -1470,8 +1474,6 @@ $jrun = "Run not completed";
   @nmbx = ();
   @word_tr = ();
   $npr = 0;
-  $max_npr = 0;
-  $max_npr_nfit15 = 0;
    
            my  $string = $logfile[$num_line];
               chop $string; 
@@ -1498,60 +1500,79 @@ $jrun = "Run not completed";
               $npr = 0;
               $no_prtracks_1vtx = 0;
               $no_prtrck_nfit15_1vtx = 0;
-               
-            for ($ik = 2; $ik< 120; $ik++)  { 
+              @vrank = ();
+              $vrank[0] = -0.1;              
+
+            for ($ik = 1; $ik< 120; $ik++)  { 
               $string = $logfile[$num_line + $ik];
               chop $string;
+
+           if(  $string =~ /QA :INFO/ and $string =~ /Rank/ and $string =~ /#V/ ) {
+
+              @word_tr = ();
+              @nmbx = ();
+              @word_tr = split (":",$string);
+              @nmbx = split (" ",$word_tr[4]);
+#         print "Check splitting   ",$word_tr[3]," %  ", $word_tr[4]," %  ", $word_tr[5], "\n"; 
+             $vrank[$npr] = $nmbx[0];
             
-           if( $string =~ /primary vertex/ and $string =~ /QA :INFO/ ) {
+             my $string2 = $logfile[$num_line + $ik+1];
+             chop $string2;            
+             my  $string3 = $logfile[$num_line + $ik+2];
+             chop $string3;
+
+          if( $string2 =~ /MessageKey/ and $string2 =~ /primary all/ ) {
              $no_prvertx++;
+              @word_tr = split /=/,$string2;
+              @nmb =  split ("'",$word_tr[3]);
+              $no_prtracks[$npr] = $nmb[1];   
+          }
 
-              @word_tr = split /:/,$string;
-              @nmb =  split (",",$word_tr[6]);
-              $no_prtracks[$npr] = $nmb[0];
-              @nmbx =  split (" ",$word_tr[6]);
+            if( $string3 =~ /MessageKey/ and $string3 =~ /primary good/ ) {
+              @word_tr = ();
+              @nmbx = ();
+              @word_tr = split /=/,$string3;
+              @nmbx =  split ("'",$word_tr[3]);
               $no_prtrck_nfit15[$npr]  = $nmbx[1];
- 
-# if($fl_log =~ /st_physics_13044030_raw_2010001.log/) {
 
-#  print "Primary tracks  ", $no_prtracks[$npr], "   ", $no_prtrck_nfit15[$npr], "\n";
+           }
+#           print "Vertex rank ", $npr,"   ",$vrank[$npr],"   ", $no_prtracks[$npr], "   ", $no_prtrck_nfit15[$npr],"\n"; 
 
-# }
-              if( $no_prtracks[$npr] >= $max_npr) {
-               $max_npr_nfit15 = $no_prtrck_nfit15[$npr];
-               $max_npr = $no_prtracks[$npr];
-              } 
               $npr++;
- 
-             }elsif( $string =~ /V0 vertices/) { 
+          }
+
+#######
+             if( $string =~ /V0 vertices/) { 
               @word_tr = split /:/,$string;
               @nmb =  split /</,$word_tr[2];
               $no_vertices = $nmb[0];              
               $tot_vertices += $no_vertices;
-            } elsif( $string =~ /Xi vertices/) { 
-              @word_tr = split /:/,$string;
-              @nmb =  split /</,$word_tr[2];
-              $no_xivertices = $nmb[0];
-              $tot_xivertices += $no_xivertices;
-            } elsif( $string =~ /Kink vertices/) {
-              @word_tr = split /:/,$string;
-              @nmb =  split /</,$word_tr[2];
-              $no_knvertices = $nmb[0];
-              $tot_knvertices += $no_knvertices;
+#            } elsif( $string =~ /Xi vertices/) { 
+#              @word_tr = split /:/,$string;
+#              @nmb =  split /</,$word_tr[2];
+#              $no_xivertices = $nmb[0];
+#              $tot_xivertices += $no_xivertices;
+#            } elsif( $string =~ /Kink vertices/) {
+#              @word_tr = split /:/,$string;
+#              @nmb =  split /</,$word_tr[2];
+#              $no_knvertices = $nmb[0];
+#              $tot_knvertices += $no_knvertices;
         } 
-      }  
- 
-   }
-  
+       }
+
+             if ($vrank[0] >= 0.0000001) {
+             $nevent_vtx++;
               $no_prtracks_1vtx = $no_prtracks[0];
               $no_prtrck_nfit15_1vtx  = $no_prtrck_nfit15[0]; 
 
-               $tot_prtracks += $max_npr;
-              $tot_prtrck_nfit15 += $max_npr_nfit15;
+              $tot_prtracks += $no_prtracks[0];
+              $tot_prtrck_nfit15 += $no_prtrck_nfit15[0];
               $tot_prtracks_1vtx += $no_prtracks_1vtx;
               $tot_prtrck_nfit15_1vtx += $no_prtrck_nfit15_1vtx;                  
 
-  }
+           }
+      }
+   }
 
 
 #  check if job crashed due to break_buss_error
@@ -1602,9 +1623,8 @@ $jrun = "Run not completed";
 
 ###### 
      
-       }
- 
-#     }
+       } 
+#     }       # $fl_log
 #### check here
    } 
       $EvDone = $no_event;
@@ -1682,7 +1702,8 @@ $jrun = "Run not completed";
    $avr_prvertx      = 0;
    } 
 
-#  print "Number of vertices = ", $no_prvertx,"   ", "Number of events ", $no_event,"  ",$EvCom,"  ",$nevent_vtx, "  Average No vtx = ", $avr_prvertx, "\n"; 
+
+  print "Number of vertices = ", $no_prvertx,"   ", "Number of events ", $no_event,"  ",$EvCom,"  ",$nevent_vtx, "  Average No vtx = ", $avr_prvertx,"   ","Avg no primary tracks   ", $avr_prtracks,"   ",$avr_prtrck_nfit15, "\n"; 
 
     if ( defined $maker_size[0]) { 
     $memFst = $maker_size[0];
@@ -1701,3 +1722,19 @@ $jrun = "Run not completed";
 # }  # close log file  
 
 }
+
+######################
+sub StDbTJobsConnect {
+    $dbh = DBI->connect("dbi:mysql:$dbname:$dbhost", $dbuser, $dbpass)
+        || die "Cannot connect to db server $DBI::errstr\n";
+}
+
+######################
+sub StDbTJobsDisconnect {
+    $dbh = $dbh->disconnect() || die "Disconnect failure $DBI::errstr\n";
+}
+
+
+##########################
+
+
