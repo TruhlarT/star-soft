@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.63 2012/05/07 19:25:08 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.64 2012/05/09 15:17:26 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.64  2012/05/09 15:17:26  didenko
+# move db connection to this script
+#
 # Revision 1.63  2012/05/07 19:25:08  didenko
 # add color
 #
@@ -96,7 +99,12 @@ BEGIN {
  use CGI::Carp qw(fatalsToBrowser carpout);
 }
 
-require "/afs/rhic.bnl.gov/star/packages/scripts/dbLib/dbTJobsSetup.pl";
+$dbhost="duvall.star.bnl.gov";
+$dbuser="starreco";
+$dbpass="";
+$dbname="LibraryJobs";
+
+my $JobStatusT = "JobStatus";
 
 use CGI qw(:standard);
 use GD;
@@ -498,6 +506,20 @@ $graph = new GD::Graph::linespoints(550+50*$weeks,500);
     print STDOUT $graph->plot(\@data)->$format();     
 }
 
+
+######################
+sub StDbTJobsConnect {
+    $dbh = DBI->connect("dbi:mysql:$dbname:$dbhost", $dbuser, $dbpass)
+        || die "Cannot connect to db server $DBI::errstr\n";
+}
+
+######################
+sub StDbTJobsDisconnect {
+    $dbh = $dbh->disconnect() || die "Disconnect failure $DBI::errstr\n";
+}
+
+
+##########################
 
 sub y_format
 {
