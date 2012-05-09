@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.64 2012/05/09 15:17:26 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.65 2012/05/09 15:44:39 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.65  2012/05/09 15:44:39  didenko
+# minor fixes
+#
 # Revision 1.64  2012/05/09 15:17:26  didenko
 # move db connection to this script
 #
@@ -99,16 +102,18 @@ BEGIN {
  use CGI::Carp qw(fatalsToBrowser carpout);
 }
 
+use DBI;
+use CGI qw(:standard);
+use GD;
+use GD::Graph::linespoints;
+use Mysql;
+
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
 $dbpass="";
 $dbname="LibraryJobs";
 
-my $JobStatusT = "JobStatus";
-
-use CGI qw(:standard);
-use GD;
-use GD::Graph::linespoints;
+$JobStatusT = "JobStatus";
 
 my $query = new CGI;
 
