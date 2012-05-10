@@ -90,6 +90,8 @@ my $thistime;
  
  ##### setup output directories for thisday
 
+ $testDay = "Tue";
+
  for ($i = 0; $i < scalar(@node_dir); $i++) {
 
     $TDIR[$i] = $TOP_DIRD . $node_dir[$i]."/".$testDay."/*/*";
@@ -1518,6 +1520,7 @@ $jrun = "Run not completed";
              $vrank[$npr] = $nmbx[0];
 
           if( $word_tr[5] =~ /TPC/ ) {
+             $no_prvertx++;
             @nmb = ();
             @nmb = split (",",$word_tr[6]);             
             $no_prtracks[$npr] = $nmb[0]; 
@@ -1559,11 +1562,11 @@ $jrun = "Run not completed";
               @nmb =  split /</,$word_tr[2];
               $no_vertices = $nmb[0];              
               $tot_vertices += $no_vertices;
-#            } elsif( $string =~ /Xi vertices/) { 
-#              @word_tr = split /:/,$string;
-#              @nmb =  split /</,$word_tr[2];
-#              $no_xivertices = $nmb[0];
-#              $tot_xivertices += $no_xivertices;
+            } elsif( $string =~ /Xi vertices/) { 
+              @word_tr = split /:/,$string;
+              @nmb =  split /</,$word_tr[2];
+              $no_xivertices = $nmb[0];
+              $tot_xivertices += $no_xivertices;
 #            } elsif( $string =~ /Kink vertices/) {
 #              @word_tr = split /:/,$string;
 #              @nmb =  split /</,$word_tr[2];
