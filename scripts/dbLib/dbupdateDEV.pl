@@ -1199,9 +1199,7 @@ foreach  $eachOutNDir (@OUT_DIR) {
 	 }
 }
 
-##### fill in FilesCatalog with new test files   
-
-          
+##### fill in FilesCatalog with new test files             
 
 ##### DB disconnect
 
@@ -1366,7 +1364,7 @@ sub  updateJSTable {
 
  $nevent_vtx = 0;
 
-#  if($fl_log =~ /st_physics_13115004_raw_2010002.log/ ) {
+#  if($fl_log =~ /st_physics_7155010_raw_1020003.log/ ) {
 
 # $nevent_vtx = `grep '#V\[  0\]' $fl_log | wc -l` ;
 
@@ -1516,9 +1514,19 @@ $jrun = "Run not completed";
               @nmbx = ();
               @word_tr = split (":",$string);
               @nmbx = split (" ",$word_tr[4]);
-#         print "Check splitting   ",$word_tr[3]," %  ", $word_tr[4]," %  ", $word_tr[5], "\n"; 
+#         print "Check splitting   ",$word_tr[3]," %  ", $word_tr[4]," %  ", $word_tr[5]," % ", $word_tr[6], "\n"; 
              $vrank[$npr] = $nmbx[0];
-            
+
+          if( $word_tr[5] =~ /TPC/ ) {
+            @nmb = ();
+            @nmb = split (",",$word_tr[6]);             
+            $no_prtracks[$npr] = $nmb[0]; 
+            $no_prtrck_nfit15[$npr]  = $nmb[1];
+
+#  print "Check primary tracks for TPC  ", $vrank[$npr],"   ",$no_prtracks[$npr],"   ",$no_prtrck_nfit15[$npr] , "\n";
+
+         }else{ 
+           
              my $string2 = $logfile[$num_line + $ik+1];
              chop $string2;            
              my  $string3 = $logfile[$num_line + $ik+2];
@@ -1541,6 +1549,7 @@ $jrun = "Run not completed";
            }
 #           print "Vertex rank ", $npr,"   ",$vrank[$npr],"   ", $no_prtracks[$npr], "   ", $no_prtrck_nfit15[$npr],"\n"; 
 
+           }
               $npr++;
           }
 
@@ -1736,7 +1745,8 @@ $jrun = "Run not completed";
 # print "Memory size:   ",$memFst, "   ", $memLst, "\n";
    
    close (LOGFILE);
-# }  # close log file  
+
+#  } # close log file
 
 }
 
