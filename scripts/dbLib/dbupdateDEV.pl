@@ -1517,17 +1517,6 @@ $jrun = "Run not completed";
 #         print "Check splitting   ",$word_tr[3]," %  ", $word_tr[4]," %  ", $word_tr[5]," % ", $word_tr[6], "\n"; 
              $vrank[$npr] = $nmbx[0];
 
-          if( $word_tr[5] =~ /TPC/ ) {
-             $no_prvertx++;
-            @nmb = ();
-            @nmb = split (",",$word_tr[6]);             
-            $no_prtracks[$npr] = $nmb[0]; 
-            $no_prtrck_nfit15[$npr]  = $nmb[1];
-
-#  print "Check primary tracks for TPC  ", $vrank[$npr],"   ",$no_prtracks[$npr],"   ",$no_prtrck_nfit15[$npr] , "\n";
-
-         }else{ 
-           
              my $string2 = $logfile[$num_line + $ik+1];
              chop $string2;            
              my  $string3 = $logfile[$num_line + $ik+2];
@@ -1550,7 +1539,6 @@ $jrun = "Run not completed";
            }
 #           print "Vertex rank ", $npr,"   ",$vrank[$npr],"   ", $no_prtracks[$npr], "   ", $no_prtrck_nfit15[$npr],"\n"; 
 
-           }
               $npr++;
           }
 
