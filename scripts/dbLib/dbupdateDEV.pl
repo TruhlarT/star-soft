@@ -90,8 +90,6 @@ my $thistime;
  
  ##### setup output directories for thisday
 
- $testDay = "Tue";
-
  for ($i = 0; $i < scalar(@node_dir); $i++) {
 
     $TDIR[$i] = $TOP_DIRD . $node_dir[$i]."/".$testDay."/*/*";
