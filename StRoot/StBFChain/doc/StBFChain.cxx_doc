@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.102 2012/05/07 14:04:53 fisyak Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.103 2012/05/11 19:36:03 fisyak Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -981,7 +981,7 @@ Bfc_st BFC[] = {
   {"BTofUtil" ,"" ,"","","" ,"StBTofUtil","Load StBTofUtil",kFALSE},
   {"MtdUtil" ,"" ,"","", "","StMtdUtil","Load StMtdUtil",kFALSE},
   {"StBichsel" ,"" ,"","","" ,"StBichsel","Load Bichsel model for dE/dx",kFALSE},
-  {"StEvent" ,"" ,"","globT,SCL,TRGDef,StBichsel,EmcUtil,TbUtil","" ,"StEvent","Load StEvent",kFALSE},
+  {"StEvent" ,"","","globT,SCL,TRGDef,StBichsel,EmcUtil,TbUtil,detDb","","StEvent","Load StEvent",kFALSE},
   {"SsdUtil" ,"" ,"","StarMagField,StEvent","" ,"Geom,StSsdUtil","Load SSD Util",kFALSE},
   {"EmcUtil" ,"" ,"","emc_T,geomT,StDbT","" ,"StEmcUtil","Load StEmcUtil",kFALSE},
   {"EEmcUtil" ,"" ,"","","" ,"StEEmcUtil","Load StEEmcUtil",kFALSE},
@@ -1202,7 +1202,7 @@ Bfc_st BFC[] = {
   {"StiTpc" ,"","","TpcDb,ITTF,tpc_T,dbutil,detDb,StarMagField,magF" ,"","StiTpc","Load StiTpc",kFALSE},
   {"StiSvt" ,"",""," " ,"","StSvtClassLibrary,StSvtDbMaker,StiSvt","Load StiSvt",kFALSE},
   {"StiSsd" ,"","","" ,"","StSsdUtil,StSsdDbMaker,StiSsd","Load StiSvt",kFALSE},
-  {"StiLibs" ,"","","StiTpc,StiSvt,StiSsd" ,"","StEEmcDbMaker","Load Sti Detector libs",kFALSE},
+  {"StiLibs" ,"","","StiTpc,StiSvt,StiSsd,BTofUtil" ,"","StEEmcDbMaker","Load Sti Detector libs",kFALSE},
   {"VFPPV" ,"" ,"","ctf_T,StiLib","StGenericVertexMaker"
    , "ctf,St_ctf,St_ctf_Maker,Minui,StGenericVertexMaker","... Pile-up proof vertex finder",kFALSE},
   {"VFPPVnoCTB" ,"" ,"","VFPPV","" ,"","... Pile-up proof vertex finder, noCTB",kFALSE},
@@ -2315,7 +2315,7 @@ Bfc_st BFC[] = {
   {"BTofUtil" ,"" ,"","","" ,"StBTofUtil","Load StBTofUtil",kFALSE},
   {"MtdUtil" ,"" ,"","", "","StMtdUtil","Load StMtdUtil",kFALSE},
   {"StBichsel" ,"" ,"","","" ,"StBichsel","Load Bichsel model for dE/dx",kFALSE},
-  {"StEvent" ,"" ,"","globT,SCL,TRGDef,StBichsel,EmcUtil,TbUtil","" ,"StEvent","Load StEvent",kFALSE},
+  {"StEvent" ,"","","globT,SCL,TRGDef,StBichsel,EmcUtil,TbUtil,detDb","","StEvent","Load StEvent",kFALSE},
   {"SsdUtil" ,"" ,"","StarMagField,StEvent","" ,"Geom,StSsdUtil","Load SSD Util",kFALSE},
   {"EmcUtil" ,"" ,"","emc_T,geomT,StDbT","" ,"StEmcUtil","Load StEmcUtil",kFALSE},
   {"EEmcUtil" ,"" ,"","","" ,"StEEmcUtil","Load StEEmcUtil",kFALSE},
@@ -2536,7 +2536,7 @@ Bfc_st BFC[] = {
   {"StiTpc" ,"","","TpcDb,ITTF,tpc_T,dbutil,detDb,StarMagField,magF" ,"","StiTpc","Load StiTpc",kFALSE},
   {"StiSvt" ,"",""," " ,"","StSvtClassLibrary,StSvtDbMaker,StiSvt","Load StiSvt",kFALSE},
   {"StiSsd" ,"","","" ,"","StSsdUtil,StSsdDbMaker,StiSsd","Load StiSvt",kFALSE},
-  {"StiLibs" ,"","","StiTpc,StiSvt,StiSsd" ,"","StEEmcDbMaker","Load Sti Detector libs",kFALSE},
+  {"StiLibs" ,"","","StiTpc,StiSvt,StiSsd,BTofUtil" ,"","StEEmcDbMaker","Load Sti Detector libs",kFALSE},
   {"VFPPV" ,"" ,"","ctf_T,StiLib","StGenericVertexMaker"
    , "ctf,St_ctf,St_ctf_Maker,Minui,StGenericVertexMaker","... Pile-up proof vertex finder",kFALSE},
   {"VFPPVnoCTB" ,"" ,"","VFPPV","" ,"","... Pile-up proof vertex finder, noCTB",kFALSE},
