@@ -89,6 +89,7 @@ my $thistime;
   print "Day Name: ",$thisday, " % ", "Index", $iday, "\n";
  
  ##### setup output directories for thisday
+ 
 
  for ($i = 0; $i < scalar(@node_dir); $i++) {
 
@@ -605,6 +606,7 @@ my $pyear = 0;
  $EvDone = 0;
  $perct_usb = 0;
  $nevent_vtx = 0; 
+ $numevt_vtx = 0;
  $avr_tracks = 0;
  $avr_prvertx = 0;
  $avr_vertices = 0;

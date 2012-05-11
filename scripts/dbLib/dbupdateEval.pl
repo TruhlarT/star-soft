@@ -634,6 +634,7 @@ my $libTr;
  $EvDone = 0;
  $perct_usb = 0;
  $nevent_vtx = 0;
+ $numevt_vtx = 0;
  $avr_tracks = 0;
  $avr_prvertx = 0;
  $avr_vertices = 0;
