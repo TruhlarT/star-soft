@@ -193,6 +193,7 @@ struct JFileAttr => {
  my @maker_size = ();
  my $jrun = "Run not completed";
  my $nevent_vtx = 0;
+ my $numevt_vtx = 0;
  my $tot_tracks = 0;
  my $tot_vertices = 0;
  my $tot_prtracks = 0;
@@ -324,6 +325,7 @@ my $pyear = 0;
  $jrun = "Run not completed";
  $EvDone = 0;
  $nevent_vtx = 0;
+ $numevt_vtx = 0;
  $perct_usb = 0; 
  $avr_tracks = 0;
  $avr_vertices = 0;
@@ -491,6 +493,7 @@ my $pyear = 0;
  $EvDone = 0;
  $perct_usb = 0;
  $nevent_vtx = 0;
+ $numevt_vtx = 0;
  $avr_tracks = 0;
  $avr_prvertx = 0;
  $avr_vertices = 0;
@@ -1191,6 +1194,7 @@ sub  updateJSTable {
  my $max_npr = 0;
  my $max_npr_nfit15 = 0;
  my $no_prvertx = 0;
+ my @vrank = ();
 
     $tot_tracks = 0;
     $tot_vertices = 0;
@@ -1216,7 +1220,8 @@ sub  updateJSTable {
 # print $fl_log, "\n";
 
  $nevent_vtx = 0;
- $nevent_vtx = `grep 'primary vertex(0):' $fl_log | wc -l ` ;  
+
+# $nevent_vtx = `grep '# primary vertex(  0)' $fl_log | wc -l ` ;  
 
   open (LOGFILE, $fl_log ) or die "cannot open $fl_log: $!\n";
 
@@ -1344,27 +1349,48 @@ $jrun = "Run not completed";
               $npr = 0;
               $no_prtracks_1vtx = 0;
               $no_prtrck_nfit15_1vtx = 0;
+              @vrank = ();
+              $vrank[0] = -0.01 ;
             
             for ($ik = 2; $ik< 100; $ik++)  { 
               $string = $logfile[$num_line + $ik];
               chop $string;
 
-           if( $string =~ /primary vertex/ and $string =~ /QA :INFO/ ) {
-             $no_prvertx++;
+           if(  $string =~ /QA :INFO/ and $string =~ /Rank/ and $string =~ /#V/ ) {
+              @word_tr = ();
+              @nmbx = ();
+              @word_tr = split (":",$string);
+              @nmbx = split (" ",$word_tr[4]);
+#         print "Check splitting   ",$word_tr[3]," %  ", $word_tr[4]," %  ", $word_tr[5]," % ", $word_tr[6], "\n";
+             $vrank[$npr] = $nmbx[0];
 
-              @word_tr = split /:/,$string;
-              @nmb =  split (",",$word_tr[6]);
-              $no_prtracks[$npr] = $nmb[0];
-              @nmbx =  split (" ",$word_tr[6]);
-              $no_prtrck_nfit15[$npr]  = $nmbx[0];
- 
-               if( $no_prtrck_nfit15[$npr] >= $max_npr_nfit15) {
-               $max_npr_nfit15 = $no_prtrck_nfit15[$npr];
-               $max_npr = $no_prtracks[$npr];
-              }
+             my $string2 = $logfile[$num_line + $ik+1];
+             chop $string2;
+             my  $string3 = $logfile[$num_line + $ik+2];
+             chop $string3;
+
+          if( $string2 =~ /MessageKey/ and $string2 =~ /primary all/ ) {
+             $no_prvertx++;
+              @word_tr = split /=/,$string2;
+              @nmb =  split ("'",$word_tr[3]);
+              $no_prtracks[$npr] = $nmb[1];
+          }
+
+            if( $string3 =~ /MessageKey/ and $string3 =~ /primary good/ ) {
+              @word_tr = ();
+              @nmbx = ();
+              @word_tr = split /=/,$string3;
+              @nmbx =  split ("'",$word_tr[3]);
+              $no_prtrck_nfit15[$npr]  = $nmbx[1];
+
+           }
+#           print "Vertex rank ", $npr,"   ",$vrank[$npr],"   ", $no_prtracks[$npr], "   ", $no_prtrck_nfit15[$npr],"\n";
+
               $npr++;
- 
-            }elsif( $string =~ /V0 vertices/) { 
+          }
+
+#######
+            if( $string =~ /V0 vertices/) { 
               @word_tr = split /:/,$string;
               @nmb =  split /</,$word_tr[2];
               $no_vertices = $nmb[0];              
@@ -1374,27 +1400,32 @@ $jrun = "Run not completed";
               @nmb =  split /</,$word_tr[2];
               $no_xivertices = $nmb[0];
               $tot_xivertices += $no_xivertices;
-            } elsif( $string =~ /Kink vertices/) {
-              @word_tr = split /:/,$string;
-              @nmb =  split /</,$word_tr[2];
-              $no_knvertices = $nmb[0];
-              $tot_knvertices += $no_knvertices;
+#            } elsif( $string =~ /Kink vertices/) {
+#              @word_tr = split /:/,$string;
+#              @nmb =  split /</,$word_tr[2];
+#              $no_knvertices = $nmb[0];
+#              $tot_knvertices += $no_knvertices;
 
          }
       }
-    }
 
+             if ($vrank[0] > 0.00000001) {
+              $numevt_vtx++;
               $no_prtracks_1vtx = $no_prtracks[0];
               $no_prtrck_nfit15_1vtx  = $no_prtrck_nfit15[0];
 
-              $tot_prtracks += $max_npr;
-              $tot_prtrck_nfit15 += $max_npr_nfit15;   
+              $tot_prtracks += $no_prtracks[0];
+              $tot_prtrck_nfit15 += $no_prtrck_nfit15[0];
               $tot_prtracks_1vtx += $no_prtracks_1vtx;
               $tot_prtrck_nfit15_1vtx += $no_prtrck_nfit15_1vtx;
 
-  }
+           }
+             if ($npr >= 1 ) {
+              $nevent_vtx++;
+          }
 
- #
+      }
+   }
 
 #  check if job crashed due to break_buss_error
       if($line =~ /bus error/) {
@@ -1499,11 +1530,7 @@ $jrun = "Run not completed";
     $perct_usb        = ($nevt/$EvCom)*100;
     $avr_tracks     = $tot_tracks/$EvCom;
     $avr_vertices   = $tot_vertices/$EvCom;
-    $avr_prtracks   = $tot_prtracks/$EvCom;
     $avr_trck_nfit15  = $tot_trck_nfit15/$EvCom;   
-    $avr_prtrck_nfit15  = $tot_prtrck_nfit15/$EvCom; 
-    $avr_prtracks_1vtx = $tot_prtracks_1vtx/$EvCom;
-    $avr_prtrck_nfit15_1vtx = $tot_prtrck_nfit15_1vtx/$EvCom;
 
     $avr_knvertices = $tot_knvertices/$EvCom;
     $avr_xivertices = $tot_xivertices/$EvCom;
@@ -1517,13 +1544,28 @@ $jrun = "Run not completed";
     $avr_xi_usb =$tot_xivertices/$nevt ; 
    }
 
+
+       if($numevt_vtx >= 1 ) {
+    $avr_prtracks     = $tot_prtracks/$numevt_vtx;
+    $avr_prtrck_nfit15  = $tot_prtrck_nfit15/$numevt_vtx;
+    $avr_prtracks_1vtx = $tot_prtracks_1vtx/$numevt_vtx;
+    $avr_prtrck_nfit15_1vtx = $tot_prtrck_nfit15_1vtx/$numevt_vtx;
+
+    }else{
+    $avr_prtracks = 0;
+    $avr_prtrck_nfit15  = 0;
+    $avr_prtracks_1vtx = 0 ;
+    $avr_prtrck_nfit15_1vtx = 0 ;
+   }
+
     if($nevent_vtx >= 1 ) {
     $avr_prvertx      = $no_prvertx/$nevent_vtx;
        }else{
     $avr_prvertx      = 0;
       }
 
-# print "Size of executable:  ", $EvDone, "  ", $no_event,"  ",$maker_size[$evtcomp  -1], "\n"; 
+  print "Number of vertices = ", $no_prvertx,"   ", "Number of events ", $no_event,"  ",$EvCom,"  ",$nevent_vtx,"  ",$numevt_vtx, "  Average No vtx = ", $avr_prvertx,"   ","Avg no primary tracks   ", $avr_prtracks,"   ",$avr_prtrck_nfit15, "\n";
+
 
     if ( defined $maker_size[0]) { 
     $memFst = $maker_size[0];
