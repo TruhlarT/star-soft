@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.48 2012/04/24 16:00:48 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.49 2012/05/14 16:17:19 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.49  2012/05/14 16:17:19  didenko
+# comment unusable fields
+#
 # Revision 1.48  2012/04/24 16:00:48  didenko
 # add UU test plots
 #
@@ -240,11 +243,11 @@ my @myplot =   (
 		"Average_NoXiVrt",
                 "Percent_of_usableEvents",
                 "Average_NoTracks_per_usableEvent",
-		"Average_NoPrimTrack_per_usableEvent",
+#		"Average_NoPrimTrack_per_usableEvent",
                 "Average_NoTracksNfit15_per_usableEvent",
-		"Average_NoPrimTrackNfit15_per_usableEvent",                 
-                "Average_NoV0_per_usableEvent",
-		"Average_NoXi_uper_sableEvent"                 
+#		"Average_NoPrimTrackNfit15_per_usableEvent",                 
+#                "Average_NoV0_per_usableEvent",
+#		"Average_NoXi_uper_sableEvent"                 
                 );   
 
 $query = new CGI;

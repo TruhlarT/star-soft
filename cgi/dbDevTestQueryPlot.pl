@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.65 2012/05/09 15:44:39 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.66 2012/05/14 16:13:59 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.66  2012/05/14 16:13:59  didenko
+# comment unusable fields
+#
 # Revision 1.65  2012/05/09 15:44:39  didenko
 # minor fixes
 #
@@ -134,15 +137,13 @@ my %plotHash = (
                 NoEvent_vertex => 'NoEventVtx',
                 Average_NoV0Vrt => 'avg_no_V0Vrt',
 		Average_NoXiVrt => 'avg_no_XiVrt',
-		Average_NoKinKVrt => 'avg_no_KinKVrt',
                 Percent_of_usableEvents => 'percent_of_usable_evt',
                 Average_NoTracks_per_usableEvent => 'avgNoTrack_usbevt',
-                Average_NoPrimTrack_per_usableEvent => 'avgNoPrTrack_1vtx_usbevt',
+#                Average_NoPrimTrack_per_usableEvent => 'avgNoPrTrack_1vtx_usbevt',
                 Average_NoTracksNfit15_per_usableEvent => 'avgNoTrackNfit15_usbevt',
-                Average_NoPrimTrackNfit15_per_usableEvent => 'avgNoPrTrackNfit15_1vtx_usbevt',
-                Average_NoV0_per_usableEvent => 'avgNoV0_usbevt',
-                Average_NoXi_per_sableEvent => 'avgNoXi_usbevt',
-                Average_NoKink_per_usableEvent => 'avgNoKink_usbevt'
+#                Average_NoPrimTrackNfit15_per_usableEvent => 'avgNoPrTrackNfit15_1vtx_usbevt',
+#                Average_NoV0_per_usableEvent => 'avgNoV0_usbevt',
+#                Average_NoXi_per_sableEvent => 'avgNoXi_usbevt',
                );
 
 my $set1    =  $query->param('set1');
