@@ -119,11 +119,11 @@ my @myplot =   (
 		"Average_NoXiVrt",
                 "Percent_of_usableEvents",
                 "Average_NoTracks_per_usableEvent",
-		"Average_NoPrimTrack_per_usableEvent",
+#		"Average_NoPrimTrack_per_usableEvent",
                 "Average_NoTracksNfit15_per_usableEvent",
-		"Average_NoPrimTrackNfit15_per_usableEvent",                 
-                "Average_NoV0_per_usableEvent",
-		"Average_NoXi_uper_sableEvent",
+#		"Average_NoPrimTrackNfit15_per_usableEvent",                 
+#               "Average_NoV0_per_usableEvent",
+#		"Average_NoXi_uper_sableEvent",
                   );   
 
 

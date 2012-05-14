@@ -142,11 +142,11 @@ my %plotHash = (
                 Average_NoXiVrt => 'avg_no_XiVrt',
                 Percent_of_usableEvents => 'percent_of_usable_evt',
                 Average_NoTracks_per_usableEvent => 'avgNoTrack_usbevt',
-                Average_NoPrimTrack_per_usableEvent => 'avgNoPrTrack_1vtx_usbevt',
+#                Average_NoPrimTrack_per_usableEvent => 'avgNoPrTrack_1vtx_usbevt',
                 Average_NoTracksNfit15_per_usableEvent => 'avgNoTrackNfit15_usbevt',
-                Average_NoPrimTrackNfit15_per_usableEvent => 'avgNoPrTrackNfit15_1vtx_usbevt',
-                Average_NoV0_per_usableEvent => 'avgNoV0_usbevt',
-                Average_NoXi_per_sableEvent => 'avgNoXi_usbevt',
+#                Average_NoPrimTrackNfit15_per_usableEvent => 'avgNoPrTrackNfit15_1vtx_usbevt',
+#                Average_NoV0_per_usableEvent => 'avgNoV0_usbevt',
+#                Average_NoXi_per_sableEvent => 'avgNoXi_usbevt',
                );
 
 
