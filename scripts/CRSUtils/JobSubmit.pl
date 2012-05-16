@@ -548,6 +548,7 @@ if ( $ThisYear == 2005 ){
 	$DCHAIN{"AuAu"} = "P2012a,AgML,mtdDat,btof,fmsDat,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
 	$DCHAIN{"PPPP"} = "pp2012a,AgML,mtdDat,btof,fmsDat,VFPPVnoCTB,beamline,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
 	$DCHAIN{"UU"}   = $DCHAIN{"AuAu"};
+	$DCHAIN{"CUAU"} = $DCHAIN{"AUCU"} =  $DCHAIN{"AuAu"}.",QAalltrigs";
     }
 
     # allow chain switch on condition matching
@@ -563,6 +564,7 @@ if ( $ThisYear == 2005 ){
     $SCALIB{"AuAu"}      = "OptLaser";
     $SCALIB{"PPPP"}      = "OptLaser";
     $SCALIB{"UU"}        = "OptLaser";
+    $SCALIB{"CUAU"}      = $SCALIB{"AUCU"} = "OptLaser";
 
 } else {
     # Well, at first you may get that message ... should tell you that
