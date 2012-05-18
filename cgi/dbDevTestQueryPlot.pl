@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.66 2012/05/14 16:13:59 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.67 2012/05/18 18:13:44 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.67  2012/05/18 18:13:44  didenko
+# removed plots for tpt tracking
+#
 # Revision 1.66  2012/05/14 16:13:59  didenko
 # comment unusable fields
 #
@@ -129,6 +132,7 @@ my %plotHash = (
                 MemUsage => 'memUsageF, memUsageL',
                 CPU_per_Event => 'CPU_per_evt_sec',
 		RealTime_per_Event => 'RealTime_per_evt',
+                RealTime_per_CPU => 'RealTime_per_evt, CPU_per_evt_sec',  
                 Average_NoTracks => 'avg_no_tracks',
 		Average_NoPrimaryT => 'avg_no_primaryT',
                 Average_NoTracksNfit15 => 'avg_no_tracksnfit15',
@@ -305,23 +309,6 @@ while($n_weeks >= 0) {
 			$min_y = $point3[$d_week+7*$rn_weeks];
 		    }
 		}
-           }elsif($fields[0] =~ /sl302_opt/) {
-		$point4[$d_week+7*$rn_weeks] = $fields[1];
-		if($point4[$d_week+7*$rn_weeks] > $max_y) {
-		    $max_y = $point4[$d_week+7*$rn_weeks];
-		}
-		if($point4[$d_week+7*$rn_weeks] < $min_y) {
-		    $min_y = $point4[$d_week+7*$rn_weeks];
-		}
-		if ($plotVal eq "MemUsage") {
-		    $point5[$d_week+7*$rn_weeks] = $fields[2];
-		    if ($point5[$d_week+7*$rn_weeks] > $max_y) {
-			$max_y = $point5[$d_week+7*$rn_weeks];
-		    }
-		    if ($point5[$d_week+7*$rn_weeks] < $min_y) {
-			$min_y = $point5[$d_week+7*$rn_weeks];
-		    }
-		}
           }elsif($fields[0] =~ /sl302.ittf/) {
 		$point6[$d_week+7*$rn_weeks] = $fields[1];
 		if($point6[$d_week+7*$rn_weeks] > $max_y) {
@@ -339,25 +326,8 @@ while($n_weeks >= 0) {
 			$min_y = $point7[$d_week+7*$rn_weeks];
 		    }
 		}
-
-	    }elsif($fields[0] =~ /sl302/) {
-		$point0[$d_week+7*$rn_weeks] = $fields[1];
-		if ($point0[$d_week+7*$rn_weeks] > $max_y) {
-		    $max_y = $point0[$d_week+7*$rn_weeks];
-		}
-		if ($point0[$d_week+7*$rn_weeks] < $min_y) {
-		    $min_y = $point0[$d_week+7*$rn_weeks];
-		}
-		if ($plotVal eq "MemUsage") {
-		    $point1[$d_week+7*$rn_weeks] = $fields[2];
-		    if ($point1[$d_week+7*$rn_weeks] > $max_y) {
-			$max_y = $point1[$d_week+7*$rn_weeks];
-		    }
-		    if ($point1[$d_week+7*$rn_weeks] < $min_y) {
-			$min_y = $point1[$d_week+7*$rn_weeks];
-		    }
-		}
 	    }
+
 	}
 
 ############

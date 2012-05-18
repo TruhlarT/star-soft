@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.49 2012/05/14 16:17:19 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.50 2012/05/18 18:13:44 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.50  2012/05/18 18:13:44  didenko
+# removed plots for tpt tracking
+#
 # Revision 1.49  2012/05/14 16:17:19  didenko
 # comment unusable fields
 #
@@ -233,6 +236,7 @@ my @myplot =   (
 		"MemUsage",
                 "CPU_per_Event",
 		"RealTime_per_Event",
+                "RealTime_per_CPU", 
                 "Average_NoTracks",
 		"Average_NoPrimaryT",
                 "Average_NoTracksNfit15",
