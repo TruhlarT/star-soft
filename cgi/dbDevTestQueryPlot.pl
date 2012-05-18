@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.69 2012/05/18 20:08:45 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.70 2012/05/18 20:16:40 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.69  2012/05/18 20:08:45  didenko
-# array initialization
+# Revision 1.70  2012/05/18 20:16:40  didenko
+# try to set min, max
 #
 # Revision 1.67  2012/05/18 18:13:44  didenko
 # removed plots for tpt tracking
@@ -127,7 +127,8 @@ $JobStatusT = "JobStatus";
 my $query = new CGI;
 
 my $day_diff = 8;
-my $max_y = 0, $min_y = 500000;
+my $max_y = 0,
+my $min_y = 500000;
 my @data;
 my @legend;
 
@@ -317,7 +318,7 @@ while($n_weeks >= 0) {
 		}
 		if ($plotVal eq "RealTime_per_CPU") {
 		    $point4[$d_week+7*$rn_weeks] = $fields[2];
-		    if($fields[2] > 0.00001) {
+		    if($fields[2] > 0.000001) {
 		    $point5[$d_week+7*$rn_weeks] = $fields[1]/$fields[2];                    
 		    if ($point5[$d_week+7*$rn_weeks] > $max_y) {
 			$max_y = $point5[$d_week+7*$rn_weeks];
@@ -454,6 +455,7 @@ if ($plotVal eq "MemUsage") {
     $legend[1] = "$plotVal"."(ittf)";
 
   $min_y = 0.6;
+  $max_y = 2.0;
 
 } else {
 
