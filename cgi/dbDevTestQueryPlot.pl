@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.68 2012/05/18 19:57:24 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.69 2012/05/18 20:08:45 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.68  2012/05/18 19:57:24  didenko
-# try to add RealTime/CPU plots
+# Revision 1.69  2012/05/18 20:08:45  didenko
+# array initialization
 #
 # Revision 1.67  2012/05/18 18:13:44  didenko
 # removed plots for tpt tracking
@@ -175,6 +175,7 @@ my @point5 = ();
 my @point6 = ();
 my @point7 = ();
 my @point8 = ();
+my @point9 = ();
 my @point10 = ();
 my @point11 = ();
 my @point12 = ();
@@ -191,6 +192,8 @@ for($i=0;$i<7*$weeks;$i++) {
     $point5[$i]=undef;
     $point6[$i]=undef;
     $point7[$i]=undef;
+    $point8[$i]=undef;
+    $point9[$i]=undef;
     $point10[$i]=undef;
     $point11[$i]=undef;
     $point12[$i]=undef;
@@ -450,6 +453,7 @@ if ($plotVal eq "MemUsage") {
     $legend[0] = "$plotVal"."(ittf.optimized)";
     $legend[1] = "$plotVal"."(ittf)";
 
+  $min_y = 0.6;
 
 } else {
 
