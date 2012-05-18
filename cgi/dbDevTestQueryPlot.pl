@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.67 2012/05/18 18:13:44 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.68 2012/05/18 19:57:24 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.68  2012/05/18 19:57:24  didenko
+# try to add RealTime/CPU plots
+#
 # Revision 1.67  2012/05/18 18:13:44  didenko
 # removed plots for tpt tracking
 #
@@ -309,6 +312,20 @@ while($n_weeks >= 0) {
 			$min_y = $point3[$d_week+7*$rn_weeks];
 		    }
 		}
+		if ($plotVal eq "RealTime_per_CPU") {
+		    $point4[$d_week+7*$rn_weeks] = $fields[2];
+		    if($fields[2] > 0.00001) {
+		    $point5[$d_week+7*$rn_weeks] = $fields[1]/$fields[2];                    
+		    if ($point5[$d_week+7*$rn_weeks] > $max_y) {
+			$max_y = $point5[$d_week+7*$rn_weeks];
+		    }
+		    if ($point5[$d_week+7*$rn_weeks] < $min_y) {
+			$min_y = $point5[$d_week+7*$rn_weeks];
+		    }
+		}else{
+                $point5[$d_week+7*$rn_weeks] = 0
+                 } 
+		}
           }elsif($fields[0] =~ /sl302.ittf/) {
 		$point6[$d_week+7*$rn_weeks] = $fields[1];
 		if($point6[$d_week+7*$rn_weeks] > $max_y) {
@@ -326,6 +343,22 @@ while($n_weeks >= 0) {
 			$min_y = $point7[$d_week+7*$rn_weeks];
 		    }
 		}
+		if ($plotVal eq "RealTime_per_CPU") {
+		    $point8[$d_week+7*$rn_weeks] = $fields[2];
+		    if($fields[2] > 0.00001) {
+		    $point9[$d_week+7*$rn_weeks] = $fields[1]/$fields[2];                    
+		    if ($point9[$d_week+7*$rn_weeks] > $max_y) {
+			$max_y = $point9[$d_week+7*$rn_weeks];
+		    }
+		    if ($point9[$d_week+7*$rn_weeks] < $min_y) {
+			$min_y = $point9[$d_week+7*$rn_weeks];
+		    }
+		}else{
+                $point9[$d_week+7*$rn_weeks] = 0
+                 } 
+		}
+
+############
 	    }
 
 	}
@@ -394,7 +427,6 @@ while($n_weeks >= 0) {
 @data = ();
 
 if ($plotVal eq "MemUsage") {
-#    @data = (\@Nday, \@point0, \@point1, \@point2, \@point3, \@point4, \@point5, \@point6, \@point7 );
 #    @data = (\@Nday, \@point2,  \@point3, \@point6, \@point7 );
 
     @data = (\@Nday, \@point2,  \@point3, \@point6, \@point7, \@point10, \@point11, \@point12, \@point13);
@@ -410,9 +442,17 @@ if ($plotVal eq "MemUsage") {
 
 
     $mplotVal="MemUsageFirstEvent,MemUsageLastEvent";
+
+ }elsif($plotVal eq "RealTime_per_CPU") {
+
+  @data = (\@Nday, \@point5,  \@point9 );
+
+    $legend[0] = "$plotVal"."(ittf.optimized)";
+    $legend[1] = "$plotVal"."(ittf)";
+
+
 } else {
 
-#     @data = (\@Nday, \@point0, \@point2, \@point4, \@point6 );
 #    @data = (\@Nday, \@point2, \@point6 );
 
     @data = (\@Nday, \@point2, \@point6, \@point10, \@point12 );
