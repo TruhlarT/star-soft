@@ -1,10 +1,10 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.72 2012/05/18 20:27:31 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.73 2012/05/18 20:30:10 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.72  2012/05/18 20:27:31  didenko
+# Revision 1.73  2012/05/18 20:30:10  didenko
 # try to set min, max
 #
 # Revision 1.67  2012/05/18 18:13:44  didenko
@@ -319,8 +319,8 @@ while($n_weeks >= 0) {
 		if ($plotVal eq "RealTime_per_CPU") {
 		    $point4[$d_week+7*$rn_weeks] = $fields[2];
 		    if($fields[2] > 0.000001) {
-#		    $point5[$d_week+7*$rn_weeks] = $fields[1]/$fields[2];                    
-		    $point5[$d_week+7*$rn_weeks] = $point2[$d_week+7*$rn_weeks]/$point4[$d_week+7*$rn_weeks];  
+ 		    $point5[$d_week+7*$rn_weeks] = $fields[1]/$fields[2];                    
+#		    $point5[$d_week+7*$rn_weeks] = $point2[$d_week+7*$rn_weeks]/$point4[$d_week+7*$rn_weeks];  
 		    if ($point5[$d_week+7*$rn_weeks] > $max_y) {
 			$max_y = $point5[$d_week+7*$rn_weeks];
 		    }
@@ -351,8 +351,8 @@ while($n_weeks >= 0) {
 		if ($plotVal eq "RealTime_per_CPU") {
 		    $point8[$d_week+7*$rn_weeks] = $fields[2];
 		    if($fields[2] > 0.00001) {
-#		    $point9[$d_week+7*$rn_weeks] = $fields[1]/$fields[2];  
-		    $point9[$d_week+7*$rn_weeks] = $point6[$d_week+7*$rn_weeks]/$point8[$d_week+7*$rn_weeks];                  
+ 		    $point9[$d_week+7*$rn_weeks] = $fields[1]/$fields[2];  
+#		    $point9[$d_week+7*$rn_weeks] = $point6[$d_week+7*$rn_weeks]/$point8[$d_week+7*$rn_weeks];                  
 		    if ($point9[$d_week+7*$rn_weeks] > $max_y) {
 			$max_y = $point9[$d_week+7*$rn_weeks];
 		    }
@@ -457,7 +457,7 @@ if ($plotVal eq "MemUsage") {
     $legend[1] = "$plotVal"."(ittf)";
 
   $min_y = 0;
-#  $max_y = 2.0;
+  $max_y = 2.0;
 
 } else {
 
@@ -492,7 +492,7 @@ $graph = new GD::Graph::linespoints(550+50*$weeks,500);
     }
 
     # keep the max_y in the 9th ticks
-#    $max_y = $max_y + ($max_y - $min_y)/9.0;
+    $max_y = $max_y + ($max_y - $min_y)/9.0;
 
     if($max_y eq $min_y) {
 	$max_y += 1;
