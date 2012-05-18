@@ -1,10 +1,10 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.70 2012/05/18 20:16:40 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.71 2012/05/18 20:25:47 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.70  2012/05/18 20:16:40  didenko
+# Revision 1.71  2012/05/18 20:25:47  didenko
 # try to set min, max
 #
 # Revision 1.67  2012/05/18 18:13:44  didenko
@@ -319,7 +319,8 @@ while($n_weeks >= 0) {
 		if ($plotVal eq "RealTime_per_CPU") {
 		    $point4[$d_week+7*$rn_weeks] = $fields[2];
 		    if($fields[2] > 0.000001) {
-		    $point5[$d_week+7*$rn_weeks] = $fields[1]/$fields[2];                    
+#		    $point5[$d_week+7*$rn_weeks] = $fields[1]/$fields[2];                    
+		    $point5[$d_week+7*$rn_weeks] = $point2[$d_week+7*$rn_weeks]/$point4[$d_week+7*$rn_weeks];  
 		    if ($point5[$d_week+7*$rn_weeks] > $max_y) {
 			$max_y = $point5[$d_week+7*$rn_weeks];
 		    }
@@ -350,7 +351,8 @@ while($n_weeks >= 0) {
 		if ($plotVal eq "RealTime_per_CPU") {
 		    $point8[$d_week+7*$rn_weeks] = $fields[2];
 		    if($fields[2] > 0.00001) {
-		    $point9[$d_week+7*$rn_weeks] = $fields[1]/$fields[2];                    
+#		    $point9[$d_week+7*$rn_weeks] = $fields[1]/$fields[2];  
+		    $point9[$d_week+7*$rn_weeks] = $point6[$d_week+7*$rn_weeks]/$point8[$d_week+7*$rn_weeks];                  
 		    if ($point9[$d_week+7*$rn_weeks] > $max_y) {
 			$max_y = $point9[$d_week+7*$rn_weeks];
 		    }
@@ -454,8 +456,8 @@ if ($plotVal eq "MemUsage") {
     $legend[0] = "$plotVal"."(ittf.optimized)";
     $legend[1] = "$plotVal"."(ittf)";
 
-  $min_y = 0.6;
-  $max_y = 2.0;
+  $min_y = 0;
+#  $max_y = 2.0;
 
 } else {
 
