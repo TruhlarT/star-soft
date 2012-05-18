@@ -1,10 +1,10 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.73 2012/05/18 20:30:10 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.74 2012/05/18 20:33:38 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.73  2012/05/18 20:30:10  didenko
+# Revision 1.74  2012/05/18 20:33:38  didenko
 # try to set min, max
 #
 # Revision 1.67  2012/05/18 18:13:44  didenko
@@ -457,7 +457,7 @@ if ($plotVal eq "MemUsage") {
     $legend[1] = "$plotVal"."(ittf)";
 
   $min_y = 0;
-  $max_y = 2.0;
+  $max_y = 2.7;
 
 } else {
 
