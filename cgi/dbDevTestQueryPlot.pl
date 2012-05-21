@@ -1,10 +1,10 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.76 2012/05/21 19:28:32 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.77 2012/05/21 20:09:26 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.76  2012/05/21 19:28:32  didenko
+# Revision 1.77  2012/05/21 20:09:26  didenko
 # updated title
 #
 # Revision 1.75  2012/05/21 19:20:56  didenko
@@ -482,6 +482,7 @@ while($n_weeks >= 0) {
 @data = ();
 
 if ($plotVal eq "MemUsage") {
+
 #    @data = (\@Nday, \@point2,  \@point3, \@point6, \@point7 );
 
     @data = (\@Nday, \@point2,  \@point3, \@point6, \@point7, \@point10, \@point11, \@point12, \@point13);
