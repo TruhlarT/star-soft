@@ -36,6 +36,10 @@ my $todate = ($year+1900)."-".$mon."-".$mday." ".$hour.":".$min.":".$sec;
 
 
 my %collHash = (
+                 UU_production_2012 => 'UU193',
+                 cuAu_production_2012 => 'cuAu200',
+                 pp200_production_2012 => 'pp200',
+                 pp500_production_2012 => 'pp500',
                  AuAu200_production_2011 => 'auau200',
                  AuAu200_vernier_2011 => 'auau200',
                  AuAu27_production_2011 => 'auau27',
@@ -171,6 +175,10 @@ my %collHash = (
 	      );
              
 my %yrHash = (
+                 UU_production_2012 => 'year2012',
+                 cuAu_production_2012 => 'year2012',
+                 pp200_production_2012 => 'year2012',
+                 pp500_production_2012 => 'year2012',
                  AuAu200_production_2011 => 'year2011',
                  AuAu200_vernier_2011 => 'year2011',
                  AuAu27_production_2011 => 'year2011',
