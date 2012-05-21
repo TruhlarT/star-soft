@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.75 2012/05/21 19:20:56 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.76 2012/05/21 19:28:32 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.76  2012/05/21 19:28:32  didenko
+# updated title
+#
 # Revision 1.75  2012/05/21 19:20:56  didenko
 # updated for ration RealTime/CPU
 #
@@ -476,8 +479,6 @@ while($n_weeks >= 0) {
 
 &StDbTJobsDisconnect();
 
-my $plotFV = "RealTime/CPU";
-
 @data = ();
 
 if ($plotVal eq "MemUsage") {
@@ -501,10 +502,12 @@ if ($plotVal eq "MemUsage") {
 
   @data = (\@Nday, \@point5,  \@point9, \@point15,  \@point17 );
 
-    $legend[0] = "$plotFV"."(ittf.optimized)";
-    $legend[1] = "$plotFV"."(ittf)";
-    $legend[2] = "$plotFV"."(ittf,AgML)";    
-    $legend[3] = "$plotFV"."(ittf.optimized,AgML)"; 
+    $legend[0] = "RealTime/CPU(ittf.optimized)";
+    $legend[1] = "RealTime/CPU(ittf)";
+    $legend[2] = "RealTime/CPU(ittf,AgML)";    
+    $legend[3] = "RealTime/CPU(ittf.optimized,AgML)"; 
+
+  $mplotVal="RealTime/CPU";
 
   $min_y = 0;
   $max_y = 2.7;
