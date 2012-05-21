@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.74 2012/05/18 20:33:38 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.75 2012/05/21 19:20:56 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.75  2012/05/21 19:20:56  didenko
+# updated for ration RealTime/CPU
+#
 # Revision 1.74  2012/05/18 20:33:38  didenko
 # try to set min, max
 #
@@ -181,6 +184,10 @@ my @point10 = ();
 my @point11 = ();
 my @point12 = ();
 my @point13 = ();
+my @point14 = ();
+my @point15 = ();
+my @point16 = ();
+my @point17 = ();
 
 
 my @Nday;
@@ -199,6 +206,10 @@ for($i=0;$i<7*$weeks;$i++) {
     $point11[$i]=undef;
     $point12[$i]=undef;
     $point13[$i]=undef;
+    $point14[$i]=undef;
+    $point15[$i]=undef;
+    $point16[$i]=undef;
+    $point17[$i]=undef;
     $Nday[$i] = undef;
 }
 
@@ -319,8 +330,8 @@ while($n_weeks >= 0) {
 		if ($plotVal eq "RealTime_per_CPU") {
 		    $point4[$d_week+7*$rn_weeks] = $fields[2];
 		    if($fields[2] > 0.000001) {
- 		    $point5[$d_week+7*$rn_weeks] = $fields[1]/$fields[2];                    
-#		    $point5[$d_week+7*$rn_weeks] = $point2[$d_week+7*$rn_weeks]/$point4[$d_week+7*$rn_weeks];  
+# 		    $point5[$d_week+7*$rn_weeks] = $fields[1]/$fields[2];                    
+        	    $point5[$d_week+7*$rn_weeks] = $point2[$d_week+7*$rn_weeks]/$point4[$d_week+7*$rn_weeks];  
 		    if ($point5[$d_week+7*$rn_weeks] > $max_y) {
 			$max_y = $point5[$d_week+7*$rn_weeks];
 		    }
@@ -351,8 +362,8 @@ while($n_weeks >= 0) {
 		if ($plotVal eq "RealTime_per_CPU") {
 		    $point8[$d_week+7*$rn_weeks] = $fields[2];
 		    if($fields[2] > 0.00001) {
- 		    $point9[$d_week+7*$rn_weeks] = $fields[1]/$fields[2];  
-#		    $point9[$d_week+7*$rn_weeks] = $point6[$d_week+7*$rn_weeks]/$point8[$d_week+7*$rn_weeks];                  
+#		    $point9[$d_week+7*$rn_weeks] = $fields[1]/$fields[2];  
+ 		    $point9[$d_week+7*$rn_weeks] = $point6[$d_week+7*$rn_weeks]/$point8[$d_week+7*$rn_weeks];                  
 		    if ($point9[$d_week+7*$rn_weeks] > $max_y) {
 			$max_y = $point9[$d_week+7*$rn_weeks];
 		    }
@@ -364,7 +375,7 @@ while($n_weeks >= 0) {
                  } 
 		}
 
-############
+######
 	    }
 
 	}
@@ -404,6 +415,23 @@ while($n_weeks >= 0) {
 			$min_y = $point13[$d_week+7*$rn_weeks];
 		    }
 		 }
+#######
+		if ($plotVal eq "RealTime_per_CPU") {
+		    $point14[$d_week+7*$rn_weeks] = $fields[2];
+		    if($fields[2] > 0.000001) {
+#		    $point15[$d_week+7*$rn_weeks] = $fields[1]/$fields[2];                    
+ 		    $point15[$d_week+7*$rn_weeks] = $point12[$d_week+7*$rn_weeks]/$point14[$d_week+7*$rn_weeks];  
+		    if ($point15[$d_week+7*$rn_weeks] > $max_y) {
+			$max_y = $point5[$d_week+7*$rn_weeks];
+		    }
+		    if ($point15[$d_week+7*$rn_weeks] < $min_y) {
+			$min_y = $point15[$d_week+7*$rn_weeks];
+		    }
+		}else{
+                $point15[$d_week+7*$rn_weeks] = 0
+                 } 
+		}
+#######
 		} elsif($fields[0] =~ /sl302.ittf/) {
 		$point10[$d_week+7*$rn_weeks] = $fields[1];
 		if($point10[$d_week+7*$rn_weeks] > $max_y) {
@@ -421,8 +449,25 @@ while($n_weeks >= 0) {
 			$min_y = $point11[$d_week+7*$rn_weeks];
 		    }
 		}
-	     }
+#########
+                if ($plotVal eq "RealTime_per_CPU") {
+                    $point16[$d_week+7*$rn_weeks] = $fields[2];
+                    if($fields[2] > 0.00001) {
+#                    $point17[$d_week+7*$rn_weeks] = $fields[1]/$fields[2];
+                   $point17[$d_week+7*$rn_weeks] = $point10[$d_week+7*$rn_weeks]/$point16[$d_week+7*$rn_weeks];
+                    if ($point17[$d_week+7*$rn_weeks] > $max_y) {
+                        $max_y = $point17[$d_week+7*$rn_weeks];
+                    }
+                    if ($point17[$d_week+7*$rn_weeks] < $min_y) {
+                        $min_y = $point17[$d_week+7*$rn_weeks];
+                    }
+                }else{
+                $point17[$d_week+7*$rn_weeks] = 0
+                 }
+                }
+########               
 	    }
+	   }
 	}
 #############
 
@@ -430,6 +475,9 @@ while($n_weeks >= 0) {
  }
 
 &StDbTJobsDisconnect();
+
+my $plotFV = "RealTime/CPU";
+
 @data = ();
 
 if ($plotVal eq "MemUsage") {
@@ -451,10 +499,12 @@ if ($plotVal eq "MemUsage") {
 
  }elsif($plotVal eq "RealTime_per_CPU") {
 
-  @data = (\@Nday, \@point5,  \@point9 );
+  @data = (\@Nday, \@point5,  \@point9, \@point15,  \@point17 );
 
-    $legend[0] = "$plotVal"."(ittf.optimized)";
-    $legend[1] = "$plotVal"."(ittf)";
+    $legend[0] = "$plotFV"."(ittf.optimized)";
+    $legend[1] = "$plotFV"."(ittf)";
+    $legend[2] = "$plotFV"."(ittf,AgML)";    
+    $legend[3] = "$plotFV"."(ittf.optimized,AgML)"; 
 
   $min_y = 0;
   $max_y = 2.7;
