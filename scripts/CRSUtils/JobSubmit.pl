@@ -560,6 +560,7 @@ if ( $ThisYear == 2005 ){
     #
     $MCHAIN{"AuAu;upc"}  = $DCHAIN{"PPPP"};
     $MCHAIN{"UU;upc"}    = $DCHAIN{"PPPP"};
+    $MCHAIN{"CuAu;upc"}  = $DCHAIN{"PPPP"};
 
     $SCALIB{"AuAu"}      = "OptLaser";
     $SCALIB{"PPPP"}      = "OptLaser";
