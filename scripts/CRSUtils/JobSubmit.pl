@@ -548,7 +548,7 @@ if ( $ThisYear == 2005 ){
 	$DCHAIN{"AuAu"} = "P2012a,AgML,mtdDat,btof,fmsDat,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
 	$DCHAIN{"PPPP"} = "pp2012a,AgML,mtdDat,btof,fmsDat,VFPPVnoCTB,beamline,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
 	$DCHAIN{"UU"}   = $DCHAIN{"AuAu"};
-	$DCHAIN{"CuAu"} = $DCHAIN{"AuAu"}.",QAalltrigs";
+	$DCHAIN{"CuAu"} = $DCHAIN{"AuAu"};
     }
 
     # allow chain switch on condition matching
