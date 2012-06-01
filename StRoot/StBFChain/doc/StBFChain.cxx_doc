@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.103 2012/05/11 19:36:03 fisyak Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.104 2012/06/01 14:19:58 fisyak Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -817,6 +817,14 @@ Bfc_st BFC[] = {
    "","", "Production chain for 2012 data - no Corr (+ l3, bcc/fpd, e/b-emc, no VF)",kFALSE},
   {"P2012a","" ,"",
    "B2012,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis"
+   , "","","Production chain for 2011 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+  {"B2012b","","","ry2012a,in,tpcX,ITTF,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
+   , "Base chain for 2012 ITTF (tpc)",kFALSE},
+  {"pp2012b","" ,"",
+   "B2012b,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis",
+   "","", "Production chain for 2012 data - no Corr (+ l3, bcc/fpd, e/b-emc, no VF)",kFALSE},
+  {"P2012b","" ,"",
+   "B2012b,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis"
    , "","","Production chain for 2011 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","",""
    , "Laser Calibration Chain (tcl)",kFALSE},
@@ -2151,6 +2159,14 @@ Bfc_st BFC[] = {
    "","", "Production chain for 2012 data - no Corr (+ l3, bcc/fpd, e/b-emc, no VF)",kFALSE},
   {"P2012a","" ,"",
    "B2012,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis"
+   , "","","Production chain for 2011 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+  {"B2012b","","","ry2012a,in,tpcX,ITTF,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
+   , "Base chain for 2012 ITTF (tpc)",kFALSE},
+  {"pp2012b","" ,"",
+   "B2012b,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis",
+   "","", "Production chain for 2012 data - no Corr (+ l3, bcc/fpd, e/b-emc, no VF)",kFALSE},
+  {"P2012b","" ,"",
+   "B2012b,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis"
    , "","","Production chain for 2011 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","",""
    , "Laser Calibration Chain (tcl)",kFALSE},
