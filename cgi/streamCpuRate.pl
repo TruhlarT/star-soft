@@ -52,7 +52,7 @@ my $nowdate = $todate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2010","2011");
+my @prodyear = ("2010","2011"."2012");
 
 
 my @arperiod = ( );
@@ -207,8 +207,36 @@ my $nhr = 0;
        }
     $cursor->finish();
  
+   $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2011-06-01' order by runDay" ;
 
-    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2011-06-01' order by runDay" ;
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $dy = $cursor->fetchrow() ) {
+          $rdays[$ndy] = $dy;
+          $ndy++;
+       }
+    $cursor->finish();
+
+ $JobStatusT = "JobStatus2012";
+
+
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $arrprod[$npr] = $mpr;
+          $npr++;
+       }
+    $cursor->finish();
+
+    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2012-05-20' order by runDay" ;
+
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -260,7 +288,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P11id,
+	                          -default=>P12ic,
       			          -size =>1);
  
    print "<p>";
@@ -309,6 +337,7 @@ END
  
   if( $qprod =~ /P10/ ) {$pryear = "2010"};
   if( $qprod =~ /P11/ ) {$pryear = "2011"};
+  if( $qprod =~ /P12/ ) {$pryear = "2012"};
     
     $JobStatusT = "JobStatus".$pryear;
 
