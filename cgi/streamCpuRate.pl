@@ -91,6 +91,8 @@ my @aratomcules = ();
 my @arupc = ();
 my @armonitor = ();
 my @arpmdftp = ();
+my @arcentralpro = ();
+
 my @ndate = ();
 my $ndt = 0;
 my @rdays = ();
@@ -108,6 +110,7 @@ my @nstupc = ();
 my @nstmonitor = ();
 my @nstpmdftp = ();
 my @nstupsilon = ();
+my @nstcentralpro  = ();
 my @numstream  = ();
 
 my @rtgamma = ();
@@ -121,6 +124,7 @@ my @rtmonitor = ();
 my @rtpmdftp = ();
 my @rtupsilon = ();
 my @rtphysics = ();
+my @rtcentralpro  = ();
 
 my @cpupsilon = ();
 my @cpmtd = ();
@@ -133,6 +137,7 @@ my @cpatomcules = ();
 my @cpupc = ();
 my @cpmonitor = ();
 my @cppmdftp = ();
+my @cpcentralpro  = ();
 
 my @trupsilon = ();
 my @trmtd = ();
@@ -145,6 +150,7 @@ my @tratomcules = ();
 my @trupc = ();
 my @trmonitor = ();
 my @trpmdftp = ();
+my @trcentralpro  = ();
 
 my @jbupsilon = ();
 my @jbmtd = ();
@@ -157,7 +163,7 @@ my @jbatomcules = ();
 my @jbupc = ();
 my @jbmonitor = ();
 my @jbpmdftp = ();
-
+my @jbcentralpro  = ();
 
 my @arhr = ();
 my $mhr = 0;
@@ -412,6 +418,7 @@ END
  @jbupc = ();
  @jbmonitor = ();
  @jbpmdftp = ();
+ @jbcentralpro  = ();
 
  @ndate = ();
  $ndt = 0;
@@ -469,6 +476,8 @@ END
 
             if ( $mfile eq "physics" ) {
                $jbphysics[$ndt] =  $arjbtime{$mfile,$ndt};
+           }elsif( $mfile eq "centralpro" ) {
+               $jbcentralpro[$ndt] =  $arjbtime{$mfile,$ndt};
             }elsif( $mfile eq "mtd" ) {
                $jbmtd[$ndt] =  $arjbtime{$mfile,$ndt};
             }elsif( $mfile eq "upsilon" ) {
@@ -519,6 +528,7 @@ END
  @arupc = ();
  @armonitor = ();
  @arpmdftp = ();
+ @arcentralpro = ();
 
  @rtphysics = ();
  @rtgamma = ();
@@ -531,6 +541,8 @@ END
  @rtmonitor = ();
  @rtpmdftp = ();
  @rtupsilon = ();
+ @rtcentralpro = ();
+
 
  @cpupsilon = ();
  @cpmtd = ();
@@ -543,6 +555,8 @@ END
  @cpupc = ();
  @cpmonitor = ();
  @cppmdftp = ();
+ @cpcentralpro = ();
+
 
     foreach my $tdate (@arhr) {
         @jbstat = ();
@@ -609,6 +623,9 @@ END
               }elsif( $mfile eq "mtd" ) {
                $armtd[$ndt] = $rte{$mfile,$ndt};
                $cpmtd[$ndt] = $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "centralpro" ) {
+               $arcentralpro[$ndt] = $rte{$mfile,$ndt};
+               $cpcentralpro[$ndt] = $arcpu{$mfile,$ndt};
               }elsif( $mfile eq "upsilon" ) {
                $arupsilon[$ndt] = $rte{$mfile,$ndt};
                $cpupsilon[$ndt] = $arcpu{$mfile,$ndt};
@@ -662,6 +679,7 @@ END
  @trupc = ();
  @trmonitor = ();
  @trpmdftp = ();
+ @trcentralpro = ();
  @ndate = ();
  $ndt = 0;
  $maxtrk = 1.0;
@@ -718,6 +736,8 @@ END
                $trphysics[$ndt] = $artrk{$mfile,$ndt};
               }elsif( $mfile eq "mtd" ) {
                $trmtd[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "centralpro" ) {
+               $trcentralpro[$ndt] = $artrk{$mfile,$ndt};
               }elsif( $mfile eq "upsilon" ) {
                $trupsilon[$ndt] = $artrk{$mfile,$ndt};
               }elsif( $mfile eq "gamma" ) {
@@ -766,6 +786,7 @@ END
  @nstmonitor = ();
  @nstpmdftp = ();
  @nstupsilon = ();
+ @nstcentralpro = ();
 
  @numstream = ();
 
@@ -780,7 +801,7 @@ END
  @rtmonitor = ();
  @rtpmdftp = ();
  @rtupsilon = ();
-
+ @rtcentralpro = ();
 
 
     foreach my $tdate (@arhr) {
@@ -828,6 +849,8 @@ END
                $nstphysics[$ndt] = $nstr{$mfile,$ndt};
 	      }elsif( $mfile eq "mtd" ) {
                $nstmtd[$ndt] = $nstr{$mfile,$ndt};
+              }elsif( $mfile eq "centralpro" ) {
+               $nstcentralpro[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "upsilon" ) {
                $nstupsilon[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "gamma" ) {
@@ -858,6 +881,7 @@ END
 
      if ($numstream[$ii] >= 1) {
       $rtphysics[$ii] = $nstphysics[$ii]/$numstream[$ii];
+      $rtcentralpro[$ii] = $nstcentralpro[$ii]/$numstream[$ii];
       $rtmtd[$ii] = $nstmtd[$ii]/$numstream[$ii];
       $rthlt[$ii] = $nsthlt[$ii]/$numstream[$ii];
       $rtht[$ii] = $nstht[$ii]/$numstream[$ii];
@@ -898,6 +922,7 @@ END
        $legend[6] = "st_upc       ";
        $legend[7] = "st_atomcules ";
        $legend[8] = "st_mtd       ";
+       $legend[9] = "st_centralpro";
 
 
        if ( $srate eq "rtime/cpu" ) {
@@ -907,7 +932,7 @@ END
 
     @data = ();
 
-  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@aratomcules, \@armtd ) ;
+  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@aratomcules, \@armtd, \@arcentralpro ) ;
 
   	$max_y = $maxval + 0.2*$maxval; 
 #        $max_y = int($max_y);
@@ -919,7 +944,7 @@ END
 
     @data = ();
 
-  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpatomcules, \@cpmtd ) ;
+  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpatomcules, \@cpmtd, \@cpcentralpro ) ;
 
     	$max_y = $maxcpu + 0.2*$maxcpu; 
         $max_y = int($max_y);
@@ -931,7 +956,7 @@ END
    $ylabel = "Average total time jobs stay on the farm in hours";
    $gtitle = "Average total time jobs stay on the farm  for $qday ";
 
-@data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd ) ;
+@data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd, \@jbcentralpro ) ;
 
   $max_y = $maxjbtime + 0.2*$maxjbtime;
   $max_y = int($max_y);
@@ -944,7 +969,7 @@ END
 
    @data = ();
 
- @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trht, \@trmonitor, \@trpmdftp, \@trupc, \@tratomcules, \@trmtd ) ;
+ @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trht, \@trmonitor, \@trpmdftp, \@trupc, \@tratomcules, \@trmtd, \@trcentralpro ) ;
   
       $max_y = $maxtrk + 0.2*$maxtrk;
       $max_y = int($max_y);
@@ -956,7 +981,7 @@ END
 
     @data = ();
 
- @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstht, \@nstmonitor, \@nstpmdftp, \@nstupc, \@nstatomcules, \@nstmtd ) ;
+ @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstht, \@nstmonitor, \@nstpmdftp, \@nstupc, \@nstatomcules, \@nstmtd, \@nstcentralpro ) ;
 
   }elsif(  $srate eq "stream_rate" ) {
 
@@ -965,7 +990,7 @@ END
 
  @data = ();
 
- @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc, \@rtatomcules, \@rtmtd, \@rtmtd ) ;
+ @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc, \@rtatomcules, \@rtmtd, \@rtcentralpro ) ;
 
         $max_y = 1.2;
     }
@@ -993,7 +1018,7 @@ END
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple lorange lred lblack lgray lbrown lyellow) ],
+                    dclrs => [ qw(lblue lgreen lpurple lorange lred lblack lgray lyellow lbrown ) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
