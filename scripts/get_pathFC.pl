@@ -27,6 +27,14 @@ $pathname = $arpath[0];
 
 $fileC->clear_context();
 
+if( defined  $pathname) {
+
 print $pathname, "\n";
+
+}else{
+
+print "File $daqfile was not found ", "\n";
+
+}
 
 exit;
