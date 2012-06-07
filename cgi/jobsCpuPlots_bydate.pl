@@ -636,7 +636,7 @@ my $gtitle;
        $max_y = $maxval + 0.2*$maxval; 
 #      $max_y = int($max_y);
   
-    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@rtatomcules, \@armtd, \@rtcentralpro ) ;
+    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@aratomcules, \@armtd, \@arcentralpro ) ;
 
      }elsif( $srate eq "jobtottime"){
 
