@@ -669,7 +669,7 @@ my $gtitle;
 	$gtitle = "Ratios RealTime/CPU for different stream jobs for $qday day";
 
   
-    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@rtatomcules, \@armtd, \@rtcentralpro ) ;
+    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@aratomcules, \@armtd, \@arcentralpro ) ;
 
      }elsif( $srate eq "jobtottime"){
 
