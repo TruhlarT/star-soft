@@ -932,7 +932,7 @@ END
            if ( $mfile eq "physics" ) {
                $nstphysics[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "centralpro" ) {
-               $nscentralpro[$ndt] =  $nstr{$mfile,$ndt};
+               $nstcentralpro[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "mtd" ) {
                $nstmtd[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "upsilon" ) {
