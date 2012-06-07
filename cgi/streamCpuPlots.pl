@@ -1293,7 +1293,7 @@ END
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple lorange marine lred lblack lgray lbrown lyellow) ],
+                    dclrs => [ qw(lblue lgreen lpurple lorange marine lred lblack lyellow lbrown lgray) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
