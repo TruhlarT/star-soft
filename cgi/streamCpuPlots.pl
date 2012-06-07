@@ -92,6 +92,8 @@ my @aratomcules = ();
 my @arupc = ();
 my @armonitor = ();
 my @arpmdftp = ();
+my @arcentralpro = ();
+
 my @ndate = ();
 my $ndt = 0;
 
@@ -107,6 +109,7 @@ my @nstmonitor = ();
 my @nstpmdftp = ();
 my @nstupsilon = ();
 my @numstream  = ();
+my @nstcentralpro  = ();
 
 my @rtgamma = ();
 my @rtmtd = ();
@@ -119,6 +122,7 @@ my @rtmonitor = ();
 my @rtpmdftp = ();
 my @rtupsilon = ();
 my @rtphysics = ();
+my @rtcentralpro  = ();
 
 my @cpupsilon = ();
 my @cpmtd = ();
@@ -131,7 +135,7 @@ my @cpatomcules = ();
 my @cpupc = ();
 my @cpmonitor = ();
 my @cppmdftp = ();
-
+my @cpcentralpro  = ();
 
 my @trupsilon = ();
 my @trmtd = ();
@@ -144,6 +148,7 @@ my @tratomcules = ();
 my @trupc = ();
 my @trmonitor = ();
 my @trpmdftp = ();
+my @trcentralpro  = ();
 
 my @jbupsilon = ();
 my @jbmtd = ();
@@ -156,11 +161,11 @@ my @jbatomcules = ();
 my @jbupc = ();
 my @jbmonitor = ();
 my @jbpmdftp = ();
-
+my @jbcentralpro  = ();
  
-#my @arperiod = ("week","1_month","2_months","3_months","4_months","5_months","6_months");
+ my @arperiod = ("week","1_month","2_months","3_months","4_months","5_months","6_months");
 
-my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months");
+#my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months");
 
   &StDbProdConnect();
 
@@ -193,6 +198,19 @@ $JobStatusT = "JobStatus2011";
        }
     $cursor->finish();
   
+$JobStatusT = "JobStatus2012";  
+
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $arrprod[$npr] = $mpr;
+          $npr++;
+       }
+    $cursor->finish();
 
 &StDbProdDisconnect();
 
@@ -232,7 +250,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P11id,
+	                          -default=>P12ic,
       			          -size =>1);
 
 
@@ -394,6 +412,7 @@ END
  @cpupc = ();
  @cpmonitor = ();
  @cppmdftp = (); 
+ @cpcentralpro = ();
 
  @ndate = ();
  $ndt = 0;
@@ -482,6 +501,8 @@ END
 
               if ( $mfile eq "physics" ) {
                $cpphysics[$ndt] = $arcpu{$mfile,$ndt};
+             }elsif( $mfile eq "centralpro" ) {
+               $cpcentralpro[$ndt] = $arcpu{$mfile,$ndt};
              }elsif( $mfile eq "mtd" ) {
                $cpmtd[$ndt] = $arcpu{$mfile,$ndt};
               }elsif( $mfile eq "gamma" ) {
@@ -532,6 +553,7 @@ END
  @arupc = ();
  @armonitor = ();
  @arpmdftp = ();
+ @arcentralpro = ();
 
  @cpupsilon = ();
  @cpmtd = ();
@@ -544,6 +566,8 @@ END
  @cpupc = ();
  @cpmonitor = ();
  @cppmdftp = ();
+ @cpcentralpro = ();
+
  @ndate = ();
  $ndt = 0;
  $maxval = 1.0;
@@ -634,6 +658,8 @@ END
                 }
                   if ( $mfile eq "physics" ) {
                $arphysics[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "centralpro" ) {
+               $arcentralpro[$ndt] =  $rte{$mfile,$ndt};
               }elsif( $mfile eq "mtd" ) {
                $armtd[$ndt] =  $rte{$mfile,$ndt};
               }elsif( $mfile eq "upsilon" ) {
@@ -684,6 +710,8 @@ END
  @trupc = ();
  @trmonitor = ();
  @trpmdftp = ();
+ @trcentralpro = ();
+
  @ndate = ();
  $ndt = 0;
  $maxtrk = 1.0;
@@ -767,6 +795,8 @@ END
                }
                   if ( $mfile eq "physics" ) {
                $trphysics[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "centralpro" ) {
+               $trcentralpro[$ndt] = $artrk{$mfile,$ndt};
               }elsif( $mfile eq "mtd" ) {
                $trmtd[$ndt] = $artrk{$mfile,$ndt};
               }elsif( $mfile eq "upsilon" ) {
@@ -816,6 +846,8 @@ END
  @nstmonitor = ();
  @nstpmdftp = ();
  @nstupsilon = ();
+ @nstcentralpro = ();
+
  @ndate = ();
  $ndt = 0;  
 
@@ -830,6 +862,7 @@ END
  @rtmonitor = ();
  @rtpmdftp = ();
  @rtupsilon = ();
+ @rtcentralpro = ();
 
     foreach my $tdate (@ardays) {
         @jbstat = ();
@@ -898,6 +931,8 @@ END
  
            if ( $mfile eq "physics" ) {
                $nstphysics[$ndt] =  $nstr{$mfile,$ndt};
+              }elsif( $mfile eq "centralpro" ) {
+               $nscentralpro[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "mtd" ) {
                $nstmtd[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "upsilon" ) {
@@ -929,10 +964,11 @@ END
     } # foreach tdate
  
       for($ii = 0; $ii < $ndt; $ii++) {
-      $numstream[$ii] = $nstphysics[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+$nstht[$ii]+$nstmonitor[$ii]+$nstpmdftp[$ii]+ $nstupc[$ii]+ $nstgamma[$ii]+  $nstatomcules[$ii]+ $nstupsilon[$ii];
+      $numstream[$ii] = $nstphysics[$ii]+$nstcentralpro[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+$nstht[$ii]+$nstmonitor[$ii]+$nstpmdftp[$ii]+ $nstupc[$ii]+ $nstgamma[$ii]+  $nstatomcules[$ii]+ $nstupsilon[$ii];
 
      if ($numstream[$ii] >= 1) {
       $rtphysics[$ii] = $nstphysics[$ii]/$numstream[$ii];
+      $rtcentralpro[$ii] = $nstcentralpro[$ii]/$numstream[$ii];
       $rtmtd[$ii] = $nstmtd[$ii]/$numstream[$ii];
       $rthlt[$ii] = $nsthlt[$ii]/$numstream[$ii];
       $rtht[$ii] = $nstht[$ii]/$numstream[$ii];
@@ -965,6 +1001,8 @@ END
  @jbupc = ();
  @jbmonitor = ();
  @jbpmdftp = ();
+ @jbcenralpro = ();
+
  @ndate = ();
  $ndt = 0;  
  $maxjbtime = 0.1;
@@ -1049,6 +1087,8 @@ END
 
             if ( $mfile eq "physics" ) {
                $jbphysics[$ndt] =  $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "centralpro" ) {
+               $jbcentralpro[$ndt] = $arjbtime{$mfile,$ndt};
             }elsif( $mfile eq "mtd" ) {
                $jbmtd[$ndt] =  $arjbtime{$mfile,$ndt};
             }elsif( $mfile eq "upsilon" ) {
@@ -1108,6 +1148,7 @@ END
        $legend[6] = "st_upc       ";       
        $legend[7] = "st_atomcules ";
        $legend[8] = "st_mtd       ";
+       $legend[9] = "st_centralpro ";
 
        if ( $srate eq "rtime/cpu" ) {
 
@@ -1124,7 +1165,7 @@ END
        $gtitle = "Average ratio RealTime/CPU per day for different streams for $qperiod period";
       }     
 
-  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@aratomcules, \@armtd ) ;
+  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@aratomcules, \@armtd, \@arcentralpro ) ;
 
       $max_y = $maxval + 0.2*$maxval;
 #     $max_y = int($max_y);
@@ -1145,7 +1186,7 @@ END
 
          }   
 
-  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpatomcules, \@cpmtd ) ;
+  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpatomcules, \@cpmtd, \@cpcentralpro ) ;
 
        $max_y = $maxcpu + 0.2*$maxcpu;
        $max_y = int($max_y);
@@ -1165,7 +1206,7 @@ END
         $gtitle = "Ratio of different stream jobs finishing per day for $qperiod period";
      }
 
- @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc, \@rtatomcules, \@rtmtd ) ;
+ @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc, \@rtatomcules, \@rtmtd, \@rtcentralpro ) ;
 
         $max_y = 1.2;
 
@@ -1184,7 +1225,7 @@ END
 	$gtitle = "Total time jobs stay on the farm (finishing per day) for $qperiod period ";
      }
 
- @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd ) ;
+ @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd, \@jbcentralpro ) ;
     $max_y = $maxjbtime + 0.2*$maxjbtime;    
     $max_y = int($max_y);
 
@@ -1203,7 +1244,7 @@ END
 	$gtitle = "Average number of tracks in different streams per day for $qperiod period ";
      }
 
- @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trht, \@trmonitor, \@trpmdftp, \@trupc, \@tratomcules, \@trmtd ) ;
+ @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trht, \@trmonitor, \@trpmdftp, \@trupc, \@tratomcules, \@trmtd, \@trcentralpro ) ;
     
       $max_y = $maxtrk + 0.2*$maxtrk;
       $max_y = int($max_y); 
@@ -1224,7 +1265,7 @@ END
         $gtitle = "Number of stream jobs finishing per day for $qperiod period";
      }
 
- @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstht, \@nstmonitor, \@nstpmdftp, \@nstupc, \@nstatomcules, \@nstmtd ) ;
+ @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstht, \@nstmonitor, \@nstpmdftp, \@nstupc, \@nstatomcules, \@nstmtd, \@nstcentralpro ) ;
 
 
      }
@@ -1252,7 +1293,7 @@ END
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple lorange lred lblack lgray lbrown lyellow) ],
+                    dclrs => [ qw(lblue lgreen lpurple lorange marine lred lblack lgray lbrown lyellow) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
