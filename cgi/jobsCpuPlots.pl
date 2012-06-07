@@ -86,6 +86,8 @@ my @aratomcules = ();
 my @arupc = ();
 my @armonitor = ();
 my @arpmdftp = ();
+my @arcentralpro = ();
+
 my @ndate = ();
 my $ndt = 0;
 my @rdays = ();
@@ -102,7 +104,8 @@ my @cpht = ();
 my @cpatomcules = ();
 my @cpupc = ();
 my @cpmonitor = ();
-my @cppmdftp = (); 
+my @cppmdftp = ();
+my @cpcentralpro  = (); 
 
 my @jbupsilon = ();
 my @jbmtd = ();
@@ -115,6 +118,8 @@ my @jbatomcules = ();
 my @jbupc = ();
 my @jbmonitor = ();
 my @jbpmdftp = ();
+my @jbcentralpro  = ();
+
 
  $JobStatusT = "JobStatus2010";  
 
@@ -173,6 +178,34 @@ my @jbpmdftp = ();
        }
     $cursor->finish();
 
+ $JobStatusT = "JobStatus2012";
+
+
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $arrprod[$npr] = $mpr;
+          $npr++;
+       }
+    $cursor->finish();
+
+
+    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2012-05-10' order by runDay" ;
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $dy = $cursor->fetchrow() ) {
+          $rdays[$ndy] = $dy;
+          $ndy++;
+       }
+    $cursor->finish();
+
 
 @rvdays = reverse @rdays ;
 
@@ -217,7 +250,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P11id,
+	                          -default=>P12ic,
       			          -size =>1);
 
   
@@ -335,6 +368,7 @@ END
  @arupc = ();
  @armonitor = ();
  @arpmdftp = ();
+ @arcentralpro = ();
 
  @cpupsilon = ();
  @cpmtd = ();
@@ -347,6 +381,7 @@ END
  @cpupc = ();
  @cpmonitor = ();
  @cppmdftp = (); 
+ @cpcentralpro  = ();
 
  @jbupsilon = ();
  @jbmtd = ();
@@ -359,6 +394,7 @@ END
  @jbupc = ();
  @jbmonitor = ();
  @jbpmdftp = ();
+ @jbcentralpro  = ();
 
    if( $srate eq "jobtottime" ) {
 
@@ -412,6 +448,8 @@ END
 
 	   if ( $pstream eq "physics" ) {
 	       $jbphysics[$ndt]++;
+           }elsif( $pstream eq "centralpro" ) {
+               $jbcentral[$ndt]++; 
 	   }elsif( $pstream eq "mtd" ) {
                $jbmtd[$ndt]++;
            }elsif( $pstream eq "upsilon" ) {
@@ -495,6 +533,8 @@ END
 
 	       if ( $pstream eq "physics" ) {
 	       $cpphysics[$ndt]++;
+              }elsif( $pstream eq "centralpro" ) {
+               $cpcentralpro[$ndt]++; 
 	      }elsif( $pstream eq "mtd" ) {
                $cpmtd[$ndt]++;
               }elsif( $pstream eq "upsilon" ) {
@@ -552,6 +592,8 @@ END
 #
 	       if ( $pstream eq "physics" ) {
 	       $arphysics[$ndt]++ ;
+              }elsif( $pstream eq "centralpro" ) {
+               $arcentralpro[$ndt]++ ;
 	      }elsif( $pstream eq "mtd" ) {
                $armtd[$ndt]++;
               }elsif( $pstream eq "upsilon" ) {
@@ -604,6 +646,7 @@ my $gtitle;
        $legend[6] = "st_upc      ";
        $legend[7] = "st_atomcules ";
        $legend[8] = "st_mtd       ";
+       $legend[9] = "st_centralpro ";
 
 #       $legend[3] = "st_upsilon   ";
     
@@ -615,7 +658,7 @@ my $gtitle;
         $ylabel = "Number of jobs";
 	$gtitle = "CPU in sec/evt for different stream jobs for $qday day";
 
-    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpatomcules, \@cpmtd ) ; 
+    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpatomcules, \@cpmtd, \@cpcentralpro ) ; 
 
       }elsif( $srate eq "rtime/cpu"){
 
@@ -626,7 +669,7 @@ my $gtitle;
 	$gtitle = "Ratios RealTime/CPU for different stream jobs for $qday day";
 
   
-    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@rtatomcules, \@armtd ) ;
+    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@rtatomcules, \@armtd, \@rtcentralpro ) ;
 
      }elsif( $srate eq "jobtottime"){
 
@@ -637,7 +680,7 @@ my $gtitle;
 	$gtitle = "Total time on the farm for different stream jobs for $qday day";
 
   
-    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd ) ;
+    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd, \@jbcentralpro ) ;
 
 
      }
@@ -665,7 +708,7 @@ my $gtitle;
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple lorange lred lblack lgray lbrown lyellow) ],
+                    dclrs => [ qw(lblue lgreen lpurple lorange lred marine lblack lyellow lbrown lgray ) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
