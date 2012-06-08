@@ -257,7 +257,7 @@ $day_diff = int($day_diff);
 
 #           $cursor->finish();
 
-   $sql="SELECT physics, ht, hlt, gamma, fmsfast, minbias, mtd, monitor, pmdftp, upsilon, upc, zerobias, centralprod, Wbs, Njobs,sdate FROM  $crsJobStreamsT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? and sdate <= '$nowdatetime' ORDER by sdate ";
+   $sql="SELECT physics, ht, hlt, gamma, fmsfast, minbias, mtd, monitor, pmdftp, upsilon, upc, zerobias, centralpro, Wbs, Njobs,sdate FROM  $crsJobStreamsT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? and sdate <= '$nowdatetime' ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($day_diff);
@@ -323,7 +323,7 @@ my $nnk = $ii;
         }
      }
 
-     for( my $k = 0; $k < 13; $k++) {
+     for( my $k = 0; $k < 14; $k++) {
 
      if ($maxvalue[$k] > $Nmaxjob ) {
         $Nmaxjob = $maxvalue[$k];
