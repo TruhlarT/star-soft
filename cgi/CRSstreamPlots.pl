@@ -242,14 +242,14 @@ $day_diff = int($day_diff);
 
  my $ii = 0;
  
-   $sql="SELECT max(physics), max(ht),max(hlt), max(gamma), max(fmsfast), max(minbias), max(mtd), max(monitor), max(pmdftp), max(upsilon), max(upc), max( zerobias), max(Wbs) FROM  $crsJobStreamsT  WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? ";
+   $sql="SELECT max(physics), max(ht),max(hlt), max(gamma), max(fmsfast), max(minbias), max(mtd), max(monitor), max(pmdftp), max(upsilon), max(upc), max(zerobias), max(centralpro), max(Wbs) FROM  $crsJobStreamsT  WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? ";
  
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($day_diff);
 
         while(@fields = $cursor->fetchrow_array) {
 
-         for( my $k = 0; $k < 13; $k++) {
+         for( my $k = 0; $k < 14; $k++) {
 
          $maxvalue[$k] = $fields[$k];
         }
