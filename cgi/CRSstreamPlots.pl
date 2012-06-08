@@ -51,6 +51,7 @@ my @nupsilon = ();
 my @nupc = ();
 my @nWbs = ();
 my @nzerobs = ();
+my @ncentral = ();
 
 my @rphysics = ();
 my @rht = ();
@@ -66,6 +67,7 @@ my @rupsilon = ();
 my @rupc = ();
 my @rWbs = ();
 my @rzerobs = ();
+my @rcentral = ();
 
 my @Npoint = ();
 
@@ -216,6 +218,7 @@ $day_diff = int($day_diff);
  @nupc = ();
  @nWbs = ();
  @nzerobs = ();
+ @ncentral = ();
 
  @rphysics = ();
  @rht = ();
@@ -230,6 +233,7 @@ $day_diff = int($day_diff);
  @rupc = ();
  @rWbs = ();
  @rzerobs = ();
+ @rcentral = ();
 
  @Npoint = ();
  @maxvalue = ();
@@ -253,7 +257,7 @@ $day_diff = int($day_diff);
 
 #           $cursor->finish();
 
-   $sql="SELECT physics, ht, hlt, gamma, fmsfast, minbias, mtd, monitor, pmdftp, upsilon, upc, zerobias, Wbs, Njobs,sdate FROM  $crsJobStreamsT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? and sdate <= '$nowdatetime' ORDER by sdate ";
+   $sql="SELECT physics, ht, hlt, gamma, fmsfast, minbias, mtd, monitor, pmdftp, upsilon, upc, zerobias, centralprod, Wbs, Njobs,sdate FROM  $crsJobStreamsT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? and sdate <= '$nowdatetime' ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($day_diff);
@@ -272,10 +276,11 @@ $day_diff = int($day_diff);
                 $nupsilon[$ii] = $fields[9];
                 $nupc[$ii]     = $fields[10];
                 $nzerobs[$ii]  = $fields[11];
-                $nWbs[$ii]     = $fields[12];
-                $njb[$ii]      = $fields[13];
+                $ncentral[$ii] = $fields[12];
+                $nWbs[$ii]     = $fields[13];
+                $njb[$ii]      = $fields[14];
 
-                $Npoint[$ii] =  $fields[14];
+                $Npoint[$ii] =  $fields[15];
                	$ii++;
   }
  
@@ -297,6 +302,7 @@ my $nnk = $ii;
          $rfmsfast[$jj] = $nfmsfast[$jj]/$njb[$jj];
          $rpmdftp[$jj]  = $npmdftp[$jj]/$njb[$jj];
          $rupsilon[$jj] = $nupsilon[$jj]/$njb[$jj];
+         $rcentral[$jj] = $ncentral[$jj]/$njb[$jj];
          $rupc[$jj]     = $nupc[$jj]/$njb[$jj];
          $rWbs[$jj]     = $nWbs[$jj]/$njb[$jj];
      }else{
@@ -311,6 +317,7 @@ my $nnk = $ii;
          $rfmsfast[$jj] = 0;
          $rpmdftp[$jj]  = 0;
          $rupsilon[$jj] = 0;
+         $rcentral[$jj] = 0;
          $rupc[$jj]     = 0;
          $rWbs[$jj]     = 0;
         }
@@ -346,6 +353,7 @@ my $nnk = $ii;
        $legend[6] = "st_upc       ";
        $legend[7] = "st_atomcules ";
        $legend[8] = "st_mtd       ";
+       $legend[9] = "st_central   ";
 
  my $ylabel;
  my $gtitle; 
@@ -366,7 +374,7 @@ my $nnk = $ii;
 
 #    @data = (\@Npoint, \@nphysics, \@ngamma, \@nhlt, \@nht, \@nmonitor, \@npmdftp, \@nupc, \@nmtd, \@nWbs );
 
-    @data = (\@Npoint, \@nphysics, \@ngamma, \@nhlt, \@nht, \@nmonitor, \@npmdftp, \@nupc, \@natomcules, \@nmtd );
+    @data = (\@Npoint, \@nphysics, \@ngamma, \@nhlt, \@nht, \@nmonitor, \@npmdftp, \@nupc, \@natomcules, \@nmtd, \@ncentral );
 
   $min_y = 0;
   $max_y = $Nmaxjob + 200 ;
@@ -378,7 +386,7 @@ my $nnk = $ii;
  
 #    @data = (\@Npoint, \@rphysics, \@rgamma, \@rhlt, \@rht, \@rmonitor, \@rpmdftp, \@rupc, \@rmtd, \@rWbs );
     
-	@data = (\@Npoint, \@rphysics, \@rgamma, \@rhlt, \@rht, \@rmonitor, \@rpmdftp, \@rupc, \@ratomcules, \@rmtd );
+	@data = (\@Npoint, \@rphysics, \@rgamma, \@rhlt, \@rht, \@rmonitor, \@rpmdftp, \@rupc, \@ratomcules, \@rmtd, \@rcentral );
 
   $min_y = 0;
   $max_y = 1.2 ;  
@@ -398,7 +406,7 @@ my $nnk = $ii;
 		y_number_format => \&y_format,
 		#labelclr => "lblack",
                 titleclr => "lblack",
-		dclrs => [ qw(lblue lgreen lpurple lorange lred lblack lgray lbrown lyellow ) ],
+		dclrs => [ qw(lblue lgreen lpurple lorange lred marine lblack lyellow lbrown lgray) ],
 		line_width => 2,
 		markers => [ 2,3,4,5,6,7,8,9],
 		marker_size => 1,
