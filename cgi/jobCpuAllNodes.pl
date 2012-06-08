@@ -89,6 +89,8 @@ my @aratomcules = ();
 my @arupc = ();
 my @armonitor = ();
 my @arpmdftp = ();
+my @arcentralpro = ();
+
 my @ndate = ();
 my $ndt = 0;
 my $nn = 0;
@@ -107,6 +109,8 @@ my @nstupc = ();
 my @nstmonitor = ();
 my @nstpmdftp = ();
 my @nstupsilon = ();
+my @nstcentralpro = ();
+
 my @numstream  = ();
 
 my @rtgamma = ();
@@ -120,6 +124,7 @@ my @rtmonitor = ();
 my @rtpmdftp = ();
 my @rtupsilon = ();
 my @rtphysics = ();
+my @rtcentralpro = ();
 
 my @cpupsilon = ();
 my @cpmtd = ();
@@ -132,6 +137,7 @@ my @cpatomcules = ();
 my @cpupc = ();
 my @cpmonitor = ();
 my @cppmdftp = ();
+my @cpcentralpro = ();
 
   &StDbProdConnect();
  
@@ -190,6 +196,34 @@ my @cppmdftp = ();
        }
     $cursor->finish();
 
+  $JobStatusT = "JobStatus2012";
+
+
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $arrprod[$npr] = $mpr;
+          $npr++;
+       }
+    $cursor->finish();
+
+
+    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2012-05-10' order by runDay" ;
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $dy = $cursor->fetchrow() ) {
+          $ardays[$ndy] = $dy;
+          $ndy++;
+       }
+    $cursor->finish();
+
   @rvdays = reverse @ardays ;
 
 &StDbProdDisconnect();
@@ -232,7 +266,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P11id,
+	                          -default=>P12ic,
       			          -size =>1);
  
     
@@ -298,6 +332,7 @@ my $qnode   = $qqr->param('pnode');
 
  if( $qprod =~ /P10/ ) {$pryear = "2010"};
  if( $qprod =~ /P11/ ) {$pryear = "2011"};
+ if( $qprod =~ /P12/ ) {$pryear = "2012"};
 
   $JobStatusT = "JobStatus".$pryear;
 
@@ -328,6 +363,7 @@ my $qnode   = $qqr->param('pnode');
  @arupc = ();
  @armonitor = ();
  @arpmdftp = ();
+ @arcentralpro = ();
 
  @rtphysics = ();
  @rtgamma = ();
@@ -340,6 +376,7 @@ my $qnode   = $qqr->param('pnode');
  @rtmonitor = ();
  @rtpmdftp = ();
  @rtupsilon = ();
+ @rtcentralpro = ();
 
  @cpupsilon = ();
  @cpmtd = ();
@@ -352,6 +389,7 @@ my $qnode   = $qqr->param('pnode');
  @cpupc = ();
  @cpmonitor = ();
  @cppmdftp = ();
+ @cpcentralpro = ();
 
 ############################# 
 
@@ -473,6 +511,9 @@ my $qnode   = $qqr->param('pnode');
                   if ( $mfile eq "physics" ) {
                $arphysics[$ndt] = $rte{$mfile,$ndt};
                $cpphysics[$ndt] = $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "centralpro" ) {
+               $arcentralpro[$ndt] = $rte{$mfile,$ndt};
+               $cpcentralpro[$ndt] = $arcpu{$mfile,$ndt};
               }elsif( $mfile eq "mtd" ) {
                $armtd[$ndt] = $rte{$mfile,$ndt};
                $cpmtd[$ndt] = $arcpu{$mfile,$ndt};
@@ -540,6 +581,7 @@ my $qnode   = $qqr->param('pnode');
        $legend[6] = "st_upc       ";
        $legend[7] = "st_atomcules ";
        $legend[8] = "st_mtd       ";
+       $legend[9] = "st_centralpro ";
 
 
        if ( $qvalue eq "rtime/cpu" ) {
@@ -549,7 +591,7 @@ my $qnode   = $qqr->param('pnode');
 
     @data = ();
 
-  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@aratomcules, \@armtd ) ;
+  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@aratomcules, \@armtd, \@arcentralpro ) ;
 
   	$max_y = 1.2*$maxval; 
 
@@ -560,7 +602,7 @@ my $qnode   = $qqr->param('pnode');
 
     @data = ();
 
-  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpatomcules, \@cpmtd ) ;
+  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpatomcules, \@cpmtd, \@cpcentralpro ) ;
 
     	$max_y = 1.2*$maxcpu; 
         $max_y = int($max_y);
@@ -590,7 +632,7 @@ my $qnode   = $qqr->param('pnode');
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple lorange lred lblack lgray lbrown lyellow) ],
+                    dclrs => [ qw(lblue lgreen lpurple lorange lred marine lblack lyellow lbrown lgray ) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
