@@ -1,7 +1,7 @@
-// @(#)root/gui:$Name:  $:$Id: TQtColorSelect.cxx,v 1.4 2009/08/03 18:03:09 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtColorSelect.cxx,v 1.5 2012/06/11 14:20:56 fisyak Exp $
 // Author: Valeri Fine  21/05/2004
 /****************************************************************************
-** $Id: TQtColorSelect.cxx,v 1.4 2009/08/03 18:03:09 fine Exp $
+** $Id: TQtColorSelect.cxx,v 1.5 2012/06/11 14:20:56 fisyak Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -31,7 +31,8 @@
 #include "TQtEvent.h"
 #include "TQtApplication.h"
 #include <qapplication.h>
-
+#include "Riostream.h"
+using namespace std;
 ClassImp(TQtColorSelect)
 //______________________________________________________________________________
 TQtColorSelect::TQtColorSelect(QWidget *p,  UInt_t pixel, Int_t id )

@@ -1,4 +1,4 @@
-// @(#)root/graf:$Name:  $:$Id: TQtPixmapBox.cxx,v 1.3 2009/08/03 18:03:10 fine Exp $
+// @(#)root/graf:$Name:  $:$Id: TQtPixmapBox.cxx,v 1.4 2012/06/11 14:20:57 fisyak Exp $
 // Author: Valeri Fine   03/09/2006
 
 /****************************************************************************
@@ -15,6 +15,7 @@
 #include <stdlib.h>
 
 #include "Riostream.h"
+using namespace std;
 #include "TROOT.h"
 #include "TQtPixmapBox.h"
 #include "TVirtualPad.h"

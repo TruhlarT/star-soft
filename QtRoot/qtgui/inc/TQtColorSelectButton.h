@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.h,v 1.7 2009/08/03 18:03:08 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.h,v 1.8 2012/06/11 14:20:56 fisyak Exp $
 // Author: Bertrand Bellenot + Fons Rademakers   22/08/02
 
 /*************************************************************************
@@ -37,7 +37,6 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "GuiTypes.h"
-#include "Riostream.h"
 
 #include <qtoolbutton.h> 
 #if QT_VERSION < 0x40000

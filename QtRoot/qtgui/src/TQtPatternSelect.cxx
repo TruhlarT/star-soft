@@ -1,7 +1,7 @@
-// @(#)root/gui:$Name:  $:$Id: TQtPatternSelect.cxx,v 1.4 2009/08/03 18:03:10 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtPatternSelect.cxx,v 1.5 2012/06/11 14:20:57 fisyak Exp $
 // Author: Valeri Fine  21/05/2004
 /****************************************************************************
-** $Id: TQtPatternSelect.cxx,v 1.4 2009/08/03 18:03:10 fine Exp $
+** $Id: TQtPatternSelect.cxx,v 1.5 2012/06/11 14:20:57 fisyak Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -33,7 +33,8 @@
 #include <qapplication.h>
 //Added by qt3to4:
 #include <QEvent>
-
+#include "Riostream.h"
+using namespace std;
 ClassImp(TQtPatternSelect)
 //______________________________________________________________________________
 TQtPatternSelect::TQtPatternSelect(QWidget *p,  Style_t pattern, Int_t id )

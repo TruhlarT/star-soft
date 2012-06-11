@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.cxx,v 1.8 2009/08/03 18:03:09 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.cxx,v 1.9 2012/06/11 14:20:56 fisyak Exp $
 // Author: Bertrand Bellenot + Fons Rademakers   22/08/02
 
 /*************************************************************************
@@ -81,7 +81,8 @@
 #   include <QMenu>
 #   include <QTimer>
 #endif /* QT_VERSION */
-
+#include "Riostream.h"
+using namespace std;
 //ClassImp(TQtColorFrame)
 //ClassImp(TQt16ColorSelector)
 //ClassImp(TQtColorPopup)
