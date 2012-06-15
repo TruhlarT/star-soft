@@ -2,10 +2,8 @@
 //                                                                      //
 // Macro for running chain with different inputs                        //
 // owner:  Yuri Fisyak                                                  //
-// Modifications by J. Lauret, V, Prevotchikov, G.V. Buren, L. Didenko  //
-//                  and V. Fine                                         //
 //                                                                      //
-// $Id: bfc.C,v 1.184 2012/03/22 14:14:30 fisyak Exp $
+// $Id: bfc.C,v 1.169.4.1 2012/06/15 20:58:22 jeromel Exp $
 //////////////////////////////////////////////////////////////////////////
 class StBFChain;        
 class StMessMgr;
@@ -17,25 +15,26 @@ class StMessMgr;
 #include "TInterpreter.h"
 #include "StBFChain.h"
 #include "StMessMgr.h"
-#include "TROOT.h"
+#else
 #endif
+//#define UseLogger
 StBFChain    *chain=0; 
 //_____________________________________________________________________
 //_________________ Prototypes _______________________________________________
 void Usage();
 void Load(const Char_t *options="");
-//TString defChain("y2010,gstar,Test.default.Fast.ITTF,NosvtIT,NossdIT,-sfs,-ssdFast");
-TString defChain("y2010,gstar,Test.default.ITTF,NosvtIT,NossdIT,-sfs,-ssdFast,sdt20100107.110000");
+TString defChain("y2005e,Test.default.ITTF");
 void bfc(Int_t First, Int_t Last,const Char_t *Chain = defChain + ",Display",
 	 const Char_t *infile=0, const Char_t *outfile=0, const Char_t *TreeFile=0);
-//	 const Char_t *Chain="gstar,y2005h,MakeEvent,trs,sss,svt,ssd,fss,bbcSim,emcY2,tpcI,fcf,ftpc,SvtCL,svtDb,ssdDb,svtIT,ssdIT,ITTF,genvtx,Idst,event,analysis,EventQA,tags,Tree,EvOut,McEvOut,GeantOut,IdTruth,miniMcMk,StarMagField,FieldOn,McAna,Display",//,,NoSimuDb, display, //McQa, 
+//	 const Char_t *Chain="gstar,y2005e,MakeEvent,trs,sss,svt,ssd,fss,bbcSim,emcY2,tpcI,fcf,ftpc,SvtCL,svtDb,ssdDb,svtIT,ssdIT,ITTF,genvtx,Idst,event,analysis,EventQA,tags,Tree,EvOut,McEvOut,GeantOut,IdTruth,miniMcMk,StarMagField,FieldOn,McAna,Display",//,,NoSimuDb, display, //McQa, 
 void bfc(Int_t Last, const Char_t *Chain = defChain,
 	 const Char_t *infile=0, const Char_t *outfile=0, const Char_t *TreeFile=0);
-	 //	 const Char_t *Chain="gstar,y2005h,tpcDb,trs,tpc,Physics,Cdst,Kalman,tags,Tree,EvOut,McEvOut,IdTruth,miniMcMk,StarMagField,FieldOn,McAna", // McQA
+	 //	 const Char_t *Chain="gstar,y2005e,tpcDb,trs,tpc,Physics,Cdst,Kalman,tags,Tree,EvOut,McEvOut,IdTruth,miniMcMk,StarMagField,FieldOn,McAna", // McQA
 //_____________________________________________________________________
 void Load(const Char_t *options){
-  cout << "Load system libraries\t";
+  cout << "Load system libraries" << endl;
   if ( gClassTable->GetID("TGiant3") < 0) { // ! root4star
+    cout << endl << "Load ";
     if (!TString(options).Contains("nodefault",TString::kIgnoreCase) || 
 	 TString(options).Contains("pgf77",TString::kIgnoreCase)) {
       const Char_t *pgf77 = "libpgf77VMC";
@@ -45,81 +44,46 @@ void Load(const Char_t *options){
     }
     if (!TString(options).Contains("nodefault",TString::kIgnoreCase) || 
 	TString(options).Contains("cern",TString::kIgnoreCase)) {
-      gSystem->Load("libminicern"); 
-      cout << "libminicern" ;
+      gSystem->Load("libminicern"); cout << "libminicern";
     }
-
-    
-    if (!strstr(gProgName,"root4star")                               ||
-	!TString(options).Contains("nodefault",TString::kIgnoreCase) || 
+    if (!TString(options).Contains("nodefault",TString::kIgnoreCase) || 
 	TString(options).Contains("mysql",TString::kIgnoreCase)) {
       Char_t *mysql = "libmysqlclient";
-      //Char_t *mysql = "libmimerS"; // just to test it picks from OPTSTAR
-
-      //
-      // May use USE_64BITS - the x8664 work fine too
-      //
-      Char_t *libsLocal[]= {"",
-	                    "$OPTSTAR/lib/",
-			    "$OPTSTAR/lib/mysql/",
-			    "/usr/lib/", 
-			    "/usr/lib/mysql/", 
-			    "/usr/mysql/lib/",
-			    NULL}; 
-      Char_t *libsGlbal[]= {"", 
-			    "/usr/lib/", 
-			    "/usr/lib/mysql/", 
-			    "/usr/mysql/lib/",
-			    "$OPTSTAR/lib/",
-			    "$OPTSTAR/lib/mysql/",
-			    NULL}; 
-
-      Char_t **libs;
-
-      if ( gSystem->Getenv("USE_LOCAL_MYSQL") ){
-	libs = libsLocal;
-      } else {
-	libs = libsGlbal;
-      }
-
-
-      TString Arch( gSystem->GetBuildArch() );
-      Bool_t i64 = kFALSE;
-      if ( gSystem->Getenv("USE_64BITS")==1 || Arch.Contains("x8664")) i64 = kTRUE;
-
+      Char_t *libs[]  = {"", "/usr/mysql/lib/","/usr/lib/", 0}; // "$ROOTSYS/mysql-4.1.20/lib/",
+      //Char_t *libs[]  = {"/usr/lib/", 0};
       Int_t i = 0;
       while ((libs[i])) {
 	TString lib(libs[i]);
-	//cout << "Found " << lib << endl;
-	if (i64) lib.ReplaceAll("/lib","/lib64");
 	lib += mysql;
 	lib = gSystem->ExpandPathName(lib.Data());
 	if (gSystem->DynamicPathName(lib,kTRUE)) {
-	  gSystem->Load(lib.Data()); 
-	  cout << " + " << mysql << " from " << lib.Data();
+	  gSystem->Load(lib.Data()); cout << " + " << lib.Data() << endl;
 	  break;
 	}
 	i++;
       }
     }
-    cout << endl;
   }
-  gSystem->Load("libSt_base");                                        //  StMemStat::PrintMem("load St_base");
+  //  if (gClassTable->GetID("TMatrix") < 0) gSystem->Load("StarRoot");// moved to rootlogon.C  TMemStat::PrintMem("load StarRoot");
+#ifdef UseLogger
   // Look up for the logger option
   Bool_t needLogger  = kFALSE;
-  if (gSystem->Load("liblog4cxx.so") >=  0) {             //  StMemStat::PrintMem("load log4cxx");
-    cout << " + liblog4cxx.so";
-    if(gSystem->Load("libStStarLogger.so") >= 0) {              //  StMemStat::PrintMem("load log4cxx");
-      cout << " + libStStarLogger.so";
-      gROOT->ProcessLine("StLoggerManager::StarLoggerInit();"); 
-    }
+  if (!TString(options).Contains("-logger",TString::kIgnoreCase)) {
+    needLogger = gSystem->Load("liblog4cxx.so") <= 0;              //  TMemStat::PrintMem("load log4cxx");
   }
+#endif
+  gSystem->Load("libSt_base");                                        //  TMemStat::PrintMem("load St_base");
+#ifdef UseLogger
+  if (needLogger) {
+    gSystem->Load("libStStarLogger.so");
+    gROOT->ProcessLine("StLoggerManager::StarLoggerInit();");      //  TMemStat::PrintMem("load StStarLogger");
+  }
+#endif
   gSystem->Load("libHtml");
-  gSystem->Load("libStChain");                                        //  StMemStat::PrintMem("load StChain");
-  gSystem->Load("libStUtilities");                                    //  StMemStat::PrintMem("load StUtilities");
-  gSystem->Load("libStBFChain");                                      //  StMemStat::PrintMem("load StBFChain");
-  gSystem->Load("libStChallenger");                                   //  StMemStat::PrintMem("load StChallenger");
-  cout << endl;
+  gSystem->Load("libStChain");                                        //  TMemStat::PrintMem("load StChain");
+  gSystem->Load("libStUtilities");                                    //  TMemStat::PrintMem("load StUtilities");
+  gSystem->Load("libStBFChain");                                      //  TMemStat::PrintMem("load StBFChain");
+  gSystem->Load("libStChallenger");                                   //  TMemStat::PrintMem("load StChallenger");
 }
 //_____________________________________________________________________
 void bfc(Int_t First, Int_t Last,
@@ -153,7 +117,6 @@ void bfc(Int_t First, Int_t Last,
     gMessMgr->Error() << "Problems with instantiation of Maker(s)" << endm;
     gSystem->Exit(1);
   }
-  StMaker::lsMakers(chain);
   if (Last < 0) return;
   StMaker *dbMk = chain->GetMaker("db");
   if (dbMk) dbMk->SetDebug(1);
@@ -161,7 +124,7 @@ void bfc(Int_t First, Int_t Last,
   // Insert your maker before "tpc_hits"
   Char_t *myMaker = "St_TLA_Maker";
   if (gClassTable->GetID(myMaker) < 0) {
-	  gSystem->Load(myMaker);//  TString ts("load "; ts+=myMaker; StMemStat::PrintMem(ts.Data());
+	  gSystem->Load(myMaker);//  TString ts("load "; ts+=myMaker; TMemStat::PrintMem(ts.Data());
   }
   StMaker *myMk = chain->GetMaker(myMaker);
   if (myMk) delete myMk;
@@ -195,15 +158,9 @@ void bfc(Int_t First, Int_t Last,
   gMessMgr->QAInfo() << Form("with %s", chain->GetCVS()) << endm;
   // Init the chain and all its makers
   TAttr::SetDebug(0);
-  chain->SetAttr(".Privilege",0,"*"                ); 	  //All  makers are NOT priviliged
-  chain->SetAttr(".Privilege",1,"StIOInterFace::*" ); 	  //All IO makers are priviliged
-  chain->SetAttr(".Privilege",1,"St_geant_Maker::*"); 	  //It is also IO maker
-  chain->SetAttr(".Privilege",1,"StTpcDbMaker::*"); 	  //It is also TpcDb maker to catch trips
-  chain->SetAttr(".Privilege",1,"*::tpc_hits"); //May be allowed to act upon excessive events
-  chain->SetAttr(".Privilege",1,"*::tpx_hits"); //May be allowed to act upon excessive events
-  chain->SetAttr(".Privilege",1,"StTpcHitMover::*"); //May be allowed to act upon corrupt events
-  chain->SetAttr(".Privilege",1,"*::tpcChain"); //May pass on messages from sub-makers
-  chain->SetAttr(".Privilege",1,"StTriggerDataMaker::*"); //TriggerData could reject event based on corrupt triggers
+  chain->SetAttr(".Privilege",0,"*"                ); 	//All  makers are NOT priviliged
+  chain->SetAttr(".Privilege",1,"StIOInterFace::*" ); 	//All IO makers are priviliged
+  chain->SetAttr(".Privilege",1,"St_geant_Maker::*"); 	//It is also IO maker
   Int_t iInit = chain->Init();
   if (iInit >=  kStEOF) {chain->FatalErr(iInit,"on init"); return;}
   if (Last == 0) return;
@@ -212,13 +169,15 @@ void bfc(Int_t First, Int_t Last,
     // skip if any
   chain->EventLoop(First,Last,0);
   gMessMgr->QAInfo() << "Run completed " << endm;
+  gSystem->Exec("date");
 }
 //_____________________________________________________________________
 void bfc(Int_t Last, 
 	 const Char_t *Chain,
 	 const Char_t *infile, 
 	 const Char_t *outfile, 
-	 const Char_t *TreeFile) {
+	 const Char_t *TreeFile)
+{
   bfc(1,Last,Chain,infile,outfile,TreeFile);
 }
 //____________________________________________________________

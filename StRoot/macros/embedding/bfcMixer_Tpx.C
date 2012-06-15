@@ -4,9 +4,12 @@
 //
 // Owner:  Yuri Fisyak
 //
-// $Id: bfcMixer_Tpx.C,v 1.34 2012/04/18 03:47:34 zhux Exp $
+// $Id: bfcMixer_Tpx.C,v 1.3.2.1 2012/06/15 20:58:15 jeromel Exp $
 //
 // $Log: bfcMixer_Tpx.C,v $
+// Revision 1.3.2.1  2012/06/15 20:58:15  jeromel
+// Initial patch for SL08e_emebed
+//
 // Revision 1.34  2012/04/18 03:47:34  zhux
 // Corrected string name for Run 11 Au+Au 19.6 GeV chain
 //
@@ -71,7 +74,7 @@ void bfcMixer_Tpx(Int_t Nevents=100,
 //  TString prodP08icAuAu9("DbV20080709 P2008 ITTF VFMCE -hitfilt");
 //  TString prodP08icAuAu200("DbV20070101 P2008 ITTF VFMCE -hitfilt");  
 //  TString prodP08icdAu("DbV20080712 P2008 ITTF OSpaceZ2 OGridLeak3D beamLine, VFMCE TpxClu -VFMinuit -hitfilt");
-  TString prodP08iedAu("DbV20090213 P2008 ITTF OSpaceZ2 OGridLeak3D beamLine VFMCE TpxClu -VFMinuit -hitfilt");
+  TString prodP08iedAu("DbV20090213 P2008 ITTF OSpaceZ2 OGridLeak3D beamLine VFMCE TpxClu -logger -VFMinuit -hitfilt");
   TString prodP10iapp("DbV20091001 pp2009c TpcRS ITTF OSpaceZ2 OGridLeak3D beamLine, VFMCE TpcRS -VFMinuit -hitfilt");
 
    // production chain for P10ic p+p RFF & FF
@@ -104,14 +107,16 @@ void bfcMixer_Tpx(Int_t Nevents=100,
    // Run11 pp 500 GeV chain  
   TString prodP11idpp500("DbV20110923 pp2011a btof mtddat fmsdat BEmcChkStat Corr4 OSpaceZ2 OGridLeak3D VFMCE TpxClu -hitfilt");
 
-  TString geomP08ic("ry2008e");
+  //TString geomP08ic("ry2008e");
+  TString geomP08ic("ry2008");
   TString geomP10ic("ry2009d");
   TString geomP10ih("ry2010c");
   TString geomP10ik(geomP10ih); // Same chain as P10ih
   TString geomP11id("ry2011");
 
   TString chain1Opt("in,magF,tpcDb,NoDefault,TpxRaw,-ittf,NoOutput");
-  TString chain2Opt("gen_T,geomT,sim_T,TpcRS,-ittf,-tpc_daq,nodefault");
+  TString chain2Opt("gen_T,geomT,sim_T,trs,-ittf,-tpc_daq,nodefault");
+  //TString chain2Opt("gen_T,geomT,sim_T,TpcRS,-ittf,-tpc_daq,nodefault");
 //  TString chain2Opt("NoInput,PrepEmbed,gen_T,geomT,sim_T,trs,-ittf,-tpc_daq,nodefault");
 	if(bPythia){
 		chain2Opt += ",fzin";
@@ -232,6 +237,7 @@ void bfcMixer_Tpx(Int_t Nevents=100,
   StMcEventMaker* mcEventMaker = new StMcEventMaker();
   StEmcSimulatorMaker *bemcSim   = new StEmcSimulatorMaker();
   StEmcMixerMaker     *bemcMixer = new StEmcMixerMaker();
+  cout << "Adding BEMC after emcRaw" << endl;
   chain3->AddAfter("emcRaw",bemcMixer); 
   chain3->AddAfter("emcRaw",bemcSim); 
   chain3->AddAfter("emcRaw",mcEventMaker);
@@ -245,6 +251,7 @@ void bfcMixer_Tpx(Int_t Nevents=100,
   /* position B+E EMC makers in the chain 
      (order is reverse because 'After' is used - looks funny but is right)
   */
+  cout << "Adding EEMC after emcRaw" << endl;
   chain3->AddAfter("emcRaw",eemcMixer); 
   chain3->AddAfter("emcRaw",eemcFastSim); 
 
@@ -254,6 +261,7 @@ void bfcMixer_Tpx(Int_t Nevents=100,
   
   bool useEndcapSlowSim = true;
   if(useEndcapSlowSim) { // turn Endcap slow simu On/Off 
+    cout << "EEMC SlowSim is ON, adding slowSim after EEmcFastSim" << endl;
     StEEmcSlowMaker *slowSim=new StEEmcSlowMaker();
     chain3->AddAfter("EEmcFastSim",slowSim); 
     slowSim->setEmbeddingMode();
@@ -293,7 +301,7 @@ void bfcMixer_Tpx(Int_t Nevents=100,
   	// z-vertex cuts
   	embMk->SetZVertexCut(vzlow, vzhigh) ;
   	// vr = sqrt{vx^2 + vy^2} cut
-  	embMk->SetVrCut(vr);
+  	//embMk->SetVrCut(vr);
 	}
 
   TAttr::SetDebug(0);
