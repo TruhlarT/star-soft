@@ -1787,8 +1787,8 @@ sub get_prodlib_version_ID {
 		    #print "$cmd2\n";
 		    $sth2  = $FC::DBH->prepare($cmd2);
 		    if ( $sth2->execute() ){
-			&print_debug("get_prodlib_version_ID","Inserted $prod,$lib");
 			$id = &get_last_id();
+			&print_debug("get_prodlib_version_ID","Inserted $prod,$lib as id=$id");
 		    } else {
 			&print_message("get_prodlib_version_ID","Failed to insert $prod,$lib".$FC::DBH->errstr);
 		    }
@@ -2484,7 +2484,12 @@ sub insert_file_data {
 
   # We CANNOT proceed without those basic values
   if ((($production == 0 ) && ($library == 0)) || $fileType == 0){
-      &print_message("insert_file_data","production/library or filtype not defined, cannot add to FileData");
+      if ( ($production == 0 ) && ($library == 0)){
+	  &print_message("insert_file_data","production/library are not defined, cannot add to FileData");
+      } else {
+	  &print_message("insert_file_data","filetype not defined, cannot add to FileData");
+      }
+      #&print_message("insert_file_data","production/library or filetype not defined, cannot add to FileData");
       return 0;
   }
 
@@ -5038,7 +5043,7 @@ sub run_query {
 
 	# close file
 	if ( defined($FHDL) ){
-	    print $FHDL "# count=$count,delta=$tf\n";
+	    print $FHDL "# count=$count delta=$tf usage=$user_usage\n";
 	    close($FHDL) ;
 	    # If too small or not expensive, delete to keep number of files under control
 	    # Note: spiders checks nearly all files individually ...
