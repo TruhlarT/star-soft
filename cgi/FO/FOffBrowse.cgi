@@ -163,8 +163,9 @@ if( $flag && ! $trace ){
 
 
     # Get the selected records from database.
+    #rdaq_toggle_debug(1);
     @all = rdaq_get_orecords($obj,\%SEL,$limit,1);
-
+    #rdaq_toggle_debug(0);
 
 
 
@@ -667,7 +668,8 @@ sub FormatLine
 	    $el = rdaq_bits2string("TrgMask",$el);
 	    $el =~ s/\./ /g;
 	    if ( length($el) > 45){
-		$el = substr($el,0,40)."...";
+		#$el = substr($el,0,40)."...";
+		$el = "<FONT SIZE=\"-1\">$el</FONT>";
 	    }
 	    #rdaq_toggle_debug(0);
 
