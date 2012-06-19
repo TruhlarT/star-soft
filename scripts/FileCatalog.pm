@@ -1768,6 +1768,10 @@ sub get_prodlib_version_ID {
 	($fldnm1, $tabname, $rest) = split(",",$keywrds{"production"});
 	($fldnm2, $tabname, $rest) = split(",",$keywrds{"library"});
 
+	# trim leading/trailing
+	$prod =~ s/^(.*?)\s*$/$1/;
+	$lib  =~ s/^(.*?)\s*$/$1/;
+
 
 	# fetch if exists
 	$cmd1 = &_CACHED_SELECT().&_IDize("get_prolib_version_ID",$tabname)." FROM $tabname WHERE $fldnm1=? AND $fldnm2=?";
@@ -1786,14 +1790,21 @@ sub get_prodlib_version_ID {
 		    $cmd2 .= "VALUES('".$prod."', '".$lib." ', NOW()+0, ".&_GetILogin().")";
 		    #print "$cmd2\n";
 		    $sth2  = $FC::DBH->prepare($cmd2);
-		    if ( $sth2->execute() ){
-			$id = &get_last_id();
-			&print_debug("get_prodlib_version_ID","Inserted $prod,$lib as id=$id");
+		    if ( ! $sth2 ){
+			&die_message("get_prodlib_version_ID","Cannot prepare [$cmd2] ".$FC::DBH->errstr);
 		    } else {
-			&print_message("get_prodlib_version_ID","Failed to insert $prod,$lib".$FC::DBH->errstr);
+			if ( $sth2->execute() ){
+			    $id = &get_last_id();
+			    if ( $id == 0){
+				&print_message("get_prodlib_version_ID","Last inserted ID was 0, this is a problem");
+			    } else {
+				&print_debug("get_prodlib_version_ID","Inserted $prod,$lib as id=$id");
+			    }
+			} else {
+			    &die_message("get_prodlib_version_ID","Failed to insert $prod,$lib ".$FC::DBH->errstr);
+			}
+			$sth2->finish();
 		    }
-		    $sth2->finish();
-
 		} elsif ($sth1->rows > 1) {
 		    $sth1->finish();
 		    &die_message("get_prodlib_version_ID","Self consistency check failed",
@@ -4973,7 +4984,8 @@ sub run_query {
 		    # do not return undefined field, set to null-string
 		    if( ! defined($cols[$i]) ){ $cols[$i] = "";}
 		    # transformation in read here
-		    if ( defined($ktransform{$kstackunique[$i]}) ){
+		    next if ( ! defined($rkey = $kstackunique[$i]) );
+		    if ( defined($ktransform{$rkey}) ){
 			&print_debug("run_query","We will transform $kstackunique[$i] = $cols[$i]\n");
 			eval("\$cols[$i] = ".(split(";",$ktransform{$kstackunique[$i]}))[0]."($cols[$i]);");
 		    }
