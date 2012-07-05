@@ -57,7 +57,17 @@ print  $SITE, "\n";
   $TOP_DIRD = "/star/data08/users/didenko/pdsf/new_embed/";
   @node_dir = ("daq_sl53.ittf", "trs_sl53.ittf");  
 
- }
+ }elsif($SITE eq "kisti" ) {
+
+   $dsite = "kisti"; 
+  $TOP_DIRD = "/star/data08/users/didenko/kisti/new/";
+  @node_dir = ("daq_sl53.ittf", "trs_sl53.ittf");  
+
+ }elsif($SITE eq "kisti_embed" ) {
+
+  $dsite = "kisti";  
+  $TOP_DIRD = "/star/data08/users/didenko/kisti/new_embed/";
+  @node_dir = ("daq_sl53.ittf", "trs_sl53.ittf");   
 
 my @prt = ();
 
