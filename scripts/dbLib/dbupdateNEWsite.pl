@@ -407,6 +407,12 @@ my $pyear = 0;
        $platf = $dirF[7];
         @prt =split("_", $dirF[8]);
        $pyear = $prt[1]; 
+  }elsif($SITE eq "kisti" or $SITE eq "kisti_embed") {
+        $libL = $dirF[6];
+       $platf = $dirF[7];
+        @prt =split("_", $dirF[8]);
+       $pyear = $prt[1]; 
+
    }
 
        $logName = $fname; 
@@ -794,6 +800,11 @@ $jrun = "Run not completed";
  }elsif($fl_log =~ /rcf/ and $subdr[7] =~ /embed/) {
 
    $embflag = 1;
+
+ }elsif($fl_log =~ /kisti/ and $subdr[7] =~ /embed/) {
+
+   $embflag = 1;
+
  }else{
 
      $embflag = 0;
