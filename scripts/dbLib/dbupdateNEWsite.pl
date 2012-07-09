@@ -801,7 +801,7 @@ $jrun = "Run not completed";
 
    $embflag = 1;
 
- }elsif($fl_log =~ /kisti/ and $subdr[7] =~ /embed/) {
+ }elsif($fl_log =~ /kisti/ and $subdr[9] =~ /embed/) {
 
    $embflag = 1;
 
