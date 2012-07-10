@@ -468,7 +468,7 @@ my $trg0 = "n/a";
 
 #        if( $prod[$nlist] eq "P11id" and $trig[$nlist] eq "none" ) {
 
-       if( $prod[$nlist] eq "P11id" and ( $trig[$nlist] eq "production2009_200Gev_Single" or $trig[$nlist] eq "production2009_200Gev_nocal" )) {
+       if( $prod[$nlist] eq "P11id" and ( $trig[$nlist] eq "production2009_200Gev_Single" or $trig[$nlist] eq "production2009_200Gev_nocal" or $trig[$nlist] eq "production2009_200Gev_noendcap")) {
 
 print <<END;
 
