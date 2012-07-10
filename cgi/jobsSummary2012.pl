@@ -3,7 +3,7 @@
 # $Id:
 #
 # L.Didenko
-# jobSummary2011.pl - summary of production jobs status for year 2012
+# jobSummary2012.pl - summary of production jobs status for year 2012
 #
 ########################################################################################
 
