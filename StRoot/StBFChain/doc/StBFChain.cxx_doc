@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.104 2012/06/01 14:19:58 fisyak Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.105 2012/07/18 23:15:59 fisyak Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -1189,6 +1189,7 @@ Bfc_st BFC[] = {
    "StGammaFilterMaker","StFilterMaker", "BEmc Gamma filtering", kFALSE},
   {"FiltEemcGamma" ,"","","StEvent,StMcEvent,EmcUtil",
    "StEemcGammaFilterMaker","StFilterMaker", "EEmc Gamma filtering", kFALSE},
+  {"fmsFastSim","","","fmsDb","StFmsSimulatorMaker","StFmsSimulatorMaker","Fms fast&slow Simulator",kFALSE},
   {"fmsDat" ,"","", "StEvent,fmsdb",
    "StFmsHitMaker","StFmsHitMaker","Fill FMS struct and zero TRG", kFALSE},
   {"fgtDat" ,"","", "event,fgtutil","StFgtRawMaker","StFgtRawMaker", "FGT Data reader",kFALSE},
@@ -2531,6 +2532,7 @@ Bfc_st BFC[] = {
    "StGammaFilterMaker","StFilterMaker", "BEmc Gamma filtering", kFALSE},
   {"FiltEemcGamma" ,"","","StEvent,StMcEvent,EmcUtil",
    "StEemcGammaFilterMaker","StFilterMaker", "EEmc Gamma filtering", kFALSE},
+  {"fmsFastSim","","","fmsDb","StFmsSimulatorMaker","StFmsSimulatorMaker","Fms fast&slow Simulator",kFALSE},
   {"fmsDat" ,"","", "StEvent,fmsdb",
    "StFmsHitMaker","StFmsHitMaker","Fill FMS struct and zero TRG", kFALSE},
   {"fgtDat" ,"","", "event,fgtutil","StFgtRawMaker","StFgtRawMaker", "FGT Data reader",kFALSE},
