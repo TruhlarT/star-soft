@@ -3,7 +3,7 @@
  */
 /***************************************************************************
  *
- * $Id: StEnumerations.h,v 2.45 2012/07/21 03:31:37 perev Exp $
+ * $Id: StEnumerations.h,v 2.46 2012/07/30 14:41:52 ullrich Exp $
  *
  * Author: Thomas Ullrich, Jan 1999
  ***************************************************************************
@@ -16,6 +16,9 @@
  ***************************************************************************
  *
  * $Log: StEnumerations.h,v $
+ * Revision 2.46  2012/07/30 14:41:52  ullrich
+ * Added 2 new variables to enum StFgtClusterSeedType
+ *
  * Revision 2.45  2012/07/21 03:31:37  perev
  *  Increase Track Range 300=>500
  *
@@ -486,7 +489,9 @@ enum StFgtClusterSeedType {
     kFgtClusterEndDown,
     kFgtStripShared,
     kFgtClusterTooBig,
-    kFgtClusterSeedInSeaOfNoise
+    kFgtClusterSeedInSeaOfNoise,
+    kFgtNextToCluster,
+    kFgtKeepStrip
 };
 
 const char *detectorNameById(StDetectorId id);
