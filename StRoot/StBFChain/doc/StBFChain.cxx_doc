@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.105 2012/07/18 23:15:59 fisyak Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.106 2012/07/31 21:47:05 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -1032,6 +1032,7 @@ Bfc_st BFC[] = {
   {"ssdCalDb" ,"" ,"","ssdDb" ,"","","Declare Calibrations/ssd as while list member",kFALSE},
   {"eemcDb" ,"eeDb" ,"","db", "StEEmcDbMaker","StEEmcDbMaker","Load EEmcDbMaker",kFALSE},
   {"fmsDb" ,"fmsDb","","db", "StFmsDbMaker","StFmsDbMaker","Load FmsDbMaker",kFALSE},
+  {"fgtDb" ,"fgtDb","","db,fgtutil", "StFgtDbMaker","StFgtDbMaker","Load FgtDbMaker",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"MAKERS      ","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
@@ -1189,10 +1190,13 @@ Bfc_st BFC[] = {
    "StGammaFilterMaker","StFilterMaker", "BEmc Gamma filtering", kFALSE},
   {"FiltEemcGamma" ,"","","StEvent,StMcEvent,EmcUtil",
    "StEemcGammaFilterMaker","StFilterMaker", "EEmc Gamma filtering", kFALSE},
-  {"fmsFastSim","","","fmsDb","StFmsSimulatorMaker","StFmsSimulatorMaker","Fms fast&slow Simulator",kFALSE},
+  {"fmsSim","" ,"","StEvent,fmsDb","StFmsSimulatorMaker","StFmsSimulatorMaker","Fms Simulator",kFALSE},
   {"fmsDat" ,"","", "StEvent,fmsdb",
    "StFmsHitMaker","StFmsHitMaker","Fill FMS struct and zero TRG", kFALSE},
-  {"fgtDat" ,"","", "event,fgtutil","StFgtRawMaker","StFgtRawMaker", "FGT Data reader",kFALSE},
+  {"fgt" ,"FgtChain","","fgtDat,fgtClu,fgtAtoC" ,"StMaker","StChain","Fgt data Chain",kFALSE},
+  {"fgtDat" ,"","", "event,fgtdb","StFgtRawMaker","StFgtRawMaker", "FGT Data reader",kFALSE},
+  {"fgtClu" ,"","", "fgtutil", "StFgtClusterMaker","StFgtClusterMaker", "FGT cluster maker",kFALSE},
+  {"fgtAtoC" ,"","", "fgtdb", "StFgtA2CMaker","StFgtA2CMaker", "FGT ADC to Charge maker",kFALSE},
   {"genvtx","","","ctf_T,EEmcUtil","StGenericVertexMaker"
    ,"ctf,St_ctf,St_ctf_Maker,Minuit,StGenericVertexMakerNoSti"
    , "Generic Vertex Finder library (default is MinuitVertexFinder)",kFALSE},
@@ -1220,7 +1224,7 @@ Bfc_st BFC[] = {
   {"StiCA" ,"Sti","","-Sti,-StiLib,StiCALib,StiLibs,SCL,StEvent,StDbT,TpcIT,compend,tbutil","StiMaker"
    , "StEventUtilities,libEG,StiUtilities,StiMaker","Sti+CA tracker",kFALSE},
   {"KFVertex" ,"" ,"Sti","-genvtx,-VFMinuit,-VFFV,-VFMCE,-VFppLMV,-VFPPVnoCTB,-VFPPV", "StKFVertexMaker"
-   ,"MathMore,Spectrum", "...KFParticle base multi vertex reconstruction",kFALSE},
+                            ,"MathMore,Spectrum", "...KFParticle base multi vertex reconstruction",kFALSE},
   {"Stv" ,"Stv","","-TpcIT,-SvtIT,-SsdIT,gen_T,sim_T","StvMaker"
    ,"libHist,libHistPainter,libVMC,StarVMCApplication,StarMiniCern,geant3,GeoTestMaker,StvUtil,Stv,StvMaker"
    , "Stv",kFALSE},
@@ -2375,6 +2379,7 @@ Bfc_st BFC[] = {
   {"ssdCalDb" ,"" ,"","ssdDb" ,"","","Declare Calibrations/ssd as while list member",kFALSE},
   {"eemcDb" ,"eeDb" ,"","db", "StEEmcDbMaker","StEEmcDbMaker","Load EEmcDbMaker",kFALSE},
   {"fmsDb" ,"fmsDb","","db", "StFmsDbMaker","StFmsDbMaker","Load FmsDbMaker",kFALSE},
+  {"fgtDb" ,"fgtDb","","db,fgtutil", "StFgtDbMaker","StFgtDbMaker","Load FgtDbMaker",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"MAKERS      ","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
@@ -2532,10 +2537,13 @@ Bfc_st BFC[] = {
    "StGammaFilterMaker","StFilterMaker", "BEmc Gamma filtering", kFALSE},
   {"FiltEemcGamma" ,"","","StEvent,StMcEvent,EmcUtil",
    "StEemcGammaFilterMaker","StFilterMaker", "EEmc Gamma filtering", kFALSE},
-  {"fmsFastSim","","","fmsDb","StFmsSimulatorMaker","StFmsSimulatorMaker","Fms fast&slow Simulator",kFALSE},
+  {"fmsSim","" ,"","StEvent,fmsDb","StFmsSimulatorMaker","StFmsSimulatorMaker","Fms Simulator",kFALSE},
   {"fmsDat" ,"","", "StEvent,fmsdb",
    "StFmsHitMaker","StFmsHitMaker","Fill FMS struct and zero TRG", kFALSE},
-  {"fgtDat" ,"","", "event,fgtutil","StFgtRawMaker","StFgtRawMaker", "FGT Data reader",kFALSE},
+  {"fgt" ,"FgtChain","","fgtDat,fgtClu,fgtAtoC" ,"StMaker","StChain","Fgt data Chain",kFALSE},
+  {"fgtDat" ,"","", "event,fgtdb","StFgtRawMaker","StFgtRawMaker", "FGT Data reader",kFALSE},
+  {"fgtClu" ,"","", "fgtutil", "StFgtClusterMaker","StFgtClusterMaker", "FGT cluster maker",kFALSE},
+  {"fgtAtoC" ,"","", "fgtdb", "StFgtA2CMaker","StFgtA2CMaker", "FGT ADC to Charge maker",kFALSE},
   {"genvtx","","","ctf_T,EEmcUtil","StGenericVertexMaker"
    ,"ctf,St_ctf,St_ctf_Maker,Minuit,StGenericVertexMakerNoSti"
    , "Generic Vertex Finder library (default is MinuitVertexFinder)",kFALSE},
@@ -2563,7 +2571,7 @@ Bfc_st BFC[] = {
   {"StiCA" ,"Sti","","-Sti,-StiLib,StiCALib,StiLibs,SCL,StEvent,StDbT,TpcIT,compend,tbutil","StiMaker"
    , "StEventUtilities,libEG,StiUtilities,StiMaker","Sti+CA tracker",kFALSE},
   {"KFVertex" ,"" ,"Sti","-genvtx,-VFMinuit,-VFFV,-VFMCE,-VFppLMV,-VFPPVnoCTB,-VFPPV", "StKFVertexMaker"
-   ,"MathMore,Spectrum", "...KFParticle base multi vertex reconstruction",kFALSE},
+                            ,"MathMore,Spectrum", "...KFParticle base multi vertex reconstruction",kFALSE},
   {"Stv" ,"Stv","","-TpcIT,-SvtIT,-SsdIT,gen_T,sim_T","StvMaker"
    ,"libHist,libHistPainter,libVMC,StarVMCApplication,StarMiniCern,geant3,GeoTestMaker,StvUtil,Stv,StvMaker"
    , "Stv",kFALSE},
