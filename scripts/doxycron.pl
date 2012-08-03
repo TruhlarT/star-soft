@@ -383,6 +383,7 @@ for ($kk=0 ; $kk <= $#PROJECTS ; $kk++){
 	    exit;
 	}
 
+
 	if( -d "$TARGETD/dox$SUBDIR/tmp$$/html" && $DOTAG){
 	    print "\tRunning $DOXYTAG now ".localtime()."\n";
 	    system("cd $TARGETD/dox$SUBDIR/tmp$$/html ; ".
@@ -398,8 +399,12 @@ for ($kk=0 ; $kk <= $#PROJECTS ; $kk++){
 		}
 	    }
 	} else {
-	    print "\t\tMissing tmp$$/html directory\n";
-	    exit;
+	    if ( $DOTAG ){
+		print "\t\tMissing $TARGETD/dox$SUBDIR/tmp$$/html directory - stop\n";
+		exit;
+	    } else {
+		print "\t\tTag not enabled (continuing)\n";
+	    }
 	}
 		
 	#unlink("$tmpf.cfg");
