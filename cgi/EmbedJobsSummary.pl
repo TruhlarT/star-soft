@@ -231,7 +231,7 @@ my $nprod = 0;
 
 #       while( $mpr = $cursor->fetchrow() ) {
 #          $szmudst[$nprod] = $mpr;
-       }
+#       }
 #    $cursor->finish();
 
 #    $szmudst[$nprod] = int($szmudst[$nprod]/1000000000 + 0.5); 
@@ -306,10 +306,9 @@ END
 </TR>
 END
 
-};
+ }
       $nprod++;
-
-};
+ }
 
  &StDbEmbDisconnect();
 
