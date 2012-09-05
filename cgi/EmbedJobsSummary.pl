@@ -262,7 +262,6 @@ my $nprod = 0;
 <td HEIGHT=10><h3><font color="red">$partcl[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$prodtag[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$librv[$nprod]</font></h3></td>
-
 <td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];pflag=chnopt">chain</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$jbcreat[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$jbdone[$nprod]</font></h3></td>
@@ -270,7 +269,6 @@ my $nprod = 0;
 <td HEIGHT=10><h3><font color="red">$jbremain[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];rpart=$partcl[$nprod];$pflag=mudst">$mismudst[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];rpart=$partcl[$nprod];pflag=ndisk">location</font></h3></td>
-
 <td HEIGHT=10><h3><font color="red">$outsize[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$sumevt[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$sumevtmd[$nprod]</font></h3></td>
@@ -291,7 +289,6 @@ END
 <td HEIGHT=10><h3>$partcl[$nprod]</h3></td>
 <td HEIGHT=10><h3>$prodtag[$nprod]</h3></td>
 <td HEIGHT=10><h3>$librv[$nprod]</h3></td>
-
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];pflag=chnopt">chain</h3></td>
 <td HEIGHT=10><h3>$jbcreat[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbdone[$nprod]</h3></td>
@@ -299,7 +296,6 @@ END
 <td HEIGHT=10><h3>$jbremain[$nprod]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];rpart=$partcl[$nprod];pflag=mudst">$mismudst[$nprod]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];rpart=$partcl[$nprod];pflag=ndisk">location</h3></td>
-
 <td HEIGHT=10><h3>$outsize[$nprod]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nprod]</h3></td>
 <td HEIGHT=10><h3>$sumevtmd[$nprod]</h3></td>
@@ -307,16 +303,15 @@ END
 <td HEIGHT=10><h3>$strtime[$nprod]</h3></td>
 <td HEIGHT=10><h3>$fntime[$nprod]</h3></td>
 <td HEIGHT=10><h3>$prdsite[$nprod]</h3></td>
-
 </TR>
 END
 
- }
+};
       $nprod++;
 
-}
+};
 
-    &StDbEmbDisconnect();
+ &StDbEmbDisconnect();
 
  &endHtml();
 
@@ -386,7 +381,7 @@ print <<END;
 </TABLE>
       <h5>
       <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
-<!-- Created: Thu June 30 2011 -->
+<!-- Created: Thu September 6 2012 -->
 <!-- hhmts start -->
 Last modified: $Date
 <!-- hhmts end -->
