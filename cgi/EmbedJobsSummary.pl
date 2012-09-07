@@ -89,7 +89,7 @@ my $nprod = 0;
 
   &StDbEmbConnect();
 
-  $sql="SELECT distinct triggerSetName, prodTag, libTag, requestID, particle, date_format(min(startTime), '%Y-%m-%d') as mintm, date_format(max(endTime), '%Y-%m-%d') as maxtm, sum(totalEvents), sum(MuDstEvents), avg(CPUperEvt), sum(outputSize), site  from $JobStatusT where jobStatus = 'Done' and startTime <> '0000-00-00 00:00:00' and CPUperEvt > 0.00001 group by triggerSetName, prodTag, requestID, particle order by max(startTime) ";
+  $sql="SELECT distinct triggerSetName, prodTag, libTag, requestID, particle, date_format(min(startTime), '%Y-%m-%d') as mintm, date_format(max(endTime), '%Y-%m-%d') as maxtm, sum(totalEvents), sum(MuDstEvents), avg(CPUperEvt), sum(outputSize), site  from $JobStatusT where jobStatus = 'Done' and  status = 1 and startTime <> '0000-00-00 00:00:00' and CPUperEvt > 0.00001 group by triggerSetName, prodTag, requestID, particle order by max(startTime) ";
 
 
             $cursor =$dbh->prepare($sql)
@@ -168,7 +168,7 @@ my $nprod = 0;
 
 ###########
 
-   $sql="SELECT count(inputFile)  FROM $JobStatusT where requestID = '$reqsid[$nprod]' and triggerSetName = '$trgname[$nprod]' and particle = '$partcl[$nprod]' ";
+   $sql="SELECT count(inputFile)  FROM $JobStatusT where requestID = '$reqsid[$nprod]' and triggerSetName = '$trgname[$nprod]' and particle = '$partcl[$nprod]'  and status = 1 ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -182,7 +182,7 @@ my $nprod = 0;
   
 ############
 
-   $sql="SELECT count(inputFile)  FROM $JobStatusT where requestID = '$reqsid[$nprod]' and triggerSetName = '$trgname[$nprod]' and particle = '$partcl[$nprod]' and jobStatus = 'Done' and recoStatus = 'Done' ";
+   $sql="SELECT count(inputFile)  FROM $JobStatusT where requestID = '$reqsid[$nprod]' and triggerSetName = '$trgname[$nprod]' and particle = '$partcl[$nprod]' and jobStatus = 'Done' and recoStatus = 'Done'  and status = 1 ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -196,7 +196,7 @@ my $nprod = 0;
 
 ###########
 
-   $sql="SELECT count(inputFile)  FROM $JobStatusT where requestID = '$reqsid[$nprod]' and triggerSetName = '$trgname[$nprod]' and particle = '$partcl[$nprod]' and jobStatus = 'Done' and recoStatus <> 'Done' ";
+   $sql="SELECT count(inputFile)  FROM $JobStatusT where requestID = '$reqsid[$nprod]' and triggerSetName = '$trgname[$nprod]' and particle = '$partcl[$nprod]' and jobStatus = 'Done' and recoStatus <> 'Done'  and status = 1 ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -210,7 +210,7 @@ my $nprod = 0;
 
 ##########
 
-  $sql="SELECT count(inputFile)  FROM $JobStatusT where requestID = '$reqsid[$nprod]' and triggerSetName = '$trgname[$nprod]' and particle = '$partcl[$nprod]' and jobStatus <> 'Done' ";
+  $sql="SELECT count(inputFile)  FROM $JobStatusT where requestID = '$reqsid[$nprod]' and triggerSetName = '$trgname[$nprod]' and particle = '$partcl[$nprod]' and jobStatus <> 'Done'  and status = 1 ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -223,7 +223,7 @@ my $nprod = 0;
 
 ########## 
 
-#  $sql="SELECT sum(outputSize)  FROM $JobStatusT where requestID = '$reqsid[$nprod]' and triggerSetName = '$trgname[$nprod]' and particle = '$partcl[$nprod]' and outputNFS = 'Done'  ";
+#  $sql="SELECT sum(outputSize)  FROM $JobStatusT where requestID = '$reqsid[$nprod]' and triggerSetName = '$trgname[$nprod]' and particle = '$partcl[$nprod]' and outputNFS = 'Done' and status = 1  ";
 
 #      $cursor =$dbh->prepare($sql)
 #          || die "Cannot prepare statement: $DBI::errstr\n";
@@ -239,7 +239,7 @@ my $nprod = 0;
 ########## 
 
 
-  $sql="SELECT count(inputFile)  FROM $JobStatusT where requestID = '$reqsid[$nprod]' and triggerSetName = '$trgname[$nprod]' and particle = '$partcl[$nprod]' and jobStatus = 'Done' and  outputHPSS <> 'Done' ";
+  $sql="SELECT count(inputFile)  FROM $JobStatusT where requestID = '$reqsid[$nprod]' and triggerSetName = '$trgname[$nprod]' and particle = '$partcl[$nprod]' and jobStatus = 'Done' and  outputHPSS <> 'Done'  and status = 1 ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
