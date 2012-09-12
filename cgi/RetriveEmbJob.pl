@@ -175,7 +175,8 @@ END
        }
     $cursor->finish();
 
- }elsif($qflag eq "sdisk") {
+   }else{
+# }elsif($qflag eq "sdisk") {
 
  &beginDsHtml();
 
@@ -209,9 +210,9 @@ END
             $nnd++;
 	}
     
-   }else{
+#   }else{
 
-   &beginHtml();
+#   &beginHtml();
 
    }
 
