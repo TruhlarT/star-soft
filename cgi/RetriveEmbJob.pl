@@ -174,9 +174,12 @@ END
           $nch++;
        }
     $cursor->finish();
+ }
 
- }elsif($qflag eq "ndisk") {
+# }elsif($qflag eq "ndisk") {
 
+   if($qflag eq "ndisk") {
+ 
    &beginDsHtml();
 
      $sql="SELECT distinct diskName, sum(outputSize) FROM $JobStatusT  where triggerSetName = ? and requestsID = ? and particle = ?  and outputNFS = 'Done' group by diskName ";
@@ -207,12 +210,12 @@ print <<END;
 </TR>
 END
             $nnd++;
-    }
+      }
 
-   }else{
+#   }else{
 
-   &beginHtml();
-}
+#   &beginHtml();
+  }
 
  &StDbEmbDisconnect(); 
 
