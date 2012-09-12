@@ -41,10 +41,12 @@ $dbname="Embedding_job_stats";
 
 
 struct JobAttr => {
-      jbname    => '$',
-      jbst      => '$',
-      jbtrk     => '$',
-      jbevt     => '$'
+      jbid     => '$',
+      jbind    => '$',
+      jbfst    => '$',
+      jbname   => '$',
+      jbst     => '$',
+      jbevt    => '$'
  };
 
 
@@ -212,14 +214,14 @@ print <<END;
 </TR>
 END
             $nnd++;
-         }
+    }
   
    }else{
 
    &beginHtml();
  }
 
-&StDbEmbDisconnect(); 
+ &StDbEmbDisconnect(); 
 
 
        foreach  $pjob (@jbstat) {
@@ -230,7 +232,6 @@ END
        $jbfset[$nn]   = ($$pjob)->jbfst; 
        $jbStatus[$nn] = ($$pjob)->jbst;
        $jbEvent[$nn]  = ($$pjob)->jbevt;
-       $jbStatus[$nn] = ($$pjob)->jbst;
 
     if( $qflag eq "jstat" ) {
 
