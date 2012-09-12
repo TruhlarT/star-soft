@@ -235,7 +235,7 @@ END
 
     if( $qflag eq "jstat" ) {
 
- print <<END;
+print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$jbjobid[$nn]</h3></td>
