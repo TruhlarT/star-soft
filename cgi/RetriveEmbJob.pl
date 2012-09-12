@@ -154,7 +154,7 @@ my $dnm = 0;
 
   }elsif($qflag eq "chnopt") {
 
-   &beginChHtml();
+#   &beginChHtml();
 
      $sql="SELECT distinct chainOptions FROM $RequestSumT  where requestsID = ?  ";
 
@@ -164,19 +164,24 @@ my $dnm = 0;
 
        while( $chn = $cursor->fetchrow() ) {
           $chnopts[$nch] = $chn;
+          $nch++;
+       }
+    $cursor->finish();
+
+      &beginChHtml();
+
+  for($ii=0;$ii<$nch;$ii++) {
 
 print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$chnopts[$nch]</h3></td>
 </TR>
-END      
-          $nch++;
-       }
-    $cursor->finish();
+END  
+    }
 
-   }else{
-# }elsif($qflag eq "sdisk") {
+
+ }elsif( $qflag eq "sdisk") {
 
  &beginDsHtml();
 
@@ -210,9 +215,9 @@ END
             $nnd++;
 	}
     
-#   }else{
+   }else{
 
-#   &beginHtml();
+  &beginHtml();
 
    }
 
