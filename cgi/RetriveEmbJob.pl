@@ -20,7 +20,6 @@ use CGI qw(:standard);
 use Mysql;
 use Class::Struct;
 
-&cgiSetup();
 
 ($sec,$min,$hour,$mday,$mon,$year) = localtime();
 
@@ -89,7 +88,7 @@ my $dnm = 0;
 
   &StDbEmbConnect();
 
-   if( $qflag eq "jstat") {
+   if($qflag eq "jstat") {
  
   &beginJbHtml(); 
 
@@ -145,13 +144,6 @@ END
        }
     $cursor->finish();
 
-#print <<END;
-
-#<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
-#<td HEIGHT=10><h3>$chnpots[$nch]</h3></td>
-#</TR>
-#END
-        
 
  }elsif($qflag eq "mudst") {
 
@@ -274,13 +266,8 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\"> 
-<TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
-<TR>
 <h2 ALIGN=CENTER> <B>No data for <font color="blue">$qtrg </font>embedding production of <font color="blue"> $qpart </font> particle<br>  and  <font color="blue">$qreq </font> requestID  </B></h2>
-</TR>
-</TABLE>
     </body>
-</html>
 END
 }
 
@@ -304,7 +291,6 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Reco status</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>No.events processed</h3></B></TD>
 </TR>
-   </head>
     </body>
 END
 }
@@ -328,7 +314,6 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>File name</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>No.events processed</h3></B></TD>
 </TR>
-   </head>
     </body>
 END
 }
@@ -349,7 +334,6 @@ print <<END;
 <TR>
 <TD ALIGN=CENTER WIDTH=\"80%\" HEIGHT=60><B><h3>Chain options</h3></B></TD>
 </TR>
-   </head>
     </body>
 END
 }
