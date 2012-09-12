@@ -211,13 +211,15 @@ print <<END;
 </TR>
 END
             $nnd++;
-      }
+	}
     
-   }else{
+#   }else{
 
-   &beginHtml();
-  }
-}
+#   &beginHtml();
+
+   }
+
+ }
 
  &StDbEmbDisconnect(); 
 
