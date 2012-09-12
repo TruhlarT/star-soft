@@ -239,7 +239,7 @@ my $nprod = 0;
 ########## 
 
 
-  $sql="SELECT count(inputFile)  FROM $JobStatusT where requestID = '$reqsid[$nprod]' and triggerSetName = '$trgname[$nprod]' and particle = '$partcl[$nprod]' and jobStatus = 'Done' and  outputHPSS <> 'Done'  and status = 1 ";
+  $sql="SELECT count(inputFile)  FROM $JobStatusT where requestID = '$reqsid[$nprod]' and triggerSetName = '$trgname[$nprod]' and particle = '$partcl[$nprod]' and jobStatus = 'Done' and  outputNFS <> 'Done'  and status = 1 ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";

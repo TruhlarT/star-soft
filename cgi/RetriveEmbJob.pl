@@ -92,7 +92,7 @@ my $dnm = 0;
  
   &beginJbHtml(); 
 
-     $sql="SELECT jobID, jobIndex, fSet, inputFile, totalEvents, recoStatus  FROM $JobStatusT  where  triggerSetName = ? and requestID = ? and particle = ?  and jobStatus = 'Done' and recoStatus <> 'Done' ";
+     $sql="SELECT jobID, jobIndex, fSet, inputFile, totalEvents, recoStatus  FROM $JobStatusT  where  triggerSetName = ? and requestID = ? and particle = ?  and jobStatus = 'Done' and recoStatus <> 'Done' and status = 1 ";
 
 
       $cursor =$dbh->prepare($sql)
@@ -126,7 +126,7 @@ my $dnm = 0;
 
    &beginMuHtml();
 
-     $sql="SELECT jobID, jobIndex, fSet, inputFile, MuDstEvents  FROM $JobStatusT  where  triggerSetName = ? and requestID = ? and particle = ?  and jobStatus = 'Done' and outputNFS <> 'Done' ";
+     $sql="SELECT jobID, jobIndex, fSet, inputFile, MuDstEvents  FROM $JobStatusT  where  triggerSetName = ? and requestID = ? and particle = ?  and jobStatus = 'Done' and outputNFS <> 'Done' and status = 1 ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -183,7 +183,7 @@ END
 
  &beginDsHtml();
 
-     $sql="SELECT distinct diskName, sum(outputSize) FROM $JobStatusT  where triggerSetName = ? and requestID = ? and particle = ?  and outputNFS = 'Done' group by diskName ";
+     $sql="SELECT distinct diskName, sum(outputSize) FROM $JobStatusT  where triggerSetName = ? and requestID = ? and particle = ?  and outputNFS = 'Done' group by diskName and status = 1 ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -231,7 +231,7 @@ END
                 my $fname=$cursor->{NAME}->[$i];
 
              $disklst[$nnd] = $fvalue     if( $fname eq 'diskName');
-             $diskname[$nnd] = "/star/".$disklst[$nnd];
+             $diskname[$nnd] = $disklst[$nnd];
              $disksize[$nnd] = $fvalue    if( $fname eq 'sum(outputSize)');
 		$disksize[$nnd] = int($disksize[$nnd]/1000000000 + 0.5);
 
