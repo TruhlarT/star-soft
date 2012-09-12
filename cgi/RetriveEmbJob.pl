@@ -168,7 +168,7 @@ my $dnm = 0;
 
       &beginChHtml();
 
-  for($ii=0;$ii<$nch;$ii++) {
+  for(my $ii=0;$ii<$nch;$ii++) {
 
 print <<END;
 
@@ -176,10 +176,10 @@ print <<END;
 <td HEIGHT=10><h3>$chnopts[$nch]</h3></td>
 </TR>
 END  
-    }
+};
 
 
- }elsif( $qflag eq "sdisk") {
+ }elsif($qflag eq "sdisk") {
 
  &beginDsHtml();
 

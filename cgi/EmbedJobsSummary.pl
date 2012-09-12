@@ -268,7 +268,7 @@ my $nprod = 0;
 <td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];rpart=$partcl[$nprod];pflag=jstat">$jbcrsh[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$jbremain[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];rpart=$partcl[$nprod];pflag=mudst">$mismudst[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];rpart=$partcl[$nprod];pflag=ndisk">location</font></h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];rpart=$partcl[$nprod];pflag=sdisk">location</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$outsize[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$sumevt[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$sumevtmd[$nprod]</font></h3></td>
