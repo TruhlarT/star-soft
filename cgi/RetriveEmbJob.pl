@@ -54,7 +54,7 @@ my $query = new CGI;
 
  if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
 
-my $qtrg  = $query->param('rtrigs');
+my $qtrg  = $query->param('rtrig');
 my $qpart = $query->param('rpart');
 my $qreq  = $query->param('rreq');
 my $qflag = $query->param('pflag');
