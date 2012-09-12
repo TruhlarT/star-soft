@@ -92,7 +92,7 @@ my $dnm = 0;
  
   &beginJbHtml(); 
 
-     $sql="SELECT jobID, jobIndex, fSet, inputFile, totalEvents, recoStatus  FROM $JobStatusT  where  triggerSetName = ? and requestsID = ? and particle = ?  and jobStatus = 'Done' and recoStatus <> 'Done' ";
+     $sql="SELECT jobID, jobIndex, fSet, inputFile, totalEvents, recoStatus  FROM $JobStatusT  where  triggerSetName = ? and requestID = ? and particle = ?  and jobStatus = 'Done' and recoStatus <> 'Done' ";
 
 
       $cursor =$dbh->prepare($sql)
@@ -126,7 +126,7 @@ my $dnm = 0;
 
    &beginMuHtml();
 
-     $sql="SELECT jobID, jobIndex, fSet, inputFile, MuDstEvents  FROM $JobStatusT  where  triggerSetName = ? and requestsID = ? and particle = ?  and jobStatus = 'Done' and outputNFS <> 'Done' ";
+     $sql="SELECT jobID, jobIndex, fSet, inputFile, MuDstEvents  FROM $JobStatusT  where  triggerSetName = ? and requestID = ? and particle = ?  and jobStatus = 'Done' and outputNFS <> 'Done' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -154,9 +154,7 @@ my $dnm = 0;
 
   }elsif($qflag eq "chnopt") {
 
-#   &beginChHtml();
-
-     $sql="SELECT distinct chainOptions FROM $RequestSumT  where requestsID = ?  ";
+     $sql="SELECT distinct chainOptions FROM $RequestSumT  where requestID = ?  ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -185,7 +183,7 @@ END
 
  &beginDsHtml();
 
-     $sql="SELECT distinct diskName, sum(outputSize) FROM $JobStatusT  where triggerSetName = ? and requestsID = ? and particle = ?  and outputNFS = 'Done' group by diskName ";
+     $sql="SELECT distinct diskName, sum(outputSize) FROM $JobStatusT  where triggerSetName = ? and requestID = ? and particle = ?  and outputNFS = 'Done' group by diskName ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -219,7 +217,7 @@ END
 
  &beginDsHtml();
 
-     $sql="SELECT distinct diskName, sum(outputSize) FROM $JobStatusT  where triggerSetName = ? and requestsID = ? and particle = ?  and jobStatus = 'Done' group by diskName ";
+  $sql="SELECT distinct diskName, sum(outputSize) FROM $JobStatusT  where triggerSetName = ? and requestID = ? and particle = ?  and jobStatus = 'Done' group by diskName ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
