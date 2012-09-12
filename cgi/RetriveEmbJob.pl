@@ -119,7 +119,8 @@ my $dnm = 0;
             }
             $jbstat[$nst] = $fObjAdr;
             $nst++;
-         }
+      }
+
 
  }elsif($qflag eq "mudst") {
 
@@ -149,7 +150,7 @@ my $dnm = 0;
             }
             $jbstat[$nst] = $fObjAdr;
             $nst++;
-         }
+       }
 
  }elsif($qflag eq "ndisk") {
 
@@ -171,7 +172,8 @@ my $dnm = 0;
              $disklst[$nnd] = $fvalue     if( $fname eq 'diskName');
              $diskname[$nnd] = "/star/".$disklst[$nnd];
              $disksize[$nnd] = $fvalue    if( $fname eq 'sum(outputSize)');
-             $disksize[$nnd] = int($disksize[$nnd]/1000000000 + 0.5)
+		$disksize[$nnd] = int($disksize[$nnd]/1000000000 + 0.5);
+
             }
 
 print <<END;
@@ -184,8 +186,7 @@ END
             $nnd++;
     }
 
-
- }elsif($qflag eq "chnopt") {
+  }elsif($qflag eq "chnopt") {
 
    &beginChHtml();
 
