@@ -233,7 +233,7 @@ END
        $jbStatus[$nn] = ($$pjob)->jbst;
        $jbEvent[$nn]  = ($$pjob)->jbevt;
 
-    if( $qflag eq "jstat" ) {
+if( $qflag eq "jstat") {
 
 print <<END;
 
@@ -241,14 +241,13 @@ print <<END;
 <td HEIGHT=10><h3>$jbjobid[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbprocid[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbfset[$nn]</h3></td>
-<td HEIGHT=10><h3>$jbfName[[$nn]</h3></td>
+<td HEIGHT=10><h3>$jbfName[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbStatus[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbEvent[$nn]</h3></td>
 </TR>
 END
 
-
- }elsif($qflag eq "mudst") {
+  }elsif($qflag eq "mudst") {
 
 print <<END;
 
@@ -261,10 +260,10 @@ print <<END;
 </TR>
 END
 
-    }
+}
       $nn++;
 
-    }
+}
  &endHtml();
 
 ######################
