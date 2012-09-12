@@ -121,30 +121,6 @@ my $dnm = 0;
             $nst++;
          }
 
- }elsif($qflag eq "chnopt") {
-
-   &beginChHtml();
-
-     $sql="SELECT distinct chainOptions FROM $RequestSumT  where requestsID = ?  ";
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute($qreq);
-
-       while( $chn = $cursor->fetchrow() ) {
-          $chnopts[$nch] = $chn;
-
-print <<END;
-
-<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3>$chnopts[$nch]</h3></td>
-</TR>
-END      
-          $nch++;
-       }
-    $cursor->finish();
-
-
  }elsif($qflag eq "mudst") {
 
    &beginMuHtml();
@@ -207,10 +183,34 @@ print <<END;
 END
             $nnd++;
     }
-  
+
+
+ }elsif($qflag eq "chnopt") {
+
+   &beginChHtml();
+
+     $sql="SELECT distinct chainOptions FROM $RequestSumT  where requestsID = ?  ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute($qreq);
+
+       while( $chn = $cursor->fetchrow() ) {
+          $chnopts[$nch] = $chn;
+
+print <<END;
+
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
+<td HEIGHT=10><h3>$chnopts[$nch]</h3></td>
+</TR>
+END      
+          $nch++;
+       }
+    $cursor->finish();
+
    }else{
- &beginDsHtml();
-#   &beginHtml();
+
+   &beginHtml();
  }
 
  &StDbEmbDisconnect(); 
