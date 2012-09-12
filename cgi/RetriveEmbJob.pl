@@ -62,8 +62,6 @@ my $qflag = $query->param('pflag');
 my $JobStatusT = "jobs_embed_2012";
 my $RequestSumT = "request_embed_2012";
 
-my @archain = ();
-
 my $nst = 0;
 my @jbstat = ();
 my @jbStatus = ();
@@ -177,7 +175,6 @@ print <<END;
 </TR>
 END  
 };
-
 
  }elsif($qflag eq "sdisk") {
 
@@ -386,7 +383,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>List of NFS disk names for <font color="blue">$qtrg</font> embedding production of <font color="blue">$qpart </font> particle<br>  and  <font color="blue">$qreq </font> requestID </B></h2>
+ <h2 ALIGN=CENTER> <B>List of NFS disk names for <font color="blue">$qtrg</font> embedding production of <font color="blue">$qpart </font> particle<br>  and  <font color="blue">$qreq </font> requestID and $qflag </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
