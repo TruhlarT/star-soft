@@ -217,7 +217,39 @@ END
     
    }else{
 
-  &beginHtml();
+ &beginDsHtml();
+
+     $sql="SELECT distinct diskName, sum(outputSize) FROM $JobStatusT  where triggerSetName = ? and requestsID = ? and particle = ?  and jobStatus = 'Done' group by diskName ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute($qtrg,$qreq,$qpart);
+
+        while(@fields = $cursor->fetchrow) {
+            my $cols=$cursor->{NUM_OF_FIELDS};
+
+            for($i=0;$i<$cols;$i++) {
+                my $fvalue=$fields[$i];
+                my $fname=$cursor->{NAME}->[$i];
+
+             $disklst[$nnd] = $fvalue     if( $fname eq 'diskName');
+             $diskname[$nnd] = "/star/".$disklst[$nnd];
+             $disksize[$nnd] = $fvalue    if( $fname eq 'sum(outputSize)');
+		$disksize[$nnd] = int($disksize[$nnd]/1000000000 + 0.5);
+
+            }
+
+print <<END;
+
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
+<td HEIGHT=10><h3>$diskname[$nnd]</h3></td>
+<td HEIGHT=10><h3>$disksize[$nnd]</h3></td>
+</TR>
+END
+            $nnd++;
+	}
+
+#  &beginHtml();
 
    }
 
