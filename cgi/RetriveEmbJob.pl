@@ -209,8 +209,8 @@ END
     }
   
    }else{
-
-   &beginHtml();
+ &beginDsHtml();
+#   &beginHtml();
  }
 
  &StDbEmbDisconnect(); 
