@@ -174,11 +174,9 @@ END
           $nch++;
        }
     $cursor->finish();
- }
 
-# }elsif($qflag eq "ndisk") {
+ }elsif($qflag eq "sdisk") {
 
-   if($qflag eq "ndisk") {
  
    &beginDsHtml();
 
@@ -212,9 +210,9 @@ END
             $nnd++;
       }
 
-#   }else{
+   }else{
 
-#   &beginHtml();
+   &beginHtml();
   }
 
  &StDbEmbDisconnect(); 

@@ -295,7 +295,7 @@ END
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];rpart=$partcl[$nprod];pflag=jstat">$jbcrsh[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbremain[$nprod]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];rpart=$partcl[$nprod];pflag=mudst">$mismudst[$nprod]</h3></td>
-<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];rpart=$partcl[$nprod];pflag=ndisk">location</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];rpart=$partcl[$nprod];pflag=sdisk">location</h3></td>
 <td HEIGHT=10><h3>$outsize[$nprod]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nprod]</h3></td>
 <td HEIGHT=10><h3>$sumevtmd[$nprod]</h3></td>
