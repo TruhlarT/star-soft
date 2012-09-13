@@ -184,8 +184,9 @@ print <<END;
 END
             $nnd++;
 	}
+   }else{
 
-  }elsif($qflag eq "chnopt") {
+ if($qflag eq "chnopt") {
 
      $sql="SELECT distinct chainOptions FROM $RequestSumT  where requestID = ?  ";
 
@@ -196,7 +197,8 @@ END
        while( $chn = $cursor->fetchrow() ) {
           $chnopts[$nch] = $chn;
           $nch++;
-       }
+    }
+
     $cursor->finish();
 
       &beginChHtml();
@@ -216,9 +218,8 @@ END
   }else{
 
   &beginHtml();
-   }
-
-
+  }
+}
 
  &StDbEmbDisconnect(); 
 
