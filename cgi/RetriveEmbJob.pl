@@ -181,7 +181,7 @@ print <<END;
 <td HEIGHT=10><h3>$diskname[$nnd]</h3></td>
 <td HEIGHT=10><h3>$disksize[$nnd]</h3></td>
 </TR>
-END
+END;
             $nnd++;
 	}
 
@@ -211,7 +211,7 @@ print <<END;
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>chain not ready</h3></td>
 </TR>
-END  
+END;  
  }
 
   }else{
@@ -245,7 +245,7 @@ print <<END;
 <td HEIGHT=10><h3>$jbStatus[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbEvent[$nn]</h3></td>
 </TR>
-END
+END;
 
  }elsif($qflag eq "mudst") {
 
@@ -258,7 +258,7 @@ print <<END;
 <td HEIGHT=10><h3>$jbfName[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbEvent[$nn]</h3></td>
 </TR>
-END
+END;
 
 }
       $nn++;
