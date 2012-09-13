@@ -221,20 +221,6 @@ my $nprod = 0;
        }
     $cursor->finish();
 
-########## 
-
-#  $sql="SELECT sum(outputSize)  FROM $JobStatusT where requestID = '$reqsid[$nprod]' and triggerSetName = '$trgname[$nprod]' and particle = '$partcl[$nprod]' and outputNFS = 'Done' and status = 1  ";
-
-#      $cursor =$dbh->prepare($sql)
-#          || die "Cannot prepare statement: $DBI::errstr\n";
-#       $cursor->execute();
-
-#       while( $mpr = $cursor->fetchrow() ) {
-#          $szmudst[$nprod] = $mpr;
-#       }
-#    $cursor->finish();
-
-#    $szmudst[$nprod] = int($szmudst[$nprod]/1000000000 + 0.5); 
 
 ########## 
 
@@ -341,7 +327,7 @@ print <<END;
     </head>
 
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>Summary of embedding/simulation productions jobs status</h2>
+ <h2 ALIGN=CENTER> <B>Summary of embedding  productions jobs status</h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <h4 ALIGN=LEFT><font color="#ff0000">Ongoing production is in red color</font><br></h4>
