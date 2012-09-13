@@ -78,6 +78,7 @@ my @disksize = ();
 my @chnopts  = ();
 my $chn;
 my $nch = 0;
+my $chpt;
 
 my $nn = 0;
 my $nnd = 0;
@@ -195,8 +196,8 @@ END
           || die "Cannot prepare statement: $DBI::errstr\n";
        $cursor->execute($qreq);
 
-       while( $chn = $cursor->fetchrow() ) {
-          $chnopts[$nch] = $chn;
+       while( $chpt = $cursor->fetchrow() ) {
+          $chnopts[$nch] = $chpt;
           $nch++;
     }
 
@@ -204,12 +205,16 @@ END
 
       &beginChHtml();
 
+$nch = 2;
+$chnopts[0] = "chain not ready";
+$chnopts[1] = "chain ready";
+
   for(my $ii=0;$ii<$nch;$ii++) {
 
 print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3>chain not ready</h3></td>
+<td HEIGHT=10><h3>$chnopts[$nch]</h3></td>
 </TR>
 END 
  }
@@ -245,7 +250,7 @@ print <<END;
 </TR>
 END
 
- }elsif($qflag eq "mudst") {
+ } elsif($qflag eq "mudst") {
 
 print <<END;
 
