@@ -154,7 +154,7 @@ my $dnm = 0;
 
    &beginChHtml();
 
-     $sql="SELECT distinct chainOptions FROM $RequestSumT  where requestsID = ?  ";
+     $sql="SELECT distinct chainOptions FROM $RequestSumT  where requestID = ?  ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -177,7 +177,7 @@ END
 
  &beginDsHtml();
 
-     $sql="SELECT distinct diskName, sum(outputSize) FROM $JobStatusT  where triggerSetName = ? and requestsID = ? and particle = ?  and outputNFS
+     $sql="SELECT distinct diskName, sum(outputSize) FROM $JobStatusT  where triggerSetName = ? and requestID = ? and particle = ?  and outputNFS
 = 'Done' group by diskName ";
 
       $cursor =$dbh->prepare($sql)
