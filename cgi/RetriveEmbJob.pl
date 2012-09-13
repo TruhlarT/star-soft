@@ -152,6 +152,8 @@ my $dnm = 0;
 
   }elsif($qflag eq "chnopt") {
 
+      &beginChHtml();
+
      $sql="SELECT distinct chainOptions FROM $RequestSumT  where requestID = ?  ";
 
       $cursor =$dbh->prepare($sql)
@@ -164,22 +166,16 @@ my $dnm = 0;
        }
     $cursor->finish();
 
-      &beginChHtml();
-
 $nch = 2;
 $chnopts[0] = "chain not ready";
 $chnopts[1] = "chain ready";
 
-
-  for(my $ii=0;$ii<$nch;$ii++) {
-
 print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3>$chnopts[$nch]</h3></td>
+<td HEIGHT=10><h3>$chnopts[0]</h3></td>
 </TR>
 END  
- }
 
   }else{
 
@@ -216,7 +212,7 @@ print <<END;
 END
             $nnd++;
 	}
-    
+     }
 #    }else{
 #  &beginHtml();
    }
