@@ -212,6 +212,8 @@ END
     
    }else{
 
+if($qflag eq "sdisk") {
+
  &beginDsHtml();
 
   $sql="SELECT distinct diskName, sum(outputSize) FROM $JobStatusT  where triggerSetName = ? and requestID = ? and particle = ?  and jobStatus = 'Done' group by diskName ";
@@ -243,7 +245,7 @@ print <<END;
 END
             $nnd++;
 	}
-
+    }
 #  &beginHtml();
 
    }
@@ -383,7 +385,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>List of NFS disk names for <font color="blue">$qtrg</font> embedding production of <font color="blue">$qpart </font> particle<br>  and  <font color="blue">$qreq </font> requestID and $qflag </B></h2>
+ <h2 ALIGN=CENTER> <B>List of NFS disk names for <font color="blue">$qtrg</font> embedding production of <font color="blue">$qpart </font> particle<br>  and  <font color="blue">$qreq </font> requestID </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
