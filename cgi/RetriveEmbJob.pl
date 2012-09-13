@@ -78,7 +78,6 @@ my @disksize = ();
 my @chnopts  = ();
 my $chn;
 my $nch = 0;
-my $chpt;
 
 my $nn = 0;
 my $nnd = 0;
@@ -123,7 +122,7 @@ my $dnm = 0;
 
  }elsif($qflag eq "mudst") {
 
- &beginMuHtml();
+   &beginMuHtml();
 
      $sql="SELECT jobID, jobIndex, fSet, inputFile, MuDstEvents  FROM $JobStatusT  where  triggerSetName = ? and requestID = ? and particle = ?  and jobStatus = 'Done' and outputNFS <> 'Done' and status = 1 ";
 
@@ -151,8 +150,40 @@ my $dnm = 0;
             $nst++;
        }
 
+  }elsif($qflag eq "chnopt") {
 
- }elsif($qflag eq "sdisk") {
+     $sql="SELECT distinct chainOptions FROM $RequestSumT  where requestID = ?  ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute($qreq);
+
+       while( $chnt = $cursor->fetchrow() ) {
+          $chnopts[$nch] = $chnt;
+          $nch++;
+       }
+    $cursor->finish();
+
+      &beginChHtml();
+
+$nch = 2;
+$chnopts[0] = "chain not ready";
+$chnopts[1] = "chain ready";
+
+
+  for(my $ii=0;$ii<$nch;$ii++) {
+
+print <<END;
+
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
+<td HEIGHT=10><h3>$chnopts[$nch]</h3></td>
+</TR>
+END  
+ }
+
+  }else{
+
+if($qflag eq "sdisk") {
 
  &beginDsHtml();
 
@@ -185,47 +216,15 @@ print <<END;
 END
             $nnd++;
 	}
-
-   }else{
-
- if($qflag eq "chnopt") {
-
-     $sql="SELECT distinct chainOptions FROM $RequestSumT  where requestID = ?  ";
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute($qreq);
-
-       while( $chpt = $cursor->fetchrow() ) {
-          $chnopts[$nch] = $chpt;
-          $nch++;
-    }
-
-    $cursor->finish();
-
-      &beginChHtml();
-
-$nch = 2;
-$chnopts[0] = "chain not ready";
-$chnopts[1] = "chain ready";
-
-  for(my $ii=0;$ii<$nch;$ii++) {
-
-print <<END;
-
-<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3>$chnopts[$nch]</h3></td>
-</TR>
-END 
- }
-
- }
+    
+    }else{
+  &beginHtml();
+   }
 
 }
 
- &StDbEmbDisconnect(); 
 
-   $nn = 0;
+ &StDbEmbDisconnect(); 
 
        foreach  $pjob (@jbstat) {
 
@@ -250,7 +249,7 @@ print <<END;
 </TR>
 END
 
- } elsif($qflag eq "mudst") {
+ }elsif($qflag eq "mudst") {
 
 print <<END;
 
@@ -265,8 +264,8 @@ END
 
 }
       $nn++;
-}
 
+}
 
  &endHtml();
 
