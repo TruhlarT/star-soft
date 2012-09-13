@@ -122,7 +122,7 @@ my $dnm = 0;
 
  }elsif($qflag eq "mudst") {
 
-   &beginMuHtml();
+ &beginMuHtml();
 
      $sql="SELECT jobID, jobIndex, fSet, inputFile, MuDstEvents  FROM $JobStatusT  where  triggerSetName = ? and requestID = ? and particle = ?  and jobStatus = 'Done' and outputNFS <> 'Done' and status = 1 ";
 
@@ -184,6 +184,7 @@ print <<END;
 END
             $nnd++;
 	}
+
    }else{
 
  if($qflag eq "chnopt") {
@@ -203,17 +204,15 @@ END
 
       &beginChHtml();
 
-#<td HEIGHT=10><h3>$chnopts[$nch]</h3></td>
-
-#  for(my $ii=0;$ii<$nch;$ii++) {
+  for(my $ii=0;$ii<$nch;$ii++) {
 
 print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3>$chain not ready</h3></td>
+<td HEIGHT=10><h3>chain not ready</h3></td>
 </TR>
 END  
-# }
+ }
 
   }else{
 
@@ -222,6 +221,8 @@ END
 }
 
  &StDbEmbDisconnect(); 
+
+   $nn = 0;
 
        foreach  $pjob (@jbstat) {
 
@@ -261,8 +262,8 @@ END
 
 }
       $nn++;
-
 }
+
 
  &endHtml();
 
