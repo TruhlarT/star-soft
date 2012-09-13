@@ -174,7 +174,7 @@ print <<END;
 <td HEIGHT=10><h3>$chnopts[$nch]</h3></td>
 </TR>
 END  
-};
+ }
 
  }elsif($qflag eq "sdisk") {
 
@@ -245,10 +245,11 @@ print <<END;
 END
             $nnd++;
 	}
-    }
-#  &beginHtml();
-
-   }
+    
+    }else{
+  &beginHtml();
+     }
+  }
 
 
  &StDbEmbDisconnect(); 
@@ -322,11 +323,11 @@ print <<END;
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
-<TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=60><B><h3>JobID</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=60><B><h3>JobIdex</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=60><B><h3>fSet</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>File name</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Reco status</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>JobID</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>JobIdex</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>fSet</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>File name</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Reco status</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>No.events processed</h3></B></TD>
 </TR>
     </body>
@@ -346,11 +347,11 @@ print <<END;
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
-<TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=60><B><h3>JobID</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=60><B><h3>JobIdex</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=60><B><h3>fSet</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>JobID</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>JobIdex</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>fSet</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>File name</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>No.events processed</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>No.events processed</h3></B></TD>
 </TR>
     </body>
 END
