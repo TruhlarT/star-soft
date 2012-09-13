@@ -150,11 +150,35 @@ my $dnm = 0;
             $nst++;
        }
 
+  }elsif($qflag eq "chnopt") {
+
+   &beginChHtml();
+
+     $sql="SELECT distinct chainOptions FROM $RequestSumT  where requestsID = ?  ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute($qreq);
+
+       while( $chn = $cursor->fetchrow() ) {
+          $chnopts[$nch] = $chn;
+
+print <<END;
+
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
+<td HEIGHT=10><h3>$chnopts[$nch]</h3></td>
+</TR>
+END
+          $nch++;
+       }
+    $cursor->finish();
+
  }elsif($qflag eq "sdisk") {
 
  &beginDsHtml();
 
-  $sql="SELECT distinct diskName, sum(outputSize) FROM $JobStatusT  where triggerSetName = ? and requestID = ? and particle = ?  and jobStatus = 'Done' group by diskName ";
+     $sql="SELECT distinct diskName, sum(outputSize) FROM $JobStatusT  where triggerSetName = ? and requestsID = ? and particle = ?  and outputNFS
+= 'Done' group by diskName ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -168,9 +192,9 @@ my $dnm = 0;
                 my $fname=$cursor->{NAME}->[$i];
 
              $disklst[$nnd] = $fvalue     if( $fname eq 'diskName');
-             $diskname[$nnd] = $disklst[$nnd];
+             $diskname[$nnd] = "/star/".$disklst[$nnd];
              $disksize[$nnd] = $fvalue    if( $fname eq 'sum(outputSize)');
-		$disksize[$nnd] = int($disksize[$nnd]/1000000000 + 0.5);
+                $disksize[$nnd] = int($disksize[$nnd]/1000000000 + 0.5);
 
             }
 
@@ -182,40 +206,15 @@ print <<END;
 </TR>
 END
             $nnd++;
+        }
+
+   }else{
+
+  &beginHtml();
+
    }
-#    }else{
-#  &beginHtml();
-}
- 
 
- if($qflag eq "chnopt") {
 
-      &beginChHtml();
-
-     $sql="SELECT distinct chainOptions FROM $RequestSumT  where requestID = ?  ";
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute($qreq);
-
-       while( $chnt = $cursor->fetchrow() ) {
-          $chnopts[$nch] = $chnt;
-          $nch++;
-       }
-    $cursor->finish();
-
-$nch = 2;
-$chnopts[0] = "chain not ready";
-$chnopts[1] = "chain ready";
-
-print <<END;
-
-<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3>$chnopts[0]</h3></td>
-</TR>
-END  
-
-}
 
  &StDbEmbDisconnect(); 
 
