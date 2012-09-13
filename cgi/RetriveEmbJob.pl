@@ -185,7 +185,7 @@ END
    }
 #    }else{
 #  &beginHtml();
-   }
+}
  
 
  if($qflag eq "chnopt") {
@@ -215,6 +215,7 @@ print <<END;
 </TR>
 END  
 
+}
 
  &StDbEmbDisconnect(); 
 
