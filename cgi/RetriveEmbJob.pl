@@ -217,10 +217,9 @@ END
             $nnd++;
 	}
     
-    }else{
-  &beginHtml();
+#    }else{
+#  &beginHtml();
    }
-
 }
 
 
