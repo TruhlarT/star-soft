@@ -220,7 +220,6 @@ END
 #    }else{
 #  &beginHtml();
    }
-}
 
 
  &StDbEmbDisconnect(); 
