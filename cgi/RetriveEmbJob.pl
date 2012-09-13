@@ -192,7 +192,7 @@ END
                 my $fname=$cursor->{NAME}->[$i];
 
              $disklst[$nnd] = $fvalue     if( $fname eq 'diskName');
-             $diskname[$nnd] = "/star/".$disklst[$nnd];
+             $diskname[$nnd] = $disklst[$nnd];
              $disksize[$nnd] = $fvalue    if( $fname eq 'sum(outputSize)');
                 $disksize[$nnd] = int($disksize[$nnd]/1000000000 + 0.5);
 
@@ -306,7 +306,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\">
-<h2 ALIGN=CENTER> <B>List of jobs failed to create output files on NFS for <font color="blue">$qtrg </font>embedding production of <font color="blue"> $qpart </font> particle<br>  and  <font color="blue">$qreq </font> requestID  </B></h2>
+<h2 ALIGN=CENTER> <B>List of jobs failed to create output files on NFS for <font color="blue">$qtrg </font>embedding production <br> of <font color="blue"> $qpart </font> particle  and  <font color="blue">$qreq </font> requestID  </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
@@ -330,7 +330,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>Chain options for embedding production with <font color="blue"> $qreq </font> requestsID </B></h2>
+ <h2 ALIGN=CENTER> <B>Chain options for embedding production with <font color="blue"> $qreq </font> requestID </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
