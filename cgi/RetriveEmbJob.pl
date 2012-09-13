@@ -218,7 +218,7 @@ END
   &beginHtml();
    }
 
-  }
+#  }
 
 
  &StDbEmbDisconnect(); 
