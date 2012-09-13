@@ -168,10 +168,12 @@ my $dnm = 0;
 
   for(my $ii=0;$ii<$nch;$ii++) {
 
+#<td HEIGHT=10><h3>$chnopts[$nch]</h3></td>
+
 print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3>$chnopts[$nch]</h3></td>
+<td HEIGHT=10><h3>chain not ready</h3></td>
 </TR>
 END  
  }
@@ -214,7 +216,8 @@ END
     
     }else{
   &beginHtml();
-     }
+   }
+
   }
 
 
