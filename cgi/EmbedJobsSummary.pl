@@ -76,8 +76,6 @@ my @prdsite  = ();
 my @jbdone = ();
 my @jbcreat = ();
 my @jbcrsh = ();
-#my @jbhpss = ();
-#my @jbresub  = ();
 my @mismudst = ();
 my @chainm = ();
 
@@ -162,9 +160,6 @@ my $nprod = 0;
     $jbcrsh[$nprod]   = 0;
     $jbremain[$nprod] = 0;
     $mismudst[$nprod] = 0;    
-
-#    $jbhpss[$nprod]   = 0;
-#    $jbresub[$nprod]  = 0;
 
 ###########
 
