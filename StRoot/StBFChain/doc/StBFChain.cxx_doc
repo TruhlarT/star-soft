@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.106 2012/07/31 21:47:05 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.107 2012/09/19 20:14:45 fisyak Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -1024,7 +1024,7 @@ Bfc_st BFC[] = {
    , "Mag.field map with scale factor from Db",kFALSE},
   {"mtin" ,"geant" ,"","-fzin,-geant,-gstar,geantL,gstarLib,-magF","St_geant_Maker"
    , "gstar","read event from MuDst",kFALSE},
-  {"tpcDB" ,"tpcDB","","tpc_T,dbutil,detDb,StarMagField,magF" ,"StTpcDbMaker","StTpcDb","",kFALSE},
+  {"tpcDB" ,"tpcDB","","tpc_T,dbutil,detDb,StarMagField,magF,StEvent","StTpcDbMaker","StTpcDb","",kFALSE},
   {"dbutil" ,"" ,"","detDb,StDbT" ,"","StDbUtilities","Load StDbUtilities",kFALSE},
   {"svtDb" ,"svtDb","","tpcDb,SvtCL", "StSvtDbMaker","StSvtDbMaker","Load and run SvtDbMaker",kFALSE},
   {"ssdDb" ,"ssdDb","","tpcDb,SsdUtil","StSsdDbMaker","StSsdDbMaker","Load and run SsdDbMaker",kFALSE},
@@ -2371,7 +2371,7 @@ Bfc_st BFC[] = {
    , "Mag.field map with scale factor from Db",kFALSE},
   {"mtin" ,"geant" ,"","-fzin,-geant,-gstar,geantL,gstarLib,-magF","St_geant_Maker"
    , "gstar","read event from MuDst",kFALSE},
-  {"tpcDB" ,"tpcDB","","tpc_T,dbutil,detDb,StarMagField,magF" ,"StTpcDbMaker","StTpcDb","",kFALSE},
+  {"tpcDB" ,"tpcDB","","tpc_T,dbutil,detDb,StarMagField,magF,StEvent","StTpcDbMaker","StTpcDb","",kFALSE},
   {"dbutil" ,"" ,"","detDb,StDbT" ,"","StDbUtilities","Load StDbUtilities",kFALSE},
   {"svtDb" ,"svtDb","","tpcDb,SvtCL", "StSvtDbMaker","StSvtDbMaker","Load and run SvtDbMaker",kFALSE},
   {"ssdDb" ,"ssdDb","","tpcDb,SsdUtil","StSsdDbMaker","StSsdDbMaker","Load and run SsdDbMaker",kFALSE},
