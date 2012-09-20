@@ -116,9 +116,10 @@ print <<END;
 </TABLE>
       <h5>
       <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
-<!-- Created: Tue Set 10  05:29:25 MET 1999 -->
+<!-- Created: Feb 16  20:05:03 EDT 2000 -->
 <!-- hhmts start -->
-Last modified: $Date
+<!--Last modified: $Date-->
+Last modified: Thu Sep 19 14:10:06 EDT 2012
 <!-- hhmts end -->
   </body>
 </html>
