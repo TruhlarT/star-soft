@@ -417,7 +417,8 @@ print <<END;
       <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
 <!-- Created: Thu June 30 2011 -->
 <!-- hhmts start -->
-Last modified: $Date
+<!-- Last modified: $Date-->
+Last modified: Thu Mar 1 15:42:38 EDT 2012
 <!-- hhmts end -->
   </body>
 </html>
