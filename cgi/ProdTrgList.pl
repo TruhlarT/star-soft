@@ -34,6 +34,11 @@ if( $sec < 10) { $sec = '0'.$sec };
 
 my $todate = ($year+1900)."-".$mon."-".$mday." ".$hour.":".$min.":".$sec;
 
+my $nowdate = ($year+1900).$mon.$mday;
+
+my $crtime;
+my $daydif;
+my $mondif;
 
 my %collHash = (
                  UU_production_2012 => 'UU193',
@@ -365,6 +370,7 @@ my $nlist = 0;
 my $ssize = 0;
 my $dsize  = 0;
 my @numfiles = ();
+my @mxtime = ();
 
 my $prodname = "n/a";
 
@@ -447,6 +453,7 @@ my $trg0 = "n/a";
    @runevents = $fileC->run_query("sum(events)");
    @datasize = $fileC->run_query("sum(size)");
    @filelst = $fileC->run_query(filename);
+   @mxtime = $fileC->run_query("max(createtime)");
 
    $fileC->clear_context( );
 
@@ -469,9 +476,21 @@ my $trg0 = "n/a";
 
  $prodname = $trig[$nlist].".".$prod[$nlist].".html";
 
+    @prt = ();
+    $crtime = $mxtime[0];
+    @prt = split("-",$crtime);
+    $crtime =~ s/-//g;
+    $daydif = $nowdate - $crtime;
+    $mondif = $mon - $prt[1];
 
-        if( $prod[$nlist] eq "P12id" and $trig[$nlist] eq "UU_production_2012" ) {
+    if($mondif == 1 and ($daydiff == 70 or $daydiff == 71 )) {
+    $daydif = $nowdate - $crtime - $daydiff;
+    };
+ 
 
+#        if( $prod[$nlist] eq "P12id" and $trig[$nlist] eq "UU_production_2012" ) {
+
+      if( $daydif <= 2){
 
 print <<END;
 
