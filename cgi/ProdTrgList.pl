@@ -470,9 +470,8 @@ my $trg0 = "n/a";
  $prodname = $trig[$nlist].".".$prod[$nlist].".html";
 
 
-        if( $prod[$nlist] eq "P11id" and $trig[$nlist] eq "none" ) {
+        if( $prod[$nlist] eq "P12id" and $trig[$nlist] eq "UU_production_2012" ) {
 
-#       if( $prod[$nlist] eq "P11id" and ( $trig[$nlist] eq "production2009_200Gev_Single" or $trig[$nlist] eq "production2009_200Gev_nocal" or $trig[$nlist] eq "production2009_200Gev_noendcap")) {
 
 print <<END;
 
