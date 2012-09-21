@@ -170,7 +170,7 @@ my $mhr = 0;
 my $nhr = 0;
 
   &StDbProdConnect();
- 
+
  $JobStatusT = "JobStatus2010";  
 
     $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
@@ -294,7 +294,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P12ic,
+	                          -default=>P12id,
       			          -size =>1);
  
    print "<p>";
