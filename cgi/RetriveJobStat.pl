@@ -72,6 +72,7 @@ my @jbfName = ();
 my @jbEvent = ();
 my @jbctime = ();
 my @jbtrack = ();
+my @jbtime = ();
 my $nn = 0;
 
 my @strName = ();
@@ -91,7 +92,7 @@ my $jobname = $qtrg."%".$qprod."%";
  
   &beginJbHtml(); 
 
-    $sql="SELECT jobfileName, jobStatus, NoEvents, avg_no_tracks  FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and trigsetName = ? and jobStatus <> 'Done' and jobStatus <> 'n/a' and jobStatus <> 'hung' ";
+    $sql="SELECT jobfileName, jobStatus, NoEvents, avg_no_tracks, createTime   FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and trigsetName = ? and jobStatus <> 'Done' and jobStatus <> 'n/a' and jobStatus <> 'hung' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -110,11 +111,11 @@ my $jobname = $qtrg."%".$qprod."%";
                 ($$fObjAdr)->jbst($fvalue)     if( $fname eq 'jobStatus');
                 ($$fObjAdr)->jbevt($fvalue)    if( $fname eq 'NoEvents');
                 ($$fObjAdr)->jbtrk($fvalue)    if( $fname eq 'avg_no_tracks'); 
-
+                ($$fObjAdr)->jbcrtime($fvalue) if( $fname eq 'createTime'); 
             }
             $jbstat[$nst] = $fObjAdr;
             $nst++;
-         }
+   }
   
  }elsif($qflag eq "hpss") {
 
@@ -323,6 +324,7 @@ END
        $jbStatus[$nn] = ($$pjob)->jbst;
        $jbEvent[$nn]  = ($$pjob)->jbevt;
        $jbtrack[$nn]  = ($$pjob)->jbtrk;
+       $jbtime[$nn]   = ($$pjob)->jbcrtime;
 
     if( $qflag eq "jstat" ) {
 
@@ -333,6 +335,7 @@ END
 <td HEIGHT=10><h3>$jbStatus[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbEvent[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbtrack[$nn]</h3></td>
+<td HEIGHT=10><h3>$jbtime[$nn]</h3></td>
 </TR>
 END
 
@@ -414,6 +417,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Job status</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>No.events produced</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Avg.No.tracks</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Finish time</h3></B></TD>
 </TR>
     </body>
 END
