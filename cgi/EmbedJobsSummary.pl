@@ -87,7 +87,7 @@ my $nprod = 0;
 
   &StDbEmbConnect();
 
-  $sql="SELECT distinct triggerSetName, prodTag, libTag, requestID, particle, date_format(min(startTime), '%Y-%m-%d') as mintm, date_format(max(endTime), '%Y-%m-%d') as maxtm, sum(totalEvents), sum(MuDstEvents), avg(CPUperEvt), sum(outputSize), site  from $JobStatusT where jobStatus = 'Done' and  status = 1 and startTime <> '0000-00-00 00:00:00' and CPUperEvt > 0.00001 group by triggerSetName, prodTag, requestID, particle order by max(startTime) ";
+  $sql="SELECT distinct triggerSetName, prodTag, libTag, requestID, particle, date_format(min(startTime), '%Y-%m-%d') as mintm, date_format(max(endTime), '%Y-%m-%d') as maxtm, sum(totalEvents), sum(MuDstEvents), avg(CPUperEvt), sum(outputSize), site  from $JobStatusT where triggerSetName <> 'NULL" and jobStatus = 'Done' and  status = 1 and startTime <> '0000-00-00 00:00:00' and CPUperEvt > 0.00001 group by triggerSetName, prodTag, requestID, particle order by max(startTime) ";
 
 
             $cursor =$dbh->prepare($sql)
