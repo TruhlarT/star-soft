@@ -126,7 +126,7 @@ my $dnm = 0;
 
    &beginMuHtml();
 
-     $sql="SELECT jobID, jobIndex, fSet, inputFile, MuDstEvents  FROM $JobStatusT  where  triggerSetName = ? and requestID = ? and particle = ?  and jobStatus = 'Done' and outputNFS <> 'Done' and status = 1 ";
+     $sql="SELECT jobID, jobIndex, fSet, inputFile, MuDstEvents, date_format(endTime, '%Y-%m-%d') as PDATE  FROM $JobStatusT  where  triggerSetName = ? and requestID = ? and particle = ?  and jobStatus = 'Done' and outputNFS <> 'Done' and status = 1 ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -146,6 +146,7 @@ my $dnm = 0;
                 ($$fObjAdr)->jbind($fvalue)    if( $fname eq 'jobIndex');
                 ($$fObjAdr)->jbfst($fvalue)    if( $fname eq 'fSet');
                 ($$fObjAdr)->jbevt($fvalue)    if( $fname eq 'MuDstEvents');               
+                ($$fObjAdr)->jbtime($fvalue)   if( $fname eq 'PDATE');  
 
             }
             $jbstat[$nst] = $fObjAdr;
@@ -255,6 +256,7 @@ print <<END;
 <td HEIGHT=10><h3>$jbfset[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbfName[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbEvent[$nn]</h3></td>
+<td HEIGHT=10><h3>$jbctime[$nn]</h3></td>
 </TR>
 END
 
@@ -318,10 +320,11 @@ print <<END;
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>JobID</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>JobIdex</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Job Index</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>fSet</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>File name</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>No.events processed</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>File name</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>No.events processed</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Finish time</h3></B></TD>
 </TR>
     </body>
 END
