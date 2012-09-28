@@ -45,7 +45,8 @@ struct JobAttr => {
       jbfst    => '$',
       jbname   => '$',
       jbst     => '$',
-      jbevt    => '$'
+      jbevt    => '$',
+      jbtime   => '$'
  };
 
 
@@ -70,7 +71,7 @@ my @jbEvent = ();
 my @jbjobid = ();
 my @jbprocid = ();
 my @jbfset = ();
-
+my @jbctime = ();
 
 my @disklst = ();
 my @diskname = ();
@@ -90,7 +91,7 @@ my $dnm = 0;
  
   &beginJbHtml(); 
 
-     $sql="SELECT jobID, jobIndex, fSet, inputFile, totalEvents, recoStatus  FROM $JobStatusT  where  triggerSetName = ? and requestID = ? and particle = ?  and jobStatus = 'Done' and recoStatus <> 'Done' and status = 1 ";
+     $sql="SELECT jobID, jobIndex, fSet, inputFile, totalEvents, recoStatus, date_format(endTime, '%Y-%m-%d') as CDATE  FROM $JobStatusT  where  triggerSetName = ? and requestID = ? and particle = ?  and jobStatus = 'Done' and recoStatus <> 'Done' and status = 1 ";
 
 
       $cursor =$dbh->prepare($sql)
@@ -113,6 +114,7 @@ my $dnm = 0;
                 ($$fObjAdr)->jbfst($fvalue)    if( $fname eq 'fSet');
                 ($$fObjAdr)->jbevt($fvalue)    if( $fname eq 'totalEvents');
                 ($$fObjAdr)->jbst($fvalue)     if( $fname eq 'recoStatus');               
+                ($$fObjAdr)->jbtime($fvalue)   if( $fname eq 'CDATE');         
 
             }
             $jbstat[$nst] = $fObjAdr;
@@ -226,6 +228,7 @@ END
        $jbfset[$nn]   = ($$pjob)->jbfst; 
        $jbStatus[$nn] = ($$pjob)->jbst;
        $jbEvent[$nn]  = ($$pjob)->jbevt;
+       $jbctime[$nn]  = ($$pjob)->jbtime;
 
   if($qflag eq "jstat" ) {
 
@@ -238,6 +241,7 @@ print <<END;
 <td HEIGHT=10><h3>$jbfName[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbStatus[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbEvent[$nn]</h3></td>
+<td HEIGHT=10><h3>$jbctime[$nn]</h3></td>
 </TR>
 END
 
@@ -292,8 +296,9 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>JobIdex</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>fSet</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>File name</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Reco status</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Reco status</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>No.events processed</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Finish time</h3></B></TD>
 </TR>
     </body>
 END
