@@ -18,7 +18,7 @@
 # List of disks will be by numbers
 $MIN   =  1;                                             # 4
 $MAX   =  6;                                             # for testing
-$MAX   = 90;                                             # Upper number ; can be as high
+$MAX   = 99;                                             # Upper number ; can be as high
 $MAIN  = "/star/data";                                   # default base path
 @ADDD  = ("/star/institutions/*",                        # will be used in a glob statement
 	  "/star/u/",
