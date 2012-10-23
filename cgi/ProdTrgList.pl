@@ -378,7 +378,7 @@ my $trg0 = "n/a";
 
  $fileC->set_context("filetype=daq_reco_MuDst","storage=hpss","limit=0");
 
- my @prodset = $fileC->run_query("trgsetupname","ordd(production)");
+  @prodset = $fileC->run_query("trgsetupname","ordd(production)");
 
  $fileC->clear_context( );
 
