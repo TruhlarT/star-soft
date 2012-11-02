@@ -128,7 +128,7 @@ my $nprod = 0;
     $librv[$nprod]     = ($$pjob)->lbtag;
     $reqsid[$nprod]    = ($$pjob)->reqID;
     $partcl[$nprod]    = ($$pjob)->partc;
-    $sumevt[$nprod]    = ($$pjob)->nevt;
+    $sumevt[$nprod]    = ($$pjob)->sumev;
     $totmudst[$nprod]  = ($$pjob)->mdsfl;
     $outsize[$nprod]   = ($$pjob)->outsz;
     $fsetmin[$nprod]   = ($$pjob)->mnfset;
@@ -193,7 +193,7 @@ print <<END;
     </head>
 
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>Summary of embedding  productions</h2>
+ <h2 ALIGN=CENTER> <B>Summary of embedding  production</h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
