@@ -225,9 +225,9 @@ print <<END;
 </TABLE>
       <h5>
       <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
-<!-- Created: Thu September 6 2012 -->
+<!-- Created: Fri November 2 2012 -->
 <!-- hhmts start -->
-Last modified: $Date
+Last modified: 2012-11-02
 <!-- hhmts end -->
   </body>
 </html>
