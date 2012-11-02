@@ -146,12 +146,12 @@ my $nprod = 0;
 <td HEIGHT=10><h3>$trgname[$nprod]</h3></td>
 <td HEIGHT=10><h3>$colls[$nprod]</h3></td>
 <td HEIGHT=10><h3>$yrdata[$nprod]</h3></td>
-<td HEIGHT=10><h3>$prodtag[$nprod]</h3></td>
-<td HEIGHT=10><h3>$librv[$nprod]</h3></td>
 <td HEIGHT=10><h3>$reqsid[$nprod]</h3></td>
 <td HEIGHT=10><h3>$partcl[$nprod]</h3></td>
-<td HEIGHT=10><h3>$fSetmin[$nprod]</h3></td>
-<td HEIGHT=10><h3>$fSetmax[$nprod]</h3></td>
+<td HEIGHT=10><h3>$prodtag[$nprod]</h3></td>
+<td HEIGHT=10><h3>$librv[$nprod]</h3></td>
+<td HEIGHT=10><h3>$fsetmin[$nprod]</h3></td>
+<td HEIGHT=10><h3>$fsetmax[$nprod]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nprod]</h3></td>
 <td HEIGHT=10><h3>$totmudst[$nprod]</h3></td>
 <td HEIGHT=10><h3>$outsize[$nprod]</h3></td>
@@ -201,10 +201,10 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Trigger set<br>name</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Collision</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Year of <br>data taken</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>ProdTag</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Library<br>revision</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>RequestID</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Particle</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>ProdTag</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Library<br>revision</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>fSetmin</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>fSetmax</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.events </h3></B></TD>
