@@ -86,6 +86,11 @@ my $prodname = "n/a";
     $runs[$nlist]   = $prt[3]; 
     $prod[$nlist]   = $prt[4]; 
 
+    if ($coll[$nlist] eq "auau19.564" ) {
+	$coll[$nlist] = "auau19.6";
+    }
+
+
     @prt = (); 
     @prt = split("/",$recopath[$nlist]);
     $mcset[$nlist] = $prt[4]."/".$prt[5]."/". $prt[6]."/". $prt[7]."/".$prt[8]."/". $prt[9]; 
