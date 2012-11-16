@@ -322,11 +322,13 @@ proc ::jobCreate::createWindow {} {
     $post add command -label "Add histograms"       -command [namespace code addHistograms]       -accelerator "Alt-A"
     $post add command -label "Combine centralities" -command [namespace code combineCentralities] -accelerator "Alt-C"
     $post add command -label "selectAll macro"      -command [namespace code selectAll]           -accelerator "Alt-s"
+    $post add command -label "pileup extrapolation" -command [namespace code pileupExtrapolation] -accelerator "Alt-e"
     $post add command -label "copy to HPSS"         -command [namespace code copyToHPSS]          -accelerator "Alt-c"
     #
     bind $::jobCreate::interfaceWindow <Alt-A> [namespace code addHistograms]
     bind $::jobCreate::interfaceWindow <Alt-C> [namespace code combineCentralities]
     bind $::jobCreate::interfaceWindow <Alt-s> [namespace code selectAll]
+    bind $::jobCreate::interfaceWindow <Alt-e> [namespace code pileupExtrapolation]
     bind $::jobCreate::interfaceWindow <Alt-c> [namespace code copyToHPSS]
 
     # Help menu
@@ -388,6 +390,7 @@ proc ::jobCreate::+listDefaultXml {type t c b} {
                            dataAuAu11_2010_MinBias.lis \
                            dataAuAu19_2001_MinBias.lis \
                            dataAuAu19_2011_MinBias.lis \
+                           dataAuAu27_2011_MinBias.lis \
                            dataAuAu39_2010_MinBias.lis \
                            dataAuAu62_2004_MinBias.lis \
                            dataAuAu62_2010_MinBias.lis \
@@ -406,6 +409,7 @@ proc ::jobCreate::+listDefaultXml {type t c b} {
                            dataAuAu200_2007_MinBias.lis \
                            dataAuAu200_2007_PMD.lis \
                            dataAuAu200_2010_MinBias.lis \
+                           dataAuAu200_2011_MinBias.lis \
                            dataCuCu22_P05if_cuProductionMinBias.lis \
                            dataCuCu62_2005_ProductionMinBias.lis \
                            dataCuCu62_2007ic_cuProductionMinBias.lis \
@@ -930,6 +934,9 @@ proc ::jobCreate::i+Row {f type} {
     foreach sN [$sNode getElementsByTagName xs:enumeration] {
         lappend vals [$sN getAttribute value]
     }
+    if {$type eq "trackCut"} {
+        lappend vals "hijingFragment"
+    }
         
     set jNode [$::jobCreate::jobInfo getElementsByTagName ${type}s]
 
@@ -957,6 +964,10 @@ proc ::jobCreate::i+Row {f type} {
     if {$node ne ""} {
         +Row $f $type triggerTag
     }
+    set node [$jNode getElementsByTagName hijingFragment]
+    if {$node ne ""} {
+        +Row $f $type hijingFragment
+    }
     foreach node [$jNode getElementsByTagName cutName] {
         +Row $f $type [$node text]
     }
@@ -971,6 +982,10 @@ proc ::jobCreate::iRow {f type} {
     set cut [$f.combo get]
     if {$cut eq "triggerTag"} {
         i+TriggerRow $f
+        return
+    }
+    if {$cut eq "hijingFragment"} {
+        i+hijingFragmentRow $f
         return
     }
 
@@ -1018,6 +1033,14 @@ proc ::jobCreate::+Row {f type cut} {
         +TriggerRow $f [$jNode getElementsByTagName $cut]
         return
     }
+    if {$cut eq "hijingFragment"} {
+        foreach jN [$jNode getElementsByTagName $cut] {
+            +hijingFragmentRow $f $jN
+        }
+        set new "$new hijingFragment"
+        $f.combo configure -values $new
+        return
+    }
 
     button $f.del$cut -text "x" -fg red -pady 0 -padx 0 -bd 1 \
             -command [namespace code "-Row $f $cut $node"]
@@ -1038,19 +1061,23 @@ proc ::jobCreate::+Row {f type cut} {
 ################################################################################
 proc ::jobCreate::-Row {f cut node} {
     set current [$f.combo cget -values]
-    if {[lsearch $current $cut] >= 0} {
-        error "Tried removing cut $cut. Already listed as removed"
-    }
-    if {$cut eq "triggerTag"} {
-        lappend current $cut
-        $f.combo configure -values $current
-        destroy $f.del$cut $f.name$cut $f.combo$cut $f.comment$cut
+    if {$cut eq "hijingFragment"} {
+        destroy $f.del${cut}_${node} $f.name${cut}_${node} $f.combo${cut}_${node} $f.comment${cut}_${node}
     } else {
-        set comment [$f.comment$cut cget -text]
-        lappend current $cut
-        $f.combo configure -values $current
-        destroy $f.del$cut $f.name$cut $f.e1$cut $f.e2$cut \
-                $f.hash$cut $f.comment$cut
+        if {[lsearch $current $cut] >= 0} {
+            error "Tried removing cut $cut. Already listed as removed"
+        }
+        if {$cut eq "triggerTag"} {
+            lappend current $cut
+            $f.combo configure -values $current
+            destroy $f.del$cut $f.name$cut $f.combo$cut $f.comment$cut
+        } else {
+            set comment [$f.comment$cut cget -text]
+            lappend current $cut
+            $f.combo configure -values $current
+            destroy $f.del$cut $f.name$cut $f.e1$cut $f.e2$cut \
+                    $f.hash$cut $f.comment$cut
+        }
     }
     $node delete
 }
@@ -1089,6 +1116,45 @@ proc ::jobCreate::+TriggerRow {f node} {
             -modifycmd [namespace code "modifyNode $node \[$f.combo$cut get\] $f.combo$cut %V"]
     label $f.comment$cut -text "# [$node getAttribute Comment]"
     grid $f.del$cut $f.name$cut $f.combo$cut - $f.comment$cut -sticky w
+}
+################################################################################
+# i+hijingFragmentRow inserts a hijingFragment into the dom
+################################################################################
+proc ::jobCreate::i+hijingFragmentRow {f} {
+    set cut hijingFragment
+    set sNode [$::jobCreate::schemaInfo selectNodes //*\[@name='$cut'\]]
+    set vNode [lindex [$sNode selectNodes .//*\[@value\]] 0]
+    set frag [$vNode getAttribute value]
+
+    set jNode [$::jobCreate::jobInfo getElementsByTagName trackCuts]
+    set xText "<hijingFragment Comment='type of fragmentation producing particle'>$frag</hijingFragment>"
+    $jNode appendXML $xText
+    +Row $f trackCut $cut
+}
+################################################################################
+# +hijingFragmentRow inserts a Hijing fragmentation selection into the dom and 
+################################################################################
+proc ::jobCreate::+hijingFragmentRow {f node} {
+    set cut hijingFragment
+    if {[winfo exists $f.del${cut}_${node}]} {
+        return
+    }
+    set sNode [$::jobCreate::schemaInfo selectNodes //*\[@name='hijingFragment'\]]
+    set opts [list]
+    foreach tN [$sNode selectNodes .//*\[@value\]] {
+        lappend opts [$tN getAttribute value]
+    }
+
+    button $f.del${cut}_${node} -text "x" -fg red -pady 0 -padx 0 -bd 1 \
+            -command [namespace code "-Row $f $cut $node"]
+    label $f.name${cut}_${node} -text "hijingFragment"
+    ComboBox::create $f.combo${cut}_${node} \
+            -editable false       \
+            -text    [$node text] \
+            -values   $opts       \
+            -modifycmd [namespace code "modifyNode $node \[$f.combo${cut}_${node} get\] $f.combo${cut}_${node} %V"]
+    label $f.comment${cut}_${node} -text "# [$node getAttribute Comment]"
+    grid $f.del${cut}_${node} $f.name${cut}_${node} $f.combo${cut}_${node} - $f.comment${cut}_${node} -sticky w
 }
 ################################################################################
 # Wrapper around modifyNode for actions specific to changes in Hijing
@@ -2259,9 +2325,11 @@ proc ::jobCreate::checkAnalysisType {menu} {
     if {$aType eq "StEStructCorrelation"} {
        $menu entryconfigure 2 -state normal
        $menu entryconfigure 3 -state normal
+       $menu entryconfigure 4 -state normal
     } else {
        $menu entryconfigure 2 -state disabled
        $menu entryconfigure 3 -state disabled
+       $menu entryconfigure 4 -state disabled
     }
 }
 ################################################################################
@@ -4663,6 +4731,224 @@ proc ::jobCreate::selectAllReadable {fid fLog} {
         .selectAll.tFrame.t insert end "What did you do?? the impossible happened while reading $fid: $result\n"
         .selectAll.tFrame.t see end
         set ::SEL-DONE 3
+    }
+}
+################################################################################
+# pileupExtrapolation executes the appropriate version of subtractPileup for the
+# mode. Only available if analysisType is StEStructCorrelation.
+# Ask for directory, DeltRhoBySqrtRhoRef with and without pileup cuts, output file name
+# and pileup rejection efficiency.
+################################################################################
+proc ::jobCreate::pileupExtrapolation {} {
+    if {![winfo exists .pileupExtrapolation]} {
+        set node [$::jobCreate::jobInfo getElementsByTagName cutMode]
+        set mode [$node text]
+        toplevel .pileupExtrapolation
+        wm title .pileupExtrapolation "Run pileup extrapolation macro"
+
+        #
+        # Need two input files, one output file and pileup rejection efficiency.
+        #
+        set f1 [frame .pileupExtrapolation.dirs]
+        set ft [frame .pileupExtrapolation.text]
+        set f2 [frame .pileupExtrapolation.actions]
+        pack $f1 -fill x    -expand true
+        pack $ft -fill both -expand true
+        pack $f2 -fill x
+        label       $f1.cut_label   -text "file with pileup cuts:" -justify left
+        entry       $f1.cutFile     -textvariable ::jobCreate::pileupExtrapolate(1)
+        button      $f1.findCutFile -text "Browse" -command [namespace code "getPileupFile 1"]
+
+        label       $f1.noCut_label   -text "file without pileup cuts:" -justify left
+        entry       $f1.noCutFile     -textvariable ::jobCreate::pileupExtrapolate(2)
+        button      $f1.findNoCutFile -text "Browse" -command [namespace code "getPileupFile 2"]
+
+        label       $f1.extrapolated_label   -text "extrapolated output file:" -justify left
+        entry       $f1.extrapolatedFile     -textvariable ::jobCreate::pileupExtrapolate(extrapolated)
+        button      $f1.findExtrapolatedFile -text "Browse" -command [namespace code "getPileupFile extrapolated"]
+        grid $f1.cut_label          $f1.cutFile          $f1.findCutFile
+        grid $f1.noCut_label        $f1.noCutFile        $f1.findNoCutFile
+        grid $f1.extrapolated_label $f1.extrapolatedFile $f1.findExtrapolatedFile
+
+        grid columnconfigure $f1  1 -weight 1
+        grid $f1.cut_label -sticky e
+        grid $f1.cutFile -sticky we
+        grid $f1.findCutFile -sticky w
+
+        grid $f1.noCut_label -sticky e
+        grid $f1.noCutFile -sticky we
+        grid $f1.findNoCutFile -sticky w
+
+        grid $f1.extrapolated_label -sticky e
+        grid $f1.extrapolatedFile -sticky we
+        grid $f1.findExtrapolatedFile -sticky w
+
+        text $ft.t -yscrollcommand "$ft.y set" \
+                   -xscrollcommand "$ft.x set" -wrap word
+        scrollbar $ft.y -command "$ft.t yview"
+        scrollbar $ft.x -command "$ft.t xview" -orient horizontal
+        grid $ft.t $ft.y
+        grid $ft.x x
+        grid $ft.t -sticky news
+        grid $ft.y -sticky ns
+        grid $ft.x -sticky we
+        grid columnconfigure $ft 0 -weight 1
+        grid rowconfigure    $ft 0 -weight 1
+        $ft.t tag configure input -foreground black
+        $ft.t tag configure normalOutput -foreground blue
+        $ft.t tag configure errorOutput -foreground red
+
+        button $f2.runSubtractPileup -text "run subtractPileup" -command [namespace code subtractPileup] -state disabled
+        grid $f2.runSubtractPileup
+        grid $f2.runSubtractPileup -sticky e
+
+        trace add variable ::jobCreate::pileupExtrapolate(1) write [namespace code checkExtrapolateFiles]
+        trace add variable ::jobCreate::pileupExtrapolate(1) unset [namespace code checkExtrapolateFiles]
+        trace add variable ::jobCreate::pileupExtrapolate(2) write [namespace code checkExtrapolateFiles]
+        trace add variable ::jobCreate::pileupExtrapolate(2) unset [namespace code checkExtrapolateFiles]
+        trace add variable ::jobCreate::pileupExtrapolate(extrapolated) write [namespace code checkExtrapolateFiles]
+        trace add variable ::jobCreate::pileupExtrapolate(extrapolated) unset [namespace code checkExtrapolateFiles]
+        checkExtrapolateFiles ::jobCreate::pileupExtrapolate(extrapolated) {} write
+
+        # Want to only allow window to be destroyed when not in action?
+        #bind .selectAll <Control-w> {destroy .selectAll}
+
+        scanExtrapolateFiles
+
+    } else {
+        wm deiconify .pileupExtrapolation
+        raise .pileupExtrapolation
+    }
+}
+################################################################################
+# checkExtrapolateFiles:
+#   Require ::jobCreate::combinedJobs(sum) and at least two ::jobCreate::combinedJobs(n).
+#   to be set to some value for .selectAll.combineJobs.f.actions.createSelectAllDir to
+#    be available
+################################################################################
+proc ::jobCreate::checkExtrapolateFiles {var el op} {
+    if {![winfo exists .pileupExtrapolation.actions.runSubtractPileup]} {
+        return
+    }
+    .pileupExtrapolation.actions.runSubtractPileup configure -state normal
+    if {[llength [array names ::jobCreate::pileupExtrapolate]] < 3} {
+        .pileupExtrapolation.actions.runSubtractPileup configure -state disabled
+        return
+    }
+    foreach el [array names ::jobCreate::pileupExtrapolate] {
+        if {$::jobCreate::pileupExtrapolate($el) eq ""} {
+            .pileupExtrapolation.actions.runSubtractPileup configure -state disabled
+        }
+    }
+}
+################################################################################
+# getPileupFile invokes file requestor to get a directory for;
+#   file with pileup cuts
+#   file without pileup cuts
+#   extrapolated file
+################################################################################
+proc ::jobCreate::getPileupFile {el} {
+    if {$el ne extrapolated} {
+        set ::jobCreate::pileupExtrapolate($el) [tk_getOpenFile]
+    } else {
+        set ::jobCreate::pileupExtrapolate($el) [tk_getSaveFile]
+    }
+}
+################################################################################
+# scanExtrapolateFile scans for files suitable for subtractPileup (and output from that macro)
+# Look in 
+################################################################################
+proc ::jobCreate::scanExtrapolateFiles {} {
+    set node [$::jobCreate::jobInfo getElementsByTagName outputDir]
+    set path [$node text]
+    set node [$::jobCreate::jobInfo getElementsByTagName cutMode]
+    set mode [$node text]
+
+    # If this path has _noPileupCuts at the end assume it is the analysis with no pileup cuts.
+    # Otherwise assume it has pileup cuts and look for parallel directory without.
+    set cDir [file dirname $path]
+    set dirCut [file tail $path]
+    if {[regexp {(.+)_noPileupCuts} $dirCut m n]} {
+        set dirCut $n
+    }
+    set dirNoCut ${dirCut}_noPileupCuts
+
+    # Look for data/DeltaRhoBySqrtRho_0.root in dirCut and dirNoCut
+    .pileupExtrapolation.actions.runSubtractPileup configure -state normal
+    if {[file exists [file join $cDir $dirCut data DeltaRhoBySqrtRho_0.root]]} {
+        set ::jobCreate::pileupExtrapolate(1) [file join $cDir $dirCut data DeltaRhoBySqrtRho_0.root]
+    } else {
+        .pileupExtrapolation.actions.runSubtractPileup configure -state disabled
+    }
+    if {[file exists [file join $cDir $dirNoCut data DeltaRhoBySqrtRho_0.root]]} {
+        set ::jobCreate::pileupExtrapolate(2) [file join $cDir $dirNoCut data DeltaRhoBySqrtRho_0.root]
+    } else {
+        .pileupExtrapolation.actions.runSubtractPileup configure -state disabled
+    }
+    set ::jobCreate::pileupExtrapolate(extrapolated) [file join $cDir $dirCut data AuAu200GeV_12c.root]
+}
+################################################################################
+# subtractPileupN 
+################################################################################
+proc ::jobCreate::subtractPileup {} {
+    if {$::jobCreate::pileupExtrapolate(1) eq "" ||
+        $::jobCreate::pileupExtrapolate(2) eq "" ||
+        $::jobCreate::pileupExtrapolate(extrapolated) eq "" } {
+        error "Need two input and one output files. At least one was missing."
+    }
+    set node [$::jobCreate::jobInfo getElementsByTagName cutMode]
+    set mode [$node text]
+    set cmd "root4star -q -b subtractPileup${mode}.C\(\"$::jobCreate::pileupExtrapolate(1)\",\"$::jobCreate::pileupExtrapolate(2)\",\"$::jobCreate::pileupExtrapolate(extrapolated)\"\);"
+
+    set lDir [file dirname $::jobCreate::pileupExtrapolate(extrapolated)]
+    set lDir [file dirname $lDir]
+    set logFile [file join $lDir logs subtractPileupLog]
+    set log [open $logFile w+]
+    set ft .pileupExtrapolation.text.t
+    puts $log "Starting subtractPileup"
+    puts $log $cmd
+    $ft insert end "$cmd\n" input
+    $ft see end
+    set fid [open "|$cmd"]
+    fconfigure $fid -blocking false -buffering line
+    fileevent $fid readable [namespace code [list subtractPileupReadable $fid $log]]
+    set currCurs [$ft cget -cursor]
+    $ft configure -cursor watch
+    vwait ::SUBTRACTPILEUP-DONE
+    catch {close $fid}
+    $ft conf -cursor $currCurs
+    close $log
+
+    .pileupExtrapolation.actions.runSubtractPileup configure -text "Done" -command "wm withdraw .pileupExtrapolation"
+}
+################################################################################
+# subtractPileupReadable waits for output from root4star process running subtractPileup and
+#  puts it into a text widget.
+################################################################################
+proc ::jobCreate::subtractPileupReadable {fid fLog} {
+    # The channel is readable; try to read it.
+    set ft .pileupExtrapolation.text.t
+    set status [catch { gets $fid line } result]
+    if { $status != 0 } {
+        # Error on the channel
+        puts $fLog ">>>>>error reading $fid: $result<<<<<"
+        $ft insert end "error reading $fid: $result\n"
+        $ft see end
+        set ::SUBTRACTPILEUP-DONE 2
+    } elseif { [eof $fid] } {
+        set ::SUBTRACTPILEUP-DONE 1
+    } elseif { $result >= 0 } {
+        puts $fLog $line
+        $ft insert end "$line\n"
+        $ft see end
+    } elseif { [fblocked $fid] } {
+        # Read blocked.  Just return
+    } else {
+        # Something else
+        puts $fLog ">>>>>Something impossible happened while reading output from subtractPileup<<<<<"
+        $ft insert end "What did you do?? the impossible happened while reading $fid: $result\n"
+        $ft see end
+        set ::SUBTRACTPILEUP-DONE 3
     }
 }
 ################################################################################
