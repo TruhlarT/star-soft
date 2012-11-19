@@ -69,6 +69,7 @@ print  $SITE, "\n";
   $TOP_DIRD = "/star/data08/users/didenko/kisti/new_embed/";
   @node_dir = ("daq_sl53.ittf", "trs_sl53.ittf");   
 
+}
 my @prt = ();
 
 my @dir_year = ("year_2000", "year_2001", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008","year_2009", "year_2010", "year_2011", "year_2012");
@@ -137,7 +138,7 @@ my $ii = 0;
   print "Output Dir for NEW :", $OUT_DIR[$ii],"\n";
       $ii++;  
   }
- }
+}
 
 struct JFileAttr => {
        oldjbId   => '$',
@@ -847,7 +848,9 @@ $jrun = "Run not completed";
          $mchain = $part[1]; 
          $mchain =~ s/ /,/g;  
 #   print  $mchain, "\n";
-     }
+    }else{
+       next;
+        }     
 
     }elsif ( $line =~ /$mixline/ ) {
      @part = ();
@@ -880,7 +883,10 @@ $jrun = "Run not completed";
 
         @memSize = split("=",$size_line[6]);
         if( $mymaker eq "outputStream:"){
-          $maker_size[$evtcomp -1] = $memSize[1];
+
+#### may change back
+#          $maker_size[$evtcomp -1] = $memSize[1];
+          $maker_size[$evtcomp] = $memSize[1];
 
        }
       }
@@ -994,7 +1000,7 @@ $jrun = "Run not completed";
           }
 
       }
-   }
+    }
 
 #  check if job crashed due to break_buss_error
       if($line =~ /bus error/) {
@@ -1042,7 +1048,7 @@ $jrun = "Run not completed";
          }
 #############
        } 
- }
+  }
 
        $EvDone = $no_event;
       $EvCom = $EvDone - $EvSkip;
@@ -1094,7 +1100,7 @@ $jrun = "Run not completed";
     next;
       }
     }
-  }
+   }
 
     $perct_usb        = ($nevt/$EvCom)*100;
     $avr_tracks     = $tot_tracks/$EvCom;
@@ -1150,7 +1156,7 @@ $jrun = "Run not completed";
   }
  
    close (LOGFILE);
- }
+  }
 
 #}
 

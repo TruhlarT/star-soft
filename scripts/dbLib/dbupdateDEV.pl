@@ -1358,7 +1358,7 @@ sub  updateJSTable {
     $memLst = 0; 
     $EvSkip = 0;
     $EvCom = 0;
-@maker_size = ();
+   @maker_size = ();
 
 #---------------------------------------------------------
 
@@ -1386,6 +1386,8 @@ my $mixline = "$STAR/StRoot/macros/embedding";
 my $evtcomp = 0;
 my $Err_messg = "none";
 
+
+
 $jrun = "Run not completed";
 
   if($fl_log =~ /embed/) {
@@ -1401,9 +1403,9 @@ $jrun = "Run not completed";
        if($line =~ /Processing bfc.C/) {
           $runflag++;
 	}
-   if ($line =~ /StMessageManager message summary/) {
-      $Anflag = 1;
-    }
+#   if ($line =~ /StMessageManager message summary/) {
+#      $Anflag = 1;
+#    }
 
   
        if ($line =~ /QAInfo:You are using STAR_LEVEL/) {
@@ -1462,7 +1464,7 @@ $jrun = "Run not completed";
         @memSize = split("=",$size_line[6]);
         if( $mymaker eq "outputStream:"){
 
-          $maker_size[$evtcomp -1] = $memSize[1];
+          $maker_size[$evtcomp] = $memSize[1];
 
        }
       }

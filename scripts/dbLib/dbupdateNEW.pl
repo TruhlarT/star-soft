@@ -1308,8 +1308,9 @@ $jrun = "Run not completed";
 
         @memSize = split("=",$size_line[6]);
         if( $mymaker eq "outputStream:"){
-          $maker_size[$evtcomp -1] = $memSize[1];
-
+### may change to $evtcomp
+#          $maker_size[$evtcomp -1] = $memSize[1];
+          $maker_size[$evtcomp] = $memSize[1];
        }
       }
     }
@@ -1564,7 +1565,7 @@ $jrun = "Run not completed";
     $avr_prvertx      = 0;
       }
 
-  print "Number of vertices = ", $no_prvertx,"   ", "Number of events ", $no_event,"  ",$EvCom,"  ",$nevent_vtx,"  ",$numevt_vtx, "  Average No vtx = ", $avr_prvertx,"   ","Avg no primary tracks   ", $avr_prtracks,"   ",$avr_prtrck_nfit15, "\n";
+#  print "Number of vertices = ", $no_prvertx,"   ", "Number of events ", $no_event,"  ",$EvCom,"  ",$nevent_vtx,"  ",$numevt_vtx, "  Average No vtx = ", $avr_prvertx,"   ","Avg no primary tracks   ", $avr_prtracks,"   ",$avr_prtrck_nfit15, "\n";
 
 
     if ( defined $maker_size[0]) { 
