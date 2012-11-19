@@ -953,8 +953,10 @@ $jrun = "Run not completed";
 
         @memSize = split("=",$size_line[6]);
         if( $mymaker eq "outputStream:"){
-          $maker_size[$evtcomp -1] = $memSize[1];
 
+### may change back
+#          $maker_size[$evtcomp -1] = $memSize[1];
+          $maker_size[$evtcomp] = $memSize[1];
        }
       }
     }
