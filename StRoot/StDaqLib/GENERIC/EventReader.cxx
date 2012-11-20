@@ -1,5 +1,5 @@
 /***************************************************************************
- * $Id: EventReader.cxx,v 1.64 2012/11/06 21:25:41 fisyak Exp $
+ * $Id: EventReader.cxx,v 1.60.2.1 2012/11/20 19:59:54 didenko Exp $
  * Author: M.J. LeVine
  ***************************************************************************
  * Description: Event reader code common to all DAQ detectors
@@ -23,6 +23,9 @@
  *
  ***************************************************************************
  * $Log: EventReader.cxx,v $
+ * Revision 1.60.2.1  2012/11/20 19:59:54  didenko
+ * updates for SSD
+ *
  * Revision 1.64  2012/11/06 21:25:41  fisyak
  * Jeff's fix for SSD
  *
