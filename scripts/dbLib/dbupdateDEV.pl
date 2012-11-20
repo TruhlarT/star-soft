@@ -1366,7 +1366,7 @@ sub  updateJSTable {
 
  $nevent_vtx = 0;
 
-#  if($fl_log =~ /st_physics_7155010_raw_1020003.log/ ) {
+#  if($fl_log eq "/star/rcf/test/dev/trs_sl302.ittf/Sun/year_2011/auau200_central/rcf11023_2060_25evts.log" ) {
 
 # $nevent_vtx = `grep '#V\[  0\]' $fl_log | wc -l` ;
 
@@ -1531,6 +1531,8 @@ $jrun = "Run not completed";
               @word_tr = split /=/,$string2;
               @nmb =  split ("'",$word_tr[3]);
               $no_prtracks[$npr] = $nmb[1];   
+#  print "Check number of primary tracks  ", $word_tr[3],"   %   ", $nmb[1], "\n";
+
           }
 
             if( $string3 =~ /MessageKey/ and $string3 =~ /primary good/ ) {
@@ -1541,7 +1543,7 @@ $jrun = "Run not completed";
               $no_prtrck_nfit15[$npr]  = $nmbx[1];
 
            }
-#           print "Vertex rank ", $npr,"   ",$vrank[$npr],"   ", $no_prtracks[$npr], "   ", $no_prtrck_nfit15[$npr],"\n"; 
+#          print "Vertex rank ", $npr,"   ",$vrank[$npr],"   ", $no_prtracks[$npr], "   ", $no_prtrck_nfit15[$npr],"\n"; 
 
               $npr++;
           }
