@@ -1531,7 +1531,6 @@ $jrun = "Run not completed";
               @word_tr = split /=/,$string2;
               @nmb =  split ("'",$word_tr[3]);
               $no_prtracks[$npr] = $nmb[1];   
-#  print "Check number of primary tracks  ", $word_tr[3],"   %   ", $nmb[1], "\n";
 
           }
 
