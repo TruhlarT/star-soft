@@ -134,7 +134,7 @@ $sql="SELECT distinct triggerSetName, prodTag, libTag, requestID, date_format(mi
     $fntime[$nprod]    = ($$pjob)->fintm;
     $prdsite[$nprod]   = ($$pjob)->prsite;
 
-  $outsize[$nprod] = int($outsize[$nprod]/1000000000 + 0.5); 
+  $outsize[$nprod] = int($outsize[$nprod]/1000 + 0.5); 
 
     @prt = ();
     $mxtime = $fntime[$nprod];
