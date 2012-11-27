@@ -84,7 +84,7 @@ my $nprod = 0;
   &StDbEmbConnect();
 
 
-$sql="SELECT distinct triggerSetName, prodTag, libTag, $JobStatusT.requestID, date_format(min(startTime), '%Y-%m-%d') as mintm, date_format(max(endTime), '%Y-%m-%d') as maxtm, sum(totalEvents), avg(CPUperEvt), sum(outputSize), site from $JobStatusT where triggerSetName <> 'NULL' and particle is 'NULL' and jobStatus = 'Done' and  status = 1 and startTime <> '0000-00-00 00:00:00' and CPUperEvt > 0.00001 group by triggerSetName, prodTag, requestID order by max(startTime) ";
+$sql="SELECT distinct triggerSetName, prodTag, libTag, requestID, date_format(min(startTime), '%Y-%m-%d') as mintm, date_format(max(endTime), '%Y-%m-%d') as maxtm, sum(totalEvents), avg(CPUperEvt), sum(outputSize), site from $JobStatusT where triggerSetName <> 'NULL' and particle is NULL and jobStatus = 'Done' and  status = 1 and startTime <> '0000-00-00 00:00:00' and CPUperEvt > 0.00001 group by triggerSetName, prodTag, requestID order by max(startTime) ";
 
 
             $cursor =$dbh->prepare($sql)
@@ -313,7 +313,7 @@ print <<END;
     </head>
 
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>Summary of embedding  productions jobs status</h2>
+ <h2 ALIGN=CENTER> <B>Summary of MC  productions jobs status</h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <h4 ALIGN=LEFT><font color="#ff0000">Ongoing production is in red color</font><br></h4>
@@ -321,7 +321,6 @@ print <<END;
 <TR>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Trigger set name</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>RequestID</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Embedded particle</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>ProdTag</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Library<br>revision</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Chain <br> options</h3></B></TD>
@@ -333,7 +332,6 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Location<br> on NFS</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Total size of output files in GB</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.<br>events <br>processed<h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.<br>events <br> on MuDst<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Avg.<br>CPU/evt<br> in sec<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Start time <h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>End time <h3></B></TD>
