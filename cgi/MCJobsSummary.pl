@@ -307,7 +307,7 @@ print <<END;
   <html>
 
     <head>
-          <title>Summary of embedding productions jobs status</title>
+          <title>Summary of MC productions jobs status</title>
     </head>
 
    <body BGCOLOR=\"cornsilk\">
