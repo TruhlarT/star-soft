@@ -238,10 +238,10 @@ $sql="SELECT distinct triggerSetName, prodTag, libTag, requestID, date_format(mi
 <td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];pflag=chnopt">chain</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$jbcreat[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$jbdone[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];rpart=$partcl[$nprod];pflag=jstat">$jbcrsh[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];rpart=simu;rtrig=$trgname[$nprod];pflag=jstat">$jbcrsh[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$jbremain[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];rpart=$partcl[$nprod];pflag=mudst">$mismudst[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];rpart=$partcl[$nprod];pflag=sdisk">location</font></h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];rpart=simu;rtrig=$trgname[$nprod];pflag=mudst">$mismudst[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];rpart=simu;rtrig=$trgname[$nprod];pflag=sdisk">location</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$outsize[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$sumevt[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$avcpu[$nprod]</font></h3></td>
@@ -263,10 +263,10 @@ END
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];pflag=chnopt">chain</h3></td>
 <td HEIGHT=10><h3>$jbcreat[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbdone[$nprod]</h3></td>
-<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];rpart=$partcl[$nprod];pflag=jstat">$jbcrsh[$nprod]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];rpart=simu;pflag=jstat">$jbcrsh[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbremain[$nprod]</h3></td>
-<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];rpart=$partcl[$nprod];pflag=mudst">$mismudst[$nprod]</h3></td>
-<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];rpart=$partcl[$nprod];pflag=sdisk">location</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];rpart=simu;pflag=mudst">$mismudst[$nprod]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];rpart=simu;pflag=sdisk">location</h3></td>
 <td HEIGHT=10><h3>$outsize[$nprod]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nprod]</h3></td>
 <td HEIGHT=10><h3>$avcpu[$nprod]</h3></td>
