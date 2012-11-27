@@ -258,7 +258,6 @@ END
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$trgname[$nprod]</h3></td>
 <td HEIGHT=10><h3>$reqsid[$nprod]</h3></td>
-<td HEIGHT=10><h3>$partcl[$nprod]</h3></td>
 <td HEIGHT=10><h3>$prodtag[$nprod]</h3></td>
 <td HEIGHT=10><h3>$librv[$nprod]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];pflag=chnopt">chain</h3></td>
@@ -270,7 +269,6 @@ END
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveEmbJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];rpart=$partcl[$nprod];pflag=sdisk">location</h3></td>
 <td HEIGHT=10><h3>$outsize[$nprod]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nprod]</h3></td>
-<td HEIGHT=10><h3>$sumevtmd[$nprod]</h3></td>
 <td HEIGHT=10><h3>$avcpu[$nprod]</h3></td>
 <td HEIGHT=10><h3>$strtime[$nprod]</h3></td>
 <td HEIGHT=10><h3>$fntime[$nprod]</h3></td>
