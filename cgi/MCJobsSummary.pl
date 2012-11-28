@@ -260,7 +260,7 @@ END
 <td HEIGHT=10><h3>$reqsid[$nprod]</h3></td>
 <td HEIGHT=10><h3>$prodtag[$nprod]</h3></td>
 <td HEIGHT=10><h3>$librv[$nprod]</h3></td>
-<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveMCJob.pl?rreq=$reqsid[$nprod];pflag=chnopt">chain</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveMCJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];pflag=chnopt">chain</h3></td>
 <td HEIGHT=10><h3>$jbcreat[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbdone[$nprod]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveMCJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];pflag=jstat">$jbcrsh[$nprod]</h3></td>

@@ -373,9 +373,8 @@ print <<END;
 </TABLE>
       <h5>
       <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
-<!-- Created: Fri September 14 2012 -->
+<!-- Created: Wed November 28 2012 -->
 <!-- hhmts start -->
-Last modified: $Date
 <!-- hhmts end -->
   </body>
 </html>
