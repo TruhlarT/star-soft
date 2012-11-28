@@ -198,7 +198,7 @@ END
              $disklst[$nnd] = $fvalue     if( $fname eq 'diskName');
              $diskname[$nnd] = $disklst[$nnd];
              $disksize[$nnd] = $fvalue    if( $fname eq 'sum(outputSize)');
-                $disksize[$nnd] = int($disksize[$nnd]/1000000000 + 0.5);
+                $disksize[$nnd] = int($disksize[$nnd]/1000 + 0.5);
 
             }
 
