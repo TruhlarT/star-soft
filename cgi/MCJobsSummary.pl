@@ -3,7 +3,7 @@
 # $Id:
 #
 # L.Didenko
-# EmbedJobsSummary.pl - summary of embedding/simulation production jobs status
+# MCJobsSummary.pl - summary of MC  production jobs status
 #
 ########################################################################################
 
@@ -58,7 +58,6 @@ my $RequestSumT = "request_embed_2012";
 my @jbstat = ();
 my $nst = 0;
 my @prodtag  = ();
-my @jobid  = ();
 my @trgname  = ();
 my @librv    = ();
 my @strtime  = ();
