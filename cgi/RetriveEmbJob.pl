@@ -4,9 +4,9 @@
 #
 # L.Didenko
 #
-# RetriveJobStat.pl
+# RetriveEmbJob.pl
 #
-# Retrive calibration production jobs status
+# Retrive embedding production jobs status
 # 
 ################################################################################################
 
@@ -87,6 +87,7 @@ my $dnm = 0;
 
   &StDbEmbConnect();
 
+
    if($qflag eq "jstat") {
  
   &beginJbHtml(); 
@@ -157,7 +158,7 @@ my $dnm = 0;
 
    &beginChHtml();
 
-     $sql="SELECT distinct chainOptions FROM $RequestSumT  where requestID = ?  ";
+     $sql="SELECT distinct chainOptions FROM $RequestSumT  where requestID = ?  and type = 'embed'";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
