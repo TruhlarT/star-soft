@@ -3,7 +3,7 @@
 # $Id:
 #
 # L.Didenko
-# EmbedJobsSummary.pl - summary of embedding/simulation production jobs status
+# EmbedJobsSummary.pl - summary of embedding production jobs status
 #
 ########################################################################################
 
@@ -318,11 +318,11 @@ print <<END;
   <html>
 
     <head>
-          <title>Summary of embedding productions jobs status</title>
+          <title>Summary of embedding production jobs status</title>
     </head>
 
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>Summary of embedding  productions jobs status</h2>
+ <h2 ALIGN=CENTER> <B>Summary of embedding  production jobs status</h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <h4 ALIGN=LEFT><font color="#ff0000">Ongoing production is in red color</font><br></h4>
@@ -332,7 +332,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>RequestID</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Embedded particle</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>ProdTag</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Library<br>revision</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Library<br>version</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Chain <br> options</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Total <br>No.jobs</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs<br> done</h3></B></TD>
