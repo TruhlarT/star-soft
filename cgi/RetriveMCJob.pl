@@ -57,6 +57,7 @@ my $query = new CGI;
 my $qtrg  = $query->param('rtrig');
 my $qreq  = $query->param('rreq');
 my $qflag = $query->param('pflag');
+my $qprod = $query->param('rprod');
 
 
 my $JobStatusT = "jobs_embed_2012";
@@ -91,12 +92,12 @@ my $dnm = 0;
  
   &beginJbHtml(); 
 
-     $sql="SELECT jobID, jobIndex, inputFile, totalEvents, recoStatus, date_format(endTime, '%Y-%m-%d') as CDATE  FROM $JobStatusT  where  triggerSetName = ? and requestID = ? and jobStatus = 'Done' and recoStatus <> 'Done' and status = 1 ";
+     $sql="SELECT jobID, jobIndex, inputFile, totalEvents, recoStatus, date_format(endTime, '%Y-%m-%d') as CDATE  FROM $JobStatusT  where  triggerSetName = ? and prodTag = ? and requestID = ? and jobStatus = 'Done' and recoStatus <> 'Done' and status = 1 ";
 
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute($qtrg,$qreq);
+       $cursor->execute($qtrg,$qprod,$qreq);
 
         while(@fields = $cursor->fetchrow) {
             my $cols=$cursor->{NUM_OF_FIELDS};
@@ -125,11 +126,11 @@ my $dnm = 0;
 
    &beginMuHtml();
 
-     $sql="SELECT jobID, jobIndex, inputFile, totalEvents, date_format(endTime, '%Y-%m-%d') as PDATE  FROM $JobStatusT  where  triggerSetName = ? and requestID = ? and jobStatus = 'Done' and outputNFS <> 'Done' and status = 1 ";
+     $sql="SELECT jobID, jobIndex, inputFile, totalEvents, date_format(endTime, '%Y-%m-%d') as PDATE  FROM $JobStatusT  where  triggerSetName = ? and prodTag = ? and requestID = ? and jobStatus = 'Done' and outputNFS <> 'Done' and status = 1 ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute($qtrg,$qreq);
+       $cursor->execute($qtrg,$qprod,$qreq);
 
         while(@fields = $cursor->fetchrow) {
             my $cols=$cursor->{NUM_OF_FIELDS};
@@ -155,11 +156,11 @@ my $dnm = 0;
 
    &beginChHtml();
 
-     $sql="SELECT distinct chainOptions FROM $RequestSumT  where requestID = ? and type = 'sim' ";
+     $sql="SELECT distinct chainOptions FROM $RequestSumT  where prodTag = ? and requestID = ? and type = 'sim' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute($qreq);
+       $cursor->execute($qprod,$qreq);
 
        while( $chn = $cursor->fetchrow() ) {
           $chnopts[$nch] = $chn;
@@ -178,11 +179,11 @@ END
 
  &beginDsHtml();
 
-     $sql="SELECT distinct diskName, sum(outputSize) FROM $JobStatusT  where triggerSetName = ? and requestID = ? and outputNFS = 'Done' group by diskName ";
+     $sql="SELECT distinct diskName, sum(outputSize) FROM $JobStatusT  where triggerSetName = ? and prodTag = ? and requestID = ? and outputNFS = 'Done' group by diskName ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute($qtrg,$qreq);
+       $cursor->execute($qtrg,$qprod,$qreq);
 
         while(@fields = $cursor->fetchrow) {
             my $cols=$cursor->{NUM_OF_FIELDS};
@@ -269,7 +270,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\"> 
-<h2 ALIGN=CENTER> <B>No data for <font color="blue">$qtrg </font> dataset production <br> with  <font color="blue">$qreq </font> requestID  </B></h2>
+<h2 ALIGN=CENTER> <B>No data for <font color="blue">$qtrg </font> dataset <font color="blue">$qprod</font> production <br> with  <font color="blue">$qreq </font> requestID  </B></h2>
     </body>
 END
 }
@@ -282,7 +283,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>List of jobs crashed in <font color="blue">$qtrg </font>dataset <br> production
+ <h2 ALIGN=CENTER> <B>List of jobs crashed in <font color="blue">$qtrg </font>dataset <br>  <font color="blue">$qprod</font>  production
  with <font color="blue">$qreq </font> requestID </B></h2>
  <h3 ALIGN=CENTER> Created on $todate</h3>
 <br>
@@ -307,7 +308,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\">
-<h2 ALIGN=CENTER> <B>List of jobs failed to create output files on NFS in <font color="blue">$qtrg </font>dataset <br> production  with <font color="blue">$qreq </font> requestID </B></h2>
+<h2 ALIGN=CENTER> <B>List of jobs failed to create output files on NFS in <font color="blue">$qtrg </font>dataset <br> <font color="blue">$qprod</font> production  with <font color="blue">$qreq </font> requestID </B></h2>
  <h3 ALIGN=CENTER> Created on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
@@ -331,7 +332,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>Chain options for <font color="blue">$qtrg</font> dataset <br> production with <font color="blue"> $qreq </font> requestID </B></h2>
+ <h2 ALIGN=CENTER> <B>Chain options for <font color="blue">$qtrg</font> dataset <br> <font color="blue">$qprod</font> production with <font color="blue"> $qreq </font> requestID </B></h2>
  <h3 ALIGN=CENTER> Created $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
@@ -351,8 +352,8 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>List of NFS disk names for <font color="blue">$qtrg</font> <br> dataset production with <font color="blue">$qreq </font> requestID  </B></h2>
- <h3 ALIGN=CENTER> Generated on $todate</h3>
+ <h2 ALIGN=CENTER> <B>List of NFS disk names for <font color="blue">$qtrg</font> <br> dataset <font color="blue">$qprod</font> production with <font color="blue">$qreq </font> requestID  </B></h2>
+ <h3 ALIGN=CENTER> Created on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
