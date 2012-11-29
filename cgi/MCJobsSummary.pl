@@ -155,7 +155,7 @@ $sql="SELECT distinct triggerSetName, prodTag, libTag, requestID, date_format(mi
 
 ###########
 
-   $sql="SELECT count(inputFile)  FROM $JobStatusT where triggerSetName = '$trgname[$nprod]' and  requestID = '$reqsid[$nprod]' and status = 1 ";
+   $sql="SELECT count(inputFile)  FROM $JobStatusT where triggerSetName = '$trgname[$nprod]' and  requestID = '$reqsid[$nprod]' and prodTag = '$prodtag[$nprod]' and status = 1 ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -169,7 +169,7 @@ $sql="SELECT distinct triggerSetName, prodTag, libTag, requestID, date_format(mi
   
 ############
 
-   $sql="SELECT count(inputFile)  FROM $JobStatusT where triggerSetName = '$trgname[$nprod]' and requestID = '$reqsid[$nprod]' and jobStatus = 'Done' and recoStatus = 'Done'  and status = 1 ";
+   $sql="SELECT count(inputFile)  FROM $JobStatusT where triggerSetName = '$trgname[$nprod]' and prodTag = '$prodtag[$nprod]' and requestID = '$reqsid[$nprod]' and jobStatus = 'Done' and recoStatus = 'Done'  and status = 1 ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -183,7 +183,7 @@ $sql="SELECT distinct triggerSetName, prodTag, libTag, requestID, date_format(mi
 
 ###########
 
-   $sql="SELECT count(inputFile)  FROM $JobStatusT where requestID = '$reqsid[$nprod]' and triggerSetName = '$trgname[$nprod]' and jobStatus = 'Done' and recoStatus <> 'Done'  and status = 1 ";
+   $sql="SELECT count(inputFile)  FROM $JobStatusT where triggerSetName = '$trgname[$nprod]' and prodTag = '$prodtag[$nprod]' and requestID = '$reqsid[$nprod]' and jobStatus = 'Done' and recoStatus <> 'Done'  and status = 1 ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -197,7 +197,7 @@ $sql="SELECT distinct triggerSetName, prodTag, libTag, requestID, date_format(mi
 
 ##########
 
-  $sql="SELECT count(inputFile)  FROM $JobStatusT where requestID = '$reqsid[$nprod]' and triggerSetName = '$trgname[$nprod]'  and jobStatus <> 'Done'  and status = 1 ";
+  $sql="SELECT count(inputFile)  FROM $JobStatusT where triggerSetName = '$trgname[$nprod]' and prodTag = '$prodtag[$nprod]' and requestID = '$reqsid[$nprod]' and jobStatus <> 'Done'  and status = 1 ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -212,7 +212,7 @@ $sql="SELECT distinct triggerSetName, prodTag, libTag, requestID, date_format(mi
 ########## 
 
 
-  $sql="SELECT count(inputFile)  FROM $JobStatusT where requestID = '$reqsid[$nprod]' and triggerSetName = '$trgname[$nprod]'  and jobStatus = 'Done' and  outputNFS <> 'Done'  and status = 1 ";
+  $sql="SELECT count(inputFile)  FROM $JobStatusT where  triggerSetName = '$trgname[$nprod]' and prodTag = '$prodtag[$nprod]'  and requestID = '$reqsid[$nprod]' and jobStatus = 'Done' and  outputNFS <> 'Done'  and status = 1 ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -234,13 +234,13 @@ $sql="SELECT distinct triggerSetName, prodTag, libTag, requestID, date_format(mi
 <td HEIGHT=10><h3><font color="red">$reqsid[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$prodtag[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$librv[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveMCJob.pl?rreq=$reqsid[$nprod];pflag=chnopt">chain</font></h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveMCJob.pl?rreq=$reqsid[$nprod];rprod=$prodtag[$nprod];pflag=chnopt">chain</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$jbcreat[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$jbdone[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveMCJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];pflag=jstat">$jbcrsh[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveMCJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];rprod=$prodtag[$nprod];pflag=jstat">$jbcrsh[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$jbremain[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveMCJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];pflag=mudst">$mismudst[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveMCJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];pflag=sdisk">location</font></h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveMCJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];rprod=$prodtag[$nprod];pflag=mudst">$mismudst[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveMCJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];rprod=$prodtag[$nprod];pflag=sdisk">location</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$outsize[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$sumevt[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$avcpu[$nprod]</font></h3></td>
@@ -306,11 +306,11 @@ print <<END;
   <html>
 
     <head>
-          <title>Summary of MC productions jobs status</title>
+          <title>Summary of MC production jobs status</title>
     </head>
 
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>Summary of MC  productions jobs status</h2>
+ <h2 ALIGN=CENTER> <B>Summary of MC  production jobs status</h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <h4 ALIGN=LEFT><font color="#ff0000">Ongoing production is in red color</font><br></h4>
@@ -319,7 +319,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Trigger set name</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>RequestID</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>ProdTag</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Library<br>revision</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Library<br>version</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Chain <br> options</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Total <br>No.jobs</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs<br> done</h3></B></TD>
