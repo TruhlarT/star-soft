@@ -234,7 +234,7 @@ $sql="SELECT distinct triggerSetName, prodTag, libTag, requestID, date_format(mi
 <td HEIGHT=10><h3><font color="red">$reqsid[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$prodtag[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$librv[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveMCJob.pl?rreq=$reqsid[$nprod];pflag=chnopt">chain</font></h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveMCJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];pflag=chnopt">chain</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$jbcreat[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$jbdone[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveMCJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];rprod=$prodtag[$nprod];pflag=jstat">$jbcrsh[$nprod]</font></h3></td>
@@ -259,7 +259,7 @@ END
 <td HEIGHT=10><h3>$reqsid[$nprod]</h3></td>
 <td HEIGHT=10><h3>$prodtag[$nprod]</h3></td>
 <td HEIGHT=10><h3>$librv[$nprod]</h3></td>
-<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveMCJob.pl?rreq=$reqsid[$nprod];pflag=chnopt">chain</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveMCJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];pflag=chnopt">chain</h3></td>
 <td HEIGHT=10><h3>$jbcreat[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbdone[$nprod]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveMCJob.pl?rreq=$reqsid[$nprod];rtrig=$trgname[$nprod];rprod=$prodtag[$nprod];pflag=jstat">$jbcrsh[$nprod]</h3></td>
