@@ -316,23 +316,23 @@ print <<END;
 <h4 ALIGN=LEFT><font color="#ff0000">Ongoing production is in red color</font><br></h4>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
-<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Trigger set name</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>RequestID</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>ProdTag</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Library<br>version</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Chain <br> options</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Total <br>No.jobs</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs<br> done</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs<br> crashed</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs<br> remaining</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.missing files on NFS</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Location<br> on NFS</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Total size of output files in GB</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.<br>events <br>processed<h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Avg.<br>CPU/evt<br> in sec<h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=60><B><h3>Trigger set name</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"2%\" HEIGHT=60><B><h3>RequestID</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"2%\" HEIGHT=60><B><h3>ProdTag</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"2%\" HEIGHT=60><B><h3>Library<br>version</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"2%\" HEIGHT=60><B><h3>Chain <br> options</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"2%\" HEIGHT=60><B><h3>Total <br>No.jobs</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"2%\" HEIGHT=60><B><h3>No.jobs<br> done</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"2%\" HEIGHT=60><B><h3>No.jobs<br> crashed</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"2%\" HEIGHT=60><B><h3>No.jobs<br> remained</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"2%\" HEIGHT=60><B><h3>No.mis. files on NFS</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"2%\" HEIGHT=60><B><h3>Location<br> on NFS</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"2%\" HEIGHT=60><B><h3>Total size of output files in GB</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"4%\" HEIGHT=60><B><h3>No.<br>events <br>processed<h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"2%\" HEIGHT=60><B><h3>Avg.<br>CPU/evt<br> in sec<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Start time <h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>End time <h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Site<h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"2%\" HEIGHT=60><B><h3>Site<h3></B></TD>
 </TR>
     </body>
 END
