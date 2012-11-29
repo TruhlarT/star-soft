@@ -316,7 +316,7 @@ print <<END;
 <h4 ALIGN=LEFT><font color="#ff0000">Ongoing production is in red color</font><br></h4>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
-<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Production dataset name </h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3> MC dataset name </h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>RequestID</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"2%\" HEIGHT=60><B><h3>ProdTag</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Library<br>version</h3></B></TD>
