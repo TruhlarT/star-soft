@@ -332,7 +332,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>Chain options for <font color="blue">$qtrg</font> dataset <br> production with <font color="blue"> $qreq </font> requestID </B></h2>
+ <h2 ALIGN=CENTER> <B>Chain options for <font color="blue">$qtrg</font> <br> dataset production with <font color="blue"> $qreq </font> requestID </B></h2>
  <h3 ALIGN=CENTER> Created $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
