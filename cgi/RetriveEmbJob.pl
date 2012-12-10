@@ -276,7 +276,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\"> 
-<h2 ALIGN=CENTER> <B>No data for <font color="blue">$qtrg </font>embedding production of <font color="blue"> $qpart </font> particle<br> with  <font color="blue">$qreq </font> requestID  </B></h2>
+<h2 ALIGN=CENTER> <B>No data for <font color="blue">$qtrg </font>embedding production of <font color="blue"> $qpart </font> particle<br> with  requestID = <font color="blue">$qreq </font> </B></h2>
     </body>
 END
 }
@@ -290,7 +290,7 @@ print <<END;
   <html>
    <body BGCOLOR=\"cornsilk\">
  <h2 ALIGN=CENTER> <B>List of jobs crashed in <font color="blue">$qtrg </font>embedding production <br>
- for <font color="blue"> $qpart </font> particle  with <font color="blue">$qreq </font> requestID </B></h2>
+ for <font color="blue"> $qpart </font> particle  with requestID = <font color="blue">$qreq </font> </B></h2>
  <h3 ALIGN=CENTER> Created on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
@@ -315,7 +315,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\">
-<h2 ALIGN=CENTER> <B>List of jobs failed to create output files on NFS in <font color="blue">$qtrg </font>embedding production <br> for <font color="blue"> $qpart </font> particle with <font color="blue">$qreq </font> requestID </B></h2>
+<h2 ALIGN=CENTER> <B>List of jobs failed to create output files on NFS in <font color="blue">$qtrg </font>embedding production <br> for <font color="blue"> $qpart </font> particle with requestID = <font color="blue">$qreq </font> </B></h2>
  <h3 ALIGN=CENTER> Created on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
@@ -340,7 +340,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>Chain options for embedding production with <font color="blue"> $qreq </font> requestID </B></h2>
+ <h2 ALIGN=CENTER> <B>Chain options for embedding production with requestID = <font color="blue"> $qreq </font> </B></h2>
  <h3 ALIGN=CENTER> Created on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
@@ -360,7 +360,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>List of NFS disk names for <font color="blue">$qtrg</font> embedding production <br> for <font color="blue">$qpart </font> particle with <font color="blue">$qreq </font> requestID  </B></h2>
+ <h2 ALIGN=CENTER> <B>List of NFS disk names for <font color="blue">$qtrg</font> embedding production <br> for <font color="blue">$qpart </font> particle with  requestID = <font color="blue">$qreq </font> </B></h2>
  <h3 ALIGN=CENTER> Created on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">

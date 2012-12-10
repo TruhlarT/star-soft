@@ -283,8 +283,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>List of jobs crashed in <font color="blue">$qtrg </font> <br> dataset  <font color="blue">$qprod</font>  production
- with <font color="blue">$qreq </font> requestID </B></h2>
+ <h2 ALIGN=CENTER> <B>List of jobs crashed in <font color="blue">$qtrg </font> <br> dataset  <font color="blue">$qprod</font>  production  with requestID = <font color="blue">$qreq </font> </B></h2>
  <h3 ALIGN=CENTER> Created on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
@@ -352,7 +351,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>List of NFS disk names for <font color="blue">$qtrg</font> <br> dataset <font color="blue">$qprod</font> production with <font color="blue">$qreq </font> requestID  </B></h2>
+ <h2 ALIGN=CENTER> <B>List of NFS disk names for <font color="blue">$qtrg</font> <br> dataset <font color="blue">$qprod</font> production with requestID = <font color="blue">$qreq </font> </B></h2>
  <h3 ALIGN=CENTER> Created on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
