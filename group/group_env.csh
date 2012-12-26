@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.248 2012/04/05 13:38:25 jeromel Exp $
+#       $Id: group_env.csh,v 1.249 2012/12/26 17:33:20 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -17,8 +17,16 @@
 set ECHO = 1;
 set FAIL = "";
 
+if ( ! $?prompt) then
+    # when there is not prompt, we are usually in batch
+    # or captive mode
+    setenv INTERACTIVE 0
+    set ECHO = 0
+else
+    # otherwise, set this for convenience
+    setenv INTERACTIVE 1
+endif
 if ($?STAR == 1)   set ECHO = 0
-if ( ! $?prompt)   set ECHO = 0
 if ($?SILENT == 1) set ECHO = 0
 
 # This variable was added for the ECHOD debug mode
