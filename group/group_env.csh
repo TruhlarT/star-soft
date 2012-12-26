@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.249 2012/12/26 17:33:20 jeromel Exp $
+#       $Id: group_env.csh,v 1.250 2012/12/26 18:18:56 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -17,14 +17,17 @@
 set ECHO = 1;
 set FAIL = "";
 
+setenv INTERACTIVE 0
 if ( ! $?prompt) then
     # when there is not prompt, we are usually in batch
-    # or captive mode
-    setenv INTERACTIVE 0
+    # or captive mode. Condor tends to copy env though
     set ECHO = 0
 else
-    # otherwise, set this for convenience
-    setenv INTERACTIVE 1
+    # otherwise, set this for convenience but make a few
+    # more checks 
+    if ( $?SSH_TTY || $?DISPLAY ) then
+	setenv INTERACTIVE 1
+    endif
 endif
 if ($?STAR == 1)   set ECHO = 0
 if ($?SILENT == 1) set ECHO = 0
