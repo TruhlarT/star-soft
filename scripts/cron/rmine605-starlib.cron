@@ -1,5 +1,0 @@
-7,37         *   * * * /afs/rhic/star/packages/scripts/showquotas -html -o /afs/rhic/star/doc/www/html/tmp/pub/data03.html /star/data03
-8,38         *   * * * /afs/rhic/star/packages/scripts/showquotas -html -o /afs/rhic/star/doc/www/html/tmp/pub/data04.html /star/data04
-# Reference for AddThisNode.csh and nova daemon added on Thu Nov 25 20:15:47 EST 2004
-17 20,22,0,2,4,6,8,10,12,14,16,18 * * * /tmp/nova/novaStart.csh
-22 0,2,4,6,8,10,12,14,16,18,20,22 * * * /usr/bin/test -e /star/u/starlib/novabin/AddThisNode.csh && /star/u/starlib/novabin/AddThisNode.csh 

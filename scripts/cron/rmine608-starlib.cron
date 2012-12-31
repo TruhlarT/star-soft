@@ -1,3 +1,0 @@
-# Reference for AddThisNode.csh and nova daemon added on Fri Nov 26 10:53:07 EST 2004
-55 10,12,14,16,18,20,22,0,2,4,6,8 * * * /tmp/nova/novaStart.csh
-31 0,2,4,6,8,10,12,14,16,18,20,22 * * * /usr/bin/test -e /star/u/starlib/novabin/AddThisNode.csh && /star/u/starlib/novabin/AddThisNode.csh 
