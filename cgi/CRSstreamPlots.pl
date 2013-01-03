@@ -24,7 +24,7 @@ $dbname="operation";
 
 my @reqperiod = ("day","week","1_month","2_months","3_months","6_month");
 my @plotview = ("numbers","ratios");
-my @prodyear = ("2010","2011","2012");
+my @prodyear = ("2010","2011","2012","2013");
 
 my $query = new CGI;
 
@@ -107,7 +107,7 @@ print "<h3 align=center> Select year of production</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'ryear',
                              -values=>\@prodyear,
-                             -default=>2012,
+                             -default=>2013,
                              -size =>1); 
 
 print "<p>";
@@ -156,9 +156,9 @@ my $plview    =  $qqr->param('plotvw');
 my $dyear = $pryear - 2000 ;
 
 # Tables
- $crsJobStreamsT = "crsJobStreamsY".$dyear;
+# $crsJobStreamsT = "crsJobStreamsY".$dyear;
 
-#$crsJobStreamsT = "crsJobStreamsY11";
+$crsJobStreamsT = "crsJobStreamsY12";
 
 ($sec,$min,$hour,$mday,$mon,$year) = localtime;
 
