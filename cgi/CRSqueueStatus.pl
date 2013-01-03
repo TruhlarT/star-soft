@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSqueueStatus.pl,v 1.20 2012/01/09 16:00:39 didenko Exp $
+# $Id: CRSqueueStatus.pl,v 1.21 2013/01/03 19:05:42 didenko Exp $
 #
 # $Log: CRSqueueStatus.pl,v $
+# Revision 1.21  2013/01/03 19:05:42  didenko
+# added year 2013
+#
 # Revision 1.20  2012/01/09 16:00:39  didenko
 # changed default year to 2012
 #
@@ -85,7 +88,7 @@ $dbname="operation";
 
 my @reqperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months","7_months","8_months","9_months","10_months","11_months","12_months");
 my @plotview = ("numbers","percentage");
-my @prodyear = ("2009","2010","2011","2012");
+my @prodyear = ("2009","2010","2011","2012","2013");
 
 my $query = new CGI;
 
@@ -125,7 +128,7 @@ print "<h3 align=center> Select year of production</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'ryear',
                              -values=>\@prodyear,
-                             -default=>2012,
+                             -default=>2013,
                              -size =>1); 
 
 print "<p>";
@@ -139,12 +142,12 @@ print  $query->scrolling_list(-name=>'period',
 
 print "<p>";
 print "</td><td>";
-print "<h3 align=center> How do you want to view plots:</h3>";
-print "<h4 align=center>";
-print  $query->scrolling_list(-name=>'plotvw',
-                             -values=>\@plotview,
-                             -default=>numbers,
-                             -size =>1); 
+#print "<h3 align=center> How do you want to view plots:</h3>";
+#print "<h4 align=center>";
+#print  $query->scrolling_list(-name=>'plotvw',
+#                             -values=>\@plotview,
+#                             -default=>numbers,
+#                             -size =>1); 
 
 
 print "<p>";
@@ -173,7 +176,7 @@ my $plview    =  $qqr->param('plotvw');
 
 my $dyear = $pryear - 2000 ;
 
-$dyear = 11;
+$dyear = 12;
 
 # Tables
 $crsJobStatusT = "crsJobStatusY".$dyear;
