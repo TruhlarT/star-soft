@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSstatusPlots.pl,v 1.28 2012/01/09 16:24:55 didenko Exp $
+# $Id: CRSstatusPlots.pl,v 1.29 2013/01/03 19:18:03 didenko Exp $
 #
 # $Log: CRSstatusPlots.pl,v $
+# Revision 1.29  2013/01/03 19:18:03  didenko
+# added year 2013
+#
 # Revision 1.28  2012/01/09 16:24:55  didenko
 # added note if no data
 #
@@ -98,7 +101,7 @@ $query = new CGI;
 
  my $fstatus   =  $query->param('statusfield');
  my $fperiod   =  $query->param('period');
- my @prodyear = ("2005","2006","2007","2008","2009","2010","2011","2012");
+ my @prodyear = ("2005","2006","2007","2008","2009","2010","2011","2012","2013");
 
   if( $fperiod eq "" and $fstatus eq "" and $pryear eq "" ) {
 
@@ -129,7 +132,7 @@ print "<h3 align=center> Select year of production</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'ryear',
                              -values=>\@prodyear,
-                             -default=>2012,
+                             -default=>2013,
                              -size =>1); 
 
 print "<p>";
@@ -172,7 +175,7 @@ my $qqr = new CGI;
 
  my $dyear = $pryear - 2000 ;
 
- $dyear = 11;
+ $dyear = 12;
 
 # Tables
 $crsJobStatusT = "crsJobStatusY".$dyear;
