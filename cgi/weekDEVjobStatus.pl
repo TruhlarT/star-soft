@@ -333,6 +333,16 @@ my @prt;
 
       &printRowNA(); 
 
+     }elsif( $dfmon < 0 ) {
+
+      $myJobS = "n/a";
+      $myMemF = 0;
+      $myMemL = 0;
+      $myCPU = 0;
+      $myEvtD = 0;
+
+      &printRowNA();
+
        }else{
      &printRow(); 
        } 
