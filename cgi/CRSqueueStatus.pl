@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSqueueStatus.pl,v 1.21 2013/01/03 19:05:42 didenko Exp $
+# $Id: CRSqueueStatus.pl,v 1.22 2013/01/03 19:14:39 didenko Exp $
 #
 # $Log: CRSqueueStatus.pl,v $
+# Revision 1.22  2013/01/03 19:14:39  didenko
+# minor modifications
+#
 # Revision 1.21  2013/01/03 19:05:42  didenko
 # added year 2013
 #
@@ -142,12 +145,12 @@ print  $query->scrolling_list(-name=>'period',
 
 print "<p>";
 print "</td><td>";
-#print "<h3 align=center> How do you want to view plots:</h3>";
-#print "<h4 align=center>";
-#print  $query->scrolling_list(-name=>'plotvw',
-#                             -values=>\@plotview,
-#                             -default=>numbers,
-#                             -size =>1); 
+print "<h3 align=center> How do you want to view plots:</h3>";
+print "<h4 align=center>";
+print  $query->scrolling_list(-name=>'plotvw',
+                             -values=>\@plotview,
+                             -default=>numbers,
+                             -size =>1); 
 
 
 print "<p>";
@@ -255,35 +258,31 @@ my @prt = ();
 
     if($plview eq "numbers") {
 
-             $sql="SELECT max(queue0), max(queue1), max(queue2), max(queue3), max(queue4), max(queue5) FROM  $crsQueueT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? ";
+             $sql="SELECT max(queue0), max(queue3), max(queue4), max(queue5) FROM  $crsQueueT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($day_diff) ;
 	while(@fields = $cursor->fetchrow_array) {  
 
  		$maxvalue[0] = $fields[0];
-		$maxvalue[1] = $fields[1];
-		$maxvalue[2] = $fields[2];
-		$maxvalue[3] = $fields[3]; 
-                $maxvalue[4] = $fields[4];
-                $maxvalue[5] = $fields[5];   
+		$maxvalue[3] = $fields[1]; 
+                $maxvalue[4] = $fields[2];
+                $maxvalue[5] = $fields[3];   
 	    }
 
  my $ii = 0;
 
-            $sql="SELECT queue0, queue1, queue2, queue3, queue4, queue5, sdate FROM  $crsQueueT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? and sdate <= '$nowdatetime' ORDER by sdate ";
+            $sql="SELECT queue0, queue3, queue4, queue5, sdate FROM  $crsQueueT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? and sdate <= '$nowdatetime' ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($day_diff) ;
 	while(@fields = $cursor->fetchrow_array) {
 
 		$numjobs1[$ii] = $fields[0];
-		$numjobs2[$ii] = $fields[1];
-		$numjobs3[$ii] = $fields[2];
-		$numjobs4[$ii] = $fields[3];
-		$numjobs5[$ii] = $fields[4];
-		$numjobs6[$ii] = $fields[5];
-                $Npoint[$ii] =  $fields[6]; 
+		$numjobs4[$ii] = $fields[1];
+		$numjobs5[$ii] = $fields[2];
+		$numjobs6[$ii] = $fields[3];
+                $Npoint[$ii] =  $fields[4]; 
                	$ii++;
  
       }
@@ -301,19 +300,17 @@ my @prt = ();
 
     }else{
 
-            $sql="SELECT Rqueue0, Rqueue1, Rqueue2, Rqueue3, Rqueue4, Rqueue5 sdate FROM  $crsQueueT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) < ? ORDER by sdate ";
+            $sql="SELECT Rqueue0, Rqueue3, Rqueue4, Rqueue5 sdate FROM  $crsQueueT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) < ? ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($day_diff) ;
 	while(@fields = $cursor->fetchrow_array) {
 
 		$numjobs1[$ii] = $fields[0];
-		$numjobs2[$ii] = $fields[1];
-		$numjobs3[$ii] = $fields[2];
-		$numjobs4[$ii] = $fields[3];
-		$numjobs5[$ii] = $fields[4];
-		$numjobs6[$ii] = $fields[5];
-                $Npoint[$ii] =  $fields[6]; 
+		$numjobs4[$ii] = $fields[1];
+		$numjobs5[$ii] = $fields[2];
+		$numjobs6[$ii] = $fields[3];
+                $Npoint[$ii] =  $fields[4]; 
                	$ii++;
  
       }
