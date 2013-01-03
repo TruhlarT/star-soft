@@ -23,7 +23,7 @@ $dbname="operation";
 
 
 my @reqperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months","7_months","8_months","9_months","10_months","11_months","12_months");
-my @prodyear = ("2010","2011","2012");
+my @prodyear = ("2010","2011","2012", "2013");
 my @plotview = ("numbers","percentage");
 
 my $query = new CGI;
@@ -73,7 +73,7 @@ print "<h3 align=center> Select year of production</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'ryear',
                              -values=>\@prodyear,
-                             -default=>2012,
+                             -default=>2013,
                              -size =>1); 
 
 print "<p>";
@@ -123,7 +123,7 @@ my $plview    =  $qqr->param('plotvw');
 
 my $dyear = $pryear - 2000 ;
 
- $dyear = 11;
+ $dyear = 12;
 
 # Tables
 $crsJobStatusT = "crsJobStatusY".$dyear;
