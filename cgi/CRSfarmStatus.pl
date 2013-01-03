@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.55 2013/01/03 18:29:41 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.56 2013/01/03 18:43:56 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
+# Revision 1.56  2013/01/03 18:43:56  didenko
+# more fixes for year 2013
+#
 # Revision 1.55  2013/01/03 18:29:41  didenko
 # more fixes for year 2013
 #
@@ -250,7 +253,7 @@ my @maxvalue = ();
 
 ($sec,$min,$hour,$mday,$mon,$year) = localtime;
 
-my $mm = $mon + 1;
+my $mn = $mon + 1;
 
 if( $mon < 10) { $mon = '0'.$mon };
 if( $mday < 10) { $mday = '0'.$mday };
@@ -278,16 +281,16 @@ my $nowdatetime ;
 
   if($pryear == 2013) {
     $Nmaxjobs = 5400;
- }elsif($pryear == 2012 and $mm >= 10 ) {
+ }elsif($pryear == 2012 ) {
     $Nmaxjobs = 5400;
- }elsif($pryear == 2012 and $mm < 10 ) {
-    $Nmaxjobs = 3400;
+# }elsif($pryear == 2012 and $mn < 10 ) {
+#    $Nmaxjobs = 3400;
  }elsif($pryear == 2011) {
     $Nmaxjobs = 3000;
  }elsif ($pryear == 2010 ) {
     $Nmaxjobs = 2900;
- }elsif($pryear == 2010 and $mm < 10 ) {
-    $Nmaxjobs = 1000;
+# }elsif($pryear == 2010 and $mn < 10 ) {
+#    $Nmaxjobs = 1000;
  }elsif($pryear == 2009)  {
     $Nmaxjobs = 800;
  }else{
