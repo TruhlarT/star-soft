@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.53 2013/01/03 18:18:23 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.54 2013/01/03 18:24:54 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
-# Revision 1.53  2013/01/03 18:18:23  didenko
-# fixes for year 2013
+# Revision 1.54  2013/01/03 18:24:54  didenko
+# more fixes for year 2013
 #
 # Revision 1.51  2012/01/09 15:47:27  didenko
 # added note if no data
@@ -274,9 +274,10 @@ my $nowdatetime ;
 
   if($pryear == 2013) {
     $Nmaxjobs = 5400;
- }elsif($pryear == 2012 and $mm < 10 ) {
-    $Nmaxjobs = 3400;
- }elsif($pryear == 2012 and $mm >= 10 ) {
+# }elsif($pryear == 2012 and $mm < 10 ) {
+#    $Nmaxjobs = 3400;
+# }elsif($pryear == 2012 and $mm >= 10 ) {
+ }elsif($pryear == 2012 ) {
     $Nmaxjobs = 5400;
  }elsif($pryear == 2011) {
     $Nmaxjobs = 3000;
