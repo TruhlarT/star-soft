@@ -52,7 +52,7 @@ my $nowdate = $todate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2010","2011"."2012");
+my @prodyear = ("2010","2011","2012","2013");
 
 
 my @arperiod = ( );
@@ -344,6 +344,7 @@ END
   if( $qprod =~ /P10/ ) {$pryear = "2010"};
   if( $qprod =~ /P11/ ) {$pryear = "2011"};
   if( $qprod =~ /P12/ ) {$pryear = "2012"};
+  if( $qprod =~ /P13/ ) {$pryear = "2013"};
     
     $JobStatusT = "JobStatus".$pryear;
 
