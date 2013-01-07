@@ -2072,7 +2072,7 @@ proc ::jobCreate::filterLists {} {
         if {[string first :::::: $line] == 0} {
             incr nJobs
         } else {
-            if {[regexp {([0-9]+)$} $line m n] > 0} {
+            if {[regexp {([0-9]+):*$} $line m n] > 0} {
                 if {$n < 50} {
                     lappend rejectFile $n
                     continue
@@ -2203,7 +2203,7 @@ proc ::jobCreate::filterLists {} {
             foreach rs [lsort [array names runSeq]] {
                 foreach s [lsort -index 0 $runSeq($rs)] {
                     foreach {en l} $s {break}
-                    regexp {([0-9]+)$} $fileLine($l) m n
+                    regexp {([0-9]+):*$} $fileLine($l) m n
                     lappend dayList($d) "$fileLine($l) $n"
                     incr sum $n
                 }
@@ -2242,7 +2242,7 @@ proc ::jobCreate::filterLists {} {
     file rename $tag [file rootname $tag].oldDataset
     file rename [file rootname $tag].newDataset $tag
 
-    $tf.t insert end "I have rename $tag to [file rootname $tag].oldDataset"
+    $tf.t insert end "I have renamed $tag to [file rootname $tag].oldDataset"
     $tf.t insert end " and created a new version of the dataset."
     $tf.t insert end " If you see odd results you should check these files by hand.\n"
 
