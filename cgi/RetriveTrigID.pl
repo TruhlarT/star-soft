@@ -84,10 +84,10 @@ $artrig[0] = 0;
 
 print <<END;
 
-<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"#ffdc9f\">
-<td HEIGHT=10><h3>$trglable[$nlist]</h3></td>
-<td HEIGHT=10><h3>$trgid[$nlist]</h3></td>
-<td HEIGHT=10><h3>$nevents[$nlist]</h3></td>
+<TR ALIGN=CENTER HEIGHT=5 bgcolor=\"#ffdc9f\">
+<td HEIGHT=5><h3>$trglable[$nlist]</h3></td>
+<td HEIGHT=5><h3>$trgid[$nlist]</h3></td>
+<td HEIGHT=5><h3>$nevents[$nlist]</h3></td>
 </TR>
 END
 
@@ -111,7 +111,7 @@ print <<END;
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Trigger lable</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Trigger lable</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Offline trigger ID</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Number of Events</h3></B></TD>
 
