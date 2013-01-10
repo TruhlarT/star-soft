@@ -56,8 +56,8 @@ my $query = new CGI;
  if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
 
 
-my $qtrg = $query->param('trigs');
-my $qprod = $query->param('prods');
+my $qtrg = $query->param('rtrig');
+my $qprod = $query->param('rprod');
 
 $artrig[0] = 0;
 
