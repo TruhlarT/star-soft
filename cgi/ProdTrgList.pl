@@ -502,6 +502,7 @@ print <<END;
 <td HEIGHT=10><h3><font color="#ff0000">$sumevt[$nlist]</font></h3></td>
 <td HEIGHT=10><h3><font color="#ff0000">$sumsize[$nlist]</font></h3></td>
 <td HEIGHT=10><h3><font color="#ff0000">$numfiles[$nlist]</font></h3></td>
+<td HEIGHT=10><h3><font color="#ff0000"><a href="http://www.star.bnl.gov/devcgi/RetriveTrigID.pl?rtrig=$trig[$nlist];rprod=$prod[$nlist]">triggerID</font></h3></td>
 </TR>
 END
 
