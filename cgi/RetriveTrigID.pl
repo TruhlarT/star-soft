@@ -84,10 +84,10 @@ $artrig[0] = 0;
 
 print <<END;
 
-<TR ALIGN=CENTER HEIGHT=5 bgcolor=\"#ffdc9f\">
-<td HEIGHT=5><h3>$trglable[$nlist]</h3></td>
-<td HEIGHT=5><h3>$trgid[$nlist]</h3></td>
-<td HEIGHT=5><h3>$nevents[$nlist]</h3></td>
+<TR ALIGN=CENTER HEIGHT=0.5 bgcolor=\"#ffdc9f\">
+<td HEIGHT=0.5><h3>$trglable[$nlist]</h3></td>
+<td HEIGHT=0.5><h3>$trgid[$nlist]</h3></td>
+<td HEIGHT=0.5><h3>$nevents[$nlist]</h3></td>
 </TR>
 END
 
