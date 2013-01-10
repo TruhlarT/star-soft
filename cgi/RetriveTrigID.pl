@@ -109,7 +109,7 @@ print <<END;
  <h2 ALIGN=CENTER> <B>Offline trigger ID list for <font color="blue">$qtrg </font> dataset <br>and  <font color="blue">$qprod </font>production</B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
-<TABLE ALIGN=CENTER BORDER=4 CELLSPACING=0.5 CELLPADDING=0.5 >
+<TABLE ALIGN=CENTER BORDER=2 CELLSPACING=0.2 CELLPADDING=0.2 >
 <TR>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Trigger lable</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Offline trigger ID</h3></B></TD>
