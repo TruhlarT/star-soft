@@ -486,7 +486,7 @@ my $trg0 = "n/a";
     $daydif = $nowdate - $crtime;
     $mondif = $mon - $prt[1];
 
-    if($pyear == $nowyear and $mondif == 1 and ($daydiff == 70 or $daydiff == 71 )) {
+    if($pyear == 2012 and $mondif == 1 and ($daydiff == 70 or $daydiff == 71 )) {
     $daydif = $nowdate - $crtime - $daydiff;
     };
  
