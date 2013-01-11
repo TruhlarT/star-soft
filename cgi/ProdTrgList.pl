@@ -486,10 +486,12 @@ my $trg0 = "n/a";
     $daydif = $nowdate - $crtime;
     $mondif = $mon - $prt[1];
 
-    if($pyear == 2012 and $mondif == 1 and ($daydiff == 70 or $daydiff == 71 )) {
+    if($pyear eq $nowyear ) { 
+
+    if($mondif == 1 and ($daydiff == 70 or $daydiff == 71 )) {
     $daydif = $nowdate - $crtime - $daydiff;
     };
- 
+  }
 
 #        if( $prod[$nlist] eq "P12id" and $trig[$nlist] eq "UU_production_2012" ) {
 
