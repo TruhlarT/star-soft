@@ -35,10 +35,12 @@ if( $sec < 10) { $sec = '0'.$sec };
 my $todate = ($year+1900)."-".$mon."-".$mday." ".$hour.":".$min.":".$sec;
 
 my $nowdate = ($year+1900).$mon.$mday;
+my $nowyear = $year+1900; 
 
 my $crtime;
 my $daydif;
 my $mondif;
+my $pyear;
 
 my %collHash = (
                  UU_production_2012 => 'UU193',
@@ -479,11 +481,12 @@ my $trg0 = "n/a";
     @prt = ();
     $crtime = $mxtime[0];
     @prt = split("-",$crtime);
+    $pyear = $prt[0];
     $crtime =~ s/-//g;
     $daydif = $nowdate - $crtime;
     $mondif = $mon - $prt[1];
 
-    if($mondif == 1 and ($daydiff == 70 or $daydiff == 71 )) {
+    if($pyear == $nowyear and $mondif == 1 and ($daydiff == 70 or $daydiff == 71 )) {
     $daydif = $nowdate - $crtime - $daydiff;
     };
  
