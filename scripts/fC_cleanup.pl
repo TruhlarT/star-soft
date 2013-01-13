@@ -4,20 +4,22 @@
 # This is a command line utility to do a maintenance and cleanup
 # of te FileCatalog database
 #
-# Initially written by Adam Kisiel, Warsaw University of Technology (2002)
-# (service task under J. Lauret)
+# Initially written by Adam Kisiel, Warsaw University of Technology 
+# in 2002 as part of a service task under J. Lauret.
 #
-# Maintained and modified by J.Lauret, BNL 2002-2011
+# Maintained and modified by J.Lauret, BNL 2002-2013
 # Developper notes
-# - use fC_cleanup.new.pl for testing, then 'make'
+# - Do not modify this fC_cleanup.pl directely as a template
+#   fC_cleanup.new.pl exists for testing ('make' to update)
 # - See also fC_cleanup.txt
 #
 
-use Env qw(STAR_SCRIPTS);
-use lib "$STAR_SCRIPTS";
-#use lib "/star/u/jeromel/work/ddb";
+use Env qw(STAR_SCRIPTS);           
+use lib "$STAR_SCRIPTS";            
+#use lib "/star/u/jeromel/work/ddb"; # 
 use strict;
 use FileCatalog;
+use Digest::MD5;
 
 my @output;
 my $i;
@@ -43,6 +45,7 @@ my $class;
 my $instance="";
 my $limit;
 my $sctx=0;
+my $docache=0;
 
 # Connection parameters
 my $user=undef;
@@ -75,6 +78,7 @@ $confirm  = 0;
 $allst    = 0;
 $asite    = 0;
 $limit    = 1;
+$docache  = 0;
 
 # start timer
 &CheckTime(0);
@@ -98,6 +102,11 @@ while (defined $ARGV[$count]){
 
     } elsif ($ARGV[$count] eq "-nodebug"){
 	$debug = 0;
+
+    } elsif ($ARGV[$count] eq "-cache"){
+	# unlikely we would use this options apart from testing
+	# OR if we are standalone on one node
+	$docache = 1;
 
     } elsif ($ARGV[$count] eq "-nl"){
 	$limit = 0;
@@ -788,6 +797,8 @@ sub ResetContext
 	    $fileC->set_context($_);
 	}
     }
+    $fileC->set_context("cache=0") if ( ! $docache);
+
 }
 
 #
@@ -932,6 +943,7 @@ sub FullBootstrap
     my(@rows);
 
     $fileC->set_context("limit=100000000");
+    $fileC->set_context("cache=0") if ( ! $docache);
     @rows = $fileC->bootstrap("runnumber",$confirm);
     @rows = $fileC->bootstrap("collision",$confirm);
     @rows = $fileC->bootstrap("generator",$confirm);
@@ -1010,16 +1022,17 @@ sub Usage
   print "se database 'db' for db access\n\n Other options\n ----------";
   print "---\n -debug            turn database module debugging inform";
   print "ation ON  default=OFF)\n -nodebug          turn this script d";
-  print "ebugging information OFF (default=ON)\n -doit             swi";
+  print "ebugging information OFF (default=ON)\n -o file           Red";
+  print "irect all standard output to 'file'\n\n -doit             swi";
   print "tch MUST be specified to really perform the operation.\n     ";
   print "              Without it, the API will only display the opera";
   print "tion it\n                   intends to perform (i.e. debug mo";
-  print "de). It is wise to start\n                   in debug mode.\n ";
-  print "-o file           Redirect all standard output to 'file'\n -t";
-  print " time           Terminate gracefully after approximately 'tim";
-  print "e' has elapsed\n -nl               Bypass the load balancer -";
-  print " do not use this option in cron\n -class XXX        Set debug";
-  print "ging class\n";
+  print "de). It is wise to start\n                   in debug mode.\n\n";
+  print " -cache            Use disk cache for querries (default is to";
+  print " disable it)\n -nl               Bypass the load balancer - d";
+  print "o not use this option in cron\n -t time           Terminate g";
+  print "racefully after approximately 'time' has elapsed\n -class XXX";
+  print "        Set debugging class\n";
 
     if( defined($sts) ){ &Exit();}
 
