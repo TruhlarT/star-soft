@@ -130,7 +130,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.388";
+$VERSION   =   "V01.390";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -171,6 +171,7 @@ $FC::INTENT       = "User";              # Default intent / do not change
 
 $FC::DBCONTIMEOUT = 5;                   # << NOT USED YET
 $FC::TIMEOUT      = 2700;                # timeout of 45 mnts for query
+$FC::USECACHE     = 1;                   # use query cache if exists
 $FC::CACHELIFE    = 7200;                # query cache lifetime will be 2 hours
 
 @FC::LOADMANAGE   = (50,10,15);          # s,i,d - default values / no update count for now
@@ -366,6 +367,7 @@ $keywrds{"startrecord"   }    =   ",,,,,,1";
 $keywrds{"limit"         }    =   ",,,,,,1";
 $keywrds{"rlimit"        }    =   ",,,,,,1";
 $keywrds{"all"           }    =   ",,,,,,1";
+$keywrds{"cache"         }    =   ",,,,,,1";
 
 # Keyword aliasing or keyword aggregate
 $keywrds{"lgnm"          }    =   ",,,,,,1";
@@ -4792,6 +4794,15 @@ sub run_query {
 	if ( ! $using_global_func){ $limit = 100;}
     }
 
+    # Verify if cache querry is disabled/enabled
+    # there is no need to test for the "cache" option since
+    # the default is 1
+    if ( defined($valuset{"cache"}) ){
+	$FC::USECACHE = $valuset{"cache"};
+    } 
+    
+
+
     # Since we compare the id, do we need to order??
     # DB should come with ordered IDs but some evidence this is
     # not the case ...
@@ -4829,7 +4840,6 @@ sub run_query {
     # Cache handling
     #-
     # TODO: limit 0 could always be used for any other limit
-    # TODO: docache can be controlled via option
     #
     # in rlimit, we benefit from caching         
     my $qhash=Digest::MD5->new();                     
@@ -4847,8 +4857,11 @@ sub run_query {
     }
 
     my($f)="$cachedir/$md5.dat";
-    my($docache)=1;                                    
+    my($docache)=$FC::USECACHE;                                    
     my($age)=0;
+
+    &print_debug("run_query","Use of cache is ".
+		 ($FC::USECACHE?"enabled":"disabled"));
 
     # check age of file if exists
     if ( -e $f){
