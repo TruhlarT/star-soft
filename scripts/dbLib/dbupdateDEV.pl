@@ -510,6 +510,9 @@ my $pyear = 0;
 #          if( $ltime > 600 ) { 
 #   print "Log time: ", $ltime, "\n";
    print $fullname, "\n";
+      
+   next if($fullname =~ /hold/);
+
        &logInfo("$fullname", "$platf");
      $jobTime = $timeS;  
 
