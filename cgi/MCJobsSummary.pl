@@ -52,8 +52,8 @@ my $todate = ($year+1900)."-".$mon."-".$mday." ".$hour.":".$min.":".$sec;
 
 my $nowdate = ($year+1900).$mon.$mday;
 
-my $JobStatusT = "jobs_embed_2012";
-my $RequestSumT = "request_embed_2012";
+my $JobStatusT = "jobs_embed_2013";
+my $RequestSumT = "request_embed_2013";
 
 my @jbstat = ();
 my $nst = 0;
