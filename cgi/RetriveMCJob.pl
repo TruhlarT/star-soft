@@ -60,8 +60,8 @@ my $qflag = $query->param('pflag');
 my $qprod = $query->param('rprod');
 
 
-my $JobStatusT = "jobs_embed_2012";
-my $RequestSumT = "request_embed_2012";
+my $JobStatusT = "jobs_embed_2013";
+my $RequestSumT = "request_embed_2013";
 
 my $nst = 0;
 my @jbstat = ();
