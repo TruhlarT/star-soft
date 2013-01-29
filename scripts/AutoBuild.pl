@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.49 2013/01/29 15:19:28 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.50 2013/01/29 16:27:42 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -413,7 +413,8 @@ if($NIGNOR){
 # Output this out. Note that we will update ONLY what was
 # caught in the above search. This will avoid interim commit
 # to get on the way ...
-$tmp = "";
+$tmp  = "";
+$fail = 0;
 
 #
 # Code 'U'pdates has happened, parsing result in this block
@@ -535,7 +536,6 @@ if(! $SILENT){
 #
 # On "yes" answer, performs the real update
 #
-$fail = 0;
 if ($ans =~ /^\s*y/i){
     # Now, the answer was YES. We need to cvs co for real.
     # We can checkout by bunch of $BY to avoid the usual unix
