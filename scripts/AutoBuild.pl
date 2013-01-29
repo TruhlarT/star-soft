@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.48 2012/05/08 14:20:00 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.49 2013/01/29 15:19:28 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -472,12 +472,28 @@ if ($#DONOTKNOW != -1){
 	"\n",
 	" - List of unknown problems will follow ...\n";
     push(@REPORT,"%%REF%%<H2>List of unknown CVS problems</H2>");
+    push(@REPORT,"We will consider this as a failure and at least, ".
+	         "remove the conflicting files. If the removal is ".
+	         "a success, the next pass will self-heal. Other errors ".
+	         "are not treated. Please, consider repairing/verifying ".
+	         "by hand.<br>\n");
     push(@REPORT,"<UL>");
     foreach $line (@DONOTKNOW){
 	push(@REPORT," <LI><TT>$line</TT>");
 	print $FILO "   $line\n";
+	if ( $line =~ /(^C )(.*)/){
+	    $line = $2;
+	    if ( ABUnlink($line) ){
+		# if we succeed to delete, it will be self-healing
+		# and the next pass will be fine
+		push(@REPORT," - $line file deleted");
+	    } else {
+		push(@REPORT," - could not delete $line");
+	    }
+	}
     }
     push(@REPORT,"</UL>");
+    $fail++;
 }
 
 
