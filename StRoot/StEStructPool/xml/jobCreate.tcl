@@ -1965,7 +1965,8 @@ proc ::jobCreate::submitJob {} {
         if {[$sNode getAttribute simulateSubmission]} {
             puts $fLog ">>>>>You had simulateSubmission=true in job node for star-submit<<<<<"
             set message "You had the simulateSubmission set to true. \
-                         To submit  these jobs you may consider starting the jobMonitor."
+                         To submit  these jobs you may consider starting the jobMonitor. \
+                         Also, don't forget to Filter filelist if you want uniform size jobs."
             set cont [tk_messageBox -message $message -type ok \
                     -icon question -title "scheduler done with simulate submission"]
         }
