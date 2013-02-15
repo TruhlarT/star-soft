@@ -47,7 +47,8 @@ struct JobAttr => {
       stcpu     => '$',
       jbcrtime  => '$',
       sttrk     => '$',
-      jbevt     => '$'
+      jbevt     => '$',
+      jbnode    => '$'
  };
 
 
@@ -72,6 +73,7 @@ my @jbfName = ();
 my @jbEvent = ();
 my @jbctime = ();
 my @jbtrack = ();
+my @jbnoden = ();
 my $nn = 0;
 
 my @strName = ();
@@ -91,7 +93,7 @@ my $jobname = $qtrg."%".$qprod."%";
  
   &beginJbHtml(); 
 
-    $sql="SELECT jobfileName, jobStatus, NoEvents, avg_no_tracks, date_format(createTime, '%Y-%m-%d') as PDATE  FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and trigsetName = ? and jobStatus <> 'Done' and jobStatus <> 'n/a' and jobStatus <> 'hung' ";
+    $sql="SELECT jobfileName, jobStatus, NoEvents, avg_no_tracks, createTime, nodeID  FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and trigsetName = ? and jobStatus <> 'Done' and jobStatus <> 'n/a' and jobStatus <> 'hung' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -110,7 +112,8 @@ my $jobname = $qtrg."%".$qprod."%";
                 ($$fObjAdr)->jbst($fvalue)     if( $fname eq 'jobStatus');
                 ($$fObjAdr)->jbevt($fvalue)    if( $fname eq 'NoEvents');
                 ($$fObjAdr)->jbtrk($fvalue)    if( $fname eq 'avg_no_tracks'); 
-                ($$fObjAdr)->jbcrtime($fvalue) if( $fname eq 'PDATE'); 
+                ($$fObjAdr)->jbcrtime($fvalue) if( $fname eq 'createTime'); 
+                ($$fObjAdr)->jbnode($fvalue)   if( $fname eq 'nodeID');                 
             }
             $jbstat[$nst] = $fObjAdr;
             $nst++;
@@ -324,6 +327,7 @@ END
        $jbEvent[$nn]  = ($$pjob)->jbevt;
        $jbtrack[$nn]  = ($$pjob)->jbtrk;
        $jbctime[$nn]   = ($$pjob)->jbcrtime;
+       $jbnoden[$nn]   = ($$pjob)->jbnode;
 
     if( $qflag eq "jstat" ) {
 
@@ -417,6 +421,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>No.events produced</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Avg.No.<br>tracks</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Finish time</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Node name</h3></B></TD>
 </TR>
     </body>
 END
