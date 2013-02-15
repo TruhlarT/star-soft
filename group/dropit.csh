@@ -7,6 +7,8 @@ set DS=":"
 set STRINGS=""
 set SUBSTR=""
 
+source $GROUP_DIR/unix_programs.csh
+
 while ( $count <= $#argv )
     set arg=$argv[$count]
     @ count++
@@ -82,7 +84,7 @@ set newword=""
 if ( "$SUBSTR" != "") then
     foreach word ($CLEANED)
 	#echo "Trying [$word] [$SUBSTR]"
-	if (`echo $word | /bin/grep $SUBSTR` == "") then
+	if (`echo $word | $GREP $SUBSTR` == "") then
 	    set newword="$newword $word"
 	endif
     end
@@ -101,18 +103,18 @@ foreach word ($FINALST)
     endif
     # beware that the "." paths are short-ends for longer
     # path. This test needs to be done after the "." test
-    if (`echo " $newword " | /bin/grep " $word "` != "") then
+    if (`echo " $newword " | $GREP " $word "` != "") then
 	#echo "DEBUG:: excluding [$word] from [$newword]"
 	goto NEXTW
     endif
 
   
     # The next section will have for effect to skip directory check
-    if (`echo $word | /bin/grep ROOT` != "") then
+    if (`echo $word | $GREP ROOT` != "") then
 	set newword="$newword $word"
 	goto NEXTW
     endif
-    if (`echo $word | /bin/grep scratch` != "") then
+    if (`echo $word | $GREP scratch` != "") then
 	set newword="$newword $word"
 	goto NEXTW
     endif

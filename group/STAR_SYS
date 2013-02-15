@@ -204,7 +204,7 @@ else
 	    #set vers = `icc -V -dryrun > & /tmp/icc_version; \
 	    #/bin/awk '{ if (NR==1) print $8 }' /tmp/icc_version | /bin/awk -F\. '{print $1$2}'; \
 	    #/bin/rm  /tmp/icc_version;`
-	    set test=`which icc | /bin/grep "not found"`
+	    set test=`which icc | $GREP "not found"`
 	    if ( "$test" == "") then
 		set vers =  `icc -v >&/tmp/icc_version$$ ; $AWK '{print $2}' /tmp/icc_version$$ | /bin/sed "s/\.//" && /bin/rm  /tmp/icc_version$$;`
 	    endif
@@ -212,7 +212,7 @@ else
 
 	 default:
 	    setenv STARCMPL "gcc"
-	    set test=`which gcc | /bin/grep "not found"`
+	    set test=`which gcc | $GREP "not found"`
 	    if ( "$test" == "") then
 		set vers = `gcc -dumpversion | $AWK -F. '{print $1$2$3}'`
 	    endif
@@ -251,6 +251,9 @@ endif
 
 
 #  $Log: STAR_SYS,v $
+#  Revision 1.55  2013/02/15 22:34:46  jeromel
+#  Added GREP to unix_programs.csh to support Unbuntu (and other flavors)
+#
 #  Revision 1.54  2012/03/22 22:07:48  jeromel
 #  Better debuggin in DECHO mode
 #
@@ -424,5 +427,5 @@ endif
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 2012/03/22 22:07:48 $
+#             Last modification $Date: 2013/02/15 22:34:46 $
 #

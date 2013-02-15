@@ -40,6 +40,8 @@ set location = 0;
 if ( $#argv > 0 ) set version  = $1
 if ( $#argv > 1 ) set location = $2
 
+source $GROUP_DIR/unix_programs.csh
+
 switch ($pkg)
     case "64bits":
     case "64b":
@@ -126,7 +128,7 @@ switch ($pkg)
 	# Support for OSG - Try to locate things from OSG including Worker Node
 	if ( ! $?OSG ) then 
 	    if ( -e /opt ) then
-		set LOSG=`/bin/ls -d /opt/* | /bin/grep OSG | /usr/bin/tail -1`
+		set LOSG=`/bin/ls -d /opt/* | $GREP OSG | /usr/bin/tail -1`
 		if ( "$LOSG" != "") setenv OSG $LOSG
 	    endif
 	endif
@@ -198,7 +200,7 @@ switch ($pkg)
 		# Either it was set before by the search above or there is an 
 		# external definition. In all cases, if it ends by 64, set as-is
 		# otherwise append
-		set test=`echo $CERN | /bin/grep 64`
+		set test=`echo $CERN | $GREP 64`
 		if ( "$test" != "") then
 		    # strip it
 		    setenv CERN `echo ${CERN} | /bin/sed "s/64//"`

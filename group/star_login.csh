@@ -35,7 +35,7 @@ if( -r $GROUP_DIR/site_pre_setup.csh ) then
     source $GROUP_DIR/site_pre_setup.csh
 endif
 
-
+source $GROUP_DIR/unix_programs.csh
 
 
 # ------------------------------
@@ -241,7 +241,7 @@ endif
 # like 'xxx: Command not found'
 #
 set test=`which less`
-set test2=`echo $test | /bin/grep "not found"`
+set test2=`echo $test | $GREP "not found"`
 if ( "$test" != "" &&  "$test2" != "$test" ) then
     setenv PAGER       "less"
 else
@@ -249,7 +249,7 @@ else
 endif
 
 set test=`which pico`
-set test2=`echo $test | /bin/grep "not found"`
+set test2=`echo $test | $GREP "not found"`
 if ( "$test" != "" && "$test2" != "$test" ) then
     setenv EDITOR      "pico -w"
     setenv VISUAL      "pico -w"

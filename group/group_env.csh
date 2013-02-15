@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.250 2012/12/26 18:18:56 jeromel Exp $
+#       $Id: group_env.csh,v 1.251 2013/02/15 22:34:45 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -42,13 +42,14 @@ if ( $?DECHO && $?STAR_LEVEL ) then
     echo "$self :: Receiving STAR_LEVEL $STAR_LEVEL"
 endif
 
+source $GROUP_DIR/unix_programs.csh
 
 # possible path for utilities
 setenv AFS       /usr/afsws
 
 
 # check if AFS_RHIC is readable
-set READ_AFS=`echo $AFS_RHIC | /bin/grep Path_Not_Found`
+set READ_AFS=`echo $AFS_RHIC | $GREP Path_Not_Found`
 
 if ( $?DECHO) echo "$self :: READ_AFS is [$READ_AFS]"
 
@@ -97,9 +98,9 @@ if ( ! $?OPTSTAR ) then
     set TEST=""
 
     if ( -d /opt ) then
-        set TEST=`/bin/ls /opt/ | /bin/grep star`
+        set TEST=`/bin/ls /opt/ | $GREP star`
 	if ( "$TEST" == "star" )  then
-            set IS_OPTSTAR_AFS=`/bin/ls -ld /opt/star | /bin/grep afs`
+            set IS_OPTSTAR_AFS=`/bin/ls -ld /opt/star | $GREP afs`
 	endif
     endif
 
@@ -152,11 +153,11 @@ if ( "$FAIL" != "") then
 
 	# we can try to guess the reason but it may not be the whole story
 	set failafs=0
-	if ( `echo $FAIL | /bin/grep AFS` != "" &&  `echo $FAIL | /bin/grep STAR_PATH` != "") then
+	if ( `echo $FAIL | $GREP AFS` != "" &&  `echo $FAIL | $GREP STAR_PATH` != "") then
 	    # if AFS detection failed and STAR_PATH was not defined we have no options
 	    set failafs=1
 	endif
-	if ( `echo $STAR_ROOT | /bin/grep $AFS_RHIC` != "" &&  `echo $STAR_PATH | /bin/grep $STAR_ROOT` != "" && `echo $FAIL | /bin/grep STAR_PATH` != "") then
+	if ( `echo $STAR_ROOT | $GREP $AFS_RHIC` != "" &&  `echo $STAR_PATH | $GREP $STAR_ROOT` != "" && `echo $FAIL | $GREP STAR_PATH` != "") then
 	    # ! -e STAR_PATH but defined as AFS resident is the second sign of failure
 	    # it does seem like the above but this second test is necessary due to client
 	    # file caching
@@ -776,7 +777,7 @@ switch ($STAR_SYS)
       endif
 
       #  cygwin tcsh has no 'limit' command embedded
-      if ( `echo $STAR_SYS | grep _nt` == "") then
+      if ( `echo $STAR_SYS | $GREP _nt` == "") then
 	limit  coredump 0
 	setenv BFARCH Linux2
       endif
@@ -829,7 +830,7 @@ if ( ! $?JAVA_ROOT ) then
 	endif
     else
 	if ( -d /opt/VDT ) then
-	    set a = `/bin/ls /opt/VDT | /bin/grep -e jdk -e j2sdk | /usr/bin/tail -1`
+	    set a = `/bin/ls /opt/VDT | $GREP -e jdk -e j2sdk | /usr/bin/tail -1`
 	    if ( "$a" != "") then
 		setenv JAVA_ROOT /opt/VDT/$a
 	    endif
@@ -838,7 +839,7 @@ if ( ! $?JAVA_ROOT ) then
 endif
 if ( $?JAVA_ROOT ) then
     if ( -d $JAVA_ROOT/ ) then
-	if ( `echo $PATH | /bin/grep kerberos` != "") then
+	if ( `echo $PATH | $GREP kerberos` != "") then
 	    # Will need to find a better way ... java has
 	    # a 'kinit'
 	    set path=(/usr/kerberos/bin $JAVA_ROOT/bin $path)

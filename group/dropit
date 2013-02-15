@@ -20,7 +20,6 @@
 # side effects
 #
 
-# set PTEST=`which perl | /bin/grep -v 'not found'`
 set PTEST=""
 foreach perl (/usr/bin/perl /usr/local/bin/perl $OPTSTAR/bin/perl )
     if ( -x $perl ) then

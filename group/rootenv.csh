@@ -151,10 +151,10 @@ if ( -e ${ROOTSYS}/config.log ) then
     if ( -e ${OPTSTAR}/qt4 || -e ${OPTSTAR}/qt3 ) then
 	# there is a possibility for an ambiguity to be
 	# resolved
-	set test1=`/bin/grep qt4 ${ROOTSYS}/config.log | /usr/bin/wc -l`
-	set testq=`echo $LD_LIBRARY_PATH | /bin/grep 'qt/lib'`
-	set test3=`echo $LD_LIBRARY_PATH | /bin/grep 'qt3/lib'`
-	set test4=`echo $LD_LIBRARY_PATH | /bin/grep 'qt4/lib'`
+	set test1=`$GREP qt4 ${ROOTSYS}/config.log | /usr/bin/wc -l`
+	set testq=`echo $LD_LIBRARY_PATH | $GREP 'qt/lib'`
+	set test3=`echo $LD_LIBRARY_PATH | $GREP 'qt3/lib'`
+	set test4=`echo $LD_LIBRARY_PATH | $GREP 'qt4/lib'`
 	if  ( $test1 != 0 ) then
 	    # qt4 was used for ROOT but possibly an ambigous path
 	    # reset
@@ -169,8 +169,8 @@ if ( -e ${ROOTSYS}/config.log ) then
 	    # Beware that on Linux, the login may default to qt3 with diverse
 	    # naming conventions
 	    if ( -e /etc/profile.d/qt.csh ) then
-		set test4=`echo $PATH | /bin/grep '/qt.*4/'`
-		set test3=`echo $PATH | /bin/grep '/qt.*3/'`
+		set test4=`echo $PATH | $GREP '/qt.*4/'`
+		set test3=`echo $PATH | $GREP '/qt.*3/'`
 
 		if ( "$test4" == "") then
 		    setenv PATH $QTDIR/bin:${PATH}

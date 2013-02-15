@@ -73,9 +73,7 @@ endif
 # Aliases. Backward compatibility only.
 # Somehow, I am sure that most of it is unused ...
 # I have eliminated the following non-portable commands
-#
-# alias pp   '/bin/ps auxww | /bin/e/bin/grep '\''PID|\!*'\'' | /bin//bin/grep -v grep'
-# alias rs   'set noglob;eval `/usr/bin/X11/resize`;unset noglob'
+
 # --------------------------------------------------------------------------
 unalias ls
 alias   nman       '/usr/bin/nroff -man \!* | $PAGER'

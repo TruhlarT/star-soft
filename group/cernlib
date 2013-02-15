@@ -1,14 +1,16 @@
 #!/bin/sh
 # **********************************************************************
 # * @(#) cernlib
-# * @(#) $Header: /scratch/smirnovd//star-cvs-local/soft/group/cernlib,v 1.5 2009/11/09 19:17:29 jeromel Exp $
+# * @(#) $Header: /scratch/smirnovd//star-cvs-local/soft/group/cernlib,v 1.6 2013/02/15 22:34:46 jeromel Exp $
 # *                                                                    *
 # * Attachment of CERN Libraries for link step                         *
 # *                                                                    *
 # * Author: M.Marquina 91/05/10                                        *
 # * Change history is in CVS log files and in source 1.27 ( and older)
 # **********************************************************************
- 
+
+source $GROUP_DIR/unix_programs.csh
+
   SHOPT="G:Psuv:"
 #SEQ,GETOPTD.
 
@@ -214,7 +216,7 @@
                                                 && CERNLIB="$CERNLIB -lintl"
         [ -f /lib/librt.so ] \
                                                 && CERNLIB="$CERNLIB -lrt"						
-        echo $CERNLIB | /bin/grep pawlib >/dev/null && \
+        echo $CERNLIB | $GREP pawlib >/dev/null && \
                CERNLIB="$CERNLIB -ldl"
  
      fi
@@ -227,13 +229,13 @@
 		CERNLIB="$CERNLIB /opt/fortran/lib/libU77.sl"
 	fi
 
-	echo $CERNLIB | /bin/grep pawlib >/dev/null && \
+	echo $CERNLIB | $GREP pawlib >/dev/null && \
 				      CERNLIB="$CERNLIB /usr/lib/libdld.sl"
-	echo $CERNLIB | /bin/grep packlib >/dev/null && \
+	echo $CERNLIB | $GREP packlib >/dev/null && \
 	       [ -f /lib/pa1.1/libm.a ] && CERNLIB="$CERNLIB /lib/pa1.1/libm.a"
      fi
      if [ "$Msys" = "AIX" ] ; then
-        echo $CERNLIB | /bin/grep pawlib >/dev/null &&   CERNLIB="$CERNLIB -lld"
+        echo $CERNLIB | $GREP pawlib >/dev/null &&   CERNLIB="$CERNLIB -lld"
      fi
      if [ "$Msys" = "Linux" ] ; then
         CERNLIB="$CERNLIB -lnsl -lcrypt -ldl"

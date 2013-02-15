@@ -24,6 +24,7 @@ if ( $vers == "" || $vers == 0 ) then
     if ( $vers == "") set vers=0
 endif
 
+source $GROUP_DIR/unix_programs.csh
 
 
 set pathtointel = `/bin/ls -1d /usr/intel* | /usr/bin/tail -1`
@@ -48,10 +49,10 @@ if ( "$pathtointel" != "") then
        if ( $?DECHO ) then
           echo "$self :: Version [$vers] specified, searching"
        endif
-       set seticc=`  /usr/bin/find $pathtointel -type f -name iccvars.csh   | /bin/grep $vers`
-       set setifc=`  /usr/bin/find $pathtointel -type f -name ifcvars.csh   | /bin/grep $1`
-       set setifort=`/usr/bin/find $pathtointel -type f -name ifortvars.csh | /bin/grep $1`
-       set setidb=`  /usr/bin/find $pathtointel -type f -name idbvars.csh   | /bin/grep $1`
+       set seticc=`  /usr/bin/find $pathtointel -type f -name iccvars.csh   | $GREP $vers`
+       set setifc=`  /usr/bin/find $pathtointel -type f -name ifcvars.csh   | $GREP $1`
+       set setifort=`/usr/bin/find $pathtointel -type f -name ifortvars.csh | $GREP $1`
+       set setidb=`  /usr/bin/find $pathtointel -type f -name idbvars.csh   | $GREP $1`
     endif 
     if ( -x $GROUP_DIR/dropit ) then
 	setenv PATH            `$GROUP_DIR/dropit intel`
