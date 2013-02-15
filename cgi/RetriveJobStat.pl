@@ -339,6 +339,7 @@ END
 <td HEIGHT=10><h3>$jbEvent[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbtrack[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbctime[$nn]</h3></td>
+<td HEIGHT=10><h3>$jbcnoden[$nn]</h3></td>
 </TR>
 END
 
