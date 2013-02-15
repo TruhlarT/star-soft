@@ -266,6 +266,7 @@ my $jobname = $qtrg."%".$qprod."%";
 &StDbProdDisconnect(); 
 
  $nk =0;
+ my @spl = ();
 
      if( $qflag eq "strcpu" ) {
 
@@ -328,6 +329,8 @@ END
        $jbtrack[$nn]  = ($$pjob)->jbtrk;
        $jbctime[$nn]   = ($$pjob)->jbcrtime;
        $jbnoden[$nn]   = ($$pjob)->jbnode;
+
+     $jbnoden[$nn]=~ s/.rcf.bnl.gov//g;
 
     if( $qflag eq "jstat" ) {
 
