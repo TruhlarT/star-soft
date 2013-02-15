@@ -45,7 +45,9 @@ my $pyear;
 my %collHash = (
                  UU_production_2012 => 'UU193',
                  cuAu_production_2012 => 'cuAu200',
+                 cuAu_production_2012_noemc => 'cuAu200',
                  pp200_production_2012 => 'pp200',
+                 pp200_production_2012_setup => 'pp200',
                  pp500_production_2012 => 'pp500',
                  pp500_production_2012_noeemc => 'pp500',
                  AuAu5Gev_test     => 'auau5',
@@ -562,7 +564,7 @@ Link under production tag has chain options<br>
 <TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=60><B><h3>Number of Events<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Size (GB) of MuDst <h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of MuDst files <h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>List of offline triggers ID <h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Triggers ID summary <h3></B></TD>
 </TR> 
    </head>
     </body>
