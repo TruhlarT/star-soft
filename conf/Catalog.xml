@@ -31,9 +31,6 @@
 			<HOST NAME="fc2.star.bnl.gov" DBNAME="FileCatalog_BNL" PORT="3336">
 				<ACCESS USER="FC_user" PASS="FCatalog"/>
                         </HOST>
-			<HOST NAME="fc3.star.bnl.gov" DBNAME="FileCatalog_BNL" PORT="3336">
-				<ACCESS USER="FC_user" PASS="FCatalog"/>
-			</HOST>
 			<HOST NAME="fc4.star.bnl.gov" DBNAME="FileCatalog_BNL" PORT="3336">
 				<ACCESS USER="FC_user" PASS="FCatalog"/>
 			</HOST>
