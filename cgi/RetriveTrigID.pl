@@ -65,7 +65,7 @@ $artrig[0] = 0;
   
  &StDbProdConnect();
 
-$qflag = "nostream";
+#$qflag = "nostream";
 
 if($qflag eq "nostream" ) {
 
