@@ -107,7 +107,7 @@ END
  
 ##########
 
-}elseif(if($qflag eq "stream" ) {
+ }elsif($qflag eq "stream" ) {
 
 $TrigDataT = "ProdTriggers";
 
