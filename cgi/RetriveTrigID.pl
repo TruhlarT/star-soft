@@ -47,6 +47,7 @@ my $todate = ($year+1900)."-".$mon."-".$mday." ".$hour.":".$min.":".$sec;
 
 my @trglable = ();
 my @trgid = ();
+my @streamn = ();
 my @nevents = ();
 my $tline = 0;
 my $nlist = 0;
@@ -58,12 +59,20 @@ my $query = new CGI;
 
 my $qtrg = $query->param('rtrig');
 my $qprod = $query->param('rprod');
+my $qflag = $query->param('rstream');
 
 $artrig[0] = 0;
+  
+ &StDbProdConnect();
 
-&beginHtml();
+if($qflag eq "nostream" ) {
 
-   &StDbProdConnect();
+$TrigDataT = "ProdTriggerSet";
+
+ &beginHtml();
+
+ $nlist = 0;
+
 
    $sql="SELECT distinct trigLabel, offlineTrgId, sum(Nevents) from ProdTriggerSet where trigSetName = '$qtrg' and prodTag = '$qprod' group by offlineTrgId ";
 
@@ -94,6 +103,50 @@ END
 	    $nlist++;
 	}
  
+##########
+
+if($qflag eq "stream" ) {
+
+$TrigDataT = "ProdTriggers";
+
+ &beginHtmlSt();
+
+ $nlist = 0;
+
+  $sql="SELECT distinct streamName, trigLabel, offlineTrgId, sum(Nevents) from ProdTriggerSet where trigSetName = '$qtrg' and prodTag = '$qprod' group by offlineTrgId order by streamName, offlineTrgId ";
+
+           $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n";
+            $cursor->execute();
+
+        while(@fields = $cursor->fetchrow) {
+            my $cols=$cursor->{NUM_OF_FIELDS};
+
+            for($i=0;$i<$cols;$i++) {
+
+            $trglable[$nlist] = $fields[0];
+            $trgid[$nlist] = $fields[1];
+            $nevents[$nlist] = $fields[2];
+
+	}
+
+
+print <<END;
+
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"#ffdc9f\">
+<td HEIGHT=10><h3>$streamn[$nlist]</h3></td>
+<td HEIGHT=10><h3>$trglable[$nlist]</h3></td>
+<td HEIGHT=10><h3>$trgid[$nlist]</h3></td>
+<td HEIGHT=10><h3>$nevents[$nlist]</h3></td>
+</TR>
+END
+
+	    $nlist++;
+ 
+  }
+
+##############
+
    &StDbProdDisconnect();
 
  &endHtml();
@@ -106,7 +159,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\"> 
- <h2 ALIGN=CENTER> <B>Offline trigger ID list for <font color="blue">$qtrg </font> dataset <br>and  <font color="blue">$qprod </font>production</B></h2>
+ <h2 ALIGN=CENTER> <B>Offline trigger ID summary for <font color="blue">$qtrg </font> dataset <br>and  <font color="blue">$qprod </font>production</B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=2 CELLSPACING=0.2 CELLPADDING=0.2 >
@@ -120,6 +173,32 @@ print <<END;
     </body>
 END
 }
+
+######################
+
+sub beginHtmlSt {
+
+print <<END;
+
+  <html>
+   <body BGCOLOR=\"cornsilk\"> 
+ <h2 ALIGN=CENTER> <B>Offline trigger ID summary for different streams <br> in <font color="blue">$qtrg </font> dataset and  <font color="blue">$qprod </font>production </B></h2>
+ <h3 ALIGN=CENTER> Generated on $todate</h3>
+<br>
+<TABLE ALIGN=CENTER BORDER=2 CELLSPACING=0.2 CELLPADDING=0.2 >
+<TR>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Stream Name</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Trigger lable</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Offline trigger ID</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Number of Events</h3></B></TD>
+
+</TR> 
+   </head>
+    </body>
+END
+}
+
+
 
 #####################
 sub endHtml {
