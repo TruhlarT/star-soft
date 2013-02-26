@@ -65,6 +65,8 @@ $artrig[0] = 0;
   
  &StDbProdConnect();
 
+$qflag = "nostream";
+
 if($qflag eq "nostream" ) {
 
 $TrigDataT = "ProdTriggerSet";
@@ -105,7 +107,7 @@ END
  
 ##########
 
-if($qflag eq "stream" ) {
+}elseif(if($qflag eq "stream" ) {
 
 $TrigDataT = "ProdTriggers";
 
