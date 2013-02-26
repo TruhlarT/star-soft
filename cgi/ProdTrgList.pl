@@ -511,7 +511,7 @@ print <<END;
 <td HEIGHT=10><h3><font color="#ff0000">$sumevt[$nlist]</font></h3></td>
 <td HEIGHT=10><h3><font color="#ff0000">$sumsize[$nlist]</font></h3></td>
 <td HEIGHT=10><h3><font color="#ff0000">$numfiles[$nlist]</font></h3></td>
-<td HEIGHT=10><h3><font color="#ff0000"><a href="http://www.star.bnl.gov/devcgi/RetriveTrigID.pl?rtrig=$trig[$nlist];rprod=$prod[$nlist];rstream=nostream">triggerID</font></h3></td>
+<td HEIGHT=10><h3><font color="#ff0000"><a href="http://www.star.bnl.gov/devcgi/RetriveTrigID.pl?rtrig=$trig[$nlist];rprod=$prod[$nlist];rstream=nostream">triggerID</font><br><a href="http://www.star.bnl.gov/devcgi/RetriveTrigID.pl?rtrig=$trig[$nlist];rprod=$prod[$nlist];rstream=stream">by stream name</font></h3></td>
 </TR>
 END
 
@@ -529,7 +529,7 @@ END
 <td HEIGHT=10><h3>$sumevt[$nlist]</h3></td>
 <td HEIGHT=10><h3>$sumsize[$nlist]</h3></td>
 <td HEIGHT=10><h3>$numfiles[$nlist]</h3></td>
-<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveTrigID.pl?rtrig=$trig[$nlist];rprod=$prod[$nlist];rstream=nostream">triggerID</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveTrigID.pl?rtrig=$trig[$nlist];rprod=$prod[$nlist];rstream=nostream">triggerID<br><a href="http://www.star.bnl.gov/devcgi/RetriveTrigID.pl?rtrig=$trig[$nlist];rprod=$prod[$nlist];rstream=stream">by stream name</h3></td>
 </TR>
 END
 
