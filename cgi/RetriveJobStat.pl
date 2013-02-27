@@ -46,6 +46,7 @@ struct JobAttr => {
       stname    => '$',
       stcpu     => '$',
       jbcrtime  => '$',
+      jbstr     => '$',
       sttrk     => '$',
       jbevt     => '$',
       jbnode    => '$'
@@ -72,6 +73,7 @@ my @jbStatus = ();
 my @jbfName = ();
 my @jbEvent = ();
 my @jbctime = ();
+my @jbstart = ();
 my @jbtrack = ();
 my @jbnoden = ();
 my $nn = 0;
@@ -93,7 +95,7 @@ my $jobname = $qtrg."%".$qprod."%";
  
   &beginJbHtml(); 
 
-    $sql="SELECT jobfileName, jobStatus, NoEvents, avg_no_tracks, createTime, nodeID  FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and trigsetName = ? and jobStatus <> 'Done' and jobStatus <> 'n/a' and jobStatus <> 'hung' ";
+    $sql="SELECT jobfileName, jobStatus, NoEvents, avg_no_tracks, createTime, nodeID, startTime  FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and trigsetName = ? and jobStatus <> 'Done' and jobStatus <> 'n/a' and jobStatus <> 'hung' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -113,7 +115,8 @@ my $jobname = $qtrg."%".$qprod."%";
                 ($$fObjAdr)->jbevt($fvalue)    if( $fname eq 'NoEvents');
                 ($$fObjAdr)->jbtrk($fvalue)    if( $fname eq 'avg_no_tracks'); 
                 ($$fObjAdr)->jbcrtime($fvalue) if( $fname eq 'createTime'); 
-                ($$fObjAdr)->jbnode($fvalue)   if( $fname eq 'nodeID');                 
+                ($$fObjAdr)->jbnode($fvalue)   if( $fname eq 'nodeID'); 
+                ($$fObjAdr)->jbstr($fvalue)    if( $fname eq 'startTime');                                  
             }
             $jbstat[$nst] = $fObjAdr;
             $nst++;
@@ -329,6 +332,7 @@ END
        $jbtrack[$nn]  = ($$pjob)->jbtrk;
        $jbctime[$nn]   = ($$pjob)->jbcrtime;
        $jbnoden[$nn]   = ($$pjob)->jbnode;
+       $jbstart[$nn]   = ($$pjob)->jbstr;
 
      $jbnoden[$nn]=~ s/.rcf.bnl.gov//g;
 
@@ -341,6 +345,7 @@ END
 <td HEIGHT=10><h3>$jbStatus[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbEvent[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbtrack[$nn]</h3></td>
+<td HEIGHT=10><h3>$jbstart[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbctime[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbnoden[$nn]</h3></td>
 </TR>
@@ -420,12 +425,13 @@ print <<END;
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
-<TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Jobfilename</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Jobfilename</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Job status</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>No.events produced</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Avg.No.<br>tracks</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Start time</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Finish time</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Node name</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Node name</h3></B></TD>
 </TR>
     </body>
 END
