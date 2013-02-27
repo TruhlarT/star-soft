@@ -184,7 +184,7 @@ my $jobname = $qtrg."%".$qprod."%";
 
    &beginMuHtml();
 
-     $sql="SELECT jobfileName, jobStatus, NoEvents, avg_no_tracks, date_format(createTime, '%Y-%m-%d') as PDATE FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and trigsetName = ? and jobStatus <> 'n/a' and jobStatus <> 'hung' and inputHpssStatus = 'OK' and outputHpssStatus = 'n/a'  ";
+     $sql="SELECT jobfileName, jobStatus, NoEvents, avg_no_tracks, createTime FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and trigsetName = ? and jobStatus <> 'n/a' and jobStatus <> 'hung' and inputHpssStatus = 'OK' and outputHpssStatus = 'n/a'  ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -203,7 +203,7 @@ my $jobname = $qtrg."%".$qprod."%";
                 ($$fObjAdr)->jbst($fvalue)     if( $fname eq 'jobStatus');
                 ($$fObjAdr)->jbevt($fvalue)    if( $fname eq 'NoEvents');
                 ($$fObjAdr)->jbtrk($fvalue)    if( $fname eq 'avg_no_tracks'); 
-                ($$fObjAdr)->jbcrtime($fvalue)    if( $fname eq 'PDATE');               
+                ($$fObjAdr)->jbcrtime($fvalue)  if( $fname eq 'createTime');               
 
             }
             $jbstat[$nst] = $fObjAdr;
@@ -459,7 +459,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Job status</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>No.events produced</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Avg.No.<br>tracks</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Date</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Finish time</h3></B></TD>
 </TR>
     </body>
 END
