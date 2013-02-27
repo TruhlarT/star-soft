@@ -47,7 +47,8 @@ struct JobAttr => {
       stcpu     => '$',
       jbcrtime  => '$',
       jbstr     => '$',
-      sttrk     => '$',
+      jbsbm     => '$',
+      sttrk     => '$',      
       jbevt     => '$',
       jbnode    => '$'
  };
@@ -74,6 +75,7 @@ my @jbfName = ();
 my @jbEvent = ();
 my @jbctime = ();
 my @jbstart = ();
+my @jbsubm = ();
 my @jbtrack = ();
 my @jbnoden = ();
 my $nn = 0;
@@ -126,7 +128,7 @@ my $jobname = $qtrg."%".$qprod."%";
 
    &beginHpHtml();
 
-     $sql="SELECT jobfileName, inputHpssStatus, NoEvents  FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and trigsetName = ? and inputHpssStatus like 'hpss_error%' ";
+     $sql="SELECT jobfileName, inputHpssStatus, NoEvents, submitTime  FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and trigsetName = ? and inputHpssStatus like 'hpss_error%' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -144,6 +146,7 @@ my $jobname = $qtrg."%".$qprod."%";
                 ($$fObjAdr)->jbname($fvalue)   if( $fname eq 'jobfileName');
                 ($$fObjAdr)->jbst($fvalue)     if( $fname eq 'inputHpssStatus');
                 ($$fObjAdr)->jbevt($fvalue)    if( $fname eq 'NoEvents');
+                ($$fObjAdr)->jbsbm($fvalue)    if( $fname eq 'submitTime'); 
 
             }
             $jbstat[$nst] = $fObjAdr;
@@ -330,9 +333,10 @@ END
        $jbStatus[$nn] = ($$pjob)->jbst;
        $jbEvent[$nn]  = ($$pjob)->jbevt;
        $jbtrack[$nn]  = ($$pjob)->jbtrk;
-       $jbctime[$nn]   = ($$pjob)->jbcrtime;
-       $jbnoden[$nn]   = ($$pjob)->jbnode;
-       $jbstart[$nn]   = ($$pjob)->jbstr;
+       $jbctime[$nn]  = ($$pjob)->jbcrtime;
+       $jbnoden[$nn]  = ($$pjob)->jbnode;
+       $jbstart[$nn]  = ($$pjob)->jbstr;
+       $jbsubm[$nn]   = ($$pjob)->jbsbm;
 
      $jbnoden[$nn]=~ s/.rcf.bnl.gov//g;
 
@@ -384,6 +388,7 @@ print <<END;
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$jbfName[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbStatus[$nn]</h3></td>
+<td HEIGHT=10><h3>$jbsubm[$nn]</h3></td>
 </TR>
 END
 
@@ -496,7 +501,8 @@ print <<END;
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
 <TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=60><B><h3>Jobfilename</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>HPSS error</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>HPSS error</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Submission time</h3></B></TD>
 </TR>
     </body>
 END
