@@ -1443,6 +1443,16 @@ $jrun = "Run not completed";
        $Err_messg = "Stale NFS file handle";
    }elsif ( $line =~ /Assertion/ & $line =~ /failed/)  {
          $Err_messg = "Assertion failed";
+
+  }elsif ($line =~ /Tried to find a host for 500 times, will abort now/)  {
+             $Err_messg = "DB connection failed";
+
+  }elsif ($line =~ /Killed/)  {
+             $Err_messg = "Killed";
+
+   }elsif ($line =~ /Abort/)  {
+             $Err_messg = "Abort";
+
    }elsif ($line =~ /Catch exception FATAL/) {
 
          $Err_messg = "FATAL";
