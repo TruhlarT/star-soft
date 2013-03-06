@@ -19,7 +19,6 @@ use CGI qw(:standard);
 use GD;
 use GD::Graph::linespoints;
 use Mysql;
-use Class::Struct;
 
 
 #$dbhost="fc2.star.bnl.gov:3386";
@@ -27,15 +26,6 @@ $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
 $dbpass="";
 $dbname="operation";
-
-struct JobAttr => {
-      vday      => '$',
-      cpuv      => '$',
-      rtmv      => '$', 
-      strk      => '$',
-      strv      => '$',
-      jbtot     => '$'
-};
 
 
 ($sec,$min,$hour,$mday,$mon,$year) = localtime();
@@ -58,7 +48,7 @@ my @prodyear = ("2012","2013");
 
 
 my @arperiod = ( );
-my @arrate = ("dbfailure", "jobstime");
+my @arrate = ("dbfail", "jobstime");
 
 my @arrprod = ();
 my $npr = 0;
@@ -69,7 +59,7 @@ my @avgtime = ();
 my @jbstime = ();
 my @jbtime = ();
 my @numjobs = ();
-
+my $mpr;
 my $pryear = "2012";
 
 my @ndate = ();
@@ -140,9 +130,9 @@ END
     print "</td><td>";
     print "<h3 align=center> DB connection failure for production jobs</h3>";
     print "<h4 align=center>";
-    print  $query->scrolling_list(-name=>'prate',
+    print  $query->scrolling_list(-name=>'pdb',
                                   -values=>\@arrate,
-                                  -default=>dbfailure,
+                                  -default=>dbfail,
                                   -size =>1);
 
 
@@ -262,7 +252,7 @@ END
  $nstat = 0;
  @avgtime = ();
 
-   if( $qdb eq "dbfailure" ) {
+   if( $qdb eq "dbfail" ) {
 
    foreach my $tdate (@ardays) {
         $jbscount[$ndt] = 0;
@@ -376,7 +366,7 @@ $nstat = 0;
     } else {
 	 
 
-       if ( $qdb eq "dbfailure" ) {
+       if ( $qdb eq "dbfail" ) {
 
     @data = ();
 
