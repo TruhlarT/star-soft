@@ -385,23 +385,6 @@ $ndt = 0;
 
   @data = (\@ndate, \@jbscount ) ;
 
-   }elsif(  $qjob eq "jobstime" ) {
-
-  @data = ();
-
-       if( $qperiod eq "week") {
-
-       $ylabel = "Average time of jobs execution  per hour";
-       $gtitle = "Average time of jobs execution  for $qperiod period";
-
-         }else{
-
-       $ylabel = "Average time of jobs execution jobs per day";
-       $gtitle = "Average time of jobs execution for $qperiod period";
-
-         }
-
-  @data = (\@ndate, \@avgtime ) ;
   }
 
 ########
