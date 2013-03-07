@@ -310,6 +310,7 @@ $ndt = 0;
         $ndate[$ndt] = $tdate;
         $jbstime[$ndt] = 0;
         $numjobs[$ndt] = 0;
+       $nstat = 0;
 
      if( $qperiod eq "week") {
 
