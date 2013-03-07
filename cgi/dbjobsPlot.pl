@@ -162,9 +162,89 @@ END
 
     print $query->end_html();
 
+ }else{
+
+  my $qqr = new CGI;
+
+    my $qprod = $qqr->param('prod');
+    my $qperiod = $qqr->param('period');
+    my $qjob = $qqr->param('pjob');
+
+
+ # Tables
+
+ if( $qprod =~ /P12/ ) {$pryear = "2012"};
+ if( $qprod =~ /P13/ ) {$pryear = "2013"};
+
+#    $JobStatusT = "JobStatus".$pryear;
+
+  $JobStatusT = "JobStatus2012";
+
+  my $day_diff = 0;
+  my $nmonth = 0;
+  my @prt = ();
+  my $myday;
+  my $nday = 0;
+  my $nstat = 0;
+
+ @ardays = ();
+
+ &StDbProdConnect();
+
+
+#    if($pryear eq "2009") {
+#       $nowdate = "2009-12-31";
+#    } else {
+        $nowdate = $todate;
+#    }
+
+     if( $qperiod eq "week") {
+        $day_diff = 8;
+
+    } elsif ( $qperiod =~ /month/) {
+        @prt = split("_", $qperiod);
+        $nmonth = $prt[0];
+        $day_diff = 30*$nmonth + 1;
+    }
+
+    $day_diff = int($day_diff);
+
+     if( $qperiod eq "week") {
+
+    $sql="SELECT DISTINCT date_format(createTime, '%Y-%m-%d %H') as PDATE  FROM $JobStatusT WHERE prodSeries = ?  AND runDay <> '0000-00-00' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) <= $day_diff  order by PDATE ";
+
+    $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+    $cursor->execute($qprod);
+
+    while($myday = $cursor->fetchrow) {
+        $ardays[$nday] = $myday;
+
+        $nday++;
+    }
+
+##############################
+
+   }else{
+
+    $sql="SELECT DISTINCT runDay  FROM $JobStatusT WHERE prodSeries = ?  AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(runDay)) < ?  order by runDay";
+
+    $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+    $cursor->execute($qprod,$day_diff);
+
+    while($myday = $cursor->fetchrow) {
+        $ardays[$nday] = $myday;
+        $nday++;
+    }
+
+   }
+
+
+
+
+#####
  }
-
-
 exit;
 ############
 
