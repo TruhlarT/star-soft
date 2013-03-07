@@ -186,6 +186,7 @@ END
   my $myday;
   my $nday = 0;
   my $nstat = 0;
+  my $mycount;
 
  @ardays = ();
 
@@ -199,7 +200,7 @@ END
 #    }
 
      if( $qperiod eq "week") {
-        $day_diff = 5;
+        $day_diff = 7;
 
     } elsif ( $qperiod =~ /month/) {
         @prt = split("_", $qperiod);
@@ -297,7 +298,60 @@ END
   $ndt++;
 
  }# foreach tdate
+
+
+ }elsif( $qjob eq "jobstime" ) {
+
+$nstat = 0;
+$ndt = 0;
+
+   foreach my $tdate (@ardays) {
+
+        $ndate[$ndt] = $tdate;
+        $jbstime[$ndt] = 0;
+        $numjobs[$ndt] = 0;
+
+     if( $qperiod eq "week") {
+
+  $sql="SELECT jobtotalTime FROM $JobStatusT WHERE  prodSeries = ? and jobStatus = 'DB connection failed' and createTime like '$tdate%' ";
+
+   $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+    $cursor->execute($qprod);
+
+    while($mycount = $cursor->fetchrow) {
+        $jbtime[$nstat] = $mycount;
+        $jbstime[$ndt] = $jbstime[$ndt] + $jbtime[$nstat];
+        $nstat++;
+    }
+   $numjobs[$ndt] = $nstat ;
+
+   }else{
+
+  $sql="SELECT jobtotalTime FROM $JobStatusT WHERE  prodSeries = ? and jobStatus = 'DB connection failed' and runDay = '$tdate' ";
+
+   $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+    $cursor->execute($qprod);
+
+    while($mycount = $cursor->fetchrow) {
+        $jbtime[$nstat] = $mycount;
+        $jbstime[$ndt] = $jbstime[$ndt] + $jbtime[$nstat];
+        $nstat++;
+    }
+    $numjobs[$ndt] = $nstat ;
  }
+
+    if($numjobs[$ndt] >=1 ) {
+    $avgtime[$ndt] = int($jbstime[$ndt]/$numjobs[$ndt] = 0.5 );
+  }else{
+    $avgtime[$ndt] = 0;
+  }
+    $ndt++;
+  }# foreach tdate
+
+
+  }
 
     &StDbProdDisconnect();
 
@@ -330,10 +384,26 @@ END
 
   @data = (\@ndate, \@jbscount ) ;
 
+   }elsif(  $qjob eq "jobstime" ) {
+
+  @data = ();
+
+       if( $qperiod eq "week") {
+
+       $ylabel = "Average time of jobs execution  per hour";
+       $gtitle = "Average time of jobs execution  for $qperiod period";
+
+         }else{
+
+       $ylabel = "Average time of jobs execution jobs per day";
+       $gtitle = "Average time of jobs execution for $qperiod period";
+
+         }
+
+  @data = (\@ndate, \@avgtime ) ;
   }
 
 ########
-
 
         my $xLabelsVertical = 1;
         my $xLabelPosition = 0;
@@ -343,7 +413,7 @@ END
         $min_y = 0;
 
         if (scalar(@ndate) >= 60 ) {
-            $skipnum = int(scalar(@ndate)/60);
+            $skipnum = int(scalar(@ndate)/40);
         }
 
         $xLabelSkip = $skipnum;
