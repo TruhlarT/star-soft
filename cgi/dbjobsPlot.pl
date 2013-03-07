@@ -199,7 +199,7 @@ END
 #    }
 
      if( $qperiod eq "week") {
-        $day_diff = 7;
+        $day_diff = 5;
 
     } elsif ( $qperiod =~ /month/) {
         @prt = split("_", $qperiod);
@@ -343,7 +343,7 @@ END
         $min_y = 0;
 
         if (scalar(@ndate) >= 60 ) {
-            $skipnum = int(scalar(@ndate)/40);
+            $skipnum = int(scalar(@ndate)/60);
         }
 
         $xLabelSkip = $skipnum;
