@@ -48,7 +48,7 @@ my @prodyear = ("2012","2013");
 
 
 my @arperiod = ( );
-my @arrate = ("dbfail", "jobstime");
+my @arrate = ("njobs", "jobstime");
 
 my @arrprod = ();
 my $npr = 0;
@@ -93,9 +93,9 @@ my $scriptname = $query->url(-relative=>1);
 
 my $qprod = $query->param('prod');
 my $qperiod = $query->param('period');
-my $qdb = $query->param('pdb');
+my $qjob = $query->param('pjob');
 
-if( $qperiod eq "" and $qprod eq "" and $qdb eq "" ) {
+if( $qperiod eq "" and $qprod eq "" and $qjob eq "" ) {
     print $query->header();
     print $query->start_html('Production Jobs failure');
     print <<END;
@@ -130,9 +130,9 @@ END
     print "</td><td>";
     print "<h3 align=center> DB connection failure for production jobs</h3>";
     print "<h4 align=center>";
-    print  $query->scrolling_list(-name=>'pdb',
+    print  $query->scrolling_list(-name=>'pjob',
                                   -values=>\@arrate,
-                                  -default=>dbfail,
+                                  -default=>njobs,
                                   -size =>1);
 
 
@@ -168,7 +168,7 @@ END
  
     my $qprod = $qqr->param('prod');
     my $qperiod = $qqr->param('period');
-    my $qdb = $qqr->param('pdb');
+    my $qjob = $qqr->param('pjob');
  
     
  # Tables
@@ -252,7 +252,7 @@ END
  $nstat = 0;
  @avgtime = ();
 
-   if( $qdb eq "dbfail" ) {
+   if( $qjob eq "njobs" ) {
 
    foreach my $tdate (@ardays) {
         $jbscount[$ndt] = 0;
@@ -297,7 +297,7 @@ END
 
 ###################################### job total time
 
- }elsif( $qdb eq "jobstime" ) {
+ }elsif( $qjob eq "jobstime" ) {
 
 $nstat = 0;
 
@@ -366,7 +366,7 @@ $nstat = 0;
     } else {
 	 
 
-       if ( $qdb eq "dbfail" ) {
+       if ( $qjob eq "njobs" ) {
 
     @data = ();
 
@@ -386,7 +386,7 @@ $nstat = 0;
 #      $max_y = $maxval + 0.2*$maxval;
 #     $max_y = int($max_y);
 
-     }elsif(  $qdb eq "jobstime" ) {
+     }elsif(  $qjob eq "jobstime" ) {
 
   @data = ();
 
