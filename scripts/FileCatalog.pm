@@ -1,7 +1,7 @@
 # FileCatalog.pm
 #
 # Written by Adam Kisiel, service work November-December 2001
-# Directed and/or written + modified by J.Lauret, 2002 - 2011
+# Directed and/or written + modified by J.Lauret, 2002 - 2013
 #
 # Methods of class FileCatalog:
 #
@@ -66,6 +66,9 @@
 #        -> run_query()   : get entries from dbtable FileCatalog according to
 #                          query string defined by set_context you also give a
 #                          list of fields to select form
+#        -> run_query_cache() same but force caching if exists. This should not
+#                          be used if the operations deletes records (as cache
+#                          will not be updated until a cache lifetime expiration)
 #
 #        -> delete_records() : deletes the current file locations based on
 #                          context. If it finds that the current file data has
@@ -92,6 +95,8 @@
 #                            two database scheme is used (doing quesries on slave but
 #                            updates on master) as slow propagation of updates may
 #                            create this condition
+#        -> was_file_cache_used()  return true/false depending on file cache usage
+#                            This will help debugging
 #
 # NOT YET DOCUMENTED
 #
@@ -113,6 +118,7 @@ require  Exporter;
 	     add_trigger_composition
 
 	     run_query	run_query_cache
+	     was_file_cache_used
 	     clone_location insert_file_data
 	     delete_records update_location update_record
 
@@ -130,7 +136,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.390";
+$VERSION   =   "V01.395";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -173,7 +179,7 @@ $FC::DBCONTIMEOUT = 5;                   # << NOT USED YET
 $FC::TIMEOUT      = 2700;                # timeout of 45 mnts for query
 $FC::USECACHE     = 1;                   # use query cache if exists
 $FC::CACHELIFE    = 7200;                # query cache lifetime will be 2 hours
-
+$FC::CACHE_USED   = 0;                   # was caching used or not?
 @FC::LOADMANAGE   = (50,10,15);          # s,i,d - default values / no update count for now
 
 $FC::WDUPS        = 1;                   # warn when duplicate update/delete happens
@@ -1104,20 +1110,20 @@ sub _Connect
 
     # check if caching is enabled - unless query_cache_size is not null, there is
     # no hope
-    $FC::FORCECACHE = 1==0;
-    $FC::HASCACHE   = 1==0;
+    $FC::FORCESQLCACHE= 1==0;
+    $FC::HASSQLCACHE  = 1==0;
     {
     	my($sth) = $FC::DBH->prepare("SHOW VARIABLES LIKE '%query_cache%'");
     	my(@val);
     	if ( $sth->execute() ){
     	    while ( @val = $sth->fetchrow_array() ){
-    		if ( $val[0] =~ /have_query_cache/ ){  $FC::HASCACHE  = ($val[1] =~ /yes/i); }
-    		if ( $val[0] =~ /query_cache_size/ ){  $FC::HASCACHE &= ($val[1]!=0);        }
+    		if ( $val[0] =~ /have_query_cache/ ){  $FC::HASSQLCACHE  = ($val[1] =~ /yes/i); }
+    		if ( $val[0] =~ /query_cache_size/ ){  $FC::HASSQLCACHE &= ($val[1]!=0);        }
     	    }
     	}
     	$sth->finish();
     }
-    &print_debug("_Connect","Caching is ".($FC::HASCACHE?"ON":"OFF"));
+    &print_debug("_Connect","SQL Caching is ".($FC::HASSQLCACHE?"ON":"OFF"));
 
 
     # check number of SELECT but only if Admin
@@ -1425,7 +1431,7 @@ sub get_id_from_dictionary {
       # Dictionnary are intrinsically not case sensitive which may
       # be an issue for accessing Path information.
       #
-      $sqlquery = &_CACHED_SELECT()."$idname FROM $params[0] WHERE UPPER($params[1]) = UPPER(\"$params[2]\")";
+      $sqlquery = &_SQLCACHED_SELECT()."$idname FROM $params[0] WHERE UPPER($params[1]) = UPPER(\"$params[2]\")";
       if ($FC::DEBUG > 0) {  &print_debug("get_id_from_dictionary","Executing: $sqlquery");}
       $sth = $FC::DBH->prepare($sqlquery);
 
@@ -1473,7 +1479,7 @@ sub get_value_from_dictionary {
   $idx      = uc($params[1])." ".$params[2];
 
   if ( ($id = &_CachedValue($params[0],$idx)) == 0 ){
-      $sqlquery = &_CACHED_SELECT()."$valname FROM $params[0] WHERE UPPER($params[1]) = $params[2]";
+      $sqlquery = &_SQLCACHED_SELECT()."$valname FROM $params[0] WHERE UPPER($params[1]) = $params[2]";
       if ($FC::DEBUG > 0) {  &print_debug("get_value_from_dictionary","Executing: $sqlquery");}
       $sth = $FC::DBH->prepare($sqlquery);
 
@@ -1776,7 +1782,7 @@ sub get_prodlib_version_ID {
 
 
 	# fetch if exists
-	$cmd1 = &_CACHED_SELECT().&_IDize("get_prolib_version_ID",$tabname)." FROM $tabname WHERE $fldnm1=? AND $fldnm2=?";
+	$cmd1 = &_SQLCACHED_SELECT().&_IDize("get_prolib_version_ID",$tabname)." FROM $tabname WHERE $fldnm1=? AND $fldnm2=?";
 	#print "$cmd1\n";
 	$sth1 = $FC::DBH->prepare($cmd1);
 	if ( ! $sth1 ){
@@ -1866,7 +1872,7 @@ sub get_current_detector_configuration {
 
   # This routine introduces caching
   if ( ($detConfiguration = &_CachedValue($tabname,$val)) == 0){
-      $cmd = &_CACHED_SELECT()."$tabname.$index from $tabname WHERE $tabname.$field='$val'";
+      $cmd = &_SQLCACHED_SELECT()."$tabname.$index from $tabname WHERE $tabname.$field='$val'";
 
       $sth = $FC::DBH->prepare($cmd);
       if( ! $sth ){
@@ -2023,7 +2029,7 @@ sub disentangle_collision_type {
 	$firstParticle  = "unknown";
 	$secondParticle = "unknown";
 	$colstring = "0.0";
-	
+
     } else {
 	# Otherwise, cut in first/second
 	foreach $el (@particles){
@@ -2093,7 +2099,7 @@ sub get_collision_collection {
 
   ($firstParticle, $secondParticle, $energy) = &disentangle_collision_type($colstring);
 
-  my $sqlquery =  &_CACHED_SELECT()."collisionTypeID FROM CollisionTypes WHERE UPPER(firstParticle) = UPPER(\"$firstParticle\") AND UPPER(secondParticle) = UPPER(\"$secondParticle\")";
+  my $sqlquery =  &_SQLCACHED_SELECT()."collisionTypeID FROM CollisionTypes WHERE UPPER(firstParticle) = UPPER(\"$firstParticle\") AND UPPER(secondParticle) = UPPER(\"$secondParticle\")";
   if ( $energy ne "" ){
       $sqlquery .= " AND ROUND(collisionEnergy) = ROUND($energy)";
   }
@@ -2559,7 +2565,7 @@ sub insert_file_data {
   }
 
   # those fields are automatically set if unset
-  #$name = "st_physics_10085114_raw_1020001.MuDst.root"; print $name."\n"; $name =~ s/\..*//; 
+  #$name = "st_physics_10085114_raw_1020001.MuDst.root"; print $name."\n"; $name =~ s/\..*//;
   #print $name."\n"; $name =~ s/_\d+$//; print $name."\n"; $name =~ s/_\d+.*$//; print $name."\n";
   my($nm0,$nm1,$nm2) = &_GetONames($valuset{"filename"});
   if ( ! defined($valuset{"basename"}) ){  $valuset{"basename"} = $nm0;}
@@ -2698,7 +2704,7 @@ sub set_trigger_composition
     #
     # Insert first all entries in TriggerWords in INSERT mode
     #
-    $cmd1 =  &_CACHED_SELECT()."triggerWordID, triggerWordComment FROM TriggerWords ".
+    $cmd1 =  &_SQLCACHED_SELECT()."triggerWordID, triggerWordComment FROM TriggerWords ".
 	" WHERE triggerWordName=? AND triggerWordBits=?  AND triggerWordVersion=?";
     $cmd2 = "INSERT INTO TriggerWords VALUES(NULL, ?, ?, ?, NOW()+0, ".&_GetILogin().", 0, ?)";
 
@@ -2744,7 +2750,7 @@ sub set_trigger_composition
     #
     # Enter entries in TriggerCompositions
     #
-    $cmd1 =  &_CACHED_SELECT()."triggerWordID FROM TriggerCompositions WHERE fileDataID=?";
+    $cmd1 =  &_SQLCACHED_SELECT()."triggerWordID FROM TriggerCompositions WHERE fileDataID=?";
     $cmd2 = "INSERT DELAYED INTO TriggerCompositions VALUES(?,?,?)";
     $sth1 = $FC::DBH->prepare($cmd1);
     $sth2 = $FC::DBH->prepare($cmd2);
@@ -2983,7 +2989,7 @@ sub insert_simulation_params {
       $simComments = '"'.$valuset{"simcomment"}.'"';
   }
 
-  my $sqlquery =  &_CACHED_SELECT()."eventGeneratorID FROM EventGenerators WHERE eventGeneratorName = '".$valuset{"generator"}."' AND eventGeneratorVersion = '".$valuset{"genversion"}."' AND eventGeneratorParams = '".$valuset{"genparams"}."'";
+  my $sqlquery =  &_SQLCACHED_SELECT()."eventGeneratorID FROM EventGenerators WHERE eventGeneratorName = '".$valuset{"generator"}."' AND eventGeneratorVersion = '".$valuset{"genversion"}."' AND eventGeneratorParams = '".$valuset{"genparams"}."'";
   if ($FC::DEBUG > 0) {
       &print_debug("insert_simulation_params","Executing query: $sqlquery");
   }
@@ -3093,7 +3099,7 @@ sub get_current_simulation_params {
 		   "Define generator, genversion and genparams");
       return 0;
   }
-  $sqlquery =  &_CACHED_SELECT()."simulationParamsID FROM SimulationParams, EventGenerators WHERE eventGeneratorName = '".$valuset{"generator"}."' AND eventGeneratorVersion = '".$valuset{"genversion"}."' AND eventGeneratorParams = '".$valuset{"genparams"}."' AND SimulationParams.eventGeneratorID = EventGenerators.eventGeneratorID";
+  $sqlquery =  &_SQLCACHED_SELECT()."simulationParamsID FROM SimulationParams, EventGenerators WHERE eventGeneratorName = '".$valuset{"generator"}."' AND eventGeneratorVersion = '".$valuset{"genversion"}."' AND eventGeneratorParams = '".$valuset{"genparams"}."' AND SimulationParams.eventGeneratorID = EventGenerators.eventGeneratorID";
   if ($FC::DEBUG > 0) {
       &print_debug("get_current_simulation_params","Executing query: $sqlquery");
   }
@@ -3509,9 +3515,9 @@ sub insert_file_location {
 
 # small routine to return caching statement
 # this is based on MySQL caching and detected at _Connect()
-sub _CACHED_SELECT
+sub _SQLCACHED_SELECT
 {
-    $FC::HASCACHE?"SELECT SQL_CACHE ":"SELECT ";
+    $FC::HASSQLCACHE?"SELECT SQL_CACHE ":"SELECT ";
 }
 
 
@@ -3858,9 +3864,9 @@ sub run_query_cache
 {
     my (@tab);
 
-    $FC::FORCECACHE = 1==1;
+    $FC::FORCESQLCACHE = 1==1;
     @tab = &run_query(@_);
-    $FC::FORCECACHE = 1==0;
+    $FC::FORCESQLCACHE = 1==0;
     return @tab;
 }
 
@@ -3945,8 +3951,8 @@ sub run_query {
 
 
   # Enventually treat ENV variables - needs to be documented
-  #if ( defined($ENV{FC_DSITE}) && ! defined($valuset{"site"}) ){  
-  #    $valuset{"site"} = $ENV{FC_DSITE}; 
+  #if ( defined($ENV{FC_DSITE}) && ! defined($valuset{"site"}) ){
+  #    $valuset{"site"} = $ENV{FC_DSITE};
   #    &print_debug("run_query","Pushing site=".$valuset{"site"}." from ENV");
   #}
 
@@ -4142,7 +4148,7 @@ sub run_query {
   # TODO: not used yet, can save and use for stats
   # This could be a hash or a monitoring of user's queries
   my $user_usage="keys [".join(",",@keywords)."] cond [";
-  foreach my $k (sort keys %valuset){ 
+  foreach my $k (sort keys %valuset){
       $user_usage .= lc($k).($operset{$k}?$operset{$k}:"=").$valuset{$k}.",";
   }
   chop($user_usage); $user_usage .= "]";
@@ -4214,7 +4220,7 @@ sub run_query {
 		  }
 	      #}
 
-	      my $sqlquery = &_CACHED_SELECT()."$idname FROM $tabname WHERE ";
+	      my $sqlquery = &_SQLCACHED_SELECT()."$idname FROM $tabname WHERE ";
 
 	      if ((($roundfields =~ m/$fieldname/) > 0) && (! defined $valuset{"noround"})){
 		  #&print_debug("run_query","1 Inspecting [$roundfields] [$fieldname]");
@@ -4690,8 +4696,8 @@ sub run_query {
   # Build the actual query string
   my $sqlquery;
 
-  if ( $FC::FORCECACHE ){
-      $sqlquery  = &_CACHED_SELECT();
+  if ( $FC::FORCESQLCACHE ){
+      $sqlquery  = &_SQLCACHED_SELECT();
   } else {
       $sqlquery  = "SELECT ";
       $sqlquery .= "SQL_BUFFER_RESULT " if ($FC::OPTIMIZE);
@@ -4799,8 +4805,8 @@ sub run_query {
     # the default is 1
     if ( defined($valuset{"cache"}) ){
 	$FC::USECACHE = $valuset{"cache"};
-    } 
-    
+    }
+
 
 
     # Since we compare the id, do we need to order??
@@ -4818,9 +4824,9 @@ sub run_query {
 	    $sqlquery =~ s/SQL_BUFFER_RESULT //;
 	}
 	$sqlquery .= " LIMIT $offset, $limit";
-    } 
+    }
 
-	
+
 
     # We can replace FileLocations here if needed
     if ( $#super_index != -1 ){
@@ -4841,8 +4847,8 @@ sub run_query {
     #-
     # TODO: limit 0 could always be used for any other limit
     #
-    # in rlimit, we benefit from caching         
-    my $qhash=Digest::MD5->new();                     
+    # in rlimit, we benefit from caching
+    my $qhash=Digest::MD5->new();
     my $md5=$qhash->add($sqlquery.$delimeter)->hexdigest();
     my $FHDL=undef;
     &print_debug("run_query","Query digest is [$md5] rlimit=$rlimit");
@@ -4851,13 +4857,13 @@ sub run_query {
 
     umask(0000);
     my($cachedir) = "/tmp/FC_cache_".(getpwuid($<))[3];
-    if ( ! -d $cachedir ){  
+    if ( ! -d $cachedir ){
 	&print_debug("run_query","Creating $cachedir");
 	if ( ! mkdir($cachedir,0775) ){  $cachedir = "tmp";}
     }
 
     my($f)="$cachedir/$md5.dat";
-    my($docache)=$FC::USECACHE;                                    
+    my($docache)=$FC::USECACHE;
     my($age)=0;
 
     &print_debug("run_query","Use of cache is ".
@@ -4876,23 +4882,23 @@ sub run_query {
 		# deflted or not, we disable cache after expiration
 		$docache = 0;
 		unlink($f);
-	    }  
+	    }
 	}
     }
 
     &print_debug("run_query","Cache age $age (lifetime=$FC::CACHELIFE, docache=$docache)");
-	
-	
+
+
     if ( -e $f && $docache){
 	#+
-	# WILL RETURN FROM CACHE 
+	# WILL RETURN FROM CACHE
 	#-
 	my($line);
 	my($previd,$curid,$idcnt);
 	my(%result,@cols);
 	$idcnt = 0;
 	$count = 0;
-	
+
 	&print_debug("run_query","Cache file exists - reading from it");
 	if ( defined($FHDL = FileHandle->new("$f")) ){
 	    &print_debug("run_query","File is opened, reading line rlimit=$rlimit idpushed=$idpushed");
@@ -4905,7 +4911,7 @@ sub run_query {
 		@cols = split($delimeter,$line);
 
 		#&print_debug("run_query","Read one line");
-		    
+
 		if ( $rlimit != 0){
 		    # COMMON CODE LOGIC AAB
 		    if ( $idpushed ){
@@ -4913,9 +4919,9 @@ sub run_query {
 		    } else {
 			$curid = $cols[$fdidpos];
 		    }
-		    if ( $curid ne $previd){  
+		    if ( $curid ne $previd){
 			$previd = $curid;
-			$idcnt++; 
+			$idcnt++;
 			# in this case, we do not need to continue
 			# because it is cached
 			last if ( $idcnt > $rlimit+$offset);
@@ -4923,7 +4929,7 @@ sub run_query {
 		    if ( $offset < $idcnt ){
 			#$result[$count++] = join($delimeter,@cols);
 			$result{join($delimeter,@cols)}=$count++;
-		    } 
+		    }
 		} else {
 		    # since the delimeter is part of the hash, we can read line as-is
 		    #push(@result,$line);
@@ -4931,6 +4937,7 @@ sub run_query {
 		}
 	    }
 	    &print_debug("run_query","Will return values from cache right away and skip query");
+	    $FC::CACHE_USED=1;
 	    return sort { $result{$a} <=> $result{$b} } keys %result;
 	}
 	#
@@ -4939,11 +4946,12 @@ sub run_query {
 
     } else {
 	# no cache, prepare a cache file
+	$FC::CACHE_USED=0;
 	if ( defined($FHDL = FileHandle->new(">$f")) ){
 	    chmod(0775,$f);
 	}
     }
-    
+
     #+
     # WILL DO A SQL QUERY
     #-
@@ -4985,11 +4993,11 @@ sub run_query {
 	if ( $success ){
 	    my($previd,$curid,$idcnt);
 	    my($rkey);
-	    
+
 	    $idcnt = 0;
 
 	    &print_debug("run_query","rlimit=$rlimit limit=$limit - fetching");
-	  
+
 	    while ( @cols = $sth->fetchrow_array() ) {
 		# if field is empty, fetchrow_array() returns undef()
 		# fix it by empty string instead.
@@ -5003,8 +5011,8 @@ sub run_query {
 			eval("\$cols[$i] = ".(split(";",$ktransform{$kstackunique[$i]}))[0]."($cols[$i]);");
 		    }
 		}
-		
-		    
+
+
 		# We are not done ...
 		foreach $flkey (@setkeys){
 		    $res = "\@cols = $keyset{$flkey}";
@@ -5016,18 +5024,18 @@ sub run_query {
 
 		# need to print prior <-- true only for previous for old logic
 		# print $FHDL join($delimeter,@cols)."\n" if ( defined($FHDL) );
-		
+
 		if ( $rlimit > 0 ){
 		    # rlimit mode
-		    
-		    # COMMON CODE LOGIC AAB		    
+
+		    # COMMON CODE LOGIC AAB
 		    if ( $idpushed ){
 			$curid = shift(@cols);
 		    } else {
 			$curid = $cols[$fdidpos];
 		    }
 		    # &print_debug("run_query","[$curid] [$previd]");
-		    if ( $curid ne $previd){  
+		    if ( $curid ne $previd){
 			$previd = $curid;
 			$idcnt++;
 			# last if ( $idcnt > $rlimit+$offset);
@@ -5072,7 +5080,7 @@ sub run_query {
 	    close($FHDL) ;
 	    # If too small or not expensive, delete to keep number of files under control
 	    # Note: spiders checks nearly all files individually ...
-	    if ($count <= 1 || $tf <= 2){ 
+	    if ($count <= 1 || $tf <= 2){
 		&print_debug("run_query","(count=$count,delta=$tf) <= (1,2) - delete cache $f");
 		unlink($f);
 	    }
@@ -5084,7 +5092,13 @@ sub run_query {
     }
 }
 
-
+sub was_file_cache_used
+{
+    if ($_[0] =~ m/FileCatalog/) {
+	shift @_;
+    }
+    return $FC::CACHE_USED;
+}
 
 # 2 examples of eval() routines
 sub _logical_name
@@ -6353,7 +6367,28 @@ sub get_context {
   }
 
   my ($param) = @_;
-  return $valuset{$param};
+  if ( defined($param) ){
+      return $valuset{$param};
+  } else {
+      # return the full thing as a string
+      my($tmp)="";
+      foreach (keys %valuset){
+	  if ( defined($operset{$_}) ){
+	      $tmp .= "$_$operset{$_}$valuset{$_},";
+	  } else {
+	      $tmp .= "$_=$valuset{$_},";
+	  }
+      }
+      foreach (keys %optvaluset){
+	  if ( defined($optoperset{$_}) ){
+	      $tmp .= "$_$optoperset{$_}$optvaluset{$_},";
+	  } else {
+	      $tmp .= "$_=$optvaluset{$_},";
+	  }
+      }
+      chop($tmp);
+      return $tmp;
+  }
 }
 
 #============================================
@@ -6496,7 +6531,7 @@ sub destroy {
 
 
 sub _GetONames
-{   
+{
     if ($_[0] =~ m/FileCatalog/) {
 	shift @_;
     }
@@ -6505,7 +6540,7 @@ sub _GetONames
 
     $nm =~ s/\..*//;    $name0 = $nm;
     $nm =~ s/_\d+$//;   $name1 = $nm;
-    $nm =~ s/_\d+.*$//; 
+    $nm =~ s/_\d+.*$//;
     if ($nm eq $name1){
 	# remove one more _.*
 	if ( $name1  =~ m/(.*)(_)(.*)/){
