@@ -106,7 +106,7 @@ END
     print $query->startform(-action=>"$scriptname");
 
     print "<body bgcolor=\"cornsilk\">\n";
-    print "<h1 align=center><u>DB connection failure plots </u></h1>\n";
+    print "<h1 align=center><u>Production jobs failed due to DB connection problem </u></h1>\n";
     print "<br>";
     print "<br>";
     print <<END;
@@ -128,7 +128,7 @@ END
 
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> DB connection failure for production jobs</h3>";
+    print "<h3 align=center> Number of failed jobs</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'pjob',
                                   -values=>\@arrate,
@@ -162,7 +162,9 @@ END
 
     print $query->end_html();
 
-}
+ }
+
+
 exit;
 ############
 
