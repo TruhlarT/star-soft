@@ -8,10 +8,15 @@
 # in 2002 as part of a service task under J. Lauret.
 #
 # Maintained and modified by J.Lauret, BNL 2002-2013
-# Developper notes
-# - Do not modify this fC_cleanup.pl directely as a template
-#   fC_cleanup.new.pl exists for testing ('make' to update)
-# - See also fC_cleanup.txt
+#
+# ---------------------------------------------------------------
+# Warning note
+# - This file was auto-generated as fC_cleanup.pl from a template
+#   named fC_cleanup.new.pl
+# - Do not edit directly but use the template as its content may
+#   depend on other external includes and conditional formattings.
+# ---------------------------------------------------------------
+#
 #
 
 use Env qw(STAR_SCRIPTS);           
@@ -107,6 +112,10 @@ while (defined $ARGV[$count]){
 	# unlikely we would use this options apart from testing
 	# OR if we are standalone on one node
 	$docache = 1;
+    } elsif ($ARGV[$count] eq "-nocache"){
+	$docache = 0;
+
+
 
     } elsif ($ARGV[$count] eq "-nl"){
 	$limit = 0;
@@ -191,7 +200,11 @@ while (defined $ARGV[$count]){
 	}
 
     } else {
-	&Print("Wrong keyword used: ".$ARGV[$count]);
+
+	if ( $ARGV[$count] ne "-help" &&
+	     $ARGV[$count] ne "--help"    ){
+	    &Print("Wrong keyword used: ".$ARGV[$count]);
+	}
 	&Usage(1);
     }
     $count++;
@@ -797,7 +810,7 @@ sub ResetContext
 	    $fileC->set_context($_);
 	}
     }
-    $fileC->set_context("cache=0") if ( ! $docache);
+    $fileC->set_context("cache=0") if ( ! $docache);  # we disable cache by default
 
 }
 
@@ -1022,17 +1035,19 @@ sub Usage
   print "se database 'db' for db access\n\n Other options\n ----------";
   print "---\n -debug            turn database module debugging inform";
   print "ation ON  default=OFF)\n -nodebug          turn this script d";
-  print "ebugging information OFF (default=ON)\n -o file           Red";
-  print "irect all standard output to 'file'\n\n -doit             swi";
-  print "tch MUST be specified to really perform the operation.\n     ";
-  print "              Without it, the API will only display the opera";
-  print "tion it\n                   intends to perform (i.e. debug mo";
-  print "de). It is wise to start\n                   in debug mode.\n\n";
-  print " -cache            Use disk cache for querries (default is to";
-  print " disable it)\n -nl               Bypass the load balancer - d";
-  print "o not use this option in cron\n -t time           Terminate g";
-  print "racefully after approximately 'time' has elapsed\n -class XXX";
-  print "        Set debugging class\n";
+  print "ebugging information OFF (default=ON)\n -help --help      pri";
+  print "nt this help\n\n -o file           Redirect all standard outp";
+  print "ut to 'file'\n\n -doit             switch MUST be specified t";
+  print "o really perform the operation.\n                   Without i";
+  print "t, the API will only display the operation it\n              ";
+  print "     intends to perform (i.e. debug mode). It is wise to star";
+  print "t\n                   in debug mode.\n\n -cache            Us";
+  print "e disk cache for querries (default is to disable it)\n -nocac";
+  print "he          Do not use disk caching (default)\n\n -nl        ";
+  print "       Bypass the load balancer - do not use this option in c";
+  print "ron\n -t time           Terminate gracefully after approximat";
+  print "ely 'time' has elapsed\n -class XXX        Set debugging clas";
+  print "s\n\n";
 
     if( defined($sts) ){ &Exit();}
 
