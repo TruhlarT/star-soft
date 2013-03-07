@@ -241,10 +241,156 @@ END
    }
 
 
+##################################### jobs count with DB connection failure
+
+ @ndate = ();
+ $ndt = 0;
+ @jbscount = ();
+ @jbcount = ();
+ @jbstime = ();
+ @jbtime = ();
+ @numjobs = ();
+ $nstat = 0;
+ @avgtime = ();
+
+   if( $qjob eq "njobs" ) {
+
+   foreach my $tdate (@ardays) {
+        $jbscount[$ndt] = 0;
+        $ndate[$ndt] = $tdate;
+
+     $nstat = 0;
+
+     if( $qperiod eq "week") {
+
+  $sql="SELECT count(jobfileName) FROM $JobStatusT WHERE  prodSeries = ? and jobStatus = 'DB connection failed' and createTime like '$tdate%' ";
+
+   $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+    $cursor->execute($qprod);
+
+    while($mycount = $cursor->fetchrow) {
+        $jbcount[$nstat] = $mycount;
+        $nstat++;
+    }
+
+   }else{
+
+  $sql="SELECT count(jobfileName) FROM $JobStatusT WHERE  prodSeries = ? and jobStatus = 'DB connection failed' and runDay = '$tdate
+' ";
+
+
+   $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+    $cursor->execute($qprod);
+
+    while($mycount = $cursor->fetchrow) {
+        $jbcount[$nstat] = $mycount;
+        $nstat++;
+    }
+ }
+
+
+   if($nstat >= 1) {
+   $jbscount[$ndt] = $jbcount[$nstat-1];
+      }
+  $ndt++;
+
+ }# foreach tdate
+ }
+
+    &StDbProdDisconnect();
+
+ my @data = ();
+ my $ylabel;
+ my $gtitle;
+
+    my $graph = new GD::Graph::linespoints(750,650);
+
+    if ( ! $graph){
+        print STDOUT $qqr->header(-type => 'text/plain');
+        print STDOUT "Failed\n";
+
+    } else {
+
+       if ( $qjob eq "njobs" ) {
+
+    @data = ();
+
+       if( $qperiod eq "week") {
+
+       $ylabel = "Number of failed jobs per hour";
+       $gtitle = "Number of jobs failed due to DB connections problem for $qperiod period";
+
+      }else{
+
+       $ylabel = "Number of failed jobs per day";
+       $gtitle = "Number of jobs failed due to DB connections problem for $qperiod period";
+      }
+
+  @data = (\@ndate, \@jbscount ) ;
+
+  }
+
+########
+
+
+        my $xLabelsVertical = 1;
+        my $xLabelPosition = 0;
+        my $xLabelSkip = 1;
+        my $skipnum = 1;
+
+        $min_y = 0;
+
+        if (scalar(@ndate) >= 40 ) {
+            $skipnum = int(scalar(@ndate)/20);
+        }
+
+        $xLabelSkip = $skipnum;
+
+        $graph->set(x_label => "Datetime of job's completion",
+                    y_label => $ylabel,
+                    title   => $gtitle,
+                    y_tick_number => 14,
+                    x_label_position => 0.5,
+                    y_min_value => $min_y,
+                    y_max_value => $max_y,
+                    y_number_format => \&y_format,
+                    #labelclr => "lblack",
+                    titleclr => "lblack",
+                    dclrs => [ qw(lblue lgreen lpurple lorange marine lred lblack lyellow lbrown lgray) ],
+                    line_width => 4,
+                    markers => [ 2,3,4,5,6,7,8,9],
+                    marker_size => 3,
+                    x_label_skip => $xLabelSkip,
+                    x_labels_vertical =>$xLabelsVertical,
+                    );
+
+
+        $graph->set_legend(@legend);
+        $graph->set_legend_font(gdMediumBoldFont);
+        $graph->set_title_font(gdGiantFont);
+        $graph->set_x_label_font(gdGiantFont);
+        $graph->set_y_label_font(gdGiantFont);
+        $graph->set_x_axis_font(gdMediumBoldFont);
+        $graph->set_y_axis_font(gdMediumBoldFont);
+
+        if ( scalar(@ndate) <= 1 ) {
+            print $qqr->header(-type => 'text/html')."\n";
+            &beginHtml();
+        } else {
+            my $format = $graph->export_format;
+            print header("image/$format");
+            binmode STDOUT;
+
+            print STDOUT $graph->plot(\@data)->$format();
+        }
+#
+   }
 
 
 #####
- }
+  }
 exit;
 ############
 
@@ -280,10 +426,10 @@ sub beginHtml {
 print <<END;
   <html>
    <head>
-          <title>CPU versus RealTime usage</title>
+          <title>Production jobs failed due to DB connection problem</title>
    </head>
    <body BGCOLOR=\"#ccffff\">
-     <h1 align=center>No Data for $qprod production and $qperiod period </h1>
+     <h1 align=center>No failed jobs for $qprod production and $qperiod period </h1>
      
 
     </body>
