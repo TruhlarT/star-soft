@@ -4,24 +4,35 @@
 # This is the command line utility, which allows access to the data in the
 # FileCatalog database.
 #
-# Written by Adam Kisiel, Warsaw University of Technology (2002)
-# Written by J.Lauret 2002-2011
+# Initially written by Adam Kisiel, Warsaw University of Technology
+# in 2002 as part of a service task under J. Lauret.
+#
+# Written by J.Lauret 2002-2013
 #
 # Uncodumented paramaters
+#   -debug      : maintainance option
+#   -coffee     : maintainance option
 #
-# -debug      : maintainance option
+# ---------------------------------------------------------------
+# Warning note
+# - This file was auto-generated as get_file_list.pl from a template
+#   named get_file_list.new.pl
+# - Do not edit directly but use the template as its content may
+#   depend on other external includes and conditional formattings.
+# ---------------------------------------------------------------
+#
 #
 #use Env (OPTSTAR);
 #use lib "$OPTSTAR/lib";
 use lib "/afs/rhic.bnl.gov/star/packages/scripts";
-#use lib "/star/u/jeromel/work/STAR/scripts";
+#use lib "/star/u/jeromel/work/ddb";                 #
 use strict;
 use FileCatalog;
 
 my @output;
 my $i;
 my $count;
-my ($debug,$caching);
+my ($debug,$sqlcaching,$docache );
 
 # The state variables
 my ($all, $alls, $unique, $field_list, $class);
@@ -44,29 +55,39 @@ $debug       = 0;
 $onefile     = 0;
 $outfilename = "";
 $class       = "";
-$caching     = 0;
+$sqlcaching  = 0;
+$docache     = 1;
 
 # Parse the cvommand line arguments.
 $count = 0;
 
 while (defined $ARGV[$count]){
     if ($ARGV[$count] eq "-all"){
-	$all = 1; 
+	$all = 1;
     } elsif ($ARGV[$count] eq "-alls") {
 	$alls = 1;
     } elsif ($ARGV[$count] eq "-onefile"){
-	$onefile = 1; 
+	$onefile = 1;
     } elsif ($ARGV[$count] eq "-distinct"){
-	$unique = 1; 
+	$unique = 1;
+    } elsif ($ARGV[$count] eq "-sqlcache"){
+	$sqlcaching= 1;
     } elsif ($ARGV[$count] eq "-cache"){
-	$caching= 1;
+	$docache= 1;
+    } elsif ($ARGV[$count] eq "-nocache"){
+	$docache= 0;
 
     } elsif ($ARGV[$count] eq "-V"){
-	print "This is Version ".$fileC->Version()."\n"; 
+	print "This is Version ".$fileC->Version()."\n";
 	exit;
     } elsif ($ARGV[$count] eq "-debug" ||
 	     $ARGV[$count] eq "-coffee"){
-	$fileC->debug_on();
+	$debug++;
+	if ( $ARGV[$count] eq "-coffee"){
+	    # full debugging not only this script
+	    $fileC->debug_on();
+	}
+
     } elsif ($ARGV[$count] eq "-class"){
 	# class of debugging
 	$fileC->message_class($ARGV[++$count]);
@@ -99,8 +120,11 @@ while (defined $ARGV[$count]){
     }
     else
     {
-
-	print "Unknown switch used: ".$ARGV[$count]."\n";
+	if ( #$ARGV[$count] ne "-h"    && -h was used for host selection before
+	     $ARGV[$count] ne "-help" &&
+	     $ARGV[$count] ne "--help"    ){
+	    print "Unknown switch used: ".$ARGV[$count]."\n" ;
+	}
 	&Usage();
 	exit;
     }
@@ -123,7 +147,7 @@ if ($count == 0){
 	$fileC->set_context($_);
     }
     if ($all ==1){         $fileC->set_context("all=1");   }
-    if ($alls==1){         
+    if ($alls==1){
         # do nothing
     } else {
 	# do something only if sanity was not used
@@ -137,18 +161,28 @@ if ($count == 0){
     if (defined $start){   $fileC->set_context("startrecord=$start"); }
     if (defined $delim){   $fileC->set_delimeter($delim); }
     if ($unique==0){       $fileC->set_context("nounique=1");}
-
+    if (! $docache){       $fileC->set_context("cache=0") ;}    # cache is enabled by default
+                                                                # we disable cache if asked
 
     if ($onefile > 0){
         # ,orda(persistent)"; <-- great idea but returns persistent
 	$field_list .= ",grp(filename),orda(persistent)";
     }
 
+
+    print "Full context is ".$fileC->get_context()."\n" if ($debug > 0);
+
     # Getting the data - DO NOT use query_cache() for all querries
-    if ($caching){
+    if ($sqlcaching){
 	@output = $fileC->run_query_cache(split(/,/,$field_list));
     } else {
 	@output = $fileC->run_query(split(/,/,$field_list));
+    }
+
+    # This requires version V01.395 or above
+    # Note that file based query caching is enabled by the keyword cache=1
+    if ($fileC->was_file_cache_used() && $debug > 0){
+	print "File based query cache was used\n";
     }
 
     # Printing the output
@@ -161,9 +195,9 @@ if ($count == 0){
 	my ($lastfname) = "";
 
 	if (defined $delim){
-	    $delimeter = $delim; 
+	    $delimeter = $delim;
 	} else {
-	    $delimeter = "::"; 
+	    $delimeter = "::";
 	}
 	# not secure to do this with split() as delim can be
 	# changed.
@@ -183,7 +217,8 @@ if ($count == 0){
 
 sub Usage
 {
-  print "\nCommand usage:\n % get_file_list.pl [qualifiers] -keys fie";
+  # Formatted by text2c V01-122 (Flex V2.5). Last update 31-Dec-2003
+  print "\nCommand usage:\n %% get_file_list.pl [qualifiers] -keys fie";
   print "ld{,field} [-cond field=value{,field=value}]\n\n where the qu";
   print "alifiers may be\n -all                  use  all entries rega";
   print "rdless of availability  flag default is \n                   ";
@@ -200,13 +235,18 @@ sub Usage
   print "que LFN to Num (number of returned \n                       l";
   print "ines will be more). rlimit will  switch limit logic off.\n -s";
   print "tart <Num>          start at the n-th record of the sample fo";
-  print "r either limit or \n                       rlimit mode\n\n -o";
-  print " <output filename>  redirects results to an ouput file (use S";
-  print "TDOUT)\n\n -V                    print version and exits\n -a";
-  print "s <scope>           connects as specified, scopes={Admin|User";
-  print "}\n -as <site>::<scope>   connects to site as specified\n\n F";
-  print "ields appearing in -keys and/or -cond may be amongst the foll";
-  print "owing\n\n";
+  print "r either limit or \n                       rlimit mode\n\n -c";
+  print "ache                Use disk cache for querries (default)\n -";
+  print "nocache              Do not use disk caching \n -sqlcache    ";
+  print "         attempt to use server side cache (expert mode, the m";
+  print "odule\n                       should deternine if it can auto";
+  print "matically)\n\n -help --help          print this help\n\n -o <";
+  print "output filename>  redirects results to an ouput file (use STD";
+  print "OUT)\n\n -V                    print version and exits\n -as ";
+  print "<scope>           connects as specified, scopes={Admin|User}\n";
+  print " -as <site>::<scope>   connects to site as specified\n\n Fiel";
+  print "ds appearing in -keys and/or -cond may be amongst the followi";
+  print "ng\n\n";
   print join(" ",$fileC->get_keyword_list())."\n\n";
 
 }
