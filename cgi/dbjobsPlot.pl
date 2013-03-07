@@ -304,13 +304,16 @@ END
 
 $nstat = 0;
 $ndt = 0;
+@ndate = ();
+
 
    foreach my $tdate (@ardays) {
 
         $ndate[$ndt] = $tdate;
         $jbstime[$ndt] = 0;
         $numjobs[$ndt] = 0;
-       $nstat = 0;
+        $avgtime[$ndt] = 0;
+        $nstat = 0;
 
      if( $qperiod eq "week") {
 
@@ -321,11 +324,11 @@ $ndt = 0;
     $cursor->execute($qprod);
 
     while($mycount = $cursor->fetchrow) {
-        $jbtime[$nstat] = $mycount;
-        $jbstime[$ndt] = $jbstime[$ndt] + $jbtime[$nstat];
+        $jbstime[$ndt] = $jbstime[$ndt] + $mycount;
         $nstat++;
-    }
    $numjobs[$ndt] = $nstat ;
+    }
+#   $numjobs[$ndt] = $nstat ;
 
    }else{
 
@@ -336,15 +339,15 @@ $ndt = 0;
     $cursor->execute($qprod);
 
     while($mycount = $cursor->fetchrow) {
-        $jbtime[$nstat] = $mycount;
-        $jbstime[$ndt] = $jbstime[$ndt] + $jbtime[$nstat];
+        $jbstime[$ndt] = $jbstime[$ndt] + $mycount;
         $nstat++;
-    }
     $numjobs[$ndt] = $nstat ;
+    }
+#    $numjobs[$ndt] = $nstat ;
  }
 
     if($numjobs[$ndt] >=1 ) {
-    $avgtime[$ndt] = int($jbstime[$ndt]/$numjobs[$ndt] = 0.5 );
+    $avgtime[$ndt] = int($jbstime[$ndt]/$numjobs[$ndt] + 0.5 );
   }else{
     $avgtime[$ndt] = 0;
   }
