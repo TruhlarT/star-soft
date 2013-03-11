@@ -42,6 +42,9 @@ $dbname="operation";
 struct JobAttr => {
       jbname    => '$',
       jbst      => '$',
+      jbnode    => '$',
+      jbcrtime  => '$',
+      jbsbm     => '$',
       jbtrk     => '$',
       jbevt     => '$'
  };
@@ -70,6 +73,8 @@ my @jbEvent = ();
 my @disklst = ();
 my @diskname = ();
 my @disksize = ();
+my @jbnoden = ();
+my @jbctime = ();
 my $nn = 0;
 my $nnd = 0;
 my $dnm = 0;
@@ -83,7 +88,7 @@ my $jobname = $qtrg."%".$qprod."%";
  
   &beginJbHtml(); 
 
-    $sql="SELECT jobfileName, jobStatus, NoEvents, avg_no_tracks  FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and calibTag = ? and jobStatus <> 'Done' and jobStatus <> 'n/a' and jobStatus <> 'hung' ";
+    $sql="SELECT jobfileName, jobStatus, nodeID, NoEvents, avg_no_tracks, createTime  FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and calibTag = ? and jobStatus <> 'Done' and jobStatus <> 'n/a' and jobStatus <> 'hung' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -102,6 +107,8 @@ my $jobname = $qtrg."%".$qprod."%";
                 ($$fObjAdr)->jbst($fvalue)     if( $fname eq 'jobStatus');
                 ($$fObjAdr)->jbevt($fvalue)    if( $fname eq 'NoEvents');
                 ($$fObjAdr)->jbtrk($fvalue)    if( $fname eq 'avg_no_tracks'); 
+                ($$fObjAdr)->jbcrtime($fvalue) if( $fname eq 'createTime');
+                ($$fObjAdr)->jbnode($fvalue)   if( $fname eq 'nodeID');
 
             }
             $jbstat[$nst] = $fObjAdr;
@@ -113,7 +120,7 @@ my $jobname = $qtrg."%".$qprod."%";
 
    &beginHpHtml();
 
-     $sql="SELECT jobfileName, inputHpssStatus, NoEvents  FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and calibTag = ? and inputHpssStatus like 'hpss_error%' ";
+     $sql="SELECT jobfileName, inputHpssStatus, NoEvents, submitTime  FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and calibTag = ? and inputHpssStatus like 'hpss_error%' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -131,6 +138,7 @@ my $jobname = $qtrg."%".$qprod."%";
                 ($$fObjAdr)->jbname($fvalue)   if( $fname eq 'jobfileName');
                 ($$fObjAdr)->jbst($fvalue)     if( $fname eq 'inputHpssStatus');
                 ($$fObjAdr)->jbevt($fvalue)    if( $fname eq 'NoEvents');
+                ($$fObjAdr)->jbsbm($fvalue)    if( $fname eq 'submitTime');
 
             }
             $jbstat[$nst] = $fObjAdr;
@@ -240,6 +248,10 @@ END
        $jbStatus[$nn] = ($$pjob)->jbst;
        $jbEvent[$nn]  = ($$pjob)->jbevt;
        $jbtrack[$nn]  = ($$pjob)->jbtrk;
+       $jbctime[$nn]  = ($$pjob)->jbcrtime;
+       $jbnoden[$nn]  = ($$pjob)->jbnode;
+
+     $jbnoden[$nn]=~ s/.rcf.bnl.gov//g;
 
     if( $qflag eq "jstat" ) {
 
@@ -250,6 +262,9 @@ END
 <td HEIGHT=10><h3>$jbStatus[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbEvent[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbtrack[$nn]</h3></td>
+<td HEIGHT=10><h3>$jbnoden[$nn]</h3></td>
+<td HEIGHT=10><h3>$jbctime[$nn]</h3></td>
+
 </TR>
 END
 
@@ -272,6 +287,7 @@ print <<END;
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$jbfName[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbStatus[$nn]</h3></td>
+<td HEIGHT=10><h3>$jbsubm[$nn]</h3></td>
 </TR>
 END
 
@@ -282,6 +298,7 @@ print <<END;
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$jbfName[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbStatus[$nn]</h3></td>
+
 </TR>
 END
     }
@@ -321,10 +338,12 @@ print <<END;
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
-<TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=60><B><h3>Jobfilename</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Job status</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Jobfilename</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Job status</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>No.events produced</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Avg.No.tracks</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Node name</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Finish time</h3></B></TD>
 </TR>
    </head>
     </body>
@@ -390,8 +409,9 @@ print <<END;
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
-<TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=60><B><h3>Jobfilename</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Jobfilename</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>HPSS error</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Submit time</h3></B></TD>
 </TR>
    </head>
     </body>
