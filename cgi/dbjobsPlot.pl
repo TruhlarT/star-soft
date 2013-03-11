@@ -317,7 +317,7 @@ $ndt = 0;
 
      if( $qperiod eq "week") {
 
-  $sql="SELECT jobtotalTime FROM $JobStatusT WHERE  prodSeries = ? and jobStatus = 'DB connection failed' and createTime like '$tdate%' ";
+  $sql="SELECT exectime FROM $JobStatusT WHERE  prodSeries = ? and jobStatus = 'DB connection failed' and createTime like '$tdate%' ";
 
    $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -332,7 +332,7 @@ $ndt = 0;
 
    }else{
 
-  $sql="SELECT jobtotalTime FROM $JobStatusT WHERE  prodSeries = ? and jobStatus = 'DB connection failed' and runDay = '$tdate' ";
+  $sql="SELECT exectime FROM $JobStatusT WHERE  prodSeries = ? and jobStatus = 'DB connection failed' and runDay = '$tdate' ";
 
    $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
