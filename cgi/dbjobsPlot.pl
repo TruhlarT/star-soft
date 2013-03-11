@@ -394,13 +394,13 @@ $ndt = 0;
 
        if( $qperiod eq "week") {
 
-       $ylabel = "Average time of jobs execution  per hour";
-       $gtitle = "Average time of jobs execution  for $qperiod period";
+       $ylabel = "Average time of execution for failed jobs  per hour";
+       $gtitle = "Average time of execution for failed jobs for $qperiod period";
 
          }else{
 
-       $ylabel = "Average time of jobs execution jobs per day";
-       $gtitle = "Average time of jobs execution for $qperiod period";
+       $ylabel = "Average time of execution for failed jobs per day";
+       $gtitle = "Average time of execution for failed jobs for $qperiod period";
 
          }
 
