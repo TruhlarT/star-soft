@@ -84,7 +84,7 @@ my $nprod = 0;
 
   &StDbProdConnect();
 
-  $sql="SELECT distinct trigsetName, prodSeries, calibtag, chainName, status, date_format(min(createTime), '%Y-%m-%d') as mintm, date_format(max(createTime), '%Y-%m-%d') as maxtm, sum(NoEvents), avg(CPU_per_evt_sec)  from $JobStatusT where createTime <> '0000-00-00 00:00:00' and CPU_per_evt_sec > 0.0001 group by trigsetName, prodSeries, calibTag order by max(createTime) ";
+  $sql="SELECT distinct trigsetName, prodSeries, calibtag, chainName, status, date_format(min(createTime), '%Y-%m-%d') as mintm, date_format(max(createTime), '%Y-%m-%d') as maxtm, sum(NoEvents), avg(CPU_per_evt_sec)  from $JobStatusT where createTime <> '0000-00-00 00:00:00' group by trigsetName, prodSeries, calibTag order by max(createTime) ";
 
 
             $cursor =$dbh->prepare($sql)
