@@ -128,7 +128,7 @@ END
 
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Number of failed jobs<br>
+    print "<h3 align=center> Number of failed jobs;<br>
                              average time of execution </h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'pjob',
