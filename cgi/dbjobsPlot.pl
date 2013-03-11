@@ -48,7 +48,7 @@ my @prodyear = ("2012","2013");
 
 
 my @arperiod = ( );
-my @arrate = ("njobs", "jobstime");
+my @arrate = ("njobs", "exectime");
 
 my @arrprod = ();
 my $npr = 0;
@@ -301,7 +301,7 @@ END
  }# foreach tdate
 
 
- }elsif( $qjob eq "jobstime" ) {
+ }elsif( $qjob eq "exectime" ) {
 
 $nstat = 0;
 $ndt = 0;
@@ -389,7 +389,7 @@ $ndt = 0;
 
   @data = (\@ndate, \@jbscount ) ;
 
-  }elsif(  $qjob eq "jobstime" ) {
+  }elsif(  $qjob eq "exectime" ) {
 
   @data = ();
 
