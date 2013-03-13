@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.110 2013/01/15 17:33:17 fisyak Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.111 2013/03/13 21:34:38 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -34,10 +34,10 @@ Bfc_st BFC[] = {
   {"RY2008","","","db,detDb,NosvtIT,NossdIT" ,"","","y2008 for dAu run",kFALSE},
   {"RY2009","","","db,detDb,NosvtIT,NossdIT" ,"","","y2009 for p+p run",kFALSE},
   {"ForceGeometry","","","","","", "Force geometry to overwrite the geometry coming from fz-file", kFALSE},
+  {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
+  {"Valid Db    ","-----------","-----------","------------------------------------------","","","",kFALSE},
+  {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"NoDb" ,"" ,"","-db,-tpcDb,-magF" ,"","","Take out Db from Chain",kFALSE},
-  {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
-  {"Valid Db    ","Versions   ","-----------","------------------------------------------","","","",kFALSE},
-  {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"DbV" ,"" ,"","db,ry1h" ,"","","19940614/0 Db Version for none",kFALSE},
   {"DbV0614" ,"" ,"","db,ry1h" ,"","","20000614/0 Db Version for p00hd",kFALSE},
   {"DbV0624" ,"" ,"","db,ry1h" ,"","","20000624/0 Db Version for p00hd_1",kFALSE},
@@ -49,6 +49,9 @@ Bfc_st BFC[] = {
   {"DbV1007" ,"" ,"","db,ry1h" ,"","", "20011007/0 Db Version for p01hi",kFALSE},
   {"DbV1107" ,"" ,"","db,ry1h" ,"","", "20011107/0 Db Version for pass1 p01gk",kFALSE},
   {"DbV1211" ,"" ,"","db,ry1h" ,"","", "20011211/0 Db Version for prod p01gl",kFALSE},
+  {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
+  {"Geometry    ","-----------","-----------","------------------------------------------","","","",kFALSE},
+  {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"AgML" ,"" ,"","-Agi,-VmcGeo","","StarAgmlLib,StarGeometry,Geometry"
    , "Alias VmcGeometry to AgMLGeometry",kFALSE},
   {"Agi" ,"" ,"","-AgML,-VmcGeo","","","Alias VmcGeometry to AgiGeometry (gstar original geometry)",kFALSE},
@@ -65,12 +68,7 @@ Bfc_st BFC[] = {
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"C H A I N S ","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
-  {"Calibration chains","------------","-----------","-----------------------------------","","","",kFALSE},
-  {"LanaDV","","","MakeEvent,trgd,in,tpc_daq,tpcI,fcf,LaserIT,VFMinuit,Lana,Analysis,Corr4,NosvtIT,NossdIT",
-   "","" ,"get LDV",kFALSE},
-  {"LanaDVtpx","","","MakeEvent,trgd,in,tpx,TpcHitMover,LaserIT,VFMinuit,Lana,Analysis,Corr4,NosvtIT,NossdIT",
-   "","" ,"get LDV with TPX",kFALSE},
-  {"LaserDV.Chain","","","in,LaserCal,fcf,TpcHitMover,OGridLeak3D,OShortR,OSpaceZ2","","","get LDV",kFALSE},
+  {"Composite chains  ","------------","-----------","-----------------------------------","","","",kFALSE},
   {"Test.default.ITTF","","","TpcRS,Simu,sss,svt,ssd,fss,bbcSim,IdTruth,MakeEvent,genvtx,"
    "miniMcMk,McAna,Test.reco.ITTF,CMuDst" ,"","","",kFALSE},
   {"Test.default.y2005g.ITTF","","","Test.default.ITTF,sdt20050130,noSimuDb" ,"","","",kFALSE},
@@ -110,7 +108,7 @@ Bfc_st BFC[] = {
    "SvtCL,tpc_T,globT,tls,db,tpcDB,svtDb,svtIT,ssdIT,ITTF,Idst,event,analysis,EventQA,tags,"
    "EvOut,StarMagField,FieldOn,IAna,CMuDst" ,"","","",kFALSE},
   {"nightly test (dev) chains","-----------","-----------","----------------------------","","","", kFALSE},
-  {"MC----------","-----------","-----------","------------------------------------------","","","",kFALSE},
+  {"MC          ","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"MC.y2000" ,"","","trs,rrs,y1h,Idst,rich,IAna,l0,tpcI,tcl,NosvtIT,NossdIT,"
    "-Kink2,VFMinuit,geant,evout,IdTruth,tags,GeantOut,big" ,"","","",kFALSE},
   {"MC.y2001" ,"","","trs,fss,rrs,y2001n,Idst,rich,IAna,l0,tpcI,tcl,ftpc,-Kink2,"
@@ -174,7 +172,7 @@ Bfc_st BFC[] = {
   {"MC.y2012.eval" ,"","","in,y2012,FieldOn,ReverseField,Idst,BAna,l0,ftpcT,fpt,NoSsdIt,NoSvtIt"
    ",VFMinuit,tpcDB,MakeEvent,IdTruth,tags,bbcsim,emcY2,EEfs,evout,big,McEvout,MiniMcMk,ReadAll"
    , "","","",kFALSE},
-  {"RC----------","-----------","-----------","------------------------------------------","","","",kFALSE},
+  {"RC", "-----------","-----------","------------------------------------------","","","",kFALSE},
   {"RC.y2000" ,"","","p2000,VFMinuit,CMuDst,NosvtIT,NossdIT" ,"","","",kFALSE},
   {"RC.y2001" ,"","","P2001a,VFMinuit,ZDCvtx,CMuDst,NosvtIT,NossdIT" ,"","","",kFALSE},
   {"RC.pp.y2001" ,"","","pp2001a,VFMinuit,CMuDst,NossdIT" ,"","","",kFALSE},
@@ -216,11 +214,11 @@ Bfc_st BFC[] = {
    , "","","",kFALSE},
   {"RC.y2011.notof" ,"","","P2011a,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt,pmdReco,mtdDat"
    , "","","",kFALSE},
+  {"RC.pp.y2012" ,"","","pp2012a,VFPPVnoCTB,beamline,BEmcChkStat,btof,Corr4,OSpaceZ2,OGridLeak3D,"
+   "-hitfilt,mtdDat,fmsDat", "","","",kFALSE},
   {"RC.y2012" ,"","","P2012a,BEmcChkStat,btof,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt,mtdDat,fmsDat"
    , "","","",kFALSE},
   {"RC.y2012.notof" ,"","","P2012a,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt", "","","",kFALSE},
-  {"RC.pp.y2012" ,"","","pp2012a,VFPPVnoCTB,beamline,BEmcChkStat,btof,Corr4,OSpaceZ2,OGridLeak3D,"
-   "-hitfilt,mtdDat,fmsDat", "","","",kFALSE},
   {"RC.pp.y2012.notof","","","pp2012a,VFPPVnoCTB,beamline,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,"
    "-hitfilt", "","","",kFALSE},
   {"RC.pp.y2012.notofMin","","","pp2012a,VFMinuit,beamline,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D"
@@ -236,7 +234,7 @@ Bfc_st BFC[] = {
    ",-hitfilt", "","","",kFALSE},
   {"RC.pp.y2012b.notofMin","","","pp2012b,VFMinuit,beamline,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D"
    ",-hitfilt", "","","",kFALSE},
-  {"MC nightlies and Eval","--","-----------","------------------------------------------","","","",kFALSE},
+  {"MC nightlies and Eval","-----------","-----------","---------------------------------","","","",kFALSE},
   {"test_MC.stan.y2000","","","MC.y2000,Sti,fzin,MiniMcMk","",""
    ,"/star/rcf/simu/cocktail/hadronic/default/standard/year_1h/half_field/hadronic_on/Gstardata/"
    "hc_standard.40_evts.fz", kFALSE},
@@ -674,6 +672,13 @@ Bfc_st BFC[] = {
    , "/star/rcf/test/daq/2012/082/st_physics_13082004_raw_1020004.daq",kFALSE},
   {"eval_Stv.RC.UU193.Stv.y2012","","","RC.y2012b.notof,Stv","",""
    , "/star/rcf/test/daq/2012/115/st_physics_13115004_raw_2010002.daq",kFALSE},
+  {"Laser Calib chains","------------","-----------","-----------------------------------","","","",kFALSE},
+  {"LanaDV","","","MakeEvent,trgd,in,tpc_daq,tpcI,fcf,LaserIT,VFMinuit,Lana,Analysis,Corr4,NosvtIT,NossdIT",
+   "","" ,"get LDV",kFALSE},
+  {"LanaDVtpx","","","MakeEvent,trgd,in,tpx,TpcHitMover,LaserIT,VFMinuit,Lana,Analysis,Corr4,NosvtIT,NossdIT",
+   "","" ,"get LDV with TPX",kFALSE},
+  {"LaserDV.Chain","","","in,LaserCal,fcf,TpcHitMover,OGridLeak3D,OShortR,OSpaceZ2","","","get LDV",kFALSE},
+  {"Basic chains      ","------------","-----------","-----------------------------------","","","",kFALSE},
   {"doEvents" ,"" ,"","in,StEvent,analysis,NoDb" ,"","","",kFALSE},
   {"MakeMuDst","","","in,StEvent,CMuDST,Tree,nodefault,NoHistos,ReadAll","","" ,"StEvent => MuDst",kFALSE},
   {"drawDst" ,"" ,"","in,ry1h,globT,SCL,geant,display,NoDb,TbUtil" ,"","","",kFALSE},
@@ -1262,6 +1267,7 @@ Bfc_st BFC[] = {
   {"fgtDat" ,"","", "event,fgtdb","StFgtRawMaker","StFgtRawMaker", "FGT Data reader",kFALSE},
   {"fgtAtoC" ,"","", "fgtdb", "StFgtA2CMaker","StFgtA2CMaker", "FGT ADC to Charge maker",kFALSE},
   {"fgtClu" ,"","", "fgtutil", "StFgtClusterMaker","StFgtClusterMaker", "FGT cluster maker",kFALSE},
+  {"fgtPoint" ,"","", "event", "StFgtPointMaker", "StFgtPointMaker", "Creates FGT points",kFALSE},
   {"genvtx","","","ctf_T,EEmcUtil","StGenericVertexMaker"
    ,"ctf,St_ctf,St_ctf_Maker,Minuit,StGenericVertexMakerNoSti"
    , "Generic Vertex Finder library (default is MinuitVertexFinder)",kFALSE},
@@ -1429,8 +1435,6 @@ Bfc_st BFC[] = {
   {"NoDefault" ,"" ,"","" ,"","","No Default consistency check",kFALSE},
   {"Notpc_daq" ,"" ,"","-tpc_daq" ,"","","No tpc_daq",kFALSE},
   {"analysis" ,"","","StEvent" ,"StAnalysisMaker","StAnalysisMaker","Example of Analysis",kFALSE},
-  {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
-  {"Aliased     ","time stamps","-----------","------------------------------------------","","","",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE}
 };
 // ITTF Chain will be put here. Option list starting from minimalistic requirements
@@ -1446,10 +1450,10 @@ Bfc_st BFC[] = {
   {"RY2008","","","db,detDb,NosvtIT,NossdIT" ,"","","y2008 for dAu run",kFALSE},
   {"RY2009","","","db,detDb,NosvtIT,NossdIT" ,"","","y2009 for p+p run",kFALSE},
   {"ForceGeometry","","","","","", "Force geometry to overwrite the geometry coming from fz-file", kFALSE},
+  {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
+  {"Valid Db    ","-----------","-----------","------------------------------------------","","","",kFALSE},
+  {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"NoDb" ,"" ,"","-db,-tpcDb,-magF" ,"","","Take out Db from Chain",kFALSE},
-  {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
-  {"Valid Db    ","Versions   ","-----------","------------------------------------------","","","",kFALSE},
-  {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"DbV" ,"" ,"","db,ry1h" ,"","","19940614/0 Db Version for none",kFALSE},
   {"DbV0614" ,"" ,"","db,ry1h" ,"","","20000614/0 Db Version for p00hd",kFALSE},
   {"DbV0624" ,"" ,"","db,ry1h" ,"","","20000624/0 Db Version for p00hd_1",kFALSE},
@@ -1461,6 +1465,9 @@ Bfc_st BFC[] = {
   {"DbV1007" ,"" ,"","db,ry1h" ,"","", "20011007/0 Db Version for p01hi",kFALSE},
   {"DbV1107" ,"" ,"","db,ry1h" ,"","", "20011107/0 Db Version for pass1 p01gk",kFALSE},
   {"DbV1211" ,"" ,"","db,ry1h" ,"","", "20011211/0 Db Version for prod p01gl",kFALSE},
+  {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
+  {"Geometry    ","-----------","-----------","------------------------------------------","","","",kFALSE},
+  {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"AgML" ,"" ,"","-Agi,-VmcGeo","","StarAgmlLib,StarGeometry,Geometry"
    , "Alias VmcGeometry to AgMLGeometry",kFALSE},
   {"Agi" ,"" ,"","-AgML,-VmcGeo","","","Alias VmcGeometry to AgiGeometry (gstar original geometry)",kFALSE},
@@ -1477,12 +1484,7 @@ Bfc_st BFC[] = {
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"C H A I N S ","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
-  {"Calibration chains","------------","-----------","-----------------------------------","","","",kFALSE},
-  {"LanaDV","","","MakeEvent,trgd,in,tpc_daq,tpcI,fcf,LaserIT,VFMinuit,Lana,Analysis,Corr4,NosvtIT,NossdIT",
-   "","" ,"get LDV",kFALSE},
-  {"LanaDVtpx","","","MakeEvent,trgd,in,tpx,TpcHitMover,LaserIT,VFMinuit,Lana,Analysis,Corr4,NosvtIT,NossdIT",
-   "","" ,"get LDV with TPX",kFALSE},
-  {"LaserDV.Chain","","","in,LaserCal,fcf,TpcHitMover,OGridLeak3D,OShortR,OSpaceZ2","","","get LDV",kFALSE},
+  {"Composite chains  ","------------","-----------","-----------------------------------","","","",kFALSE},
   {"Test.default.ITTF","","","TpcRS,Simu,sss,svt,ssd,fss,bbcSim,IdTruth,MakeEvent,genvtx,"
    "miniMcMk,McAna,Test.reco.ITTF,CMuDst" ,"","","",kFALSE},
   {"Test.default.y2005g.ITTF","","","Test.default.ITTF,sdt20050130,noSimuDb" ,"","","",kFALSE},
@@ -1522,7 +1524,7 @@ Bfc_st BFC[] = {
    "SvtCL,tpc_T,globT,tls,db,tpcDB,svtDb,svtIT,ssdIT,ITTF,Idst,event,analysis,EventQA,tags,"
    "EvOut,StarMagField,FieldOn,IAna,CMuDst" ,"","","",kFALSE},
   {"nightly test (dev) chains","-----------","-----------","----------------------------","","","", kFALSE},
-  {"MC----------","-----------","-----------","------------------------------------------","","","",kFALSE},
+  {"MC          ","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"MC.y2000" ,"","","trs,rrs,y1h,Idst,rich,IAna,l0,tpcI,tcl,NosvtIT,NossdIT,"
    "-Kink2,VFMinuit,geant,evout,IdTruth,tags,GeantOut,big" ,"","","",kFALSE},
   {"MC.y2001" ,"","","trs,fss,rrs,y2001n,Idst,rich,IAna,l0,tpcI,tcl,ftpc,-Kink2,"
@@ -1586,7 +1588,7 @@ Bfc_st BFC[] = {
   {"MC.y2012.eval" ,"","","in,y2012,FieldOn,ReverseField,Idst,BAna,l0,ftpcT,fpt,NoSsdIt,NoSvtIt"
    ",VFMinuit,tpcDB,MakeEvent,IdTruth,tags,bbcsim,emcY2,EEfs,evout,big,McEvout,MiniMcMk,ReadAll"
    , "","","",kFALSE},
-  {"RC----------","-----------","-----------","------------------------------------------","","","",kFALSE},
+  {"RC", "-----------","-----------","------------------------------------------","","","",kFALSE},
   {"RC.y2000" ,"","","p2000,VFMinuit,CMuDst,NosvtIT,NossdIT" ,"","","",kFALSE},
   {"RC.y2001" ,"","","P2001a,VFMinuit,ZDCvtx,CMuDst,NosvtIT,NossdIT" ,"","","",kFALSE},
   {"RC.pp.y2001" ,"","","pp2001a,VFMinuit,CMuDst,NossdIT" ,"","","",kFALSE},
@@ -1628,11 +1630,11 @@ Bfc_st BFC[] = {
    , "","","",kFALSE},
   {"RC.y2011.notof" ,"","","P2011a,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt,pmdReco,mtdDat"
    , "","","",kFALSE},
+  {"RC.pp.y2012" ,"","","pp2012a,VFPPVnoCTB,beamline,BEmcChkStat,btof,Corr4,OSpaceZ2,OGridLeak3D,"
+   "-hitfilt,mtdDat,fmsDat", "","","",kFALSE},
   {"RC.y2012" ,"","","P2012a,BEmcChkStat,btof,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt,mtdDat,fmsDat"
    , "","","",kFALSE},
   {"RC.y2012.notof" ,"","","P2012a,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt", "","","",kFALSE},
-  {"RC.pp.y2012" ,"","","pp2012a,VFPPVnoCTB,beamline,BEmcChkStat,btof,Corr4,OSpaceZ2,OGridLeak3D,"
-   "-hitfilt,mtdDat,fmsDat", "","","",kFALSE},
   {"RC.pp.y2012.notof","","","pp2012a,VFPPVnoCTB,beamline,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,"
    "-hitfilt", "","","",kFALSE},
   {"RC.pp.y2012.notofMin","","","pp2012a,VFMinuit,beamline,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D"
@@ -1648,7 +1650,7 @@ Bfc_st BFC[] = {
    ",-hitfilt", "","","",kFALSE},
   {"RC.pp.y2012b.notofMin","","","pp2012b,VFMinuit,beamline,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D"
    ",-hitfilt", "","","",kFALSE},
-  {"MC nightlies and Eval","--","-----------","------------------------------------------","","","",kFALSE},
+  {"MC nightlies and Eval","-----------","-----------","---------------------------------","","","",kFALSE},
   {"test_MC.stan.y2000","","","MC.y2000,Sti,fzin,MiniMcMk","",""
    ,"/star/rcf/simu/cocktail/hadronic/default/standard/year_1h/half_field/hadronic_on/Gstardata/"
    "hc_standard.40_evts.fz", kFALSE},
@@ -2086,6 +2088,13 @@ Bfc_st BFC[] = {
    , "/star/rcf/test/daq/2012/082/st_physics_13082004_raw_1020004.daq",kFALSE},
   {"eval_Stv.RC.UU193.Stv.y2012","","","RC.y2012b.notof,Stv","",""
    , "/star/rcf/test/daq/2012/115/st_physics_13115004_raw_2010002.daq",kFALSE},
+  {"Laser Calib chains","------------","-----------","-----------------------------------","","","",kFALSE},
+  {"LanaDV","","","MakeEvent,trgd,in,tpc_daq,tpcI,fcf,LaserIT,VFMinuit,Lana,Analysis,Corr4,NosvtIT,NossdIT",
+   "","" ,"get LDV",kFALSE},
+  {"LanaDVtpx","","","MakeEvent,trgd,in,tpx,TpcHitMover,LaserIT,VFMinuit,Lana,Analysis,Corr4,NosvtIT,NossdIT",
+   "","" ,"get LDV with TPX",kFALSE},
+  {"LaserDV.Chain","","","in,LaserCal,fcf,TpcHitMover,OGridLeak3D,OShortR,OSpaceZ2","","","get LDV",kFALSE},
+  {"Basic chains      ","------------","-----------","-----------------------------------","","","",kFALSE},
   {"doEvents" ,"" ,"","in,StEvent,analysis,NoDb" ,"","","",kFALSE},
   {"MakeMuDst","","","in,StEvent,CMuDST,Tree,nodefault,NoHistos,ReadAll","","" ,"StEvent => MuDst",kFALSE},
   {"drawDst" ,"" ,"","in,ry1h,globT,SCL,geant,display,NoDb,TbUtil" ,"","","",kFALSE},
@@ -2674,6 +2683,7 @@ Bfc_st BFC[] = {
   {"fgtDat" ,"","", "event,fgtdb","StFgtRawMaker","StFgtRawMaker", "FGT Data reader",kFALSE},
   {"fgtAtoC" ,"","", "fgtdb", "StFgtA2CMaker","StFgtA2CMaker", "FGT ADC to Charge maker",kFALSE},
   {"fgtClu" ,"","", "fgtutil", "StFgtClusterMaker","StFgtClusterMaker", "FGT cluster maker",kFALSE},
+  {"fgtPoint" ,"","", "event", "StFgtPointMaker", "StFgtPointMaker", "Creates FGT points",kFALSE},
   {"genvtx","","","ctf_T,EEmcUtil","StGenericVertexMaker"
    ,"ctf,St_ctf,St_ctf_Maker,Minuit,StGenericVertexMakerNoSti"
    , "Generic Vertex Finder library (default is MinuitVertexFinder)",kFALSE},
@@ -2841,8 +2851,6 @@ Bfc_st BFC[] = {
   {"NoDefault" ,"" ,"","" ,"","","No Default consistency check",kFALSE},
   {"Notpc_daq" ,"" ,"","-tpc_daq" ,"","","No tpc_daq",kFALSE},
   {"analysis" ,"","","StEvent" ,"StAnalysisMaker","StAnalysisMaker","Example of Analysis",kFALSE},
-  {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
-  {"Aliased     ","time stamps","-----------","------------------------------------------","","","",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE}
 };
 #endif
@@ -3141,7 +3149,7 @@ Int_t StBFChain::Instantiate()
       if (strlen(fBFC[i].Name) > 0) mk = New(fBFC[i].Maker,fBFC[i].Name);
       else                          mk = New(fBFC[i].Maker);
       if (! mk) {
-	LOG_FATAL  << Form("StBFChain::Instantiate() problem with instatiation %s",fBFC[i].Maker) << endm;
+	LOG_FATAL  << Form("StBFChain::Instantiate() problem with instantiation Maker=%s Name=%s",fBFC[i].Maker,fBFC[i].Name) << endm;
 	assert(mk);
       }
     }
