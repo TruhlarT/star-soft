@@ -80,7 +80,7 @@ use RunDAQ;
 use CRSQueues;
 
 
-$ThisYear = 2012;                 # Block to consider. Completely artificial
+$ThisYear = 2013;                 # Block to consider. Completely artificial
                                   # and used to preserve older options in if
                                   # block along with current option.
 $HPSS     = 1;                    # turn to 0 for UNIX staging only
@@ -465,8 +465,10 @@ if ( $ThisYear == 2005 ){
     $SCALIB{"PPPP"}      = "OptLaser";
 
 
-
-} elsif ( $ThisYear == 2011 || $ThisYear == 2012 ) {
+    # group years that were alike
+} elsif ( $ThisYear == 2011 || 
+	  $ThisYear == 2012 || 
+	  $ThisYear == 2013 ) {
     $TREEMODE= 1;
     $LIB     = "dev";
 
@@ -543,12 +545,17 @@ if ( $ThisYear == 2005 ){
     if ( $ThisYear == 2011 ){
 	$DCHAIN{"AuAu"} = "P2011a,mtdDat,pmdReco,btof,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
 	$DCHAIN{"PPPP"} = "pp2011a,btof,VFPPVnoCTB,beamline,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
-    } else {
+    } elsif ( $ThisYear == 2012 ) {
 	# QAalltrigs
 	$DCHAIN{"AuAu"} = "P2012a,AgML,mtdDat,btof,fmsDat,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
 	$DCHAIN{"PPPP"} = "pp2012a,AgML,mtdDat,btof,fmsDat,VFPPVnoCTB,beamline,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
 	$DCHAIN{"UU"}   = $DCHAIN{"AuAu"};
 	$DCHAIN{"CuAu"} = $DCHAIN{"AuAu"};
+    } else {
+	# 2013
+	$DCHAIN{"PPPP"} = 
+	    "pp2013a,mtdDat,btof,fmsDat,fgtDat,fgtPoint,VFPPVnoCTB,beamline,BEmcChkStat,".
+	    "Corr4,OSpaceZ2,OGridLeak3D,QAalltrigs,-hitfilt";
     }
 
     # allow chain switch on condition matching
