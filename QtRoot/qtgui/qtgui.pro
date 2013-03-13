@@ -237,7 +237,7 @@ QT +=  qt3support
 
 QT +=
 
-linux-g++-32 {   
+linux-g++* {   
   system( g++ --version | grep " 4\.3\.2 " > /dev/null ) {
      message ( Patch for gcc 4.3.2 bug --  L i n u x  -- linux-g++-32 )    
      QMAKE_CXXFLAGS *= -fno-inline   
