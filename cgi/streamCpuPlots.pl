@@ -71,6 +71,7 @@ my $pcpu;
 my $prtime;
 my $pstream;
 my $jbTottime;
+my $jbextime;
 
 my $pryear = "2012";
 
@@ -79,6 +80,7 @@ my %nstr = {};
 my %arcpu = {};
 my %artrk = {};
 my %arjbtime = {};
+
 
 my $ptrack;
 my @arupsilon = ();
@@ -1217,13 +1219,13 @@ END
 
        if( $qperiod eq "week") {
 
-	$ylabel = "Total time jobs stay on the farm in hours";
-	$gtitle = "Total time jobs stay on the farm (finishing per hour) for $qperiod period ";
+	$ylabel = "Average time jobs stay on the farm in hours";
+	$gtitle = "Average time jobs stay on the farm (finishing per hour) for $qperiod period ";
 
       }else{
 
-	$ylabel = "Total time jobs stay on the farm in hours ";
-	$gtitle = "Total time jobs stay on the farm (finishing per day) for $qperiod period ";
+	$ylabel = "Average time jobs stay on the farm in hours ";
+	$gtitle = "Average time jobs stay on the farm (finishing per day) for $qperiod period ";
      }
 
  @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd, \@jbcentralpro ) ;
