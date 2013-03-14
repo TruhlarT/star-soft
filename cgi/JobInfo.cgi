@@ -11,7 +11,8 @@
 #
 # This script is 'fed' by the ScanLog.pl script.
 #
-# Both were written by Nikita Soldatov, July 2001.
+# Both were written by Nikita Soldatov, July 2001
+# as a service task under the direction of J. Lauret.
 #
 #
 
@@ -421,7 +422,7 @@ if( ($ProdTag) || ($XTrigger) ){
 # =====================================================	
 
 print
-    "<font size=-1><b><i>Written by <A HREF=\"mailto:nikita\@rcf.rhic.bnl.gov\">Nikita Soldatov</A> </i></b></font>",
+    "<font size=-1><b><i>Written by Nikita Soldatov (2001 service task under J. Lauret) </i></b></font>",
     end_html;
 
 $dbh1->disconnect();
