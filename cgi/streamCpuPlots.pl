@@ -21,8 +21,8 @@ use Mysql;
 use Class::Struct;
 
 
-#$dbhost="fc2.star.bnl.gov:3386";
-$dbhost="duvall.star.bnl.gov";
+$dbhost="fc2.star.bnl.gov:3386";
+#$dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
 $dbpass="";
 $dbname="operation";
@@ -271,7 +271,7 @@ END
 
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Stream jobs  values: <br> CPU, rtime/CPU, <br>average time of jobs execution ,<br> avg number of tracks in one event per jobs,<br> stream jobs ratios by finish time,<br>number of stream jobs</h3>";
+    print "<h3 align=center> Stream jobs  values: <br> CPU, rtime/CPU, <br>average time of jobs execution ,<br> avg number of tracks per event,<br> stream job ratios by finish time,<br>number of stream jobs</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
                                   -values=>\@arrate,
