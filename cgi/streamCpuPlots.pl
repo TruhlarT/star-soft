@@ -271,7 +271,7 @@ END
 
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Stream jobs  values: <br> CPU, rtime/CPU, <br>average jobs execution time  ,<br> avg number of tracks in jobs,<br> stream jobs ratios by finish time,<br>number of stream jobs</h3>";
+    print "<h3 align=center> Stream jobs  values: <br> CPU, rtime/CPU, <br>average time of jobs execution ,<br> avg number of tracks in jobs,<br> stream jobs ratios by finish time,<br>number of stream jobs</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
                                   -values=>\@arrate,
@@ -1251,7 +1251,7 @@ END
 
 #  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpatomcules, \@cpmtd, \@cpcentralpro ) ;
 
-  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpfms, \@cpfgt, \@cpdaqtenk, \@cpupc, \@cpatomcules, \@cpmtd, \@cpcentralpro, ) ;
+  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpfms, \@cpfgt, \@cpdaqtenk, \@cpupc, \@cpatomcules, \@cpmtd, \@cpcentralpro ) ;
 
 
        $max_y = $maxcpu + 0.2*$maxcpu;
