@@ -114,8 +114,8 @@ my @nstpmdftp = ();
 my @nstupsilon = ();
 my @numstream  = ();
 my @nstcentralpro  = ();
-my @nsfgt  = ();
-my @nsdaqtenk  = ();
+my @nstfgt  = ();
+my @nstdaqtenk  = ();
 
 my @rtgamma = ();
 my @rtmtd = ();
