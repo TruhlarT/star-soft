@@ -58,7 +58,7 @@ my @prodyear = ("2010","2011","2012","2013");
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("cpu","rtime/cpu","jobtottime","ntracks","stream_rate","njobs" );
+my @arrate = ("cpu","rtime/cpu","exectime","ntracks","stream_rate","njobs" );
 
 my @arrprod = ();
 my @arstream = ();
@@ -988,7 +988,7 @@ END
 
 #########################################  jobs total time on the farm
 
-   }elsif( $srate eq "jobtottime" ) { 
+   }elsif( $srate eq "exectime" ) { 
 
  %arjbtime = {};
  %nstr = {};
@@ -1017,7 +1017,7 @@ END
 
      if( $qperiod eq "week") {
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, jobtotalTime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND jobtotalTime > 0.1  AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 ";
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, exectime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND exectime > 0.1  AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -1033,7 +1033,7 @@ END
                 # print "$fname = $fvalue\n" ;
 
                 ($$fObjAdr)->vday($fvalue)    if( $fname eq 'PDATE');
-                ($$fObjAdr)->jbtot($fvalue)   if( $fname eq 'jobtotalTime');
+                ($$fObjAdr)->jbtot($fvalue)   if( $fname eq 'exectime');
                 ($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
 
             }
@@ -1043,7 +1043,7 @@ END
 
      }else{
 
-   $sql="SELECT runDay, jobtotalTime, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND  jobtotalTime > 0.1 AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 ";
+   $sql="SELECT runDay, exectime, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND  exectime > 0.1 AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -1059,7 +1059,7 @@ END
                 # print "$fname = $fvalue\n" ;
 
                 ($$fObjAdr)->vday($fvalue)    if( $fname eq 'runDay');
-                ($$fObjAdr)->jbtot($fvalue)   if( $fname eq 'jobtotalTime');
+                ($$fObjAdr)->jbtot($fvalue)   if( $fname eq 'exectime');
                 ($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
 
             }
@@ -1213,19 +1213,19 @@ END
 
         $max_y = 1.2;
 
-    }elsif(  $srate eq "jobtottime" ) {
+    }elsif(  $srate eq "exectime" ) {
 
     @data = ();
 
        if( $qperiod eq "week") {
 
-	$ylabel = "Average time jobs stay on the farm in hours";
-	$gtitle = "Average time jobs stay on the farm (finishing per hour) for $qperiod period ";
+	$ylabel = "Average time of jobs execution on the farm in hours";
+	$gtitle = "Average time of jobs execution on the farm (finishing per hour) for $qperiod period ";
 
       }else{
 
-	$ylabel = "Average time jobs stay on the farm in hours ";
-	$gtitle = "Average time jobs stay on the farm (finishing per day) for $qperiod period ";
+	$ylabel = "Average time of jobs execution on the farm in hours ";
+	$gtitle = "Average time jobs execution on the farm (finishing per day) for $qperiod period ";
      }
 
  @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd, \@jbcentralpro ) ;
