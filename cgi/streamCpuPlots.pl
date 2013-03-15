@@ -258,7 +258,7 @@ END
 
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Stream jobs  values: <br> CPU, rtime/CPU, <br>jobs total time on the farm,<br> avg number of tracks in jobs,<br> stream jobs ratios by finish time,<br>number of stream jobs</h3>";
+    print "<h3 align=center> Stream jobs  values: <br> CPU, rtime/CPU, <br>average jobs execution time  ,<br> avg number of tracks in jobs,<br> stream jobs ratios by finish time,<br>number of stream jobs</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
                                   -values=>\@arrate,
@@ -1219,13 +1219,13 @@ END
 
        if( $qperiod eq "week") {
 
-	$ylabel = "Average time of jobs execution on the farm in hours";
-	$gtitle = "Average time of jobs execution on the farm (finishing per hour) for $qperiod period ";
+	$ylabel = "Average time of jobs execution finished per hours";
+	$gtitle = "Average time of jobs execution finishing per hour for $qperiod period ";
 
       }else{
 
-	$ylabel = "Average time of jobs execution on the farm in hours ";
-	$gtitle = "Average time jobs execution on the farm (finishing per day) for $qperiod period ";
+	$ylabel = "Average time of jobs execution finished per day ";
+	$gtitle = "Average time of jobs execution finishing per day for $qperiod period ";
      }
 
  @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd, \@jbcentralpro ) ;
