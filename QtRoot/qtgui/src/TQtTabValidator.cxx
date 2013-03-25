@@ -3,7 +3,7 @@
 #include <string>
 #include <sstream>
 /****************************************************************************
-** $Id: TQtTabValidator.cxx,v 1.7 2013/01/14 22:59:39 fisyak Exp $
+** $Id: TQtTabValidator.cxx,v 1.8 2013/03/25 23:02:11 perev Exp $
 **
 ** Copyright (C) 2003 by Valeri Fine.  All rights reserved.
 **
@@ -24,7 +24,7 @@ QValidator::State TQtTabValidator::validate(QString &input, int &pos) const {
    char buffer[2048];
    qstrcpy(buffer,(const char *)input);
    // printf("%d %s \n",pos,buffer); 
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,34,4)
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,34,3)
    fgTabCom->Hook(buffer, &pos);
 #else
    std::stringstream sstr;
