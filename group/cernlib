@@ -1,7 +1,7 @@
 #!/bin/sh
 # **********************************************************************
 # * @(#) cernlib
-# * @(#) $Header: /scratch/smirnovd//star-cvs-local/soft/group/cernlib,v 1.6 2013/02/15 22:34:46 jeromel Exp $
+# * @(#) $Header: /scratch/smirnovd//star-cvs-local/soft/group/cernlib,v 1.7 2013/03/25 19:48:13 jeromel Exp $
 # *                                                                    *
 # * Attachment of CERN Libraries for link step                         *
 # *                                                                    *
@@ -9,7 +9,7 @@
 # * Change history is in CVS log files and in source 1.27 ( and older)
 # **********************************************************************
 
-source $GROUP_DIR/unix_programs.csh
+#source $GROUP_DIR/unix_programs.csh
 
   SHOPT="G:Psuv:"
 #SEQ,GETOPTD.
