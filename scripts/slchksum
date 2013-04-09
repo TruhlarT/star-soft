@@ -16,7 +16,7 @@
 #  -s                 use source files instead of object files
 #
 #  -d                 enable full debugging info (-da -dd -dm)
-#  -da                shows debugging info for addiitonal files
+#  -da                shows debugging info for additional files
 #  -dm                shows debugging info for missing files 
 #  -dd                shows debugging info for checksum diff 
 
@@ -140,6 +140,7 @@ foreach $file (@sources){
     if ( $TAKES ){
 	next if ( $file =~ m/.*~$/);
 	next if ( $file =~ m/\/CVS\//);
+	next if ( $file =~ m/\/\.consign.*/);
     }
 
     $digest = &GetMD5($file);
