@@ -29,6 +29,7 @@
 #   inter      Builds as per the default target but do not perform
 #              post compilation tasks (and do not send Email if
 #              failure) and do NOT perform cvs co either (-s -i)
+#   silent     Default mode + -s (no EMail at the end)
 #
 # Targets for Other platforms:
 #   Solaris    Ditto for Solaris (does cache cleaning)
@@ -246,11 +247,15 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		# ****** This is the default action *****
 	    case "inter":
 		# Do not checkout, do not perform post-compilation
-		$SCRIPTD/AutoBuild.pl -i -s >$HOME/log/AB-d-$DAY.log
+		$SCRIPTD/AutoBuild.pl -i -s    >$HOME/log/AB-d-$DAY.log
+		breaksw
+	    case "silent":
+		# same as default with -s
+		$SCRIPTD/AutoBuild.pl -s -u -R >$HOME/log/AB-$DAY.log
 		breaksw
 	    default
 		# Is update mode, not checkout
-		$SCRIPTD/AutoBuild.pl -u -R >$HOME/log/AB-$DAY.log
+		$SCRIPTD/AutoBuild.pl -u -R    >$HOME/log/AB-$DAY.log
 	    endsw
 	endif
 endif
