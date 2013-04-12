@@ -35,6 +35,7 @@ my $prepath;
 
 
 my @prod_set = (
+                "daq_sl302/year_2013/pp500_production_2013",
                 "daq_sl302/year_2012/UU_production_2012",
                 "daq_sl302/year_2012/cuAu_production_2012",
                 "daq_sl302/year_2012/pp500_production_2012",
