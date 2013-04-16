@@ -1369,7 +1369,9 @@ sub  updateJSTable {
 
  $nevent_vtx = 0;
 
-#  if($fl_log eq "/star/rcf/test/dev/trs_sl302.ittf/Sun/year_2011/auau200_central/rcf11023_2060_25evts.log" ) {
+# if($fl_log eq "/star/rcf/test/dev/daq_sl302.ittf/Mon/year_2011/AuAu200_embed/st_physics_adc_12127010_raw_2500002.log" ) {
+
+# print $fl_log, "\n";
 
 # $nevent_vtx = `grep '#V\[  0\]' $fl_log | wc -l` ;
 
@@ -1569,7 +1571,7 @@ $jrun = "Run not completed";
         } 
        }
 
-             if ($vrank[0] > 0.00000001) {
+             if ($vrank[0] > 0.00000001 and $embflag == 0 ) {
               $numevt_vtx++;
               $no_prtracks_1vtx = $no_prtracks[0];
               $no_prtrck_nfit15_1vtx  = $no_prtrck_nfit15[0]; 
@@ -1578,6 +1580,17 @@ $jrun = "Run not completed";
               $tot_prtrck_nfit15 += $no_prtrck_nfit15[0];
               $tot_prtracks_1vtx += $no_prtracks_1vtx;
               $tot_prtrck_nfit15_1vtx += $no_prtrck_nfit15_1vtx;                  
+
+           }elsif($embflag == 1 and $vrank[0] == -5 ) {
+
+              $numevt_vtx++;
+              $no_prtracks_1vtx = $no_prtracks[0];
+              $no_prtrck_nfit15_1vtx  = $no_prtrck_nfit15[0]; 
+
+              $tot_prtracks += $no_prtracks[0];
+              $tot_prtrck_nfit15 += $no_prtrck_nfit15[0];
+              $tot_prtracks_1vtx += $no_prtracks_1vtx;
+              $tot_prtrck_nfit15_1vtx += $no_prtrck_nfit15_1vtx;      
 
            }
              if ($npr >= 1 ) {
@@ -1755,6 +1768,7 @@ $jrun = "Run not completed";
 #  } # close log file
 
 }
+
 
 ######################
 sub StDbTJobsConnect {
