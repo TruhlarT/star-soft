@@ -554,7 +554,7 @@ if ( $ThisYear == 2005 ){
     } else {
 	# 2013
 	$DCHAIN{"PPPP"} = 
-	    "pp2013a,mtdDat,btof,fmsDat,fgt,fgtPoint,VFPPVnoCTB,beamline,BEmcChkStat,".
+	    "pp2013a,mtd,btof,fmsDat,fgt,fgtPoint,VFPPVnoCTB,beamline,BEmcChkStat,".
 	    "Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
     }
 
