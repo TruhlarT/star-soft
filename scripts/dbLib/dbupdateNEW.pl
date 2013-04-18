@@ -1410,7 +1410,18 @@ $jrun = "Run not completed";
          }
       }
 
-             if ($vrank[0] > 0.00000001) {
+             if ($embflag == 0  and $vrank[0] > 0.00000001) {
+              $numevt_vtx++;
+              $no_prtracks_1vtx = $no_prtracks[0];
+              $no_prtrck_nfit15_1vtx  = $no_prtrck_nfit15[0];
+
+              $tot_prtracks += $no_prtracks[0];
+              $tot_prtrck_nfit15 += $no_prtrck_nfit15[0];
+              $tot_prtracks_1vtx += $no_prtracks_1vtx;
+              $tot_prtrck_nfit15_1vtx += $no_prtrck_nfit15_1vtx;
+
+           }elsif($embflag == 1 and $vrank[0] == -5 ) {
+
               $numevt_vtx++;
               $no_prtracks_1vtx = $no_prtracks[0];
               $no_prtrck_nfit15_1vtx  = $no_prtrck_nfit15[0];
