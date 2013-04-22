@@ -1448,11 +1448,12 @@ $jrun = "Run not completed";
      elsif ($line =~ /segmentation violation/ or $line =~ /Segmentation violation/) {
            $Err_messg = "segmentation violation";
 
-   }elsif ($line =~ /segmentation fault/) {
+   }elsif ($line =~ /segmentation fault/ or $line =~ /Segmentation fault/) {
           $Err_messg = "segmentation fault";
+
    }elsif ($line =~ /Stale NFS file handle/) {
-  
-       $Err_messg = "Stale NFS file handle";
+         $Err_messg = "Stale NFS file handle";
+
    }elsif ( $line =~ /Assertion/ & $line =~ /failed/)  {
          $Err_messg = "Assertion failed";
 
@@ -1466,7 +1467,6 @@ $jrun = "Run not completed";
              $Err_messg = "Abort";
 
    }elsif ($line =~ /FATAL/ and $line =~ /floating point exception/) {
-
          $Err_messg = "Floating point exception";
 
     }elsif ($line =~ /glibc detected/)  {
