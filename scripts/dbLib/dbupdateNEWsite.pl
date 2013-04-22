@@ -1018,8 +1018,9 @@ $jrun = "Run not completed";
           $Err_messg = "Break bus error";
 
 #  check if job crashed due to segmentation violation
-     }elsif ($line =~ /segmentation violation/) {
+     }elsif ($line =~ /segmentation violation/ or $line =~ /Segmentation violation/) {
            $Err_messg = "segmentation violation";
+
      }elsif ($line =~ /segmentation fault/) {
          $Err_messg = "segmentation fault";
      }elsif ($line =~ /Stale NFS file handle/) {
