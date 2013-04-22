@@ -1043,6 +1043,9 @@ $jrun = "Run not completed";
 
          $Err_messg = "Floating point exception";
 
+   }elsif ($line =~ /glibc detected/)  {
+             $Err_messg = "glibc detected";
+
 
      }elsif ($line =~ /Catch exception FATAL/) {
 

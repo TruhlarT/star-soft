@@ -1465,15 +1465,18 @@ $jrun = "Run not completed";
    }elsif ($line =~ /Abort/)  {
              $Err_messg = "Abort";
 
-   }elsif ($line =~ /Catch exception FATAL/) {
-
-         $Err_messg = "FATAL";
-
    }elsif ($line =~ /FATAL/ and $line =~ /floating point exception/) {
 
          $Err_messg = "Floating point exception";
 
-   }elsif ($line =~ /Fatal in <operator delete>/) {
+    }elsif ($line =~ /glibc detected/)  {
+             $Err_messg = "glibc detected";
+
+   }elsif ($line =~ /Catch exception FATAL/) {
+
+         $Err_messg = "FATAL";
+
+  }elsif ($line =~ /Fatal in <operator delete>/) {
   
        $Err_messg = "Fatal in <operator delete>";   
    }elsif ($line =~ /Fatal in <operator new>/) {
