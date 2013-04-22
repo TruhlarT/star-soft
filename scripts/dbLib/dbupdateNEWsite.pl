@@ -1038,6 +1038,11 @@ $jrun = "Run not completed";
    }elsif ($line =~ /Abort/)  {
              $Err_messg = "Abort";
 
+  }elsif ($line =~ /FATAL/ and $line =~ /floating point exception/) {
+
+         $Err_messg = "Floating point exception";
+
+
      }elsif ($line =~ /Catch exception FATAL/) {
 
          $Err_messg = "FATAL";

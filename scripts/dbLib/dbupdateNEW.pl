@@ -1468,6 +1468,10 @@ $jrun = "Run not completed";
 
          $Err_messg = "FATAL";
 
+   }elsif ($line =~ /FATAL/ and $line =~ /floating point exception/) {
+
+         $Err_messg = "Floating point exception";
+
    }elsif ($line =~ /Fatal in <operator delete>/) {
   
        $Err_messg = "Fatal in <operator delete>";   

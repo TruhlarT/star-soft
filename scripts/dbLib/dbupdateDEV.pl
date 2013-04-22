@@ -90,6 +90,9 @@ my $thistime;
  
  ##### setup output directories for thisday
  
+# $testDay = "Fri";
+# $beforeDay = "Wed";
+
 
  for ($i = 0; $i < scalar(@node_dir); $i++) {
 
@@ -1630,6 +1633,10 @@ $jrun = "Run not completed";
   
          $Err_messg = "FATAL";
    
+   }elsif ($line =~ /FATAL/ and $line =~ /floating point exception/) {
+
+         $Err_messg = "Floating point exception";
+
    } elsif ($line =~ /Fatal in <operator delete>/) {
   
          $Err_messg = "Fatal in <operator delete>";   
@@ -1748,7 +1755,7 @@ $jrun = "Run not completed";
    } 
 
 
-#  print "Number of vertices = ", $no_prvertx,"   ", "Number of events ", $no_event,"  ",$EvCom,"  ",$nevent_vtx,"  ",$numevt_vtx, "  Average No vtx = ", $avr_prvertx,"   ","Avg no primary tracks   ", $avr_prtracks,"   ",$avr_prtrck_nfit15, "\n"; 
+  print "Number of vertices = ", $no_prvertx,"   ", "Number of events ", $no_event,"  ",$EvCom,"  ",$nevent_vtx,"  ",$numevt_vtx, "  Average No vtx = ", $avr_prvertx,"   ","Avg no primary tracks   ", $avr_prtracks,"   ",$avr_prtrck_nfit15, "\n"; 
 
     if ( defined $maker_size[0]) { 
     $memFst = $maker_size[0];
