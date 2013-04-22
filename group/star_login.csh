@@ -270,8 +270,13 @@ unset test2
 
 # Set default mask
 umask 022
+
 # Some systems the user doesn't own his tty device
-set ttydev=`tty`
+if ( -x /usr/bin/tty || -x /bin/tty ) then
+    set ttydev=`tty`
+else
+    set ttydev=""
+endif
 if ("$ttydev" != "") then
     /bin/chmod 622 $ttydev >& /dev/null
 endif
