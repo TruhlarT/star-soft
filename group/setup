@@ -226,7 +226,7 @@ switch ($pkg)
 	    unset x d
 	    if ( ! $?CERN ) then
 		# this can happen only when the full search path finds nothing
-		echo "Could not find a valid path for defining CERN, default to /cern"
+		if ( $?DECHO ) echo "Could not find a valid path for defining CERN, default to /cern"
 		setenv CERN /cern
 	    endif
         endif
@@ -250,6 +250,8 @@ switch ($pkg)
 		setenv CERN_LEVEL pro
 		setenv CERN_ROOT "$CERN/$CERN_LEVEL"
 	    endif
+	    # << ?? if I fix this endif bock, all goes to hell
+	    #    there is a missing if/endif sequence somewhere
 	    setenv CERN_ROOT $CERN/$CERN_LEVEL
 	endif
 	breaksw
@@ -293,7 +295,7 @@ switch ($pkg)
         if ("$TEST" == "") then
 	  set TEST=`/usr/bin/test -d /opt/gcc/$version && echo "/opt/gcc/$version"`
 	  if ( "$TEST" == "") then
-	    echo "There are no alternate installation of gcc with version $version in $OPTSTAR/alt nor /opt/gcc/"
+	    if ( $?DECHO ) echo "There are no alternate installation of gcc with version $version in $OPTSTAR/alt nor /opt/gcc/"
 	  else
 	    set BP=/opt/gcc/$version
 	  endif
@@ -423,6 +425,6 @@ switch ($pkg)
       setenv USE_KCC;  starver $STAR_LEVEL
       breaksw
     default:
-	echo "Setup for [$pkg] is not defined"
+	if ( $?DECHO ) echo "Setup for [$pkg] is not defined"
       breaksw
 endsw
