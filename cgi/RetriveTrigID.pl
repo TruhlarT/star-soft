@@ -76,7 +76,7 @@ $TrigDataT = "ProdTriggerSet";
  $nlist = 0;
 
 
-   $sql="SELECT distinct trigLabel, offlineTrgId, sum(Nevents) from ProdTriggerSet where trigSetName = '$qtrg' and prodTag = '$qprod' group by offlineTrgId ";
+   $sql="SELECT distinct trigLabel, offlineTrgId, sum(Nevents) from $TrigDataT where trigSetName = '$qtrg' and prodTag = '$qprod' group by offlineTrgId ";
 
            $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -107,7 +107,7 @@ END
  
 ##########
 
- }elsif($qflag eq "stream" ) {
+ }else {
 
 $TrigDataT = "ProdTriggers";
 
@@ -115,7 +115,7 @@ $TrigDataT = "ProdTriggers";
 
  $nlist = 0;
 
-  $sql="SELECT distinct streamName, trigLabel, offlineTrgId, sum(Nevents) from ProdTriggerSet where trigSetName = '$qtrg' and prodTag = '$qprod' group by offlineTrgId order by streamName, offlineTrgId ";
+  $sql="SELECT distinct  trigLabel, offlineTrgId, sum(Nevents) from $TrigDataT where trigSetName = '$qtrg' and prodTag = '$qprod' and streamName = '$qflag' group by offlineTrgId, offlineTrgId ";
 
            $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -136,7 +136,6 @@ $TrigDataT = "ProdTriggers";
 print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"#ffdc9f\">
-<td HEIGHT=10><h3>$streamn[$nlist]</h3></td>
 <td HEIGHT=10><h3>$trglable[$nlist]</h3></td>
 <td HEIGHT=10><h3>$trgid[$nlist]</h3></td>
 <td HEIGHT=10><h3>$nevents[$nlist]</h3></td>
@@ -185,12 +184,11 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\"> 
- <h2 ALIGN=CENTER> <B>Offline trigger ID summary for different streams <br> in <font color="blue">$qtrg </font> dataset and  <font color="blue">$qprod </font>production </B></h2>
+ <h2 ALIGN=CENTER> <B>Offline trigger ID summary for <font color="blue">$qflag</font> stream <br> in <font color="blue">$qtrg </font> dataset and  <font color="blue">$qprod </font>production </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=2 CELLSPACING=0.2 CELLPADDING=0.2 >
 <TR>
-<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Stream Name</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Trigger lable</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Offline trigger ID</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Number of Events</h3></B></TD>
