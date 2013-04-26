@@ -43,14 +43,18 @@ my @runevents = ();
 my @sumsize = ();
 my @datasize = ();
 my @filelst = (); 
-my $strline = 0;
-my $strname = 'n/a';
+my $strline = 'none';
+my @strname = ();
+my @streamname = ();
+
 my $nlist = 0;
 my $ssize = 0;
 my $dsize = 0;
 my @numfiles = ();
 
 my @arstream = ();
+my @prt = ();
+
 
 my $query = new CGI;
 
@@ -72,6 +76,10 @@ $arstream[0] = 0;
 $fileC->set_context("trgsetupname=$qtrg","production=$qprod","sname2=$strline","filetype=daq_reco_MuDst","sanity=1","storage=hpss","limit=0");
 
      $strname[$nlist] = $strline;
+     @prt = ();
+     @prt = split("_",$strline);
+     $streamname[$nlist] = $prt[1]; 
+    
      @runevents = ();
      $runevents[0] = 0;  
      @datasize = ();
@@ -101,6 +109,9 @@ $fileC->set_context("trgsetupname=$qtrg","production=$qprod","sname2=$strline","
 
    $numfiles[$nlist] = scalar(@filelst);
 
+
+  if($strname[$nlist] =~ /_adc_/ )  {
+
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"#ffdc9f\">
@@ -108,6 +119,20 @@ $fileC->set_context("trgsetupname=$qtrg","production=$qprod","sname2=$strline","
 <td HEIGHT=10><h3>$sumevt[$nlist]</h3></td>
 <td HEIGHT=10><h3>$sumsize[$nlist]</h3></td>
 <td HEIGHT=10><h3>$numfiles[$nlist]</h3></td>
+<td HEIGHT=10></td>
+</TR>
+END
+
+    }else{
+
+ print <<END;
+
+<TR ALIGN=CENTER HEIGHT=20 bgcolor=\"#ffdc9f\">
+<td HEIGHT=10><h3>$strname[$nlist]</h3></td>
+<td HEIGHT=10><h3>$sumevt[$nlist]</h3></td>
+<td HEIGHT=10><h3>$sumsize[$nlist]</h3></td>
+<td HEIGHT=10><h3>$numfiles[$nlist]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveTrigID.pl?rtrig=$qtrg;rprod=$qprod;rstream=$streamname[$nlist]">triggerID</h3></td>
 </TR>
 END
       $nlist++;
@@ -135,6 +160,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Number of Events</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Size (GB) of MuDst </h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Number of MuDst files </h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>TriggerID's summary </h3></B></TD>
 </TR> 
    </head>
     </body>
