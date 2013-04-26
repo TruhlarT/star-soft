@@ -110,7 +110,7 @@ $fileC->set_context("trgsetupname=$qtrg","production=$qprod","sname2=$strline","
    $numfiles[$nlist] = scalar(@filelst);
 
 
-  if($strname[$nlist] =~ /_adc_/ )  {
+  if($strname[$nlist] =~ /_adc/ )  {
 
  print <<END;
 
