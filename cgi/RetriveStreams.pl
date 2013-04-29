@@ -122,7 +122,7 @@ $fileC->set_context("trgsetupname=$qtrg","production=$qprod","sname2=$strline","
 <td HEIGHT=10><h3>$sumevt[$nlist]</h3></td>
 <td HEIGHT=10><h3>$sumsize[$nlist]</h3></td>
 <td HEIGHT=10><h3>$numfiles[$nlist]</h3></td>
-<td HEIGHT=10>added to $strmain</td>
+<td HEIGHT=10><h3>added to $strmain</h3></td>
 </TR>
 END
 
