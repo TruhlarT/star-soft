@@ -46,6 +46,7 @@ my @filelst = ();
 my $strline = 'none';
 my @strname = ();
 my @streamname = ();
+my $strmain;
 
 my $nlist = 0;
 my $ssize = 0;
@@ -112,6 +113,8 @@ $fileC->set_context("trgsetupname=$qtrg","production=$qprod","sname2=$strline","
 
   if($strname[$nlist] =~ /_adc/ )  {
 
+      $strmain = "st_".$streamname[$nlist];
+
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"#ffdc9f\">
@@ -119,7 +122,7 @@ $fileC->set_context("trgsetupname=$qtrg","production=$qprod","sname2=$strline","
 <td HEIGHT=10><h3>$sumevt[$nlist]</h3></td>
 <td HEIGHT=10><h3>$sumsize[$nlist]</h3></td>
 <td HEIGHT=10><h3>$numfiles[$nlist]</h3></td>
-<td HEIGHT=10></td>
+<td HEIGHT=10>added to $strmain</td>
 </TR>
 END
 
