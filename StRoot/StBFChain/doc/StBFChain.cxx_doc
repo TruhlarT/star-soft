@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.115 2013/04/11 20:56:05 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.116 2013/04/30 18:33:16 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -738,7 +738,7 @@ Bfc_st BFC[] = {
   {"Idst" ,"" ,"", "dst,event,compend,EventQA" ,"","","Turn on DST for ITTF",kFALSE},
   {"IAna" ,"" ,"","dEdxY2,Kink2,xi2,CMuDst,analysis","","" ,"Turn on Xi, Kink, dEdx and MuDst",kFALSE},
   {"BAna" ,"" ,"","dEdxY2,CMuDst,analysis" ,"","" ,"Turn on dEdx and MuDst",kFALSE},
-  {"B2003I" ,"","","ry2003,in,tpc_daq,tpcI,fcf,Physics,Idst,l0,tags,Tree,evout,svtDb"
+  {"B2003I" ,"","","ry2003,in,TpxRaw,TpxClu,Idst,l0,tags,Tree,evout,svtDb"
    , "","","Base chain for 2003 ITTF",kFALSE},
   {"dau2003i" ,"","","B2003I,IAna,CtbMatchVtx,Corr2,ppOpt,l3onl,tofDat,emcDY2,fpd,svt_daq,SvtD,ftpc,trgd"
    , "","","Production chain for winter 2003 data dau2003a with ITTF",kFALSE},
@@ -1022,7 +1022,7 @@ Bfc_st BFC[] = {
   {"mwc_T" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"sim_T" ,"" ,"","","" ,"sim_Tables","Load sim_Tables",kFALSE},
   {"svt_T" ,"" ,"","","" ,"svt_Tables","Load svt_Tables",kFALSE},
-  {"tpc_T" ,"" ,"","","" ,"tpc_Tables","Load tpc_Tables",kFALSE},
+  {"tpc_T" ,"" ,"","","" ,"","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"trg_T" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"vpd_T" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"Embedding" ,"","","-Simu" ,"","","Embedding run",kFALSE},
@@ -1129,8 +1129,8 @@ Bfc_st BFC[] = {
   {"mwc" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"ppMCTrig" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"pp2pp" ,"","","", "St_pp2pp_Maker","St_pp2pp_Maker","pp->pp",kFALSE},
-  {"tpc" ,"","","tcl,tpcI" ,"","","WARNING *** Option is OBSOLETE *** use tcl,tpcI instead",kFALSE},
-  {"tpcI" ,"tpcChain","","tpc_T,globT,db,tpcDB,fcf,TpcHitMover","StMaker","StChain","tpc with ITTF",kFALSE},
+  {"tpc" ,"","","TpxRaw,TpxClu,tpcI" ,"","","WARNING *** Option is OBSOLETE *** use TpxClu instead",kFALSE},
+  {"tpcI" ,"tpcChain","","db,tpcDB,TpcHitMover", "StMaker","StChain","tpc with ITTF",kFALSE},
   {"tpcX" ,"tpcChain","","-tpcI,tpx,MakeEvent" ,"StMaker","StChain","tpc+tpcx with ITTF",kFALSE},
   {"Trs","Trs","tpcChain","scl,tpcDB,TrsToF,StEvent,EmbeddingShortCut","StTrsMaker","StTrsMaker","",kFALSE},
   {"TpcRS","","tpcChain","scl,tpcDB,-Trs,-EmbeddingShortCut","StTpcRSMaker"
@@ -1144,11 +1144,11 @@ Bfc_st BFC[] = {
   {"Mixer" ,"tpc_raw","","daq","StMixerMaker" ,"StTrsMaker,StMixerMaker","",kFALSE},
   {"St_tpc" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"St_svt" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
-  {"tpc_daq" ,"tpc_raw","tpcChain","detDb,tpc_T","St_tpcdaq_Maker","StTrsMaker,St_tpcdaq_Maker","",kFALSE},
-  {"tcl" ,"","fcf","","","", "WARNING *** Option is OBSOLETE *** use fcf instead",kFALSE},
-  {"fcf","","tpcChain","daq,-tcl,tpc_daq,StEvent","StRTSClientFCFMaker","StRTSClientFCF,StRTSClientFCFMaker"
-   , "Offline FCF Cluster finder",kFALSE},
-  {"tpx" ,"tpc_hits","tpcChain","MakeEvent,-trs,-TpcRS,-tcl,-fcf,-tpc_daq,StEvent,rts,detDb"
+  {"tpc_daq" ,"","","TpxRaw", "","","WARNING *** Option is OBSOLETE *** use TpxRaw instead",kFALSE},
+  {"tcl","","","TpxRaw,TpxClu,MakeEvent","",""
+  , "WARNING *** Option is OBSOLETE *** use option TpxRaw,TpxClu,MakeEvent instead",kFALSE},
+  {"fcf" ,"","","-tcl,tpcX", "","","WARNING *** Option is OBSOLETE *** use tpcX instead",kFALSE},
+  {"tpx" ,"tpc_hits","tpcChain","MakeEvent,tpc_T,StEvent,rts,detDb"
    , "StTpcHitMaker","StTpcHitMaker","TPC hit reader for tpc + tpx via EVP_READER",kFALSE},
   {"TpxPulser","TpxPulser","tpcChain","rts,detDb","StTpcHitMaker","StTpcHitMaker","TPC+TPX pulser analysis"
    , kFALSE},
@@ -2161,7 +2161,7 @@ Bfc_st BFC[] = {
   {"Idst" ,"" ,"", "dst,event,compend,EventQA" ,"","","Turn on DST for ITTF",kFALSE},
   {"IAna" ,"" ,"","dEdxY2,Kink2,xi2,CMuDst,analysis","","" ,"Turn on Xi, Kink, dEdx and MuDst",kFALSE},
   {"BAna" ,"" ,"","dEdxY2,CMuDst,analysis" ,"","" ,"Turn on dEdx and MuDst",kFALSE},
-  {"B2003I" ,"","","ry2003,in,tpc_daq,tpcI,fcf,Physics,Idst,l0,tags,Tree,evout,svtDb"
+  {"B2003I" ,"","","ry2003,in,TpxRaw,TpxClu,Idst,l0,tags,Tree,evout,svtDb"
    , "","","Base chain for 2003 ITTF",kFALSE},
   {"dau2003i" ,"","","B2003I,IAna,CtbMatchVtx,Corr2,ppOpt,l3onl,tofDat,emcDY2,fpd,svt_daq,SvtD,ftpc,trgd"
    , "","","Production chain for winter 2003 data dau2003a with ITTF",kFALSE},
@@ -2445,7 +2445,7 @@ Bfc_st BFC[] = {
   {"mwc_T" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"sim_T" ,"" ,"","","" ,"sim_Tables","Load sim_Tables",kFALSE},
   {"svt_T" ,"" ,"","","" ,"svt_Tables","Load svt_Tables",kFALSE},
-  {"tpc_T" ,"" ,"","","" ,"tpc_Tables","Load tpc_Tables",kFALSE},
+  {"tpc_T" ,"" ,"","","" ,"","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"trg_T" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"vpd_T" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"Embedding" ,"","","-Simu" ,"","","Embedding run",kFALSE},
@@ -2552,8 +2552,8 @@ Bfc_st BFC[] = {
   {"mwc" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"ppMCTrig" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"pp2pp" ,"","","", "St_pp2pp_Maker","St_pp2pp_Maker","pp->pp",kFALSE},
-  {"tpc" ,"","","tcl,tpcI" ,"","","WARNING *** Option is OBSOLETE *** use tcl,tpcI instead",kFALSE},
-  {"tpcI" ,"tpcChain","","tpc_T,globT,db,tpcDB,fcf,TpcHitMover","StMaker","StChain","tpc with ITTF",kFALSE},
+  {"tpc" ,"","","TpxRaw,TpxClu,tpcI" ,"","","WARNING *** Option is OBSOLETE *** use TpxClu instead",kFALSE},
+  {"tpcI" ,"tpcChain","","db,tpcDB,TpcHitMover", "StMaker","StChain","tpc with ITTF",kFALSE},
   {"tpcX" ,"tpcChain","","-tpcI,tpx,MakeEvent" ,"StMaker","StChain","tpc+tpcx with ITTF",kFALSE},
   {"Trs","Trs","tpcChain","scl,tpcDB,TrsToF,StEvent,EmbeddingShortCut","StTrsMaker","StTrsMaker","",kFALSE},
   {"TpcRS","","tpcChain","scl,tpcDB,-Trs,-EmbeddingShortCut","StTpcRSMaker"
@@ -2567,11 +2567,11 @@ Bfc_st BFC[] = {
   {"Mixer" ,"tpc_raw","","daq","StMixerMaker" ,"StTrsMaker,StMixerMaker","",kFALSE},
   {"St_tpc" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"St_svt" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
-  {"tpc_daq" ,"tpc_raw","tpcChain","detDb,tpc_T","St_tpcdaq_Maker","StTrsMaker,St_tpcdaq_Maker","",kFALSE},
-  {"tcl" ,"","fcf","","","", "WARNING *** Option is OBSOLETE *** use fcf instead",kFALSE},
-  {"fcf","","tpcChain","daq,-tcl,tpc_daq,StEvent","StRTSClientFCFMaker","StRTSClientFCF,StRTSClientFCFMaker"
-   , "Offline FCF Cluster finder",kFALSE},
-  {"tpx" ,"tpc_hits","tpcChain","MakeEvent,-trs,-TpcRS,-tcl,-fcf,-tpc_daq,StEvent,rts,detDb"
+  {"tpc_daq" ,"","","TpxRaw", "","","WARNING *** Option is OBSOLETE *** use TpxRaw instead",kFALSE},
+  {"tcl","","","TpxRaw,TpxClu,MakeEvent","",""
+  , "WARNING *** Option is OBSOLETE *** use option TpxRaw,TpxClu,MakeEvent instead",kFALSE},
+  {"fcf" ,"","","-tcl,tpcX", "","","WARNING *** Option is OBSOLETE *** use tpcX instead",kFALSE},
+  {"tpx" ,"tpc_hits","tpcChain","MakeEvent,tpc_T,StEvent,rts,detDb"
    , "StTpcHitMaker","StTpcHitMaker","TPC hit reader for tpc + tpx via EVP_READER",kFALSE},
   {"TpxPulser","TpxPulser","tpcChain","rts,detDb","StTpcHitMaker","StTpcHitMaker","TPC+TPX pulser analysis"
    , kFALSE},
@@ -2874,7 +2874,6 @@ Bfc_st BFC[] = {
 
 
 // NoChainOptions -> Number of chain options auto-calculated
-#define __KEEP_TPCDAQ_FCF__ /* remove St_tpcdaq_Maker and StRTSClientFCFMaker. not yet ready */
 TableImpl(Bfc);
 ClassImp(StBFChain);
 
@@ -3405,7 +3404,7 @@ Int_t StBFChain::Instantiate()
       if (GetOption("TrsToF"))    mode += 2; // account for particle time of flight
       if (mode) mk->SetMode(mode);
     }
-#ifdef __KEEP_TPCDAQ_FCF__
+
     if (maker == "St_tpcdaq_Maker") {
       Int_t DMode=0;
       TString cmd(Form("St_tpcdaq_Maker *tcpdaqMk = (St_tpcdaq_Maker *) %p;",mk));
@@ -3443,13 +3442,13 @@ Int_t StBFChain::Instantiate()
 		     DMode,mk->GetMode(),Correction,SequenceMerging) << endm;
       ProcessLine(cmd);
     }
-#endif
+
 #if 0 /* probably bug 2106 : mismatch N_fit_points */
     if (maker == "StTpcRTSHitMaker") {
       if (GetOption("Trs") || GetOption("Embedding"))  mk->SetMode(2); // daq, no gain
     }
 #endif
-#ifdef __KEEP_TPCDAQ_FCF__
+
     if (maker == "StRTSClientFCFMaker"){
       Int_t DMode=0;
       // use the online TPC clusters (DAQ100) info if any
@@ -3466,7 +3465,7 @@ Int_t StBFChain::Instantiate()
       LOG_QA << " => mask = " << mask << endm;
       mk->SetMode(mask);
     }
-#endif
+
     // Place-holder. Would possibly be a bitmask
     if (maker == "StTofrMatchMaker"){
       mk->SetMode(0);
