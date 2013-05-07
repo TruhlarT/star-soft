@@ -909,6 +909,7 @@
 <tr><td><A NAME="STRNGMUDST0">StrngMuDST</A></td><td>&nbsp;</td><td>MuDSTDeps</td><td>&nbsp; </td><td>StStrangeMuDstMaker</td><td>&nbsp;</td><td>Creates Stangeness MuDST</td></tr>
 <tr><td><A NAME="EMCMDST0">EMCmDST</A></td><td>&nbsp;</td><td>MuDSTChain</td><td><A HREF="#MUDST0">MuDst</A> </td><td>StEmcMicroDstMaker</td><td>&nbsp;</td><td>Creates EMC MuDST</td></tr>
 <tr><td><A NAME="CMUDST0">CMuDST</A></td><td>&nbsp;</td><td>MuDSTChain</td><td><A HREF="#MUDST0">MuDst</A> <A HREF="#STRNGMUDST0">StrngMuDST</A> <A HREF="#TREE0">Tree</A> </td><td>StMuDstMaker</td><td>&nbsp;</td><td>Writes Common MuDST</td></tr>
+<tr><td><A NAME="RMUDST0">RMuDST</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#CMUDST0">CMuDST</A> </td><td>&nbsp;</td><td>&nbsp;</td><td>reads Common MuDST  do not disactivate if no output files</td></tr>
 <tr><td><A NAME="ST_GEOM0">St_geom</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>St_geom_Maker</td><td>St_geom_Maker</td><td>&nbsp;</td></tr>
 <tr><td><A NAME="DISPLAY0">Display</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>&nbsp;</td><td>WARNING *** Option is OBSOLETE *** use Ed.C macro instead</td></tr>
 <tr><td><A NAME="MC0">Mc</A></td><td>McChain</td><td>McEvent</td><td><A HREF="#SIM_T0">sim_T</A> <A HREF="#GLOBT0">globT</A> <A HREF="#MCASS0">McAss</A> <A HREF="#MCANA0">McAna</A> </td><td>StMaker</td><td>StChain</td><td>&nbsp;</td></tr>
@@ -936,6 +937,7 @@
 <tr><td><A NAME="HITFILT0">HitFilt</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>StHitFilterMaker</td><td>StHitFilterMaker</td><td>Hit filter Maker</td></tr>
 <tr><td><A NAME="KEEPTPCHIT0">KeepTpcHit</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>&nbsp;</td><td>Keep all TPC hits in StHitFilterMaker</td></tr>
 <tr><td><A NAME="KEEPSVTHIT0">KeepSvtHit</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>&nbsp;</td><td>Keep all SVT hits in StHitFilterMaker</td></tr>
+<tr><td><A NAME="KEEPFGTHIT0">KeepFgtHit</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>&nbsp;</td><td>Keep all FGT hits in StHitFilterMaker</td></tr>
 <tr><td><A NAME="TREE0">Tree</A></td><td>OutTree</td><td>&nbsp;</td><td>&nbsp; </td><td>StTreeMaker</td><td>StTreeMaker</td><td>Write requested branches into files</td></tr>
 <tr><td><A NAME="LOGGER0">logger</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>&nbsp;</td><td>Use log4cxx package to manage the program messages</td></tr>
 <tr><td><A NAME="NOSIMUDB0">NoSimuDb</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>&nbsp;</td><td>Switch off Simu Option for DB</td></tr>
@@ -1813,6 +1815,7 @@
 <tr><td><A NAME="STRNGMUDST1">StrngMuDST</A></td><td>&nbsp;</td><td>MuDSTDeps</td><td>&nbsp; </td><td>StStrangeMuDstMaker</td><td>&nbsp;</td><td>Creates Stangeness MuDST</td></tr>
 <tr><td><A NAME="EMCMDST1">EMCmDST</A></td><td>&nbsp;</td><td>MuDSTChain</td><td><A HREF="#MUDST1">MuDst</A> </td><td>StEmcMicroDstMaker</td><td>&nbsp;</td><td>Creates EMC MuDST</td></tr>
 <tr><td><A NAME="CMUDST1">CMuDST</A></td><td>&nbsp;</td><td>MuDSTChain</td><td><A HREF="#MUDST1">MuDst</A> <A HREF="#STRNGMUDST1">StrngMuDST</A> <A HREF="#TREE1">Tree</A> </td><td>StMuDstMaker</td><td>&nbsp;</td><td>Writes Common MuDST</td></tr>
+<tr><td><A NAME="RMUDST1">RMuDST</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#CMUDST1">CMuDST</A> </td><td>&nbsp;</td><td>&nbsp;</td><td>reads Common MuDST  do not disactivate if no output files</td></tr>
 <tr><td><A NAME="ST_GEOM1">St_geom</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>St_geom_Maker</td><td>St_geom_Maker</td><td>&nbsp;</td></tr>
 <tr><td><A NAME="DISPLAY1">Display</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>&nbsp;</td><td>WARNING *** Option is OBSOLETE *** use Ed.C macro instead</td></tr>
 <tr><td><A NAME="MC1">Mc</A></td><td>McChain</td><td>McEvent</td><td><A HREF="#SIM_T1">sim_T</A> <A HREF="#GLOBT1">globT</A> <A HREF="#MCASS1">McAss</A> <A HREF="#MCANA1">McAna</A> </td><td>StMaker</td><td>StChain</td><td>&nbsp;</td></tr>
@@ -1840,6 +1843,7 @@
 <tr><td><A NAME="HITFILT1">HitFilt</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>StHitFilterMaker</td><td>StHitFilterMaker</td><td>Hit filter Maker</td></tr>
 <tr><td><A NAME="KEEPTPCHIT1">KeepTpcHit</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>&nbsp;</td><td>Keep all TPC hits in StHitFilterMaker</td></tr>
 <tr><td><A NAME="KEEPSVTHIT1">KeepSvtHit</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>&nbsp;</td><td>Keep all SVT hits in StHitFilterMaker</td></tr>
+<tr><td><A NAME="KEEPFGTHIT1">KeepFgtHit</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>&nbsp;</td><td>Keep all FGT hits in StHitFilterMaker</td></tr>
 <tr><td><A NAME="TREE1">Tree</A></td><td>OutTree</td><td>&nbsp;</td><td>&nbsp; </td><td>StTreeMaker</td><td>StTreeMaker</td><td>Write requested branches into files</td></tr>
 <tr><td><A NAME="LOGGER1">logger</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>&nbsp;</td><td>Use log4cxx package to manage the program messages</td></tr>
 <tr><td><A NAME="NOSIMUDB1">NoSimuDb</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>&nbsp;</td><td>Switch off Simu Option for DB</td></tr>
@@ -1850,6 +1854,6 @@
 <tr><td><A NAME="NOTPC_DAQ1">Notpc_daq</A></td><td>&nbsp;</td><td>&nbsp;</td><td>-tpc_daq </td><td>&nbsp;</td><td>&nbsp;</td><td>No tpc_daq</td></tr>
 <tr><td><A NAME="ANALYSIS1">analysis</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#STEVENT1">StEvent</A> </td><td>StAnalysisMaker</td><td>StAnalysisMaker</td><td>Example of Analysis</td></tr>
 </table>
-<h5>Created by BFCOpt2Html.pl on Tue Apr 30 14:31:24 2013 - J. Lauret</h5>
+<h5>Created by BFCOpt2Html.pl on Tue May  7 14:43:27 2013 - J. Lauret</h5>
 </body>
 </html>
