@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.52 2013/04/12 19:43:53 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.53 2013/05/10 17:34:32 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.53  2013/05/10 17:34:32  didenko
+# added more embedding tests
+#
 # Revision 1.52  2013/04/12 19:43:53  didenko
 # add pp 500GeV run2013 sample
 #
@@ -186,12 +189,15 @@ my @prod_set = (
                 "daq_sl302/year_2008/production_dAu2008",
                 "daq_sl302/year_2008/ppProduction2008", 
                 "daq_sl302/year_2007/2007ProductionMinBias",
+                "daq_sl302/year_2007/auau200_embedTpcSvtSsd",
                 "daq_sl302/year_2006/ppProdLong",
                 "daq_sl302/year_2006/ppProdTrans",
                 "daq_sl302/year_2005/CuCu200_MinBias",
                 "daq_sl302/year_2005/CuCu62_MinBias",
                 "daq_sl302/year_2005/CuCu22_MinBias",
                 "daq_sl302/year_2005/ppProduction",
+                "daq_sl302/year_2005/CuCu200_embedTpc",
+                "daq_sl302/year_2005/CuCu200_embedTpcSvtSsd",
                 "daq_sl302/year_2004/AuAuMinBias",
                 "daq_sl302/year_2004/AuAu_prodHigh",
                 "daq_sl302/year_2004/AuAu_prodLow",
