@@ -23,11 +23,21 @@ print qq~
 
  You can also use a semi column separated list of the above.
 
- WARNING: 
-    When you specify the form 'runumber #FSeq Chain', "up to" Fseq file 
-    sequence means up to FSeq BUT not ALREADY submitted or skipped. Only
-    the form 'runnumber Chain' will reset FIRST the status of each file
-    for the run and then re-submit.
+ NOTES:
+    Pat is used to only submit files with this pattern (example st_WE
+    would select '#FSeq' files but submit only the st_WE)
+
+    When you specify the form 'runumber #FSeq Chain', up to '#Fseq' file 
+    sequence means not ALREADY submitted or skipped. Only the form 
+   'runnumber Chain' will reset FIRST the status of each file for the run 
+    and then re-submit.
+
+    If '#FSeq' == 0 or -1 then all files (that have not been submitted
+    yet) will be selected. 'Pat' may still apply.
+
+    If '#FSeq' < -1, then all filess (bot yet submitted) will be processed
+    as for == 0 and the MAXEVENT will be ignored (all events will be processed). 
+    Use with care (some files have a lot of events).
 ~;
 print "\n";
 
