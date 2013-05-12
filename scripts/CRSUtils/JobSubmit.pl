@@ -127,6 +127,7 @@ $DEBUG    = 0;
 
 # variables default value before they were implemented
 $FRACTT = 100;                    # %tage sent when AllFiles is TRUE - feature starts 2009
+$SKIPMC = "abcde";                # a fake MC tag - if stream match any, skip MC execlusion of event.root
 
 #@QUARANTEEN=("data11")
 
@@ -476,6 +477,7 @@ if ( $ThisYear == 2005 ){
     $NUMEVT  = 1000;
     $MINEVT  = 200;
     $FRACTT  =  33;
+    $SKIPMC  = "st_we";                   # keep lowercase
 
     $TARGET  = "/star/data09/reco";       # This is ONLY a default value.
                                           # Overwritten by ARGV (see crontab)
@@ -499,6 +501,7 @@ if ( $ThisYear == 2005 ){
 		rdaq_string2ftype("express"),
 		rdaq_string2ftype("jpsi"),
 		rdaq_string2ftype("btag"),
+		rdaq_string2ftype("WE"),         # <-- added 2013/05
 		rdaq_string2ftype("centralpro"), # <-- was added in U+U, 2012
 		rdaq_string2ftype("gamma"),
 		rdaq_string2ftype("mtd"),
@@ -568,6 +571,7 @@ if ( $ThisYear == 2005 ){
     $MCHAIN{"AuAu;upc"}  = $DCHAIN{"PPPP"};
     $MCHAIN{"UU;upc"}    = $DCHAIN{"PPPP"};
     $MCHAIN{"CuAu;upc"}  = $DCHAIN{"PPPP"};
+    $MCHAIN{"pppp;we"}   = $DCHAIN{"PPPP"}.",KeepFgtHit,evout"; # <-- requested by the FGT folks, 2013/05
 
     $SCALIB{"AuAu"}      = "OptLaser";
     $SCALIB{"PPPP"}      = "OptLaser";
@@ -1072,7 +1076,14 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		$KRUN{$items[0]} = $line;
 	    }
 
-	    # now, sort case
+	    #+
+	    # now, sort case 
+	    #-
+	    # The syntax
+	    #    runumber #FSeq Chain Pat
+	    # is the only one implied by the presence of a 4th element - grab the pattern
+	    # or set it to any which ""
+	    #
 	    if (defined($items[3]) ){
 		$patt = $items[3];
 	    } else {
@@ -1080,6 +1091,13 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 	    }
 
 	    if($#items == 0 || $#items == 1){
+		# Remains to be treated - this format is either
+		#    runNumber 
+		#    runNumber Chain
+		#
+		# In both cases, selection is -1 for the number of files
+		# counter cnt is then the fullnumber of files in runNumber
+		#
 		print "$SELF : Run $line is new\n";
 
 		if($#items == 1){
@@ -1108,17 +1126,33 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		$cnt = $#files+1;
 
 	    } else {
-		# Else old and/or only the one with status
-		# 0 can be sent to the queue.
+		# This format are the two remaining
+		#    runumber #FSeq Chain 
+		#    runumber #FSeq Chain Pat
+		# Pat is already extracted ahead as it is the only format
+		# with a 4th argument.
+		# Additional syntax is 
+		#  cnt == 0||-1 <=> get all files
+		#  cnt < 0  <=> get all files and submit for all events
+		#
 		$run = $items[0];
 		$cnt = $items[1];
 		$cho = $items[2];
-
+		if ( $cnt  == 0 || $cnt == -1){
+		    $cnt = -1;
+		} elsif ( $cnt < -1){
+		    $cnt = -1;
+		    $MAXEVT = $NUMEVT = -1;
+		}
+		
 		$SEL{"runNumber"} = $run;
 		$SEL{"Status"}    = 0;
 
 		# if ($patt ne ""){  $cnt = $cnt*10;}
 		@files = rdaq_get_orecords($obj,\%SEL,$cnt);
+		# for all, due to the logic below, reset cnt to the number of
+		# files returned
+		$cnt = ($#files+1);
 	    }
 
 	    # OK. We have $cnt for that one and $TOT slots.
@@ -1883,11 +1917,22 @@ __EOH__
 	    $hint = "filseq check lead to use event.root";
 
 	    # ... and do regular MC i.e. toss a coin
-	    $prob = int(rand()*100);
-	    if ($prob >= $FRACTT){
-		# set to false
-		$AllFiles = 1==0;
-		$hint = "filseq check -> event.root but disabled by regular MC ($prob >=  $FRACTT)";
+	    my($testf)=lc("$prefix$items[1]");
+	    if ( $testf =~ m/(st_)(\w+)(_\d+_)/ ){  # should match always
+		$testf = $2;
+		if ( $SKIPMC =~ m/$testf/ ){
+		    $hint = "[$testf] matches $SKIPMC - enabling all event.root";
+		} else {
+		    $prob = int(rand()*100);
+		    if ($prob >= $FRACTT ){
+			# set to false
+			$AllFiles = 1==0;
+			$hint = "filseq check -> event.root but disabled by regular MC ($prob >=  $FRACTT)";
+		    }
+		} 
+
+	    } else {
+		$hint = "[$testf] did not match pattern";
 	    }
 	} else {
 	    $hint = "standard file selection";
