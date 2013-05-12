@@ -35,27 +35,31 @@ if ( $#ARGV == -1){
 (c) J. Lauret, 2009-2013
 
 Usage:
-  % $SELF runNumber       # query a unique run
-  % $SELF runMin-runMax   # using a range of run numbers
+  % $SELF {Options} runNumber       # query a unique run
+  % $SELF {Options} runMin-runMax   # using a range of run numbers
 
-Use -Q          for querrying the primary database
+Options are
+    -Q          for querrying the primary database
     -m=pat      only list files matching pattern 'pat'
     -x{=ext}    default is to display .daq files, replace by ext (default=MuDst.root)
-    -dco{=path} use DataCarousel output format eventaully using 'path' for replacement 
+
+    -diff       enable differential output (shows only changes since last run)
+                Limitation - please run from the same node as /tmp file will be 
+                used for this feature.
+    -odo        shows only files on disk (only disk output)
+ 
+    -raw        to display a possible path in HPSS for the raw files (will ignore -x)
+    -hpss       to display a possible path in HPSS for the processed files
+    -finfo      Display field and other run info for a given runNumber
+    -allp       to re-enable all printouts along with -hpss
+
+
+    Option modifying -raw, -hpss or -finfo outputs
+    -dco{=path} use DataCarousel output format eventually using 'path' for replacement 
                 in the default output format  (default is $DEFP). 
                 If path is specified and not terminated by "/", build a relative tree from
                 the base path 'path' respecting the HPSS structure otherwise, dump all files 
                 in the specified directory 
-
-    -diff       enable differential output (shows only changes since last run)
-                Limitation - please run from the same node as /tmp file will be used
-                for this feature.
-    -odo        shows only files on disk (only disk output)
- 
-    -raw        to display a possible path in HPSS for the raw files
-    -hpss       to display a possible path in HPSS for the processed files
-    -finfo      Display field and other run info for a given runNumber
-    -allp       to re-enable all printouts along with -hpss
 
 Example:
  % ./FOlocate 12039042        show a summary of what FO is doing with run 12039042
