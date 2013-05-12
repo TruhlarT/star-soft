@@ -23,15 +23,16 @@ $FINFO = 0;               # display run information
 $QRAW  = 0;               # query raw DAQ file
 $ALLP  = 0;               # disable default info if $QHPSS is on
 $DIFF  = 0;               # see -diff below to enable this feature
+$ODO   = 0;               # shows only file on disks
 $PAT   = "";              # no special pattern match (all files)
 $EXT   = "";              # will be used for pattern replacement - see -x
 $BASEP = "";              # base path for -dco / do not speicfy here
 $PPATH = "";
-$DEBUG = $ENV{FOLocate_DEBUG};
+$DEBUG = $ENV{FOlocate_DEBUG};
 
 if ( $#ARGV == -1){
     print qq~
-(c) J. Lauret, 2009-2012
+(c) J. Lauret, 2009-2013
 
 Usage:
   % $SELF runNumber       # query a unique run
@@ -40,7 +41,7 @@ Usage:
 Use -Q          for querrying the primary database
     -m=pat      only list files matching pattern 'pat'
     -x{=ext}    default is to display .daq files, replace by ext (default=MuDst.root)
-    -dco{=path} use DataCarousel output format and useeventaully using 'path' for replacement 
+    -dco{=path} use DataCarousel output format eventaully using 'path' for replacement 
                 in the default output format  (default is $DEFP). 
                 If path is specified and not terminated by "/", build a relative tree from
                 the base path 'path' respecting the HPSS structure otherwise, dump all files 
@@ -49,6 +50,7 @@ Use -Q          for querrying the primary database
     -diff       enable differential output (shows only changes since last run)
                 Limitation - please run from the same node as /tmp file will be used
                 for this feature.
+    -odo        shows only files on disk (only disk output)
  
     -raw        to display a possible path in HPSS for the raw files
     -hpss       to display a possible path in HPSS for the processed files
@@ -76,10 +78,15 @@ Example:
 
  % ./FOlocate -dco=/star/institution/bnl/jeromel/daq2011/ ...
                               similar but dump all files in the same directory 
-                              /star/institution/bnl/jeromel/daq2011/
+                              /star/institution/bnl/jeromel/daq2011/ 
 
 ~;
-    exit;
+  # just a remider to self
+  if ( $ENV{USER} =~ /jeromel/){
+      print "The environment FOlocate_DEBUG if defined, enables debugging (for developpers only)\n";
+  }
+
+  exit;
 }
 
 $obj   = rdaq_open_odatabase();
@@ -102,6 +109,9 @@ for ($ii=0; $ii <= $#ARGV ; $ii++){
 
     } elsif ($run =~ m/-allp/){
 	$ALLP  = 1;
+
+    } elsif ($run =~ m/-odo/){
+	$ODO   = 1;
 
     } elsif ($run =~ m/-dif/){
 	# suck in diff file - hopefully not that much data (will 
@@ -199,7 +209,6 @@ sub ProcessRun {
 	    $numevt = $info[2];
 	    $stsstr = rdaq_status_string($status);
 
-	    printf "%45.45s - %10.10s (%6.6d) ",$info[0],$stsstr,$numevt if ( ! $QHPSS || $ALLP );
 
 	    $xtra = "";
 	    if ($numevt == 0){
@@ -289,8 +298,21 @@ sub ProcessRun {
 	    } elsif ( $status == 1 && $xtra eq ""){
 		$xtra = "Check later";
 	    }
+	    
+	    #print "DEBUG Ready to print\n" if ($DEBUG);
+
+	    if ( $ODO ){
+		if ( $xtra !~ m/DISK/){
+		    print "DEBUG Will skip this record in odo mode [$xtra]\n" if ($DEBUG);
+		    next;
+		} else {
+		    # do extra work in ODO mode
+		    next if ( ! -e "$loc/$file");
+		}
+	    }
 
 	    #print "HEY1 ...";
+	    printf "%45.45s - %10.10s (%6.6d) ",$file,$stsstr,$numevt        if ( ! $QHPSS || $ALLP );
 	    printf "%20.20s %12.12s %s\n",$reason,$xtra,($loc ne 0?$loc:"")  if ( ! $QHPSS || $ALLP );
 	    if ( $path ne ""){
 		#print "HEY1 ...";
