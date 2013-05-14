@@ -20,8 +20,8 @@ use GD::Graph::linespoints;
 use Mysql;
 use Class::Struct;
 
-$dbhost="fc2.star.bnl.gov:3386";
-#$dbhost="duvall.star.bnl.gov";
+#$dbhost="fc2.star.bnl.gov:3386";
+$dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
 $dbpass="";
 $dbname="operation";
@@ -344,7 +344,7 @@ END
   if( $qprod =~ /P10/ ) {$pryear = "2010"};
   if( $qprod =~ /P11/ ) {$pryear = "2011"};
   if( $qprod =~ /P12/ ) {$pryear = "2012"};
-  if( $qprod =~ /P13/ ) {$pryear = "2013"};
+  if( $qprod =~ /P13/ ) {$pryear = "2012"};
     
     $JobStatusT = "JobStatus".$pryear;
 
