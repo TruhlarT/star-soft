@@ -426,6 +426,7 @@ END
  @jbmonitor = ();
  @jbpmdftp = ();
  @jbcentralpro  = ();
+ @jbwb = ();
 
  @ndate = ();
  $ndt = 0;
