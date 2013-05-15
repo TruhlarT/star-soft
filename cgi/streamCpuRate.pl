@@ -955,7 +955,7 @@ END
 
     @data = ();
 
-  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@aratomcules, \@armtd, \@arcentralpro ) ;
+  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arwb, \@arupc, \@aratomcules, \@armtd, \@arcentralpro ) ;
 
   	$max_y = $maxval + 0.2*$maxval; 
 #        $max_y = int($max_y);
@@ -967,7 +967,7 @@ END
 
     @data = ();
 
-  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpatomcules, \@cpmtd, \@cpcentralpro ) ;
+  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cpwb, \@cpupc, \@cpatomcules, \@cpmtd, \@cpcentralpro ) ;
 
     	$max_y = $maxcpu + 0.2*$maxcpu; 
         $max_y = int($max_y);
@@ -979,7 +979,7 @@ END
    $ylabel = "Average total time jobs stay on the farm in hours";
    $gtitle = "Average total time jobs stay on the farm  for $qday ";
 
-@data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd, \@jbcentralpro ) ;
+@data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbwb, \@jbupc, \@jbatomcules, \@jbmtd, \@jbcentralpro ) ;
 
   $max_y = $maxjbtime + 0.2*$maxjbtime;
   $max_y = int($max_y);
@@ -992,7 +992,7 @@ END
 
    @data = ();
 
- @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trht, \@trmonitor, \@trpmdftp, \@trupc, \@tratomcules, \@trmtd, \@trcentralpro ) ;
+ @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trht, \@trmonitor, \@trwb, \@trupc, \@tratomcules, \@trmtd, \@trcentralpro ) ;
   
       $max_y = $maxtrk + 0.2*$maxtrk;
       $max_y = int($max_y);
@@ -1004,7 +1004,7 @@ END
 
     @data = ();
 
- @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstht, \@nstmonitor, \@nstpmdftp, \@nstupc, \@nstatomcules, \@nstmtd, \@nstcentralpro ) ;
+ @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstht, \@nstmonitor, \@nstwb, \@nstupc, \@nstatomcules, \@nstmtd, \@nstcentralpro ) ;
 
   }elsif(  $srate eq "stream_rate" ) {
 
@@ -1013,7 +1013,7 @@ END
 
  @data = ();
 
- @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc, \@rtatomcules, \@rtmtd, \@rtcentralpro ) ;
+ @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtwb, \@rtupc, \@rtatomcules, \@rtmtd, \@rtcentralpro ) ;
 
         $max_y = 1.2;
     }
