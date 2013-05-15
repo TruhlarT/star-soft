@@ -1230,10 +1230,10 @@ END
        $legend[4] = "st_fgt ";
        $legend[5] = "st_daqtenk ";
        $legend[6] = "st_upc       ";       
-       $legend[7] = "st_atomcules ";
+       $legend[7] = "st_W ";
        $legend[8] = "st_mtd       ";
        $legend[9] = "st_centralpro ";
-       $legend[10] = "st_W ";        
+       $legend[10] = "st_atomcules ";        
 
        if ( $srate eq "rtime/cpu" ) {
 
@@ -1252,7 +1252,7 @@ END
 
 #  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@aratomcules, \@armtd, \@arcentralpro ) ;
 
-  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt,  \@arfms,  \@arfgt, \@ardaqtenk, \@arupc, \@aratomcules, \@armtd, \@arcentralpro, \@arwb ) ;
+  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt,  \@arfms,  \@arfgt, \@ardaqtenk, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules ) ;
 
       $max_y = $maxval + 0.2*$maxval;
 #     $max_y = int($max_y);
@@ -1275,7 +1275,7 @@ END
 
 #  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpatomcules, \@cpmtd, \@cpcentralpro ) ;
 
-  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpfms, \@cpfgt, \@cpdaqtenk, \@cpupc, \@cpatomcules, \@cpmtd, \@cpcentralpro, \@cpwb ) ;
+  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpfms, \@cpfgt, \@cpdaqtenk, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules ) ;
 
 
        $max_y = $maxcpu + 0.2*$maxcpu;
@@ -1298,7 +1298,7 @@ END
 
 # @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc, \@rtatomcules, \@rtmtd, \@rtcentralpro ) ;
 
- @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtfms, \@rtfgt, \@rtdaqtenk, \@rtupc, \@rtatomcules, \@rtmtd, \@rtcentralpro, \@rtwb ) ;
+ @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtfms, \@rtfgt, \@rtdaqtenk, \@rtupc, \@rtwb, \@rtmtd, \@rtcentralpro, \@rtatomcules ) ;
 
         $max_y = 1.2;
 
@@ -1319,7 +1319,7 @@ END
 
 # @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd, \@jbcentralpro ) ;
 
- @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbfms, \@jbfgt, \@jbdaqtenk, \@jbupc, \@jbatomcules, \@jbmtd, \@jbcentralpro, \@jbwb ) ;
+ @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbfms, \@jbfgt, \@jbdaqtenk, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules) ;
 
     $max_y = $maxjbtime + 0.2*$maxjbtime;    
     $max_y = int($max_y);
@@ -1341,7 +1341,7 @@ END
 
 # @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trht, \@trmonitor, \@trpmdftp, \@trupc, \@tratomcules, \@trmtd, \@trcentralpro, \@trfms ) ;
 
- @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trfms, \@trfgt, \@trdaqtenk, \@trupc, \@tratomcules, \@trmtd, \@trcentralpro, \@trwb ) ;
+ @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trfms, \@trfgt, \@trdaqtenk, \@trupc, \@trwb, \@trmtd, \@trcentralpro, \@tratomcules ) ;
     
       $max_y = $maxtrk + 0.2*$maxtrk;
       $max_y = int($max_y); 
@@ -1364,7 +1364,7 @@ END
 
 # @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstht, \@nstmonitor, \@nstpmdftp, \@nstupc, \@nstatomcules, \@nstmtd, \@nstcentralpro ) ;
 
- @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstfms, \@nstfgt, \@nstdaqtenk, \@nstupc, \@nstatomcules, \@nstmtd, \@nstcentralpro, \@nstwb ) ;
+ @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstfms, \@nstfgt, \@nstdaqtenk, \@nstupc, \@nstwb, \@nstmtd, \@nstcentralpro, \@nstatomcules ) ;
 
 
      }
