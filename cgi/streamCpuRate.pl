@@ -502,8 +502,8 @@ END
                $jbatomcules[$ndt] = $arjbtime{$mfile,$ndt};
             }elsif( $mfile eq "monitor" ) {
                $jbmonitor[$ndt] = $arjbtime{$mfile,$ndt};
-            }elsif( $mfile eq "pmdftp" ) {
-               $jbpmdftp[$ndt] = $arjbtime{$mfile,$ndt};
+#            }elsif( $mfile eq "pmdftp" ) {
+#               $jbpmdftp[$ndt] = $arjbtime{$mfile,$ndt};
             }elsif( $mfile eq "upc" ) {
                $jbupc[$ndt] =  $arjbtime{$mfile,$ndt};
             }elsif( $mfile eq "W" ) {
@@ -659,9 +659,9 @@ END
               }elsif( $mfile eq "monitor" ) {
                $armonitor[$ndt] = $rte{$mfile,$ndt};
                $cpmonitor[$ndt] = $arcpu{$mfile,$ndt};
-              }elsif( $mfile eq "pmdftp" ) {
-               $arpmdftp[$ndt] = $rte{$mfile,$ndt};
-               $cppmdftp[$ndt] = $arcpu{$mfile,$ndt};
+#              }elsif( $mfile eq "pmdftp" ) {
+#               $arpmdftp[$ndt] = $rte{$mfile,$ndt};
+#               $cppmdftp[$ndt] = $arcpu{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $arupc[$ndt] =  $rte{$mfile,$ndt};
                $cpupc[$ndt] =  $arcpu{$mfile,$ndt};
@@ -769,8 +769,8 @@ END
                $tratomcules[$ndt] = $artrk{$mfile,$ndt};
               }elsif( $mfile eq "monitor" ) {
                $trmonitor[$ndt] = $artrk{$mfile,$ndt};
-              }elsif( $mfile eq "pmdftp" ) {
-               $trpmdftp[$ndt] = $artrk{$mfile,$ndt};
+#              }elsif( $mfile eq "pmdftp" ) {
+#               $trpmdftp[$ndt] = $artrk{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $trupc[$ndt] =  $artrk{$mfile,$ndt};
              }elsif( $mfile eq "W" ) {
@@ -885,8 +885,8 @@ END
                $nstatomcules[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "monitor" ) {
                $nstmonitor[$ndt] = $nstr{$mfile,$ndt};
-              }elsif( $mfile eq "pmdftp" ) {
-               $nstpmdftp[$ndt] = $nstr{$mfile,$ndt};
+#              }elsif( $mfile eq "pmdftp" ) {
+#               $nstpmdftp[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $nstupc[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "W" ) {
@@ -899,7 +899,7 @@ END
     } # foreach tdate
 
       for($ii = 0; $ii < $ndt; $ii++) {
-      $numstream[$ii] = $nstphysics[$ii]+$nstcentralpro[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+$nstht[$ii]+$nstmonitor[$ii]+$nstpmdftp[$ii]+ $nstupc[$ii]+ $nstgamma[$ii]+  $nstatomcules[$ii]+ $nstupsilon[$ii] + $nstwb[$ii];
+      $numstream[$ii] = $nstphysics[$ii]+$nstcentralpro[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+$nstht[$ii]+$nstmonitor[$ii]+$nstupc[$ii]+ $nstgamma[$ii]+  $nstatomcules[$ii]+ $nstupsilon[$ii] + $nstwb[$ii];
 
      if ($numstream[$ii] >= 1) {
       $rtphysics[$ii] = $nstphysics[$ii]/$numstream[$ii];
@@ -908,7 +908,7 @@ END
       $rthlt[$ii] = $nsthlt[$ii]/$numstream[$ii];
       $rtht[$ii] = $nstht[$ii]/$numstream[$ii];
       $rtmonitor[$ii] = $nstmonitor[$ii]/$numstream[$ii];
-      $rtpmdftp[$ii] = $nstpmdftp[$ii]/$numstream[$ii];
+#      $rtpmdftp[$ii] = $nstpmdftp[$ii]/$numstream[$ii];
       $rtupc[$ii] = $nstupc[$ii]/$numstream[$ii];
       $rtupsilon[$ii] = $nstupsilon[$ii]/$numstream[$ii];
       $rtgamma[$ii] = $nstgamma[$ii]/$numstream[$ii];
