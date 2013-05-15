@@ -90,6 +90,7 @@ my @arupc = ();
 my @armonitor = ();
 my @arpmdftp = ();
 my @arcentralpro  = ();
+my @arwb = ();
 
 my @ndate = ();
 my $ndt = 0;
@@ -109,6 +110,7 @@ my @cpupc = ();
 my @cpmonitor = ();
 my @cppmdftp = (); 
 my @cpcentralpro  = ();
+my @cpwb = ();
 
 my @jbupsilon = ();
 my @jbmtd = ();
@@ -122,6 +124,7 @@ my @jbupc = ();
 my @jbmonitor = ();
 my @jbpmdftp = ();
 my @jbcentralpro  = ();
+my @jbwb = (); 
 
  my $maxval = 1;
  my $maxcpu = 0;
@@ -379,6 +382,7 @@ END
  @armonitor = ();
  @arpmdftp = ();
  @arcentralpro  = ();
+ @arwb = ();
 
  @cpupsilon = ();
  @cpmtd = ();
@@ -392,6 +396,7 @@ END
  @cpmonitor = ();
  @cppmdftp = (); 
  @cpcentralpro  = ();
+ @cpwb = ();
 
  @jbupsilon = ();
  @jbmtd = ();
@@ -405,6 +410,7 @@ END
  @jbmonitor = ();
  @jbpmdftp = ();
  @jbcentralpro  = ();
+ @jbwb = ();
 
    if( $srate eq "jobtottime" ) {
 
@@ -474,10 +480,12 @@ END
                $jbatomcules[$ndt] = $jbTottime; 
            }elsif( $pstream eq "monitor" ) {
                $jbmonitor[$ndt] = $jbTottime;  
-           }elsif( $pstream eq "pmdftp" ) {
-               $jbpmdftp[$ndt] = $jbTottime;   
+#           }elsif( $pstream eq "pmdftp" ) {
+#               $jbpmdftp[$ndt] = $jbTottime;   
            }elsif( $pstream eq "upc" ) {
                $jbupc[$ndt] =  $jbTottime;
+          }elsif( $pstream eq "W" ) {
+               $jbwb[$ndt] =  $jbTottime;
 	       }
 	    $ndt++;
 	    }
@@ -574,12 +582,15 @@ END
               }elsif( $pstream eq "monitor" ) {
                $armonitor[$ndt] =  $rte{$pstream,$ndt};
                $cpmonitor[$ndt] = $pcpu;  
-              }elsif( $pstream eq "pmdftp" ) {
-               $arpmdftp[$ndt] =  $rte{$pstream,$ndt};
-               $cppmdftp[$ndt] = $pcpu;   
+#              }elsif( $pstream eq "pmdftp" ) {
+#               $arpmdftp[$ndt] =  $rte{$pstream,$ndt};
+#               $cppmdftp[$ndt] = $pcpu;   
               }elsif( $pstream eq "upc" ) {
                $arupc[$ndt] =  $rte{$pstream,$ndt};
                $cpupc[$ndt] =  $pcpu;
+              }elsif( $pstream eq "W" ) {
+               $arwb[$ndt] =  $rte{$pstream,$ndt};
+               $cpwb[$ndt] =  $pcpu;
 	       }
 	    $ndt++;
 	    }
@@ -607,10 +618,10 @@ my $gtitle;
        $legend[4] = "st_monitor  ";
        $legend[5] = "st_pmdftp   ";
        $legend[6] = "st_upc      ";
-       $legend[7] = "st_atomcules ";
-       $legend[8] = "st_mtd       ";
+       $legend[7] = "st_W        ";
+       $legend[8] = "st_mtd      ";
        $legend[9] = "st_centralpro ";
-
+       $legend[10] = "st_atomcules ";
 
 
 #       $legend[3] = "st_upsilon   ";
@@ -625,7 +636,7 @@ my $gtitle;
       $max_y = $maxcpu + 0.2*$maxcpu; 
       $max_y = int($max_y);
 
-    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpatomcules, \@cpmtd, \@cpcentralpro ) ; 
+    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules ) ; 
 
       }elsif( $srate eq "rtime/cpu"){
 
@@ -637,7 +648,7 @@ my $gtitle;
        $max_y = $maxval + 0.2*$maxval; 
 #      $max_y = int($max_y);
   
-    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@aratomcules, \@armtd, \@arcentralpro ) ;
+    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules ) ;
 
      }elsif( $srate eq "jobtottime"){
 
@@ -649,7 +660,7 @@ my $gtitle;
        $max_y = $maxjbtime + 0.2*$maxjbtime; 
       $max_y = int($max_y);
   
-    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd, \@jbcentralpro ) ;
+    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules ) ;
 
 
      }
@@ -677,7 +688,7 @@ my $gtitle;
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple lorange lred lblack marine lyellow lbrown lgray) ],
+                    dclrs => [ qw(lblue lgreen lpurple lorange lred lblack marine lbrown lyellow lgray) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
