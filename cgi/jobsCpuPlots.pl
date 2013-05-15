@@ -87,6 +87,7 @@ my @arupc = ();
 my @armonitor = ();
 my @arpmdftp = ();
 my @arcentralpro = ();
+my @arwb = ();
 
 my @ndate = ();
 my $ndt = 0;
@@ -106,6 +107,7 @@ my @cpupc = ();
 my @cpmonitor = ();
 my @cppmdftp = ();
 my @cpcentralpro  = (); 
+my @cpwb  = (); 
 
 my @jbupsilon = ();
 my @jbmtd = ();
@@ -119,7 +121,7 @@ my @jbupc = ();
 my @jbmonitor = ();
 my @jbpmdftp = ();
 my @jbcentralpro  = ();
-
+my @jbwb = ();
 
  $JobStatusT = "JobStatus2010";  
 
@@ -371,6 +373,7 @@ END
  @armonitor = ();
  @arpmdftp = ();
  @arcentralpro = ();
+ @arwb = ();
 
  @cpupsilon = ();
  @cpmtd = ();
@@ -384,6 +387,7 @@ END
  @cpmonitor = ();
  @cppmdftp = (); 
  @cpcentralpro  = ();
+ @cpwb = (); 
 
  @jbupsilon = ();
  @jbmtd = ();
@@ -397,6 +401,7 @@ END
  @jbmonitor = ();
  @jbpmdftp = ();
  @jbcentralpro  = ();
+ @jbwb = ();
 
    if( $srate eq "jobtottime" ) {
 
@@ -472,6 +477,8 @@ END
                $jbpmdftp[$ndt]++;   
            }elsif( $pstream eq "upc" ) {
                $jbupc[$ndt]++;
+           }elsif( $pstream eq "W" ) {
+               $jbwb[$ndt]++;
 	       }
  	    }
         }
@@ -557,6 +564,8 @@ END
                $cppmdftp[$ndt]++;   
               }elsif( $pstream eq "upc" ) {
                $cpupc[$ndt]++;
+              }elsif( $pstream eq "W" ) {
+               $cpwb[$ndt]++;
 	       }
 	    }
 	}
@@ -616,6 +625,8 @@ END
                $arpmdftp[$ndt]++ ;   
               }elsif( $pstream eq "upc" ) {
                $arupc[$ndt]++;
+              }elsif( $pstream eq "W" ) {
+               $arwb[$ndt]++;
 	       }
 	    } 
 	   }
@@ -646,10 +657,10 @@ my $gtitle;
        $legend[4] = "st_monitor  ";
        $legend[5] = "st_pmdftp   ";
        $legend[6] = "st_upc      ";
-       $legend[7] = "st_atomcules ";
+       $legend[7] = "st_W        ";
        $legend[8] = "st_mtd       ";
        $legend[9] = "st_centralpro ";
-
+       $legend[10] = "st_atomcules ";
 #       $legend[3] = "st_upsilon   ";
     
        if( $srate eq "cpu" )  {
@@ -660,7 +671,7 @@ my $gtitle;
         $ylabel = "Number of jobs";
 	$gtitle = "CPU in sec/evt for different stream jobs for $qday day";
 
-    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpatomcules, \@cpmtd, \@cpcentralpro ) ; 
+    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules ) ; 
 
       }elsif( $srate eq "rtime/cpu"){
 
@@ -671,7 +682,7 @@ my $gtitle;
 	$gtitle = "Ratios RealTime/CPU for different stream jobs for $qday day";
 
   
-    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@aratomcules, \@armtd, \@arcentralpro ) ;
+    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules ) ;
 
      }elsif( $srate eq "jobtottime"){
 
@@ -682,7 +693,7 @@ my $gtitle;
 	$gtitle = "Total time on the farm for different stream jobs for $qday day";
 
   
-    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd, \@jbcentralpro ) ;
+    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules ) ;
 
 
      }
@@ -710,7 +721,7 @@ my $gtitle;
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple lorange lred marine lblack lyellow lbrown lgray ) ],
+                    dclrs => [ qw(lblue lgreen lpurple lorange lred marine lblack lbrown lyellow lgray ) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
