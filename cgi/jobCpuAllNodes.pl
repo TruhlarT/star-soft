@@ -90,6 +90,7 @@ my @arupc = ();
 my @armonitor = ();
 my @arpmdftp = ();
 my @arcentralpro = ();
+my @arwb  = ();
 
 my @ndate = ();
 my $ndt = 0;
@@ -110,6 +111,7 @@ my @nstmonitor = ();
 my @nstpmdftp = ();
 my @nstupsilon = ();
 my @nstcentralpro = ();
+my @nstwb = (); 
 
 my @numstream  = ();
 
@@ -125,6 +127,7 @@ my @rtpmdftp = ();
 my @rtupsilon = ();
 my @rtphysics = ();
 my @rtcentralpro = ();
+my @rtwb = ();
 
 my @cpupsilon = ();
 my @cpmtd = ();
@@ -138,6 +141,7 @@ my @cpupc = ();
 my @cpmonitor = ();
 my @cppmdftp = ();
 my @cpcentralpro = ();
+my @cpwb = ();
 
   &StDbProdConnect();
  
@@ -366,6 +370,7 @@ my $qnode   = $qqr->param('pnode');
  @armonitor = ();
  @arpmdftp = ();
  @arcentralpro = ();
+ @arwb = ();
 
  @rtphysics = ();
  @rtgamma = ();
@@ -379,6 +384,7 @@ my $qnode   = $qqr->param('pnode');
  @rtpmdftp = ();
  @rtupsilon = ();
  @rtcentralpro = ();
+ @rtwb = ();
 
  @cpupsilon = ();
  @cpmtd = ();
@@ -392,6 +398,7 @@ my $qnode   = $qqr->param('pnode');
  @cpmonitor = ();
  @cppmdftp = ();
  @cpcentralpro = ();
+ @cpwb = ();
 
 ############################# 
 
@@ -540,12 +547,15 @@ my $qnode   = $qqr->param('pnode');
               }elsif( $mfile eq "monitor" ) {
                $armonitor[$ndt] = $rte{$mfile,$ndt};
                $cpmonitor[$ndt] = $arcpu{$mfile,$ndt};
-              }elsif( $mfile eq "pmdftp" ) {
-               $arpmdftp[$ndt] = $rte{$mfile,$ndt};
-               $cppmdftp[$ndt] = $arcpu{$mfile,$ndt};
+#              }elsif( $mfile eq "pmdftp" ) {
+#               $arpmdftp[$ndt] = $rte{$mfile,$ndt};
+#               $cppmdftp[$ndt] = $arcpu{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $arupc[$ndt] =  $rte{$mfile,$ndt};
                $cpupc[$ndt] =  $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "W" ) {
+               $arwb[$ndt] =  $rte{$mfile,$ndt};
+               $cpwb[$ndt] =  $arcpu{$mfile,$ndt};
                }
               }
           }
@@ -581,10 +591,10 @@ my $qnode   = $qqr->param('pnode');
        $legend[4] = "st_monitor   ";
        $legend[5] = "st_pmdftp    ";
        $legend[6] = "st_upc       ";
-       $legend[7] = "st_atomcules ";
+       $legend[7] = "st_W         ";
        $legend[8] = "st_mtd       ";
        $legend[9] = "st_centralpro ";
-
+       $legend[10] = "st_atomcules ";
 
        if ( $qvalue eq "rtime/cpu" ) {
 
@@ -593,7 +603,7 @@ my $qnode   = $qqr->param('pnode');
 
     @data = ();
 
-  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@aratomcules, \@armtd, \@arcentralpro ) ;
+  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules ) ;
 
   	$max_y = 1.2*$maxval; 
 
@@ -604,7 +614,7 @@ my $qnode   = $qqr->param('pnode');
 
     @data = ();
 
-  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpatomcules, \@cpmtd, \@cpcentralpro ) ;
+  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules ) ;
 
     	$max_y = 1.2*$maxcpu; 
         $max_y = int($max_y);
@@ -634,7 +644,7 @@ my $qnode   = $qqr->param('pnode');
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple lorange lred marine lblack lyellow lbrown lgray ) ],
+                    dclrs => [ qw(lblue lgreen lpurple lorange lred marine lblack lbrown lyellow lgray ) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
