@@ -73,7 +73,7 @@ my $prtime;
 my $pstream;
 my $ptrack;
 my $jbTottime;
-my $pryear = "2011";
+my $pryear = "2012";
 
 my %rte = {};
 my %nstr = {};
@@ -92,6 +92,7 @@ my @arupc = ();
 my @armonitor = ();
 my @arpmdftp = ();
 my @arcentralpro = ();
+my @arwb = ();
 
 my @ndate = ();
 my $ndt = 0;
@@ -112,6 +113,7 @@ my @nstpmdftp = ();
 my @nstupsilon = ();
 my @nstcentralpro  = ();
 my @numstream  = ();
+my @nstwb = ();
 
 my @rtgamma = ();
 my @rtmtd = ();
@@ -125,6 +127,7 @@ my @rtpmdftp = ();
 my @rtupsilon = ();
 my @rtphysics = ();
 my @rtcentralpro  = ();
+my @rtwb = ();
 
 my @cpupsilon = ();
 my @cpmtd = ();
@@ -138,6 +141,7 @@ my @cpupc = ();
 my @cpmonitor = ();
 my @cppmdftp = ();
 my @cpcentralpro  = ();
+my @cpwb = ();
 
 my @trupsilon = ();
 my @trmtd = ();
@@ -151,6 +155,7 @@ my @trupc = ();
 my @trmonitor = ();
 my @trpmdftp = ();
 my @trcentralpro  = ();
+my @trwb  = ();
 
 my @jbupsilon = ();
 my @jbmtd = ();
@@ -164,6 +169,7 @@ my @jbupc = ();
 my @jbmonitor = ();
 my @jbpmdftp = ();
 my @jbcentralpro  = ();
+my @jbwb = ();
 
 my @arhr = ();
 my $mhr = 0;
@@ -499,6 +505,8 @@ END
                $jbpmdftp[$ndt] = $arjbtime{$mfile,$ndt};
             }elsif( $mfile eq "upc" ) {
                $jbupc[$ndt] =  $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "W" ) {
+               $jbwb[$ndt] =  $arjbtime{$mfile,$ndt};
 
            }else{
              next;
@@ -530,6 +538,7 @@ END
  @armonitor = ();
  @arpmdftp = ();
  @arcentralpro = ();
+ @arwb = ();
 
  @rtphysics = ();
  @rtgamma = ();
@@ -543,7 +552,7 @@ END
  @rtpmdftp = ();
  @rtupsilon = ();
  @rtcentralpro = ();
-
+ @rtwb = ();
 
  @cpupsilon = ();
  @cpmtd = ();
@@ -557,6 +566,7 @@ END
  @cpmonitor = ();
  @cppmdftp = ();
  @cpcentralpro = ();
+ @cpwb = ();
 
 
     foreach my $tdate (@arhr) {
@@ -654,6 +664,10 @@ END
               }elsif( $mfile eq "upc" ) {
                $arupc[$ndt] =  $rte{$mfile,$ndt};
                $cpupc[$ndt] =  $arcpu{$mfile,$ndt};
+             }elsif( $mfile eq "W" ) {
+               $arwb[$ndt] =  $rte{$mfile,$ndt};
+               $cpwb[$ndt] =  $arcpu{$mfile,$ndt};
+
                }
               }
           }
@@ -681,6 +695,7 @@ END
  @trmonitor = ();
  @trpmdftp = ();
  @trcentralpro = ();
+ @trwb = ();
  @ndate = ();
  $ndt = 0;
  $maxtrk = 1.0;
@@ -757,6 +772,8 @@ END
                $trpmdftp[$ndt] = $artrk{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $trupc[$ndt] =  $artrk{$mfile,$ndt};
+             }elsif( $mfile eq "W" ) {
+               $trwb[$ndt] =  $artrk{$mfile,$ndt};
 
            }else{
              next;
@@ -788,6 +805,7 @@ END
  @nstpmdftp = ();
  @nstupsilon = ();
  @nstcentralpro = ();
+ @nstwb = ();
 
  @numstream = ();
 
@@ -803,7 +821,7 @@ END
  @rtpmdftp = ();
  @rtupsilon = ();
  @rtcentralpro = ();
-
+ @rtwb = ();
 
     foreach my $tdate (@arhr) {
 	@jbstat = ();  
@@ -870,6 +888,8 @@ END
                $nstpmdftp[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $nstupc[$ndt] =  $nstr{$mfile,$ndt};
+              }elsif( $mfile eq "W" ) {
+               $nstwb[$ndt] =  $nstr{$mfile,$ndt};
 	       }
              }
 
@@ -878,7 +898,7 @@ END
     } # foreach tdate
 
       for($ii = 0; $ii < $ndt; $ii++) {
-      $numstream[$ii] = $nstphysics[$ii]+$nstcentralpro[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+$nstht[$ii]+$nstmonitor[$ii]+$nstpmdftp[$ii]+ $nstupc[$ii]+ $nstgamma[$ii]+  $nstatomcules[$ii]+ $nstupsilon[$ii];
+      $numstream[$ii] = $nstphysics[$ii]+$nstcentralpro[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+$nstht[$ii]+$nstmonitor[$ii]+$nstpmdftp[$ii]+ $nstupc[$ii]+ $nstgamma[$ii]+  $nstatomcules[$ii]+ $nstupsilon[$ii] + $nstwb[$ii];
 
      if ($numstream[$ii] >= 1) {
       $rtphysics[$ii] = $nstphysics[$ii]/$numstream[$ii];
@@ -893,6 +913,7 @@ END
       $rtgamma[$ii] = $nstgamma[$ii]/$numstream[$ii];
 #      $rtfmsfast[$ii] = $nstfmsfast[$ii]/$numstream[$ii];
       $rtatomcules[$ii] = $nstatomcules[$ii]/$numstream[$ii];
+      $rtwb[$ii] = $nstwb[$ii]/$numstream[$ii];
 
        }
   }
@@ -919,7 +940,7 @@ END
        $legend[2] = "st_hlt       ";
        $legend[3] = "st_ht        ";
        $legend[4] = "st_monitor   ";
-       $legend[5] = "st_pmdftp    ";
+       $legend[5] = "st_W    ";
        $legend[6] = "st_upc       ";
        $legend[7] = "st_atomcules ";
        $legend[8] = "st_mtd       ";
