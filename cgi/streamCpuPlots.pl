@@ -97,6 +97,7 @@ my @arpmdftp = ();
 my @arcentralpro = ();
 my @arfgt  = ();
 my @ardaqtenk  = ();
+my @arwb  = ();
 
 my @ndate = ();
 my $ndt = 0;
@@ -116,6 +117,7 @@ my @numstream  = ();
 my @nstcentralpro  = ();
 my @nstfgt  = ();
 my @nstdaqtenk  = ();
+my @nstwb = ();
 
 my @rtgamma = ();
 my @rtmtd = ();
@@ -131,6 +133,7 @@ my @rtphysics = ();
 my @rtcentralpro  = ();
 my @rtfgt  = ();
 my @rtdaqtenk  = ();
+my @rtwb = ();
 
 my @cpupsilon = ();
 my @cpmtd = ();
@@ -146,6 +149,7 @@ my @cppmdftp = ();
 my @cpcentralpro  = ();
 my @cpfgt  = ();
 my @cpdaqtenk  = ();
+my @cpwb = ();
 
 my @trupsilon = ();
 my @trmtd = ();
@@ -161,6 +165,7 @@ my @trpmdftp = ();
 my @trcentralpro  = ();
 my @trfgt  = ();
 my @trdaqtenk  = ();
+my @trwb = ();
 
 my @jbupsilon = ();
 my @jbmtd = ();
@@ -176,6 +181,7 @@ my @jbpmdftp = ();
 my @jbcentralpro  = ();
 my @jbfgt  = ();
 my @jbdaqtenk  = ();
+my @jbwb = ();
 
  
  my @arperiod = ("week","1_month","2_months","3_months","4_months","5_months","6_months");
@@ -431,7 +437,7 @@ END
  @cpcentralpro = ();
  @cpfgt= ();
  @cpdaqtenk= ();
-
+ @cpwb = ();
 
  @ndate = ();
  $ndt = 0;
@@ -542,6 +548,8 @@ END
 #               $cppmdftp[$ndt] = $arcpu{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $cpupc[$ndt] =  $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "W" ) {
+               $cpwb[$ndt] =  $arcpu{$mfile,$ndt};
               }elsif( $mfile eq "fgt" ) {
                $cpfgt[$ndt] =  $arfgt{$mfile,$ndt};
               }elsif( $mfile eq "daqtenk" ) {
@@ -580,6 +588,7 @@ END
  @arcentralpro = ();
  @arfgt= ();
  @ardaqtenk= ();
+ @arwb = ();
 
  @cpupsilon = ();
  @cpmtd = ();
@@ -595,6 +604,7 @@ END
  @cpcentralpro = ();
  @cpfgt= ();
  @cpdaqtenk= ();
+ @cpwb = ();
 
  @ndate = ();
  $ndt = 0;
@@ -708,6 +718,8 @@ END
 #               $arpmdftp[$ndt] =  $rte{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $arupc[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "W" ) {
+               $arwb[$ndt] =  $rte{$mfile,$ndt};
               }elsif( $mfile eq "fgt" ) {
                $arfgt[$ndt] =  $rte{$mfile,$ndt};
               }elsif( $mfile eq "daqtenk" ) {
@@ -745,6 +757,7 @@ END
  @trcentralpro = ();
  @trfgt= ();
  @trdaqtenk= ();
+ @trwb = ();
 
  @ndate = ();
  $ndt = 0;
@@ -851,6 +864,8 @@ END
 #               $trpmdftp[$ndt] = $artrk{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $trupc[$ndt] =  $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "W" ) {
+               $trwb[$ndt] =  $artrk{$mfile,$ndt};
               }elsif( $mfile eq "fgt" ) {
                $trfgt[$ndt] =  $artrk{$mfile,$ndt};
               }elsif( $mfile eq "daqtenk" ) {
@@ -887,6 +902,7 @@ END
  @nstcentralpro = ();
  @nstfgt= ();
  @nstdaqtenk= ();
+ @nstwb = ();
 
  @ndate = ();
  $ndt = 0;  
@@ -905,6 +921,7 @@ END
  @rtcentralpro = ();
  @rtfgt= ();
  @rtdaqtenk= ();
+ @rtwb = ();
 
     foreach my $tdate (@ardays) {
         @jbstat = ();
@@ -995,6 +1012,8 @@ END
 #               $nstpmdftp[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $nstupc[$ndt] =  $nstr{$mfile,$ndt};
+              }elsif( $mfile eq "W" ) {
+               $nstwb[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "fgt" ) {
                $nstfgt[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "daqtenk" ) {
@@ -1013,7 +1032,7 @@ END
       for($ii = 0; $ii < $ndt; $ii++) {
 #      $numstream[$ii] = $nstphysics[$ii]+$nstcentralpro[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+$nstht[$ii]+$nstmonitor[$ii]+$nstpmdftp[$ii]+ $nstupc[$ii]+ $nstgamma[$ii]+  $nstatomcules[$ii]+ $nstupsilon[$ii];
  
-     $numstream[$ii] = $nstphysics[$ii]+$nstcentralpro[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+ $nstfms[$ndt] + $nstfgt[$ndt] + $nstdaqtenk[$ndt] + $nstupc[$ii]+ $nstgamma[$ii]+  $nstatomcules[$ii]+ $nstupsilon[$ii];
+     $numstream[$ii] = $nstphysics[$ii]+$nstcentralpro[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+ $nstfms[$ndt] + $nstfgt[$ndt] + $nstdaqtenk[$ndt] + $nstupc[$ii]+ $nstgamma[$ii]+ $nstwb[$ii] +  $nstatomcules[$ii]+ $nstupsilon[$ii];
 
      if ($numstream[$ii] >= 1) {
       $rtphysics[$ii] = $nstphysics[$ii]/$numstream[$ii];
@@ -1025,6 +1044,7 @@ END
 #      $rtpmdftp[$ii] = $nstpmdftp[$ii]/$numstream[$ii];
 
       $rtupc[$ii] = $nstupc[$ii]/$numstream[$ii];
+      $rtwb[$ii] = $nstwb[$ii]/$numstream[$ii];
       $rtupsilon[$ii] = $nstupsilon[$ii]/$numstream[$ii];
       $rtgamma[$ii] = $nstgamma[$ii]/$numstream[$ii];
       $rtfms[$ii] = $nstfms[$ii]/$numstream[$ii];
@@ -1056,6 +1076,7 @@ END
  @jbcenralpro = ();
  @jbfgt= ();
  @jbdaqtenk= ();
+ @jbwb = ();
 
  @ndate = ();
  $ndt = 0;  
@@ -1163,6 +1184,8 @@ END
 #               $jbpmdftp[$ndt] = $arjbtime{$mfile,$ndt};
             }elsif( $mfile eq "upc" ) {
                $jbupc[$ndt] =  $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "W" ) {
+               $jbwb[$ndt] =  $arjbtime{$mfile,$ndt};
             }elsif( $mfile eq "fgt" ) {
                $jbfgt[$ndt] =  $arjbtime{$mfile,$ndt};
             }elsif( $mfile eq "daqtenk" ) {
@@ -1203,13 +1226,14 @@ END
 #       $legend[3] = "st_ht        ";
 #       $legend[4] = "st_monitor   ";
 #       $legend[5] = "st_pmdftp    ";
+       $legend[3] = "st_fms ";
+       $legend[4] = "st_fgt ";
+       $legend[5] = "st_daqtenk ";
        $legend[6] = "st_upc       ";       
        $legend[7] = "st_atomcules ";
        $legend[8] = "st_mtd       ";
        $legend[9] = "st_centralpro ";
-       $legend[3] = "st_fms ";
-       $legend[4] = "st_fgt ";
-       $legend[5] = "st_daqtenk ";
+       $legend[10] = "st_W ";        
 
        if ( $srate eq "rtime/cpu" ) {
 
@@ -1228,7 +1252,7 @@ END
 
 #  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@aratomcules, \@armtd, \@arcentralpro ) ;
 
-  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt,  \@arfms,  \@arfgt, \@ardaqtenk, \@arupc, \@aratomcules, \@armtd, \@arcentralpro ) ;
+  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt,  \@arfms,  \@arfgt, \@ardaqtenk, \@arupc, \@aratomcules, \@armtd, \@arcentralpro, \@arwb ) ;
 
       $max_y = $maxval + 0.2*$maxval;
 #     $max_y = int($max_y);
@@ -1251,7 +1275,7 @@ END
 
 #  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpatomcules, \@cpmtd, \@cpcentralpro ) ;
 
-  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpfms, \@cpfgt, \@cpdaqtenk, \@cpupc, \@cpatomcules, \@cpmtd, \@cpcentralpro ) ;
+  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpfms, \@cpfgt, \@cpdaqtenk, \@cpupc, \@cpatomcules, \@cpmtd, \@cpcentralpro, \@cpwb ) ;
 
 
        $max_y = $maxcpu + 0.2*$maxcpu;
@@ -1274,7 +1298,7 @@ END
 
 # @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc, \@rtatomcules, \@rtmtd, \@rtcentralpro ) ;
 
- @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtfms, \@rtfgt, \@rtdaqtenk, \@rtupc, \@rtatomcules, \@rtmtd, \@rtcentralpro ) ;
+ @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtfms, \@rtfgt, \@rtdaqtenk, \@rtupc, \@rtatomcules, \@rtmtd, \@rtcentralpro, \@rtwb ) ;
 
         $max_y = 1.2;
 
@@ -1295,7 +1319,7 @@ END
 
 # @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd, \@jbcentralpro ) ;
 
- @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbfms, \@jbfgt, \@jbdaqtenk, \@jbupc, \@jbatomcules, \@jbmtd, \@jbcentralpro ) ;
+ @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbfms, \@jbfgt, \@jbdaqtenk, \@jbupc, \@jbatomcules, \@jbmtd, \@jbcentralpro, \@jbwb ) ;
 
     $max_y = $maxjbtime + 0.2*$maxjbtime;    
     $max_y = int($max_y);
@@ -1317,7 +1341,7 @@ END
 
 # @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trht, \@trmonitor, \@trpmdftp, \@trupc, \@tratomcules, \@trmtd, \@trcentralpro, \@trfms ) ;
 
- @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trfms, \@trfgt, \@trdaqtenk, \@trupc, \@tratomcules, \@trmtd, \@trcentralpro ) ;
+ @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trfms, \@trfgt, \@trdaqtenk, \@trupc, \@tratomcules, \@trmtd, \@trcentralpro, \@trwb ) ;
     
       $max_y = $maxtrk + 0.2*$maxtrk;
       $max_y = int($max_y); 
@@ -1340,7 +1364,7 @@ END
 
 # @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstht, \@nstmonitor, \@nstpmdftp, \@nstupc, \@nstatomcules, \@nstmtd, \@nstcentralpro ) ;
 
- @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstfms, \@nstfgt, \@nstdaqtenk, \@nstupc, \@nstatomcules, \@nstmtd, \@nstcentralpro ) ;
+ @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstfms, \@nstfgt, \@nstdaqtenk, \@nstupc, \@nstatomcules, \@nstmtd, \@nstcentralpro, \@nstwb ) ;
 
 
      }
