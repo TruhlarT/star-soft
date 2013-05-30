@@ -488,12 +488,16 @@ if ( $ThisYear == 2005 ){
 	rdaq_string2ftype("laser")."|".
 	rdaq_string2ftype("laser_adc");
 
-    $PHYSTP  =  rdaq_string2ftype("physics");
+    $PHYSTP  =  
+	rdaq_string2ftype("physics")    ."|".
+        rdaq_string2ftype("physics_adc");
+
     $PHYSTP2 =
-        rdaq_string2ftype("physics_adc")."|".
-        rdaq_string2ftype("upsilon").    "|".
-        rdaq_string2ftype("minbias").    "|".
-	rdaq_string2ftype("upc").        "|".  # <-- moved here as data was large in 2011
+        rdaq_string2ftype("pxl")        ."|".  # <-- appeared in 2013 run
+        rdaq_string2ftype("pxl_adc")    ."|".  # <-- appeared in 2013 run
+        rdaq_string2ftype("upsilon")    ."|".
+        rdaq_string2ftype("minbias")    ."|".
+	rdaq_string2ftype("upc")        ."|".  # <-- moved here as data was large in 2011
         rdaq_string2ftype("minbias_adc");
 
 
