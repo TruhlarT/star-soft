@@ -95,7 +95,7 @@ my $nd = 0;
 &StDbTJobsConnect();
 
  
- $sql="SELECT distinct LibTag, site  FROM $JobStatusT where LibTag <> 'n/a' and site <> 'n/a' order by LibTag ";
+ $sql="SELECT distinct LibTag, site  FROM $JobStatusT where LibTag <> 'n/a' and site <> 'n/a' and submit = 'last' order by LibTag ";
 
   $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -207,7 +207,7 @@ $JobStatusT = "siteJobStatus";
 
 &StDbTJobsConnect();
 
-$sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '$newpath' AND site = ?  AND LibTag = ?  order by prodyear ";
+$sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '$newpath' AND site = ?  AND LibTag = ? and submit = 'last' order by prodyear ";
 
 
     $cursor =$dbh->prepare($sql)
