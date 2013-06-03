@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.117 2013/05/07 19:30:00 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.118 2013/06/03 17:06:30 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -885,10 +885,16 @@ Bfc_st BFC[] = {
   {"P2012b","" ,"",
    "B2012b,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis"
    , "","","Production chain for 2011 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
-  {"B2013","","","ry2013_2,in,tpcX,ITTF,AgML,UseXgeom,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
+  {"B2013" ,"","","B2013_c2","","", "Alias for B2013 Configuration 2",kFALSE},
+  {"B2013_c2","","","ry2013_2,in,tpcX,ITTF,AgML,UseXgeom,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
+   , "Base chain for 2013 ITTF (tpc)",kFALSE},
+  {"B2013_c1","","","ry2013_1,in,tpcX,ITTF,AgML,UseXgeom,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
    , "Base chain for 2013 ITTF (tpc)",kFALSE},
   {"pp2013a","" ,"",
-   "B2013,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis",
+   "B2013_c2,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis",
+   "","", "Production chain for 2013 data - no Corr (+ l3, bcc/fpd, e/b-emc, no VF)",kFALSE},
+  {"pp2013b","" ,"",
+   "B2013_c1,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis",
    "","", "Production chain for 2013 data - no Corr (+ l3, bcc/fpd, e/b-emc, no VF)",kFALSE},
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","",""
    , "Laser Calibration Chain (tcl)",kFALSE},
@@ -1208,8 +1214,8 @@ Bfc_st BFC[] = {
   {"dEdx" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"svtdEdx" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"Event" , "","","MakeEvent", "","","Request to initialize event",kFALSE},
-  {"pixFastSim","","","StMcEvent,StEvent"
-   , "StPixelFastSimMaker","StPixelFastSimMaker","FastPixelSimulator",kFALSE},
+  {"pxlFastSim","","","StMcEvent,StEvent"
+   , "StPxlSimMaker","StPxlSimMaker","FastPixelSimulator",kFALSE},
   {"ssddat" ,"","","ssd_daq" ,"","","SSD full chain for Real Data",kFALSE},
   {"ssd_daq","","","ssdCalDb,svt_T,-sls,-spa,ssdUtil","StSsdDaqMaker","StSsdDaqMaker","... SSD Daq",kFALSE},
   {"ssdfast" ,"","","ssdDb,StMcEvent,StEvent","StSsdFastSimMaker","StSsdFastSimMaker",
@@ -2310,10 +2316,16 @@ Bfc_st BFC[] = {
   {"P2012b","" ,"",
    "B2012b,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis"
    , "","","Production chain for 2011 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
-  {"B2013","","","ry2013_2,in,tpcX,ITTF,AgML,UseXgeom,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
+  {"B2013" ,"","","B2013_c2","","", "Alias for B2013 Configuration 2",kFALSE},
+  {"B2013_c2","","","ry2013_2,in,tpcX,ITTF,AgML,UseXgeom,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
+   , "Base chain for 2013 ITTF (tpc)",kFALSE},
+  {"B2013_c1","","","ry2013_1,in,tpcX,ITTF,AgML,UseXgeom,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
    , "Base chain for 2013 ITTF (tpc)",kFALSE},
   {"pp2013a","" ,"",
-   "B2013,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis",
+   "B2013_c2,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis",
+   "","", "Production chain for 2013 data - no Corr (+ l3, bcc/fpd, e/b-emc, no VF)",kFALSE},
+  {"pp2013b","" ,"",
+   "B2013_c1,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis",
    "","", "Production chain for 2013 data - no Corr (+ l3, bcc/fpd, e/b-emc, no VF)",kFALSE},
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","",""
    , "Laser Calibration Chain (tcl)",kFALSE},
@@ -2633,8 +2645,8 @@ Bfc_st BFC[] = {
   {"dEdx" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"svtdEdx" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"Event" , "","","MakeEvent", "","","Request to initialize event",kFALSE},
-  {"pixFastSim","","","StMcEvent,StEvent"
-   , "StPixelFastSimMaker","StPixelFastSimMaker","FastPixelSimulator",kFALSE},
+  {"pxlFastSim","","","StMcEvent,StEvent"
+   , "StPxlSimMaker","StPxlSimMaker","FastPixelSimulator",kFALSE},
   {"ssddat" ,"","","ssd_daq" ,"","","SSD full chain for Real Data",kFALSE},
   {"ssd_daq","","","ssdCalDb,svt_T,-sls,-spa,ssdUtil","StSsdDaqMaker","StSsdDaqMaker","... SSD Daq",kFALSE},
   {"ssdfast" ,"","","ssdDb,StMcEvent,StEvent","StSsdFastSimMaker","StSsdFastSimMaker",
@@ -3525,11 +3537,16 @@ Int_t StBFChain::Instantiate()
       } else {
 	LOG_QA << "Default hit filtering is ON" << endm;
       }
-      Int_t mode = 0;
+      Int_t    mode = 0;
       if (GetOption("KeepTpcHit")) mode |= (1 << kTpcId);
       if (GetOption("KeepSvtHit")) mode |= (1 << kSvtId);
-      if (GetOption("KeepFgtHit")) mode |= (1 << kFgtId);
       mk->SetMode(mode);
+      // the m_Mode (Int_t is signed integer 4 bytes) mask is too short for the FGT
+      if (GetOption("KeepFgtHit")){
+	TString cmd(Form("StHitFilterMaker *Filtmk=(StHitFilterMaker*) %p;",mk));
+	cmd += "Filtmk->setKeepWestHighEtaHitsForFgt(1.0);";
+	ProcessLine(cmd);
+      }
     }
     if (maker == "StMiniMcMaker" && fFileOut != "") {
       ProcessLine(Form("((StMiniMcMaker *) %p)->setFileName(\"%s\");", mk, fFileOut.Data()));
