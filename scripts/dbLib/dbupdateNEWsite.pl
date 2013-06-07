@@ -147,6 +147,7 @@ struct JFileAttr => {
        oldTime   => '$',
        oldcomp   => '$',
        oldvail   => '$',
+       oldlib    => '$',
 };
 
  struct LFileAttr => {
@@ -211,13 +212,15 @@ struct JFileAttr => {
  my $eachOutNDir;
  my $fullname;
  my $flname;
- my $libL = "n\/a";
- my $libV = "n\/a";
+ my $libL = "n/a";
+ my $libV = "n/a";
+ my $plibV = "n/a";
  my $platf;
  my $EvTp;
  my $lgFile;
  my $EvDone = 0;
  my $EvSkip = 0;
+ my $jsubmit = "last";
  
  my $newAvail; 
  my $no_event = 0; 
@@ -284,7 +287,7 @@ struct JFileAttr => {
 
 #####  select all files from JobStatusT from testDay direcroties
 
- $sql="SELECT jobID, path, logFile, createTime, avail FROM $JobStatusT WHERE path LIKE '$TOP_DIRD%' AND avail = 'Y'";
+ $sql="SELECT jobID, path, logFile, createTime, LibTag, avail FROM $JobStatusT WHERE path LIKE '$TOP_DIRD%' AND avail = 'Y'";
 
 
    $cursor =$dbh->prepare($sql)
@@ -304,8 +307,9 @@ struct JFileAttr => {
         ($$fObjAdr)->oldjbId($fvalue)   if( $fname eq 'jobID');
         ($$fObjAdr)->oldpath($fvalue)   if( $fname eq 'path');
         ($$fObjAdr)->oldfile($fvalue)   if( $fname eq 'logFile');  
-       ($$fObjAdr)->oldTime($fvalue)   if( $fname eq 'createTime');
+        ($$fObjAdr)->oldTime($fvalue)   if( $fname eq 'createTime');
         ($$fObjAdr)->oldvail($fvalue)   if( $fname eq 'avail'); 
+        ($$fObjAdr)->oldlib($fvalue)    if( $fname eq 'LibTag');         
    }
 
        $old_jobs[$nold_jobs] = $fObjAdr;
@@ -436,7 +440,7 @@ my $pyear = 0;
                        $fullyear,$mo,$dy,$hr,$min);    
 
 #           if( $ltime > 600 && $ltime < 518400 ){         
-          if( $ltime > 2400  and $size > 1000 ) { 
+          if( $ltime > 600  and $size > 1000 ) { 
 #   print "Log time: ", $ltime, "\n";
    print $fullname, "\n";
         &logInfo("$fullname", "$platf");
@@ -490,6 +494,7 @@ my $pyear = 0;
           $pvfile = ($$eachOldJob)->oldfile;
           $pvTime = ($$eachOldJob)->oldTime;
           $pvavail = ($$eachOldJob)->oldvail;
+          $plibV = ($$eachOldJob)->oldlib;
           $pfullName = $pvpath . "/" . $pvfile;
 
         
@@ -499,16 +504,23 @@ my $pyear = 0;
         $flagHash{$fullname} = 0;
 
 	 if( $timeS ne $pvTime) {
+          $newAvail = "N";         
 
-          $newAvail = "N";
   print  "Changing availability for test files", "\n";
   print  "files to be updated:", $pvjbId, " % ",$pvpath, " % ",$pvTime, " % ",$newAvail, "\n"; 
     &updateJSTable();
+
+ 	 if( $plibV eq $libV ) {
+         $jsubmit = "previous";
+     &updateJTable();        
+
+     }
 
       $mavail = 'Y';
       $myID = 100000000 + $new_id;
       $mjID = "Job". $myID ; 
       $idHash{$fullname} = $mjID;
+      $jsubmit = "last";
 
   print  "Filling JobStatus with NEW log files \n";
   print  "files to be inserted:", $mjID, " % ",$mpath, " % ",$timeS , " % ", $memFst," % ",$memLst," % ", $mavail, "\n";  
@@ -618,6 +630,8 @@ my $pyear = 0;
       $mjID = "Job". $myID ; 
  print "Insert new files: ", $mjID, " % ",$fullName, "\n";
       $idHash{$fullName} = $mjID;
+      $jsubmit = "last";
+ 
     &fillJSTable();
 
         foreach my $nOldJob (@old_jobs) {
@@ -691,6 +705,7 @@ sub fillJSTable {
     $sql.="avgNoXi_usbevt='$avr_xi_usb',";
     $sql.="avgNoKink_usbevt='$avr_kink_usb',";
     $sql.="nodeID='$node_name',"; 
+    $sql.="submit='$jsubmit',"; 
     $sql.="avail='$mavail'"; 
 
     print "$sql\n" if $debugOn;
@@ -709,6 +724,18 @@ sub  updateJSTable {
      $rv = $dbh->do($sql) || die $dbh->errstr;
 
    }
+
+###########
+sub  updateJTable {
+
+     $sql="update $JobStatusT set ";
+     $sql.="submit='$jsubmit'";
+     $sql.=" WHERE path = '$pvpath' AND logFile = '$pvfile' AND LibTag = '$plibV' ";   
+     print "$sql\n" if $debugOn;
+     $rv = $dbh->do($sql) || die $dbh->errstr;
+
+   }
+
 
 #####=======================================================================
    sub logInfo {
