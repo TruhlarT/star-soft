@@ -1,6 +1,6 @@
 /***************************************************************************
  *   
- * $Id: StDbManagerImpl.cc,v 1.44 2013/06/10 17:45:15 dmitry Exp $
+ * $Id: StDbManagerImpl.cc,v 1.37.2.1 2013/06/12 15:38:51 didenko Exp $
  *
  * Author: R. Jeff Porter
  ***************************************************************************
@@ -10,26 +10,8 @@
  ***************************************************************************
  *
  * $Log: StDbManagerImpl.cc,v $
- * Revision 1.44  2013/06/10 17:45:15  dmitry
- * unknown db fix - to be backported into old libraries
- *
- * Revision 1.43  2013/05/28 18:07:43  dmitry
- * new db domain: MTD
- *
- * Revision 1.42  2013/04/01 14:42:51  dmitry
- * added new domain - PXL
- *
- * Revision 1.41  2012/06/11 14:33:47  fisyak
- * std namespace
- *
- * Revision 1.40  2012/04/09 14:32:26  dmitry
- * AFS-related patch commented out
- *
- * Revision 1.39  2012/04/08 20:48:09  dmitry
- * added alternate hardcoded location for dbLoadBalancerLocalConfig_BNL.xml
- *
- * Revision 1.38  2011/06/16 14:44:00  dmitry
- * added new domain - FGT
+ * Revision 1.37.2.1  2013/06/12 15:38:51  didenko
+ * branch revision for db update
  *
  * Revision 1.37  2011/04/04 15:44:24  dmitry
  * fix to blacklist Calibrations_bla only
@@ -304,7 +286,6 @@
 #endif
 
 //#include <stdio.h>
-using namespace std;
 extern char** environ;
 
 #define __CLASS__ "StDbManagerImpl"
@@ -411,9 +392,6 @@ addDbDomain(dbTracker,"tracker");
 addDbDomain(dbZdc,"zdc"); 
 addDbDomain(dbFms,"fms"); 
 addDbDomain(dbpp2pp,"pp2pp"); 
-addDbDomain(dbFgt,"fgt"); 
-addDbDomain(dbPxl,"pxl"); 
-addDbDomain(dbMtd,"mtd"); 
 
 }
 
@@ -584,11 +562,7 @@ void StDbManagerImpl::lookUpServers(){
 	else
 	  {
 	    configFileNames.push_back(fLocalConfig);
-		//configFileNames.push_back("/star/data07/dbbackup/dbLoadBalancerLocalConfig_BNL.xml"); // alternate local config, used during AFS outage
 	  }
-
-
-
 /******Removing option to allow LB in $HOME***********************
 	const char* HOME = getenv("HOME");
 
@@ -629,7 +603,6 @@ void StDbManagerImpl::lookUpServers(){
 	  {
 	     configFileNames.push_back((string)STAR+"/StDb/servers/"+dbLoadBalancerGlobalConfig);
 	  }
-
 
 	// try opening the files until the first one that opens is found
 
