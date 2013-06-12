@@ -1,6 +1,6 @@
 /***************************************************************************
  *   
- * $Id: StDbManagerImpl.cc,v 1.44 2013/06/10 17:45:15 dmitry Exp $
+ * $Id: StDbManagerImpl.cc,v 1.40.2.1 2013/06/12 21:10:08 didenko Exp $
  *
  * Author: R. Jeff Porter
  ***************************************************************************
@@ -10,17 +10,8 @@
  ***************************************************************************
  *
  * $Log: StDbManagerImpl.cc,v $
- * Revision 1.44  2013/06/10 17:45:15  dmitry
- * unknown db fix - to be backported into old libraries
- *
- * Revision 1.43  2013/05/28 18:07:43  dmitry
- * new db domain: MTD
- *
- * Revision 1.42  2013/04/01 14:42:51  dmitry
- * added new domain - PXL
- *
- * Revision 1.41  2012/06/11 14:33:47  fisyak
- * std namespace
+ * Revision 1.40.2.1  2013/06/12 21:10:08  didenko
+ * branch revision for db fixes
  *
  * Revision 1.40  2012/04/09 14:32:26  dmitry
  * AFS-related patch commented out
@@ -304,7 +295,6 @@
 #endif
 
 //#include <stdio.h>
-using namespace std;
 extern char** environ;
 
 #define __CLASS__ "StDbManagerImpl"
@@ -412,8 +402,6 @@ addDbDomain(dbZdc,"zdc");
 addDbDomain(dbFms,"fms"); 
 addDbDomain(dbpp2pp,"pp2pp"); 
 addDbDomain(dbFgt,"fgt"); 
-addDbDomain(dbPxl,"pxl"); 
-addDbDomain(dbMtd,"mtd"); 
 
 }
 
