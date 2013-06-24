@@ -16,7 +16,7 @@ use DBI;
 use CGI qw(:standard);
 use GD;
 use GD::Graph::linespoints;
-use Mysql;
+#use Mysql;
 
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
