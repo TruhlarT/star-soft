@@ -17,7 +17,7 @@ BEGIN {
 
 use DBI;
 use CGI qw(:standard);
-use Mysql;
+#use Mysql;
 use Class::Struct;
 
 
