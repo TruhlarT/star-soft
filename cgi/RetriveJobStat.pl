@@ -17,7 +17,7 @@ BEGIN {
 
 use DBI;
 use CGI qw(:standard);
-use Mysql;
+#use Mysql;
 use Class::Struct;
 
 
@@ -87,9 +87,7 @@ my @avgtrck = ();
 my $nsm = 0;
 my $nk = 0;
 
-
 my $jobname = $qtrg."%".$qprod."%";
-
 
   &StDbProdConnect();
 
