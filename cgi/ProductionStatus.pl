@@ -15,7 +15,6 @@ BEGIN {
 
 use DBI;
 use CGI;
-use Mysql;
 use Class::Struct;
 use File::Basename;
 

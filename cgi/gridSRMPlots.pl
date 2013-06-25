@@ -17,7 +17,6 @@ use DBI;
 use CGI;
 use GIFgraph::linespoints;
 use GD;
-use Mysql;
 use Class::Struct;
 
 
