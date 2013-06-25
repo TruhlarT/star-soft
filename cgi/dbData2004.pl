@@ -20,7 +20,7 @@ require "/afs/rhic.bnl.gov/star/users/didenko/cgi/dbProdSetup.pl";
 
 use Class::Struct;
 use CGI;
-use Mysql;
+#use Mysql;
 
 #&cgiSetup();
 

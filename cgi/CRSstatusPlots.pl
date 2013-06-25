@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSstatusPlots.pl,v 1.29 2013/01/03 19:18:03 didenko Exp $
+# $Id: CRSstatusPlots.pl,v 1.30 2013/06/25 18:28:09 didenko Exp $
 #
 # $Log: CRSstatusPlots.pl,v $
+# Revision 1.30  2013/06/25 18:28:09  didenko
+# remove use:Mysql
+#
 # Revision 1.29  2013/01/03 19:18:03  didenko
 # added year 2013
 #
@@ -81,7 +84,7 @@ require "/afs/rhic.bnl.gov/star/packages/scripts/CRSUtils/dbCRSSetup.pl";
 use CGI qw(:standard);
 use GD;
 use GD::Graph::linespoints;
-use Mysql;
+#use Mysql;
 
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";

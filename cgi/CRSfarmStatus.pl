@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.56 2013/01/03 18:43:56 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.57 2013/06/25 18:28:09 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
+# Revision 1.57  2013/06/25 18:28:09  didenko
+# remove use:Mysql
+#
 # Revision 1.56  2013/01/03 18:43:56  didenko
 # more fixes for year 2013
 #
@@ -128,7 +131,7 @@ use DBI;
 use CGI qw(:standard);
 use GD;
 use GD::Graph::linespoints;
-use Mysql;
+#use Mysql;
 
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";

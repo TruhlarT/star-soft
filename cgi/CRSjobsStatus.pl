@@ -11,7 +11,7 @@ BEGIN {
  use CGI::Carp qw(fatalsToBrowser carpout);
 }
 use CGI;
-use Mysql;
+#use Mysql;
 use Class::Struct;
 
  require "/afs/rhic.bnl.gov/star/packages/cgi/dbProdSetup.pl";

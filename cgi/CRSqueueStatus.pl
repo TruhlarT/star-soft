@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSqueueStatus.pl,v 1.22 2013/01/03 19:14:39 didenko Exp $
+# $Id: CRSqueueStatus.pl,v 1.23 2013/06/25 18:28:09 didenko Exp $
 #
 # $Log: CRSqueueStatus.pl,v $
+# Revision 1.23  2013/06/25 18:28:09  didenko
+# remove use:Mysql
+#
 # Revision 1.22  2013/01/03 19:14:39  didenko
 # minor modifications
 #
@@ -80,7 +83,7 @@ use DBI;
 use GD;
 use CGI qw(:standard);
 use GD::Graph::linespoints;
-use Mysql;
+#use Mysql;
 
 
 $dbhost="duvall.star.bnl.gov";
