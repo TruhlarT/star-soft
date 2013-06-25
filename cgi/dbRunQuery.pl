@@ -14,7 +14,6 @@
 
 require "/afs/rhic.bnl.gov/star/packages/scripts/dbCpProdSetup.pl";
 
-use Mysql;
 use Class::Struct;
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);
