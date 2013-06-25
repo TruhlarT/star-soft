@@ -17,7 +17,7 @@ use DBI;
 use CGI qw(:standard);
 use GD;
 use GD::Graph::linespoints;
-use Mysql;
+#use Mysql;
 use Class::Struct;
 
 $dbhost="fc2.star.bnl.gov:3386";
