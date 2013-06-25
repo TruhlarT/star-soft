@@ -7,7 +7,7 @@
 ###############################################################################
 
 use CGI;
-use Mysql;
+#use Mysql;
 
 require "/afs/rhic.bnl.gov/star/packages/cgi/dbCpProdSetup.pl";
 

@@ -8,7 +8,7 @@
 
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);
-use Mysql;
+#use Mysql;
 require "/afs/rhic.bnl.gov/star/packages/cgi/dbCpProdSetup.pl";
 
 my $debugOn = 0;

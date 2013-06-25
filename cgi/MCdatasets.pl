@@ -19,7 +19,7 @@ use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use FileCatalog;
 
 use DBI;
-use Mysql;
+#use Mysql;
 
 my $SITE         = "BNL";
 my $status       = (0==1);

@@ -13,7 +13,7 @@ require "/afs/rhic.bnl.gov/star/packages/cgi/dbCpProdSetup.pl";
 
 use Class::Struct;
 use CGI::Carp qw(fatalsToBrowser);
-use Mysql;
+#use Mysql;
 
 my $debugOn = 0;
 my @SetD;
