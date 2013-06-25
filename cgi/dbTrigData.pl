@@ -20,7 +20,7 @@ require "/afs/rhic.bnl.gov/star/packages/cgi/dbCpProdSetup.pl";
 
 use Class::Struct;
 use CGI;
-use Mysql;
+#use Mysql;
 
 #&cgiSetup();
 
