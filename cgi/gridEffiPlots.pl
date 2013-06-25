@@ -60,7 +60,7 @@ my $nowdate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2008","2009","2010","2011","2012");
+my @prodyear = ("2008","2009","2010","2011","2012","2013");
 
 # Tables
 
