@@ -19,7 +19,7 @@ use Class::Struct;
 
 &cgiSetup();
 
-$dbhost="db03.star.bnl.gov:3316";
+$dbhost="db02.star.bnl.gov:3316";
 $dbuser="starreco";
 $dbpass="";
 $dbname="Embedding_job_stats";
