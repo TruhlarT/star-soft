@@ -33,7 +33,7 @@ if( $sec < 10) { $sec = '0'.$sec };
 
 my $todate = ($year+1900)."-".$mon."-".$mday." ".$hour.":".$min.":".$sec;
 
-$dbhost="db03.star.bnl.gov:3316";
+$dbhost="duvall.star.bnl.gov:3306";
 $dbuser="starreco";
 $dbpass="";
 $dbname="Embedding_job_stats";
