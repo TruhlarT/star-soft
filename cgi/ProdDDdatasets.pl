@@ -385,6 +385,8 @@ my $dsize  = 0;
 my @numfiles = ();
 my @nfileHpss = ();
 my @filehpss = ();
+my @eventhpss = ();
+my @sumevthpss = ();
 
 my $prodname = "n/a";
 
@@ -473,9 +475,11 @@ my $trg0 = "n/a";
     $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_MuDst","storage=HPSS","sanity=1","limit=0");
 
    @filehpss = $fileC->run_query(filename);
+   @eventhpss = $fileC->run_query("sum(events)");
 
    $fileC->clear_context( );
 
+   $sumevthpss[$nlist] = $eventhpss[0];   
    $sumevt[$nlist] = $runevents[0];
    $sumsize[$nlist] = int($datasize[0]/1000000000);
    $dsize = $sumsize[$nlist];
@@ -506,6 +510,7 @@ my $trg0 = "n/a";
 <td HEIGHT=10><h3>$yrdat[$nlist]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveChain.pl?trigs=$trig[$nlist];prod=$prod[$nlist]">$prod[$nlist]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nlist]</h3></td>
+<td HEIGHT=10><h3>$sumevthpss[$nlist]</h3></td>
 <td HEIGHT=10><h3>$sumsize[$nlist]</h3></td>
 <td HEIGHT=10><h3>$numfiles[$nlist]</h3></td>
 <td HEIGHT=10><h3>$nfileHpss[$nlist]</h3></td>
@@ -542,6 +547,7 @@ Link under production tag has chain options<br>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Year of data taken</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Production Tag</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=60><B><h3>Number of Events<h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=60><B><h3>Number of Events on HPSS<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Size (GB) of MuDst <h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of MuDst files on DD<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of MuDst files on HPSS<h3></B></TD>
