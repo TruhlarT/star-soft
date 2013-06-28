@@ -470,7 +470,7 @@ my $trg0 = "n/a";
 
    $fileC->clear_context( );
 
-    $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_MuDst","storage=HPSS","limit=0");
+    $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_MuDst","storage=HPSS","sanity=1","limit=0");
 
    @filehpss = $fileC->run_query(filename);
 
