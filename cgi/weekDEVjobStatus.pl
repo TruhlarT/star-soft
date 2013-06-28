@@ -12,7 +12,6 @@ BEGIN {
 }
 
 use CGI;
-#use Mysql;
 use Class::Struct;
 use DBI;
 

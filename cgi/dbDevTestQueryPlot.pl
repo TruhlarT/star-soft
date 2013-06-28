@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.78 2013/06/25 18:10:22 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.79 2013/06/28 18:21:19 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.79  2013/06/28 18:21:19  didenko
+# remove Mysql
+#
 # Revision 1.78  2013/06/25 18:10:22  didenko
 # remove use:Mysql
 #
@@ -124,7 +127,6 @@ use DBI;
 use CGI qw(:standard);
 use GD;
 use GD::Graph::linespoints;
-#use Mysql;
 
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";

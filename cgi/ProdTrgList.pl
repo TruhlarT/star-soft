@@ -19,7 +19,6 @@ use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use FileCatalog;
 
 use DBI;
-#use Mysql;
 
 ($sec,$min,$hour,$mday,$mon,$year) = localtime();
 
