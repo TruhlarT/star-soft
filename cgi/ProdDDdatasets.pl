@@ -383,7 +383,8 @@ my $nlist = 0;
 my $ssize = 0;
 my $dsize  = 0;
 my @numfiles = ();
-my @mxtime = ();
+my @nfileHpss = ();
+my @filehpss = ();
 
 my $prodname = "n/a";
 
@@ -466,7 +467,12 @@ my $trg0 = "n/a";
    @runevents = $fileC->run_query("sum(events)");
    @datasize = $fileC->run_query("sum(size)");
    @filelst = $fileC->run_query(filename);
-   @mxtime = $fileC->run_query("max(createtime)");
+
+   $fileC->clear_context( );
+
+    $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_MuDst","storage=HPSS","limit=0");
+
+   @filehpss = $fileC->run_query(filename);
 
    $fileC->clear_context( );
 
@@ -486,24 +492,10 @@ my $trg0 = "n/a";
     } 
 
    $numfiles[$nlist] = scalar(@filelst);
+   $nfileHpss[$nlist] = scalar(@filehpss);
+
 
  $prodname = $trig[$nlist].".".$prod[$nlist].".html";
-
-    @prt = ();
-    $crtime = $mxtime[0];
-    @prt = split("-",$crtime);
-    $pyear = $prt[0];
-    $crtime =~ s/-//g;
-    $daydif = $nowdate - $crtime;
-    $mondif = $mon - $prt[1];
-
-    if($pyear eq $nowyear ) { 
-
-    if($mondif == 1 and ($daydiff == 70 or $daydiff == 71 )) {
-    $daydif = $nowdate - $crtime - $daydiff;
-    };
-  }
-
 
 
  print <<END;
@@ -516,6 +508,7 @@ my $trg0 = "n/a";
 <td HEIGHT=10><h3>$sumevt[$nlist]</h3></td>
 <td HEIGHT=10><h3>$sumsize[$nlist]</h3></td>
 <td HEIGHT=10><h3>$numfiles[$nlist]</h3></td>
+<td HEIGHT=10><h3>$nfileHpss[$nlist]</h3></td>
 <td HEIGHT=10><h3>List</h3></td>
 </TR>
 END
@@ -550,7 +543,8 @@ Link under production tag has chain options<br>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Production Tag</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=60><B><h3>Number of Events<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Size (GB) of MuDst <h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of MuDst files <h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of MuDst files on DD<h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of MuDst files on HPSS<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>List of nodes <h3></B></TD>
 </TR> 
    </head>
