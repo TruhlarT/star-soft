@@ -546,9 +546,9 @@ Link under production tag has chain options<br>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Collision</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Year of data taken</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Production Tag</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=60><B><h3>Number of Events<h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=60><B><h3>Number of Events on DD<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=60><B><h3>Number of Events on HPSS<h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Size (GB) of MuDst <h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Size (GB) of MuDst on DD<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of MuDst files on DD<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of MuDst files on HPSS<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>List of nodes <h3></B></TD>
