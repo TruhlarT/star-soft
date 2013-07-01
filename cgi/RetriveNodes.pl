@@ -76,20 +76,17 @@ $arnodes[0] = 0;
      $nodelst[$nlist] = $prt[0]; 
      $datasize[$nlist] = $prt[1]; 
     
-    $rsumsize[$nlist] = int($datasize[$nlist]/1000000000);
-    $dsize = $rsumsize[$nlist];
+    $sumsize[$nlist] = int($datasize[$nlist]/1000000000);
+    $dsize = $sumsize[$nlist];
 
 
-   if($rsumsize[$nlist] < 1 ) {
+   if($sumsize[$nlist] < 1 ) {
    $ssize = int($datasize[$nlist]/1000000);
-   $rsumsize[$nlist] = "0.".$ssize;
+   $sumsize[$nlist] = "0.".$ssize;
 
-   $sumsize[$nlist] = sprintf("%.2f", $rsumsize[$nlist]);
-
-  }elsif($rsumsize[$nlist] < 100 ) {
+  }elsif($sumsize[$nlist] < 100 ) {
    $ssize = int($datasize[$nlist]/1000000) - $dsize*1000;
-   $rsumsize[$nlist] = $dsize.".".$ssize;
-   $sumsize[$nlist] = sprintf("%.2f", $rsumsize[$nlist]);
+   $sumsize[$nlist] = $dsize.".".$ssize;
 
     }else{
    $sumsize[$nlist] = int($datasize[$nlist]/1000000000 + 0.5);
