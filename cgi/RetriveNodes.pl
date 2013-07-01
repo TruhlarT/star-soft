@@ -54,6 +54,8 @@ my @prt = ();
 
 my $query = new CGI;
 
+ if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
+
 my $qtrg = $query->param('trigs');
 my $qprod = $query->param('prod');
 
@@ -119,8 +121,9 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=40><B><h3>Node name</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=40><B><h3>Size (GB) of MuDst </h3></B></TD>
 </TR> 
-   </head>
+</TABLE>
     </body>
+</html>
 END
 }
 
