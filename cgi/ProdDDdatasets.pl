@@ -505,7 +505,7 @@ my $trg0 = "n/a";
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/public/comp/prod/ddprodsum/$prodname">$trig[$nlist]</h3></td>
+<td HEIGHT=10><h3>$trig[$nlist]</h3></td>
 <td HEIGHT=10><h3>$coll[$nlist]</h3></td>
 <td HEIGHT=10><h3>$yrdat[$nlist]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveChain.pl?trigs=$trig[$nlist];prod=$prod[$nlist]">$prod[$nlist]</h3></td>
