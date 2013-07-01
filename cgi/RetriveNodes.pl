@@ -14,7 +14,7 @@ BEGIN {
  use CGI::Carp qw(fatalsToBrowser carpout);
 }
 
-use CGI;
+use CGI qw(:standard);
 use DBI;
 use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use FileCatalog;
@@ -114,7 +114,7 @@ print <<END;
  <h2 ALIGN=CENTER> <B> <font color="blue">$qprod </font>production summary on local disks for <font color="blue">$qtrg </font> data </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
-<TABLE ALIGN=CENTER BORDER=1 CELLSPACING=0 CELLPADDING=1 >
+<TABLE ALIGN=CENTER BORDER=2 CELLSPACING=1 CELLPADDING=1 >
 <TR>
 <TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=40><B><h3>Node name</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=40><B><h3>Size (GB) of MuDst </h3></B></TD>
