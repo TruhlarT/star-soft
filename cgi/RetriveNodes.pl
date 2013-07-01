@@ -77,11 +77,13 @@ $arnodes[0] = 0;
      $datasize[$nlist] = $prt[1]; 
     
     $sumsize[$nlist] = int($datasize[$nlist]/1000000000);
+    $dsize = $sumsize[$nlist];
+
 
    if($sumsize[$nlist] < 1 ) {
    $ssize = int($datasize[$nlist]/1000000);
    $sumsize[$nlist] = "0.".$ssize;
-  }elsif($sumsize[$nlist] < 10 ) {
+  }elsif($sumsize[$nlist] < 100 ) {
    $ssize = int($datasize[$nlist]/1000000) - $dsize*1000;
    $sumsize[$nlist] = $dsize.".".$ssize;
 
