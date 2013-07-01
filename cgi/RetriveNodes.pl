@@ -121,7 +121,6 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=40><B><h3>Node name</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=40><B><h3>Size (GB) of MuDst </h3></B></TD>
 </TR> 
-</TABLE>
     </body>
 </html>
 END

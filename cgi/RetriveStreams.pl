@@ -59,6 +59,8 @@ my @prt = ();
 
 my $query = new CGI;
 
+ if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
+
 my $qtrg = $query->param('trigs');
 my $qprod = $query->param('prod');
 
@@ -169,6 +171,7 @@ print <<END;
 </TR> 
    </head>
     </body>
+</html>
 END
 }
 
