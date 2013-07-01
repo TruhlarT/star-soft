@@ -90,8 +90,8 @@ $arnodes[0] = 0;
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"#ffdc9f\">
-<td HEIGHT=10><h3>$nodelst[$nlist]</h3></td>
-<td HEIGHT=10><h3>$sumsize[$nlist]</h3></td>
+<td HEIGHT=5><h3>$nodelst[$nlist]</h3></td>
+<td HEIGHT=5><h3>$sumsize[$nlist]</h3></td>
 </TR>
 END
       $nlist++;
@@ -113,7 +113,7 @@ print <<END;
  <h2 ALIGN=CENTER> <B> <font color="blue">$qprod </font>production summary on local disks for <font color="blue">$qtrg </font> data </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
-<TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
+<TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=1 >
 <TR>
 <TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Node name</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Size (GB) of MuDst </h3></B></TD>
