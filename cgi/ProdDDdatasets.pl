@@ -514,7 +514,7 @@ my $trg0 = "n/a";
 <td HEIGHT=10><h3>$sumsize[$nlist]</h3></td>
 <td HEIGHT=10><h3>$numfiles[$nlist]</h3></td>
 <td HEIGHT=10><h3>$nfileHpss[$nlist]</h3></td>
-<td HEIGHT=10><h3>List</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveNodes.pl?trigs=$trig[$nlist];prod=$prod[$nlist]">list</h3></td>
 </TR>
 END
 
