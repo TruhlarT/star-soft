@@ -62,7 +62,7 @@ $arnodes[0] = 0;
 
  $fileC->set_context("trgsetupname=$qtrg","production=$qprod","filetype=daq_reco_MuDst","storage=local");
 
- @arnodes = $fileC->run_query(grp(node),sum(size));
+ @arnodes = $fileC->run_query('grp(node)','sum(size)');
 
  $fileC->clear_context( );
 
