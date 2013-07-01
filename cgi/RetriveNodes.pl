@@ -15,6 +15,7 @@ BEGIN {
 }
 
 use CGI;
+use DBI;
 use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use FileCatalog;
 
