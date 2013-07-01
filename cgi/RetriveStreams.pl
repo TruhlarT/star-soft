@@ -138,9 +138,10 @@ END
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveTrigID.pl?rtrig=$qtrg;rprod=$qprod;rstream=$streamname[$nlist]">triggerID</h3></td>
 </TR>
 END
-      $nlist++;
+#      $nlist++;
 
     }
+      $nlist++;
  }
  
    $fileC->destroy();
