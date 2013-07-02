@@ -44,6 +44,8 @@ my @datasize = ();
 my @nodelst = (); 
 my @arnodes = ();
 my @sumevents = ();
+my @filelst = ();
+my @numfiles = ();
 my $strline = 'none';
 
 my $nlist = 0;
@@ -61,7 +63,7 @@ my $qprod = $query->param('prod');
 
 &beginHtml();
 
- $fileC->set_context("trgsetupname=$qtrg","production=$qprod","filetype=daq_reco_MuDst","storage=local");
+ $fileC->set_context("trgsetupname=$qtrg","production=$qprod","filetype=daq_reco_MuDst","storage=local","limit=0");
 
  @arnodes = $fileC->run_query("grp(node)","sum(size)","sum(events)");
 
@@ -77,12 +79,20 @@ my $qprod = $query->param('prod');
      $sumsize[$nlist] = sprintf("%.2f", $dsize);
      $sumevents[$nlist] = $prt[2]; 
 
+ $fileC->set_context("trgsetupname=$qtrg","production=$qprod","node=$nodelst[$nlist]","filetype=daq_reco_MuDst","storage=local","limit=0");
+   @filelst = $fileC->run_query(filename);
+
+   $fileC->clear_context( );
+
+   $numfiles[$nlist] = scalar(@filelst);
+
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"#ffdc9f\">
 <td HEIGHT=5><h3>$nodelst[$nlist]</h3></td>
 <td HEIGHT=5><h3>$sumsize[$nlist]</h3></td>
 <td HEIGHT=5><h3>$sumevents[$nlist]</h3></td>
+<td HEIGHT=5><h3>$numfiles[$nlist]</h3></td>
 </TR>
 END
       $nlist++;
@@ -109,6 +119,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=40><B><h3>Node name</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=40><B><h3>Size (GB) of MuDst </h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=40><B><h3>Number of events </h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=40><B><h3>Number of MuDst files </h3></B></TD>
 </TR> 
     </body>
 </html>
