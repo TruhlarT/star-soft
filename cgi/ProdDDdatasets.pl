@@ -481,19 +481,8 @@ my $trg0 = "n/a";
 
    $sumevthpss[$nlist] = $eventhpss[0];   
    $sumevt[$nlist] = $runevents[0];
-   $sumsize[$nlist] = int($datasize[0]/1000000000);
-   $dsize = $sumsize[$nlist];
-
-   if($sumsize[$nlist] < 1 ) {
-   $ssize = int($datasize[0]/1000000);
-   $sumsize[$nlist] = "0.".$ssize;
-   }elsif($sumsize[$nlist] < 10 ) {
-   $ssize = int($datasize[0]/1000000) - $dsize*1000;
-   $sumsize[$nlist] = $dsize.".".$ssize; 
-
-    }else{
-   $sumsize[$nlist] = int($datasize[0]/1000000000 + 0.5);
-    } 
+   $dsize = $datasize[0]/1000000000.;
+   $sumsize[$nlist] = sprintf("%.1f", $dsize);
 
    $numfiles[$nlist] = scalar(@filelst);
    $nfileHpss[$nlist] = scalar(@filehpss);
