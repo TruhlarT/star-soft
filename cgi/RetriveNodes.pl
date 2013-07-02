@@ -48,6 +48,7 @@ my $strline = 'none';
 my $nlist = 0;
 my $ssize = 0;
 my $dsize = 0;
+my $rsize = 0;
 my @rsumsize  = ();
 my @prt = ();
 
@@ -82,13 +83,13 @@ $arnodes[0] = 0;
 
    if($sumsize[$nlist] < 1 ) {
    $ssize = int($datasize[$nlist]/1000000);
-   $ssize = sprintf("%2.0", $ssize);
-   $sumsize[$nlist] = "0.".$ssize;
+   $rsize = sprintf("%.2d", $ssize);
+   $sumsize[$nlist] = "0.".$rsize;
 
   }elsif($sumsize[$nlist] < 100 ) {
    $ssize = int($datasize[$nlist]/1000000) - $dsize*1000;
-   $ssize = sprintf("%2.0", $ssize);
-   $sumsize[$nlist] = $dsize.".".$ssize;
+   $rsize = sprintf("%.2d", $ssize);
+   $sumsize[$nlist] = $dsize.".".$rsize;
 
     }else{
    $sumsize[$nlist] = int($datasize[$nlist]/1000000000 + 0.5);
