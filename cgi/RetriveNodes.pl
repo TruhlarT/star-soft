@@ -43,6 +43,7 @@ my @sumsize = ();
 my @datasize = ();
 my @nodelst = (); 
 my @arnodes = ();
+my @sumevents = ();
 my $strline = 'none';
 
 my $nlist = 0;
@@ -62,7 +63,7 @@ my $qprod = $query->param('prod');
 
  $fileC->set_context("trgsetupname=$qtrg","production=$qprod","filetype=daq_reco_MuDst","storage=local");
 
- @arnodes = $fileC->run_query("grp(node)","sum(size)");
+ @arnodes = $fileC->run_query("grp(node)","sum(size)","sum(events)");
 
  $fileC->clear_context( );
 
@@ -74,13 +75,14 @@ my $qprod = $query->param('prod');
      $datasize[$nlist] = $prt[1]; 
      $dsize = $datasize[$nlist]/1000000000. ;
      $sumsize[$nlist] = sprintf("%.2f", $dsize);
-
+     $sumevents[$nlist] = $prt[2]; 
 
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"#ffdc9f\">
 <td HEIGHT=5><h3>$nodelst[$nlist]</h3></td>
 <td HEIGHT=5><h3>$sumsize[$nlist]</h3></td>
+<td HEIGHT=5><h3>$sumevents[$nlist]</h3></td>
 </TR>
 END
       $nlist++;
@@ -99,13 +101,14 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\"> 
- <h2 ALIGN=CENTER> <B> <font color="blue">$qprod </font>production summary on local disks for <font color="blue">$qtrg </font> data </B></h2>
+ <h2 ALIGN=CENTER> <B> <font color="blue">$qprod </font>production summary on local disks for <font color="blue">$qtrg </font> dataset </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=2 CELLSPACING=1 CELLPADDING=1 >
 <TR>
 <TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=40><B><h3>Node name</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=40><B><h3>Size (GB) of MuDst </h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=40><B><h3>Number of events </h3></B></TD>
 </TR> 
     </body>
 </html>
