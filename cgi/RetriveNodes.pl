@@ -48,8 +48,6 @@ my $strline = 'none';
 my $nlist = 0;
 my $ssize = 0;
 my $dsize = 0;
-my $rsize = 0;
-my @rsumsize  = ();
 my @prt = ();
 
 
@@ -66,7 +64,7 @@ $arnodes[0] = 0;
 
  $fileC->set_context("trgsetupname=$qtrg","production=$qprod","filetype=daq_reco_MuDst","storage=local");
 
- @arnodes = $fileC->run_query('grp(node)','sum(size)');
+ @arnodes = $fileC->run_query("grp(node)","sum(size)");
 
  $fileC->clear_context( );
 
@@ -78,22 +76,6 @@ $arnodes[0] = 0;
      $datasize[$nlist] = $prt[1]; 
      $dsize = $datasize[$nlist]/1000000000. ;
      $sumsize[$nlist] = sprintf("%.2f", $dsize);
-
-#    $sumsize[$nlist] = int($datasize[$nlist]/1000000000);
-#    $dsize = $sumsize[$nlist];
-
-
-#   if($sumsize[$nlist] < 1 ) {
-#    $ssize = int($datasize[$nlist]/1000000);
-#    $sumsize[$nlist] = "0.".$ssize;
-
-#   }elsif($sumsize[$nlist] < 100 ) {
-#    $ssize = int($datasize[$nlist]/1000000) - $dsize*1000;
-#    $sumsize[$nlist] = $dsize.".".$ssize;
-
-#     }else{
-#    $sumsize[$nlist] = int($datasize[$nlist]/1000000000 + 0.5);
-#     }
 
 
  print <<END;
