@@ -482,7 +482,14 @@ my $trg0 = "n/a";
    $sumevthpss[$nlist] = $eventhpss[0];   
    $sumevt[$nlist] = $runevents[0];
    $dsize = $datasize[0]/1000000000.;
+
+   if($dsize < 10 ) {
+   $sumsize[$nlist] = sprintf("%.2f", $dsize);
+  }elsif($dsize < 100 ) {
    $sumsize[$nlist] = sprintf("%.1f", $dsize);
+   }else{
+  $sumsize[$nlist] = int($dsize + 0.5);
+    }
 
    $numfiles[$nlist] = scalar(@filelst);
    $nfileHpss[$nlist] = scalar(@filehpss);
