@@ -447,11 +447,6 @@ my $trg0 = "n/a";
 	     $coll[$nlist] = "auau62";
 	 }
 
-     @runevents = ();
-     $runevents[0] = 0;  
-     @datasize = ();
-     $datasize[0] = 0; 
-     @filelst = ();
 
 	next if($trig[$nlist] eq "productionLow" and $prod[$nlist] eq "P04if");
 	next if($trig[$nlist] eq "dAuMinBias" and $prod[$nlist] eq "P03if");
@@ -463,6 +458,14 @@ my $trg0 = "n/a";
         next if($prod[$nlist] eq "P03gc"); 
         next if($prod[$nlist] eq "P03ie");          
 
+ @runevents = ();
+ $runevents[0] = 0;  
+ @datasize = ();
+ $datasize[0] = 0; 
+ @filelst = (); 
+ @eventhpss = ();
+ $eventhpss[0] = 0;
+ @filehpss = (); 
 
     $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_MuDst","storage=local","sanity=1","limit=0");
  
