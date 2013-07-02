@@ -83,12 +83,12 @@ $arnodes[0] = 0;
 
    if($sumsize[$nlist] < 1 ) {
    $ssize = int($datasize[$nlist]/1000000);
-   $rsize = sprintf("%.2d", $ssize);
+   $rsize = sprintf("%.2f", $ssize);
    $sumsize[$nlist] = "0.".$rsize;
 
   }elsif($sumsize[$nlist] < 100 ) {
    $ssize = int($datasize[$nlist]/1000000) - $dsize*1000;
-   $rsize = sprintf("%.2d", $ssize);
+   $rsize = sprintf("%.2f", $ssize);
    $sumsize[$nlist] = $dsize.".".$rsize;
 
     }else{
