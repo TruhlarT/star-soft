@@ -58,8 +58,6 @@ my $query = new CGI;
 my $qtrg = $query->param('trigs');
 my $qprod = $query->param('prod');
 
-$arnodes[0] = 0;
-
 &beginHtml();
 
  $fileC->set_context("trgsetupname=$qtrg","production=$qprod","filetype=daq_reco_MuDst","storage=local");
