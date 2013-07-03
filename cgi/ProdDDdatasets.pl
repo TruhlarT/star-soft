@@ -475,7 +475,7 @@ my $trg0 = "n/a";
 
    $fileC->clear_context( );
 
-    $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_MuDst","storage=HPSS","sanity=1","limit=0");
+   $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_MuDst","storage=HPSS","sanity=1","limit=0");
 
    @filehpss = $fileC->run_query(filename);
    @eventhpss = $fileC->run_query("sum(events)");
@@ -488,10 +488,10 @@ my $trg0 = "n/a";
 
    if($dsize < 10 ) {
    $sumsize[$nlist] = sprintf("%.2f", $dsize);
-  }elsif($dsize < 100 ) {
+   }elsif($dsize < 100 ) {
    $sumsize[$nlist] = sprintf("%.1f", $dsize);
    }else{
-  $sumsize[$nlist] = int($dsize + 0.5);
+   $sumsize[$nlist] = int($dsize + 0.5);
     }
 
    $numfiles[$nlist] = scalar(@filelst);
