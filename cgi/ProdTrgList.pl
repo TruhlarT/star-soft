@@ -395,6 +395,10 @@ my $trg0 = "n/a";
 
  $fileC->clear_context( );
 
+my $query = new CGI;
+
+ if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
+
 &beginHtml();
 
     foreach my $line (@prodset){
