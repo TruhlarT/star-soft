@@ -396,6 +396,9 @@ my $prodname = "n/a";
 
  $fileC->clear_context( );
 
+
+ if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
+
 &beginHtml();
 
     foreach my $line (@prodset){
