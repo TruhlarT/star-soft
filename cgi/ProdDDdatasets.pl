@@ -390,8 +390,6 @@ my @sumevthpss = ();
 
 my $prodname = "n/a";
 
-my $trg0 = "n/a";
-
  $fileC->set_context("filetype=daq_reco_MuDst","storage=local","limit=0");
 
   @prodset = $fileC->run_query("trgsetupname","ordd(production)");
@@ -402,8 +400,6 @@ my $trg0 = "n/a";
 
     foreach my $line (@prodset){
 
-	next if($line =~ /$trg0/);
-        next if($line =~ /DEV/);
         next if($line =~ /CosmicLocalClock/);
 
     @prt = (); 
@@ -498,12 +494,12 @@ my $trg0 = "n/a";
    $nfileHpss[$nlist] = scalar(@filehpss);
 
 
- $prodname = $trig[$nlist].".".$prod[$nlist].".html";
+ $prodname = $trig[$nlist].".".$prod[$nlist]."_loc.html";
 
 
  print <<END;
 
-<TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$trig[$nlist]</h3></td>
 <td HEIGHT=10><h3>$coll[$nlist]</h3></td>
 <td HEIGHT=10><h3>$yrdat[$nlist]</h3></td>
@@ -541,19 +537,19 @@ Link under production tag has chain options<br>
 <ALIGN=LEFT><font color="blue">Production descriptions can be found on  <a href="http://www.star.bnl.gov/public/comp/prod/ProdList.html"> the page</a></font></h4>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
-<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Trigger sets</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Trigger sets</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Collision</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Year of data taken</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Production Tag</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=60><B><h3>Number of Events on DD<h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=60><B><h3>Number of Events on HPSS<h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of Events on DD<h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of Events on HPSS<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Size (GB) of MuDst on DD<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of MuDst files on DD<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of MuDst files on HPSS<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>List of nodes <h3></B></TD>
 </TR> 
-   </head>
     </body>
+   </html>
 END
 }
 
