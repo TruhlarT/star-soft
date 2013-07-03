@@ -17,7 +17,6 @@ BEGIN {
 
 use CGI qw(:standard);
 use DBI;
-#use Mysql;
 use Class::Struct;
 use Time::Local;
 
