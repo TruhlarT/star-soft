@@ -501,7 +501,6 @@ my $query = new CGI;
 
  $prodname = $trig[$nlist].".".$prod[$nlist]."_loc.html";
 
-
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
