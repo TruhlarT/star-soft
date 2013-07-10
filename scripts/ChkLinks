@@ -19,7 +19,7 @@ $ARGS      = "--recurse --verbosity 2";               # linkcheck options
 $CHCOL     = 0;                                       # change color if same ws
 $MAXBRK    = 50;                                      # stop listing broken links when exceeded
 
-$TARGETD   = "/star/starlib/doc/www/html/tmp/";       # output directory
+$TARGETD   = "/afs/rhic.bnl.gov/star/doc_public/www/html/tmp/";  # output directory
 @EXCLUDED  = ("protected",
 	      "phpMyAdmin",
 	      "HyperNews-star");                      # patterns to exclude
