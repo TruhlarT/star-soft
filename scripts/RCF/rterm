@@ -207,7 +207,7 @@ __EOF__
 	# the rest is all parameters
 	default:
 	    # can be many things
-	    if ( `echo "$arg" | $GREP \-` == "") then
+	    if ( `echo "$arg" | $GREP '^-'` == "") then
 		if ("$node" == "") then
 		    set node="$arg"
 		else
