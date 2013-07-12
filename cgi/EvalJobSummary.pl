@@ -19,10 +19,10 @@ use Class::Struct;
 
 &cgiSetup();
 
-$dbhost="fc2.star.bnl.gov:3386";
+#$dbhost="fc2.star.bnl.gov:3386";
 
 
-#$dbhost="duvall.star.bnl.gov";
+$dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
 $dbpass="";
 $dbname="operation";
