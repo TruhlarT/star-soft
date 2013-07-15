@@ -14,7 +14,6 @@ BEGIN {
 
 use DBI;
 use CGI qw(:standard);
-#use Mysql;
 use Class::Struct;
 
 &cgiSetup();
@@ -425,7 +424,7 @@ print <<END;
     </head>
 
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>Summary of production jobs status for new tracking evoluation</h2>
+ <h2 ALIGN=CENTER> <B>Summary of production jobs status for new tracking evaluation</h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <h4 ALIGN=LEFT><font color="#ff0000">Ongoing production is in red color</font><br>
