@@ -8,7 +8,7 @@
 # trigger set, chainName from ProdOptions table and stream name (use "all" if all stream data
 # should be processed)   
 # For example:
-# createJobsbyRunList.pl P11id AuAu19_production  auau19.run2011.prod1 st_physics
+# createJobsbyTrg.pl P11id AuAu19_production  auau19.run2011.prod1 st_physics
 # 
 #
 # Author:  L.Didenko
@@ -29,7 +29,7 @@ $dbuser="starreco";
 $dbpass="";
 $dbname="operation";
 
-$JobStatusT = "JobStatus2011";
+$JobStatusT = "JobStatus2013";
 $ProdOptionsT = "ProdOptions";
 
 my $prodPeriod = $ARGV[0]; 
@@ -37,7 +37,7 @@ my $trig = $ARGV[1];
 my $chName = $ARGV[2];
 my $ftype = $ARGV[3];
 
-my $datDisk = "/star/data+20-90";             
+my $datDisk = "/star/data+25-98";             
 
 ###Set directories to be created for jobfiles
 
@@ -182,7 +182,6 @@ my @flsplit = ();
     $jbset = $field . "_" .$prodPeriod . "_" . $parts[5] . "_" . $parts[6]. "_" . $parts[7];
    
     $mjobFname = $trig . "_" .$field . "_" .$prodPeriod ."_". $jfile;
-
 
    $jb_fstat = 1;
     $jb_news = $JOB_DIR . "/new_jobs/" . $mjobFname;

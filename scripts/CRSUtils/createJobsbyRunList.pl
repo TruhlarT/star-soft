@@ -29,7 +29,7 @@ $dbuser="starreco";
 $dbpass="";
 $dbname="operation";
 
-$JobStatusT = "JobStatus2011";
+$JobStatusT = "JobStatus2012";
 $ProdOptionsT = "ProdOptions";
 
 my $prodPeriod = $ARGV[0]; 
@@ -37,7 +37,7 @@ my $chName = $ARGV[1];
 my $fileName = $ARGV[2]; 
 my $ftype = $ARGV[3];
 
-my $datDisk = "/star/data+20-90";             
+my $datDisk = "/star/data+25-98";             
 my $trig;
 
 my $listName = "/star/u/starreco/".$fileName;
