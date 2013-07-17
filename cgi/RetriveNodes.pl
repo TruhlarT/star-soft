@@ -80,6 +80,7 @@ my $qprod = $query->param('prod');
      $sumevents[$nlist] = $prt[2]; 
 
  $fileC->set_context("trgsetupname=$qtrg","production=$qprod","node=$nodelst[$nlist]","filetype=daq_reco_MuDst","storage=local","limit=0");
+
    @filelst = $fileC->run_query(filename);
 
    $fileC->clear_context( );
@@ -111,7 +112,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\"> 
- <h2 ALIGN=CENTER> <B> <font color="blue">$qprod </font>production summary on local disks for <font color="blue">$qtrg </font> dataset </B></h2>
+ <h2 ALIGN=CENTER> <B> <font color="blue">$qprod </font>production summary on distributed disks <br>for <font color="blue">$qtrg </font> dataset </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=2 CELLSPACING=1 CELLPADDING=1 >
