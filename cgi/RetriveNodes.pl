@@ -145,11 +145,6 @@ END
 
 }
 
-##############
-sub cgiSetup {
-    $q=new CGI;
-    if ( exists($ENV{'QUERY_STRING'}) ) { print $q->header };
-}
 
 
 
