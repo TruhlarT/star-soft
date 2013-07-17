@@ -39,16 +39,16 @@ my $fileC = new FileCatalog();
     $fileC->connect_as($SITE."::User","FC_user") || die "Connection failed for FC_user\n";
 
 my @sumevt = ();
-my @runevents = ();
+my @sumevents = ();
 my @sumsize = ();
 my @datasize = ();
 my @filelst = (); 
-my $strname = 'n/a';
+my @strname = ();
 my $nlist = 0;
 my $ssize = 0;
 my $dsize = 0;
 my @numfiles = ();
-
+my @prt = ();
 my @arstream = ();
 
 my $query = new CGI;
@@ -58,36 +58,31 @@ my $query = new CGI;
 my $qtrg = $query->param('trigs');
 my $qprod = $query->param('prod');
 
-$arstream[0] = 0;
-
 &beginHtml();
 
- $fileC->set_context("trgsetupname=$qtrg","production=$qprod","filetype=daq_reco_MuDst","storage=local");
+ $fileC->set_context("trgsetupname=$qtrg","production=$qprod","filetype=daq_reco_MuDst","storage=local","limit=0");
 
- @arstream = $fileC->run_query(sname2);
+ @arstream = $fileC->run_query("grp(sname2)","sum(size)","sum(events)");
 
  $fileC->clear_context( );
 
      foreach my $strline (@arstream){
 
-$fileC->set_context("trgsetupname=$qtrg","production=$qprod","sname2=$strline","filetype=daq_reco_MuDst","sanity=1","storage=local","limit=0");
+     @prt = ();
+     @prt = split("::",$strline);
+     $strname[$nlist] = $prt[0];
+     $datasize[$nlist] = $prt[1];
+     $dsize = $datasize[$nlist]/1000000000. ;
+     $sumsize[$nlist] = sprintf("%.2f", $dsize);
+     $sumevents[$nlist] = $prt[2];
 
-     $strname[$nlist] = $strline;
-     @runevents = ();
-     $runevents[0] = 0;  
-     @datasize = ();
-     $datasize[0] = 0; 
      @filelst = ();  
 
-   @runevents = $fileC->run_query("sum(events)");
-   @datasize = $fileC->run_query("sum(size)");
+ $fileC->set_context("trgsetupname=$qtrg","production=$qprod","sname2=$strname[$nlist]","filetype=daq_reco_MuDst","storage=local","limit=0");
+
    @filelst = $fileC->run_query(filename);
 
    $fileC->clear_context( );
-
-   $sumevt[$nlist] = $runevents[0];
-   $dsize = $datasize[0]/1000000000.;
-   $sumsize[$nlist] = sprintf("%.2f", $dsize);
 
    $numfiles[$nlist] = scalar(@filelst);
 
@@ -95,7 +90,7 @@ $fileC->set_context("trgsetupname=$qtrg","production=$qprod","sname2=$strline","
 
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"#ffdc9f\">
 <td HEIGHT=10><h3>$strname[$nlist]</h3></td>
-<td HEIGHT=10><h3>$sumevt[$nlist]</h3></td>
+<td HEIGHT=10><h3>$sumevents[$nlist]</h3></td>
 <td HEIGHT=10><h3>$sumsize[$nlist]</h3></td>
 <td HEIGHT=10><h3>$numfiles[$nlist]</h3></td>
 </TR>
@@ -116,7 +111,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\"> 
- <h2 ALIGN=CENTER> <B> <font color="blue">$qprod </font>production summary for <font color="blue">$qtrg </font>stream data </B></h2>
+ <h2 ALIGN=CENTER> <B> <font color="blue">$qprod </font>production summary for <font color="blue">$qtrg </font>stream data on local disks</B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
