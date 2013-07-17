@@ -6,7 +6,7 @@
 #
 # ProdDDdatasets.pl
 #
-# List of trigset sets and production summary from FileCatalog for DD.
+# Production summary from FileCatalog for Distributed disk.
 # 
 ################################################################################################
 
@@ -504,7 +504,7 @@ my $query = new CGI;
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3>$trig[$nlist]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveStreamDd.pl?trigs=$trig[$nlist];prod=$prod[$nlist]">$trig[$nlist]</h3></td>
 <td HEIGHT=10><h3>$coll[$nlist]</h3></td>
 <td HEIGHT=10><h3>$yrdat[$nlist]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveChain.pl?trigs=$trig[$nlist];prod=$prod[$nlist]">$prod[$nlist]</h3></td>
@@ -536,7 +536,7 @@ print <<END;
    <body BGCOLOR=\"cornsilk\"> 
  <h2 ALIGN=CENTER> <B> Production Data Summary on Distribited Disk  </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
-<h4 ALIGN=LEFT>Link under the trigger set name has stream data production summary <br>
+<h4 ALIGN=LEFT>Link under the trigger set name has stream data summary <br>
 Link under production tag has chain options<br>
 <ALIGN=LEFT><font color="blue">Production descriptions can be found on  <a href="http://www.star.bnl.gov/public/comp/prod/ProdList.html"> the page</a></font></h4>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
