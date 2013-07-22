@@ -194,7 +194,6 @@ my %collHash = (
 	      );
              
 my %yrHash = (
-
                  pp500_production_2013 => 'year2013',
                  pp500_production_2013a => 'year2013',
                  pp500_production_2013_noendcap => 'year2013',
