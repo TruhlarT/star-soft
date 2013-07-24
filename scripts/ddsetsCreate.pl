@@ -36,7 +36,7 @@ my $flsize = 0;
  $fileC->clear_context( );
 
  `cd /star/u/starlib/localdata`;
- `rm /star/u/starlib/localdata/*html`;
+ `rm /star/u/starlib/localdata/*loc.html`;
  
     foreach my $line (@prodset){
 
