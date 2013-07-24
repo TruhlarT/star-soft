@@ -112,13 +112,13 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\"> 
- <h2 ALIGN=CENTER> <B> <font color="blue">$qprod </font>production summary on distributed disk <br>for <font color="blue">$qtrg </font> dataset </B></h2>
- <h3 ALIGN=CENTER> Generated on $todate</h3>
+ <h2 ALIGN=CENTER> <B> List of nodes and <font color="blue">$qprod </font> production summary on distributed disk <br>for <font color="blue">$qtrg </font> dataset </B></h2>
+ <h3 ALIGN=CENTER> Created on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=2 CELLSPACING=1 CELLPADDING=1 >
 <TR>
 <TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=40><B><h3>Node name</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=40><B><h3>Size (GB) of MuDst </h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=40><B><h3>Size of MuDst (GB)</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=40><B><h3>Number of events </h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=40><B><h3>Number of MuDst files </h3></B></TD>
 </TR> 
