@@ -514,7 +514,7 @@ my $query = new CGI;
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveStreamDd.pl?trigs=$trig[$nlist];prod=$prod[$nlist]">$trig[$nlist]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/public/comp/prod/localdata/$prodname">$trig[$nlist]</font></h3></td>
 <td HEIGHT=10><h3>$coll[$nlist]</h3></td>
 <td HEIGHT=10><h3>$yrdat[$nlist]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveChain.pl?trigs=$trig[$nlist];prod=$prod[$nlist]">$prod[$nlist]</h3></td>
