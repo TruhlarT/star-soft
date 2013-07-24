@@ -35,7 +35,8 @@ my $flsize = 0;
 
  $fileC->clear_context( );
 
- `cd star/u/starlib/localdata`;
+ `cd /star/u/starlib/localdata`;
+ `rm /star/u/starlib/localdata/*`;
  
     foreach my $line (@prodset){
 
@@ -47,6 +48,7 @@ my $flsize = 0;
     $prodtag[$nlist] = $prt[1];
 
    $sumfile[$nlist] = $setname[$nlist].".".$prodtag[$nlist].".html";
+
 
 `wget --user=protected --password=BeamMeUp 'http://www.star.bnl.gov/devcgi/RetriveStreamDd.pl?trigs=$setname[$nlist];prod=$prodtag[$nlist]' -O $sumfile[$nlist]`;
 
