@@ -47,7 +47,7 @@ my $flsize = 0;
     $setname[$nlist] = $prt[0];
     $prodtag[$nlist] = $prt[1];
 
-   $sumfile[$nlist] = $setname[$nlist].".".$prodtag[$nlist].".html";
+   $sumfile[$nlist] = $setname[$nlist].".".$prodtag[$nlist]."_loc.html";
 
 
 `wget --user=protected --password=BeamMeUp 'http://www.star.bnl.gov/devcgi/RetriveStreamDd.pl?trigs=$setname[$nlist];prod=$prodtag[$nlist]' -O $sumfile[$nlist]`;
