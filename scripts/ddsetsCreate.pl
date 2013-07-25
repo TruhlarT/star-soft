@@ -40,12 +40,16 @@ my $flsize = 0;
  
     foreach my $line (@prodset){
 
-	print $line , "\n";
+#    print $line , "\n";
     @prt = ();
     @prt = split("::",$line);
 
     $setname[$nlist] = $prt[0];
     $prodtag[$nlist] = $prt[1];
+
+    if($setname[$nlist] eq "ProductionMinBias" ) {
+	$setname[$nlist] =~ s/P/p/g ;
+    }
 
    $sumfile[$nlist] = $setname[$nlist].".".$prodtag[$nlist]."_loc.html";
 
