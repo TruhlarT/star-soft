@@ -415,8 +415,6 @@ my $query = new CGI;
 
     foreach my $line (@prodset){
 
-        next if($line =~ /CosmicLocalClock/);
-
     @prt = (); 
     @prt = split("::",$line); 
 
@@ -575,9 +573,9 @@ print <<END;
 </TABLE>
       <h5>
       <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
-<!-- Created: Wed July 26  05:29:25 MET 2000 -->
+<!-- Created: Wed July 10  05:29:25 MET 2000 -->
 <!-- hhmts start -->
-Last update: $Date
+Last update: July 26 2013
 <!-- hhmts end -->
   </body>
 </html>
