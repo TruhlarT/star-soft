@@ -118,7 +118,7 @@ print <<END;
 <TR>
 <TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Stream name</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Number of Events</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Size (GB) of MuDst </h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Size of MuDst (GB) </h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Number of MuDst files </h3></B></TD>
 </TR> 
    </head>
@@ -134,9 +134,9 @@ print <<END;
 </TABLE>
       <h5>
       <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
-<!-- Created: Wed July 26  05:29:25 MET 2000 -->
+<!-- Created: Wed July 10  05:29:25 MET 2013 -->
 <!-- hhmts start -->
-Last modified: $Date
+Last modified: July 26 2013
 <!-- hhmts end -->
   </body>
 </html>

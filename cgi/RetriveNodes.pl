@@ -137,7 +137,7 @@ print <<END;
       <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
 <!-- Created: Wed July 26  05:29:25 MET 2000 -->
 <!-- hhmts start -->
-Last modified: $Date
+Last modified: July 26 2013
 <!-- hhmts end -->
   </body>
 </html>
