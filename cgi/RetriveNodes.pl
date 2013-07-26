@@ -112,7 +112,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\"> 
- <h2 ALIGN=CENTER> <B> List of nodes and <font color="blue">$qprod </font> production summary on distributed disk <br>for <font color="blue">$qtrg </font> dataset </B></h2>
+ <h2 ALIGN=CENTER> <B> List of nodes and <font color="blue">$qprod </font> production summary <br>for <font color="blue">$qtrg </font> dataset </B></h2>
  <h3 ALIGN=CENTER> Created on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=2 CELLSPACING=1 CELLPADDING=1 >
