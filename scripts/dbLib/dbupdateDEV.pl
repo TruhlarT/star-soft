@@ -1761,7 +1761,7 @@ $jrun = "Run not completed";
    } 
 
 
-  print "Number of vertices = ", $no_prvertx,"   ", "Number of events ", $no_event,"  ",$EvCom,"  ",$nevent_vtx,"  ",$numevt_vtx, "  Average No vtx = ", $avr_prvertx,"   ","Avg no primary tracks   ", $avr_prtracks,"   ",$avr_prtrck_nfit15, "\n"; 
+#  print "Number of vertices = ", $no_prvertx,"   ", "Number of events ", $no_event,"  ",$EvCom,"  ",$nevent_vtx,"  ",$numevt_vtx, "  Average No vtx = ", $avr_prvertx,"   ","Avg no primary tracks   ", $avr_prtracks,"   ",$avr_prtrck_nfit15, "\n"; 
 
     if ( defined $maker_size[0]) { 
     $memFst = $maker_size[0];
