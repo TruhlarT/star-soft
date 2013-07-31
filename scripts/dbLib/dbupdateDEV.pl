@@ -1448,12 +1448,10 @@ $jrun = "Run not completed";
     }elsif ( $line =~ /$mixline/ ) {
      @part = ();
      @part = split( "/", $line) ;
-     @prt = ();
-     @prt = split( "(", $part[9]) ;
-     $mchain = $prt[0];     
+     $mchain = $part[9];     
 
 # print $line, "\n";
-# print $mchain, "\n";
+ print $mchain, "\n";
 
          }
 
