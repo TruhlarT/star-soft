@@ -154,10 +154,10 @@ my @flsplit = ();
  
   if( $ftype eq "all") {
 
-  $fileC->set_context("runnumber=$runList[$ii]","filetype=online_daq","sanity=1","storage=HPSS","limit=0");
+  $fileC->set_context("runnumber=$runList[$ii]","filetype=online_daq","sanity=1","storage=HPSS");
    }else{
   
-  $fileC->set_context("runnumber=$runList[$ii]","filetype=online_daq","filename~$ftype","sanity=1","storage=HPSS","limit=0");
+  $fileC->set_context("runnumber=$runList[$ii]","filetype=online_daq","filename~$ftype","sanity=1","storage=HPSS");
   }
 
   @jobs_set = $fileC->run_query("trgsetupname","path","filename","fileseq","magscale");
