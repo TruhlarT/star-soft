@@ -1339,6 +1339,7 @@ sub  updateJSTable {
  my $i;
  my @part;
  my @prt = ();
+ my $mixer;
  my @size_line;
  my @memSize;
  my @cpu_output;
@@ -1391,7 +1392,7 @@ my $mCPUbfc = 0;
 my $mRealTbfc = 0;
 my $embflag = 0;
 my @tmm = ();
-my $mixline = "$STAR/StRoot/macros/embedding";
+my $mixline = "StRoot/macros/embedding";
 my $evtcomp = 0;
 my $Err_messg = "none";
 
@@ -1447,8 +1448,13 @@ $jrun = "Run not completed";
 
     }elsif ( $line =~ /$mixline/ ) {
      @part = ();
-     @part = split( "/", $line) ;
-     $mchain = $part[9];     
+#     @part = split( "/", $line) ;
+#     $mchain = $part[9];     
+      @part = split( "embedding/", $line) ;
+      $mixer = $part[1];
+      @prt = ();
+      @prt = split( ".C", $mixer) ;
+      $mchain = $prt[0].".C";
 
 # print $line, "\n";
 # print $mchain, "\n";
