@@ -1451,7 +1451,7 @@ $jrun = "Run not completed";
      $mchain = $part[9];     
 
 # print $line, "\n";
- print $mchain, "\n";
+# print $mchain, "\n";
 
          }
 
