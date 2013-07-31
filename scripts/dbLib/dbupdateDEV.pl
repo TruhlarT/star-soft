@@ -509,8 +509,8 @@ my $pyear = 0;
        $timeS = sprintf ("%4.4d-%2.2d-%2.2d %2.2d:%2.2d:00",
                        $fullyear,$mo,$dy,$hr,$min);    
 
-           if( $ltime > 2400 && $ltime < 518400 ){         
-#          if( $ltime > 600 ) { 
+#           if( $ltime > 2400 && $ltime < 518400 ){         
+          if( $ltime > 2400 ) { 
 #   print "Log time: ", $ltime, "\n";
    print $fullname, "\n";
       
@@ -1338,6 +1338,7 @@ sub  updateJSTable {
  my @nmbx = ();
  my $i;
  my @part;
+ my @prt = ();
  my @size_line;
  my @memSize;
  my @cpu_output;
@@ -1447,7 +1448,10 @@ $jrun = "Run not completed";
     }elsif ( $line =~ /$mixline/ ) {
      @part = ();
      @part = split( "/", $line) ;
-       $mchain = $part[4];
+     @prt = ();
+     @prt = split( "(", $part[9]) ;
+     $mchain = $prt[0];     
+
 # print $line, "\n";
 # print $mchain, "\n";
 
