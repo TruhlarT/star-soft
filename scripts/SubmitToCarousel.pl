@@ -32,13 +32,7 @@ my $JobStatusT = "jobs_prod_2013";
 my $nfspath = "/star/data10/daq/2012/";
 my $daqpat = $nfspath."*.daq";
 
-  if(-d $nfspath ) {
-
 my @daqlist = `ls $daqpat` ;
-
-  }else{
-      exit;
-  }
 
 my $MAXNUM = 1100;
 
