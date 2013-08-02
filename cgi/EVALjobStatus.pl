@@ -148,7 +148,7 @@ print "<h3 align=center>Select tracker</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'rlib',
                              -values=>\@arlib,
-                             -default=>Sti-CA,
+                             -default=>Stv,
                              -size=>1);
 
 print "</td> </tr> </table><hr><center>";
