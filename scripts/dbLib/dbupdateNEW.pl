@@ -21,7 +21,7 @@ require "/afs/rhic.bnl.gov/star/packages/scripts/dbLib/dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/new/";
 
-my @dir_year = ("year_2000", "year_2001", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008","year_2009","year_2010","year_2011","year_2012");
+my @dir_year = ("year_2000", "year_2001", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008","year_2009","year_2010","year_2011","year_2012","year_2013");
 my @node_dir = ("daq_sl302.ittf", "daq_sl302.ittf_opt" ,"trs_sl302.ittf", "trs_sl302.ittf_opt"); 
 
 my @OUT_DIR0 = ();
@@ -391,7 +391,7 @@ my $pyear = 0;
                        $fullyear,$mo,$dy,$hr,$min);    
 
 #           if( $ltime > 600 && $ltime < 518400 ){         
-          if( $ltime > 2400 ) { 
+          if( $ltime > 600 ) { 
 #   print "Log time: ", $ltime, "\n";
 #   print $fullname, "\n";
         &logInfo("$fullname", "$platf");
@@ -1286,8 +1286,13 @@ $jrun = "Run not completed";
 
     }elsif ( $line =~ /$mixline/ ) {
      @part = ();
-     @part = split( "/", $line) ;
-       $mchain = $part[4];
+#     @part = split( "/", $line) ;
+#       $mchain = $part[4];
+      @part = split( "embedding/", $line) ;
+      $mixer = $part[1];
+      @part = ();
+      @part = split( ".C", $mixer) ;
+      $mchain = $part[0].".C";
 
        }
  
@@ -1469,8 +1474,8 @@ $jrun = "Run not completed";
    }elsif ($line =~ /FATAL/ and $line =~ /floating point exception/) {
          $Err_messg = "Floating point exception";
 
-    }elsif ($line =~ /glibc detected/)  {
-             $Err_messg = "glibc detected";
+#    }elsif ($line =~ /glibc detected/)  {
+#             $Err_messg = "glibc detected";
 
    }elsif ($line =~ /Catch exception FATAL/) {
 
