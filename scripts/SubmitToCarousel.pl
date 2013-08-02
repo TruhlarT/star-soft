@@ -27,13 +27,13 @@ $dbuser="starreco";
 $dbpass="";
 $dbname="Embedding_job_stats";
 
-$JobStatusT = "jobs_prod_2013";
+my $JobStatusT = "jobs_prod_2013";
 
 my $nfspath = "/star/data10/daq/2012/";
 
 my @daqlist = `ls -l $nfspath` ;
 
-my $MAXNUM = 100;
+my $MAXNUM = 1100;
 
 print "There are  ", scalar(@daqlist),"  daq files in the ", $nfspath,"  directory", "\n";
  
