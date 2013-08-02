@@ -147,7 +147,8 @@ my $dcsubm = "/star/u/starreco/runkisti/".$dclog;
 
  print CFILE $filelist[$nlist], "\n";
 
- $sql= "insert into $JobStatusT set datasetName = '$trigname[$nlist]', prodTag = '$prodSer', inputFileName = '$daqfile[$nlist]' ";
+ $sql= "insert into $JobStatusT set datasetName = '$trigname[$nlist]', prodTag = '$prodSer', inputFileName = '$daqfile[$nlist]', carouselSubTime = '$timestamp' ";
+
  $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;   
 
  $nlist++;
