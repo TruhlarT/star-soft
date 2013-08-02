@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.53 2013/05/10 17:34:32 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.54 2013/08/02 14:12:06 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.54  2013/08/02 14:12:06  didenko
+# add simulation test
+#
 # Revision 1.53  2013/05/10 17:34:32  didenko
 # added more embedding tests
 #
@@ -218,11 +221,13 @@ my @prod_set = (
                 "trs_sl302/year_2011/pp500_pileup",
                 "trs_sl302/year_2010/auau200_minbias",
                 "trs_sl302/year_2010/auau62_minbias",
+                "trs_sl302/year_2010/auau62_simu",
                 "trs_sl302/year_2010/auau39_minbias",
                 "trs_sl302/year_2010/auau11_minbias",
                 "trs_sl302/year_2010/auau7_minbias",
                 "trs_sl302/year_2009/pp200_minbias",
                 "trs_sl302/year_2009/pp500_minbias",
+                "trs_sl302/year_2009/pp500_simu",
                 "trs_sl302/year_2008/dau200_minbias",
                 "trs_sl302/year_2008/pp200_minbias",
                 "trs_sl302/year_2007/auau200_central",
