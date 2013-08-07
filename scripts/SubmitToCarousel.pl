@@ -35,7 +35,7 @@ my $daqpat = $nfspath."*.daq";
 
 my @daqlist = `ls $daqpat` ;
 
-my $MAXNUM = 200;
+my $MAXNUM = 1100;
 
 print "There are  ", scalar(@daqlist),"  daq files in the ", $nfspath,"  directory", "\n";
  
@@ -177,7 +177,7 @@ GO_SUBMIT:
 
  &StDbDisconnect();
 
-#    `hpss_user.pl -r $nfspath -f $DCfname >& $dcsubm`;
+    `hpss_user.pl -r $nfspath -f $DCfname >& $dcsubm`;
 
 	 if (!open (NEWLIST, ">$listName" )){
 	     printf ("Unable to create file %s\n",$listName);
