@@ -12,6 +12,7 @@
 use lib "/afs/rhic/star/packages/scripts";
 use FileCatalog;
 use DBI;
+use Time::Local;
 
 my $prodSer = $ARGV[0]; 
 my $fileName = $ARGV[1];  
@@ -34,7 +35,7 @@ my $daqpat = $nfspath."*.daq";
 
 my @daqlist = `ls $daqpat` ;
 
-my $MAXNUM = 1100;
+my $MAXNUM = 200;
 
 print "There are  ", scalar(@daqlist),"  daq files in the ", $nfspath,"  directory", "\n";
  
@@ -70,7 +71,7 @@ my $todate;
 
  $lastid = scalar(@runSet) -1;
 
- print "There are ",$lastid," runnumbers in the list", "\n";
+ print "There are ",$lastid," run numbers in the list", "\n";
 
  my $nextName = "/star/u/starreco/runkisti/".$lastid."_".$fileName;
 
@@ -176,7 +177,7 @@ GO_SUBMIT:
 
  &StDbDisconnect();
 
-    `hpss_user.pl -r $nfspath -f $DCfname >& $dcsubm`;
+#    `hpss_user.pl -r $nfspath -f $DCfname >& $dcsubm`;
 
 	 if (!open (NEWLIST, ">$listName" )){
 	     printf ("Unable to create file %s\n",$listName);
