@@ -147,15 +147,18 @@ endif
 
 
 # attempt to check qt from ROOT
-if ( -e ${ROOTSYS}/config.log ) then
+#if ( 0 ) then
+#if ( -e ${ROOTSYS}/config.log ) then
     if ( -e ${OPTSTAR}/qt4 || -e ${OPTSTAR}/qt3 ) then
 	# there is a possibility for an ambiguity to be
 	# resolved
-	set test1=`$GREP qt4 ${ROOTSYS}/config.log | /usr/bin/wc -l`
+	# ->> this test is not safe - newer version of root config.log
+        #     do not add this info
+        #     set test1=`$GREP qt4 ${ROOTSYS}/config.log | /usr/bin/wc -l`
 	set testq=`echo $LD_LIBRARY_PATH | $GREP 'qt/lib'`
 	set test3=`echo $LD_LIBRARY_PATH | $GREP 'qt3/lib'`
 	set test4=`echo $LD_LIBRARY_PATH | $GREP 'qt4/lib'`
-	if  ( $test1 != 0 ) then
+	#if  ( $test1 != 0 ) then
 	    # qt4 was used for ROOT but possibly an ambigous path
 	    # reset
 	    if ( "testq" != "") then
@@ -182,18 +185,19 @@ if ( -e ${ROOTSYS}/config.log ) then
 		endif
 	    endif
 
-	else 
-	    # assume qt3 - we have already tested we had $OPTSTAR/qt3
-	    if ( "testq" != "") then
-	    setenv LD_LIBRARY_PATH `echo $LD_LIBRARY_PATH | /bin/sed 's/qt\/lib/qt3\/lib/'`
-	    endif
-	    if ( "test4" != "") then
-	    setenv LD_LIBRARY_PATH `echo $LD_LIBRARY_PATH | /bin/sed 's/qt4\/lib/qt3\/lib/'`
-	    endif
-	    setenv QTDIR ${OPTSTAR}/qt3	    
-	endif 
+	#else 
+	#    # assume qt3 - we have already tested we had $OPTSTAR/qt3
+	#    if ( "testq" != "") then
+	#    setenv LD_LIBRARY_PATH `echo $LD_LIBRARY_PATH | /bin/sed 's/qt\/lib/qt3\/lib/'`
+	#    endif
+	#    if ( "test4" != "") then
+	#    setenv LD_LIBRARY_PATH `echo $LD_LIBRARY_PATH | /bin/sed 's/qt4\/lib/qt3\/lib/'`
+	#    endif
+	#    setenv QTDIR ${OPTSTAR}/qt3	    
+	#endif 
     endif
-endif
+#endif
+#endif
 
 
 
