@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.252 2013/08/08 17:39:53 jeromel Exp $
+#       $Id: group_env.csh,v 1.253 2013/08/09 09:37:24 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -823,12 +823,20 @@ endif
 # Support for JAVA/JDK
 if ( ! $?JAVA_ROOT ) then
     # Search for a default path
-    if ( -d /usr/java ) then
-	set a = `/bin/ls /usr/java | /usr/bin/tail -1`
-	if ( "$a" != "") then
-	    setenv JAVA_ROOT /usr/java/$a
+    foreach p ( /usr/java /usr/lib/jvm )
+	if ( -d $p ) then
+	    set a = `/bin/ls $p | /usr/bin/tail -1`
+	    if ( "$a" != "") then
+		if ( -d $p/$a/jre ) then
+		    setenv JAVA_ROOT $p/$a/jre
+		else 
+		    setenv JAVA_ROOT $p/$a
+		endif
+		break
+	    endif
 	endif
-    else
+    end   
+    if ( ! $?JAVA_ROOT ) then
 	if ( -d /opt/VDT ) then
 	    set a = `/bin/ls /opt/VDT | $GREP -e jdk -e j2sdk | /usr/bin/tail -1`
 	    if ( "$a" != "") then
