@@ -35,7 +35,7 @@ my $daqpat = $nfspath."*.daq";
 
 my @daqlist = `ls $daqpat` ;
 
-my $MAXNUM = 1100;
+my $MAXNUM = 100;
 
 print "There are  ", scalar(@daqlist),"  daq files in the ", $nfspath,"  directory", "\n";
  
@@ -142,7 +142,7 @@ my $dcsubm = "/star/u/starreco/runkisti/".$dclog;
 
  print CFILE $filelist[$nlist], "\n";
 
- $sql= "insert into $JobStatusT set datasetName = '$trigname[$nlist]', prodTag = '$prodSer', inputFileName = '$daqfile[$nlist]', carouselSubTime = '$timestamp' ";
+ $sql= "insert into $JobStatusT set datasetName = '$trigname[$nlist]', prodTag = '$prodSer', inputFileName = '$daqfile[$nlist]', carouselSubTime = '$timestamp', inputFileExists = 'no' ";
 
  $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;   
 
