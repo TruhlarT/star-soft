@@ -12,7 +12,6 @@
 use Mysql;
 use Class::Struct;
 use File::Basename;
-use Net::FTP;
 use Compress::Zlib;
 use Time::Local;
 use DBI;
@@ -90,24 +89,7 @@ my @DISK = (
             "/star/data96/reco",
             "/star/data97/reco",
             "/star/data98/reco",
-#            "/star/data28/reco",
-#            "/star/data29/reco",
-#            "/star/data30/reco",
-#            "/star/data31/reco",
-#            "/star/data32/reco",
-#             "/star/data33/reco",
-#             "/star/data34/reco",
-#             "/star/data35/reco",
-#             "/star/data36/reco",
-#             "/star/data37/reco",
-#             "/star/data38/reco",
-#             "/star/data39/reco",
-#             "/star/data40/reco",
-#             "/star/data41/reco",
-#             "/star/data42/reco",
-#             "/star/data43/reco",
-#             "/star/data44/reco",
-#             "/star/data45/reco",
+
   );
 
 
@@ -123,7 +105,7 @@ my $temDate;
 my $temHour;
 my $crtime;
 my @prtk = ();
-
+my @wrdk = ();
 
    &StDbProdConnect();
 
@@ -144,12 +126,14 @@ my @prtk = ();
 
  print "Max time:  ",$crTime, "\n";
 
+   @prtk = ();
    $temTime  = $crTime;
    @prtk = split(" ",$temTime);
    $temDate = $prtk[0];
    $temDate =~ s/-//g;
    $temHour = $prtk[1];
- my @wrdk = split(":",$temHour);
+   @wrdk = ();
+   @wrdk = split(":",$temHour);
 
 #  $lastDTime = $temDate . $wrdk[0].$wrdk[1];
 
@@ -206,25 +190,26 @@ my $mTime = "0000-00-00 00:00:00";
 my $timeS = "0000-00-00 00:00:00";
 my @wrd = ();
 my $fullyear = 0;
+my $mfile;
 
 
   foreach my $dSet (@dirSet) {
    $trigD = ($$dSet)->dtTrg;
    $dataS = ($$dSet)->dtSet;
    $pathD = ($$dSet)->dpath;
-
-  @prtk = split("daq", $pathD);
-  $DirD = $prtk[1];
-
-  @wrd = split("_",$dataS);
-  $fieldD = $wrd[1];
-  $SetH = $trigD . "/" . $fieldD . "/" . $prodSr ."_".$comcalib.$DirD;
+   @prtk = ();
+   @prtk = split("daq", $pathD);
+   $DirD = $prtk[1];
+   @wrd = ();
+   @wrd = split("_",$dataS);
+   $fieldD = $wrd[1];
+   $SetH = $trigD . "/" . $fieldD . "/" . $prodSr ."_".$comcalib.$DirD;
 #  print $SetH, "\n";
  next if($SetH eq $SetI);
-  $SetI = $SetH;
-  $SetD[$kk] = $SetH;
-  $kk++;
-  $dirflag{$SetH} = 0;
+   $SetI = $SetH;
+   $SetD[$kk] = $SetH;
+   $kk++;
+   $dirflag{$SetH} = 0;
    for ($l = 0; $l < $kk; $l++) {
      if ($SetH eq $SetD[$l]) {
    $dirflag{$SetH}++;
@@ -364,7 +349,6 @@ $ndstFile = 0;
  my $mlogDir;
  my $mproSr;
  my $jfile;
- my $mfile;
  my $lgsize;
  my $outSt = 'n/a'; 
  my $rcfdisk;
@@ -386,7 +370,6 @@ $ndstFile = 0;
  my $mNevPrimVtx = 0;
 
  my $jLog_err;
- my $efile;
  my $lgfile;
  my $dbStat = "n/a";
  my $mdone = 0;
@@ -682,9 +665,6 @@ sub parse_log($$) {
   my $line; 
   $mjobSt = "Run not completed";
   my $Err_messg = "none";
-  my $exmessg = "none";
-  my $logFile;
-  my $basefile;
   my $gz;
   my $status;
   my $comp; 
@@ -699,15 +679,13 @@ sub parse_log($$) {
   my $tot_vertices = 0;
   my $tot_prtracks = 0;
   my $avr_prtracks;
-  my @word_tr;
+  my @word_tr = ();
   $mEvtSk = 0;
   $first_evts = 0;
   $last_evts = 0; 
-  my @nparts;
-  my @size_line;
-  my @myword; 
-  my @words;
-  my @prt;
+  my @nparts = (); 
+  my @words = ();
+  my @prtk = ();
   $mnodeId = "n/a";
   my $Anflag = 0;
   $mRealT = 0;
@@ -765,12 +743,12 @@ sub parse_log($$) {
          if ($line =~ /Processing bfc.C/) {
          $bfcflag++;
        }
-#              if( $bfcflag == 2) {
               if( $bfcflag == 1) { 
 
 # get  number of events
 
    if ( $line =~ /QAInfo: Done with Event/ ) {
+      @nparts = (); 
       @nparts = split ( "/",$line);
       $noEvts = $nparts[2];
       $last_evts = substr($noEvts,4) + 0; 
@@ -858,14 +836,28 @@ sub parse_log($$) {
              $Err_messg = "Abort";
            }
 
+  elsif ($line =~ /glibc detected/)  {
+             $Err_messg = "glibc detected";
+         }
+
+   elsif ($line =~ /Tried to find a host for 500 times, will abort now/)  {
+             $Err_messg = "DB connection failed";
+           }
+
+  elsif ($line =~ /FATAL/ and $line =~ /floating point exception/ )  {
+             $Err_messg = "FPE";
+         }
+
+
 # check how many events have been skiped
 my $temEvt = 0;
-my @prtk;
-  
+# @prtk = (); 
+ 
       if ( $line =~ /QAInfo:Run/ and $line =~ /Total events processed/) {
 #  print $line, "\n";
+	@word_tr = ();
         @word_tr = split /:/,$line;
-         $temEvt = $word_tr[3];
+        $temEvt = $word_tr[3];
         $mEvtSk =  $word_tr[4];
 #       @prtk = split(" ", $temEvt);
 #        $mNev = $prtk[0];
@@ -881,6 +873,8 @@ my @prtk;
 
    if ($no_event != 0) {
    if ($line =~ /StBFChain::bfc/) {
+
+      @words= ();
       @words= split (" ", $line); 
 
      if($words[8] eq "=" ){
@@ -958,7 +952,7 @@ my @prtk;
 ##----------------------------------------------------------------------------
 # parse error log file
 
-   my @err_out;
+   my @err_out = ();
    my $mline;
    my $jLog_err;
    my $err_file;
