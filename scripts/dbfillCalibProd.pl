@@ -31,6 +31,8 @@ my $DISK1 = "/star/rcf/prodlog";
 my $prodSr = $ARGV[0]; 
 my $trig = $ARGV[1];
 my $comcalib = $ARGV[2];
+my $bldisk = "/star/data16";
+
 my $lastDTime;
 
 my $jobFDir = "/star/u/starreco/" . $prodSr ."/requests/";
@@ -414,7 +416,8 @@ $ndstFile = 0;
  my $mfTime;
  my $rday = "0000-00-00";
  my @sprt = ();
-
+ my $prstat = "on_disk"; 
+ my $muname;
 
    foreach my $jobnm (@jobSum_set){
         $mproSr   = ($$jobnm)->prSer;
@@ -534,6 +537,16 @@ $ndstFile = 0;
  
      &updateJSTable(); 
 
+  if($comcalib eq "BL" ) {
+    $outSt = "yes";
+    $rcfdisk = "$bldisk";
+    $prstat = "on_disk";
+    $lgname = $mlogFile;
+    $nfsize = 0;
+
+     &updateClTable(); 
+ }
+
       } else {
        next;
      }
@@ -544,10 +557,6 @@ $ndstFile = 0;
        next;
      }  
    }
-
-  $outSt = "n/a";
-my $prstat = "on_disk"; 
-my $muname;
 
   foreach my $mufile (@dstFiles) {
   $mfName  = ($$mufile)->filename;
@@ -560,7 +569,7 @@ my $muname;
   }
 
  foreach my $mufile (@dstFiles) {
-    
+
   $mfName  = ($$mufile)->filename;
   $rcfdisk = ($$mufile)->mdisk;
   if($mfName =~ /MuDst.root/) {
@@ -570,6 +579,7 @@ print "Size of MuDst, event.root and sum:  ",$mfName," % ",$musize," % ", $evsiz
   $lgname = $mfName;
   $lgname =~ s/MuDst.root/log/g;
   $outSt = "yes";
+  $prstat = "on_disk";
 
 ########################
  print "Updating JobStatus table with file ", $mfName, "\n";
