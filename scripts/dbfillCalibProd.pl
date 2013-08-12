@@ -669,6 +669,7 @@ sub parse_log($$) {
   my $status;
   my $comp; 
 
+  my $Anflag = 0;
   my $no_event = 0;
   my $num_event = 0;
   my $num_line = 0;  
@@ -680,18 +681,10 @@ sub parse_log($$) {
   my $tot_prtracks = 0;
   my $avr_prtracks;
   my @word_tr = ();
-  $mEvtSk = 0;
-  $first_evts = 0;
-  $last_evts = 0; 
   my @nparts = (); 
   my @words = ();
   my @prtk = ();
-  $mnodeId = "n/a";
-  my $Anflag = 0;
-  $mRealT = 0;
-  $mCPU = 0;
   my $cpuflag = 0;
-  my $trg;
   my $NprtTrk0 = 0;
   my $mRealTbfc = 0;
   my $mCPUbfc = 0;
@@ -701,6 +694,13 @@ sub parse_log($$) {
   my @nmb = ();
   my @nmbx = ();
 
+
+  $mEvtSk = 0;
+  $first_evts = 0;
+  $last_evts = 0; 
+  $mnodeId = "n/a";
+  $mRealT = 0;
+  $mCPU = 0;
   $nevent_vtx = 0;
   $nevt = 0;
   $no_prvertx = 0;
