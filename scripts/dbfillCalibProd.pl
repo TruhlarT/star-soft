@@ -625,7 +625,7 @@ my $thistime;
    $sql.="mudstsize='$nfsize',";
    $sql.="status='$prstat',";      
    $sql.="diskname='$rcfdisk'";
-   $sql.=" WHERE trigsetName = '$trig' and logfileName = '$lgname' and prodSeries = '$prodSr' and calibtag = '$comcalib' ";
+   $sql.=" WHERE trigsetName like '$trig%' and logfileName = '$lgname' and prodSeries = '$prodSr' and calibtag = '$comcalib' ";
    print "$sql\n" if $debugOn;
 #   print "$sql\n";
    $rv = $dbh->do($sql) || die $dbh->errstr;
