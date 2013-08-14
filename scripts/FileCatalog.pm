@@ -136,7 +136,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.395";
+$VERSION   =   "V01.396";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -2420,9 +2420,10 @@ sub get_date_numbers
 
     if ( ! defined($run) ) { return undef;}  # undef
     if ( $run !~ m/^\d+$/) { return undef;}  # a string ?
-    if ( $run =~ m/(\d)(\d{3,})(\d{3,})/){
-	$year= $1; $year+= 1999;
+    if ( $run =~ m/(\d+)(\d{3,})(\d{3,})/){
+	$year= $1;
 	$day = $2;
+	$year+= 1999;
 	return ($year,$day);
     } else {
 	return undef;
