@@ -151,9 +151,6 @@ my $eflag = 0;
 
     $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_embedding_MuDst","storage=hpss","sanity=1","limit=0");
 
-#   $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","path~Electron_2","filetype=daq_embedding_MuDst","storage=hpss","sanity=1","limit=0");
-
- 
     @pathname = $fileC->run_query("path");
  
     $fileC->clear_context();
