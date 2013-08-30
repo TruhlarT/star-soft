@@ -1,4 +1,4 @@
-// @(#)root/qt:$Id: TQMimeTypes.cxx,v 1.9 2013/08/30 15:59:51 perev Exp $
+// @(#)root/qt:$Id: TQMimeTypes.cxx,v 1.10 2013/08/30 22:18:29 perev Exp $
 // Author: Valeri Fine   21/01/2003
 /*************************************************************************
  * $$Copyright$
@@ -113,7 +113,7 @@ TQMimeTypes::TQMimeTypes(const char *iconPath, const char *filename)
                delete [] s2;
             } else {
                strlcpy(icon, s,256);
-               strlcpy(sicon, s2,256);
+               strlcpy(sicon,s,256);
             }
             delete [] s;
          }
