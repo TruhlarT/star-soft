@@ -1,4 +1,4 @@
-// @(#)root/qt:$Id: TQMimeTypes.cxx,v 1.10 2013/08/30 22:18:29 perev Exp $
+// @(#)root/qt:$Id: TQMimeTypes.cxx,v 1.11 2013/08/30 22:34:49 perev Exp $
 // Author: Valeri Fine   21/01/2003
 /*************************************************************************
  * $$Copyright$
@@ -81,7 +81,7 @@ TQMimeTypes::TQMimeTypes(const char *iconPath, const char *filename)
       if (!strlen(s)) continue;    // skip empty lines
 
       if (*s == '[') {
-         strlcpy(mime, line,1024);
+         strncpy(mime, line,1024);
          cnt = 0;
          continue;
       }
@@ -92,7 +92,7 @@ TQMimeTypes::TQMimeTypes(const char *iconPath, const char *filename)
          } else {
             s++;
             s = Strip(s);
-            strlcpy(pattern, s,256);
+            strncpy(pattern, s,256);
             delete [] s;
          }
          cnt++;
@@ -106,14 +106,14 @@ TQMimeTypes::TQMimeTypes(const char *iconPath, const char *filename)
             char *s2;
             if ((s2 = strchr(s, ' '))) {
                *s2 = 0;
-               strlcpy(icon, s,256);
+               strncpy(icon, s,256);
                s2++;
                s2 = Strip(s2);
-               strlcpy(sicon, s2,256);
+               strncpy(sicon, s2,256);
                delete [] s2;
             } else {
-               strlcpy(icon, s,256);
-               strlcpy(sicon,s,256);
+               strncpy(icon, s,256);
+               strncpy(sicon,s,256);
             }
             delete [] s;
          }
@@ -125,7 +125,7 @@ TQMimeTypes::TQMimeTypes(const char *iconPath, const char *filename)
          } else {
             s++;
             s = Strip(s);
-            strlcpy(action, s,256);
+            strncpy(action, s,256);
             delete [] s;
          }
          cnt++;
