@@ -1,8 +1,8 @@
 /****************************************************************************
 
- Copyright (C) 2002-2008 Gilles Debunne. All rights reserved.
+ Copyright (C) 2002-2011 Gilles Debunne. All rights reserved.
 
- This file is part of the QGLViewer library version 2.3.1.
+ This file is part of the QGLViewer library version 2.3.17.
 
  http://www.libqglviewer.com - contact@libqglviewer.com
 
@@ -22,6 +22,7 @@
 
 #include "qglviewerPlugin.Qt4.h"
 #include <QGLViewer/qglviewer.h>
+#include <QtDesigner/qdesignerexportwidget.h>
 
 // This code generates a QGLViewer designer plugin for Qt 4.
 
@@ -34,11 +35,16 @@
 // Grep these comments in the code below and change the code accordingly //
 // --------------------------------------------------------------------- //
 
+#ifdef Q_OS_WIN32
+#  if QT_VERSION < 0x040100
+#    define QDESIGNER_WIDGET_EXPORT QGLVIEWER_EXPORT
+#  endif
+#endif
 
-// -------------------------------------------------------- //
-// Change the base class name, as well as the include above //
-// -------------------------------------------------------- //
-class Viewer : public QGLViewer
+// ------------------------------------------------------------- //
+// Change the base class name, as well as the include path above //
+// ------------------------------------------------------------- //
+class QDESIGNER_WIDGET_EXPORT Viewer : public QGLViewer
 {
 public:
   explicit Viewer(QWidget* parent=NULL)
@@ -220,4 +226,14 @@ QIcon QGLViewerPlugin::icon() const
   return QIcon(QPixmap(qglviewer_icon));
 }
 
+// ------------------------------------------------- //
+// Change this if desired:                           //
+// First parameter must match the TARGET in .pro     //
+// Second parameter is the class name defined in .h  //
+// ------------------------------------------------- //
 Q_EXPORT_PLUGIN2(QGLViewerPlugin, QGLViewerPlugin)
+
+// ------------- //
+// You're done ! //
+// ------------- //
+

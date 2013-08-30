@@ -11,6 +11,7 @@ CONFIG += create_prl
 TARGET = QtGed
 
 QMAKE_RPATH=
+macx: QMAKE_LFLAGS_SONAME = -Wl,-install_name,@rpath/
 
 QTROOTSYSPATHINSTALL = $(QTROOTSYSDIR)
 

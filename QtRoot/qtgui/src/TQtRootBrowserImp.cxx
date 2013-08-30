@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtRootBrowserImp.cxx,v 1.9 2010/04/19 23:58:31 fine Exp $
+** $Id: TQtRootBrowserImp.cxx,v 1.10 2013/08/30 16:00:25 perev Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -109,7 +109,7 @@ public:
    RootMainWindows( QWidget* parent=0, WFlags f = WType_TopLevel ) :
       QMainWindow( parent, (const char*)0, f ), fFileList(0){setAcceptDrops(true);}
 #else /* QT_VERSION */
-   RootMainWindows( QWidget* parent=0, Qt::WFlags f = Qt::WType_TopLevel ) :
+   RootMainWindows( QWidget* parent=0, Qt::WindowFlags f = Qt::WType_TopLevel ) :
       QMainWindow( parent, f ), fFileList(0){ setAcceptDrops(true);   }
 #endif /* QT_VERSION */
       ~RootMainWindows() {
@@ -222,7 +222,7 @@ void TQtRootBrowserImp::Add(TObject *obj, const char *caption)
    Add(obj,caption, -1);
 }
 //______________________________________________________________________________
-void TQtRootBrowserImp::Add(TObject *obj, const char *caption, Int_t  ) 
+void TQtRootBrowserImp::Add(TObject *obj, const char *caption, Int_t check  ) 
 {
    Add(obj,caption,kFALSE);
 }
@@ -238,24 +238,24 @@ void TQtRootBrowserImp::Add(TObject *obj, const char *caption, Bool_t firstFlag)
   if (fIconView && !firstFlag) fIconView->Add(obj,n);
 }
 //______________________________________________________________________________
-void  TQtRootBrowserImp::AddCheckBox(TObject * , Bool_t )
+void  TQtRootBrowserImp::AddCheckBox(TObject *obj, Bool_t check)
 {  
    // Add a checkbox in the TGListTreeItem corresponding to obj
    // and a checkmark on TGLVEntry if check = kTRUE.
 }
 //______________________________________________________________________________
-void  TQtRootBrowserImp::CheckObjectItem(TObject * , Bool_t  )
+void  TQtRootBrowserImp::CheckObjectItem(TObject *obj, Bool_t check)
 { 
    // Check / uncheck the TGListTreeItem corresponding to this
    // object and add a checkmark on TGLVEntry if check = kTRUE.
 }
 //______________________________________________________________________________
-void  TQtRootBrowserImp::RemoveCheckBox(TObject * )
+void  TQtRootBrowserImp::RemoveCheckBox(TObject *obj)
 {
   // Remove checkbox from TGListTree and checkmark from TGListView.
 }
 //______________________________________________________________________________
-void   TQtRootBrowserImp::SetDrawOption(Option_t * )
+void   TQtRootBrowserImp::SetDrawOption(Option_t *option)
 { 
    // Sets drawing option.
 }
@@ -497,7 +497,7 @@ void TQtRootBrowserImp::MakeMenu()
 #else /* QT_VERSION */
  QMenu *fileMenu      = mainMenu->addMenu("&File");
  QMenu *viewMenu      = mainMenu->addMenu("&View");
- // QMenu *optionsMenu   = mainMenu->addMenu("&Options");
+ QMenu *optionsMenu   = mainMenu->addMenu("&Options");
                                                  mainMenu->addSeparator();
  QMenu *helpMenu      = mainMenu->addMenu("Help");
 

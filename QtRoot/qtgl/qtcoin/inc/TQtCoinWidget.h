@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.39 2010/02/24 06:24:27 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.40 2013/08/30 16:00:15 perev Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.39 2010/02/24 06:24:27 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.40 2013/08/30 16:00:15 perev Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -26,13 +26,24 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "RVersion.h"
-#include "TQGLViewerImp.h"
+#if ROOT_VERSION_CODE >= 262400
+// ROOT_VERSION(4,01,00)
+#  include "TQGLViewerImp.h"
+#else
+#  include "TGLViewerImp.h"
+#endif
 
 #include "TString.h"
 
 #ifndef __CINT__
-#  include <QFrame>
-#  include <q3ptrvector.h>
+#  include <qglobal.h>
+#  if QT_VERSION < 0x40000
+#    include <qframe.h>
+#    include <qptrvector.h>
+#  else /* QT_VERSION */
+#    include <QFrame>
+#    include <q3ptrvector.h>
+#  endif /* QT_VERSION */
 #  include <qlabel.h>
 #else
    class QFrame;
@@ -81,13 +92,23 @@ class SoOffscreenRenderer;
 #ifdef __CINT__
 #  define COINWIDGETFLAGSTYPE  UInt_t
 #else
-#  define COINWIDGETFLAGSTYPE  Qt::WindowFlags
+#  if QT_VERSION < 0x40000
+#    define COINWIDGETFLAGSTYPE  Qt::WindowFlags
+#  else
+#    define COINWIDGETFLAGSTYPE  Qt::WindowFlags
+#  endif
 #endif     
 
-class TQtCoinWidget :public QFrame, public TGLViewerImp {
- Q_OBJECT
+#if QT_VERSION < 0x40000
+  class TQtCoinWidget :public QFrame, public TGLViewerImp {
+#else /* QT_VERSION */
+//MOC_SKIP_BEGIN
+  class TQtCoinWidget :public QFrame, public TGLViewerImp {
+//MOC_SKIP_END
+#endif /* QT_VERSION */
+Q_OBJECT	  
 private:
-
+	
    SoQtViewer             *fInventorViewer;
    SoSeparator            *fRootNode;
    SoSeparator            *fShapeNode;
@@ -124,7 +145,13 @@ protected:
    TObject        *fSelectedObject;     // The last selected TObject
 
 #ifndef __CINT__
+#if QT_VERSION < 0x40000
+   QPtrVector<QLabel> fStatusBar;
+#else
+//MOC_SKIP_BEGIN
    Q3PtrVector<QLabel> fStatusBar;
+//MOC_SKIP_END
+#endif
 #endif
 
    //TQtCoinWidget *fSelectedView;        // extra viewer to show the selected object only
@@ -152,8 +179,7 @@ protected:
    Bool_t            fAddBackground;
    unsigned int      fClipMask;// The mask to indicate which kind of shape can be clipped
    QString           fViewerDrawOption; // the comma seoparated lis of the draw options
-public:
-   float             fLastSelectedPoint[3];
+
 protected:
    friend class TQtCoinViewerImp;
    void CreateViewer(const QString &title);
@@ -212,7 +238,6 @@ public:
    bool ObjectPickEnabled() const { return  fEnableObjectPick; }
 
    void EmitSelectSignal(TObject *view);
-   void EmitSelect3DPointSignal(float x, float y, float z);
    void EmitNodeSelectSignal(SoNode *node);
    Bool_t Recording()  const { return fRecord;}
    void SetBoxSelection();
@@ -252,8 +277,7 @@ public:
      virtual void CopyCB();
      virtual void CopyFrameCB();
      virtual void ReadInputFile(const char *fileName);
-     virtual void ReadInputFile(const char *fileName,    const char *pickStyle);
-     virtual void ReadInputFile(const QString &fileName, const char *pickStyle="SHAPE");
+     virtual void ReadInputFile(const QString &fileName);
      virtual void RotateCamera(int axis,float angle);
      virtual void RotateCamera(int axis,bool clockWise=true);
      virtual void Save(const QString &fileName,const QString &type="png");
@@ -295,7 +319,6 @@ public:
      virtual void SetClipPlaneZCB();
      virtual void SetSlicePlaneCB();
      virtual void ViewAll();
-     virtual void ViewBox(float dx, float dy, float dz, float x0=0,float y0=0, float z0=0,float aspect=1,float slack=1);
      virtual void SetFooter(const char *text);
      virtual void SetFooter(QString &text);
      virtual void SetFullScreenView(bool);
@@ -308,8 +331,7 @@ public:
        void NodeSelected(ULong_t, const QPoint&);
        void NextFrameReady(bool on=TRUE);
        void ImageSaved(const QString &fileName,const QString &fileType, int frameCounter);
-       void Selected3DPoint(float x, float y, float z);
-      #endif
+#endif
 
 //   ClassDef(TQtCoinWidget,0)  //ROOT OpenGL viewer implementation
 };

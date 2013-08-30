@@ -1,4 +1,4 @@
-// @(#)root/qt:$Id: HelloDancingHist.h,v 1.1 2009/11/19 19:23:07 fine Exp $
+// @(#)root/qt:$Id: HelloDancingHist.h,v 1.2 2013/08/30 15:59:58 perev Exp $
 // Author: Valeri Fine   16/08/2009
 /****************************************************************************
 **

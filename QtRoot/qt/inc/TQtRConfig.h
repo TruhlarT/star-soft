@@ -1,6 +1,6 @@
 // Author: Valeri Fine   28/06/2004
 /****************************************************************************
-** $Id: TQtRConfig.h,v 1.5 2010/05/10 22:51:26 fine Exp $
+** $Id: TQtRConfig.h,v 1.6 2013/08/30 15:59:50 perev Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine.  All rights reserved.
 **
@@ -13,7 +13,7 @@
 #define ROOT_TQTRCONFIG
 #include "RConfig.h"
 #ifndef __CINT__
-#  include "qglobal.h"
+#  include <QtCore/Qt>
 #endif
 
 // defined the CPP symbols to create the different versions

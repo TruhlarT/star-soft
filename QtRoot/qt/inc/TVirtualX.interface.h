@@ -1,4 +1,4 @@
-// @(#)root/base:$Name:  $:$Id: TVirtualX.interface.h,v 1.8 2010/05/10 22:51:26 fine Exp $
+// @(#)root/base:$Name:  $:$Id: TVirtualX.interface.h,v 1.9 2013/08/30 15:59:50 perev Exp $
 // Author: Valeri Fine   28/07/2004
 
 //
@@ -13,7 +13,6 @@
  * For the list of contributors see $ROOTSYS/README/CREDITS.             *
  *************************************************************************/
 
-
 public:
 
    virtual Bool_t    Init(void *display=0);
@@ -21,8 +20,25 @@ public:
    virtual void      ClosePixmap();
    virtual void      CloseWindow();
    virtual void      CopyPixmap(Int_t wid, Int_t xpos, Int_t ypos);
+   
+
+   //-Woverloaded-virtual
+   using TVirtualX::CreateOpenGLContext;
+   //TVirtualX has these two methods with wchar_t
+   using TVirtualX::DrawText;
+   using TVirtualX::GetTextExtent;
+   
    virtual void      CreateOpenGLContext(Int_t wid=0);
    virtual void      DeleteOpenGLContext(Int_t wid=0);
+   
+   //---- OpenGL related stuff, required only with R__HAS_COCOA ----
+   virtual Double_t  GetOpenGLScalingFactor();   
+   virtual Window_t  CreateOpenGLWindow(Window_t parentID, UInt_t width, UInt_t height, const std::vector<std::pair<UInt_t, Int_t> > &format);
+   virtual Handle_t  CreateOpenGLContext(Window_t windowID, Handle_t sharedContext);
+   virtual Bool_t    MakeOpenGLContextCurrent(Handle_t ctx, Window_t windowID);
+   virtual Handle_t  GetCurrentOpenGLContext();
+   virtual void      FlushOpenGLBuffer(Handle_t ctx);
+   
    virtual void      DrawBox(Int_t x1, Int_t y1, Int_t x2, Int_t y2, EBoxMode mode);
    virtual void      DrawCellArray(Int_t x1, Int_t y1, Int_t x2, Int_t y2,
                                    Int_t nx, Int_t ny, Int_t *ic);
@@ -86,6 +102,7 @@ public:
    virtual void      SetTextFont(Font_t fontnumber);
    virtual void      SetTextMagnitude(Float_t mgn);
    virtual void      SetTextSize(Float_t textsize);
+   virtual void      Sync(Int_t mode);   
    virtual void      UpdateWindow(Int_t mode);
    virtual void      Warp(Int_t ix, Int_t iy){ Warp(ix,iy,0); }
    virtual void      Warp(Int_t ix, Int_t iy, Window_t id);
@@ -167,6 +184,7 @@ public:
    virtual void         ClearArea(Window_t id, Int_t x, Int_t y, UInt_t w, UInt_t h);
    virtual Bool_t       CheckEvent(Window_t id, EGEventType type, Event_t &ev);
    virtual void         SendEvent(Window_t id, Event_t *ev);
+   virtual void         DispatchClientMessage(UInt_t messageID);
    virtual void         WMDeleteNotify(Window_t id);
    virtual void         SetKeyAutoRepeat(Bool_t on = kTRUE);
    virtual void         GrabKey(Window_t id, Int_t keycode, UInt_t modifier, Bool_t grab = kTRUE);
@@ -263,6 +281,7 @@ public:
    virtual void         SetTypeList(Window_t win, Atom_t prop, Atom_t *typelist);
    virtual Window_t     FindRWindow(Window_t win, Window_t dragwin, Window_t input, int x, int y, int maxd);
    virtual Bool_t       IsDNDAware(Window_t win, Atom_t *typelist);
+   virtual void         BeginModalSessionFor(Window_t window);
 
 #if 0 
 //   Alas CINT does not understand the complex CPP statement below.

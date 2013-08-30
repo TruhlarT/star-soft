@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtBrowserImp.cxx,v 1.9 2010/04/19 23:52:06 fine Exp $
+** $Id: TQtBrowserImp.cxx,v 1.10 2013/08/30 16:00:23 perev Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -29,27 +29,17 @@
 
 #include "TQtObjectListItem.h"
 
-#if QT_VERSION < 0x40000
-#include "qpopupmenu.h"
-#else /* QT_VERSION */
 #include "q3popupmenu.h"
-#endif /* QT_VERSION */
-#include "qmessagebox.h"
-#include "qstatusbar.h"
-#include "qlabel.h"
-#include "qimage.h"
-#include "qapplication.h"
-#if QT_VERSION < 0x40000
-#include "qptrstack.h"
-#include "qptrvector.h"
-#include "qlistview.h"
-#else /* QT_VERSION */
+#include <QMessageBox>
+#include <QStatusBar>
+#include <QLabel>
+#include <QImage>
+#include <QApplication>
 #include "q3ptrstack.h"
 #include "q3ptrvector.h"
 #include "q3listview.h"
-#endif /* QT_VERSION */
-#include "qpixmap.h"
-#include "qfileinfo.h"
+#include <QPixmap>
+#include <QFileInfo>
 
 static QPixmap *folderLocked = 0;
 static QPixmap *folderClosed = 0;
@@ -212,7 +202,7 @@ void  TQtBrowserImp::CloseBranch(int depth)
    // close all open folders of the selected branch
   int size = fOpenFolderList.count();
   if (depth < size) 
-         for (int i=depth;(i<size)&&(CloseItem(i));i++){}
+         for (int i=depth;(i<size)&&(CloseItem(i));i++);
 }
 //______________________________________________________________________________
 TQtBrowserItem *TQtBrowserImp::CloseItem(int depth)
@@ -279,7 +269,7 @@ void TQtBrowserImp::Add(TObject *obj, const char *caption)
    Add(obj,caption, -1);
 }
 //______________________________________________________________________________
-void TQtBrowserImp::Add(TObject *obj, const char *caption, Int_t /* check */)
+void TQtBrowserImp::Add(TObject *obj, const char *caption, Int_t check)
 { 
    // Add items to the browser. This function has to be called
    // by the Browse() member function of objects when they are
@@ -316,8 +306,8 @@ void TQtBrowserImp::Add(TObject *obj, const char *caption, Int_t /* check */)
       unsigned int depth = item->depth();
       // we do not need to shrink the vector
       if (depth >= fOpenFolderList.size()) fOpenFolderList.resize(depth+1) ; 
-      item->setExpandable (TRUE);
-      item->setSelectable (TRUE);
+      item->setExpandable (true);
+      item->setSelectable (true);
 
       item->setPixmap(0,*folderClosed);
       connect(item,SIGNAL(destroyed(QObject *)),this,SLOT(DisconnectItem(QObject *)));
@@ -325,7 +315,7 @@ void TQtBrowserImp::Add(TObject *obj, const char *caption, Int_t /* check */)
    }
 }
 //______________________________________________________________________________
-void  TQtBrowserImp::AddCheckBox(TObject *, Bool_t )
+void  TQtBrowserImp::AddCheckBox(TObject */*obj*/, Bool_t /*check*/)
 {  
    // Add a checkbox in the TGListTreeItem corresponding to obj
    // and a checkmark on TGLVEntry if check = kTRUE.
@@ -368,7 +358,7 @@ void TQtBrowserImp::Chdir(const TQtBrowserItem *item)
    }
 }
 //______________________________________________________________________________
-void  TQtBrowserImp::CheckObjectItem(TObject *, Bool_t )
+void  TQtBrowserImp::CheckObjectItem(TObject *obj, Bool_t check)
 { 
    // Check / uncheck the TGListTreeItem corresponding to this
    // object and add a checkmark on TGLVEntry if check = kTRUE.
@@ -379,7 +369,7 @@ void  TQtBrowserImp::RemoveCheckBox(TObject *obj)
   // Remove checkbox from TGListTree and checkmark from TGListView.
 }
 //______________________________________________________________________________
-void  TQtBrowserImp::SetDrawOption(Option_t *)
+void  TQtBrowserImp::SetDrawOption(Option_t *option)
 { 
    // Sets drawing option.
 }
@@ -428,7 +418,7 @@ void TQtBrowserImp::ClickedItem(Q3ListViewItem *item)
 #else /* QT_VERSION */
    if (fRootItem && ( item == (Q3ListViewItem*) fRootItem ) && !fRootItem->isOpen() ) {
 #endif /* QT_VERSION */
-       fRootItem->setOpen (TRUE);
+       fRootItem->setOpen (true);
        fRootItem->setEnabled(FALSE);
    }
 
@@ -599,7 +589,7 @@ void TQtBrowserImp::CollapsedItem(Q3ListViewItem *item)
 #else /* QT_VERSION */
    Q3PtrStack<Q3ListViewItem> garbageCollector;
 #endif /* QT_VERSION */
-   garbageCollector.setAutoDelete(TRUE);
+   garbageCollector.setAutoDelete(true);
 #if QT_VERSION < 0x40000
    QListViewItem *waste = item->firstChild();
 #else /* QT_VERSION */
@@ -663,7 +653,7 @@ void TQtBrowserImp::Refresh(Bool_t /*flag*/) { }
 //______________________________________________________________________________
 void TQtBrowserImp::Show() { 
    if (fBrowserImpID) {
-      // fRootItem->setOpen (TRUE);
+      // fRootItem->setOpen (true);
       // fRootItem->setEnabled(FALSE);
       fBrowserImpID->show();
    }
@@ -736,14 +726,14 @@ Int_t TQtBrowserImp::InitWindow(Bool_t show)
    fBrowserImpID->addColumn("ROOT folders");
    fBrowserImpID->addColumn("class name");
 #ifdef SORT_ROW_BY_DEFAULT   
-   fBrowserImpID->setShowSortIndicator(TRUE); 
+   fBrowserImpID->setShowSortIndicator(true); 
 #endif   
    fRootItem = new TQtBrowserItem(0,fBrowserImpID,"ROOT");
    Add(gROOT,"ROOT");
-   fRootItem->setEnabled(TRUE);
+   fRootItem->setEnabled(true);
    fRootItem->setOpen (FALSE);
    // fRootItem->setEnabled(FALSE);
-   // fRootItem->setOpen (TRUE);
+   // fRootItem->setOpen (true);
    
    if (show) Show();
    return 0;

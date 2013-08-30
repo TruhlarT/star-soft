@@ -1,4 +1,4 @@
-// @(#)root/qtgsi:$Name:  $:$Id: TQRootCanvas.cxx,v 1.4 2009/08/03 18:03:09 fine Exp $
+// @(#)root/qtgsi:$Name:  $:$Id: TQRootCanvas.cxx,v 1.5 2013/08/30 16:00:23 perev Exp $
 // Author: Denis Bertini, M. Al-Turany  01/11/2000
 
 /*************************************************************************
@@ -118,7 +118,7 @@ TQRootCanvas::TQRootCanvas( QWidget *parent, QWidget* tabWin, const char *name, 
 
 
    // drag and drop support  (M. Al-Turany)
-   setAcceptDrops(TRUE);
+   setAcceptDrops(true);
 }
 
 ////////////////////////////////////// drag and drop support

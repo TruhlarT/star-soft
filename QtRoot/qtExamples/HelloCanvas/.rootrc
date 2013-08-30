@@ -1,4 +1,4 @@
- # .rootrc:$Name:  $:$Id: .rootrc,v 1.3 2009/11/19 19:23:07 fine Exp $
+ # .rootrc:$Name:  $:$Id: .rootrc,v 1.4 2013/08/30 15:59:56 perev Exp $
 # Author: Valeri Fine 10/10/2003
 
 # The custom ROOT env to turn on the Qt-edition of ROOT gui

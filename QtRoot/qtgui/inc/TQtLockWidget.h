@@ -1,28 +1,19 @@
-// @(#)root/gui:$Name:  $:$Id: TQtLockWidget.h,v 1.3 2009/08/03 18:03:08 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtLockWidget.h,v 1.4 2013/08/30 16:00:21 perev Exp $
 // Author: Valeri Fine 07/07/2006
 
 #ifndef ROOT_TQtLockWidget
 #define ROOT_TQtLockWidget
 
-#include <qobject.h>
+#include <QObject>
 
-#if QT_VERSION < 0x40000
-#  include <qguardedptr.h> 
-#  include <qwidget.h>
-#else
-#  include <QPointer>
-#  include <QWidget>
-#endif 
+#include <QPointer>
+#include <QWidget>
 
 
 // Class to block the widget signal and update
 class TQtLockWidget {
   private:
-#if QT_VERSION < 0x40000
-     QGuardedPtr<QWidget> fWidget; //  Widget to lock
-#else
      QPointer<QWidget>    fWidget; //  Widget to lock
-#endif
      bool                 fWasEnabled;
      bool                 fWasBlocked;
   public:

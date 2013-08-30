@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.h,v 1.8 2012/06/11 14:20:56 fisyak Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.h,v 1.9 2013/08/30 16:00:20 perev Exp $
 // Author: Bertrand Bellenot + Fons Rademakers   22/08/02
 
 /*************************************************************************
@@ -37,21 +37,16 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "GuiTypes.h"
+#include "Riostream.h"
 
-#include <qtoolbutton.h> 
-#if QT_VERSION < 0x40000
-#  include <qbuttongroup.h> 
-#  include <qvbox.h> 
-#  include <qframe.h>
-#else /* QT_VERSION */
+#include <QToolButton> 
 //MOC_SKIP_BEGIN
-#  include <QFrame>
+#include <QFrame>
 //MOC_SKIP_END
-#endif /* QT_VERSION */
 
-#include <qdialog.h> 
-#include <qcolor.h>
-#include <qpushbutton.h> 
+#include <QDialog> 
+#include <QColor>
+#include <QPushButton> 
 
 
 
@@ -129,10 +124,10 @@ protected:
    static TQtColorPopup *fgColorPopup;//  Pointer to the singletons
 
 protected:
-   TQtColorPopup( QWidget *p, QColor &color,const char *name=0, bool modal=FALSE, Qt::WFlags f=Qt::WStyle_Customize | Qt::WStyle_NoBorder|Qt::WStyle_StaysOnTop);
+   TQtColorPopup( QWidget *p, QColor &color,const char *name=0, bool modal=FALSE, Qt::WindowFlags f=Qt::WStyle_Customize | Qt::WStyle_NoBorder|Qt::WStyle_StaysOnTop);
 
 public:
-   static TQtColorPopup *Create(QWidget *p, QColor &color,const char *name=0, bool modal=FALSE, Qt::WFlags f=Qt::WStyle_Customize | Qt::WStyle_NoBorder|Qt::WStyle_StaysOnTop);            
+   static TQtColorPopup *Create(QWidget *p, QColor &color,const char *name=0, bool modal=FALSE, Qt::WindowFlags f=Qt::WStyle_Customize | Qt::WStyle_NoBorder|Qt::WStyle_StaysOnTop);            
    virtual ~TQtColorPopup();
 
    const QColor &Color() const { return fCurrentColor;}
@@ -158,14 +153,9 @@ protected:
    QColor         fColor;
    TQtColorPopup *fColorPopup;
    TColorEmit    *fColorEmitter;
-#if QT_VERSION < 0x40000
-   QButton       *fPushButton;
-   QToolButton   *fArrowButton;
-#else /* QT_VERSION */
 //MOC_SKIP_BEGIN
    QAbstractButton       *fPushButton;
 //MOC_SKIP_END
-#endif /* QT_VERSION */
    QMenu         *fFakeMenu;
    //     QToolButton   *fPushButton;
 //   QToolButtonQPushButton   *fPushButton;
@@ -174,7 +164,7 @@ protected:
 public:
    TQtColorSelectButton(QWidget *p, UInt_t pixel, Int_t id=-1,TColorEmit *emitter=0);
    TQtColorSelectButton(QWidget *p, QColor &color, Int_t id=-1,TColorEmit *emitter=0);
-   TQtColorSelectButton(QWidget *p, const char *name, Qt::WFlags f = Qt::WStyle_Customize | Qt::WStyle_NoBorder|Qt::WStyle_StaysOnTop);
+   TQtColorSelectButton(QWidget *p, const char *name, Qt::WindowFlags f = Qt::WStyle_Customize | Qt::WStyle_NoBorder|Qt::WStyle_StaysOnTop);
    TQtColorSelectButton(QWidget *p);
    virtual ~TQtColorSelectButton();
 

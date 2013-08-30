@@ -3,25 +3,29 @@
 ######################################################################
 
 TEMPLATE = lib 
-QT += webkit
+QT += webkit network
 CONFIG += thread dll
 CONFIG += create_prl
 DEPENDPATH += inc src
 # DEFINES += QT_QTCOLORPICKER_EXPORT
 TARGET = QtRootGui
 
-QMAKE_RPATH=
+QMAKE_LFLAGS_RPATH=
+macx: QMAKE_LFLAGS_SONAME = -Wl,-install_name,@rpath/
 
 GQTDIRI   = ../qt/inc
 
 QTROOTSYSPATHINSTALL = $(QTROOTSYSDIR)
 QT_VERSION=$$[QT_VERSION]
 contains( QT_VERSION, "^4.*" ) {
+    QT *=  qt3support
+}
+QTROOTSYSPATHINSTALL = $$(QTROOTSYSDIR)
+contains( QT_VERSION, "^5.*" ) {
     QTROOTSYSPATHINSTALL = $$(QTROOTSYSDIR)
+    QT *= widgets
 }
 
-contains( QT_VERSION, "^4.*" ) {
-}
 
 isEmpty(DESTDIR) {
   DESTDIR=..
@@ -232,12 +236,8 @@ unix {
   OBJECTS_DIR = .obj
 
 }
-#The following line was inserted by qt3to4
-QT +=  qt3support 
 
-QT +=
-
-linux-g++* {   
+linux-g++-32 {   
   system( g++ --version | grep " 4\.3\.2 " > /dev/null ) {
      message ( Patch for gcc 4.3.2 bug --  L i n u x  -- linux-g++-32 )    
      QMAKE_CXXFLAGS *= -fno-inline   

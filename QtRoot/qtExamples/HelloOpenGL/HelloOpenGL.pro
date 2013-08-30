@@ -5,8 +5,7 @@
 TEMPLATE = lib
 QT += xml opengl
 
-QMAKE_RPATH=
-
+QMAKE_LFLAGS_RPATH=
 # Get the "lib" prefix to match the Unix default
 win32 : TARGET = libHelloOpenGL
 

@@ -1,9 +1,9 @@
-// @(#)root/qt:$Id: TQtClientGuard.cxx,v 1.4 2010/05/10 22:51:26 fine Exp $
+// @(#)root/qt:$Id: TQtClientGuard.cxx,v 1.5 2013/08/30 15:59:51 perev Exp $
 // Author: Valeri Fine   21/01/2002
 
 /****************************************************************************
 **
-** Copyright (C) 2004 by Valeri Fine. Brookhaven National Laboratory.
+** $$Copyright$
 **                                    All rights reserved.
 **
 ** This file may be distributed under the terms of the Q Public License
@@ -27,7 +27,7 @@ void TQtClientGuard::Add(QWidget *w)
    connect(w,SIGNAL(destroyed()),this,SLOT(Disconnect()));
 }
 //______________________________________________________________________________
-TQtClientWidget *TQtClientGuard::Create(QWidget* mother, const char* name, Qt::WFlags f)
+TQtClientWidget *TQtClientGuard::Create(QWidget* mother, const char* name, Qt::WindowFlags f)
 {
    // TQtClientWidget object factory
    TQtClientWidget *w =  new TQtClientWidget(this,mother,name,f);
@@ -40,11 +40,7 @@ void TQtClientGuard::Delete(QWidget *w)
 {
    // Delete and unregister the object
    int found = -1;
-#if QT_VERSION < 0x40000
-   if (w && ( (found = fQClientGuard.find(w))>=0))
-#else
    if (w && ( (found = fQClientGuard.indexOf(w))>=0) )
-#endif
    {
       w->hide();
       Disconnect(w,found);
@@ -60,18 +56,10 @@ void TQtClientGuard::Disconnect(QWidget *w, int found)
    // Disconnect and unregister the object
    // fprintf(stderr, "TQtClientGuard::Disconnecting widget %p\n", w);
    if ( (found>=0) ||
-#if QT_VERSION < 0x40000
-      ( w && ( (found = fQClientGuard.find(w)) >=0 ) )  ) {
-#else
       ( w && ((found = fQClientGuard.indexOf(w)) >=0 ) )  ) {
-#endif
       // ungrab the poiner just in case
       QWidget *grabber = QWidget::mouseGrabber();
-#if QT_VERSION < 0x40000
-      fQClientGuard.remove();
-#else
       fQClientGuard.removeAt(found);
-#endif
       disconnect(w,SIGNAL(destroyed()),this,SLOT(Disconnect()));
       if (grabber == w && gQt->IsRegistered(w) )
          gVirtualX->GrabPointer(TGQt::iwid(w), 0, 0, 0, kFALSE);
@@ -87,34 +75,15 @@ void TQtClientGuard::DisconnectChildren(TQtClientWidget *w)
 {
    // Disconnect all children of the registered widget
    if (w) {
-#if QT_VERSION < 0x40000
-      const QObjectList *childList = w->children();
-#else /* QT_VERSION */
       const QObjectList &childList = w->children();
-#endif /* QT_VERSION */
-      int nChild = 0;
-#if QT_VERSION < 0x40000
-      if (childList) {
-         nChild = childList->count();
-         QObjectListIterator next(*childList);
-         next.toLast();
-#else /* QT_VERSION */
       if (!childList.isEmpty()) {
-         nChild = childList.count();
          QListIterator<QObject *> next(childList);
          next.toBack();
-#endif /* QT_VERSION */
          QObject *widget = 0;
          // while ( (widget = *next) )
-#if QT_VERSION < 0x40000
-         for (widget=next.toLast(); (widget = next.current()); --next)
-#else /* QT_VERSION */
          while( next.hasPrevious() )
-#endif /* QT_VERSION */
          {
-#if QT_VERSION >= 0x40000
             widget = next.previous();
-#endif /* QT_VERSION */
             if (dynamic_cast<TQtClientWidget*>(widget)) {
                DisconnectChildren((TQtClientWidget*)widget);
             } else {

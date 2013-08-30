@@ -1,8 +1,8 @@
-// @(#)root/gt:$Name:  $:$Id: TQtRootSlot.cxx,v 1.5 2010/05/13 19:40:39 fine Exp $
+// @(#)root/gt:$Name:  $:$Id: TQtRootSlot.cxx,v 1.6 2013/08/30 15:59:52 perev Exp $
 // Author: Valery Fine      18/01/2007
 
 /****************************************************************************
-** $Id: TQtRootSlot.cxx,v 1.5 2010/05/13 19:40:39 fine Exp $
+** $Id: TQtRootSlot.cxx,v 1.6 2013/08/30 15:59:52 perev Exp $
 **
 ** $$Copyright$
 **                                    All rights reserved.
@@ -40,7 +40,7 @@
 #include "TROOT.h"
 #include "TApplication.h"
 #include "TInterpreter.h"
-#include <qapplication.h>
+#include <QApplication>
 #include <QString>
 
 TQtRootSlot *TQtRootSlot::fgTQtRootSlot = 0;
@@ -74,7 +74,7 @@ void TQtRootSlot::ProcessLine(const char *command)
      // execute the arbitrary ROOT /CINt command via 
      // CINT C++ interpreter and emit the result
      int error;
-     gROOT->ProcessLine(command,&error);
+     ROOT::GetROOT()->ProcessLine(command,&error);
      emit Error(error);
 }
 //____________________________________________________
@@ -109,7 +109,7 @@ void TQtRootSlot::TerminateAndQuit() const
    else if (!rtrm && gApplication ) {
       gApplication->SetReturnFromRun(rtrm);
       // to make sure the ROOT event loop is terminated
-      gROOT->ProcessLine(".q");
+      ROOT::GetROOT()->ProcessLine(".q");
    }
 }
 

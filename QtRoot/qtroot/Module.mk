@@ -40,7 +40,8 @@ ALLMAPS     += $(QTROOTMAP)
 
 QTROOTCXXFLAGS   := -DQT3_SUPPORT -DQT_DLL -DQT_THREAD_SUPPORT -I. 
 ifeq ($(ARCH),win32)
-QTROOTCXXFLAGS   += -I$(QTDIR)/mkspecs/win32-msvc2005
+QTROOTCXXFLAGS   += -I$(QTDIR)/mkspecs/default 
+#   win32-msvc2005
 else
 QTROOTCXXFLAGS   += -I$(QTDIR)/mkspecs/default 
 endif

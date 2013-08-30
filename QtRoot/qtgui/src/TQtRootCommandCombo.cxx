@@ -1,8 +1,8 @@
-// @(#)root/gt:$Name:  $:$Id: TQtRootCommandCombo.cxx,v 1.3 2010/05/13 19:42:37 fine Exp $
+// @(#)root/gt:$Name:  $:$Id: TQtRootCommandCombo.cxx,v 1.4 2013/08/30 16:00:25 perev Exp $
 // Author: Valeri Fine   11/01/2009
 
 /****************************************************************************
-** $Id: TQtRootCommandCombo.cxx,v 1.3 2010/05/13 19:42:37 fine Exp $
+** $Id: TQtRootCommandCombo.cxx,v 1.4 2013/08/30 16:00:25 perev Exp $
 **
 ** Copyright (C) 2009 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -25,11 +25,11 @@
 
 #include "TQtRootCommandCombo.h"
 #include "TQtRootSlot.h"
-#include <QtGui/QLineEdit>
-#include <QtCore/QFile>
-#include <QtCore/QDir>
-#include <QtCore/QTextStream>
-#include <QtCore/QString>
+#include <QLineEdit>
+#include <QFile>
+#include <QDir>
+#include <QTextStream>
+#include <QString>
 #include "TSystem.h"
 
 using namespace std;

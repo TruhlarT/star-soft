@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtPatternSelectButton.cxx,v 1.8 2009/08/03 18:03:10 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtPatternSelectButton.cxx,v 1.9 2013/08/30 16:00:25 perev Exp $
 // Author: Bertrand Bellenot + Fons Rademakers   22/08/02
 
 /*************************************************************************
@@ -199,7 +199,7 @@ void TQtPatternFrame::mouseReleaseEvent(QMouseEvent *event)
 }
 
 //________________________________________________________________________________
-TQtPatternPopup::TQtPatternPopup(QWidget *p, TQtBrush &color,const char *name, bool modal, Qt::WFlags f) :
+TQtPatternPopup::TQtPatternPopup(QWidget *p, TQtBrush &color,const char *name, bool modal, Qt::WindowFlags f) :
    QDialog(p,f)
  ,fCurrentBrush(color)
 { 
@@ -249,7 +249,7 @@ QSize TQtPatternPopup::sizeHint () const
    return QSize(2  + 3*(wSize+1) +1, 2 + 10*(hSize+1) + 2);
 }
 //________________________________________________________________________________
-TQtPatternPopup *TQtPatternPopup::Create(QWidget *p, TQtBrush &color,const char *name, bool modal, Qt::WFlags f) 
+TQtPatternPopup *TQtPatternPopup::Create(QWidget *p, TQtBrush &color,const char *name, bool modal, Qt::WindowFlags f) 
 { 
   // Create the singletone object
   if (!fgBrushPopup) 
@@ -291,7 +291,7 @@ TQtPatternSelectButton::TQtPatternSelectButton(QWidget *p) : QFrame(p),  fFakeMe
    CreateWidget();
 }
 //________________________________________________________________________________
-TQtPatternSelectButton::TQtPatternSelectButton(QWidget *p, const char *name, Qt::WFlags f)
+TQtPatternSelectButton::TQtPatternSelectButton(QWidget *p, const char *name, Qt::WindowFlags f)
     : QFrame(p,f)
     , fFakeMenu(0), fBrushEmitter(0)
 {

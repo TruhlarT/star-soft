@@ -1,6 +1,6 @@
 // Author: Valeri Fine   13/05/2003
 /****************************************************************************
-** $Id: TQtRootGuiFactory.h,v 1.4 2009/08/03 18:03:11 fine Exp $
+** $Id: TQtRootGuiFactory.h,v 1.5 2013/08/30 16:00:27 perev Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **

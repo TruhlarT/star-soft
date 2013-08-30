@@ -1,4 +1,4 @@
-# $Id: Module.root.5.11.mk,v 1.3 2010/05/10 22:51:25 fine Exp $
+# $Id: Module.root.5.11.mk,v 1.4 2013/08/30 15:59:48 perev Exp $
 # Module.mk for qt module
 # Copyright (c) 2001 Valeri Fine
 #

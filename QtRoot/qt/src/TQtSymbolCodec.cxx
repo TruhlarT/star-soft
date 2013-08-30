@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: TQtSymbolCodec.cxx,v 1.4 2010/05/10 22:51:26 fine Exp $
+** $Id: TQtSymbolCodec.cxx,v 1.5 2013/08/30 15:59:52 perev Exp $
 **
 ** Implementation of QTextCodec class
 **
@@ -153,15 +153,17 @@ QString QSymbolCodec::toUnicode(const char* chars, int len ) const
    return r;
 }
 //_______________________________________________________________________
-QByteArray QSymbolCodec::fromUnicode(const QString& uc, int& lenInOut) const
+QByteArray QSymbolCodec::fromUnicode(const QString& /*uc*/, int& /*lenInOut*/) const
 {
    // process only len chars...
    qWarning( "Method <QSymbolCodec::fromUnicode> has not been implemated yet");
-   int l;
-   if( lenInOut > 0 )
-      l = qMin((int)uc.length(),lenInOut);
-   else
-      l = (int)uc.length();
+   /*
+   //int l;
+   //if( lenInOut > 0 )
+   //   l = qMin((int)uc.length(),lenInOut);
+   //else
+   //   l = (int)uc.length();
+   */
    QByteArray rstr;
 
    return rstr;

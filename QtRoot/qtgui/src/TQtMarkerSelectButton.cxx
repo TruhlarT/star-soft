@@ -51,7 +51,7 @@ void TQtMarkerFrame::SetStyle ( const Style_t style )
 // TQt18MarkerSelector                                                                         //
 /////////////////////////////////////////////////////////////////////////////////////////////////
 //__________________________________________________________________________________
-TQt18MarkerSelector::TQt18MarkerSelector( QWidget * p,Qt::WFlags f) :
+TQt18MarkerSelector::TQt18MarkerSelector( QWidget * p,Qt::WindowFlags f) :
 #if QT_VERSION < 0x40000
    QDialog (p,0,0,f)
 #else

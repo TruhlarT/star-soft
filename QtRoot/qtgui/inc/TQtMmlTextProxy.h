@@ -1,4 +1,4 @@
-// @(#)root/qt:$Id: TQtMmlTextProxy.h,v 1.1 2009/08/03 18:03:08 fine Exp $
+// @(#)root/qt:$Id: TQtMmlTextProxy.h,v 1.2 2013/08/30 16:00:21 perev Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **

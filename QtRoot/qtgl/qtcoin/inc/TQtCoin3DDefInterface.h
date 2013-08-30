@@ -1,6 +1,6 @@
 #ifndef STAR_TQtCoin3DDefInterface
 #define STAR_TQtCoin3DDefInterface
-// @(#)root/gtgl:$Name:  $:$Id: TQtCoin3DDefInterface.h,v 1.3 2010/01/22 01:24:28 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TQtCoin3DDefInterface.h,v 1.4 2013/08/30 16:00:15 perev Exp $
 // Author: Valery Fine     10/01/07
 
 /****************************************************************************
@@ -20,7 +20,7 @@ class SoNode;
 //
 // An abstract base class TQtCoin3DDefInterface is 
 // an interface  to communicate with the "Coin3D portion"
-// of the mixed Root/Coin geometry nodes
+// of the mixed Root/Coin geomtry nodes
 //
 //  The portion can be defined as
 //  ------------------------------

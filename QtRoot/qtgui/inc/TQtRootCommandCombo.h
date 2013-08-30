@@ -1,10 +1,10 @@
 #ifndef STAR_TQROOTCOMMNANDCOMBO
 #define STAR_TQROOTCOMMNANDCOMBO
-// @(#)root/gt:$Name:  $:$Id: TQtRootCommandCombo.h,v 1.3 2010/05/13 19:42:37 fine Exp $
+// @(#)root/gt:$Name:  $:$Id: TQtRootCommandCombo.h,v 1.4 2013/08/30 16:00:22 perev Exp $
 // Author: Valeri Fine   11/01/2009
 
 /****************************************************************************
-** $Id: TQtRootCommandCombo.h,v 1.3 2010/05/13 19:42:37 fine Exp $
+** $Id: TQtRootCommandCombo.h,v 1.4 2013/08/30 16:00:22 perev Exp $
 **
 ** Copyright (C) 2009 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.

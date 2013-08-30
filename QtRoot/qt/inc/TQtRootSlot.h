@@ -1,8 +1,8 @@
-// @(#)root/qt:$Id: TQtRootSlot.h,v 1.7 2010/05/13 19:40:39 fine Exp $
+// @(#)root/qt:$Id: TQtRootSlot.h,v 1.8 2013/08/30 15:59:50 perev Exp $
 // Author: Valery Fine      18/01/2007
 
 /****************************************************************************
-** $Id: TQtRootSlot.h,v 1.7 2010/05/13 19:40:39 fine Exp $
+** $Id: TQtRootSlot.h,v 1.8 2013/08/30 15:59:50 perev Exp $
 **
 ** Copyright (C) 2007 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -28,7 +28,7 @@
 #define ROOT_TQRootSlot
 
 #ifndef __CINT__
-#include <qobject.h>
+#include <QObject>
 #else
 class QObject;
 #define Q_OBJECT

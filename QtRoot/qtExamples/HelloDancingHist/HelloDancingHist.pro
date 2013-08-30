@@ -2,7 +2,7 @@ TEMPLATE = app
 TARGET   = HelloDancingHist
 QT += qt3support
 
-QMAKE_RPATH=
+QMAKE_LFLAGS_RPATH=
 
 
 HelloDancingHistIncludeFile = $$(QTROOTSYSDIR)/include
@@ -25,6 +25,9 @@ exists($$HelloDancingHistIncludeFile) {
     }
   }
 }
+
+win32: LIBS += libMathCore.lib
+unix: LIBS += MathCore
 
 HEADERS		= HelloDancingHist.h \
 		 

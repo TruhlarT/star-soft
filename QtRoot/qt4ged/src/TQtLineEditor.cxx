@@ -1,4 +1,4 @@
-// @(#)root/ged:$Name:  $:$Id: TQtLineEditor.cxx,v 1.4 2010/06/21 13:37:46 fine Exp $
+// @(#)root/ged:$Name:  $:$Id: TQtLineEditor.cxx,v 1.5 2013/08/30 15:59:53 perev Exp $
 // Author: Valeri Fine 13/06/06
 
 /*************************************************************************

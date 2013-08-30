@@ -1,9 +1,9 @@
-// @(#)root/qt:$Name:  $:$Id: TQtClientWidget.cxx,v 1.8 2010/05/10 22:51:26 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtClientWidget.cxx,v 1.9 2013/08/30 15:59:51 perev Exp $
 // Author: Valeri Fine   01/03/2003
 /****************************************************************************
-** $Id: TQtClientWidget.cxx,v 1.8 2010/05/10 22:51:26 fine Exp $
+** $Id: TQtClientWidget.cxx,v 1.9 2013/08/30 15:59:51 perev Exp $
 **
-** Copyright (C) 2003 by Valeri Fine. Brookhaven National Laboratory.
+** $$Copyright$
 **                                    All rights reserved.
 **
 ** This file may be distributed under the terms of the Q Public License
@@ -43,7 +43,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-TQtClientWidget::TQtClientWidget(TQtClientGuard *guard, QWidget* mother, const char* name, Qt::WFlags f ):
+TQtClientWidget::TQtClientWidget(TQtClientGuard *guard, QWidget* mother, const char* name, Qt::WindowFlags f ):
           QFrame(mother,f)
          ,fGrabButtonMask(kAnyModifier),      fGrabEventPointerMask(kNoEventMask)
          ,fGrabEventButtonMask(kNoEventMask), fSelectEventMask(kNoEventMask), fSaveSelectInputMask(kNoEventMask) // ,fAttributeEventMask(0)
@@ -54,7 +54,9 @@ TQtClientWidget::TQtClientWidget(TQtClientGuard *guard, QWidget* mother, const c
 {
    setObjectName(name);
    setAttribute(Qt::WA_PaintOnScreen);
+#if QT_VERSION < 0x050000
    setAttribute(Qt::WA_PaintOutsidePaintEvent);
+#endif
    setAutoFillBackground(true); 
  //   fEraseColor  = new QColor("red");
 //   fErasePixmap = new QPixmap(palette().brush(QPalette::Window).texture());

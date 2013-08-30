@@ -45,6 +45,7 @@ public:
 
    //virtual Int_t  AddObject(TObject *, Option_t* drawOption = 0, Bool_t * addChildren = 0);
    //virtual Int_t  AddObjectFirst(TObject *, Option_t* drawOption = 0, Bool_t * addChildren = 0);
+
 protected:
          Bool_t      fViewAll;
          TString     fDrawOption;// the draw optiuoin to pass to the viewer if present

@@ -1,11 +1,11 @@
-// @(#)root/gui:$Name:  $:$Id: TQtPatternSelect.h,v 1.6 2012/06/11 14:20:56 fisyak Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtPatternSelect.h,v 1.7 2013/08/30 16:00:22 perev Exp $
 // Author: Valeri Fine  21/05/2004
 
 #ifndef ROOT_TQtPatternSelect
 #define ROOT_TQtPatternSelect
 
 /****************************************************************************
-** $Id: TQtPatternSelect.h,v 1.6 2012/06/11 14:20:56 fisyak Exp $
+** $Id: TQtPatternSelect.h,v 1.7 2013/08/30 16:00:22 perev Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -31,16 +31,17 @@
 
 #include "GuiTypes.h"
 #include "Gtypes.h"
+#include "Riostream.h"
 #include "TObject.h"
 #ifndef ROOT_TQObject
 #include "TQObject.h"
 #endif
 
 #ifndef __CINT__
-#  include <qobject.h>
+#  include <QObject>
 #  include <QEvent>
 #endif
-#include "Riosfwd.h"
+
 class QWidget;
 class TQtPatternSelectButton;
 class QEvent;

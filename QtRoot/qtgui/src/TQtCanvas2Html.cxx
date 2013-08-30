@@ -101,7 +101,7 @@ void TQtCanvas2Html::MakePage(float zoom,unsigned int width, unsigned int height
    CreateMapPage(pad);
    QString map = "map";
    map += *fTargetWindow;
-   MapCanvas(pad, map.toAscii().data(),false);
+   MapCanvas(pad, map.toLatin1().data(),false);
 }
 //______________________________________________________________________________________________
 TQtCanvas2Html::~TQtCanvas2Html()
@@ -163,7 +163,7 @@ int TQtCanvas2Html::CreateMapPage(TVirtualPad *pad)
             TVirtualPad  *pp = (TVirtualPad  *)fZoomCanvas->GetListOfPrimitives()->First();
             // Refresh the pad to make sure its image is up-to-date
             pp->Modified(); pp->Update();
-            TQtPad2Html nextPad(pp,HtmlFolder().toAscii().data());
+            TQtPad2Html nextPad(pp,HtmlFolder().toLatin1().data());
             QFileInfo info(nextPad.PadHtmlFile());
             CreateRectArea(info.fileName(), nextPad.ImageTitle()
                         , p->UtoAbsPixel(0), p->VtoAbsPixel(1)

@@ -49,13 +49,12 @@ static struct needgraph {   needgraph () {  TApplication::NeedGraphicsLibs() ;  
 
    // Make the the embedded TCanvas to be the current TPad
    // In other words :-)
-   // assign  the "gPad" pointer pointing to the embeded into the QWidget a TCanvas 
+   // assign  the "gPad" pointer pointing to the TCanvas object embeded into the QWidget one
 
    currentWidget = widget; currentWidget->cd();
 
    // Connect the QLineEditor with the ROOT command interpreter
    comboBox->setLineEdit(new QLineEdit ( comboBox) ); 
-   
    connect(comboBox->lineEdit(),SIGNAL(returnPressed ()),this, SLOT( execRoot()) );
    
    connect(treeView, SIGNAL(Activated(TObject * )),
@@ -78,7 +77,8 @@ void HelloFileBrowser::destroy()
 void HelloFileBrowser::TreeView_Clicked(TObject *o)
 
 {
-   if(o){
+   if(o && !o->InheritsFrom(TFile::Class())){ // Do not touch to TFile object
+      
       currentWidget = widget;
       if(dynamic_cast<TH2*> (o) ) {
          currentWidget = widget_2;
@@ -87,10 +87,10 @@ void HelloFileBrowser::TreeView_Clicked(TObject *o)
       }
       if (currentWidget) {
 //         TObject *Th;
-         currentWidget->cd();
          // std::string objectKey = SelectedItem->text().toStdString();
          // Th = fxDiskFile->Get(objectKey.c_str());
-         o->Draw();
+         currentWidget->Clear();
+         currentWidget->Draw(o);
          currentWidget->Refresh();
       }
    }

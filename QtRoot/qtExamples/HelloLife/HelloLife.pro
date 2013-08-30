@@ -4,7 +4,8 @@ QT += qt3support
 
 QMAKE_RPATH=
 
-CONFIG   += qt warn_on release thread
+CONFIG   += qt warn_on 
+# release thread
 
 
 helloLifeIncludeFile = $$(QTROOTSYSDIR)/include
@@ -28,6 +29,10 @@ exists($$helloLifeIncludeFile) {
   }
 }
 
+
+win32 {
+LIBS += libMathCore.lib
+}
 HEADERS		= HelloLife.h \
 		  HelloLifeDlg.h
 SOURCES		= HelloLife.cxx \

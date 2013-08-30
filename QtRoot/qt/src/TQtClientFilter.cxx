@@ -1,4 +1,4 @@
-// @(#)root/qt:$Id: TQtClientFilter.cxx,v 1.10 2010/05/10 22:51:26 fine Exp $
+// @(#)root/qt:$Id: TQtClientFilter.cxx,v 1.11 2013/08/30 15:59:51 perev Exp $
 // Author: Valeri Fine   21/01/2003
 /****************************************************************************
 **
@@ -23,9 +23,9 @@
 #include "TSystem.h"
 #include "TStopwatch.h"
 #include "qevent.h"
-#include <qdatetime.h>
-#include <qcursor.h>
-#include <qtextcodec.h>
+#include <QDateTime>
+#include <QCursor>
+#include <QTextCodec>
 
 #include <QWheelEvent>
 #include <QByteArray>
@@ -217,7 +217,7 @@ static inline UInt_t MapKeySym(const QKeyEvent &qev)
    qstrncpy((char *)&text, (const char *)r,1);
    return text;
 #else
-   text = UInt_t(qev.text().toAscii().data()[0]);
+   text = UInt_t(qev.text().toLatin1().data()[0]);
 #ifdef QT_STILL_HAS_BUG   
    // Regenerate the ascii code (Qt bug I guess)
    if  (qev.modifiers() != Qt::NoModifier)  {
@@ -398,6 +398,7 @@ bool TQtClientFilter::eventFilter( QObject *qWidget, QEvent *e ){
    TQtClientWidget *frame = dynamic_cast<TQtClientWidget *>(qWidget);
    if (!(frame /* && gQt->IsRegistered(frame)  */) )    {
          if (filterTime) filterTime->Stop();
+         delete &evt;
          return kFALSE; // it is a desktop, it is NOT ROOT gui object
    }
    QPaintDevice *paintDev = (QPaintDevice *)frame;
@@ -652,11 +653,9 @@ bool TQtClientFilter::eventFilter( QObject *qWidget, QEvent *e ){
        break;
    };
 
-   bool justInit =  false;
    if (!fRootEventQueue) {
       fRootEventQueue = new TQtEventQueue();
       // send message to another thread
-      justInit = true;
    }
 #if ROOT_VERSION_CODE >= ROOT_VERSION(9,15,9)         
    if (evt.fType ==  kExpose ) {
@@ -851,7 +850,7 @@ bool TQtPointerGrabber::SelectGrab(Event_t &evt, UInt_t selectEventMask, QMouseE
 { 
   // Select Event:  --  25.11.2005  --
   TQtClientWidget *widget = (TQtClientWidget*)TGQt::wid(evt.fWindow);
-  bool pass2Root = FALSE;
+  bool pass2Root = kFALSE;
 
   QWidget *grabber = QWidget::mouseGrabber();
   TQtClientWidget *pointerGrabber =  fPointerGrabber;
@@ -863,7 +862,7 @@ bool TQtPointerGrabber::SelectGrab(Event_t &evt, UInt_t selectEventMask, QMouseE
      DisactivateGrabbing();
      grabber = QWidget::mouseGrabber();
   }
-  bool inside = FALSE;
+  bool inside = kFALSE;
   if ( ( inside = IsMouseCursorInside() ) ) {
       if ( grabber ) {
            if ( fGrabPointerOwner ) { 
@@ -916,7 +915,7 @@ bool TQtPointerGrabber::SelectGrab(Event_t &evt, UInt_t selectEventMask, QMouseE
          pointerGrabber->GrabEvent(evt);
          // fprintf(stderr," QtPointerGrabber::SelectGrab  1.1. Active grabbing %p id =%x inside = %d\n",
          //        pointerGrabber, evt.fWindow, inside);
-         pass2Root = TRUE;
+         pass2Root = kTRUE;
       }
    } else {
      if ( IsGrabSelected (selectEventMask) ) {
@@ -941,7 +940,7 @@ bool TQtPointerGrabber::SelectGrab(Event_t &evt, UInt_t selectEventMask, QMouseE
            pointerGrabber->GrabEvent(evt);
            // fprintf(stderr," QtPointerGrabber::SelectGrab  1.5. Active grabbing %p id =%x inside = %d\n",
            //     pointerGrabber, evt.fWindow, inside);
-           pass2Root = TRUE;
+           pass2Root = kTRUE;
            mouse.accept();
         }
      } else if (widget) {

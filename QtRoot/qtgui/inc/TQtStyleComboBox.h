@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtStyleComboBox.h,v 1.4 2009/08/03 18:03:09 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtStyleComboBox.h,v 1.5 2013/08/30 16:00:22 perev Exp $
 // Author: Valeri Fine 07/07/2006
 
 
@@ -33,9 +33,9 @@ class TQtStyleComboBox : public QComboBox {
  public:
     TQtStyleComboBox(int listSize, QWidget *parent=0, QString name = QString::null);
     virtual ~TQtStyleComboBox();
-    virtual void AddItem(int style, bool savepad=TRUE) = 0;
+    virtual void AddItem(int style, bool savepad=true) = 0;
     virtual void SetCurrentItem(int style);
-//    virtual void SavePrimitive(ostream &out, Option_t *option = "");
+//    virtual void SavePrimitive(std::ostream &out, Option_t *option = "");
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ class TQtLineStyleComboBox : public TQtStyleComboBox {
 public:
     TQtLineStyleComboBox(QWidget *parent=0,const QString name="lineStyle");
     virtual ~TQtLineStyleComboBox(){}
-    virtual void AddItem(int style, bool savepad=TRUE);
+    virtual void AddItem(int style, bool savepad=true);
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@ class TQtLineWidthComboBox : public TQtStyleComboBox {
 public:
    TQtLineWidthComboBox(QWidget *parent=0,const QString name="Linewidth");
    virtual ~TQtLineWidthComboBox(){}
-   virtual void AddItem(int style, bool savepad=TRUE);
+   virtual void AddItem(int style, bool savepad=true);
 };
 
 
@@ -83,7 +83,7 @@ Q_OBJECT
 public:
    TQtFontComboBox(QWidget *parent=0, const QString name="fontselector");
    virtual ~TQtFontComboBox(){;}
-   virtual void AddItem(int style, bool savepad=TRUE);
+   virtual void AddItem(int style, bool savepad=true);
    QSize   sizeHint() const;
 public  slots:
    void SetFont(int);

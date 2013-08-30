@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TCoinShapeBuilder.cxx,v 1.16 2012/06/11 16:05:56 fisyak Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TCoinShapeBuilder.cxx,v 1.17 2013/08/30 16:00:15 perev Exp $
 // Author: Valery Fine      24/09/06
 
 /****************************************************************************
@@ -38,6 +38,7 @@
 #include <Inventor/nodes/SoShapeHints.h>
 #include <Inventor/nodes/SoLightModel.h>
 #include <Inventor/nodes/SoPickStyle.h>
+
 #include "assert.h"
 
 //______________________________________________________________________________
@@ -327,7 +328,7 @@ SoGroup * TCoinShapeBuilder::CreateCoinShape()
                shapeGroup->addChild(fShapeFaceVertices  = new SoCoordinate3());
                float sizeFactor = 2.66;
                static const int makerSize = SoMarkerSet::SHIP_FILLED_5_5+1; // the last marker type
-               int markerShift = makerSize*std::min(2,int(fShapeView.GetLineWidth()/1.66));
+               int markerShift = makerSize*min(2,int(fShapeView.GetLineWidth()/1.66));
                switch (style) {
                   case kDot: default: 
                      sizeFactor = 0.12;
@@ -352,7 +353,7 @@ SoGroup * TCoinShapeBuilder::CreateCoinShape()
                      break;
                 };
                SoDrawStyle *ds = new SoDrawStyle();
-               ds->pointSize = std::max(1.0,(sizeFactor*fShapeView.GetLineWidth() + 0.5));
+               ds->pointSize = max(1.0,(sizeFactor*fShapeView.GetLineWidth() + 0.5));
                shapeGroup->addChild(ds);
                ::AddCoordinates(*fShapeFaceVertices,vertices);
                break;

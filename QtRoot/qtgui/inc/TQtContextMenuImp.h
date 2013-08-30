@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtContextMenuImp.h,v 1.6 2009/08/03 18:03:08 fine Exp $
+** $Id: TQtContextMenuImp.h,v 1.7 2013/08/30 16:00:20 perev Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -25,8 +25,8 @@
 #include "TContextMenuImp.h"
 #include "TContextMenu.h"
 
-#include <qglobal.h>
-#include <qobject.h>
+#include <QtGlobal>
+#include <QObject>
 #include <QVector>
 
 // *-*
@@ -46,9 +46,7 @@
 
 class TQtDialog;
 class QEvent;
-//MOC_SKIP_BEGIN
-  class QMenu;
-//MOC_SKIP_END
+class QMenu;
 
 class TQtMenutItem : public QObject {
 

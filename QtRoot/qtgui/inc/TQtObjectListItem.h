@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtObjectListItem.h,v 1.4 2010/04/19 23:52:06 fine Exp $
+** $Id: TQtObjectListItem.h,v 1.5 2013/08/30 16:00:22 perev Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -283,7 +283,7 @@ public:
 #else /* QT_VERSION */
   TQtBrowserItem( TObject *obj,Q3ListView * parent, QString label1) 
      : TQtObjectListItemInterface(this,obj), Q3ListViewItem(parent,label1)  {;}
-  TQtBrowserItem( TObject *obj,Q3ListView * parent, QString label1,QString /* label2 */)
+  TQtBrowserItem( TObject *obj,Q3ListView * parent, QString label1,QString label2)
      : TQtObjectListItemInterface(this,obj), Q3ListViewItem(parent,label1)  {;}
   TQtBrowserItem( TObject *obj,Q3ListViewItem * parent, QString label1)
      : TQtObjectListItemInterface(this,obj), Q3ListViewItem(parent,label1)  {;}

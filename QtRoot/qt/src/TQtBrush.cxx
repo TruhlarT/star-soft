@@ -1,8 +1,8 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtBrush.cxx,v 1.3 2010/05/10 22:51:26 fine Exp $
+** $Id: TQtBrush.cxx,v 1.4 2013/08/30 15:59:51 perev Exp $
 **
-** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
+** $$Copyright$
 **                                    All rights reserved.
 **
 ** This file may be distributed under the terms of the Q Public License
@@ -214,7 +214,7 @@ void TQtBrush::SetStyle(int sty, int fasi)
   case 0:
     setStyle(Qt::NoBrush);                          // hollow
     fBackground = Qt::transparent;
-	 fAlpha = 0;
+    fAlpha = 0;
     break;
   case 1:                                           // solid
     setStyle(Qt::SolidPattern);

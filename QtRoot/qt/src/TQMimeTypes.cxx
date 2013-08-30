@@ -1,8 +1,8 @@
-// @(#)root/qt:$Id: TQMimeTypes.cxx,v 1.8 2010/05/10 22:51:26 fine Exp $
+// @(#)root/qt:$Id: TQMimeTypes.cxx,v 1.9 2013/08/30 15:59:51 perev Exp $
 // Author: Valeri Fine   21/01/2003
 /*************************************************************************
- * Copyright (C) 1995-2004, Rene Brun and Fons Rademakers.               *
- * Copyright (C) 2003 by Valeri Fine.                                    *
+ * $$Copyright$
+ * $$Copyright$
  * All rights reserved.                                                  *
  *                                                                       *
  * For the licensing terms see $ROOTSYS/LICENSE.                         *
@@ -32,7 +32,7 @@
 #include <QIcon>
 #include <QFileIconProvider>
 #include <QPixmap>
-#include <qfileinfo.h>
+#include <QFileInfo>
 
 ClassImp(TQMimeTypes)
 QFileIconProvider  *TQMimeTypes::fgDefaultProvider = 0; // Default provider of the system icons;
@@ -81,7 +81,7 @@ TQMimeTypes::TQMimeTypes(const char *iconPath, const char *filename)
       if (!strlen(s)) continue;    // skip empty lines
 
       if (*s == '[') {
-         strcpy(mime, line);
+         strlcpy(mime, line,1024);
          cnt = 0;
          continue;
       }
@@ -92,7 +92,7 @@ TQMimeTypes::TQMimeTypes(const char *iconPath, const char *filename)
          } else {
             s++;
             s = Strip(s);
-            strcpy(pattern, s);
+            strlcpy(pattern, s,256);
             delete [] s;
          }
          cnt++;
@@ -106,14 +106,14 @@ TQMimeTypes::TQMimeTypes(const char *iconPath, const char *filename)
             char *s2;
             if ((s2 = strchr(s, ' '))) {
                *s2 = 0;
-               strcpy(icon, s);
+               strlcpy(icon, s,256);
                s2++;
                s2 = Strip(s2);
-               strcpy(sicon, s2);
+               strlcpy(sicon, s2,256);
                delete [] s2;
             } else {
-               strcpy(icon, s);
-               strcpy(sicon, s);
+               strlcpy(icon, s,256);
+               strlcpy(sicon, s2,256);
             }
             delete [] s;
          }
@@ -125,7 +125,7 @@ TQMimeTypes::TQMimeTypes(const char *iconPath, const char *filename)
          } else {
             s++;
             s = Strip(s);
-            strcpy(action, s);
+            strlcpy(action, s,256);
             delete [] s;
          }
          cnt++;
@@ -207,7 +207,7 @@ const QIcon *TQMimeTypes::AddType(const TSystemFile *filename)
    TQMime *mime = new TQMime;
    mime->fType    = "system/file";
    mime->fPattern = "*.";
-   mime->fPattern += info.suffix().toAscii().data();
+   mime->fPattern += info.suffix().toLatin1().data();
    mime->fIcon  = 0;
    mime->fIcon  = new QIcon(icon) ;
 #ifdef R__QTWIN32
@@ -276,7 +276,7 @@ void TQMimeTypes::SaveMimes()
    // Save mime types in user's mime type file.
 
    char filename[1024];
-   sprintf(filename, "%s/.root.mimes",  gSystem->HomeDirectory());
+   snprintf(filename,1024, "%s/.root.mimes",  gSystem->HomeDirectory());
 
    FILE *fp = fopen(filename, "w");
 

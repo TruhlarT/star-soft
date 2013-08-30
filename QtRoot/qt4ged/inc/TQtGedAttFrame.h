@@ -1,4 +1,4 @@
-// @(#)root/ged:$Name:  $:$Id: TQtGedAttFrame.h,v 1.2 2009/08/03 18:02:58 fine Exp $
+// @(#)root/ged:$Name:  $:$Id: TQtGedAttFrame.h,v 1.3 2013/08/30 15:59:52 perev Exp $
 // Author: Valeri Fine 25/06/04
 // based on the code by Marek Biskup, Ilka  Antcheva 28/07/03
 
@@ -39,30 +39,20 @@
 
 #ifndef __CINT__
 // #include <qtoolbar.h> 
-#  include <qapplication.h> 
-#  include <qcursor.h> 
-#  if QT_VERSION < 0x40000
-#    include <qdockwindow.h> 
-#    include <qmainwindow.h>
-#    include <qobjectlist.h>
-
-#    define QTDOCKCLASSTYPE QDockWindow
-
-#  else /* QT_VERSION */
-
+#  include <QApplication>
+#  include <QCursor> 
 #    define QTDOCKCLASSTYPE QDockWidget
 
 #    include <QDockWidget> 
 #    include <QMainWindow>
-#    include <qobject.h>
+#    include <QObject>
 #    include <QList>
-#  endif /* QT_VERSION */
 
-#  include <qcombobox.h> 
+#  include <QComboBox> 
 
-#  include <qlayout.h> 
-#  include <qlabel.h> 
-#  include <qtooltip.h>
+#  include <QLayout> 
+#  include <QLabel> 
+#  include <QToolTip>
 
 #else /* CINT */
 // typedef  TObject QToolBar;

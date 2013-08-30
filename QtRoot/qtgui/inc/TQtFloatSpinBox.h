@@ -2,7 +2,7 @@
 #define ROOT_TQtFloatSpinBox
 // Author: Valeri Fine   30/04/2003
 /****************************************************************************
-** $Id: TQtFloatSpinBox.h,v 1.4 2009/08/03 18:03:08 fine Exp $
+** $Id: TQtFloatSpinBox.h,v 1.5 2013/08/30 16:00:21 perev Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -13,29 +13,17 @@
 **
 *****************************************************************************/
 
-#include <qglobal.h>
+#include <QtGlobal>
 
-#if QT_VERSION < 0x40000
-#ifndef Q_MOC_RUN
-#  include <qspinbox.h>
-#endif
-#else
 //MOC_SKIP_BEGIN
-#  include <QDoubleSpinBox>
+#include <QDoubleSpinBox>
 //MOC_SKIP_END
-#endif
 // Other solution to consider yet:
 // http://www.billbaxter.com/code/floatspin
 
-#if QT_VERSION < 0x40000
-#ifndef Q_MOC_RUN
-class  /* Q_EXPORT */ TQtFloatSpinBox: public QSpinBox
-#endif
-#else
 //MOC_SKIP_BEGIN
 class  /* Q_EXPORT */ TQtFloatSpinBox: public QDoubleSpinBox
 //MOC_SKIP_END
-#endif
 {
     Q_OBJECT
     Q_PROPERTY( int digits READ Digit WRITE SetDigit )

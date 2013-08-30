@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtRootApplication.h,v 1.3 2010/05/10 22:51:26 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtRootApplication.h,v 1.4 2013/08/30 15:59:50 perev Exp $
 // Author: Fons Rademakers   15/01/98
 
 /*************************************************************************

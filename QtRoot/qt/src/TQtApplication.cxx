@@ -1,8 +1,8 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtApplication.cxx,v 1.6 2010/05/10 22:51:26 fine Exp $
+** $Id: TQtApplication.cxx,v 1.7 2013/08/30 15:59:51 perev Exp $
 **
-** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
+** $$Copyright$
 **                                    All rights reserved.
 **
 ** This file may be distributed under the terms of the Q Public License
@@ -114,14 +114,14 @@ void TQtApplication::CreateQApplication(int &argc, char ** argv, bool GUIenabled
             .arg(QString::fromLatin1(ROOT_VALID_QT_VERSION))
             .arg(QString::fromLatin1(qVersion()) ); 
       QMessageBox::critical( 0, QApplication::tr("Incompatible Qt Library Error" ), s, QMessageBox::Abort,0 );
-      qFatal(s.toAscii().data());
+      qFatal("%s",s.toLatin1().data());
    } else if (thisQtVersion < QtVersion()) {
        QString s = QApplication::tr("Executable '%1' was compiled with Qt %2, found Qt %3.")
             .arg(qAppName())
             .arg(QT_VERSION_STR)
             .arg(QString::fromLatin1(qVersion()) ); 
       QMessageBox::warning( 0, QApplication::tr("Upgrade Qt Library Warning" ), s, QMessageBox::Abort,0 );
-      qWarning(s.toAscii().data());
+      qWarning("%s",s.toLatin1().data());
    }
   
    // Add Qt plugin path if  present (it is the case for Windows binary ROOT distribution)
@@ -134,10 +134,10 @@ void TQtApplication::CreateQApplication(int &argc, char ** argv, bool GUIenabled
 void TQtApplication::CreateGUIThread(int &argc, char **argv)
 {
   // Create GUI thread to Qt event loop
-   if (gROOT->IsBatch()) {
+   if (ROOT::GetROOT()->IsBatch()) {
      CreateQApplication(argc,argv,kFALSE);
    } else {
-     CreateQApplication(argc,argv, TRUE);
+     CreateQApplication(argc,argv, kTRUE);
    }
 }
 //______________________________________________________________________________
@@ -151,7 +151,7 @@ bool TQtApplication::Terminate()
     fgQtApplication = 0;
     delete  app;
   }
-  return TRUE;
+  return kTRUE;
 }
 //______________________________________________________________________________
 Int_t TQtApplication::QtVersion(){

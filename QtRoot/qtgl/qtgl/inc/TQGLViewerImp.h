@@ -1,4 +1,4 @@
-// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.21 2009/09/07 04:42:13 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.22 2013/08/30 16:00:17 perev Exp $
 // Author: Valery Fine      12/03/2005
 
 /*************************************************************************

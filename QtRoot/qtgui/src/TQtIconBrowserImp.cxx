@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtIconBrowserImp.cxx,v 1.5 2009/08/03 18:03:10 fine Exp $
+** $Id: TQtIconBrowserImp.cxx,v 1.6 2013/08/30 16:00:24 perev Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -318,7 +318,7 @@ const QIcon  *TQtIconBrowserImp::Shape2GeoShapeIcon(const char *shapeName)
    else if (shapeIconName == "TGeoCons") shapeIconName = "TGeoConeSeg";
    else if (shapeIconName == "TGeoTubs") shapeIconName = "TGeoTubeSeg";
    else if (shapeIconName == "TGeoSphe") shapeIconName = "TGeoSphere";
-   // printf(" Final Form = %s\n", (const char *)shapeIconName.toAscii().data());
+   // printf(" Final Form = %s\n", (const char *)shapeIconName.toLatin1().data());
    return IconList()->GetIcon(shapeIconName);
 }
 //______________________________________________________________________________
@@ -357,7 +357,7 @@ TQtIconBrowserItem *TQtIconBrowserImp::Add(TObject *obj, const char *caption,con
       name +=  isKey->GetCycle();
    }
    item = new TQtIconBrowserItem(obj,iconView,name);
-   item->setSelectable (TRUE);
+   item->setSelectable (true);
    if (obj->IsFolder()) {
       item->SetIconSet(folderClosed,fIconSize);
    } else {
@@ -629,7 +629,7 @@ static void ViewTable(Q3Table *details, TObject *obj) {
        details-> setNumRows (nRows );
        details-> setNumCols (nCols ); 
     } else {
-       vertical = TRUE;
+       vertical = true;
        header = details->verticalHeader();
        details-> setNumRows (nCols );
        details-> setNumCols (nRows +1 ); // add one extra column for the "comment" field
@@ -645,9 +645,9 @@ static void ViewTable(Q3Table *details, TObject *obj) {
        QString label(table->GetColumnName(i));
        header->setLabel(colCnt,label);
        if (vertical) 
-          details->setRowReadOnly(colCnt,TRUE);
+          details->setRowReadOnly(colCnt,true);
        else
-          details->setColumnReadOnly(colCnt,TRUE);
+          details->setColumnReadOnly(colCnt,true);
        // add the comment for the vertical layout
        if (vertical) {
           QString comment = table->GetColumnComment(i);
@@ -669,10 +669,10 @@ static void ViewTable(Q3Table *details, TObject *obj) {
           if (size >1) {
              if (vertical) {
                 details->insertRows(colCnt,size-1);
-                for (j=1;j<size;j++) details->setRowReadOnly(colCnt,TRUE);
+                for (j=1;j<size;j++) details->setRowReadOnly(colCnt,true);
              } else {
                 details->insertColumns(colCnt,size-1);
-                for (j=1;j<size;j++) details->setColumnReadOnly(colCnt+j,TRUE);
+                for (j=1;j<size;j++) details->setColumnReadOnly(colCnt+j,true);
              }
 
              //add extra labels:
@@ -1081,7 +1081,7 @@ Int_t TQtIconBrowserImp::InitWindow(Bool_t show)
       ,this, SLOT(PopMenu(Q3IconViewItem *, const QPoint &))); 
 #endif /* QT_VERSION */
 
-   iconView->setShowToolTips(TRUE);
+   iconView->setShowToolTips(true);
    if (show) Show();
    return 0;
 }
@@ -1169,10 +1169,10 @@ void TQtIconBrowserImp::SetSortIndicator(int section)
    header->setSortIndicator ( section, currentOrder );
 #if QT_VERSION < 0x40000
    QTable *details = (QTable*)fBrowserImpID->widget(fDetailWidgetID);
-   details->sortColumn(section,currentOrder==Qt::Ascending,TRUE);
+   details->sortColumn(section,currentOrder==Qt::Ascending,true);
 #else /* QT_VERSION */
    Q3Table *details = (Q3Table*)fBrowserImpID->widget(fDetailWidgetID);
-   details->sortColumn(section,currentOrder==Qt::AscendingOrder,TRUE);
+   details->sortColumn(section,currentOrder==Qt::AscendingOrder,true);
 #endif /* QT_VERSION */
 #endif
 }

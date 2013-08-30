@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtBrush.h,v 1.4 2010/05/10 22:51:26 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtBrush.h,v 1.5 2013/08/30 15:59:49 perev Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -13,9 +13,9 @@
 #define ROOT_TQtBrush
 
 #ifndef __CINT__
-#  include <qbrush.h>
-#  include <qcolor.h>
-#  include <qpixmap.h>
+#  include <QBrush>
+#  include <QColor>
+#  include <QPixmap>
 #else
    class  QColor;
    class  QBrush;
@@ -27,6 +27,7 @@
 
 class TAttFill;
 class TPoint;
+
    //
    // TQtBrush creates the QBrush Qt object based on the ROOT "fill" attributes 
    //
@@ -42,11 +43,11 @@ protected:
 public:
    TQtBrush();
    TQtBrush(const TQtBrush &src):QBrush(src)
-   {
-      fBackground=src.fBackground;
-      fStyle=src.fStyle;
-      fFasi=src.fFasi;
-   }
+      ,fBackground(src.fBackground)
+      ,fStyle(src.fStyle)
+      ,fFasi(src.fFasi)
+      ,fAlpha(src.fFasi)
+   { }
    TQtBrush(const TAttFill &rootFillAttributes);
    virtual ~TQtBrush();
    TQtBrush &operator=(const TAttFill &rootFillAttributes);

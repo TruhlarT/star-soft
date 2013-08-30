@@ -7,9 +7,9 @@
 
 
 /****************************************************************************
-** $Id: TQtEventQueue.cxx,v 1.5 2010/05/10 22:51:26 fine Exp $
+** $Id: TQtEventQueue.cxx,v 1.6 2013/08/30 15:59:51 perev Exp $
 **
-** Copyright (C) 2004 by Valeri Fine. Brookhaven National Laboratory.
+** $$Copyright$
 **                                    All rights reserved.
 **
 ** This file may be distributed under the terms of the Q Public License

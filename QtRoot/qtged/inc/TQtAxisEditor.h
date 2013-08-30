@@ -1,4 +1,4 @@
-// @(#)root/ged:$Name:  $:$Id: TQtAxisEditor.h,v 1.3 2009/08/03 18:03:03 fine Exp $
+// @(#)root/ged:$Name:  $:$Id: TQtAxisEditor.h,v 1.4 2013/08/30 16:00:10 perev Exp $
 // Author: Valeri Fine 10/07/2004
 
 /****************************************************************************

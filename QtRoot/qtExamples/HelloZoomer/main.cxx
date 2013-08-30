@@ -1,6 +1,7 @@
-#include <qapplication.h>
-#include <qpixmap.h>
-#include <qtooltip.h>
+#include <QApplication>
+#include <QPixmap>
+#include <QToolTip>
+#include <cstdio>
 //#include <QMainWindow>
 //#include <QScrollArea>
 

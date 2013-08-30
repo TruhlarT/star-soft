@@ -3,7 +3,7 @@
 
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TWaitCondition.h,v 1.3 2010/05/10 22:51:26 fine Exp $
+** $Id: TWaitCondition.h,v 1.4 2013/08/30 15:59:50 perev Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -21,7 +21,7 @@ class TWaitCondition : public TWin32Semaphore
    public:
      TWaitCondition() : TWin32Semaphore() {}
      ~TWaitCondition() {}
-     bool wait (unsigned long time= ULONG_MAX) { Wait(); return TRUE;}
+     bool wait (unsigned long time= ULONG_MAX) { Wait(); return true;}
      void wakeOne () { Release(); }
 };
 #else
@@ -31,7 +31,7 @@ class TWaitCondition
    public:
      TWaitCondition()  {}
      ~TWaitCondition() {}
-	  bool wait (unsigned long time=ULONG_MAX ) { if (time) {/* Wait() */}  return TRUE;}
+	  bool wait (unsigned long time=ULONG_MAX ) { if (time) {/* Wait() */}  return true;}
      void wakeOne () { /* Release();*/  }
 };
 

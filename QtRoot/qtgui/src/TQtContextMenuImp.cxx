@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtContextMenuImp.cxx,v 1.6 2009/08/03 18:03:09 fine Exp $
+** $Id: TQtContextMenuImp.cxx,v 1.7 2013/08/30 16:00:23 perev Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -12,27 +12,21 @@
 *****************************************************************************/
 
 #include "TQtContextMenuImp.h"
-#if QT_VERSION >= 0x40000
-#  include <QMenu>
-#  include <QClipboard>
-#  include <QDebug>
-#  include <QtWebKit/QWebView>
-#  include <QtNetwork/QNetworkProxy>
-#  include <QtCore/QString>
-#  include <QtCore/QUrl>
-#if QT_VERSION >= 0x40500
-#  include <QtNetwork/QNetworkProxyFactory>
+#include <QMenu>
+#include <QClipboard>
+#include <QDebug>
+#ifndef NoQtWebkit
+#  include <QWebView>
+#  include <QNetworkProxy>
+#  include <QUrl>
+#  if QT_VERSION >= 0x40500
+#    include <QtNetwork/QNetworkProxyFactory>
+#  endif
 #endif
-#else
-#  include "qpopupmenu.h"
-#  include <qclipboard.h>
-#  include <qlabel.h>
-#endif /* QT_VERSION */
-
+#include <QString>
 #include "TGQt.h"
 #include "TSystem.h"
 #include "TQtLock.h"
-#include <qclipboard.h> 
 #include "TCanvas.h"
 #include "TClass.h"
 
@@ -269,6 +263,9 @@ void TQtContextMenuImp::CopyCB()
 void TQtContextMenuImp::HelpCB()
 {
   // Pop Web page with the class HTML doc from web site defined by "Browser.StartUrl"
+#ifdef  NoQtWebkit
+   return;
+#endif
   TObject *obj = fContextMenu->GetSelectedObject(); 
   if (obj) { 
      QString clname = obj->ClassName(); 

@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TQtCoin3DDefInterface.cxx,v 1.3 2010/01/22 01:24:28 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TQtCoin3DDefInterface.cxx,v 1.4 2013/08/30 16:00:16 perev Exp $
 // Author: Valery Fine     10/01/07
 
 /****************************************************************************
@@ -22,8 +22,8 @@
 //
 //  The portion can be defined as
 //  ------------------------------
-//  1. Text string with the Coin3D class descriptor
-//  2. File name of the external file in OpenInventor2 format
+//  1. Text string with the Copin3D class descriptor
+//  2. File name of the extranal file in OpenInventor2 format
 //  3. Pointer to SoNode* Coin3D object
 //
 ////////////////////////////////////////////////

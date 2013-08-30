@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtBrowserImp.h,v 1.5 2009/08/03 18:03:08 fine Exp $
+** $Id: TQtBrowserImp.h,v 1.6 2013/08/30 16:00:20 perev Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -27,16 +27,11 @@
 #include "TQtObjectListItem.h"
 #include "TQtUpdateViewFlag.h"
 
-#include <qglobal.h>
-#include <qstring.h>
+#include <QtGlobal>
+#include <QString>
 
-#if QT_VERSION < 0x40000
-#  include <qptrvector.h>
-#  include <qlistview.h>
-#else /* QT_VERSION */
-#  include <q3ptrvector.h>
-#  include <q3listview.h>
-#endif /* QT_VERSION */
+#include <q3ptrvector.h>
+#include <q3listview.h>
 
 
 // class TQtBrowserWidget;

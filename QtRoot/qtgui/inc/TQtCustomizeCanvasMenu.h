@@ -1,6 +1,6 @@
 #ifndef QTROOT_CUSTOMIZECANVASMENU
 #define QTROOT_CUSTOMIZECANVASMENU
-// @(#)root/qt:$Name:  $:$Id: TQtCustomizeCanvasMenu.h,v 1.4 2009/08/03 18:03:08 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtCustomizeCanvasMenu.h,v 1.5 2013/08/30 16:00:20 perev Exp $
 // Author: Valeri Fine   12/12/2005
 /****************************************************************************
 **
@@ -11,15 +11,9 @@
 ** LICENSE.QPL included in the packaging of this file.
 *****************************************************************************/
 
-#include <qevent.h>
-#include <qobject.h>
-#include <qpoint.h> 
-#if QT_VERSION >= 0x40000
-//MOC_SKIP_BEGIN
-//Added by qt3to4:
-#  include <Q3PopupMenu>
-//MOC_SKIP_END
-#endif /* QT_VERSION */
+#include <QEvent>
+#include <QObject>
+#include <QPoint> 
 
 /////////////////////////////////////////////////////////////////////////////////////
 //

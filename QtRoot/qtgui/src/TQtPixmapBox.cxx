@@ -1,4 +1,4 @@
-// @(#)root/graf:$Name:  $:$Id: TQtPixmapBox.cxx,v 1.4 2012/06/11 14:20:57 fisyak Exp $
+// @(#)root/graf:$Name:  $:$Id: TQtPixmapBox.cxx,v 1.5 2013/08/30 16:00:25 perev Exp $
 // Author: Valeri Fine   03/09/2006
 
 /****************************************************************************
@@ -15,7 +15,6 @@
 #include <stdlib.h>
 
 #include "Riostream.h"
-using namespace std;
 #include "TROOT.h"
 #include "TQtPixmapBox.h"
 #include "TVirtualPad.h"
@@ -24,10 +23,10 @@ using namespace std;
 #include "TMath.h"
 #include "TGQt.h"
 
-#include <qpixmap.h>
-#include <qrect.h>
-#include <qpainter.h>
-#include <qtooltip.h> 
+#include <QPixmap>
+#include <QRect>
+#include <QPainter>
+#include <QToolTip> 
 
 ClassImp(TQtPixmapBox)
 
@@ -263,9 +262,9 @@ void TQtPixmapBox::Print(Option_t *opt) const
 //______________________________________________________________________________
 void
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,11,0)
-    TQtPixmapBox::SavePrimitive(ostream &out, Option_t *)
+    TQtPixmapBox::SavePrimitive(std::ostream &out, Option_t *)
 #else
-    TQtPixmapBox::SavePrimitive(ofstream &out, Option_t *)
+    TQtPixmapBox::SavePrimitive(std::ofstream &out, Option_t *)
 #endif
 {
     // Save primitive as a C++ statement(s) on output stream out
@@ -275,12 +274,12 @@ void
    } else {
        out<<"   TQtPixmapBox *";
    }
-   out<<"pixmapbox = new TQtPixmapBox("<<fX1<<","<<fY1<<","<<fX2<<","<<fY2<<");"<<endl;
+   out<<"pixmapbox = new TQtPixmapBox("<<fX1<<","<<fY1<<","<<fX2<<","<<fY2<<");"<<std::endl;
 
    SaveFillAttributes(out,"pixmapbox",0,1001);
    SaveLineAttributes(out,"pixmapbox",1,1,1);
 
-   out<<"   pixmapbox->Draw();"<<endl;
+   out<<"   pixmapbox->Draw();"<<std::endl;
 }
 //______________________________________________________________________________
 void  TQtPixmapBox::SetPixmap(const QPixmap &src)

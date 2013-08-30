@@ -1,4 +1,4 @@
-// @(#)root/thread:$Name:  $:$Id: TQtCondition.cxx,v 1.3 2009/08/19 17:08:06 fine Exp $
+// @(#)root/thread:$Name:  $:$Id: TQtCondition.cxx,v 1.4 2013/08/30 16:00:28 perev Exp $
 // Author: Bertrand Bellenot  20/10/2004
 
 /*************************************************************************
@@ -21,8 +21,8 @@
 #include "TQtCondition.h"
 #include "TQtMutex.h"
 
-#include <QtCore/QWaitCondition> 
-#include <QtCore/QMutex>
+#include <QWaitCondition> 
+#include <QMutex>
 
 ClassImp(TQtCondition)
 

@@ -20,7 +20,6 @@ public:
       TGeoTranslation(dx, dy, dz), TQtCoin3DNode(){}
  TGeoTranslationC(const char* name, Double_t dx, Double_t dy, Double_t dz): 
       TGeoTranslation(name, dx, dy, dz), TQtCoin3DNode(){}
-  ClassDef(TGeoTranslationC,0);
 };
 
 
@@ -38,7 +37,6 @@ public:
                                            Double_t theta3, Double_t phi3):
       TRotMatrix(name, title, theta1, phi1, theta2, phi2, theta3, phi3), TQtCoin3DNode(){}
    virtual ~TRotMatrixC() {}
-   ClassDef(TRotMatrixC,0);
 };
 
 class TVolumePositionC : public TVolumePosition, public TQtCoin3DNode {
@@ -56,7 +54,6 @@ public:
    TVolumePositionC(const TVolumePosition&pos): TVolumePosition(pos), TQtCoin3DNode(){}
 
    virtual ~TVolumePositionC(){};
-   ClassDef(TVolumePositionC,0);
 };
 
 #endif

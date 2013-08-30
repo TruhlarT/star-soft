@@ -3,12 +3,14 @@
 ######################################################################
 
 TEMPLATE = lib 
+QT += core gui
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
 CONFIG += thread dll
 CONFIG += create_prl
 
-# QT += qt3support
-
-QMAKE_RPATH= 
+QMAKE_LFLAGS_RPATH= 
+macx: QMAKE_LFLAGS_SONAME = -Wl,-install_name,@rpath/
 
 DEPENDPATH += inc src
 
@@ -72,7 +74,7 @@ GQTH1  =  $$GQTDIRI/TGQt.h            $$GQTDIRI/TQtApplication.h  $$GQTDIRI/TQtT
 CREATE_ROOT_DICT_FOR_CLASSES  = $$GQTH1 $$GQTDIRI/LinkDef.h
 
     !exists ($$GQTDIRI/rootcintrule.pri){
-        message "The rootcintrule.pri was not found"
+        CREATE_ROOT_DICT_ ( "The rootcintrule.pri was not found")
     }
     exists ($$GQTDIRI/rootcintrule.pri){
        include ($$GQTDIRI/rootcintrule.pri)
@@ -81,7 +83,7 @@ CREATE_ROOT_DICT_FOR_CLASSES  = $$GQTH1 $$GQTDIRI/LinkDef.h
 win32 {
 #  copy from rootlibs.pri for GQt project
    LIBS	+=                                                                                                \
-      -include:_G__cpp_setupG__Hist       -include:_G__cpp_setupG__Graf1  -include:_G__cpp_setupG__G3D     \
+      -include:_G__cpp_setupG__Hist       -include:_G__cpp_setupG__Graf   -include:_G__cpp_setupG__G3D     \
       -include:_G__cpp_setupG__GPad       -include:_G__cpp_setupG__Tree   -include:_G__cpp_setupG__Rint    \
       -include:_G__cpp_setupG__PostScript -include:_G__cpp_setupG__Matrix -include:_G__cpp_setupG__Physics \
       -include:_G__cpp_setupG__Gui1       -include:_G__cpp_setupG__Geom1   
@@ -92,7 +94,7 @@ win32 {
     $(ROOTSYS)/lib/libGraf.lib   $(ROOTSYS)/lib/libGraf3d.lib   $(ROOTSYS)/lib/libGpad.lib         \
     $(ROOTSYS)/lib/libTree.lib   $(ROOTSYS)/lib/libRint.lib     $(ROOTSYS)/lib/libPostscript.lib   \
     $(ROOTSYS)/lib/libMatrix.lib $(ROOTSYS)/lib/libPhysics.lib  $(ROOTSYS)/lib/libGui.lib          \
-    $(ROOTSYS)/lib/libGeom.lib    
+    $(ROOTSYS)/lib/libGeom.lib   $(ROOTSYS)/lib/libThread.lib 
 
     LIBS+=comctl32.lib
 }
@@ -101,7 +103,7 @@ unix {
 }
 mac {
     !exists ($$GQTDIRI/rootlibs.pri){
-        message "The rootlibs.pri was not found"
+        message ("The rootlibs.pri was not found")
     }
     exists ($$GQTDIRI/rootlibs.pri){
        include ($$GQTDIRI/rootlibs.pri)

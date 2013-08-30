@@ -1,12 +1,12 @@
-// @(#)root/gui:$Id: TQtCommandPlugin.h,v 1.1 2010/05/19 22:36:37 fine Exp $
+// @(#)root/gui:$Id: TQtCommandPlugin.h,v 1.2 2013/08/30 16:00:20 perev Exp $
 // Author: Valeri Fine 15/05/2010 (derived from TGCommandPlugin by Bertrand Bellenot   26/09/2007)
 
 #ifndef ROOT_TQtCommandPlugin
 #define ROOT_TQtCommandPlugin
 
-#include <QtGui/QFrame>
-#include <QtCore/QFile>
-#include <QtCore/QTimer>
+#include <QFrame>
+#include <QFile>
+#include <QTimer>
 // Command (I/O redirection) plugin for the new ROOT Browser
 class Ui_TQtRootCommand;
 

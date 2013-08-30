@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtLock.h,v 1.3 2010/05/10 22:51:26 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtLock.h,v 1.4 2013/08/30 15:59:49 perev Exp $
 // Author: Giulio Eulisse  04/07/2005
 #ifndef ROOT_TQtLock
 #define ROOT_TQtLock
@@ -13,7 +13,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "Rtypes.h"
-#include <qapplication.h>
+#include <QApplication>
 class TQtLock 
 {
  public:

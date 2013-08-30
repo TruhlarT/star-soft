@@ -1,4 +1,4 @@
-// @(#)root/graf:$Name:  $:$Id: TQtPixmapBox.h,v 1.3 2009/08/03 18:03:08 fine Exp $
+// @(#)root/graf:$Name:  $:$Id: TQtPixmapBox.h,v 1.4 2013/08/30 16:00:22 perev Exp $
 // Author: Valeri Fine   02/09/06
 
 /****************************************************************************
@@ -66,9 +66,9 @@ public:
    virtual void  Print(Option_t *option="") const;
 #ifndef __CINT__
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,11,0)
-   virtual void  SavePrimitive(ostream &out, Option_t *option = "");
+   virtual void  SavePrimitive(std::ostream &out, Option_t *option = "");
 #else
-   virtual void  SavePrimitive(ofstream &out, Option_t *option);
+   virtual void  SavePrimitive(std::ofstream &out, Option_t *option);
 #endif
 #endif
    virtual void  SetPixmap(const QPixmap &src);

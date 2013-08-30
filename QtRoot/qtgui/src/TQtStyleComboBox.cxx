@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtStyleComboBox.cxx,v 1.6 2009/08/03 18:03:10 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtStyleComboBox.cxx,v 1.7 2013/08/30 16:00:25 perev Exp $
 // Author: Valeri Fine 07/07/2006
 /****************************************************************************
 **
@@ -19,17 +19,14 @@
 #include "TQtPadFont.h"
 #include "TQtPen.h"
 
-#include <qpixmap.h>
-#include <qsize.h>
-#if QT_VERSION >=  0x40000
-#  include <QResizeEvent>
-#  include <QItemDelegate>
-#  include <QPainter>
-#  include <QLineEdit>
-#  include <QDebug>
-#endif
+#include <QPixmap>
+#include <QSize>
+#include <QResizeEvent>
+#include <QItemDelegate>
+#include <QPainter>
+#include <QLineEdit>
+#include <QDebug>
 
-#if QT_VERSION >= 0x40000
 
 class TQtStyleComboDelegate : public QItemDelegate {
 // This class to paint each combo box item with TPad pixmap
@@ -82,19 +79,15 @@ if (option.state & QStyle::State_Selected) {
      }
      painter->restore();
 }
-#endif
+
 //______________________________________________________________________________
 TQtStyleComboBox::TQtStyleComboBox( int listSize, QWidget *parent,const QString name)
 : QComboBox(parent), fPad(0), fItemListSize (listSize)
 {
     // The base class for all "style" selectors
    // Add the the prepared Qt item to the QComboBox
-#if QT_VERSION < 0x40000
-   setName(name);
-#else
    setObjectName(name);
    setItemDelegate( new TQtStyleComboDelegate);
-#endif
 }
 //______________________________________________________________________________
 TQtStyleComboBox::~TQtStyleComboBox () 
@@ -105,13 +98,9 @@ TQtStyleComboBox::~TQtStyleComboBox ()
 int TQtStyleComboBox::AddComboItem(QPixmap &pixmap, QString &seq)
 {
    // Add the the prepared Qt item to the QComboBox
-   QString indx = seq.rightJustify(2,' ',TRUE);
-#if QT_VERSION < 0x40000
-   insertItem(pixmap,indx);
-#else
+   QString indx = seq.rightJustify(2,' ',true);
    addItem(indx,QVariant(pixmap));
  //  setItemData(count(),pixmap,Qt::BackgroundRole);
-#endif
    Pad().Clear();
    return count();
 }
@@ -119,12 +108,8 @@ int TQtStyleComboBox::AddComboItem(QPixmap &pixmap, QString &seq)
 int TQtStyleComboBox::AddComboItem(QFont &font, QString &seq)
 {
    // Add the the prepared Qt item to the QComboBox
-   QString indx = seq; // seq.rightJustify(2,' ',TRUE);
-#if QT_VERSION >= 0x40000
+   QString indx = seq; // seq.rightJustify(2,' ',true);
    addItem(indx,QVariant(font));
-#else
-   Pad().Clear();
-#endif
    return count();
 }
 
@@ -132,12 +117,8 @@ int TQtStyleComboBox::AddComboItem(QFont &font, QString &seq)
 int TQtStyleComboBox::AddComboItem(QPen &pen, QString &seq)
 {
    // Add the the prepared Qt item to the QComboBox
-   QString indx = seq.rightJustify(2,' ',TRUE);
-#if QT_VERSION >= 0x40000
+   QString indx = seq.rightJustify(2,' ',true);
    addItem(indx,QVariant(pen));
-#else
-   Pad().Clear();
-#endif
    return count();
 }
 //______________________________________________________________________________
@@ -191,11 +172,7 @@ void  TQtStyleComboBox::resizeEvent(QResizeEvent *e)
 //   TQtLineStyleComboBox
 //______________________________________________________________________________
 TQtLineStyleComboBox::TQtLineStyleComboBox(QWidget *parent,QString name)
-#if QT_VERSION < 0x40000
-     : TQtStyleComboBox(5,parent,name)
-#else
      : TQtStyleComboBox(10,parent,name)
-#endif      
 {
    // Create the image of the line using the given styles and the offscreen TPad
 }
@@ -203,24 +180,11 @@ TQtLineStyleComboBox::TQtLineStyleComboBox(QWidget *parent,QString name)
 void TQtLineStyleComboBox::AddItem(int lstyle, bool savepadflag)
 {
    // Create the image of the line using the given styles and the offscreen TPad
-#if QT_VERSION < 0x40000
-   TVirtualPad *padsav = savepadflag ? gPad : 0;
-   Pad().cd();
-   TLine line(0.0,0.5,1.0,0.5);
-   QString seq;
-   line.SetLineStyle(lstyle);line.SetLineWidth(2);
-   line.Draw();
-   Pad().Update();
-   QPixmap &pixmap = *(QPixmap *)Pad().GetHandle();
-   if (&pixmap) AddComboItem(pixmap,seq.setNum(lstyle));
-   if (padsav) padsav->cd();
-#else
    if (savepadflag){ }
    QString seq=QString("%1:").arg(QString::number(lstyle));
    TQtPen  pen;
    pen.SetLineStyle(lstyle);
    AddComboItem(pen,seq);
-#endif
 }
 //______________________________________________________________________________
 //
@@ -236,23 +200,11 @@ TQtLineWidthComboBox::TQtLineWidthComboBox(QWidget *parent,QString name)
 void TQtLineWidthComboBox::AddItem(int lwidth, bool savepadflag)
 {
    // Create the image of the line using the given styles and the offscreen TPad
-#if QT_VERSION < 0x40000
-   TVirtualPad *padsav = savepadflag ? gPad : 0;
-   Pad().cd();
-   TLine line(0.0,0.5,1.0,0.5);
-   line.SetLineWidth(lwidth);
-   line.Draw();   Pad().Update();
-   QPixmap &pixmap = *(QPixmap*)Pad().GetHandle();
-   QString seq = QString::number(lwidth);
-   AddComboItem(pixmap,seq );
-   if (padsav) padsav->cd();
-#else
    if (savepadflag){ }
    QString seq=QString("%1:").arg(QString::number(lwidth));
    QPen  pen;
    pen.setWidth(lwidth);
    AddComboItem(pen,seq);
-#endif
 }
 //_____________________________________________________________________________
 //
@@ -283,23 +235,11 @@ static const char *gFonts[] = {
 void TQtFontComboBox::AddItem(int lfont, bool savepadflag)
 {
    // Create the image of the fonts using the given font number and the offscreen TPad
-#if QT_VERSION < 0x40000
-   TVirtualPad *padsav = savepadflag ? gPad : 0;
-   Pad().cd();
-   TText text(0.0,0.5,gFonts[lfont-1]);
-   text.SetTextFont(lfont*10); text.SetTextSize(0.9);text.SetTextAlign(12);
-   text.Draw();    Pad().Update();
-   QPixmap &pixmap = *(QPixmap*)Pad().GetHandle();
-   QString seq=QString::number(lfont);
-   AddComboItem(pixmap,seq);
-   if (padsav) padsav->cd();
-#else
    if (savepadflag) {}
    QString seq=QString("%1: -%2-").arg(QString::number(lfont),QString(gFonts[lfont-1]));
    TQtPadFont font;
    font.SetTextFont(lfont*10);
    AddComboItem(font,seq);
-#endif
 }
 //______________________________________________________________________________
 QSize TQtFontComboBox::sizeHint() const

@@ -3,8 +3,7 @@
 # Adjusted by hand to include $ROOTSYS/include/rootcint.pri file
 ######################################################################
 
-QMAKE_RPATH=
-
+QMAKE_LFLAGS_RPATH=
 TEMPLATE = app thread
 CONFIG -= moc
 #

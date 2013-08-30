@@ -4,7 +4,7 @@
 ######################################################################
 
 TEMPLATE = app thread
-QMAKE_RPATH=
+QMAKE_LFLAGS_RPATH=
 CONFIG -= moc
 #
 # Include "by hand" the qmake include file "rootcint.pri"

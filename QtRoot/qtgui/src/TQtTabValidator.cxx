@@ -1,9 +1,8 @@
 #include "TQtTabValidator.h"
 #include "TTabCom.h"
-#include <string>
 #include <sstream>
 /****************************************************************************
-** $Id: TQtTabValidator.cxx,v 1.8 2013/03/25 23:02:11 perev Exp $
+** $Id: TQtTabValidator.cxx,v 1.9 2013/08/30 16:00:25 perev Exp $
 **
 ** Copyright (C) 2003 by Valeri Fine.  All rights reserved.
 **
@@ -21,15 +20,15 @@ void TQtTabValidator::Clear()
 //_________________________________________________________________________________________________________
 QValidator::State TQtTabValidator::validate(QString &input, int &pos) const {
    if (!fgTabCom) fgTabCom = new TTabCom();
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0)
+   std::stringstream out;
+   fgTabCom->Hook(input.toLatin1().data(), &pos,out);
+   input = out.str().c_str();
+#else
    char buffer[2048];
    qstrcpy(buffer,(const char *)input);
-   // printf("%d %s \n",pos,buffer); 
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,34,3)
    fgTabCom->Hook(buffer, &pos);
-#else
-   std::stringstream sstr;
-   fgTabCom->Hook(buffer, &pos, sstr);
-#endif
    input = buffer;
+#endif   
    return QValidator::Acceptable; // Intermediate;
 }

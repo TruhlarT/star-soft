@@ -1,4 +1,4 @@
-// @(#)root/qt:$Id: TQtWidget.h,v 1.22 2010/07/08 04:19:45 fine Exp $
+// @(#)root/qt:$Id: TQtWidget.h,v 1.23 2013/08/30 15:59:50 perev Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -20,19 +20,19 @@
 #include "TCanvas.h"
 
 #ifndef __CINT__
-#  include <QtGui/QWidget>
-#  include <QtGui/QMouseEvent>
-#  include <QtGui/QShowEvent>
-#  include <QtGui/QFocusEvent>
-#  include <QtGui/QKeyEvent>
-#  include <QtGui/QResizeEvent>
-#  include <QtCore/QEvent>
-#  include <QtGui/QPaintEvent>
-#  include <QtGui/QPaintDevice>
-#  include <QtCore/QSize>
-#  include <QtCore/QPoint>
-#  include <QtCore/QPointer>
-#  include <QtGui/QPixmap>
+#  include <QWidget>
+#  include <QMouseEvent>
+#  include <QShowEvent>
+#  include <QFocusEvent>
+#  include <QKeyEvent>
+#  include <QResizeEvent>
+#  include <QEvent>
+#  include <QPaintEvent>
+#  include <QPaintDevice>
+#  include <QSize>
+#  include <QPoint>
+#  include <QPointer>
+#  include <QPixmap>
 #  include "TQtCanvasPainter.h"
 #else
   // List of the fake classes to make RootCint happy.
@@ -123,8 +123,8 @@ public:
       kFORCESIZE
    };
 #ifndef __CINT__
-  TQtWidget( QWidget* parent, const char* name, Qt::WFlags f=0, bool embedded=TRUE);
-  TQtWidget( QWidget* parent=0, Qt::WFlags f=0, bool embedded=TRUE);
+  TQtWidget( QWidget* parent, const char* name, Qt::WindowFlags f=0, bool embedded=kTRUE);
+  TQtWidget( QWidget* parent=0, Qt::WindowFlags f=0, bool embedded=kTRUE);
 #else
   TQtWidget( QWidget* parent=0);
 #endif  
@@ -139,7 +139,7 @@ public:
   // overloaded methods
   virtual void Erase ();
   bool    IsDoubleBuffered() const { return fDoubleBufferOn; }
-  void    SetDoubleBuffer(bool on=TRUE);
+  void    SetDoubleBuffer(bool on=kTRUE);
   virtual void SetSaveFormat(const char *format);
 
 protected:
@@ -165,7 +165,7 @@ protected:
    QWidget *GetRootID() const;
    virtual void EmitCanvasPainted() { emit CanvasPainted(); }
    TCanvas  *Canvas();
-   bool paintFlag(bool mode=TRUE);
+   bool paintFlag(bool mode=kTRUE);
    void AdjustBufferSize();
 
    bool PaintingActive () const;
@@ -198,6 +198,8 @@ protected:
    virtual void exitSizeEvent ();
    virtual void stretchWidget(QResizeEvent *e);
    TQtCanvasPainter *CanvasDecorator();
+   virtual void AppendPad(TObject *obj,Option_t *option);
+
 public:
    //----- bit manipulation (a'la TObject )
    void     SetBit     (UInt_t f, Bool_t set);
@@ -211,7 +213,7 @@ public:
    UInt_t   GetAllBits() const;
    void     SetAllBits(UInt_t f);
    void SetCanvasDecorator( TQtCanvasPainter *decorator);
-   
+
 public:
    // Static method to immitate ROOT as needed
    static TApplication *InitRint(Bool_t prompt=kFALSE, const char *appClassName="QtRint", int *argc=0, char **argv=0,
@@ -236,8 +238,11 @@ public:
    static TQtWidget *Canvas(Int_t id);
 
 public slots:
-   virtual void cd();
-   virtual void cd(int subpadnumber);
+   virtual TVirtualPad *cd();
+   virtual TVirtualPad *cd(int subpadnumber);
+   //-- Draw TObject directly to make it faster and avoid the sid effect prone TObject::Draw()
+   virtual TVirtualPad *Draw(TObject *obj,Option_t *option="");
+   virtual void Clear(Option_t *option="");
    void Disconnect();
    void Refresh();
    virtual bool Save(const QString &fileName) const;

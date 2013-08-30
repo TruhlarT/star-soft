@@ -1,10 +1,10 @@
 #ifndef STAR_TSimageMovie
 #define STAR_TSimageMovie
-// @(#)root/g3d:$Name:  $:$Id: TSimageMovie.h,v 1.5 2009/08/03 18:03:06 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TSimageMovie.h,v 1.6 2013/08/30 16:00:15 perev Exp $
 // Author: Valery Fine      24/11/06
 
 /****************************************************************************
-** $Id: TSimageMovie.h,v 1.5 2009/08/03 18:03:06 fine Exp $
+** $Id: TSimageMovie.h,v 1.6 2013/08/30 16:00:15 perev Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.

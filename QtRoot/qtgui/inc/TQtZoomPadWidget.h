@@ -2,7 +2,7 @@
 #define ROOT_TQtZoomPadWidget
 // Author: Valeri Fine   16/03/2006
 /****************************************************************************
-** $Id: TQtZoomPadWidget.h,v 1.5 2009/08/03 18:03:09 fine Exp $
+** $Id: TQtZoomPadWidget.h,v 1.6 2013/08/30 16:00:22 perev Exp $
 **
 ** Copyright (C) 2006 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -101,7 +101,7 @@ class  TQtZoomPadWidget
      void         DefineTooTip(bool hideOnLeave);
  public:
 #ifndef __CINT__
-     TQtZoomPadWidget(TVirtualPad *pad =0, QWidget *parent=0, const char *name=0, Qt::WFlags f=0);
+     TQtZoomPadWidget(TVirtualPad *pad =0, QWidget *parent=0, const char *name=0, Qt::WindowFlags f=0);
 #else
 #ifndef Q_MOC_RUN
      TQtZoomPadWidget(TVirtualPad *pad =0, QWidget *parent=0, const char *name=0);

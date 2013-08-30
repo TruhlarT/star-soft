@@ -4,7 +4,7 @@
 TEMPLATE = app
 QT += xml opengl
     
-unix: QMAKE_RPATH =
+unix:  QMAKE_LFLAGS_RPATH=
 
 # Input
 HEADERS += TQtFunViewer.h TGLFun.h\
@@ -42,6 +42,9 @@ CONFIG(debug, debug|release) {
 }
 
 win32:  LIBS += libMathCore.lib $${LIB_NAME}.lib
-unix:   LIBS += -l$${LIB_NAME}
+unix {  
+   LIBS += -l$${LIB_NAME}
+   !macx:  LIBS += -lGLU
+}
 
 FORMS += mywidget.ui

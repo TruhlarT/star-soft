@@ -1,12 +1,12 @@
 
-// @(#)root/gtgl:$Name:  $:$Id: TQtGLViewerWidget.h,v 1.8 2009/08/03 18:03:07 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TQtGLViewerWidget.h,v 1.9 2013/08/30 16:00:17 perev Exp $
 // Author: Valery Fine      23/10/03
 
 #ifndef ROOT_TQtGLViewerWidget_
 #define ROOT_TQtGLViewerWidget_
 
 /****************************************************************************
-** $Id: TQtGLViewerWidget.h,v 1.8 2009/08/03 18:03:07 fine Exp $
+** $Id: TQtGLViewerWidget.h,v 1.9 2013/08/30 16:00:17 perev Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -156,9 +156,9 @@ public:
    enum  EObjectType { kWired, kSolid, kSelecting, kSelected, kRaw };
 //   TQtGLViewerWidget();
 #ifndef __CINT__
-   TQtGLViewerWidget(QWidget *parent=0, const char *name=0,const QGLWidget *shareWidget=0, Qt::WFlags f=0);
-   TQtGLViewerWidget(TPadOpenGLView *view, const char *title="OpenGL Viewer",QWidget *parent=0,Qt::WFlags f = 0);
-   TQtGLViewerWidget(TVirtualPad *pad, const char *title="OpenGL Viewer",QWidget *parent=0,Qt::WFlags f = 0);
+   TQtGLViewerWidget(QWidget *parent=0, const char *name=0,const QGLWidget *shareWidget=0, Qt::WindowFlags f=0);
+   TQtGLViewerWidget(TPadOpenGLView *view, const char *title="OpenGL Viewer",QWidget *parent=0,Qt::WindowFlags f = 0);
+   TQtGLViewerWidget(TVirtualPad *pad, const char *title="OpenGL Viewer",QWidget *parent=0,Qt::WindowFlags f = 0);
 #else
 //MOC_SKIP_BEGIN
    TQtGLViewerWidget(QWidget *parent=0, const char *name=0,const QGLWidget *shareWidget=0);

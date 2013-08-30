@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasWidget.cxx,v 1.8 2009/08/03 18:03:09 fine Exp $
+** $Id: TQtCanvasWidget.cxx,v 1.9 2013/08/30 16:00:23 perev Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -16,13 +16,8 @@
 
 #include "TQtCanvasWidget.h"
 #include "TQtWidget.h"
-#include "TROOT.h"
-#include "TCanvasImp.h"
-#include "TCanvas.h"
-#include "Buttons.h"
-#include "qevent.h"
-#include "qpainter.h"
-#include "qapplication.h"
+#include <QEvent>
+#include <QApplication>
 
 #ifdef WIN32
 #include "Windows4Root.h"
@@ -51,7 +46,7 @@ bool TQtCanvasWidget::ExitSizeEvent (int update)
 
   QApplication::sendEvent(w,new QCustomEvent(int(QEvent::User+update)) );
   
-  return TRUE;
+  return true;
 }
 //_____________________________________________________________________________
 void TQtCanvasWidget::closeEvent(QCloseEvent *event)
@@ -68,7 +63,7 @@ void TQtCanvasWidget::closeEvent(QCloseEvent *event)
 //_____________________________________________________________________________
 bool TQtCanvasWidget::winEvent ( MSG *msg )
 {
-   // QT 3.x compliand version of the method
+   // QT 3.x compliant version of the method
    long result;
    return winEvent ( msg , &result);
 }
@@ -76,10 +71,10 @@ bool TQtCanvasWidget::winEvent ( MSG *msg )
 bool    TQtCanvasWidget::winEvent ( MSG *msg , long * result )
 {
    // In your reimplementation of this function, if you want to stop the event 
-   // being handled by Qt, return TRUE. If you return FALSE, this native event
+   // being handled by Qt, return true. If you return FALSE, this native event
    // is passed back to Qt, which translates the event into a Qt event and sends
    // it to the widget. 
-  bool res = FALSE;
+  bool res = false;
   switch ( msg->message ) {
 
   case WM_ENTERSIZEMOVE: { res = ExitSizeEvent(TQtWidget::kENTERSIZEMOVE); break;}

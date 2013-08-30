@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtCustomizeCanvasMenu.cxx,v 1.3 2009/08/03 18:03:10 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtCustomizeCanvasMenu.cxx,v 1.4 2013/08/30 16:00:24 perev Exp $
 // Author: Valeri Fine   12/12/2005
 /****************************************************************************
 **
@@ -117,7 +117,7 @@ bool TQtCustomizeCanvasMenu::eventFilter( QObject *o, QEvent *e )
         || (mouseEvent && (mouseEvent->button() == Qt::RightButton )) ) 
   {
      TQtWidget *widget4EmbeddedCanvas = (TQtWidget *)o;
-     filtered = mouseEvent ? TRUE : MakeContextMenu(widget4EmbeddedCanvas);
+     filtered = mouseEvent ? true : MakeContextMenu(widget4EmbeddedCanvas);
   } 
   return filtered;
 }
@@ -147,5 +147,5 @@ bool TQtCustomizeCanvasMenu::MakeContextMenu(TQtWidget *canvas)
                  , obj,fCanvasWidget->GetCanvas());
       }
    }
-   return TRUE;
+   return true;
 }

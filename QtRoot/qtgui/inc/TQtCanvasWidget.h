@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasWidget.h,v 1.6 2009/08/03 18:03:08 fine Exp $
+** $Id: TQtCanvasWidget.h,v 1.7 2013/08/30 16:00:20 perev Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -12,12 +12,8 @@
 #ifndef ROOT_QtCanvasWidget
 #define ROOT_QtCanvasWidget
 
-#include <qglobal.h> 
-#if QT_VERSION < 0x40000
-#  include <qmainwindow.h> 
-#else
-#  include <QMainWindow> 
-#endif
+#include <QtGlobal>
+#include <QMainWindow> 
 
 class  TQtCanvasWidget : public QMainWindow {
  Q_OBJECT

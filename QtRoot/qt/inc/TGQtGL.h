@@ -1,4 +1,4 @@
-// @(#)root/win32gdk:$Name:  $:$Id: TGQtGL.h,v 1.3 2010/05/10 22:51:26 fine Exp $
+// @(#)root/win32gdk:$Name:  $:$Id: TGQtGL.h,v 1.4 2013/08/30 15:59:48 perev Exp $
 // Author: Valeriy Onuchin  05/08/04
 
 /*************************************************************************

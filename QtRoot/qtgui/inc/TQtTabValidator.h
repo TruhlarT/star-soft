@@ -1,6 +1,6 @@
 // Author: Valeri Fine   10/08/2004
 /****************************************************************************
-** $Id: TQtTabValidator.h,v 1.5 2010/04/19 23:52:06 fine Exp $
+** $Id: TQtTabValidator.h,v 1.6 2013/08/30 16:00:22 perev Exp $
 **
 ** Copyright (C) 2003 by Valeri Fine.  All rights reserved.
 **
@@ -34,7 +34,7 @@ class TTabCom;
 
 class TQtTabValidator  : public QValidator {
 private:
-    TQtTabValidator(const TQtTabValidator &) : QValidator (0) {}
+    TQtTabValidator(const TQtTabValidator &t) : QValidator (0) {}
     void operator=(const TQtTabValidator &) {}
 protected:
    static TTabCom *fgTabCom;  

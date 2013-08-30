@@ -1,4 +1,4 @@
-# $Id: Module.mk,v 1.6 2010/05/10 22:51:25 fine Exp $
+# $Id: Module.mk,v 1.7 2013/08/30 15:59:48 perev Exp $
 # Module.mk for qt module
 # Copyright (c) 2001 Valeri Fine
 #
@@ -44,12 +44,13 @@ GQTDEP        := $(GQTO:.o=.d) $(GQTDO:.o=.d)
 QT4           := $(findstring QtCore, $(QTINCDIR))
 
 QT3CPPFLAGS   := -DQT_DLL  -DQT_NO_DEBUG  -DQT_THREAD_SUPPORT
-QT4CPPFLAGS   := -DQT3_SUPPORT  -DQT_QT3SUPPORT_LIB -DQT_GUI_LIB -DQT_CORE_LIB 
+QT4CPPFLAGS   := -DQT_GUI_LIB -DQT_CORE_LIB 
 QT3QT4CPPFLAGS:= -DQT_SHARED
 
 GQTCXXFLAGS   :=  $(QT4CPPFLAGS) $(QT3CPPFLAGS) $(QT3QT4CPPFLAGS)
 ifeq ($(ARCH),win32)
-GQTCXXFLAGS   += -I$(QTDIR)/mkspecs/win32-msvc2005
+GQTCXXFLAGS   += -I$(QTDIR)/mkspecs/default 
+#   win32-msvc2005
 else
 GQTCXXFLAGS   += -I$(QTDIR)/mkspecs/default 
 endif

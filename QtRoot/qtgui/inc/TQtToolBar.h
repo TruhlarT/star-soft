@@ -1,6 +1,6 @@
 // Author: Valeri Fine   16/06/2006
 /****************************************************************************
-** $Id: TQtToolBar.h,v 1.5 2009/08/03 18:03:09 fine Exp $
+** $Id: TQtToolBar.h,v 1.6 2013/08/30 16:00:22 perev Exp $
 **
 ** Copyright (C) 2006 by Valeri Fine.  All rights reserved.
 **
@@ -21,7 +21,7 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
-#include <qglobal.h>
+#include <QtGlobal>
 
 #include <q3intdict.h>
 #include <QToolBar>
@@ -44,7 +44,7 @@ private:
 
 public:
 
-   TQtToolBar(const QString &label, QMainWindow *mainWindow, QWidget *parent, bool newLine=FALSE, const char *name=0,Qt::WFlags f=0);
+   TQtToolBar(const QString &label, QMainWindow *mainWindow, QWidget *parent, bool newLine=FALSE, const char *name=0,Qt::WindowFlags f=0);
    TQtToolBar(QMainWindow *parent);
    virtual ~TQtToolBar();
    void AddAction(const TQtBrowserMenuItem_t &action);

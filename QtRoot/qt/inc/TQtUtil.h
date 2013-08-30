@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtUtil.h,v 1.5 2010/05/10 22:51:26 fine Exp $
+** $Id: TQtUtil.h,v 1.6 2013/08/30 15:59:50 perev Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -16,8 +16,8 @@
 #include "TVirtualPad.h"
 #include "TCanvasImp.h"
 
-#include <QtGui/QPixmap>
-#include <QtGui/QWidget>
+#include <QPixmap>
+#include <QWidget>
 
 //----------------------------------------
 //      Q: How to get Qt pointer:
@@ -27,7 +27,7 @@ namespace  TQtUtil {
 /// Returns QPixmap backend for the given TVirtualPad 
 ///
 //_______________________________________
-inline QPixmap *padPixmap(TVirtualPad *pad)
+inline const QPixmap *padPixmap(TVirtualPad *pad)
 {     return (QPixmap *)TGQt::iwid(pad->GetPixmapID());   }
 
 ///
@@ -47,7 +47,11 @@ inline QWidget *canvasWidget(TVirtualPad *c)
 ///
 //_______________________________________
 inline unsigned long  wigdetHdc(TVirtualPad *pad)
-{  return padPixmap(pad)->handle(); }
+{
+// return padPixmap(pad)->handle(); 
+   assert(-1);
+   return 0;
+}
 
 ///
 /// Returns system depended backend handle 
@@ -56,7 +60,10 @@ inline unsigned long  wigdetHdc(TVirtualPad *pad)
 
 //_______________________________________
 inline unsigned long  hwndWin32(TVirtualPad *c)
-{  return canvasWidget(c)->winId(); }
+{
+  // http://qt-project.org/doc/qt-4.8/qwidget.html#winId 
+     return (unsigned long) canvasWidget(c)->winId(); 
+ }
 };
 #endif
 

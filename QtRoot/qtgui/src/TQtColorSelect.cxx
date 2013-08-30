@@ -1,7 +1,7 @@
-// @(#)root/gui:$Name:  $:$Id: TQtColorSelect.cxx,v 1.5 2012/06/11 14:20:56 fisyak Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtColorSelect.cxx,v 1.6 2013/08/30 16:00:23 perev Exp $
 // Author: Valeri Fine  21/05/2004
 /****************************************************************************
-** $Id: TQtColorSelect.cxx,v 1.5 2012/06/11 14:20:56 fisyak Exp $
+** $Id: TQtColorSelect.cxx,v 1.6 2013/08/30 16:00:23 perev Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -30,9 +30,8 @@
 #include "TQtColorSelectButton.h"
 #include "TQtEvent.h"
 #include "TQtApplication.h"
-#include <qapplication.h>
-#include "Riostream.h"
-using namespace std;
+#include <QApplication>
+
 ClassImp(TQtColorSelect)
 //______________________________________________________________________________
 TQtColorSelect::TQtColorSelect(QWidget *p,  UInt_t pixel, Int_t id )
@@ -70,13 +69,13 @@ Pixel_t TQtColorSelect::GetColor() const
 void    TQtColorSelect::SetColor(Color_t color)
 {if (fColorSelector) fColorSelector->SetColor(gQt->ColorIndex(gQt->UpdateColor(color))); }
 //______________________________________________________________________________
-void TQtColorSelect::SavePrimitive(ofstream & out, Option_t *opt)
+void TQtColorSelect::SavePrimitive(std::ofstream & out, Option_t *opt)
 {
    // To make code forward backward compatible with the different ROOT versions
-   SavePrimitive(*(ostream *)&out,opt);
+   SavePrimitive(*(std::ostream *)&out,opt);
 }
 //______________________________________________________________________________
-void TQtColorSelect::SavePrimitive(ostream & out, Option_t *)
+void TQtColorSelect::SavePrimitive(std::ostream & out, Option_t *)
 {
     // Save a color select widget as a C++ statement(s) on output stream out
 
@@ -86,17 +85,17 @@ void TQtColorSelect::SavePrimitive(ostream & out, Option_t *)
    //const char *colorname = TColor::PixelAsHexString(color);
    // gClient->GetColorByName(colorname, color);
 
-   out << endl << "   // color select widget" << endl;
-   out << "   ULong_t ColPar;" << endl;
+   out << std::endl << "   // color select widget" << std::endl;
+   out << "   ULong_t ColPar;" << std::endl;
    out << "   gClient->GetColorByName(" << quote << colorname << quote
-       << ", ColPar);" << endl;
+       << ", ColPar);" << std::endl;
 
    out <<"   TQtColorSelect*";
 //   out << GetName() << " = new TQtColorSelect(" << fParent->GetName()
-//       << ", ColPar, " << WidgetId() << ");" << endl;
+//       << ", ColPar, " << WidgetId() << ");" << std::endl;
 
    //if (!IsEnabled()) {
-   //   out << "   " << GetName() << "->Disable();" << endl;
+   //   out << "   " << GetName() << "->Disable();" << std::endl;
    // }
-   out << endl;
+   out << std::endl;
 }

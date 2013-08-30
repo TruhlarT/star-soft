@@ -1,8 +1,7 @@
 TEMPLATE	= app
 LANGUAGE	= C++
 
-QMAKE_RPATH=
-
+QMAKE_LFLAGS_RPATH=
 !exists ($$(ROOTSYS)/lib/libQtRootGui.$$QMAKE_EXTENSION_SHLIB) {
       message ("No ROOT Qt Extension was found. Use Qt-layer instead")
 }

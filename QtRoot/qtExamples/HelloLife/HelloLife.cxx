@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: HelloLife.cxx,v 1.4 2009/11/19 19:23:08 fine Exp $
+** $Id: HelloLife.cxx,v 1.5 2013/08/30 15:59:59 perev Exp $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **

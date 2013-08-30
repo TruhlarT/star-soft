@@ -3,8 +3,9 @@
 # #####################################################################
 TEMPLATE = app
 CONFIG += console    
-unix: QMAKE_RPATH =
-DEFINES += _CRT_SECURE_NO_DEPRECATE
+unix: QMAKE_LFLAGS_RPATH =
+
+win32: DEFINES += _CRT_SECURE_NO_DEPRECATE
 
 # Input
 #HEADERS += mainwindow.h filebrowser.h

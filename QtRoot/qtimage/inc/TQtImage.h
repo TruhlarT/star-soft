@@ -1,4 +1,4 @@
-// @(#)root/asimage:$Name:  $:$Id: TQtImage.h,v 1.4 2009/08/03 18:03:10 fine Exp $
+// @(#)root/asimage:$Name:  $:$Id: TQtImage.h,v 1.5 2013/08/30 16:00:27 perev Exp $
 // Author: Valeri Fine 7/02/2004
 
 /*************************************************************************
@@ -67,6 +67,7 @@ protected:
    void DestroyImage();
    void  SetImage(const QImage &img);
    void  SetImage(QImage *img);
+   void  ResetZoom();
    QImage  *Image() { return  fImage; }
 
 public:
@@ -194,7 +195,7 @@ public:
    TImage *GetScaledImage() const { return fScaledImage; }
 
    TArrayL  *GetPixels(Int_t /*x*/= 0, Int_t /*y*/= 0, UInt_t /*w*/ = 0, UInt_t /*h*/ = 0) { return 0; }
-   TArrayD  *GetArray(UInt_t /*w*/ = 0, UInt_t /*h*/ = 0, TImagePalette * = gWebImagePalette) { return 0; }
+   TArrayD  *GetArray(UInt_t w= 0, UInt_t h= 0, TImagePalette *palette = 0); // gWebImagePalette);
    Pixmap_t  GetPixmap();
    Pixmap_t  GetMask();
    UInt_t   *GetArgbArray() { return 0; }

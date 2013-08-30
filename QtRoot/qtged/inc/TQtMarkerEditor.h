@@ -1,4 +1,4 @@
-// @(#)root/ged:$Name:  $:$Id: TQtMarkerEditor.h,v 1.4 2009/08/03 18:03:03 fine Exp $
+// @(#)root/ged:$Name:  $:$Id: TQtMarkerEditor.h,v 1.5 2013/08/30 16:00:10 perev Exp $
 // Author: Valeri Fine 11/06/06
 
 /****************************************************************************

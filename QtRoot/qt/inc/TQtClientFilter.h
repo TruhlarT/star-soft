@@ -1,4 +1,4 @@
-// @(#)root/qt:$Id: TQtClientFilter.h,v 1.9 2010/05/10 22:51:26 fine Exp $
+// @(#)root/qt:$Id: TQtClientFilter.h,v 1.10 2013/08/30 15:59:49 perev Exp $
 // Author: Valeri Fine   21/01/2002
 
 /*************************************************************************
@@ -74,7 +74,7 @@ protected:
    static Bool_t IsGrabSelected(UInt_t selectEventMask);
    static Bool_t SelectGrab(Event_t &event, UInt_t selectEventMask, QMouseEvent &me);
 public:
-   TQtClientFilter():fRootEventQueue(0),fNotifyClient(0),fKeyGrabber(0){;}
+   TQtClientFilter():fRootEventQueue(0),fNotifyClient(0),fKeyGrabber(0),fInputEventMask(0){;}
    virtual ~TQtClientFilter();
    static TQtClientWidget    *GetPointerGrabber();
    static TQtClientWidget    *GetButtonGrabber();
@@ -111,7 +111,7 @@ public:
                                     QCursor *cursor, Bool_t grab = kTRUE,
                                     Bool_t owner_events = kTRUE, QWidget *confine=0);
    ~TQtPointerGrabber();
-   void   ActivateGrabbing(bool on=TRUE);
+   void   ActivateGrabbing(bool on=kTRUE);
    void   DisactivateGrabbing(){ ActivateGrabbing(kFALSE); }
    Bool_t IsGrabSelected(UInt_t selectEventMask) const;
    Bool_t IsGrabbing(TQtClientWidget *grabbed) const { return (grabbed == fPointerGrabber); }

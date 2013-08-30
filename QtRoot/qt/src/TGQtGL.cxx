@@ -1,8 +1,8 @@
-// @(#)root/win32gdk:$Name:  $:$Id: TGQtGL.cxx,v 1.3 2010/05/10 22:51:26 fine Exp $
+// @(#)root/win32gdk:$Name:  $:$Id: TGQtGL.cxx,v 1.4 2013/08/30 15:59:51 perev Exp $
 // Author: Valeriy Onuchin(TGQtGL)/ Timur Pocheptsov (TGQtGLManager)
 
 /*************************************************************************
- * Copyright (C) 1995-2000, Rene Brun and Fons Rademakers.               *
+ * $$Copyright$
  * All rights reserved.                                                  *
  *                                                                       *
  * For the licensing terms see $ROOTSYS/LICENSE.                         *
@@ -342,7 +342,7 @@ ClassImp(TGQtGLManager)
 TGQtGLManager::TGQtGLManager() : fPimpl(new TGQtGLImpl)
 {
    gPtr2GLManager = &TGQtGLManagerProxy::ProxyObject;
-   gROOT->GetListOfSpecials()->AddLast(this);
+   ROOT::GetROOT()->GetListOfSpecials()->AddLast(this);
    gGLManager = this;
 }
 

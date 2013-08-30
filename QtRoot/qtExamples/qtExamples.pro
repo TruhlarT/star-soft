@@ -1,28 +1,16 @@
 TEMPLATE = subdirs
-QT += qt3support
 
-QMAKE_RPATH=
+QMAKE_LFLAGS_RPATH=
 
-QT_VERSION=$$[QT_VERSION]
-
-contains( QT_VERSION, "^4.*" ) {
-  LOCALROOTSYSDIR = $$(QTROOTSYSDIR)
-  LOCALROOTSYS = $$(ROOTSYS)
-}
-!contains( QT_VERSION, "^4.*" ) {
-  LOCALROOTSYSDIR = $$QTROOTSYSDIR
-  LOCALROOTSYS    = $$ROOTSYS
-}
+LOCALROOTSYSDIR = $$(QTROOTSYSDIR)
+LOCALROOTSYS    = $$(ROOTSYS)
 
 QTEXAMPLEPACKAGES   = HelloCanvas           \
                       HelloWord             \
                       HelloClick            \
+                      HelloQPainter         \
                       HelloZoomer
 
-!contains( QT_VERSION, "^4.*" ) {
-    QTEXAMPLEPACKAGES += ex1/tqrootexample.pro \
-                      HelloLife
-}
 
 QTEXTENSIONEXAMPLES = HelloPixmap           \
                       HelloToolBar          \
@@ -30,29 +18,25 @@ QTEXTENSIONEXAMPLES = HelloPixmap           \
                       HelloGLViewer         \
                       HelloOpenGL           \
                       DrawFunction          \
-                      CustomCanvasMenu      \
+#                      CustomCanvasMenu      \
                       HelloQtSolutions      \
                       QtGBrowser
 
-#                      CustomWidgets        \
-
-unix {
-  exists($$LOCALROOTSYS/lib/libQtRootGui.so):       QTEXAMPLEPACKAGES += $$QTEXTENSIONEXAMPLES
-  exists($${LOCALROOTSYSDIR}/lib/libQtRootGui.so):  QTEXAMPLEPACKAGES *= $$QTEXTENSIONEXAMPLES
-}
 
 win32 {
   exists($${LOCALROOTSYS}/bin/libQtRootGui.dll):      QTEXAMPLEPACKAGES += $$QTEXTENSIONEXAMPLES
   exists($${LOCALROOTSYSDIR}/bin) {
       exists($${LOCALROOTSYSDIR}/bin/libQtRootGui.dll)  QTEXAMPLEPACKAGES *= $$QTEXTENSIONEXAMPLES
   }
+} else {
+  exists($${LOCALROOTSYSDIR}/lib/libQtRootGui.$${QMAKE_EXTENSION_SHLIB}):       QTEXAMPLEPACKAGES += $${QTEXTENSIONEXAMPLES}
 }
 
 !contains( QT_VERSION, "^4.*" ) {
 exists($${LOCALROOTSYS}/qtgsi) : QTEXAMPLEPACKAGES += qtgsi/example1
 }
 
-exists($${LOCALROOTSYS}/include/rootcint.pri):   QTEXAMPLEPACKAGES += HelloCint
+exists($$LOCALROOTSYS/include/rootcint.pri):   QTEXAMPLEPACKAGES += HelloCint
 
 QTEXAMPLEPACKAGES += Qt4/CustomWidgets  Qt4/HelloFileBrowser  Qt4/HelloSignal 
 

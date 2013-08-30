@@ -1,4 +1,4 @@
-// @(#)root/gui:$Id: TQtTextEditor.cxx,v 1.3 2010/05/27 21:38:54 fine Exp $
+// @(#)root/gui:$Id: TQtTextEditor.cxx,v 1.4 2013/08/30 16:00:25 perev Exp $
 // Author: Bertrand Bellenot   20/06/06
 // Author:Valeri Fine          20/05/10 (Qt-based implemenation)
 
@@ -148,26 +148,26 @@
 #include "TSystem.h"
 #include "TMacro.h"
 #include "TInterpreter.h"
-#include <QtCore/QTextStream>
-#include <QtCore/QFile>
+#include <QTextStream>
+#include <QFile>
 
-#include <QtCore/QFileInfo>
+#include <QFileInfo>
 #include <QApplication>
-#include <QtGui/QMessageBox>
-#include <QtGui/QFileDialog>
-#include <QtGui/QFontDialog>
-#include <QtGui/QPrintDialog>
-#include <QtGui/QPrinter>
-#include <QtGui/QPainter>
-#include <QtGui/QTextEdit>
-#include <QtGui/QMenu>
-#include <QtGui/QMenuBar>
-#include <QtGui/QStatusBar>
-#include <QtGui/QToolBar>
-#include <QtGui/QLabel>
-#include <QtGui/QSplitter>
-#include <QtGui/QClipboard>
-#include <QtGui/QFontDialog>
+#include <QMessageBox>
+#include <QFileDialog>
+#include <QFontDialog>
+#include <QPrintDialog>
+#include <QPrinter>
+#include <QPainter>
+#include <QTextEdit>
+#include <QMenu>
+#include <QMenuBar>
+#include <QStatusBar>
+#include <QToolBar>
+#include <QLabel>
+#include <QSplitter>
+#include <QClipboard>
+#include <QFontDialog>
 
 #include "TQtRootAction.h"
 #include "TObjString.h"
@@ -484,7 +484,7 @@ void TQtTextEditor::CreateStatusBar(int nparts)
   int i=0;
   for (i=0;i<nparts;i++) {
     QLabel *l = new QLabel(statusBar);
-    statusBar->addWidget(l,1,TRUE);
+    statusBar->addWidget(l,1,true);
     fStatusBar.insert(i,l);
   }
 }
@@ -716,7 +716,7 @@ void TQtTextEditor::CompileMacro()
          return;
    }
    char *tmpfile = gSystem->ConcatFileName(gSystem->TempDirectory(),
-                                gSystem->BaseName(fFilename.toAscii().data()));
+                                gSystem->BaseName(fFilename.toLatin1().data()));
    SaveFile(tmpfile);
    gSystem->CompileMacro(tmpfile);
    gSystem->Unlink(tmpfile);
@@ -760,17 +760,17 @@ void TQtTextEditor::ExecuteMacro()
    }
    gInterpreter->SaveContext();
    QString savdir = gSystem->WorkingDirectory();
-   QString tmpfile = gSystem->BaseName(fFilename.toAscii().data());
+   QString tmpfile = gSystem->BaseName(fFilename.toLatin1().data());
    tmpfile += "_exec";
-   gSystem->ChangeDirectory(gSystem->DirName(fFilename.toAscii().data()));
+   gSystem->ChangeDirectory(gSystem->DirName(fFilename.toLatin1().data()));
    SaveFile(tmpfile);
    gROOT->SetExecutingMacro(kTRUE);
-   gROOT->Macro(tmpfile.toAscii().data());
+   gROOT->Macro(tmpfile.toLatin1().data());
    gROOT->SetExecutingMacro(kFALSE);
-   if (gInterpreter->IsLoaded(tmpfile.toAscii().data()))
-      gInterpreter->UnloadFile(tmpfile.toAscii().data());
-   gSystem->Unlink(tmpfile.toAscii().data());
-   gSystem->ChangeDirectory(savdir.toAscii().data());
+   if (gInterpreter->IsLoaded(tmpfile.toLatin1().data()))
+      gInterpreter->UnloadFile(tmpfile.toLatin1().data());
+   gSystem->Unlink(tmpfile.toLatin1().data());
+   gSystem->ChangeDirectory(savdir.toLatin1().data());
    gInterpreter->Reset();
 }
 
@@ -801,7 +801,7 @@ void TQtTextEditor::About()
    new TWin32SplashThread(kTRUE);
 #else
    QString str(tr("About ROOT %1...")).arg(gROOT->GetVersion());
-   TRootHelpDialog *hd = new TRootHelpDialog(this, str.toAscii.data(), 600, 400);
+   TRootHelpDialog *hd = new TRootHelpDialog(this, str.toLatin1.data(), 600, 400);
    hd->SetText(gHelpAbout);
    hd->Popup();
 #endif

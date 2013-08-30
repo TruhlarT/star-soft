@@ -1,8 +1,8 @@
-// @(#)root/qtgl:$Name:  $:$Id: TQtGLViewerWidget.cxx,v 1.9 2010/02/19 11:46:15 fine Exp $
+// @(#)root/qtgl:$Name:  $:$Id: TQtGLViewerWidget.cxx,v 1.10 2013/08/30 16:00:18 perev Exp $
 // Author: Valery Fine(fine@vxcern.cern.ch)   12/11/02
  
 /****************************************************************************
-** $Id: TQtGLViewerWidget.cxx,v 1.9 2010/02/19 11:46:15 fine Exp $
+** $Id: TQtGLViewerWidget.cxx,v 1.10 2013/08/30 16:00:18 perev Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -36,19 +36,19 @@
 #include "TGQt.h"
 #include "TQtGLViewerWidget.h"
 #include "TObject3DView.h"
-#include <qapplication.h>
-#include <qevent.h>
-#include <qmessagebox.h> 
-#include <qcolor.h> 
+#include <QApplication>
+#include <QEvent>
+#include <QMessageBox> 
+#include <QColor> 
 
 #ifdef TEST_GETGFERROR_PEFORMANCE
-#  include <qdatetime.h> 
+#  include <QDateTime> 
 #endif
 
 #include <QKeyEvent>
 
 #include <QGLViewer/manipulatedFrame.h> 
-#include <qfontmetrics.h> 
+#include <QFontMetrics> 
 #include <QGLViewer/quaternion.h>
 
 // TWin32GLViewer* TQtGLViewerWidget::fgCurrent = 0;
@@ -222,7 +222,7 @@ void TGLSlicePlaneAttribute::MakeAttribute()
 //____________________________________________________________________________________________________________________
 
 //______________________________________________________________________________
- TQtGLViewerWidget::TQtGLViewerWidget(QWidget *parent, const char *name,const QGLWidget *shareWidget, Qt::WFlags f) :
+ TQtGLViewerWidget::TQtGLViewerWidget(QWidget *parent, const char *name,const QGLWidget *shareWidget, Qt::WindowFlags f) :
   QGLViewer(parent,shareWidget,f)
  ,fGLView(0),fPad(0),fClipPlane(-1),fPadSynch(kFALSE)
  ,fSolidAttributes(0),fWiredAttributes(0),fSelectedAttributes(0),fSlicingAttributes(0),fSolidSelectable(kTRUE),fWiredSelectable(kTRUE) 
@@ -232,7 +232,7 @@ void TGLSlicePlaneAttribute::MakeAttribute()
    memset(fGLLights,0,sizeof(fGLLights));
  }
 //______________________________________________________________________________
-TQtGLViewerWidget::TQtGLViewerWidget(TPadOpenGLView *view, const char *title,QWidget *parent,Qt::WFlags f):
+TQtGLViewerWidget::TQtGLViewerWidget(TPadOpenGLView *view, const char *title,QWidget *parent,Qt::WindowFlags f):
       QGLViewer(parent,0,f)
       ,fGLView(view),fPad(0),fClipPlane(-1), fPadSynch(kFALSE)
       , fSolidAttributes(0),fWiredAttributes(0),fSelectedAttributes(0),fSlicingAttributes(0),fSolidSelectable(kTRUE),fWiredSelectable(kTRUE)
@@ -242,7 +242,7 @@ TQtGLViewerWidget::TQtGLViewerWidget(TPadOpenGLView *view, const char *title,QWi
    memset(fGLLights,0,sizeof(fGLLights));
 }
 //______________________________________________________________________________
-TQtGLViewerWidget::TQtGLViewerWidget(TVirtualPad *pad, const char *title,QWidget *parent,Qt::WFlags f):
+TQtGLViewerWidget::TQtGLViewerWidget(TVirtualPad *pad, const char *title,QWidget *parent,Qt::WindowFlags f):
       QGLViewer(parent,0,f)
       ,fGLView(0),fPad(pad),fClipPlane(-1), fPadSynch(kFALSE)
       ,fSolidAttributes(0),fWiredAttributes(0),fSelectedAttributes(0),fSlicingAttributes(0),fSolidSelectable(kTRUE),fWiredSelectable(kTRUE)
@@ -970,8 +970,8 @@ void TQtGLViewerWidget::keyPressEvent(QKeyEvent * e)
 void TQtGLViewerWidget::actionGLView(char option, int count) 
 {
    // mimic keyboard action
-   QKeyEvent *e = new QKeyEvent(QEvent::KeyPress,0,Qt::NoModifier, QString(option)
-                               ,false,1);
+   QKeyEvent *e = new QKeyEvent(QEvent::KeyPress,0,Qt::KeyboardModifiers(Qt::NoModifier),QChar(option)
+                               ,false,ushort(1));
    QApplication::postEvent(this,e);
 }
 //______________________________________________________________________________

@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasImp.cxx,v 1.25 2010/07/15 17:49:05 fine Exp $
+** $Id: TQtCanvasImp.cxx,v 1.26 2013/08/30 16:00:23 perev Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -50,41 +50,29 @@
 #include "TQtZoomPadWidget.h"
 #include "TQtToolBar.h"
 
-#include <qapplication.h>
-#include <qmenubar.h>
+#include <QApplication>
+#include <QMenuBar>
 
-#if QT_VERSION < 0x40000
-#  include <qpopupmenu.h>
-#  include <qtoolbar.h>
-#  include <qvaluelist.h>
-#  include <qfiledialog.h>
-#  include <qscrollview.h>
-#  include <qwhatsthis.h> 
-#else /* QT_VERSION */
-#  include <QTimer>
-#  include <QDebug>
-#  include <q3valuelist.h>
-#  include <QMenu>
-#  include <QImageWriter>
-#  include <QFileDialog>
-#  include <QWhatsThis>
-#  include <QFileDialog>
-#  include <QToolBar>
-#  include <QDockWidget>
-//Added by qt3to4:
-#  include <QPixmap>
-#endif /* QT_VERSION */
+#include <QTimer>
+#include <QDebug>
+#include <QMenu>
+#include <QImageWriter>
+#include <QFileDialog>
+#include <QWhatsThis>
+#include <QFileDialog>
+#include <QToolBar>
+#include <QDockWidget>
+#include <QPixmap>
 
-#include <qmessagebox.h>
-#include <qstatusbar.h>
+#include <QMessageBox>
+#include <QStatusBar>
 
-#include <qlabel.h>
-#include <qsplitter.h>
+#include <QLabel>
+#include <QSplitter>
 
-#include <qimage.h>
-#include <qclipboard.h>
-#include <qapplication.h>
-#include <qprinter.h>
+#include <QImage>
+#include <QClipboard>
+#include <QPrinter>
 
 // Canvas menu command ids
 enum ERootCanvasCommands {
@@ -505,7 +493,7 @@ void TQtCanvasImp::Unlock()
 {
    //  Unlock updating canvas.
 
-  if (!fCanvasImpID) fCanvasImpID->setUpdatesEnabled(TRUE);
+  if (!fCanvasImpID) fCanvasImpID->setUpdatesEnabled(true);
 }
 //______________________________________________________________________________
 Bool_t TQtCanvasImp::IsLocked() 
@@ -519,6 +507,15 @@ void TQtCanvasImp::Close()
   // if (fCanvasImpID) fCanvasImpID->topLevelWidget()->close();
   Delete();
 }
+//_____________________________________________________________________________
+void  TQtCanvasImp::RaiseWindow()
+{
+   if (fCanvasImpID) {
+      fCanvasImpID->raise();
+      fCanvasImpID->show();
+   }
+}
+
 //_____________________________________________________________________________
 void TQtCanvasImp::ReallyDeleteCB()
 {
@@ -562,7 +559,6 @@ void   TQtCanvasImp::GetWindowGeometry(Int_t &x, Int_t &y, UInt_t &w, UInt_t &h)
    y = rect.y();
    w = rect.width();
    h = rect.height(); 
-
 //   if (!fCanvas->GetShowEditor()) return 0;
 //   return fEditorFrame->GetWidth();
 #if ROOT_VERSION_CODE > ROOT_VERSION(4,00,4) 
@@ -657,7 +653,7 @@ void TQtCanvasImp::CreateStatusBar(Int_t nparts)
   Int_t i=0;
   for (i=0;i<nparts;i++) {
     QLabel *l = new QLabel(statusBar);
-    statusBar->addWidget(l,1,TRUE);
+    statusBar->addWidget(l,1,true);
 
     // remember to delete later
     fStatusBar.insert(i,l);  
@@ -848,6 +844,24 @@ void TQtCanvasImp::ShowToolBar(Bool_t show)
        fEditToolBar->hide();
     }
 }
+
+//______________________________________________________________________________
+void  TQtCanvasImp::ShowToolTips(Bool_t show ) 
+{
+   if (show) {}
+}
+
+//______________________________________________________________________________
+Bool_t TQtCanvasImp::HasEditor()    const { return fEditToolBar!=0; }
+//______________________________________________________________________________
+Bool_t TQtCanvasImp::HasMenuBar()   const { return fToolBar!=0; }
+//______________________________________________________________________________
+Bool_t TQtCanvasImp::HasStatusBar() const { return fStatusBar.size() > 0; }
+//______________________________________________________________________________
+Bool_t TQtCanvasImp::HasToolBar()   const { return fToolBar!=0; }
+//______________________________________________________________________________
+Bool_t TQtCanvasImp::HasToolTips()  const { return kFALSE; }
+   
 //______________________________________________________________________________
 void TQtCanvasImp::Show(){
   if (fCanvasImpID) {
@@ -1193,7 +1207,7 @@ void TQtCanvasImp::X3DViewCB()
 void TQtCanvasImp::GLViewCB()
 {  
    // Load Qt-based GL viewer first
-   // // static bool loadFlag = TRUE;
+   // // static bool loadFlag = true;
    // if (loadFlag) loadFlag = gQt->LoadQt("libRQTGL");
 #if  ROOT_VERSION_CODE >= ROOT_VERSION(4,03,03)   
    //  Make sure gPad belong out TCanvas 
@@ -1226,7 +1240,7 @@ void TQtCanvasImp::GLIVViewCB()
 {  
    // Create Open GL viewer
    // Load Qt-based GL viewer first
-   // static bool loadFlag = TRUE;
+   // static bool loadFlag = true;
    // if (loadFlag) loadFlag = gQt->LoadQt("libRQIVTGL");
 // #if  ROOT_VERSION_CODE < ROOT_VERSION(5,20,0)
 #if  ROOT_VERSION_CODE >= ROOT_VERSION(4,03,3)

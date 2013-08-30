@@ -1,8 +1,8 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtEvent.cxx,v 1.3 2010/05/10 22:51:26 fine Exp $
+** $Id: TQtEvent.cxx,v 1.4 2013/08/30 15:59:51 perev Exp $
 **
-** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
+** $$Copyright$
 **                                    All rights reserved.
 **
 ** This file may be distributed under the terms of the Q Public License
@@ -33,7 +33,7 @@ TQtEvent::TQtEvent(QObject *o, QEvent *e): QEvent(QEvent::User), fCondition(0)
 //______________________________________________________________________________
 bool TQtEvent::Notify()
 {
-  bool r = FALSE;
+  bool r = false;
   if (fReceiver)
   {
     r = fReceiver->event(fThatEvent);

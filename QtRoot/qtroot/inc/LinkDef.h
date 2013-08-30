@@ -1,4 +1,4 @@
-/* @(#)root/win32:$Name:  $:$Id: LinkDef.h,v 1.2 2009/08/03 18:03:11 fine Exp $ */
+/* @(#)root/win32:$Name:  $:$Id: LinkDef.h,v 1.3 2013/08/30 16:00:27 perev Exp $ */
 
 /*************************************************************************
  * Copyright (C) 1995-2000, Rene Brun and Fons Rademakers.               *

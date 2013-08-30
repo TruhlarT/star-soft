@@ -1,8 +1,8 @@
 // Author: Valery Fine  09/08/2004
 /****************************************************************************
-** $Id: TQtTimer.cxx,v 1.4 2010/05/10 22:51:26 fine Exp $
+** $Id: TQtTimer.cxx,v 1.5 2013/08/30 15:59:52 perev Exp $
 **
-** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
+** $$Copyright$
 **                                    All rights reserved.
 **
 ** This file may be distributed under the terms of the Q Public License
@@ -11,7 +11,7 @@
 **
 *****************************************************************************/
 
-#include <qapplication.h>
+#include <QApplication>
 #include "TQtTimer.h"
 #include "TSystem.h"
 
@@ -28,7 +28,7 @@ TQtTimer *TQtTimer::fgQTimer=0;
 void TQtTimer::AwakeRootEvent(){
      // proceess the ROOT events inside of Qt event loop
      gSystem->DispatchOneEvent(kFALSE);
-     start(300);
+     start(240);
 }
 //______________________________________________________________________________
 TQtTimer * TQtTimer::Create(QObject *parent)
@@ -45,7 +45,6 @@ TQtTimer * TQtTimer::Create(QObject *parent)
 //______________________________________________________________________________
 TQtTimer *TQtTimer::QtTimer()
 {
-   // Return the singleton TQtTimer object
+   // Return the singelton TQtTimer object
    return fgQTimer;
 }
-

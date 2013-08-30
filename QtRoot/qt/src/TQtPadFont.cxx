@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtPadFont.cxx,v 1.3 2010/05/10 22:51:26 fine Exp $
+** $Id: TQtPadFont.cxx,v 1.4 2013/08/30 15:59:51 perev Exp $
 **
 ** $$Copyright$
 **                                    All rights reserved.
@@ -305,7 +305,7 @@ void   TQtPadFont::SetTextMagnify(Float_t  mgn)
    //
     Int_t tsize = (Int_t)(fTextSize+0.5);
     if (TMath::Abs(mgn-1) >0.05)  {
-       int pxSize = mgn*FontMagicFactor(tsize);
+       int pxSize = int(mgn*FontMagicFactor(tsize));
        if(pxSize<=0) pxSize=1;
        this->setPixelSize(pxSize);
     }

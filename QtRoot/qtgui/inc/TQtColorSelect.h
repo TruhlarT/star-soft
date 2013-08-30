@@ -1,11 +1,11 @@
-// @(#)root/gui:$Name:  $:$Id: TQtColorSelect.h,v 1.5 2012/06/11 14:20:56 fisyak Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtColorSelect.h,v 1.6 2013/08/30 16:00:20 perev Exp $
 // Author: Valeri Fine  21/05/2004
 
 #ifndef ROOT_TQtColorSelect
 #define ROOT_TQtColorSelect
 
 /****************************************************************************
-** $Id: TQtColorSelect.h,v 1.5 2012/06/11 14:20:56 fisyak Exp $
+** $Id: TQtColorSelect.h,v 1.6 2013/08/30 16:00:20 perev Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -32,7 +32,6 @@
 #include "GuiTypes.h"
 #include "Gtypes.h"
 #include "Riostream.h"
-using namespace std;
 #include "TClass.h"
 #ifndef ROOT_TQObject
 #  include "TQObject.h"
@@ -40,7 +39,7 @@ using namespace std;
 
 
 #ifndef __CINT__
-#include <qobject.h>
+#include <QObject>
 #endif
 
 class QWidget;
@@ -78,8 +77,8 @@ public:
    Pixel_t GetColor() const;
    void    SetColor(Color_t color);
    TQtColorSelectButton *GetColorSelectButton() const { return fColorSelector;}
-   virtual void SavePrimitive(ofstream &out, Option_t *);
-   virtual void SavePrimitive(ostream &out, Option_t *);
+   virtual void SavePrimitive(std::ofstream &out, Option_t *);
+   virtual void SavePrimitive(std::ostream &out, Option_t *);
 
 #ifndef __CINT__
 signals:

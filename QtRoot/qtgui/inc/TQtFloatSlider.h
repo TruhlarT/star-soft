@@ -2,7 +2,7 @@
 #define ROOT_TQtFloatSlider
 // Author: Valeri Fine   3/02/2007
 /****************************************************************************
-** $Id: TQtFloatSlider.h,v 1.3 2009/08/03 18:03:08 fine Exp $
+** $Id: TQtFloatSlider.h,v 1.4 2013/08/30 16:00:21 perev Exp $
 **
 ** Copyright (C) 2007 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -13,23 +13,15 @@
 **
 *****************************************************************************/
 
-#include <qglobal.h>
+#include <QtGlobal>
 
-#if QT_VERSION < 0x40000
-#  include <qslider.h>
-#else
 //MOC_SKIP_BEGIN
 #  include <QSlider>
 //MOC_SKIP_END
-#endif
 
-#if QT_VERSION < 0x40000
-class  /* Q_EXPORT */ TQtFloatSlider: public QSlider
-#else
 //MOC_SKIP_BEGIN
 class  /* Q_EXPORT */ TQtFloatSlider: public QSlider
 //MOC_SKIP_END
-#endif
 {
     Q_OBJECT
     Q_PROPERTY( double minValue     READ MinValue     WRITE SetMinValue     )

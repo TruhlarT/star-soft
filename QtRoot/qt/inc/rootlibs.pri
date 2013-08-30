@@ -4,7 +4,7 @@
 # Qmake include file to add the rules to create RootCint Dictionary
 #-------------------------------------------------------------------------
 #
-# $Id: rootlibs.pri,v 1.6 2009/08/03 18:02:57 fine Exp $
+# $Id: rootlibs.pri,v 1.7 2013/08/30 15:59:50 perev Exp $
 #
 # Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 #
@@ -34,8 +34,9 @@
 #
 
 # QMake must be defined by Qmake alone but ... It is not :(  Sept 6, 2005 V.Fine)
-
-
+# add the "console option for the Windows applications
+CONFIG+=   console
+greaterThan(QT_MAJOR_VERSION, 4): QT *= widgets
 # define whether the current QMake is from Qt4 distribution
 
 MYVERSION = $$[QMAKE_VERSION] 
@@ -53,14 +54,14 @@ mac {
 }
 
 win32 {
-  QMAKE_EXTENSION_SHLIB = dll
+  QMAKE_EXTENSION_SHLIB=dll
 }
 
 #-- permanent components to be included into any ".pro" file to build the RootCint dictionary
 
 win32 {
-   LIBS	+=                                                                                                 \
-      -include:_G__cpp_setupG__Hist       -include:_G__cpp_setupG__G3D                                     \
+   LIBS	+=                                                                                                \
+      -include:_G__cpp_setupG__Hist       -include:_G__cpp_setupG__Graf   -include:_G__cpp_setupG__G3D     \
       -include:_G__cpp_setupG__GPad       -include:_G__cpp_setupG__Tree   -include:_G__cpp_setupG__Rint    \
       -include:_G__cpp_setupG__PostScript -include:_G__cpp_setupG__Matrix -include:_G__cpp_setupG__Physics \
       -include:_G__cpp_setupG__Gui1       -include:_G__cpp_setupG__Geom1 
@@ -83,7 +84,7 @@ win32 {
     "$(ROOTSYS)/lib/libTree.lib"   "$(ROOTSYS)/lib/libRint.lib"     "$(ROOTSYS)/lib/libPostscript.lib"   \
     "$(ROOTSYS)/lib/libMatrix.lib" "$(ROOTSYS)/lib/libPhysics.lib"  "$(ROOTSYS)/lib/libGui.lib"          \
     "$(ROOTSYS)/lib/libGeom.lib"   "$(ROOTSYS)/lib/libTable.lib"                                         \
-    "$(ROOTSYS)/lib/libGQt.lib"   
+    "$(ROOTSYS)/lib/libGQt.lib"    "$(ROOTSYS)/lib/libThread.lib"   
     
    exists( $$(ROOTSYS)/lib/libRIO.lib ) {
       LIBS	+= "$(ROOTSYS)/lib/libRIO.lib" 
@@ -121,8 +122,8 @@ unix {
           message ( "Found Qt extensions library !!!") 
     }
 }
-FORCELINKLIST	+=                                                                  \
-        _G__cpp_setupG__Hist        _G__cpp_setupG__Graf1   _G__cpp_setupG__G3D     \
+FORCELINKLIST	+=                                                                   \
+        _G__cpp_setupG__Hist        _G__cpp_setupG__Graf    _G__cpp_setupG__G3D     \
         _G__cpp_setupG__GPad        _G__cpp_setupG__Tree    _G__cpp_setupG__Rint    \
         _G__cpp_setupG__PostScript  _G__cpp_setupG__Matrix  _G__cpp_setupG__Physics \
         _G__cpp_setupG__Gui1        _G__cpp_setupG__Geom1   _G__cpp_setup_initG__IO 
@@ -139,15 +140,5 @@ mac {
       exists( $$(ROOTSYS)/lib/libQtRootGui.lib ) {
          LIBS	+=  -u _G__cpp_setupG__QtGUI     
       }
-  }
-# -- trick to force the trivial symbolic link under UNIX
-
-  equals(TEMPLATE, lib) {
-     sharedso.target       = lib$${TARGET}.so 
-     sharedso.commands     =  ( rm  -f  $(DESTDIR)$$sharedso.target; ln -s  lib$${TARGET}.$$QMAKE_EXTENSION_SHLIB $$sharedso.target; mv -f  $$sharedso.target $(DESTDIR) )
-
-     QMAKE_EXTRA_UNIX_TARGETS += sharedso
-     POST_TARGETDEPS          += $$sharedso.target
-     QMAKE_CLEAN              += $$sharedso.target
   }
 }

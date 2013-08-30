@@ -1,7 +1,7 @@
-// @(#)root/gui:$Name:  $:$Id: TQtPatternSelect.cxx,v 1.5 2012/06/11 14:20:57 fisyak Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtPatternSelect.cxx,v 1.6 2013/08/30 16:00:24 perev Exp $
 // Author: Valeri Fine  21/05/2004
 /****************************************************************************
-** $Id: TQtPatternSelect.cxx,v 1.5 2012/06/11 14:20:57 fisyak Exp $
+** $Id: TQtPatternSelect.cxx,v 1.6 2013/08/30 16:00:24 perev Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -30,11 +30,10 @@
 #include "TQtPatternSelectButton.h"
 #include "TQtEvent.h"
 #include "TQtApplication.h"
-#include <qapplication.h>
+#include <QApplication>
 //Added by qt3to4:
 #include <QEvent>
-#include "Riostream.h"
-using namespace std;
+
 ClassImp(TQtPatternSelect)
 //______________________________________________________________________________
 TQtPatternSelect::TQtPatternSelect(QWidget *p,  Style_t pattern, Int_t id )
@@ -95,13 +94,13 @@ void    TQtPatternSelect::SetPattern(Style_t style)
 {if (fPatternSelector) fPatternSelector->SetStyle(style); }
 
 //______________________________________________________________________________
-void TQtPatternSelect::SavePrimitive(ofstream & out , Option_t *opt)
+void TQtPatternSelect::SavePrimitive(std::ofstream & out , Option_t *opt)
 {
    // To make code forward backward compatible with the different ROOT versions
-   SavePrimitive(*(ostream *)&out, opt);
+   SavePrimitive(*(std::ostream *)&out, opt);
 }
 //______________________________________________________________________________
-void TQtPatternSelect::SavePrimitive(ostream & /*out*/ , Option_t *)
+void TQtPatternSelect::SavePrimitive(std::ostream & /*out*/ , Option_t *)
 {
     // Save a color select widget as a C++ statement(s) on output stream out
 
@@ -133,6 +132,6 @@ bool TQtPatternSelect::event(QEvent *e)
     if (e->type() < QEvent::User) return FALSE;
     ((TQtEvent *)e)->ExecuteCB();
   }
-  return TRUE;
+  return true;
 }
 

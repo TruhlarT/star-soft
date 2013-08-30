@@ -1,7 +1,7 @@
-/* @(#)root/win32:$Name:  $:$Id: LinkDef.h,v 1.3 2009/08/03 18:03:08 fine Exp $ */
+/* @(#)root/win32:$Name:  $:$Id: LinkDef.h,v 1.4 2013/08/30 16:00:19 perev Exp $ */
 
 /****************************************************************************
-** $Id: LinkDef.h,v 1.3 2009/08/03 18:03:08 fine Exp $
+** $Id: LinkDef.h,v 1.4 2013/08/30 16:00:19 perev Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.

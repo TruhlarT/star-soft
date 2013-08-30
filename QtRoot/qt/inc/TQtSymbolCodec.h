@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: TQtSymbolCodec.h,v 1.5 2010/05/10 22:51:26 fine Exp $
+** $Id: TQtSymbolCodec.h,v 1.6 2013/08/30 15:59:50 perev Exp $
 **
 ** Implementation of QTextCodec class
 **

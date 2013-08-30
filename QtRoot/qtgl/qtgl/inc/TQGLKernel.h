@@ -1,4 +1,4 @@
-// @(#)root/gl:$Name:  $:$Id: TQGLKernel.h,v 1.7 2009/08/03 18:03:07 fine Exp $
+// @(#)root/gl:$Name:  $:$Id: TQGLKernel.h,v 1.8 2013/08/30 16:00:17 perev Exp $
 // Author: Valery Fine(fine@vxcern.cern.ch)   05/03/97
 
 /*************************************************************************

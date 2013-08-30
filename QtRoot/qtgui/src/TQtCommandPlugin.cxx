@@ -1,16 +1,16 @@
-// @(#)root/gui:$Id: TQtCommandPlugin.cxx,v 1.1 2010/05/19 22:36:38 fine Exp $
+// @(#)root/gui:$Id: TQtCommandPlugin.cxx,v 1.2 2013/08/30 16:00:23 perev Exp $
 // Author: Bertrand Bellenot   26/09/2007
 #include "TQtCommandPlugin.h"
 #include "ui_TQtRootCommand.h"
 
-#include <QtGui/QLineEdit>
-#include <QtGui/QPalette> 
+#include <QLineEdit>
+#include <QPalette> 
 
-#include <QtCore/QFile>
-#include <QtCore/QDir>
-#include <QtCore/QTextStream>
-#include <QtCore/QString>
-#include <QtCore/QTimer>
+#include <QFile>
+#include <QDir>
+#include <QTextStream>
+#include <QString>
+#include <QTimer>
 
 #include "TQtWidget.h"
 
@@ -103,15 +103,15 @@ void TQtCommandPlugin::HandleCommand()
       if (app->InheritsFrom("TRint"))
          sPrompt = ((TRint*)gROOT->GetApplication())->GetPrompt();
       if (fTempFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-         fTempFile.write(QString("%1%2\n").arg(sPrompt).arg(string).toAscii());
+         fTempFile.write(QString("%1%2\n").arg(sPrompt).arg(string).toLatin1());
          fTempFile.close();
       }
       QApplication::setOverrideCursor (Qt::BusyCursor);
-      gSystem->RedirectOutput(fTempFile.fileName().toAscii().data(), "a");
+      gSystem->RedirectOutput(fTempFile.fileName().toLatin1().data(), "a");
       gApplication->SetBit(TApplication::kProcessRemotely);
-      gROOT->ProcessLine(string.toAscii().data());
+      gROOT->ProcessLine(string.toLatin1().data());
       if (app->InheritsFrom("TRint"))
-         Gl_histadd((char *)string.toAscii().data());
+         Gl_histadd((char *)string.toLatin1().data());
       gSystem->RedirectOutput(0);      
       if (fTempFile.open(QIODevice::ReadOnly)) {
             fUi->fStatus->appendPlainText(fTempFile.readAll());

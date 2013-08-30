@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasImp.h,v 1.7 2009/08/03 18:03:08 fine Exp $
+** $Id: TQtCanvasImp.h,v 1.8 2013/08/30 16:00:20 perev Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -22,7 +22,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 
-#include <qobject.h>
+#include <QObject>
 #include <QVector>
 #include <QMap>
 #include <QPixmap>

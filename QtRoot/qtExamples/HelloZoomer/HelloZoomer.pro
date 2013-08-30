@@ -7,8 +7,7 @@ win32: CONFIG += console
 DEPENDPATH += .
 INCLUDEPATH += .
 
-QMAKE_RPATH=
-
+QMAKE_LFLAGS_RPATH=
 # Input
 TARGET = HelloZoomer
 HEADERS += PixmapWidget.h

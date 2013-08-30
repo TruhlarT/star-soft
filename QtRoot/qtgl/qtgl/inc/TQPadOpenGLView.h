@@ -1,4 +1,4 @@
-// @(#)root/g3d:$Name:  $:$Id: TQPadOpenGLView.h,v 1.5 2009/08/03 18:03:07 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQPadOpenGLView.h,v 1.6 2013/08/30 16:00:17 perev Exp $
 // Author: Valery Fine(fine@vxcern.cern.ch)   08/05/97
 
 /*************************************************************************

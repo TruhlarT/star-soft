@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtPad2Html.cxx,v 1.5 2009/08/03 18:03:10 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtPad2Html.cxx,v 1.6 2013/08/30 16:00:24 perev Exp $
 // Author: Valeri Fine 07/06/2006
 /****************************************************************************
 **
@@ -12,23 +12,14 @@
 *****************************************************************************/
 
 #include "TQtPad2Html.h"
-#if QT_VERSION >= 0x40000
-//Added by qt3to4:
-#  include <QTextStream>
-#  include <QFileInfo>
-#  include <QFile>
-#  include <QPixmap>
-#  include <QDir>
-#  include <QIODevice>
-#  include <QDebug>
-#  include <QString>
-#else
-#  include <qtextstream.h>
-#  include <qfileinfo.h> 
-#  include <qfile.h>
-#  include <qpixmap.h>
-#  include <qdir.h> 
-#endif /* QT_VERSION */
+#include <QTextStream>
+#include <QFileInfo>
+#include <QFile>
+#include <QPixmap>
+#include <QDir>
+#include <QIODevice>
+#include <QDebug>
+#include <QString>
 
 
 #include "TVirtualPad.h"
@@ -180,7 +171,7 @@ const QString &TQtPad2Html::PadHtmlFile(TVirtualPad *pad, const char *name)
          fileName +=  ".html";
          *fFullHtmlName = folder + fileName;
       }
-      fprintf(stderr," Create Web page: %s\n", fFullHtmlName->toAscii().data());
+      fprintf(stderr," Create Web page: %s\n", fFullHtmlName->toLatin1().data());
    }
    return *fFullHtmlName;
 }

@@ -1,5 +1,5 @@
 # Create the Qt4 aware version of qtRoot package
-# $Id: QtRootQt3to4.csh,v 1.3 2009/08/03 18:03:08 fine Exp $
+# $Id: QtRootQt3to4.csh,v 1.4 2013/08/30 16:00:19 perev Exp $
 # Create the custom customQ3porting.xml
 cat >q3porting.xml <<Q3PORTING
 <?xml version="1.0" encoding="UTF-8"?>

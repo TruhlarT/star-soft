@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObject3DViewFactory.cxx,v 1.10 2009/08/03 18:03:07 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObject3DViewFactory.cxx,v 1.11 2013/08/30 16:00:18 perev Exp $
 // Author: Valery Fine      24/04/05
 
 /****************************************************************************

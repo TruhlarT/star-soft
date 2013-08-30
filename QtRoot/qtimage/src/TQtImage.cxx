@@ -1,4 +1,4 @@
-// @(#)root/asimage:$Name:  $:$Id: TQtImage.cxx,v 1.4 2009/08/03 18:03:11 fine Exp $
+// $Id: TQtImage.cxx,v 1.5 2013/08/30 16:00:27 perev Exp $
 // Author: Valeri Fine   2/02/2004
 
 /*************************************************************************
@@ -37,9 +37,12 @@
 #include "TPluginManager.h"
 
 #include "TGQt.h"
-#include <qimage.h>
-#include <qcolor.h>
-#include <qfileinfo.h> 
+#include <QImage>
+#include <QColor>
+#include <QFileInfo>
+#include <QDebug>
+#include <QPainter>
+#include <QPixmap>
 
 #include "TROOT.h"
 #include "TSystem.h"
@@ -142,9 +145,9 @@ TQtImage &TQtImage::operator=(const TQtImage &img)
    if (this != &img && img.IsValid()) {
       TImage::operator=(img);
       if (fImage) delete fImage;
-
       fImage = new QImage(*img.fImage);
       delete fScaledImage; fScaledImage = 0;
+      if  ( img.fScaledImage ) fScaledImage = new TQtImage(*img.fScaledImage);
 
       fZoomUpdate = kTRUE;
       fZoomOffX   = img.fZoomOffX;
@@ -166,6 +169,8 @@ void TQtImage::DestroyImage()
     
     QPixmap *tmpPix = fPixmapBuffer; fPixmapBuffer = 0;
     delete tmpPix;
+    
+    ResetZoom();
 }
 
 //______________________________________________________________________________
@@ -175,10 +180,23 @@ TQtImage::~TQtImage()
     DestroyImage();
 }
 //______________________________________________________________________________
-TObject *TQtImage::Clone(const char *) const
+TObject *TQtImage::Clone(const char *newname) const
 { 
-   fprintf(stderr," TQtImage::Clone can not clone yet :-(. Sorry !\n");
-   return 0;
+   // Clone image.
+   if ( !fImage ) {
+      Warning("Clone", "Image not initiated");
+      return 0;
+   }
+
+   TQtImage *im = (TQtImage*)TImage::Create();
+
+   if (!im) {
+      Warning("Clone", "Failed to create image");
+      return 0;
+   }
+   *im = *this;
+   im->SetName(newname);
+   return im;
 }
 //______________________________________________________________________________
 void TQtImage::ReadImage(const char *file, EImageFileTypes /*type*/)
@@ -191,15 +209,9 @@ void TQtImage::ReadImage(const char *file, EImageFileTypes /*type*/)
    // off. On success this extension will be used to load subimage from
    // the file with that number. Subimage is supported only for GIF files.
 
-   if (fImage)       delete fImage;       fImage = 0;
-   if (fScaledImage) delete fScaledImage; fScaledImage = 0;
+   if (fImage)  { delete fImage;  fImage = 0; }
    fImage = new QImage(file);
-
-   fZoomUpdate = kFALSE;
-   fZoomOffX   = 0;
-   fZoomOffY   = 0;
-   fZoomWidth  = fImage->width();
-   fZoomHeight = fImage->height();
+   ResetZoom();
 
    SetName(file);
 }
@@ -225,12 +237,7 @@ void TQtImage::WriteImage(const char *file, EImageFileTypes type)
       return;
    }
 
-   QString outFormat = 
-#if QT_VERSION < 0x40000
-      QFileInfo(file).extension(FALSE).upper();   
-#else
-      QFileInfo(file).suffix().toUpper();   
-#endif
+   QString outFormat =  QFileInfo(file).suffix().toUpper();   
    if (type == kUnknown) 
       outFormat = TGQt::QtFileFormat(outFormat);
    
@@ -241,11 +248,7 @@ void TQtImage::WriteImage(const char *file, EImageFileTypes type)
    UInt_t aquality;
    EImageQuality quality = GetImageQuality();
    MapQuality(quality, aquality);
-#if QT_VERSION < 0x40000
-   if (!fImage->save(file,outFormat,quality))
-#else
-   if (!fImage->save(file,outFormat.toAscii().constData(),quality))
-#endif
+   if (!fImage->save(file,outFormat.toLatin1().constData(),quality))
        Error("WriteImage", "error writing file %s", file);
 }
 //______________________________________________________________________________
@@ -318,6 +321,18 @@ void TQtImage::MapQuality(EImageQuality &quality, UInt_t &asquality, Bool_t toas
          quality = kImgBest;
    }
 }
+//______________________________________________________________________________
+void  TQtImage::ResetZoom() 
+{
+  // Reset the zoom members
+   if (fScaledImage) {  delete fScaledImage; fScaledImage = 0;}
+   
+   fZoomUpdate = kFALSE;
+   fZoomOffX   = 0;
+   fZoomOffY   = 0;
+   fZoomWidth  = GetWidth();
+   fZoomHeight = GetHeight();
+}
 
 //______________________________________________________________________________
 void TQtImage::SetImage(const Double_t *imageData, UInt_t width, UInt_t height,
@@ -347,40 +362,17 @@ void TQtImage::SetImage(const Double_t *imageData, UInt_t width, UInt_t height,
    // QtVectorPalette asPalette;
    Int_t nColors = pal.fNumPoints;
    Int_t                                 depth =  1; // bpp
-#if (QT_VERSION < 0x040000)
-   if ( 1 < nColors  &&  nColors <=256 ) depth =  8; // bpp
-   // else if (nColors <= 16)             depth = 16; // bpp
-   else                                  depth = 32; // bpp
-   fImage =  new QImage();
-   QImage &image = *fImage;
-   if (!image.create(width,height,depth,nColors)) {
-      delete fImage; fImage =0;
-      Error("SetImage", "error error creating image. Wrong combination of parameters: width=%d height=%d depth=%d nColors=%d",
-         width,height,depth,nColors);
-      return;
-   }
-#else
    QImage::Format format                        = QImage::Format_Mono;     // bpp
    if ( 1 < nColors  &&  nColors <=256 ) format = QImage::Format_Indexed8; // bpp
    else                                  format = QImage::Format_RGB32 ;   // bpp
    fImage =  new QImage(width,height,format);
    QImage &image = *fImage;
-#endif      
 
    // Fill the color table;
    depth = image.depth ();
-#if (QT_VERSION < 0x040000)
-   QRgb *
-#else
-   QVector<QRgb>       
-#endif   
-         qPalette =  image.colorTable ();   
+   QVector<QRgb>  qPalette =  image.colorTable ();   
    
-#if (QT_VERSION < 0x040000)
-   if (!qPalette) 
-#else
    if (qPalette.empty()) 
-#endif            
       return;
    Int_t col;
    for (col = 0; col < nColors; col++) {
@@ -393,11 +385,7 @@ void TQtImage::SetImage(const Double_t *imageData, UInt_t width, UInt_t height,
    if (depth == 1) {
       for (x =0; x< width;x++) {
          for (y =0; y< height; y++) {
-#if (QT_VERSION < 0x040000)
-            if ( image.bitOrder() == QImage::LittleEndian )
-#else
             if ( image.format() == QImage::Format_MonoLSB )
-#endif            
                *(image.scanLine(y) + (x >> 3)) |= 
                    int(((*(imageData++))-fMinValue) / (fMaxValue - fMinValue)) << (x & 7);
             else
@@ -422,12 +410,7 @@ void TQtImage::SetImage(const Double_t *imageData, UInt_t width, UInt_t height,
             *p = qPalette[int(pal.fNumPoints * ((*(imageData++))-fMinValue) / (fMaxValue - fMinValue))];
       }   }
    }
-   
-   fZoomUpdate = kFALSE;
-   fZoomOffX   = 0;
-   fZoomOffY   = 0;
-   fZoomWidth  = width;
-   fZoomHeight = height;
+   ResetZoom();
 }
 
 //______________________________________________________________________________
@@ -468,12 +451,9 @@ void  TQtImage::SetImage(Pixmap_t pxm, Pixmap_t /*mask*/)
    SetName("unknown");
    if (pxm) {
        QPixmap &thisPix = *(QPixmap *)TGQt::iwid(pxm);
-#if (QT_VERSION < 0x040000)
-       fImage = new QImage(thisPix.convertToImage ());
-#else
        fImage = new QImage(thisPix.toImage ());
-#endif
    }
+   ResetZoom();
 }
 //______________________________________________________________________________
 void  TQtImage::SetImage(const QImage &img)
@@ -481,6 +461,7 @@ void  TQtImage::SetImage(const QImage &img)
    DestroyImage();
    SetName("unknown");
    fImage = new QImage(img);
+   ResetZoom();
 }
 //______________________________________________________________________________
 void  TQtImage::SetImage(QImage *img)
@@ -488,6 +469,7 @@ void  TQtImage::SetImage(QImage *img)
    DestroyImage();
    SetName("unknown");
    fImage = img;
+   ResetZoom();
 }
 //______________________________________________________________________________
 void TQtImage::FromPad(TVirtualPad *pad, Int_t x, Int_t y, UInt_t w, UInt_t h)
@@ -510,14 +492,8 @@ void TQtImage::FromPad(TVirtualPad *pad, Int_t x, Int_t y, UInt_t w, UInt_t h)
 
    QPixmap *pix = (QPixmap *)TGQt::iwid(pad->GetPixmapID());
    if (pix) {
-#if (QT_VERSION < 0x040000)
-      QPixmap tmpPx((int)w,(int)h,-1);
-      bitBlt( (QPaintDevice *)&tmpPx, 0,0,pix,x,y,int(w),int(h),Qt::CopyROP) ;  // igno   QPainter paint(
-      fImage = new QImage(tmpPx.convertToImage ());
-#else
       QPixmap tmpPx = pix->copy(x,y,int(w),int(h));
       fImage = new QImage(tmpPx.toImage());
-#endif
    }
 }
 
@@ -624,7 +600,7 @@ void TQtImage::Paint(Option_t *option)
       ASGradient grad;
       const TImagePalette &pal = GetPalette();
 
-      grad_im = new Qimage(UInt_t(0.3 * pal_w), to_h - 20,32,pal.fNumPoints);
+      grad_im = new QImage(UInt_t(0.3 * pal_w), to_h - 20,32,pal.fNumPoints);
       grad.npoints = pal.fNumPoints;
       grad.type    = GRADIENT_Top2Bottom;
       grad.color   = new ARGB32[grad.npoints];
@@ -665,21 +641,13 @@ void TQtImage::Paint(Option_t *option)
                              new QImage( 
                                           (fImage->copy(fZoomOffX,
                                                        fImage->height() - fZoomHeight - fZoomOffY,
-#if (QT_VERSION < 0x040000)
-                                                       fZoomWidth,fZoomHeight)).scale(to_w, to_h)
-#else
                                                        fZoomWidth,fZoomHeight)).scaled(to_w, to_h)
-#endif
                                         );
                delete fScaledImage; 
                fScaledImage = new TQtImage(); fScaledImage->SetImage(scaledImg);
             } else {
                // scale image, no zooming
-#if (QT_VERSION < 0x040000)
-                QImage *scaledImg = new QImage(fImage->scale(to_w, to_h));
-#else
                 QImage *scaledImg = new QImage(fImage->scaled(to_w, to_h));
-#endif                
                 delete fScaledImage; 
                 fScaledImage = new TQtImage(); fScaledImage->SetImage(scaledImg);
            }
@@ -699,11 +667,7 @@ void TQtImage::Paint(Option_t *option)
    if (tile) {
       delete fScaledImage; fScaledImage = 0;
       QPainter tile(&pxmap);
-#if (QT_VERSION < 0x040000)                     
-      QPixmap pxImage(*fImage);
-#else
       QPixmap pxImage = QPixmap::fromImage(*fImage);
-#endif
       tile.drawTiledPixmap(0,0,to_w,to_h,pxImage);
    } else {
       QPainter normal(&pxmap);
@@ -1014,12 +978,7 @@ void TQtImage::Scale(UInt_t toWidth, UInt_t toHeight)
       if (toHeight <  1   ) toHeight = 1;
       if (toWidth  > 30000) toWidth  = 30000;
       if (toHeight > 30000) toHeight = 30000;
-      QImage *img = new QImage
-#if (QT_VERSION < 0x040000) 
-                    (fImage->smoothScale( toWidth, toHeight ));
-#else
-       (fImage->scaled( QSize(toWidth, toHeight )));
-#endif
+      QImage *img = new QImage(fImage->scaled( QSize(toWidth, toHeight )));
       delete fImage;
       delete fScaledImage; fScaledImage = 0;
 
@@ -1062,11 +1021,8 @@ void TQtImage::UnZoom()
    // Un-zooms the image to original size.
 
    if (IsValid()) {
+      ResetZoom();
       fZoomUpdate = kTRUE;
-      fZoomOffX   = 0;
-      fZoomOffY   = 0;
-      fZoomWidth  = fImage->width();
-      fZoomHeight = fImage->height();
       gPad->Modified(kTRUE);
       gPad->Update();
    }
@@ -1085,13 +1041,8 @@ void TQtImage::Flip(Int_t flip)
    // destroyed.
 
   if (IsValid() ) {
-#if (QT_VERSION < 0x040000)
-      QWMatrix flipMatrix;  flipMatrix.rotate(flip);
-      QImage *img = new QImage(fImage->xForm(flipMatrix));
-#else
       QMatrix flipMatrix;  flipMatrix.rotate(flip);
       QImage *img = new QImage(fImage->transformed(flipMatrix));
-#endif
 
       delete fImage;          fImage        = 0;
       delete fScaledImage;    fScaledImage  = 0;
@@ -1118,11 +1069,7 @@ void TQtImage::Mirror(Bool_t vert)
    if (IsValid() ) {
       delete fScaledImage; fScaledImage = 0;
       QImage *mirror = new QImage
-#if (QT_VERSION < 0x040000)
-         (fImage->mirror(!vert,vert));
-#else
          (fImage->mirrored(!vert,vert));
-#endif
       delete fImage;
       fImage = mirror;
       gPad->Modified(kTRUE);
@@ -1162,14 +1109,48 @@ void TQtImage::StartPaletteEditor()
                (TQtPaletteEditor *) h->ExecPlugin(3, (TAttImage *)this, 80, 25);
          }
       }
-
    }
 }
 
 //______________________________________________________________________________
-void  TQtImage::Tile(UInt_t /*width*/, UInt_t /*height*/){}
+void  TQtImage::Tile(UInt_t toWidth, UInt_t toHeight){
+ // Tile the original image.
+
+   if (!IsValid()) {
+      Warning("Tile", "Image not initiated");
+      return;
+   }
+
+   if (toWidth < 1)
+       toWidth = 1;
+   if (toHeight < 1 )
+      toHeight = 1;
+   if (toWidth > 30000)
+      toWidth = 30000;
+   if (toHeight > 30000)
+      toHeight = 30000;
+   QPixmap px = QPixmap::fromImage(*fImage);
+   fImage->fill(0);
+   QPixmap img(toWidth, toHeight);
+   QPainter p(&img);
+   p.drawTiledPixmap (0,0, toWidth, toHeight,px); 
+   p.end();   
+   DestroyImage();
+   fImage = new QImage(img.toImage());
+   ResetZoom();
+  // UnZoom();
+   //fZoomUpdate = kZoomOps;
+}
+
 //______________________________________________________________________________
-void  TQtImage::Crop(Int_t /*x*/ , Int_t /*y*/, UInt_t /*width*/ , UInt_t /*height*/) {}
+void  TQtImage::Crop(Int_t x , Int_t y, UInt_t width , UInt_t height) {
+   if (fImage  && (x || y || width != GetWidth() || height != GetHeight() ) ) {
+      QImage  *q = new QImage(fImage->copy (x, y, width, height ));
+      DestroyImage();
+      fImage = q;
+   }
+   ResetZoom();
+}
 
 //  To do 25 June 2005
 //______________________________________________________________________________
@@ -1187,11 +1168,7 @@ Pixmap_t  TQtImage::GetPixmap()
    if (img) {
       gVirtualX->CreatePixmap(0,GetWidth(),GetHeight());
       QPixmap &thisPix = *(QPixmap *)TGQt::iwid(pixmap);
-#if (QT_VERSION < 0x040000)
-      thisPix.convertFromImage(*img);
-#else
       thisPix = QPixmap::fromImage(*img);
-#endif
    }
    return pixmap; 
 }
@@ -1205,18 +1182,145 @@ Pixmap_t  TQtImage::GetMask()
       gVirtualX->CreatePixmap(0,GetWidth(),GetHeight());
       QPixmap &thisPix = *(QPixmap *)TGQt::iwid(pixmap);
       // QImage mask = img->
-#if (QT_VERSION < 0x040000)
-      thisPix.convertFromImage(*img);
-#else
       thisPix = QPixmap::fromImage(*img);
-#endif
    }
    return pixmap;
 }
 
+//______________________________________________________________________________
+TArrayD *TQtImage::GetArray(UInt_t w, UInt_t h, TImagePalette *palette)
+{
+   // In case of vectorized image return an associated array of doubles
+   // otherwise this method creates and returns a 2D array of doubles corresponding to palette.
+   // If palette is ZERO a color converted to double value [0, 1] according to formula
+   //   Double_t((r << 16) + (g << 8) + b)/0xFFFFFF
+   // The returned array must be deleted after usage.
+
+   if (!fImage) {
+      Warning("GetArray", "Bad Image");
+      return 0;
+   }
+
+   TArrayD *ret;
+#if 0
+   if (fImage->alt.vector) {
+      ret = new TArrayD(fImage->width*fImage->height, fImage->alt.vector);
+      return ret;
+   }
+   ASImageDecoder *imdec;
+#endif
+
+   w = w ? w : GetWidth();
+   h = h ? h : GetHeight();
+
+   if ((GetWidth() != w) || (GetHeight() != h)) {
+      Scale(w, h);
+   }
+
+   QImage *img = fScaledImage ? fScaledImage->fImage : fImage;
+#if 0
+   if ((imdec = start_image_decoding(0, img, SCL_DO_ALL, 0, 0,
+                                     img->width, 0, 0)) == 0) {
+      Warning("GetArray", "Failed to create image decoder");
+      return 0;
+   }
+#endif
+
+   ret = new TArrayD(w * h);
+   int r = 0;
+   int g = 0;
+   int b = 0;
+   Int_t p = 0;
+   Double_t v = 0;
+
+   for (UInt_t k = 0; k < h; k++) {
+      for (UInt_t i = 0; i < w; ++i)  {
+         QRgb pixel =  img->pixel(k,w);
+         r = qRed(pixel);
+         g = qGreen(pixel);
+         b = qBlue(pixel);
+         if (palette) p = palette->FindColor(r, g, b);
+         v = palette ? palette->fPoints[p] : Double_t((r << 16) + (g << 8) + b)/0xFFFFFF;
+         ret->AddAt(v, (h-k-1)*w + i);
+      }
+   }
+   return ret;
+}
+
 #if 0
    TArrayL  *GetPixels(Int_t /*x*/= 0, Int_t /*y*/= 0, UInt_t /*w*/ = 0, UInt_t /*h*/ = 0) { return 0; }
-   TArrayD  *GetArray(UInt_t /*w*/ = 0, UInt_t /*h*/ = 0, TImagePalette * = gWebImagePalette) { return 0; }
+   //______________________________________________________________________________
+TArrayL *TASImage::GetPixels(Int_t x, Int_t y, UInt_t width, UInt_t height)
+{
+   // Return 2D array of machine dependent pixel values.
+
+   if (!fImage) {
+      Warning("GetPixels", "Wrong Image");
+      return 0;
+   }
+
+   ASImage *img =  fScaledImage ? fScaledImage->fImage : fImage;
+   ASImageDecoder *imdec;
+
+   width = !width  ? img->width : width;
+   height = !height ? img->height : height;
+
+   if (x < 0) {
+      width -= x;
+      x = 0 ;
+   }
+   if (y < 0) {
+      height -= y;
+      y = 0;
+   }
+
+   if ((x >= (int)img->width) || (y >= (int)img->height)) {
+      return 0;
+   }
+
+   if ((int)(x + width) > (int)img->width) {
+      width = img->width - x;
+   }
+
+   if ((int)(y + height) > (int)img->height) {
+      height = img->height - y;
+   }
+
+   if ((imdec = start_image_decoding(0, fImage, SCL_DO_ALL, 0, y,
+                                     img->width, height, 0)) == 0) {
+      Warning("GetPixels", "Failed to create image decoder");
+      return 0;
+   }
+
+   TArrayL *ret = new TArrayL(width * height);
+   Int_t r = 0;
+   Int_t g = 0;
+   Int_t b = 0;
+   Long_t p = 0;
+
+   for (UInt_t k = 0; k < height; k++) {
+      imdec->decode_image_scanline(imdec);
+
+      for (UInt_t i = 0; i < width; ++i)  {
+         if ((r == (Int_t)imdec->buffer.red[i]) &&
+             (g == (Int_t)imdec->buffer.green[i]) &&
+             (b == (Int_t)imdec->buffer.blue[i])) {
+         } else {
+            r = (Int_t)imdec->buffer.red[i];
+            g = (Int_t)imdec->buffer.green[i];
+            b = (Int_t)imdec->buffer.blue[i];
+            p = (Long_t)TColor::RGB2Pixel(r, g, b);
+         }
+         ret->AddAt(p, k*width + i);
+      }
+   }
+
+   stop_image_decoding(&imdec);
+   return ret;
+}
+#endif
+#if 0
+
    UInt_t   *GetArgbArray() { return 0; }
    UInt_t   *GetScanline(UInt_t /*y*/) { return 0; }
 

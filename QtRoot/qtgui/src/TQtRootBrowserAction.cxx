@@ -1,6 +1,6 @@
 // Author: Valeri Fine  08/03/2003
 /****************************************************************************
-** $Id: TQtRootBrowserAction.cxx,v 1.4 2009/08/03 18:03:10 fine Exp $
+** $Id: TQtRootBrowserAction.cxx,v 1.5 2013/08/30 16:00:25 perev Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -27,7 +27,7 @@
 #include "TApplication.h"
 #include "TPad.h"
 
-#include <qapplication.h>
+#include <QApplication>
 
 TQtRootBrowserAction *TQtRootBrowserAction::gfRootBrowserAction = 0;
 //______________________________________________________________________________

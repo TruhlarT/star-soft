@@ -1,4 +1,4 @@
-# $Id: Module.mk,v 1.6 2010/05/19 22:36:37 fine Exp $
+# $Id: Module.mk,v 1.7 2013/08/30 16:00:18 perev Exp $
 # Module.mk for qtgui module
 # Copyright (c) 2001 Valeri Fine
 #
@@ -7,7 +7,9 @@
 .SUFFIXES:       .ui
 
 MODNAME          := qtgui
-QTUICEXE         := $(dir $(QTMOCEXE))/uic
+QTUICEXE         := $(QTMOCEXE:/moc=/uic)
+
+#MODDIR           := $(ROOT_SRCDIR)/$(MODNAME)
 MODDIR           := $(MODNAME)
 MODDIRS          := $(MODDIR)/src
 MODDIRI          := $(MODDIR)/inc
@@ -20,8 +22,8 @@ QT4              :=  $(findstring QtCore, $(QTINCDIR))
 
 ##### libQtGui #####
 QTGUIL          := $(MODDIRI)/LinkDef.h
-QTGUIDS         := $(MODDIRS)/G__QtGUI.cxx
-QTGUIDO         := $(QTGUIDS:.cxx=.o)
+QTGUIDS         := $(call stripsrc,$(MODDIRS)/G__QtGUI.cxx)
+QTGUIDO         := $(call stripsrc,$(QTGUIDS:.cxx=.o))
 QTGUIDH         := $(QTGUIDS:.cxx=.h)
 
 # QTH1         := $(MODDIRI)/TGWin32.h $(MODDIRI)/TQtGuiFactory.h
@@ -48,6 +50,7 @@ QTGUIMOCH     := TQtBrowserImp.h          TQtCanvasImp.h         \
                  TQtMarkerSelectButton.h  TQtStyleComboBox.h     \
                  TQtFloatSlider.h         TQtRootCommandCombo.h  \
                  qtcolorpicker.h          TQtColorPickerHelper.h \
+                 TQtTextEditor.h                                 \
                  qtmmlwidget.h            TQtCommandPlugin.h
 					  
                  
@@ -56,7 +59,7 @@ QTGUIMOCH        := $(patsubst %,$(MODDIRI)/%,$(QTGUIMOCH))
 #                 $(ROOTQTGUIDIRI)/TQGsiRootCanvas.h   
 
 QTGUISOLUTIONH  := $(ROOTQTGUIDIRI)/QtMmlWidget $(ROOTQTGUIDIRI)/QtColorPicker  $(ROOTQTGUIDIRI)/QtMmlDocument
-QTGUIMOC        := $(subst $(MODDIRI)/,$(MODDIRS)/moc_,$(patsubst %.h,%.cxx,$(QTGUIMOCH)))
+QTGUIMOC        :=  $(call stripsrc,$(subst $(MODDIRI)/,$(MODDIRS)/moc_,$(patsubst %.h,%.cxx,$(QTGUIMOCH))))
 QTGUIMOCO       := $(QTGUIMOC:.cxx=.o)
 
 QTGUIS          := $(filter-out $(MODDIRS)/moc_%,$(filter-out $(MODDIRS)/G__%,$(wildcard $(MODDIRS)/*.cxx)))
@@ -91,19 +94,21 @@ include/%.h:    $(ROOTQTGUIDIRI)/%.h
 		      
 #include/Qt%.:    $(ROOTQTGUIDIRI)/Qt%.
 #		cp $< $@
-      
-$(QTGUILIB):    $(QTGUIO) $(QTGUIDO) $(QTGUIMOCO)  $(ORDER_) $(MAINLIBS) $(QTGUILIBDEP)  $(QTGUISOLUTIONH)
+$(QTGUIO):  $(ROOTQTGUIDIRS)/ui_TQtRootCommand.h
+
+$(QTGUILIB):    $(QTGUIO) $(QTGUIDO) $(QTGUIMOCO)  $(ORDER_) $(MAINLIBS) $(QTGUILIBDEP)  $(QTGUISOLUTIONH) 
 		@$(MAKELIB) $(PLATFORM) $(LD) "$(LDFLAGS)" \
-		   "$(SOFLAGS)" libQtRootGui.$(SOEXT) $@       \
+		   "$(SOFLAGS)" libQtRootGui.$(SOEXT) $@   \
 		   "$(QTGUIO) $(QTGUIMOCO) $(QTGUIDO)"     \
-		   "$(QTGUILIBEXTRA)" 
+		   " $(QTLIBDIR) $(QTGUILIBEXTRA) $(QTLIB) " 
 
 $(QTGUIDS):     $(QTGUIH1) $(QTGUIL) $(ROOTCINTTMPDEP)
+		$(MAKEDIR)
 		@echo "Generating dictionary $@..."
-		$(ROOTCINTTMP) -f $@ -c $(QTGUIH1) $(QTGUIL)
+		$(ROOTCINTTMP) -f $@ -c  $(GQTCXXFLAGS) $(QTGUIH1) $(QTGUIL)
 
 $(QTGUIMAP):     $(RLIBMAP) $(MAKEFILEDEP) $(QTGUIL)
-		$(RLIBMAP) -o $(QTGUIMAP) -l $(QTGUILIB) \
+		$(RLIBMAP) -o $@ -l $(QTGUILIB) \
 		   -d $(QTGUILIBDEPM) -c $(QTGUIL)
 
 all-$(MODNAME):      $(QTGUILIB) $(QTGUIMAP)
@@ -119,10 +124,12 @@ show-$(MODNAME):
 		@echo "QTGUIDO    $(QTGUIDO)" 
 		@echo "QTGUIMOC   $(QTGUIMOC)" 
 		@echo "QTGUIMOCO  $(QTGUIMOCO)"
+		@echo "QTGUIDEP   $(QTGUIDEP)"
 		@echo .
 		@echo "ROOTCINTTMPDEP  $(ROOTCINTTMPDEP)"
 		@echo "ROOTCINTTMP  $(ROOTCINTTMP)"
-		
+		@echo "QTGUILIBEXTRA  $(QTGUILIBEXTRA)"
+
 
 distclean-$(MODNAME): clean-$(MODNAME) 
 		@rm -f $(QTGUIDEP) $(QTGUIDS) $(QTGUIDH) $(QTGUILIB)
@@ -132,17 +139,24 @@ distclean::     distclean-$(MODNAME)
 ##### extra rules ######
 $(sort $(QTGUIMOCO) $(QTGUIO)):  CXXFLAGS += $(GQTCXXFLAGS)
 $(QTGUIDO):	 CXXFLAGS += $(GQTCXXFLAGS)
+ifeq ($(GCC_MAJOR),4)
+ifeq ($(subst $(GCC_MINOR),,0 1),0 1)
+# GCC >= 4.2
+$(GQTO): CXXFLAGS += -Wno-strict-overflow
+endif
+endif
 
-$(ROOTQTGUIDIRS)/TQtCommandPlugin.cxx :  $(ROOTQTGUIDIRS)/ui_TQtRootCommand.h
+$(ROOTQTGUIDIRS)/TQtCommandPlugin.o :  $(ROOTQTGUIDIRS)/ui_TQtRootCommand.h
 
 $(ROOTQTGUIDIRS)/ui_TQtRootCommand.h:  $(ROOTQTGUIDIRS)/TQtRootCommand.ui
 
-$(QTGUIMOC) : $(ROOTQTGUIDIRS)/moc_%.cxx: $(ROOTQTGUIDIRI)/%.h
+$(QTGUIMOC) :  $(call stripsrc,$(ROOTQTGUIDIRS)/moc_%.cxx): $(ROOTQTGUIDIRI)/%.h
+	$(MAKEDIR)
 ifeq (,$(QT4))
 	$(QTMOCEXE)  $< -o $@
 else
 	$(QTMOCEXE)  $(QTGUICXXFLAGS) $< -o $@
 endif
 
-ui_%.h: %.ui
+$(ROOTQTGUIDIRS)/ui_%.h: $(ROOTQTGUIDIRS)/%.ui
 		$(QTUICEXE)  $< -o $@

@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: GQtGUI.cxx,v 1.21 2010/09/20 15:56:09 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: GQtGUI.cxx,v 1.22 2013/08/30 15:59:51 perev Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -10,7 +10,7 @@
  * For the list of contributors see $ROOTSYS/README/CREDITS.             *
  *************************************************************************/
 
-#include <assert.h>
+#include <cassert>
 #include "TGQt.h"
 #include "TQUserEvent.h"
 #include "TQtClientFilter.h"
@@ -24,46 +24,40 @@
 #include "TROOT.h"
 #include "TEnv.h"
 
-#include <qapplication.h>
-#include <qcursor.h>
-#include <qpixmap.h>
-#include <qbitmap.h>
-#include <qregion.h>
-#include <qclipboard.h>
+#include <QApplication>
+#include <QCursor>
+#include <QPixmap>
+#include <QBitmap>
+#include <QRegion>
+#include <QClipboard>
 
-#if QT_VERSION < 0x40000
-#  include <qpaintdevicemetrics.h>
-#  include <qobjectlist.h>
-#  include <qcstring.h>
-#else /* QT_VERSION */
-#  include <QByteArray>
-#  include <QBoxLayout>
-#  include <QKeyEvent>
-#  include <QEvent>
-#  include <QList>
-#  include <QVBoxLayout>
-#  include <QPolygon>
-#  include <QDesktopWidget>
-#  include <QDebug>
-#  include <QPalette>
-#  include <QColormap>
-#  include <QIcon>
-#  include <QSize>
-#  include <QImage>
-#  include <QLine>
-#  include <QVector>
+#include <QByteArray>
+#include <QBoxLayout>
+#include <QKeyEvent>
+#include <QEvent>
+#include <QList>
+#include <QVBoxLayout>
+#include <QPolygon>
+#include <QDesktopWidget>
+#include <QDebug>
+#include <QPalette>
+#include <QColormap>
+#include <QIcon>
+#include <QSize>
+#include <QImage>
+#include <QLine>
+#include <QVector>
 #ifdef R__QTX11
 #  include <QX11Info>
 #endif
-#endif /* QT_VERSION */
 
-#include <qfontmetrics.h>
-#include <qpoint.h>
-#include <qpainter.h>
+#include <QFontMetrics>
+#include <QPoint>
+#include <QPainter>
 
-#include <qlayout.h>
-#include <qdatetime.h>
-#include <qtextcodec.h>
+#include <QLayout>
+#include <QDateTime>
+#include <QTextCodec>
 
 #include "TMath.h"
 #include "TQtBrush.h"
@@ -101,11 +95,7 @@ class QtGContext : public QWidget {
    friend class TQtPainter;
 protected:
    Mask_t       fMask;       // mask the active values
-#if QT_VERSION < 0x40000
-   Qt::RasterOp fROp;        // raster operation
-#else /* QT_VERSION */
    QPainter::CompositionMode  fROp;   // composition mode
-#endif /* QT_VERSION */
    QPen         fPen;        // line styles
    QBrush       fBrush;      // fill styles
    QPixmap     *fTilePixmap; // tile pixmap for tiling operations
@@ -121,9 +111,9 @@ public:
                  , kFont
                  , kAllFields
                  };
-   QtGContext() : QWidget(0) ,fMask(0),fBrush(Qt::SolidPattern), fTilePixmap(0),fStipple(0),fClipMask(0),fFont(0) {}
-   QtGContext(const GCValues_t &gval) : QWidget(0) ,fMask(0),fTilePixmap(0),fStipple(0),fClipMask(0),fFont(0){Copy(gval);}
-   QtGContext(const QtGContext & /*src*/)  : QWidget() {fprintf(stderr,"QtGContext(const QtGContext &src)\n");}
+   QtGContext() : QWidget(0) ,fMask(0),fROp(),fPen(),fBrush(Qt::SolidPattern), fTilePixmap(0),fStipple(0),fClipMask(0),fFont(0) {}
+   QtGContext(const GCValues_t &gval) : QWidget(0) ,fMask(0),fROp(), fPen(), fBrush(),fTilePixmap(0),fStipple(0),fClipMask(0),fFont(0) {Copy(gval);}
+   QtGContext(const QtGContext & /*src*/)  : QWidget() {fprintf(stderr,"%s","QtGContext(const QtGContext &src)\n");}
    void              Copy(const QtGContext &dst,Mask_t rootMask = 0xff);
    const QtGContext &Copy(const GCValues_t &gval);
    void              DumpMask() const;
@@ -196,11 +186,7 @@ QColor TGQt::QtColor(ULong_t pixel)
       _NAME2_(f,member) = dst._NAME2_(f,member);                              \
    }
 //______________________________________________________________________________
-#if QT_VERSION < 0x40000
-void DumpROp(Qt::RasterOp op) {
-#else /* QT_VERSION */
 void DumpROp(QPainter::CompositionMode op) {
-#endif /* QT_VERSION */
    // Dump QT Raster Operation Code
    QString s;
    switch (op) {
@@ -358,24 +344,15 @@ const QtGContext  &QtGContext::Copy(const GCValues_t &gval)
       case 0: // to make VC++ compiler happy
 #endif /* not QT_VERSION */
       default:
-#if QT_VERSION < 0x40000
-	      fROp = Qt::CopyROP;
-	      break;
-#else /* QT_VERSION */
         fROp = QPainter::CompositionMode_Source; //Qt::CopyROP;
         break;
-#endif /* QT_VERSION */
       }
       // DumpROp(fROp);
 //      fprintf(stderr," kGCFunction: fROp = %x\n",fROp );
    } else {
         // Fons said this must be like this. 4/07/2003 Valeri Fine
         SETBIT(fMask, kROp);
-#if QT_VERSION < 0x40000
-	fROp = Qt::CopyROP;
-#else /* QT_VERSION */
-	fROp = QPainter::CompositionMode_Source; // Qt::CopyROP;
-#endif /* QT_VERSION */
+        fROp = QPainter::CompositionMode_Source; // Qt::CopyROP;
    };
 
    if (rootMask & kGCSubwindowMode) {
@@ -506,14 +483,9 @@ void   QtGContext::SetBackground(ULong_t background)
     // reset the context background color
     SETBIT(fMask,kBrush);
     QColor bg = QtColor(background);
-#if QT_VERSION < 0x40000    
-    setPaletteBackgroundColor(bg);
-    setEraseColor(bg);
-#else    
     QPalette pp=palette();
     pp.setColor(QPalette::Window,bg);
     setPalette(pp);
-#endif 
 }
 //______________________________________________________________________________
 void   QtGContext::SetForeground(ULong_t foreground)
@@ -535,23 +507,14 @@ void   QtGContext::SetForeground(ULong_t foreground)
 //
 class TQtPainter : public QPainter {
 public:
-#if QT_VERSION < 0x40000
-   TQtPainter(const QPaintDevice * pd,const QtGContext &rootContext, Mask_t rootMask=0xff,bool unclipped = FALSE):
-      QPainter(pd,unclipped){
-#else /* QT_VERSION */
-   TQtPainter(QPaintDevice * pd,const QtGContext &rootContext, Mask_t rootMask=0xff,bool unclipped = FALSE):
+   TQtPainter(QPaintDevice * pd,const QtGContext &rootContext, Mask_t rootMask=0xff,bool unclipped = kFALSE):
       QPainter(pd){
          setClipping(!unclipped);
-#endif /* QT_VERSION */
          if (rootMask){}
          if (rootContext.HasValid(QtGContext::kROp)) {
-#if QT_VERSION < 0x40000
-            setRasterOp (rootContext.fROp);
-#else /* QT_VERSION */
 //           if (device()->devType() !=  QInternal::Widget ) 
            if (pd->devType() ==  QInternal::Image ) 
                setCompositionMode(rootContext.fROp);
-#endif /* QT_VERSION */
          }
          if (rootContext.HasValid(QtGContext::kPen)) {
             setPen(rootContext.fPen);
@@ -602,10 +565,10 @@ bool TQtGrabPointerFilter::eventFilter( QObject *, QEvent *e)
       // special processing for key press
       QKeyEvent *k = (QKeyEvent *)e;
       qDebug( "Ate key press %d", k->key() );
-      return TRUE; // eat event
+      return kTRUE; // eat event
    }
    // standard event processing
-   return FALSE;
+   return kFALSE;
 }
 //______________________________________________________________________________
 class TXlfd {
@@ -646,7 +609,7 @@ class TXlfd {
       if (fontSlant != "*" ) 
          fIsFontItalic = ((fontSlant[0] == 'i') || (fontSlant[0] == 'o')) ? 1 : 0;
       
-      bool ok;
+      bool ok=false;
       QString fontPointSize = fontName.section('-',8,8);
       if (fontPointSize != "*") 
         fPointSize = fontPointSize.toInt(&ok);
@@ -677,7 +640,7 @@ class TXlfd {
        Int_t pixelSize = -1;
        fPointSize = pointSize;
        if (fPointSize > 0) {
-          QFont sizeFont( fFontFamily, fPointSize, QFont::Normal, FALSE );
+          QFont sizeFont( fFontFamily, fPointSize, QFont::Normal, kFALSE );
           pixelSize = sizeFont.pixelSize();
        }
        return pixelSize;
@@ -988,7 +951,7 @@ void         TGQt::MapSubwindows(Window_t id)
       // while ( (widget = *next) )
       Bool_t updateUnable;
       if ( (updateUnable = wid(id)->updatesEnabled()) && nChild >0 )
-            wid(id)->setUpdatesEnabled(FALSE);
+            wid(id)->setUpdatesEnabled(kFALSE);
       next.toBack();
       while (next.hasPrevious())
       {
@@ -1005,7 +968,7 @@ void         TGQt::MapSubwindows(Window_t id)
          }
       }
       if (updateUnable  && nChild >0 )
-           wid(id)->setUpdatesEnabled(TRUE);
+           wid(id)->setUpdatesEnabled(kTRUE);
    }
 }
 //______________________________________________________________________________
@@ -1024,7 +987,7 @@ void         TGQt::MapRaised(Window_t id)
    QWidget *wg = wid(id);
    Bool_t updateUnable;
    if ( (updateUnable = wg->updatesEnabled()) )
-            wg->setUpdatesEnabled(FALSE);
+            wg->setUpdatesEnabled(kFALSE);
    RaiseWindow(id);
    MapWindow(id);
    do {
@@ -1033,7 +996,7 @@ void         TGQt::MapRaised(Window_t id)
       wg = wg->parentWidget();
    }  while ( wg && (!wg->isVisible()) );
    if (updateUnable)
-       wid(id)->setUpdatesEnabled(TRUE);
+       wid(id)->setUpdatesEnabled(kTRUE);
 
    if (wid(id)->isTopLevel()) {
       // fprintf(stderr, "   TGQt::MapRaised top level id = %p \n", id);
@@ -1229,7 +1192,7 @@ void         TGQt::SetWindowBackground(Window_t id, ULong_t color)
    // Set the window background color.
    if (id == kNone || id == kDefault ) return;
    TQtClientWidget *wd =  dynamic_cast<TQtClientWidget*>(wid(id));
-   wd->setEraseColor(QtColor(color));
+   if (wd) wd->setEraseColor(QtColor(color));
 }
 //______________________________________________________________________________
 void         TGQt::SetWindowBackgroundPixmap(Window_t id, Pixmap_t pxm)
@@ -1237,7 +1200,7 @@ void         TGQt::SetWindowBackgroundPixmap(Window_t id, Pixmap_t pxm)
    // Set pixmap as window background.
    if (pxm  != kNone && id != kNone && id != kDefault ) {
       TQtClientWidget *wd =  dynamic_cast<TQtClientWidget*>(wid(id));
-      wd->setErasePixmap (*fQPixmapGuard.Pixmap(pxm));
+      if (wd) wd->setErasePixmap (*fQPixmapGuard.Pixmap(pxm));
    }
  }
 //______________________________________________________________________________
@@ -1257,21 +1220,6 @@ Window_t TGQt::CreateWindow(Window_t parent, Int_t x, Int_t y,
       // Alas ROOT design does require us to do the dirt thing
    if (        wtype & kTransientFrame) {
       win =  fQClientGuard.Create(pWidget,"TransientFrame");
-#if QT_VERSION < 0x40000
-      win->setFrameShape(QFrame::Box);      //  xattr.window_type = GDK_WINDOW_DIALOG;
-   }  else if (wtype & kMainFrame)  {
-      win =  fQClientGuard.Create(pWidget,"MainFrame"); //,Qt::WDestructiveClose);
-      win->setFrameShape(QFrame::WinPanel); // xattr.window_type   = GDK_WINDOW_TOPLEVEL;
-   }  else if (wtype & kTempFrame) {
-      win =  fQClientGuard.Create(pWidget,"tooltip", Qt::WStyle_StaysOnTop | Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WStyle_Tool | Qt::WX11BypassWM );
-      win->setFrameStyle(QFrame::PopupPanel | QFrame::Plain);
-   } else {
-      win =  fQClientGuard.Create(pWidget,"Other", Qt::WStyle_StaysOnTop | Qt::WStyle_Customize | Qt::WX11BypassWM | (wtype & kOwnBackground ? Qt::WNoAutoErase : 0));
-      if (!pWidget) {
-           win->setFrameStyle( QFrame::PopupPanel | QFrame::Plain );
-//         printf(" 2 TGQt::CreateWindow %p parent = %p \n", win,pWidget);
-      }
-#else
       win->setFrameShape(QFrame::Box);      //  xattr.window_type = GDK_WINDOW_DIALOG;
    }  else if (wtype & kMainFrame)  {
       win =  fQClientGuard.Create(pWidget,"MainFrame"); //,Qt::WDestructiveClose);
@@ -1283,9 +1231,7 @@ Window_t TGQt::CreateWindow(Window_t parent, Int_t x, Int_t y,
             | Qt::X11BypassWindowManagerHint
             | Qt::FramelessWindowHint
             | Qt::WindowStaysOnTopHint );
-#if QT_VERSION >= 0x040400
       win->setAttribute(Qt::WA_X11NetWmWindowTypeToolTip);
-#endif
       win->setFrameStyle(QFrame::Box | QFrame::Plain);
    } else {
       win =  fQClientGuard.Create(pWidget,"Other"
@@ -1295,7 +1241,6 @@ Window_t TGQt::CreateWindow(Window_t parent, Int_t x, Int_t y,
          win->setFrameStyle(QFrame::WinPanel | QFrame::Plain);
        //   printf(" TGQt::CreateWindow %p parent = %p \n", win,pWidget);
       }
-#endif
   }
 
   //  fprintf(stderr," TQt::CreateWindow %p parent = %p  %s \n", win,pWidget,(const char*)win->name());
@@ -1465,7 +1410,7 @@ FontStruct_t TGQt::LoadQueryFont(const char *font_name)
    bool italic = (fontName.section('-',4,4)[0] == 'i');
 
 
-   bool ok;
+   bool ok=false;
    int fontSize=12;
    int fontPointSize   = fontName.section('-',8,8).toInt(&ok);
    if (ok) fontSize = fontPointSize;
@@ -1827,11 +1772,7 @@ void         TGQt::ChangeWindowAttributes(Window_t id, SetWindowAttributes_t *at
    if ( attr->fMask & kWABorderPixel) {
       // ULong_t    fBorderPixel;          // border pixel value
        // f.setFrameShape( QFrame::PopupPanel );
-#if QT_VERSION < 0x40000
-       f.setFrameStyle( QFrame::Box | QFrame::Plain );
-#else /* QT_VERSION */
        f.setFrameStyle( QFrame::Box );
-#endif /* QT_VERSION */
        // printf("TGQt::ChangeWindowAttributes  kWABorderPixel %p name = %s; shape = %d; margin = %d width=%d \n",&f,(const char*)f.name(),f.frameShape(),f.margin(),f.lineWidth() );
    }
    if ( attr->fMask & kWABorderWidth) {
@@ -1893,18 +1834,16 @@ void         TGQt::ClearArea(Window_t id, Int_t x, Int_t y, UInt_t w, UInt_t h)
    QPainter paint(iwid(id));  
    paint.setBackgroundMode( Qt::OpaqueMode); // Qt::TransparentMode
    TQtClientWidget *wd =  dynamic_cast<TQtClientWidget*>(wid(id));
+   if (!wd) {
+      qDebug() << "TGQt::ClearArea: ***   wd = 0";
+      return;
+   }
    const QColor  *c = 0;
    const QPixmap *p = 0;
-#if QT_VERSION < 0x50000
    c = wd ? wd->fEraseColor  : 0;
    p = wd ? wd->fErasePixmap : 0;
    const QColor  &cr = *c;
    const QPixmap &pr = *p;
-#else
-   const QColor  &cr = wd ? wd->palette().color(QPalette::Window) : *c;
-   c = wd ? &cr : 0;
-   const QPixmap &pr = *p;
-#endif
    if (int(w) <=0) {
       qDebug() << "TGQt::ClearArea: ***   wrong client are size: " << w <<" : " << Int_t(w);
       return;
@@ -1935,7 +1874,7 @@ void         TGQt::SendEvent(Window_t id, Event_t *ev)
 {
    // Send event ev to window id.
 
-   if ( (ev->fType  == kClientMessage || ev->fType  == kDestroyNotify) && ev &&  id != kNone )
+   if ( ev && (ev->fType  == kClientMessage || ev->fType  == kDestroyNotify)  &&  id != kNone )
    {
       TQUserEvent qEvent(*ev);
       static TQtClientWidget *gMessageDispatcherWidget = 0;
@@ -1955,7 +1894,7 @@ void         TGQt::SendEvent(Window_t id, Event_t *ev)
 
       // fprintf(stderr, "  TGQt::SendEvent(Window_t id, Event_t *ev) %p type=%d\n", wid(id), ev->fType);
       QApplication::postEvent(receiver,new TQUserEvent(*ev));
-   } else {
+   } else if (ev) {
       fprintf(stderr,"TQt::SendEvent:: unknown event %d for widget: %p\n",ev->fType,wid(id));
    }
 }
@@ -2102,32 +2041,32 @@ void  TGQt::Warp(Int_t ix, Int_t iy, Window_t id) {
     // Sets decoration style.
     // Set decoration style for MWM-compatible wm (mwm, ncdwm, fvwm?).
 //---- MWM hints stuff
-// These constants werer broowed from TGFrame.h to avoid circular depemdency.
-// The right place for them is sopmewhere in "base" (guitype.h for example)
-enum EMWMHints {
-   // functions
-   kMWMFuncAll      = BIT(0),
-   kMWMFuncResize   = BIT(1),
-   kMWMFuncMove     = BIT(2),
-   kMWMFuncMinimize = BIT(3),
-   kMWMFuncMaximize = BIT(4),
-   kMWMFuncClose    = BIT(5),
+    // These constants were borrowed from TGFrame.h to avoid circular dependency.
+    // The right place for them is somewhere in "base" (guitype.h for example)
+// enum EMWMHints {
+   // // functions
+   // kMWMFuncAll      = BIT(0),
+   // kMWMFuncResize   = BIT(1),
+   // kMWMFuncMove     = BIT(2),
+   // kMWMFuncMinimize = BIT(3),
+   // kMWMFuncMaximize = BIT(4),
+   // kMWMFuncClose    = BIT(5),
 
-   // input mode
-   kMWMInputModeless                = 0,
-   kMWMInputPrimaryApplicationModal = 1,
-   kMWMInputSystemModal             = 2,
-   kMWMInputFullApplicationModal    = 3,
+   ////input mode
+   // kMWMInputModeless                = 0,
+   // kMWMInputPrimaryApplicationModal = 1,
+   // kMWMInputSystemModal             = 2,
+   // kMWMInputFullApplicationModal    = 3,
 
-   // decorations
-   kMWMDecorAll      = BIT(0),
-   kMWMDecorBorder   = BIT(1),
-   kMWMDecorResizeH  = BIT(2),
-   kMWMDecorTitle    = BIT(3),
-   kMWMDecorMenu     = BIT(4),
-   kMWMDecorMinimize = BIT(5),
-   kMWMDecorMaximize = BIT(6)
-};
+  //// decorations
+   // kMWMDecorAll      = BIT(0),
+   // kMWMDecorBorder   = BIT(1),
+   // kMWMDecorResizeH  = BIT(2),
+   // kMWMDecorTitle    = BIT(3),
+   // kMWMDecorMenu     = BIT(4),
+   // kMWMDecorMinimize = BIT(5),
+   // kMWMDecorMaximize = BIT(6)
+// };
 
    //MWMHintsProperty_t prop;
 
@@ -2238,12 +2177,7 @@ Int_t TGQt::TextWidth(FontStruct_t font, const char *s, Int_t len)
    Int_t textWidth = 0;
    if (len >0 && s && s[0] != 0 ) {
       QFontMetrics metric(*(QFont *)font);
-      char* str = new char[len+1];
-      memset(str,0,len+1);
-      strncpy(str,s,len);
-      QString qstr = strncpy(str,s,len);
-      delete [] str;
-      textWidth = metric.width(qstr,len);
+      textWidth = metric.width(QString::fromLatin1(s,len),len);
       // fprintf(stderr," TGQt::TextWidth  %d %d <%s> \n", textWidth, len, (const char *)qstr);
    }
    return textWidth;
@@ -2282,16 +2216,10 @@ void         TGQt::ClearWindow(Window_t id)
    TQtClientWidget *wd =  dynamic_cast<TQtClientWidget*>(wid(id));
    const QColor  *c = 0;
    const QPixmap *p = 0;
-#if QT_VERSION < 0x50000
    c = wd ? wd->fEraseColor  : 0;
    p = wd ? wd->fErasePixmap : 0;
    const QColor  &cr = *c;
    const QPixmap &pr = *p;
-#else
-   const QColor  &cr = wd ? wd->palette().color(QPalette::Window) : *c;
-   c = wd ? &cr : 0;
-   const QPixmap &pr = *p;
-#endif      
    if (p && c ) 
       paint.fillRect(wd->rect(),QBrush(cr,pr));
    else if (p)
@@ -2360,6 +2288,7 @@ static inline Int_t MapKeySym(int key, bool toQt=true)
            return   UInt_t(gKeyQMap[i].fQKeySym);
         }
       } else {
+        // coverity[mixed_enums]: ignore
         if (key ==  gKeyQMap[i].fQKeySym) {
            return   UInt_t(gKeyQMap[i].fKeySym);
         }
@@ -3324,3 +3253,27 @@ Bool_t TGQt::IsDNDAware(Window_t, Atom_t *)
 
       
 
+//---- OpenGL related stuff, required only with R__HAS_COCOA ----
+//______________________________________________________________________________
+Double_t  TGQt::GetOpenGLScalingFactor() {return 0;}
+//______________________________________________________________________________
+Window_t  TGQt::CreateOpenGLWindow(Window_t /*parentID*/, UInt_t /*width*/, UInt_t /*height*/, const std::vector<std::pair<UInt_t, Int_t> > &/*format*/)
+{ return 0; }
+//______________________________________________________________________________
+Handle_t  TGQt::CreateOpenGLContext(Window_t /*windowID*/, Handle_t /*sharedContext*/)
+{ return 0;}
+//______________________________________________________________________________
+Bool_t    TGQt::MakeOpenGLContextCurrent(Handle_t /*ctx*/, Window_t /*windowID*/)
+{ return 0; }
+//______________________________________________________________________________
+Handle_t  TGQt::GetCurrentOpenGLContext()
+{ return 0;} 
+//______________________________________________________________________________
+void     TGQt::FlushOpenGLBuffer(Handle_t /*ctx*/) {}
+
+//______________________________________________________________________________
+ void  TGQt::Sync(Int_t mode){if(mode) {} }
+//______________________________________________________________________________
+ void  TGQt::DispatchClientMessage(UInt_t /*messageID*/){}
+//______________________________________________________________________________
+ void   TGQt::BeginModalSessionFor(Window_t /*window*/){}

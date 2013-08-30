@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtInspectImp.cxx,v 1.10 2009/10/27 22:40:02 fine Exp $
+** $Id: TQtInspectImp.cxx,v 1.11 2013/08/30 16:00:24 perev Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -107,7 +107,7 @@ void TQtInspectWidget::CreateInspector(const TObject *obj)
 
   // Enable the sorting
   verticalHeader()->hide();
-  setSortingEnabled(TRUE);
+  setSortingEnabled(true);
 
 }
 

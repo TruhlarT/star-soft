@@ -1,7 +1,7 @@
-// @(#)root/qt:$Id: TGQt.cxx,v 1.40 2010/09/20 15:56:09 fine Exp $
+// @(#)root/qt:$Id: TGQt.cxx,v 1.41 2013/08/30 15:59:51 perev Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.40 2010/09/20 15:56:09 fine Exp $
+** $Id: TGQt.cxx,v 1.41 2013/08/30 15:59:51 perev Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -42,16 +42,16 @@
 #include <QPicture>
 #include <QDebug>
 
-#include <qpixmap.h>
-#include <qcursor.h>
-#include <qdesktopwidget.h>
-#include <qimage.h>
-#include <qfontmetrics.h>
-#include <qdialog.h>
-#include <qlineedit.h>
-#include <qfileinfo.h>
-#include <qtextcodec.h>
-#include <qdir.h>
+#include <QPixmap>
+#include <QCursor>
+#include <QDesktopWidget>
+#include <QImage>
+#include <QFontMetrics>
+#include <QDialog>
+#include <QLineEdit>
+#include <QFileInfo>
+#include <QTextCodec>
+#include <QDir>
 
 #include "TROOT.h"
 #include "TMath.h"
@@ -332,7 +332,7 @@ inline bool TQtPainter::begin ( TGQt *dev, unsigned int useFeedBack)
 {
   // Activate return  the "feedback" painter 
   bool res = false;
-  if (dev && (dev->fSelectedWindow != NoOperation)) {
+  if (dev && dev->fSelectedWindow && (dev->fSelectedWindow != NoOperation)) {
      fVirtualX = dev;
      QPaintDevice *src= 0;
      if ( (useFeedBack & kUseFeedBack) && dev->fFeedBackMode
@@ -349,7 +349,7 @@ inline bool TQtPainter::begin ( TGQt *dev, unsigned int useFeedBack)
         }
      }
      if (!(res= QPainter::begin(src)) ) {
-        Error("TGQt::Begin()","Can not create Qt painter for win=%lp dev=%lp\n",src);
+        Error("TGQt::Begin()","Can not create Qt painter for win=0x%lx dev=0x%lx\n",(Long_t)src,(Long_t)dev);
         assert(0);
      } else {
         dev->fQPainter = (TQtPainter*)-1;
@@ -361,7 +361,7 @@ inline bool TQtPainter::begin ( TGQt *dev, unsigned int useFeedBack)
         if (it != (dev->fClipMap).end())  {
            clipRect = it.value();
            setClipRect(clipRect);
-           setClipping(TRUE);
+           setClipping(kTRUE);
         }
         if (src->devType() ==  QInternal::Image )
                  setCompositionMode(dev->fDrawMode);
@@ -375,22 +375,21 @@ inline bool TQtPainter::begin ( TGQt *dev, unsigned int useFeedBack)
 //______________________________________________________________________________
 class TQtEventInputHandler : public TTimer {
 protected: // singleton
-   TQtEventInputHandler() : TTimer(340) {  }
+   TQtEventInputHandler() : TTimer(240) {  }
    static TQtEventInputHandler *gfQtEventInputHandler;
 public:
 
    static TQtEventInputHandler *Instance() {
      if (!gfQtEventInputHandler)
        gfQtEventInputHandler =  new  TQtEventInputHandler();
-       gfQtEventInputHandler->Start(240);
+       gfQtEventInputHandler->Start(-1,kTRUE);
        return gfQtEventInputHandler;
    }
    Bool_t Notify()     {
-      Timeout();       // emit Timeout() signal
-      Bool_t ret = gQt->processQtEvents();
-      Start(240);
-      Reset();
-      return  ret;
+      TTimer::Notify();
+      gQt->processQtEvents();
+      Start(-1,kTRUE);
+      return  kTRUE;
    }
    Bool_t ReadNotify() { return Notify(); }
 };
@@ -481,7 +480,8 @@ protected:
         fFreeWindowsIdStack.push(Id);
         if (fIDMax == Id) SetMaxId(--fIDMax);
      }
-     return device;
+     //return device; this was a huge bug
+     return 0;
    }
    //______________________________________________________________________________
    inline const QPaintDevice *ReplaceById(Int_t Id, QPaintDevice *newDev)
@@ -602,7 +602,7 @@ QWidget      *TGQt::wid(Window_t id)
 //______________________________________________________________________________
 void TGQt::PrintEvent(Event_t &ev)
 {
-   // Dump trhe ROOT Event_t structure to debug the code
+   // Dump the ROOT Event_t structure to debug the code
 
    //EGEventType fType;              // of event (see EGEventTypes)
    //Window_t    fWindow;            // window reported event is relative to
@@ -755,7 +755,7 @@ QString TGQt::QtFileFormat(const QString &selector)
       // a special treatment of the "gif" format.
       // If "gif" is not provided with the local Qt installation
       // replace "gif" format with "png" one
-      // -- if (saveType.isEmpty() && selector.contains("gif",FALSE)) saveType="PNG";
+      // -- if (saveType.isEmpty() && selector.contains("gif",kTRUE)) saveType="PNG";
    }
    return saveType;
 }
@@ -791,8 +791,9 @@ void TGQt::PostQtEvent(QObject *receiver, QEvent *event)
 }
 
 //______________________________________________________________________________
-TGQt::TGQt() : TVirtualX(),fDisplayOpened(kFALSE),fQPainter(0),fQClientFilterBuffer(0)
-,fCodec(0),fSymbolFontFamily("Symbol"),fQtEventHasBeenProcessed(0)
+TGQt::TGQt() : TVirtualX(),fDisplayOpened(kFALSE),fQPainter(0),fhEvent ()
+,fQBrush(),fQPen(),fQtMarker(),fQFont(),fQClientFilter(),fQClientFilterBuffer(0)
+,fPointerGrabber(),fCodec(0),fSymbolFontFamily("Symbol"),fQtEventHasBeenProcessed(0)
 ,fFeedBackMode(kFALSE),fFeedBackWidget(0),fBlockRGB(kFALSE),fUseTTF(kTRUE)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*Default Constructor *-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -800,12 +801,13 @@ TGQt::TGQt() : TVirtualX(),fDisplayOpened(kFALSE),fQPainter(0),fQClientFilterBuf
    assert(!fgTQt);
    fgTQt = this;
    gQt   = this;
+   gPtr2VirtualX = GetVirtualX;
    fSelectedWindow = fPrevWindow = NoOperation;
 }
 
 //______________________________________________________________________________
 TGQt::TGQt(const char *name, const char *title) : TVirtualX(name,title),fDisplayOpened(kFALSE)
-,fQPainter(0),fCursors(kNumCursors),fQClientFilter(0),fQClientFilterBuffer(0),fPointerGrabber(0)
+,fQPainter(0),fhEvent(),fCursors(kNumCursors),fQClientFilter(0),fQClientFilterBuffer(0),fPointerGrabber(0)
 ,fCodec(0),fSymbolFontFamily("Symbol"),fQtEventHasBeenProcessed(0)
 ,fFeedBackMode(kFALSE),fFeedBackWidget(0),fBlockRGB(kFALSE),fUseTTF(kTRUE)
 {
@@ -814,6 +816,7 @@ TGQt::TGQt(const char *name, const char *title) : TVirtualX(name,title),fDisplay
    assert(!fgTQt);
    fgTQt = this;
    gQt   = this;
+   gPtr2VirtualX = GetVirtualX;
    fSelectedWindow = fPrevWindow = NoOperation;
    CreateQtApplicationImp();
    Init();
@@ -827,7 +830,7 @@ TGQt::~TGQt()
    {  // critical section
       TQtLock lock;
       gVirtualX = gGXBatch;
-      gROOT->SetBatch();
+      ROOT::GetROOT()->SetBatch();
       // clear the color map
       QMap<Color_t,QColor*>::const_iterator it;
       for (it = fPallete.begin();it !=fPallete.end();++it) {
@@ -850,7 +853,7 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.40 2010/09/20 15:56:09 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.41 2013/08/30 15:59:51 perev Exp $ this=%p\n",this);
 #ifndef R__QTWIN32
    extern void qt_x11_set_global_double_buffer(bool);
 //   qt_x11_set_global_double_buffer(false);
@@ -877,7 +880,7 @@ Bool_t TGQt::Init(void* /*display*/)
    fMarkerStyle = -1;
 
    //
-   // Retrieve the applicaiton instance
+   // Retrieve the application instance
    //
 
    // --   fHInstance = GetModuleHandle(NULL);
@@ -982,7 +985,7 @@ Bool_t TGQt::Init(void* /*display*/)
         // create a custom codec
         new QSymbolCodec();
     }
-    if (symbolFontFound) TQtPadFont::SetSymbolFontFamily(fontFamily.toAscii().data());
+    if (symbolFontFound) TQtPadFont::SetSymbolFontFamily(fontFamily.toLatin1().data());
 #endif
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
        fUseTTF=gEnv->GetValue("Qt.Screen.TTF",kFALSE);
@@ -1019,7 +1022,7 @@ Bool_t TGQt::Init(void* /*display*/)
          QString libPath = gSystem->GetLinkedLibs();
          // detect the exact name of the Qt library
          TString qtlibdir= "$(QTDIR)";
-         qtlibdir += QDir::separator().toAscii();
+         qtlibdir += QDir::separator().toLatin1();
          qtlibdir += "lib";
 
          gSystem->ExpandPathName(qtlibdir);
@@ -1039,7 +1042,7 @@ Bool_t TGQt::Init(void* /*display*/)
 #else
                   libPath += "QtCore4.lib QtGui4.lib QtOpenGL4.lib Qt3Support4.lib";
 #endif
-               gSystem->SetLinkedLibs(libPath.toAscii().data());
+               gSystem->SetLinkedLibs(libPath.toLatin1().data());
             }
          } else {
             qWarning(" Can not open the QTDIR %s",(const char*)qtlibdir);
@@ -1112,7 +1115,7 @@ Int_t TGQt::InitWindow(ULong_t window)
 
  //     QWidget *parent = (window == kDefault) ? 0 : dynamic_cast<QWidget *>(iwid(window));
  //   QWidget *parent = (window == kDefault) ? 0 : (QWidget *)iwid(window);
-   wd = new TQtWidget(parent,"virtualx",Qt::FramelessWindowHint,FALSE);
+   wd = new TQtWidget(parent,"virtualx",Qt::FramelessWindowHint,kTRUE);
    wd->setCursor(*fCursors[kCross]);
    Int_t id = fWidgetArray->GetFreeId(wd);
    // The default mode is the double buffer mode
@@ -1146,7 +1149,7 @@ const QColor &TGQt::ColorIndex(Color_t ic) const
    } else {
       // Make sure the alpha channel was set properly
       // due lack of the TVirtualX interface to account it elsewhere
-      TColor *myColor = gROOT->GetColor(ic);
+      TColor *myColor = ROOT::GetROOT()->GetColor(ic);
       Float_t a = myColor->GetAlpha();
       colorBuffer = fPallete[ic];
       if (TMath::Abs(colorBuffer->alphaF() - a) > 0.01) {
@@ -1418,13 +1421,12 @@ void  TGQt::DrawCellArray(int x1, int y1, int x2, int y2, int nx, int ny, int *i
    TQtLock lock;
    if (fSelectedWindow)
    {
-      int i,j,icol,ix,w,h,current_icol,lh;
+      int i,j,icol,w,h,current_icol,lh;
 
       current_icol = -1;
       w            = TMath::Max((x2-x1)/(nx),1);
       h            = TMath::Max((y1-y2)/(ny),1);
       lh           = y1-y2;
-      ix           = x1;
 
       if (w+h == 2)
       {
@@ -1721,7 +1723,7 @@ const QTextCodec *TGQt::GetTextDecoder()
    static  QTextCodec  *fGreekCodec = 0;
    QTextCodec  *codec = 0;
    if (!fCodec) {
-      fCodec =  QTextCodec::codecForName(fFontTextCode.toAscii()); //CP1251
+      fCodec =  QTextCodec::codecForName(fFontTextCode.toLatin1()); //CP1251
       if (!fCodec)
          fCodec=QTextCodec::codecForLocale();
       else
@@ -1998,14 +2000,15 @@ void  TGQt::SelectWindow(int wd)
    // Don't select things twice
    QPaintDevice *dev = 0;
    if (wd == -1 || wd == (int) kNone) {
-       fSelectedWindow = NoOperation;
+      //  fSelectedWindow = NoOperation;
+       fSelectedWindow = 0;
       //return;
    } else {
+      if (fPrevWindow != fSelectedWindow)
+           fPrevWindow     = fSelectedWindow;
       dev = iwid(wd);
-      fSelectedWindow = dev ? dev : NoOperation;
+      fSelectedWindow = dev ? dev : 0;// NoOperation;
    }
-   if (fPrevWindow != fSelectedWindow) 
-      fPrevWindow     = fSelectedWindow;
 }
 
 //______________________________________________________________________________
@@ -2039,7 +2042,7 @@ void  TGQt::SetClipOFF(Int_t /*wd*/)
 {
    // Turn off the clipping for the window wd.
    // deprecated
-   // fQPainter->setClipping(FALSE);
+   // fQPainter->setClipping(kTRUE);
 }
 
 //______________________________________________________________________________
@@ -2077,7 +2080,7 @@ void  TGQt::SetDoubleBuffer(int wd, int mode)
    //        999 means all the opened windows.
    // mode : 1 double buffer is on
    //        0 double buffer is off
-   if (wd == -1 || wd == kDefault) return;
+   if (wd == -1 || wd == kDefault || wd==999) return;
    QPaintDevice *dev = iwid(wd);
    TQtWidget *widget = 0;
    if (dev && (widget = (TQtWidget *)IsWidget(dev) ))  {
@@ -2137,7 +2140,6 @@ void  TGQt::SetDrawMode(TVirtualX::EDrawMode mode)
 void  TGQt::SetFillColor(Color_t cindex)
 {
    // Set color index for fill areas.
-
    if (fFillColor != cindex )
       fQBrush->SetColor(fFillColor = UpdateColor(cindex));
 }
@@ -2500,15 +2502,13 @@ int  TGQt::UpdateColor(int cindex)
       //    if (cindex >= fPallete.size()) fPallete.resize(cindex+1);
       //    fPallete[cindex].setRgb((r*BIGGEST_RGB_VALUE)
       if (!fPallete.contains(cindex)) {
-         // qDebug() << "TGQt::UpdateRGB: Add the new index:" << cindex;
          fBlockRGB = kTRUE; // to eliminate a recursive setting via TGQt::SetRGB()
-         TColor *rootColor = gROOT->GetColor(cindex);
+         TColor *rootColor = ROOT::GetROOT()->GetColor(cindex);
          fBlockRGB = kFALSE;
          if (rootColor) {
              float r,g,b,a;
              rootColor->GetRGB(r,g,b);
              a= rootColor->GetAlpha();
-
              fPallete[cindex] =  new QColor(
                 int(r*BIGGEST_RGB_VALUE+0.5)
                ,int(g*BIGGEST_RGB_VALUE+0.5)
@@ -2830,7 +2830,7 @@ void  TGQt::WritePixmap(int wd, UInt_t w, UInt_t h, char *pxname)
          gErrorIgnoreLevel = saver;
       } else {
          if (plus>=0) fname = GetNewFileName(fname);
-         finalPixmap->save(fname,saveType.toAscii().data());
+         finalPixmap->save(fname,saveType.toLatin1().data());
       }
       delete finalPixmap;
    }

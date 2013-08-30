@@ -9,7 +9,8 @@ CONFIG += create_prl
 
 GQTDIRI   = ../qt/inc
 
-QMAKE_RPATH=
+QMAKE_LFLAGS_RPATH=
+macx: QMAKE_LFLAGS_SONAME = -Wl,-install_name,@rpath/
 
 TARGET = QtImage
 

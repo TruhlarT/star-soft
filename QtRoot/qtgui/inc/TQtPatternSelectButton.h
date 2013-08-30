@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtPatternSelectButton.h,v 1.6 2009/08/03 18:03:08 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtPatternSelectButton.h,v 1.7 2013/08/30 16:00:22 perev Exp $
 // Author: Bertrand Bellenot + Fons Rademakers   22/08/02
 
 /*************************************************************************
@@ -41,21 +41,15 @@
 #include "TQtBrush.h"
 #include "Gtypes.h"
 
-#include <qtoolbutton.h> 
+#include <QToolButton> 
 // #include <qpushbutton.h> 
-#if QT_VERSION < 0x40000
-#  include <qbuttongroup.h> 
-#  include <qvbox.h> 
-#  include <qframe.h>
-#else /* QT_VERSION */
 //MOC_SKIP_BEGIN
 #  include <QFrame>
 //MOC_SKIP_END
-#endif /* QT_VERSION */
-#include <qdialog.h> 
+#include <QDialog> 
 
-#include <qcolor.h>
-#include <qbrush.h>
+#include <QColor>
+#include <QBrush>
 
 
 class QToolButton;
@@ -116,10 +110,10 @@ protected:
    static TQtPatternPopup *fgBrushPopup;//  Pointer to the singletons
 
 protected:
-   TQtPatternPopup( QWidget *p, TQtBrush &color,const char *name=0, bool modal=FALSE, Qt::WFlags f=Qt::WStyle_Customize | Qt::WStyle_NoBorder|Qt::WStyle_StaysOnTop);
+   TQtPatternPopup( QWidget *p, TQtBrush &color,const char *name=0, bool modal=FALSE, Qt::WindowFlags f=Qt::WStyle_Customize | Qt::WStyle_NoBorder|Qt::WStyle_StaysOnTop);
 
 public:
-   static TQtPatternPopup *Create(QWidget *p, TQtBrush &pattern,const char *name=0, bool modal=FALSE, Qt::WFlags f=Qt::WStyle_Customize | Qt::WStyle_NoBorder|Qt::WStyle_StaysOnTop);            
+   static TQtPatternPopup *Create(QWidget *p, TQtBrush &pattern,const char *name=0, bool modal=FALSE, Qt::WindowFlags f=Qt::WStyle_Customize | Qt::WStyle_NoBorder|Qt::WStyle_StaysOnTop);            
    virtual ~TQtPatternPopup();
 
    const TQtBrush &Brush() const { return fCurrentBrush;}
@@ -158,7 +152,7 @@ protected:
 public:
    TQtPatternSelectButton(QWidget *p, UInt_t style, Int_t id=-1,TEmitRootSignal *emitter=0);
    TQtPatternSelectButton(QWidget *p, TQtBrush &pattern, Int_t id=-1,TEmitRootSignal *emitter=0);
-   TQtPatternSelectButton(QWidget *p, const char *name, Qt::WFlags f = Qt::WStyle_Customize | Qt::WStyle_NoBorder|Qt::WStyle_StaysOnTop);
+   TQtPatternSelectButton(QWidget *p, const char *name, Qt::WindowFlags f = Qt::WStyle_Customize | Qt::WStyle_NoBorder|Qt::WStyle_StaysOnTop);
    TQtPatternSelectButton(QWidget *p);
          
    virtual ~TQtPatternSelectButton();

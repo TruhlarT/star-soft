@@ -1,7 +1,7 @@
-// @(#)root/qt:$Id: TQtMarker.cxx,v 1.13 2010/05/10 22:51:26 fine Exp $
+// @(#)root/qt:$Id: TQtMarker.cxx,v 1.14 2013/08/30 15:59:51 perev Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtMarker.cxx,v 1.13 2010/05/10 22:51:26 fine Exp $
+** $Id: TQtMarker.cxx,v 1.14 2013/08/30 15:59:51 perev Exp $
 **
 ** $Copyright$
 **
@@ -15,9 +15,9 @@
 #include "TQtMarker.h"
 #include "TAttMarker.h"
 #include "TGQt.h"
-#include <QtGui/QPolygon>
-#include <QtGui/QPainter>
-#include <QtCore/QDebug>
+#include <QPolygon>
+#include <QPainter>
+#include <QDebug>
 
 
 ClassImp(TQtMarker)
@@ -64,7 +64,7 @@ void TQtMarker::SetMarkerAttributes(const TAttMarker& markerAttributes)
    // Map Qt marker  attributes to ROOT TAttMaker parameters
    fCindex     = markerAttributes.GetMarkerColor();
    SetPenAttributes(markerAttributes.GetMarkerStyle());
-  // to be done yet:  fNumNode    = markerAttributes.GetMarkerSize();
+   fNumNode    = markerAttributes.GetMarkerSize();
 }
 
 //______________________________________________________________________________

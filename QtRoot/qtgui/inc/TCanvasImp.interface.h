@@ -1,4 +1,4 @@
-// @(#)root/base:$Name:  $:$Id: TCanvasImp.interface.h,v 1.3 2009/08/03 18:03:08 fine Exp $
+// @(#)root/base:$Name:  $:$Id: TCanvasImp.interface.h,v 1.4 2013/08/30 16:00:19 perev Exp $
 // Author: Valeri Fine   25/05/2004
 
 //////////////////////////////////////////////////////////////////////////
@@ -42,10 +42,20 @@ protected:
    virtual void   Show();
    virtual void   ShowMenuBar(Bool_t show = kTRUE);
    virtual void   ShowStatusBar(Bool_t show = kTRUE);
+   virtual void   RaiseWindow(); 
    virtual void   ReallyDelete();
 
    virtual void   ShowEditor(Bool_t show = kTRUE);
-   virtual void   ShowToolBar(Bool_t show = kTRUE);
+   virtual void   ShowToolBar(Bool_t show = kTRUE);   
+   virtual void   ShowToolTips(Bool_t show = kTRUE);
+   
+   
+   virtual Bool_t HasEditor() const;
+   virtual Bool_t HasMenuBar() const;
+   virtual Bool_t HasStatusBar() const ;
+   virtual Bool_t HasToolBar() const;
+   virtual Bool_t HasToolTips() const;
+   
 
    // New methods 12.12.2005
    // void TCanvasImp::RaiseWindow() { ; }

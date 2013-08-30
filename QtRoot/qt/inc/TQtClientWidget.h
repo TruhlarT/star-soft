@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtClientWidget.h,v 1.9 2010/05/10 22:51:26 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtClientWidget.h,v 1.10 2013/08/30 15:59:49 perev Exp $
 /*************************************************************************
  * Copyright (C) 1995-2004, Rene Brun and Fons Rademakers.               *
  * Copyright (C) 2002 by Valeri Fine.                                    *
@@ -72,7 +72,7 @@ protected:
        friend class TQtClientGuard;
        friend class TGQt;
 #ifndef __CINT__
-      TQtClientWidget(TQtClientGuard *guard, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
+      TQtClientWidget(TQtClientGuard *guard, QWidget* parent=0, const char* name=0, Qt::WindowFlags f=0);
 #else
       TQtClientWidget(TQtClientGuard *guard, QWidget* parent=0, const char* name=0, WFlags f=0);
 #endif
@@ -86,8 +86,7 @@ public:
     virtual void setErasePixmap (const QPixmap &pixmap);
     bool   DeleteNotify();
     TQtWidget *GetCanvasWidget() const;
-    void   GrabEvent(Event_t &ev,bool own=TRUE);
-//    Q3Accel *HasAccel() const ;
+    void   GrabEvent(Event_t &ev,bool own=true);
     bool   IsClosing();
     bool   IsGrabbed       (Event_t &ev);
     bool   IsGrabPointerSelected(UInt_t evmask) const;
@@ -97,7 +96,7 @@ public:
     bool   IsGrabOwner()   { return fPointerOwner;}
     void   SetAttributeEventMask(UInt_t evmask);
     void   SetButtonMask   (UInt_t modifier=kAnyModifier,EMouseButton button=kAnyButton);
-    void   SetClosing(bool flag=kTRUE);
+    void   SetClosing(bool flag=true);
     void   SetCursor();
     void   SetCursor(Cursor_t cursor);
     void   SetDeleteNotify(bool flag=true);

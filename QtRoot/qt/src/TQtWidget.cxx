@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.30 2010/08/03 02:58:23 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.31 2013/08/30 15:59:52 perev Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -13,19 +13,16 @@
 // Definition of TQtWidget class
 // "double-buffere widget
 
-#include <qapplication.h>
+#include <QApplication>
 
-#if QT_VERSION >= 0x40000
-#  include <QFocusEvent>
-#  include <QPaintEvent>
-#  include <QKeyEvent>
-#  include <QShowEvent>
-#  include <QResizeEvent>
-#  include <QMouseEvent>
-#  include <QCustomEvent>
-#  include <QImage>
-#  include <QDebug>
-#endif /* QT_VERSION */
+#include <QFocusEvent>
+#include <QPaintEvent>
+#include <QKeyEvent>
+#include <QShowEvent>
+#include <QResizeEvent>
+#include <QMouseEvent>
+#include <QImage>
+#include <QDebug>
 
 #include "TQtWidget.h"
 #include "TQtTimer.h"
@@ -38,10 +35,10 @@
 #include "TGQt.h"
 #include "TCanvas.h"
 #include "Buttons.h"
-#include <qevent.h>
-#include <qpainter.h>
-#include <qpixmap.h>
-#include <qfileinfo.h>
+#include <QEvent>
+#include <QPainter>
+#include <QPixmap>
+#include <QFileInfo>
 
 #ifdef R__QTWIN32
 // #include "Windows4Root.h"
@@ -118,8 +115,10 @@ ClassImp(TQtWidget)
 //
 //  Public slots:  (Qt)
 //
-//   virtual void cd();  // make the associated TCanvas the current one (shortcut to TCanvas::cd())
-//   virtual void cd(int subpadnumber); // as above - shortcut to Canvas::cd(int subpadnumber)
+//   virtual TVirtualPad *cd();  // make the associated TCanvas the current one (shortcut to TCanvas::cd())
+//   virtual TVirtualPad *cd(int subpadnumber); // as above - shortcut to Canvas::cd(int subpadnumber)
+//   virtual void Clear(Option_t *option="");
+//   virtual TVirtualPad *Draw(TObject *obj,Option_t *option);
 //   void Disconnect(); // disconnect the QWidget from the ROOT TCanvas (used in the class dtor)
 //   void Refresh();    // force the associated TCanvas::Update to be called
 //   virtual bool Save(const QString &fileName) const;  // Save the widget image with some ppixmap file
@@ -152,7 +151,7 @@ ClassImp(TQtWidget)
 //                  kLeaveEvent            // TCanvas processed QEvent leaveEvent
 //
 //  For example to create the custom responce to the mouse crossing TCanvas
-//  connect the RootEventProsecced signal with your qt slot:
+//  connect the RootEventProcessed signal with your qt slot:
 //
 // connect(tQtWidget,SIGNAL(RootEventProcessed(TObject *, unsigned int, TCanvas *))
 //          ,this,SLOT(CanvasEvent(TObject *, unsigned int, TCanvas *)));
@@ -181,10 +180,10 @@ ClassImp(TQtWidget)
 ////////////////////////////////////////////////////////////////////////////////
 
 //_____________________________________________________________________________
-TQtWidget::TQtWidget(QWidget* mother, const char* name, Qt::WFlags f,bool embedded) :
+TQtWidget::TQtWidget(QWidget* mother, const char* name, Qt::WindowFlags f,bool embedded) :
       QWidget(mother,f)
         ,fBits(0),fNeedStretch(false),fCanvas(0),fPixmapID(0),fPixmapScreen(0)
-        ,fPaint(TRUE),fSizeChanged(FALSE),fDoubleBufferOn(FALSE),fEmbedded(embedded)
+        ,fPaint(kTRUE),fSizeChanged(kFALSE),fDoubleBufferOn(kFALSE),fEmbedded(embedded)
         ,fWrapper(0),fSaveFormat("PNG"),fInsidePaintEvent(false),fOldMousePos(-1,-1)
         ,fIgnoreLeaveEnter(0),fRefreshTimer(0)
 {
@@ -193,11 +192,11 @@ TQtWidget::TQtWidget(QWidget* mother, const char* name, Qt::WFlags f,bool embedd
 }
 
 //_____________________________________________________________________________
-TQtWidget::TQtWidget(QWidget* mother, Qt::WFlags f,bool embedded) :
+TQtWidget::TQtWidget(QWidget* mother, Qt::WindowFlags f,bool embedded) :
       QWidget(mother,f)
      ,fBits(0),fNeedStretch(false),fCanvas(0),fPixmapID(0)
-     ,fPixmapScreen(0),fPaint(TRUE),fSizeChanged(FALSE)
-     ,fDoubleBufferOn(FALSE),fEmbedded(embedded),fWrapper(0),fSaveFormat("PNG")
+     ,fPixmapScreen(0),fPaint(kTRUE),fSizeChanged(kFALSE)
+     ,fDoubleBufferOn(kFALSE),fEmbedded(embedded),fWrapper(0),fSaveFormat("PNG")
      ,fInsidePaintEvent(false),fOldMousePos(-1,-1)
      ,fIgnoreLeaveEnter(0),fRefreshTimer(0)
 { setObjectName("tqtwidget"); Init() ;}
@@ -217,11 +216,11 @@ void TQtWidget::Init()
     int minw = 10;
     int minh = 10;
     setMinimumSize(minw,minh);
-     Bool_t batch = gROOT->IsBatch();
-    if (!batch) gROOT->SetBatch(kTRUE); // to avoid the recursion within TCanvas ctor
+     Bool_t batch = ROOT::GetROOT()->IsBatch();
+    if (!batch) ROOT::GetROOT()->SetBatch(kTRUE); // to avoid the recursion within TCanvas ctor
     TGQt::RegisterWid(this);
     fCanvas = new TCanvas(objectName().toStdString().c_str(),minw,minh, TGQt::RegisterWid(this));
-    gROOT->SetBatch(batch);
+    ROOT::GetROOT()->SetBatch(batch);
     //   schedule the flush operation fCanvas->Flush(); via timer
     Refresh();
   }
@@ -310,6 +309,60 @@ TQtWidget *TQtWidget::Canvas(Int_t id)
 }
 
 //_____________________________________________________________________________
+void TQtWidget::AppendPad(TObject *obj,Option_t *option)
+{
+   // Append the ROOT TObject to the embedded TCanvas instance.
+   // This method is to replace the necessity to change the current TPad 
+   // followed by the invocation of TObject::Draw 
+   // to avoid the "side  effect of "TPad::cd() and TObject::Draw methods and boost 
+   // the performance.
+   //
+   if (!obj) return;
+   
+   TCanvas *c = GetCanvas();
+   if (!c->IsEditable()) return;
+   obj->SetBit(kMustCleanup);
+   c->GetListOfPrimitives()->Add(obj,option);
+   c->Modified(kTRUE);
+}
+
+//_____________________________________________________________________________
+void TQtWidget::Clear(Option_t *option)
+{
+   // Clear the embedded TCanvas 
+   GetCanvas()->Clear(option);
+   update();
+}   
+
+//_____________________________________________________________________________
+TVirtualPad *TQtWidget::Draw(TObject *obj,Option_t *option)
+{
+   // Append the ROOT TObject to the embedded TCanvas instance.
+   // This method is to replace the necessity to change the current TPad 
+   // followed by the invocation of TObject::Draw 
+   // to avoid the "side  effect of "TPad::cd() and TObject::Draw methods and boost 
+   // the performance.
+   //
+   // The method does not draw anything.
+   // It is as well as TObject:Draw is to add the TObject *obj pointer to the list of the paint primitives.
+   // All members of the list are to be rendered / pained onto the screen  with the next "paint" event.
+   // For example: assuming TQtWudget *qCanvas is the non-zero pointer to the already instatiated QtRoot widget
+   // Instdead of
+   
+   //    qCanvas->cd();           //  own should not call this from the TQtWidget ctor !!!
+   //    gPad->Draw(obj,option)); //  own should not call this from the TQtWudget ctor !!!
+   
+   //  use:
+   //
+   //    qCanvas->Draw(obj,option); // It is safe to be call from the TQWidget ctor
+   //    
+     
+   
+    AppendPad(obj,option);
+    return GetCanvas();
+}
+
+//_____________________________________________________________________________
 TApplication *TQtWidget::InitRint( Bool_t /*prompt*/, const char *appClassName, int *argc, char **argv,
           void *options, int numOptions, Bool_t noLogo)
 {
@@ -340,9 +393,6 @@ TApplication *TQtWidget::InitRint( Bool_t /*prompt*/, const char *appClassName, 
        }
        TString guiFactory(gEnv->GetValue("Gui.Factory", "native"));
        guiFactory.ToLower();
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,16,0)
-       TApplication::NeedGraphicsLibs() ;
-#endif
        if (!guiFactory.BeginsWith("qt",TString::kIgnoreCase )){
          // Check for the extention
          char *extLib = gSystem->DynamicPathName("libQtRootGui",kTRUE);
@@ -353,12 +403,18 @@ TApplication *TQtWidget::InitRint( Bool_t /*prompt*/, const char *appClassName, 
          }
          delete [] extLib;
        }
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,16,0)
+       TApplication::NeedGraphicsLibs() ;
+#endif
        if (!argc && !argv ) {
           localArgv  = new char*[args.size()]; // leaking :-(
           for (int i = 0; i < args.size(); ++i) {
              QString nextarg = args.at(i);
+             Int_t nchi = nextarg.length()+1;
+             localArgv[i]= new char[nchi]; 
              localArgv[i]= new char[nextarg.length()+1]; 
-             strcpy(localArgv[i], nextarg.toAscii().constData());
+             memcpy(localArgv[i], nextarg.toStdString().c_str(),nchi-1);
+             localArgv[i][nchi-1]=0;
           } 
        } else {
          localArgv  = argv;
@@ -402,19 +458,20 @@ void TQtWidget::Erase()
 }
 
 //_____________________________________________________________________________
-void TQtWidget::cd()
+TVirtualPad *TQtWidget::cd()
 {
  // [slot] to make this embedded canvas the current one
-  cd(0);
+  return cd(0);
 }
  //______________________________________________________________________________
-void TQtWidget::cd(int subpadnumber)
+TVirtualPad *TQtWidget::cd(int subpadnumber)
 {
  // [slot] to make this embedded canvas / pad the current one
   TCanvas *c = fCanvas;
   if (c) {
      c->cd(subpadnumber);
   }
+  return gPad;
 }
 //______________________________________________________________________________
 void TQtWidget::Disconnect()
@@ -472,23 +529,23 @@ TQtWidget::customEvent(QEvent *e)
    switch (e->type() - QEvent::User) {
    case kEXITSIZEMOVE:
       { // WM_EXITSIZEMOVE
-         fPaint = TRUE;
+         fPaint = kTRUE;
          exitSizeEvent();
          break;
       }
    case kENTERSIZEMOVE:
       {
          //  WM_ENTERSIZEMOVE
-         fSizeChanged=FALSE;
-         fPaint = FALSE;
+         fSizeChanged=kFALSE;
+         fPaint = kFALSE;
          break;
       }
    case kFORCESIZE:
    default:
       {
          // Force resize
-         fPaint       = TRUE;
-         fSizeChanged = TRUE;
+         fPaint       = kTRUE;
+         fSizeChanged = kTRUE;
          exitSizeEvent();
          break;
       }
@@ -512,7 +569,7 @@ void TQtWidget::focusInEvent ( QFocusEvent *e )
    // this imposes an extra protection to avoid TObject interaction with
    // mouse event accidently
    if (!fWrapper && e->gotFocus()) {
-      setMouseTracking(TRUE);
+      setMouseTracking(kTRUE);
    }
 }
 //_____________________________________________________________________________
@@ -522,7 +579,7 @@ void TQtWidget::focusOutEvent ( QFocusEvent *e )
    // this imposes an extra protection to avoid TObject interaction with
    // mouse event accidently
    if (!fWrapper && e->lostFocus()) {
-      setMouseTracking(FALSE);
+      setMouseTracking(kFALSE);
    }
 }
 
@@ -709,21 +766,21 @@ void TQtWidget::resizeEvent(QResizeEvent *e)
    // processing the resize event.
    // No drawing need be (or should be) done inside this handler.
    if (!e) return;
-   if (topLevelWidget()->isMinimized())      { fSizeChanged=FALSE; }
+   if (topLevelWidget()->isMinimized())      { fSizeChanged=kFALSE; }
    else if (topLevelWidget()->isMaximized ()){
-      fSizeChanged=TRUE;
+      fSizeChanged=kTRUE;
       exitSizeEvent();
-      fSizeChanged=TRUE;
+      fSizeChanged=kTRUE;
    } else {
 #ifdef R__QTWIN32
       if (!fPaint)  {
          // real resize event
-         fSizeChanged=TRUE;
+         fSizeChanged=kTRUE;
          fNeedStretch=true;
       } else {
 #else
       {
-         fSizeChanged=TRUE;
+         fSizeChanged=kTRUE;
 #if 0
          if (Qt::LeftButton == QApplication::mouseButtons()) 
          {

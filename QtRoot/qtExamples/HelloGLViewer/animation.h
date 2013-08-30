@@ -24,7 +24,7 @@ class Viewer : public QGLViewer
 {
 Q_OBJECT
 public:
-   Viewer(QWidget *parent=0, Qt::WindowFlags flags=0): QGLViewer(parent,0,flags){}
+   Viewer(QWidget *parent=0, Qt::WindowFlags flags=0): QGLViewer(parent,(const QGLWidget *)0,flags){}
 protected :
   virtual void draw();
   virtual void init();

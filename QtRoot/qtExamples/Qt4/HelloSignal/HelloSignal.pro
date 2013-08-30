@@ -6,13 +6,13 @@ TEMPLATE = lib
 TARGET = 
 DEPENDPATH += .
 INCLUDEPATH += .
-QMAKE_RPATH=
+QMAKE_LFLAGS_RPATH=
 # Input
 HEADERS += HelloSignal.h
 FORMS   += HelloSignal.ui
 SOURCES += HelloSignal.cxx
 
-includeFile = $(QTROOTSYSDIR)/include/rootcint.pri
+includeFile = $$(QTROOTSYSDIR)/include/rootcint.pri
 CREATE_ROOT_DICT_FOR_CLASSES  = $$HEADERS  HelloSignalLinkDef.h
 include ($$includeFile)
 
@@ -22,13 +22,15 @@ unix {
 #
   rootrc.target   = .rootrc
   ROOTRESOURCEFILE=rootrcqtgui
-  !exists ($(ROOTSYS)/lib/libQtRootGui.$$QMAKE_EXTENSION_SHLIB) {
-      message ("No ROOT Qt Extension was found. Please install it")
-      ROOTRESOURCEFILE = rootrcqtgui
+  !exists ($$(QTROOTSYSDIR)/lib/libQtRootGui.$$QMAKE_EXTENSION_SHLIB) {
+     !exists ($$(ROOTSYS)/lib/libQtRootGui.$$QMAKE_EXTENSION_SHLIB) {
+         message ("No ROOT Qt Extension was found. Please install it")
+         ROOTRESOURCEFILE = rootrcqtgui
+     }
   }
   rootrc.commands = @rm -rf .rootrc; ln -s $$ROOTRESOURCEFILE $$rootrc.target
 
-  QMAKE_EXTRA_UNIX_TARGETS += rootrc
+  QMAKE_EXTRA_TARGETS += rootrc
   PRE_TARGETDEPS  += $$rootrc.target
   QMAKE_CLEAN     += $$rootrc.target
 }

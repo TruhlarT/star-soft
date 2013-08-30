@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TBoundBoxEstimator.h,v 1.4 2009/08/03 18:03:07 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TBoundBoxEstimator.h,v 1.5 2013/08/30 16:00:17 perev Exp $
 // Author: Valery Fine      31/05/05
 
 #ifndef ROOT_TBoundBoxEstimator
