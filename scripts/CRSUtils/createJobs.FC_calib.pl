@@ -6,8 +6,9 @@
 # 
 # createJobs.FC_calib.pl  
 # L.Didenko
-# script to create jobfiles to processed with calibration productions for some sybsystem
-# script requires 5  arguments: production Series, chain name, subsystem calib tag, stream name ('all' if no selection), filename with list of runnumbers
+# script to create jobfiles to processed with calibration productions for some sybsystem.
+# Script requires 5  arguments: production Series, chain name, subsystem calib tag,
+# stream name ('all' if no selection), filename with list of runnumbers
 # 
 # 
 ##################################################################################################
