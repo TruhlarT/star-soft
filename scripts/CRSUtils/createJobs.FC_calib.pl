@@ -39,28 +39,13 @@ my $ftype = $ARGV[3];
 my $fileName = $ARGV[4];
 my $datDisk = "/star/data+15-16";
 
-my @runSet = ();
-my @fileSet = (); 
-my $mline;
-my @spl = ();
+my @runSet = (); 
 
  my $listName = "/star/u/starreco/".$fileName;
 
  open (RUNLIST, $listName ) or die "cannot open $listName: $!\n";
 
  @runSet = <RUNLIST>;
-
-# @runSet = ("13116062","13118020","13136010");
- 
-
-#  for ($ik=0; $ik< scalar(@runSet); $ik++)  {
-#      $mline = $runSet[$ik];
-#   @spl = ();
-#   @spl = split (" ",$mline);
-#   $fileSet[$ik] = $spl[1];
-#   print $fileSet[$ik], "\n";
-#  }    
-
 
 ###Set directories to be created for jobfiles
 
@@ -222,11 +207,8 @@ my $jbset;
      if (-f $jb_archive)  {$jb_fstat = 0};
      if (-f $jb_jobfile)  {$jb_fstat = 0};
 
-#      $mlibVer = "SL13a";
-     
       if($jb_fstat == 1)  {
       
-
      &create_jobs($jfile, $jbset, $chain, $mlibVer, $datDisk); 
 
       print  $mjobFname,  "\n";
@@ -234,7 +216,7 @@ my $jbset;
 #####  fill  JobStatus table
       print "filling JobStatus table\n";
  
-#     &fillJSTable();   
+     &fillJSTable();   
 
      }
    }
