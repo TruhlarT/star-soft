@@ -35,7 +35,7 @@ my $daqpat = $nfspath."*.daq";
 
 my @daqlist = `ls $daqpat` ;
 
-my $MAXNUM = 100;
+my $MAXNUM = 1000;
 
 print "There are  ", scalar(@daqlist),"  daq files in the ", $nfspath,"  directory", "\n";
  
