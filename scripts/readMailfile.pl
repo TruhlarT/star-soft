@@ -69,13 +69,13 @@ close (MAILFILE);
       $jbstat = $wrd[3];
       $dqsize = $wrd[4];
 
- $sql= "update $JobStatusT set jobState = '$jbstat' where sumsJobIndex = '$jobId' and sumsRequestID = '$prcId' ";
+ $sql= "update $JobStatusT set jobState = '$jbstat' where sumsRequestID = '$jobId' and sumsJobIndex = '$prcId' ";
 
  $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
       if($jbstat eq "daq-transferred" ) {
 
- $sql= "update $JobStatusT set daqSizeOnSite = '$dqsize' where sumsJobIndex = '$jobId' and sumsRequestID = '$prcId' ";
+ $sql= "update $JobStatusT set daqSizeOnSite = '$dqsize' where sumsRequestID = '$jobId' and sumsJobIndex = '$prcId' ";
 
  $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
@@ -83,8 +83,8 @@ close (MAILFILE);
     }
   }
 
- `mv $outfile $mailfdone`;
-
+# `mv $outfile $mailfdone`;
+  rename($outfile,$mailfdone);
 
  &StDbDisconnect();
 
