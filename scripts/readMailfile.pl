@@ -73,7 +73,7 @@ close (MAILFILE);
 
  $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
-      if($jbstat eq "daq-transferred" ) {
+      if($jbstat eq "daq_transferred" ) {
 
  $sql= "update $JobStatusT set daqSizeOnSite = '$dqsize' where sumsRequestID = '$jobId' and sumsJobIndex = '$prcId' ";
 
