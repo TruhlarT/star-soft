@@ -29,17 +29,25 @@
 
 my $mail_line;
 my $status_line;
+my $job_status;
+my $job_date;
+my $nowdate;
 my $job_file = "none";
 my $jbStat = "n/a";
-my @parts;
+my @parts = ();
 my $nodeID = "n/a";
 my $job_line; 
-my @wrd;
+my @wrd = ();
 my $date_line;
 my ($sec,$min,$hour,$mday,$mon);
 my $qnum=0;
 my $drop=0;
 my $AUTOS=1;
+my $daqsize = 0;
+my $jobID = 0;
+my $procID = 0;
+my $jobinx = 0;
+my @prt = ();
 
 # Added J.Lauret June 11th 2001. Merged from the auto_submit.pl script.
 # Merging is necessary since we are now running SMRSH (more practical
@@ -105,11 +113,12 @@ my $year = $yr + 1900 ;
    $mon++;
 if( $mon < 10) { $mon = '0'.$mon };
 if( $mday < 10) { $mday = '0'.$mday };
+if( $hour < 10) { $hour = '0'.$hour };
+if( $min  < 10) { $min  = '0'.$min  };
+if( $sec  < 10) { $sec  = '0'.$sec  };
 
 $thisday = $year."-".$mon."-".$mday; 
-
-
-
+$nowdate = $year."-".$mon."-".$mday." ".$hour.":".$min.":".$sec; 
 
 $outfile = "mail" . "_" .$thisday . "_" . "out"; 
 $QFLAG   = 1==1;
@@ -119,6 +128,25 @@ $QFLAG   = 1==1;
 while ( defined($mail_line = <STDIN>) ) {
     chomp($mail_line);
     push(@OUTPUT,$mail_line);
+
+    $status_line = $mail_line;
+    @wrd = ();
+    @prt = ();
+
+       if( $status_line =~ /JobID_processID/) {
+	   $job_status = $status_line;
+	    @wrd = split ("%",$status_line);
+            $jobinx = $wrd[1];
+            $jbStat = $wrd[2];
+            @prt = split ("_",$jobinx);
+            $jobID = $prt[0];
+            $procID = $prt[1]; 
+	    if($jbStat = "daq_transferred") {
+            $daqsize = $wrd[3];
+        }else{
+        $daqsize = 0;
+        }         
+       }   
 
     if ($mail_line =~ /Date/) {
 	$date_line = $mail_line;
@@ -132,53 +160,22 @@ while ( defined($mail_line = <STDIN>) ) {
     if ($mail_line =~ /job_\d+/) {
 	$SFLAG += 1; # must be at least 2
 
-	$status_line = $mail_line;
- 
-	if ( $status_line =~ /done/) {
-	    $jbStat = "done";
-	    @wrd = split (" ",$status_line);
-	    $nodeID = $wrd[3];        
-
-	} elsif ( $status_line =~ /staging failed/) {
-	    $jbStat = "staging failed";
-	    @wrd = split (" ",$status_line);
-	    $nodeID = $wrd[4]; 
-
-	} elsif ( $status_line =~ /queuing failed/) {
-	    $jbStat = "queuing failed";
-	    @wrd = split (" ",$status_line);
-	    $nodeID = $wrd[4]; 
-
-	} elsif ($status_line =~ /aborted/) {
-	    $jbStat = "aborted";
-	    @wrd = split (" ",$status_line);
-	    $nodeID = $wrd[3]; 
-
-	} elsif ($status_line =~ /killed/) {
-	    $jbStat = "killed";
-	    @wrd = split (" ",$status_line);
-	    $nodeID = $wrd[3]; 
-
-	} elsif ($status_line =~ /file not found/) {
-	    $jbStat = "file not found";
-	    #$nofiles_count++;
-	    $nodeID = "n/a"; 
-
-	} elsif ($status_line =~ /crashed/) {
-	    $jbStat = "crashed";
-	    @wrd = split (" ",$status_line);
-	    $nodeID = $wrd[3]; 
-	}
-	
-    } elsif ($mail_line =~ /Description/) {
+      } elsif ($mail_line =~ /Description/) {
 	$SFLAG += 1; # must be at least 2
-
+	@parts = ();
 	@parts = split (":", $mail_line);
 	$job_file = $parts[1];
     }
+ }
 
+# Now revert to treating special cases
+if( defined($job_status) ){
+    open (OUT,">> $outfile") or die "Can't open $outfile";
+    print OUT "Datetime:  ", $nowdate, "\n";
+    print OUT $date_line, "\n"; 
+    print OUT "JobInfo: % $jobID % $procID % $jbStat % $daqsize\n"; 
+    close (OUT);
 }
-
 
 #+
 # Output all we received back to a log
@@ -207,15 +204,6 @@ if ( open(FO,">$FLO") ){
     system("/bin/cat $FLO >>mbox.piped && /bin/rm -f $FLO");
 } # if not open, I guess we will lose it for now
 
-
-
-# Now revert to treating special cases
-if( defined($date_line) ){
-    open (OUT,">> $outfile") or die "Can't open $outfile";
-    print OUT $date_line, "\n";
-    print OUT "JobInfo:  %  $jbStat % $nodeID % $job_file % $qnum % $drop\n"; 
-    close (OUT);
-}
 
 # SFLAG -> The job received was indeintified as a CRS job not some
 #          other Emails.
