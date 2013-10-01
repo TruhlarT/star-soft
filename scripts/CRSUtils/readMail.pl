@@ -141,7 +141,7 @@ while ( defined($mail_line = <STDIN>) ) {
             @prt = split ("_",$jobinx);
             $jobID = $prt[0];
             $procID = $prt[1]; 
-	    if($jbStat = "daq_transferred") {
+	    if($jbStat eq "daq_transferred") {
             $daqsize = $wrd[3];
         }else{
         $daqsize = 0;
