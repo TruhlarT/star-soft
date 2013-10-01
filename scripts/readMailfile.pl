@@ -10,7 +10,7 @@
 
 use DBI;
 use Time::Local;
-
+use Mysql;
 
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
