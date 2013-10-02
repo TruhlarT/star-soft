@@ -14,6 +14,8 @@
 #   SL302
 #   SL305
 #   SL44
+#   SL53
+#   SL64
 #              <--- all of those targets were consolidated into one block
 #
 #   64bits     build 64 bits verison of dev, whatever the OS
@@ -222,6 +224,8 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 	    case "SL302":
 	    case "SL305":
 	    case "SL44":
+	    case "SL53":
+	    case "SL64":
 		set LPATH=$AFS_RHIC/star/packages/adev
 		set SPATH=$AFS_RHIC/star/doc/www/comp/prod/Sanity
 		if ( ! $?XTRACMD ) then
