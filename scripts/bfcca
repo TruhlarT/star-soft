@@ -83,7 +83,7 @@ use Digest::MD5;
 # First of all, turn IO autoflush
 $|       = 1;
 
-$DEBUG   = 0;
+# $DEBUG   = 1;
 
 # Some default hardwired values
 $AFS_RHIC= "/afs/rhic.bnl.gov";    # path to AFS head
@@ -203,8 +203,12 @@ $COMPRS = ($ALLOPT & 24) >> 3; # i.e.  11000
 # Take this as well for later use.
 #$MYSELF= $ENV{"CRS_JOB_FILE"};
 $JOB_ID= defined($ENV{"CRS_JOB_ID"})?$ENV{"CRS_JOB_ID"}:getppid();
-$PWD   = $ENV{"PWD"};
 
+# $PWD   = $ENV{"PWD"};
+
+# if ( ! defined($WPD) ){
+chomp($PWD = `pwd`);
+# }
 
 
 # --- Grab STDOUT/STDERR by force (control was stolen from us) ----
@@ -247,7 +251,7 @@ if( $STDOPT == 1){
     # Default is to leave as-is
     print "$PRGM :: Info: direct IO mode.\n";
 }
-#print "$PRGM :: debug : $STDOPT $ISTDOUT $STDOUT $ISTDERR $STDERR\n";
+# print "$PRGM :: debug : $STDOPT $ISTDOUT $STDOUT $ISTDERR $STDERR\n";
 
 
 
