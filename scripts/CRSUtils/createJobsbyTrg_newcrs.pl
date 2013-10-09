@@ -197,12 +197,10 @@ my @flsplit = ();
 
       if($jb_fstat == 1)  {
       
-          &create_jobs($jfile, $jbset, $mchain, $mlibVer, $JOB_DIR, $datDisk); 
+      &create_jobs($jfile, $jbset, $mchain, $mlibVer, $JOB_DIR, $datDisk); 
 
-      print "JOB ID = " ,$mjobID, " % " . $mjobFname,  "\n";
+      print $mjobFname,"   ",nfiles,  "\n";
       $nfiles++;
-#####  fill  JobStatus table
-      print "filling JobStatus table\n";
  
 #	  print $mjobID," % ", $mprodSr," % ", $trig ," % ",$mjobFname," % ",$strName," % ",$mrunId," % ",$mjobFdir," % ",$mlogFile," % ",$mlogDir," % ",$hpssSt," % ",$outhpss," % ",$mjobSt," % ",$chName, "\n";
 
@@ -283,8 +281,8 @@ my @flsplit = ();
       my $executable     = "/afs/rhic/star/packages/scripts/bfcca";
       my $execargs = $exArg;
          $execargs =~ s/,/ /g;
-      my $log_name      = $JOB_LOG."/".$gfile . ".log";
-      my $err_name      = $JOB_LOG."/".$gfile . ".err";
+      my $log_name      = $JOB_LOG."/".$gfile .".log";
+      my $err_name      = $JOB_LOG."/".$gfile .".err";
       if (!open (JOB_FILE,">$jb_new")) {printf ("Unable to create job submission script %s\n",$jb_new);}
 
        print JOB_FILE "                \n";

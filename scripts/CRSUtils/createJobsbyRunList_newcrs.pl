@@ -4,8 +4,8 @@
 # 
 # $Log: 
 # 
-# createJobsbyRunList_newcrs.pl - scripts to create CRS jobs. Use 4 arguments: production serie,
-# filename with list of run numbers, chainName from ProdOptions table and stream name
+# createJobsbyRunList_newcrs.pl - scripts to create CRS jobs. Use 4 arguments: production tag,
+# chainName from ProdOptions table, filename with list of run numbers and stream name
 # (use "all" if all stream data should be processed)   
 # For example:
 # createJobsbyRunList_newcrs.pl P11id auau19.run2011.prod1 auau19_goodruns.list st_physics
@@ -210,12 +210,10 @@ my @flsplit = ();
 
       if($jb_fstat == 1)  {
       
-          &create_jobs($jfile, $jbset, $mchain, $mlibVer, $JOB_DIR, $datDisk); 
+      &create_jobs($jfile, $jbset, $mchain, $mlibVer, $JOB_DIR, $datDisk); 
 
-      print "JOB ID = " ,$mjobID, " % " . $mjobFname,  "\n";
+      print  $mjobFname,"  ", $nfiles, "\n";
       $nfiles++;
-#####  fill  JobStatus table
-      print "filling JobStatus table\n";
  
 #	  print $mjobID," % ", $mprodSr," % ", $trig ," % ",$mjobFname," % ",$strName," % ",$mrunId," % ",$mjobFdir," % ",$mlogFile," % ",$mlogDir," % ",$hpssSt," % ",$outhpss," % ",$mjobSt," % ",$chName, "\n";
 
@@ -296,8 +294,8 @@ my @flsplit = ();
       my $executable     = "/afs/rhic/star/packages/scripts/bfcca";
       my $execargs = $exArg;
          $execargs =~ s/,/ /g;
-      my $log_name      = $JOB_LOG."/".$gfile . ".log";
-      my $err_name      = $JOB_LOG."/".$gfile . ".err";
+      my $log_name      = $JOB_LOG."/".$gfile .".log";
+      my $err_name      = $JOB_LOG."/".$gfile .".err";
 
       if (!open (JOB_FILE,">$jb_new")) {printf ("Unable to create job submission script %s\n",$jb_new);}
 
