@@ -8,7 +8,7 @@
 # trigger set, chainName from ProdOptions table and stream name (use "all" if all stream data
 # should be processed)   
 # For example:
-# createJobsbyTrg.pl P11id AuAu19_production  auau19.run2011.prod1 st_physics
+# createJobsbyTrg_newcrs.pl P11id AuAu19_production  auau19.run2011.prod1 st_physics
 # 
 #
 # Author:  L.Didenko
