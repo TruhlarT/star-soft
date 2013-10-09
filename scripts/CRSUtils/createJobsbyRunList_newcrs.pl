@@ -4,7 +4,7 @@
 # 
 # $Log: 
 # 
-# createJobsbyRunList.pl - scripts to create CRS jobs. Use 4 arguments: production serie,
+# createJobsbyRunList_newcrs.pl - scripts to create CRS jobs. Use 4 arguments: production serie,
 # filename with list of run numbers, chainName from ProdOptions table and stream name
 # (use "all" if all stream data should be processed)   
 # For example:

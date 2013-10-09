@@ -4,7 +4,7 @@
 # 
 # $Log: 
 # 
-# createJobsbyTrg.pl - scripts to create CRS jobs. Use 4 arguments: production serie,
+# createJobsbyTrg_newcrs.pl - scripts to create CRS jobs. Use 4 arguments: production serie,
 # trigger set, chainName from ProdOptions table and stream name (use "all" if all stream data
 # should be processed)   
 # For example:
