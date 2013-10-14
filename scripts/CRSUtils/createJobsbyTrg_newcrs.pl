@@ -311,7 +311,7 @@ my @flsplit = ();
        print JOB_FILE "[main]\n";
        print JOB_FILE "num_inputs = 1\n";
        print JOB_FILE "num_outputs = 3\n";
-       print JOB_FILE "auto_remove = true\n";
+       print JOB_FILE "auto_remove = True\n";
        print JOB_FILE "              \n";
        print JOB_FILE "[input-0]\n";
        print JOB_FILE "path = $hpss_raw_dir\n";
