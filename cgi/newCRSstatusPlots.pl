@@ -210,9 +210,7 @@ my @prt = ();
 
     &StcrsdbDisconnect();
 
-    @data = (\@Npoint, \@numjobs );
-
-my  $graph = new GD::Graph::linespoints(750,650);
+  $graph = new GD::Graph::linespoints(750,650);
 
 if ( ! $graph){
     print STDOUT $qqr->header(-type => 'text/plain');
@@ -257,7 +255,7 @@ $xLabelSkip = 240 if( $fperiod eq "10_months" );
 $xLabelSkip = 264 if( $fperiod eq "11_months" );
 $xLabelSkip = 288 if( $fperiod eq "12_months" );
 
-
+   @data = (\@Npoint, \@numjobs );
  
     $graph->set(x_label => "  ",
 		y_label => "Number of jobs",
@@ -321,7 +319,7 @@ sub beginHtml {
 print <<END;
   <html>
    <head>
-          <title>CRS farm status</title>
+          <title>CRS jobs state</title>
    </head>
    <body BGCOLOR=\"#ccffff\">
      <h1 align=center>No data for the period of $fperiod </h1>
