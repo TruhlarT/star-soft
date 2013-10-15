@@ -36,6 +36,18 @@ my @farmstat = ("created","submitted","queued","staging","importing","running","
 
 my @reqperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months","7_month","8_months","9_months","10_months","11_months","12_months");
 
+
+my $day_diff = 0;
+my $max_y = 10000;
+my $min_y = 0;
+my @data = ();
+my @legend = ();
+my $maxvalue = 10000;
+
+my @numjobs = ();
+my @Npoint = ();
+
+
  my $pryear    =  $query->param('ryear');
  my $fstatus   =  $query->param('jstatus');
  my $fperiod   =  $query->param('period');
@@ -121,19 +133,19 @@ my $dyear = $pryear;
 
 $crsJobStatusT = "newcrsJobState";
 
-my $day_diff = 0;
-my $max_y = 10000;
-my $min_y = 0;
-my @data;
-my @legend;
-my $maxvalue = 10000;
+ $day_diff = 0;
+ $max_y = 10000;
+ $min_y = 0;
+ @data = ();
+ @legend = ();
+ $maxvalue = 10000;
 
-my @numjobs = ();
-my @Npoint = ();
+ @numjobs = ();
+ @Npoint = ();
 
-my $fstatus;
+my $jbstatus;
 
-  $fstatus = (split(" ",$qstatus))[0];
+  $jbstatus = (split(" ",$qstatus))[0];
 
 ($sec,$min,$hour,$mday,$mon,$year) = localtime;
 
@@ -185,7 +197,7 @@ my @prt = ();
  @Npoint = ();
 
 
-        $sql="SELECT max($fstatus) FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? ";
+        $sql="SELECT max($jbstatus) FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($day_diff) ;
@@ -195,7 +207,7 @@ my @prt = ();
 	 }
 
 
-            $sql="SELECT $fstatus, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ?  and sdate <= '$nowdatetime' ORDER by sdate ";
+            $sql="SELECT $jbstatus, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ?  and sdate <= '$nowdatetime' ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($day_diff);
@@ -209,6 +221,8 @@ my @prt = ();
 
 
     &StcrsdbDisconnect();
+
+ @data = ();
 
   $graph = new GD::Graph::linespoints(750,650);
 
