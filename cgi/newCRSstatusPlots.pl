@@ -120,6 +120,9 @@ print $query->end_html;
 
    }else{
 
+
+if ( exists($ENV{'QUERY_STRING'}) ) { print $qqr->header };
+
 my $qqr = new CGI;
 
  my $pryear    =  $qqr->param('ryear');
@@ -298,8 +301,7 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
 
 
            if ( scalar(@Npoint) <= 1 ) {
-if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
-#            print  $query->header(-type => 'text/html')."\n";
+            print  $query->header(-type => 'text/html')."\n";
             &beginHtml();
 
         } else {
