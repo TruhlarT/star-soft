@@ -30,7 +30,7 @@ my $crsJobStatusT = "newcrsJobState";
 
 my $query = new CGI;
 
- if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
+# if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
 
 my $scriptname = $query->url(-relative=>1);
 
