@@ -215,7 +215,7 @@ my @prt = ();
 my  $graph = new GD::Graph::linespoints(750,650);
 
 if ( ! $graph){
-    print STDOUT $query->header(-type => 'text/plain');
+    print STDOUT $qqr->header(-type => 'text/plain');
     print STDOUT "Failed\n";
 } else {
  
