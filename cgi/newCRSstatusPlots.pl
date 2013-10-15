@@ -301,7 +301,7 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
 
 
            if ( scalar(@Npoint) <= 1 ) {
-            print  $qqr->header(-type => 'text/html')."\n";
+#            print  $qqr->header(-type => 'text/html')."\n";
             &beginHtml();
 
         } else {
