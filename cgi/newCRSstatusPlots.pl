@@ -7,6 +7,8 @@
 #
 # L.Didenko
 #
+# script to monitor on the Web CRS jobs state with new software
+#
 ##########################################################
 
 
