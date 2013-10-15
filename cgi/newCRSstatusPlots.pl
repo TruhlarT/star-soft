@@ -30,6 +30,8 @@ my $crsJobStatusT = "newcrsJobState";
 
 my $query = new CGI;
 
+ if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
+
 my $scriptname = $query->url(-relative=>1);
 
 my @farmstat = ("created","submitted","queued","staging","importing","running","exporting","done","error","killed","held");
@@ -224,7 +226,7 @@ my @prt = ();
 
  @data = ();
 
-  $graph = new GD::Graph::linespoints(750,650);
+my  $graph = new GD::Graph::linespoints(750,650);
 
 if ( ! $graph){
     print STDOUT $qqr->header(-type => 'text/plain');
@@ -332,15 +334,10 @@ sub beginHtml {
 
 print <<END;
   <html>
-   <head>
-          <title>CRS jobs state</title>
-   </head>
    <body BGCOLOR=\"#ccffff\">
      <h1 align=center>No data for the period of $fperiod </h1>
 
-
     </body>
-   </html>
 END
 }
 
