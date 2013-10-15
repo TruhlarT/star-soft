@@ -194,7 +194,7 @@ my @prt = ();
 
    &StcrsdbConnect();
 
-	   my $ii = 0;
+my $ii = 0;
 
  @numjobs = ();
  @Npoint = ();
@@ -230,7 +230,7 @@ my @prt = ();
 my  $graph = new GD::Graph::linespoints(750,650);
 
 if ( ! $graph){
-    print STDOUT $query->header(-type => 'text/plain');
+    print STDOUT $qqr->header(-type => 'text/plain');
     print STDOUT "Failed\n";
 } else {
  
@@ -299,7 +299,7 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
 
 
            if ( scalar(@Npoint) <= 1 ) {
-            print  $query->header(-type => 'text/html')."\n";
+            print  $qqr->header(-type => 'text/html')."\n";
             &beginHtml();
 
         } else {
