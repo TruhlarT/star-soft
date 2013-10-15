@@ -121,8 +121,6 @@ print $query->end_html;
    }else{
 
 
-if ( exists($ENV{'QUERY_STRING'}) ) { print $qqr->header };
-
 my $qqr = new CGI;
 
  my $pryear    =  $qqr->param('ryear');
