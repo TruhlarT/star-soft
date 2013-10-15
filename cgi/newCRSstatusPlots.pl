@@ -59,7 +59,7 @@ my @Npoint = ();
   if( $fperiod eq "" and $fstatus eq "" and $pryear eq "" ) {
 
 print $query->header;
-print $query->start_html('CRS jobs status');
+print $query->start_html('CRS jobs state');
 print <<END;
 <META HTTP-EQUIV="Expires" CONTENT="0">
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
@@ -229,7 +229,7 @@ my @prt = ();
 my  $graph = new GD::Graph::linespoints(750,650);
 
 if ( ! $graph){
-    print STDOUT $qqr->header(-type => 'text/plain');
+    print STDOUT $query->header(-type => 'text/plain');
     print STDOUT "Failed\n";
 } else {
  
@@ -298,7 +298,8 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
 
 
            if ( scalar(@Npoint) <= 1 ) {
-#            print $qqr->header(-type => 'text/html')."\n";
+
+            print  $query->header(-type => 'text/html')."\n";
             &beginHtml();
 
         } else {
