@@ -301,9 +301,8 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
            if ( scalar(@Npoint) <= 1 ) {
 #            print  $qqr->header(-type => 'text/html')."\n";
 #            &beginHtml();
-	     print  $qqr->header;
-             print $qqr->start_html('No data for that period' );
-             print $qqr->end_html;
+    print STDOUT $qqr->header(-type => 'text/plain');
+    print STDOUT "No Data for that Period\n";
 
         } else {
 
@@ -345,6 +344,7 @@ print <<END;
      <h1 align=center>No data for the period of $fperiod </h1>
 
     </body>
+  </html>
 END
 }
 
