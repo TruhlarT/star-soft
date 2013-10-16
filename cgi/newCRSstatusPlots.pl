@@ -56,7 +56,7 @@ my @Npoint = ();
 
   if( $fperiod eq "" and $fstatus eq "" and $pryear eq "" ) {
 
-print $query->header;
+print $query->header();
 print $query->start_html('CRS jobs state');
 print <<END;
 <META HTTP-EQUIV="Expires" CONTENT="0">
@@ -229,13 +229,9 @@ my  $graph = new GD::Graph::linespoints(750,650);
 if ( ! $graph){
     print STDOUT $qqr->header(-type => 'text/plain');
     print STDOUT "Failed\n";
+
 } else {
  
-  my $format = $graph->export_format;
-  print header("image/$format");
-  binmode STDOUT;
-
-
    if($maxvalue <= 20) {
     $max_y = $maxvalue + 10;
   }elsif($maxvalue <= 50) {
@@ -299,6 +295,9 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
             &beginHtml();
 
         } else {
+           my $format = $graph->export_format;
+           print header("image/$format");
+           binmode STDOUT;
 
      print STDOUT $graph->plot(\@data)->$format();
 
@@ -333,9 +332,6 @@ sub beginHtml {
 
 print <<END;
   <html>
-   <head>
-          <title>CRS jobs state</title>
-   </head>
    <body BGCOLOR=\"#ccffff\">
      <h1 align=center>No data for the period of $fperiod </h1>
 
