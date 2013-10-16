@@ -121,7 +121,7 @@ print $query->end_html;
 
 my $qqr = new CGI;
 
-if ( exists($ENV{'QUERY_STRING'}) ) { print $qqr->header };
+#if ( exists($ENV{'QUERY_STRING'}) ) { print $qqr->header };
 
  my $pryear    =  $qqr->param('ryear');
  my $qstatus   =  $qqr->param('jstatus');
@@ -291,7 +291,7 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
 
 
            if ( scalar(@Npoint) <= 1 ) {
-#	       print  $qqr->header(-type => 'text/html');
+	       print  $qqr->header(-type => 'text/html');
             &beginHtml();
 
         } else {
