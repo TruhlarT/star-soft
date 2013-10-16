@@ -255,7 +255,7 @@ if ( ! $graph){
  my $xLabelSkip = 1;
 
 $xLabelSkip = 2  if( $fperiod eq "day" );
-$xLabelSkip = 8 if( $fperiod eq "week" );
+$xLabelSkip = 12 if( $fperiod eq "week" );
 $xLabelSkip = 24 if( $fperiod eq "1_month" );
 $xLabelSkip = 48 if( $fperiod eq "2_months" );
 $xLabelSkip = 72 if( $fperiod eq "3_months" );
@@ -306,6 +306,8 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
   }
  }
 
+#############################################
+
 sub y_format
 {
     my $value = shift;
@@ -315,22 +317,25 @@ sub y_format
 }
 
 
-######################
+#############################################
 sub StcrsdbConnect {
     $dbh = DBI->connect("dbi:mysql:$dbname:$dbhost", $dbuser, $dbpass)
         || die "Cannot connect to db server $DBI::errstr\n";
 }
 
-######################
+##############################################
 sub StcrsdbDisconnect {
     $dbh = $dbh->disconnect() || die "Disconnect failure $DBI::errstr\n";
 }
 
-#########################
+##############################################
 sub beginHtml {
 
 print <<END;
   <html>
+   <head>
+          <title>CRS jobs state</title>
+   </head>
    <body BGCOLOR=\"#ccffff\">
      <h1 align=center>No data for the period of $fperiod </h1>
 
