@@ -196,9 +196,6 @@ my @prt = ();
 
 my $ii = 0;
 
- @numjobs = ();
- @Npoint = ();
-
 
         $sql="SELECT max($jbstatus) FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? ";
 
@@ -225,7 +222,7 @@ my $ii = 0;
 
     &StcrsdbDisconnect();
 
- @data = ();
+   @data = (\@Npoint, \@numjobs );
 
 my  $graph = new GD::Graph::linespoints(750,650);
 
@@ -272,7 +269,6 @@ $xLabelSkip = 240 if( $fperiod eq "10_months" );
 $xLabelSkip = 264 if( $fperiod eq "11_months" );
 $xLabelSkip = 288 if( $fperiod eq "12_months" );
 
-   @data = (\@Npoint, \@numjobs );
  
     $graph->set(x_label => "  ",
 		y_label => "Number of jobs",
