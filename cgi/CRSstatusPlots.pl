@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSstatusPlots.pl,v 1.30 2013/06/25 18:28:09 didenko Exp $
+# $Id: CRSstatusPlots.pl,v 1.31 2013/10/16 14:36:25 didenko Exp $
 #
 # $Log: CRSstatusPlots.pl,v $
+# Revision 1.31  2013/10/16 14:36:25  didenko
+# more changes
+#
 # Revision 1.30  2013/06/25 18:28:09  didenko
 # remove use:Mysql
 #
@@ -171,6 +174,9 @@ print $query->end_html;
    }else{
 
 my $qqr = new CGI;
+
+if ( exists($ENV{'QUERY_STRING'}) ) { print $qqr->header };
+
 
  my $pryear    =  $qqr->param('ryear');
  my $qstatus   =  $qqr->param('statusfield');
