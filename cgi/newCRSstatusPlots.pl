@@ -121,7 +121,7 @@ print $query->end_html;
 
 my $qqr = new CGI;
 
-if ( exists($ENV{'QUERY_STRING'}) ) { print $qqr->header };
+#if ( exists($ENV{'QUERY_STRING'}) ) { print $qqr->header };
 
  my $pryear    =  $qqr->param('ryear');
  my $qstatus   =  $qqr->param('jstatus');
