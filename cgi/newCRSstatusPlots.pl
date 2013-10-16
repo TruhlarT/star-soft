@@ -121,7 +121,7 @@ print $query->end_html;
 
 my $qqr = new CGI;
 
-#if ( exists($ENV{'QUERY_STRING'}) ) { print $qqr->header };
+if ( exists($ENV{'QUERY_STRING'}) ) { print $qqr->header };
 
  my $pryear    =  $qqr->param('ryear');
  my $qstatus   =  $qqr->param('jstatus');
@@ -299,10 +299,8 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
 
 
            if ( scalar(@Npoint) <= 1 ) {
-#            print  $qqr->header(-type => 'text/html')."\n";
-#            &beginHtml();
-    print STDOUT $qqr->header(-type => 'text/plain');
-    print STDOUT "No Data for that Period\n";
+            print  $qqr->header(-type => 'text/html')."\n";
+            &beginHtml();
 
         } else {
 
@@ -337,9 +335,6 @@ sub beginHtml {
 
 print <<END;
   <html>
-   <head>
-          <title>CRS jobs state</title>
-   </head>
    <body BGCOLOR=\"#ccffff\">
      <h1 align=center>No data for the period of $fperiod </h1>
 
