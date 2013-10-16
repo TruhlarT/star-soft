@@ -299,8 +299,11 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
 
 
            if ( scalar(@Npoint) <= 1 ) {
-            print  $qqr->header(-type => 'text/html')."\n";
-            &beginHtml();
+#            print  $qqr->header(-type => 'text/html')."\n";
+#            &beginHtml();
+	     print  $qqr->header;
+             print $qqr->start_html('No data for that period' );
+             print $qqr->end_html;
 
         } else {
 
@@ -308,7 +311,7 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
 
    }
   }
-}
+ }
 
 sub y_format
 {
