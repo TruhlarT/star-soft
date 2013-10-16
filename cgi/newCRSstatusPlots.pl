@@ -16,21 +16,19 @@ BEGIN {
  use CGI::Carp qw(fatalsToBrowser carpout);
 }
 
+require "/afs/rhic.bnl.gov/star/packages/scripts/CRSUtils/dbCRSSetup.pl";
+
 use CGI qw(:standard);
 use GD;
 use GD::Graph::linespoints;
-use DBI;
+#use Mysql;
 
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
 $dbpass="";
 $dbname="operation";
 
-my $crsJobStatusT = "newcrsJobState";
-
 my $query = new CGI;
-
-# if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
 
 my $scriptname = $query->url(-relative=>1);
 
@@ -38,28 +36,17 @@ my @farmstat = ("created","submitted","queued","staging","importing","running","
 
 my @reqperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months","7_month","8_months","9_months","10_months","11_months","12_months");
 
-
-my $day_diff = 0;
-my $max_y = 10000;
-my $min_y = 0;
-my @data = ();
-my @legend = ();
-my $maxvalue = 10000;
-
-my @numjobs = ();
-my @Npoint = ();
+$query = new CGI;
 
 
- my $pryear    =  $query->param('ryear');
- my $fstatus   =  $query->param('jstatus');
+ my $fstatus   =  $query->param('statusfield');
  my $fperiod   =  $query->param('period');
-
- my @prodyear = ("2013","2014");
+ my @prodyear = ("2005","2006","2007","2008","2009","2010","2011","2012","2013");
 
   if( $fperiod eq "" and $fstatus eq "" and $pryear eq "" ) {
 
 print $query->header;
-print $query->start_html('CRS jobs state');
+print $query->start_html('CRS jobs status');
 print <<END;
 <META HTTP-EQUIV="Expires" CONTENT="0">
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
@@ -90,11 +77,11 @@ print  $query->scrolling_list(-name=>'ryear',
 
 print "<p>";
 print "</td><td>"; 
-print "<h3 align=center>Select jobs state</h3>";
+print "<h3 align=center>Select jobs status</h3>";
 print "<h4 align=center>";
-print $query->scrolling_list(-name=>'jstatus',
+print $query->scrolling_list(-name=>'statusfield',
                              -values=>\@farmstat,
-                             -default=>running,
+                             -default=>executing,
                              -size=>1);
 print "</td><td>";
 print "<h3 align=center> Select period of monitoring</h3>";
@@ -120,33 +107,28 @@ print $query->end_html;
 
    }else{
 
-
 my $qqr = new CGI;
-
-if ( exists($ENV{'QUERY_STRING'}) ) { print $qqr->header };
 
  my $pryear    =  $qqr->param('ryear');
  my $qstatus   =  $qqr->param('jstatus');
  my $fperiod   =  $qqr->param('period'); 
 
-# my $dyear = $pryear - 2000 ;
-
-my $dyear = $pryear;
+ my $dyear = $pryear - 2000 ;
 
 # Tables
-#$crsJobStatusT = "newcrsJobState".$dyear;
+#$crsJobStatusT = "crsJobStatusY".$dyear;
+#$crsQueueT = "crsQueueY".$dyear;
+my $crsJobStatusT = "newcrsJobState";
 
-$crsJobStatusT = "newcrsJobState";
+my $day_diff = 0;
+my $max_y = 10000;
+my $min_y = 0;
+my @data;
+my @legend;
+my $maxvalue = 10000;
 
- $day_diff = 0;
- $max_y = 10000;
- $min_y = 0;
- @data = ();
- @legend = ();
- $maxvalue = 10000;
-
- @numjobs = ();
- @Npoint = ();
+my @numjobs = ();
+my @Npoint = ();
 
 my $jbstatus;
 
@@ -196,7 +178,7 @@ my @prt = ();
 
    &StcrsdbConnect();
 
-my $ii = 0;
+	   my $ii = 0;
 
  @numjobs = ();
  @Npoint = ();
@@ -227,12 +209,12 @@ my $ii = 0;
 
     &StcrsdbDisconnect();
 
- @data = ();
+    @data = (\@Npoint, \@numjobs );
 
 my  $graph = new GD::Graph::linespoints(750,650);
 
 if ( ! $graph){
-    print STDOUT $qqr->header(-type => 'text/plain');
+    print STDOUT $query->header(-type => 'text/plain');
     print STDOUT "Failed\n";
 } else {
  
@@ -274,7 +256,7 @@ $xLabelSkip = 240 if( $fperiod eq "10_months" );
 $xLabelSkip = 264 if( $fperiod eq "11_months" );
 $xLabelSkip = 288 if( $fperiod eq "12_months" );
 
-   @data = (\@Npoint, \@numjobs );
+
  
     $graph->set(x_label => "  ",
 		y_label => "Number of jobs",
@@ -301,7 +283,7 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
 
 
            if ( scalar(@Npoint) <= 1 ) {
-#            print  $qqr->header(-type => 'text/html')."\n";
+            print $qqr->header(-type => 'text/html')."\n";
             &beginHtml();
 
         } else {
@@ -343,7 +325,9 @@ print <<END;
    <body BGCOLOR=\"#ccffff\">
      <h1 align=center>No data for the period of $fperiod </h1>
 
+
     </body>
+   </html>
 END
 }
 
