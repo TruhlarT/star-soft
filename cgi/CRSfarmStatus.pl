@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.57 2013/06/25 18:28:09 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.58 2013/10/21 18:21:44 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
+# Revision 1.58  2013/10/21 18:21:44  didenko
+# fixed typo
+#
 # Revision 1.57  2013/06/25 18:28:09  didenko
 # remove use:Mysql
 #
@@ -375,10 +378,6 @@ $day_diff = int($day_diff);
     print STDOUT "Failed\n";
  } else {
 
-  my $format = $graph->export_format;
-  print header("image/$format");
-  binmode STDOUT;
-
     $legend[0] = "Jobs in status 'executing'";
     $legend[1] = "Jobs waiting transferring from HPSS";
     $legend[2] = "Jobs waiting transferring to HPSS";
@@ -483,7 +482,11 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
 
         } else {
 
-    print STDOUT $graph->plot(\@data)->$format();      
+    my $format = $graph->export_format;
+    print header("image/$format");
+    binmode STDOUT;
+  print STDOUT $graph->plot(\@data)->$format();      
+
   }
 }
 }
