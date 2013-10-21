@@ -232,6 +232,21 @@ $JobStatusT = "JobStatus2012";
        }
     $cursor->finish();
 
+$JobStatusT = "JobStatus2013";  
+
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $arrprod[$npr] = $mpr;
+          $npr++;
+       }
+    $cursor->finish();
+
+
 &StDbProdDisconnect();
 
 my $query = new CGI;
