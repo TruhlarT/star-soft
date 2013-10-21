@@ -62,7 +62,6 @@ my @jobs_set = ();
  my $jb_archive;
  my $jb_jobfile;
  my $jb_fstat;
- my $jb_jobloop;
  my $jb_joblost;
 
 
@@ -200,12 +199,10 @@ my @flsplit = ();
     $jb_news = $JOB_DIR . "/new_jobs/" . $mjobFname;
     $jb_archive = $JOB_DIR . "/archive/" . $mjobFname;
     $jb_jobfile = $JOB_DIR . "/jobfiles/" . $mjobFname;
-    $jb_jobloop = $JOB_DIR . "/jobs_looping/" . $mjobFname;
     $jb_joblost = $JOB_DIR . "/jobs_lostfiles/" . $mjobFname;
      if (-f $jb_news)     {$jb_fstat = 0};
      if (-f $jb_archive)  {$jb_fstat = 0};
      if (-f $jb_jobfile)  {$jb_fstat = 0};
-     if (-f $jb_jobloop)  {$jb_fstat = 0};
      if (-f $jb_joblost)  {$jb_fstat = 0};
 
       if($jb_fstat == 1)  {
@@ -291,7 +288,7 @@ my @flsplit = ();
       my $hpss_dst_file2 = $gfile . ".tags.root";
       my $hpss_dst_file3 = $gfile . ".event.root";
 #      my $hpss_dst_file4 = $gfile . ".runco.root";    
-      my $executable     = "/afs/rhic/star/packages/scripts/bfcca";
+      my $executable     = "/afs/rhic.bnl.gov/star/packages/scripts/bfcca";
       my $execargs = $exArg;
          $execargs =~ s/,/ /g;
       my $log_name      = $JOB_LOG."/".$gfile .".log";
