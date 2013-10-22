@@ -70,7 +70,7 @@ my $pcpu;
 my $prtime;
 my $pstream;
 my $jbTottime;
-my $pryear = "2010";
+my $pryear = "2012";
 my $dy;
 
 my %rte = {};
@@ -133,7 +133,7 @@ my @cppmdftp = ();
 
   &StDbProdConnect();
  
- $JobStatusT = "JobStatus2010";  
+ $JobStatusT = "JobStatus2012";  
 
     $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
 
@@ -170,6 +170,7 @@ my @cppmdftp = ();
           $ni++;
        }
     $cursor->finish();
+
 
 
 &StDbProdDisconnect();

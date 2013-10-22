@@ -228,6 +228,35 @@ my @cpwb = ();
        }
     $cursor->finish();
 
+  $JobStatusT = "JobStatus2013";
+
+
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $arrprod[$npr] = $mpr;
+          $npr++;
+       }
+    $cursor->finish();
+
+
+    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2012-11-10' order by runDay" ;
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $dy = $cursor->fetchrow() ) {
+          $ardays[$ndy] = $dy;
+          $ndy++;
+       }
+    $cursor->finish();
+
+
   @rvdays = reverse @ardays ;
 
 &StDbProdDisconnect();
