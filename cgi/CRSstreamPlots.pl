@@ -340,10 +340,6 @@ my $nnk = $ii;
     print STDOUT "Failed\n";
  } else {
 
-#  my $format = $graph->export_format;
-#  print header("image/$format");
-#  binmode STDOUT;
-
        $legend[0] = "st_physics   ";
        $legend[1] = "st_gamma     ";
        $legend[2] = "st_hlt       ";
