@@ -104,13 +104,13 @@ if( $sec < 10) { $sec = '0'.$sec };
 	} elsif ($prt[3] eq "EXPORTING") {       
         $Nexport =  $prt[1];
 	} elsif ($prt[3] eq "DONE") { 
-         $Ndone =  $prt[1];
+        $Ndone =  $prt[1];
 	} elsif ($prt[3] eq "ERROR") {        
-         $Nerror =  $prt[1];
+        $Nerror =  $prt[1];
  	} elsif ($prt[3] eq "KILLED") {        
-         $Nkill =  $prt[1];
+        $Nkill =  $prt[1];
 	} elsif ($prt[3] eq "HELD") {        
-         $Nheld =  $prt[1];
+        $Nheld =  $prt[1];
         }
     }
 
@@ -146,7 +146,7 @@ if( $sec < 10) { $sec = '0'.$sec };
      $Tperror = $pt[2];
      $Tperror =~ s/://g;
 
-   print "Error number =  ", $Tperror,"\n";
+   print ""Job id and error number =  ", $jid,"   ",$Tperror,"\n";
 
       if($Tperror == 10) {
 	 $NFcondor++;
@@ -166,10 +166,18 @@ if( $sec < 10) { $sec = '0'.$sec };
 ######
      }
     }
+
+   `crs_job -kill -f $jid`; 
+
+   print "Job   ",$jid,"   was killed","\n";
+ 
+   `crs_job -destroy -f $jid`; 
+
+   print "Job   ",$jid,"   was destroied","\n";
+
 #####
 
    }
-
 
      &fillTable();
 
