@@ -146,7 +146,7 @@ if( $sec < 10) { $sec = '0'.$sec };
      $Tperror = $pt[2];
      $Tperror =~ s/://g;
 
-   print ""Job id and error number =  ", $jid,"   ",$Tperror,"\n";
+   print "Job id and error number =  ", $jid,"   ",$Tperror,"\n";
 
       if($Tperror == 10) {
 	 $NFcondor++;
@@ -173,7 +173,7 @@ if( $sec < 10) { $sec = '0'.$sec };
  
    `crs_job -destroy -f $jid`; 
 
-   print "Job   ",$jid,"   was destroied","\n";
+   print "Job   ",$jid,"   was destroyed","\n";
 
 #####
 
