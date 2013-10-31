@@ -63,7 +63,7 @@ my @jobs_set = ();
  my $jb_jobfile;
  my $jb_fstat;
  my $jb_joblost;
-
+ my $jb_jobrerun;
 
 ########  declare variables needed to fill the JobStatus table
 
@@ -200,10 +200,13 @@ my @flsplit = ();
     $jb_archive = $JOB_DIR . "/archive/" . $mjobFname;
     $jb_jobfile = $JOB_DIR . "/jobfiles/" . $mjobFname;
     $jb_joblost = $JOB_DIR . "/jobs_lostfiles/" . $mjobFname;
+    $jb_jobrerun = $JOB_DIR . "/jobs_rerun/" . $mjobFname;
+
      if (-f $jb_news)     {$jb_fstat = 0};
      if (-f $jb_archive)  {$jb_fstat = 0};
      if (-f $jb_jobfile)  {$jb_fstat = 0};
      if (-f $jb_joblost)  {$jb_fstat = 0};
+     if (-f $jb_jobrerun) {$jb_fstat = 0};  
 
       if($jb_fstat == 1)  {
       
