@@ -130,7 +130,7 @@ if( $sec < 10) { $sec = '0'.$sec };
         }
    }
 
-#   `crs_job -destroy -f -s DONE`; 
+   `crs_job -destroy -f -s DONE`; 
 
   @joblist = `crs_job -stat | grep ERROR` ;
 
