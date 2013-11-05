@@ -145,12 +145,14 @@ $fC1->connect_as("Admin");
 
  $nlist = 0;
 
- foreach my $dfile (@dqfiles) {
+for ($nlist=0; $nlist < $nfile; $nlist++) {
 
+ my $dfile = $dqfiles[$nlist];
 #  chop $dfile;
   print $dfile, "\n";
 
   @prt = ();
+
   @prt = split(" ",$submtime[$nlist]);  
   $sctime = $prt[0];
   $sctime =~ s/-//g;
@@ -181,9 +183,8 @@ $fC1->connect_as("Admin");
   }
 
 ############
-  $nlist++;
 
- }  #foreach my $dfile
+ }  # for 
 
   close (CFILE);
 
@@ -191,7 +192,7 @@ $fC1->connect_as("Admin");
 
  &StDbDisconnect();
 
-     `hpss_user.pl -r $nfspath -f $DCfname >& $dcsubm`;
+    `hpss_user.pl -r $nfspath -f $DCfname >& $dcsubm`;
 
  exit ;
 
