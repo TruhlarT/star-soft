@@ -8,7 +8,8 @@
 #
 ###############################################################################
 
- use DBI;
+use DBI;
+use File::Basename;
 
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
@@ -18,6 +19,8 @@ $dbname="operation";
 
 # Tables
 $crsJobStatusT = "newcrsJobState";
+
+my $prodtag = $ARGV[0];
 
  my @statlist = ();
  my @joblist  = ();
@@ -54,8 +57,19 @@ my $NFjexec = 0;
 my $Tperror = 0;
 
 my @joberr = ();
+my @jid = ();
+my @jobname = ();
+my @inpfile = ();
+my $jbname;
+my @jbfile = ();
+my $njob = 0;
+my $fname;
 
-my $jid = 0;
+my $infile;
+my $JOBDIR = "/star/u/starreco/".$prodtag."/requests/daq/";
+my $faildir = $JOBDIR."jobs_lostfiles";
+my $archdir = $JOBDIR."archive";
+my $resubdir = $JOBDIR."jobs_rerun";
 
 my @prt = ();
 my @wrd = ();
@@ -75,6 +89,8 @@ if( $sec < 10) { $sec = '0'.$sec };
 
  $thisday = $year."-".$mon."-".$mday." ".$hour.":".$min.":".$sec;
 
+
+ print "-------------------------------------","\n";
  print $thisday, "\n";
 
    &StcrsdbConnect();
@@ -112,7 +128,9 @@ if( $sec < 10) { $sec = '0'.$sec };
 	} elsif ($prt[3] eq "HELD") {        
         $Nheld =  $prt[1];
         }
-    }
+   }
+
+#   `crs_job -destroy -f -s DONE`; 
 
   @joblist = `crs_job -stat | grep ERROR` ;
 
@@ -124,18 +142,20 @@ if( $sec < 10) { $sec = '0'.$sec };
      @wrd = split (" ", $jline);
      print $wrd[0],"   ",$wrd[1], "\n";
 
-     $jid = $wrd[0];
-     $jid = substr($wrd[0],0,-1) + 0;
+     $jid[$njob] = $wrd[0];
+     $jid[$njob] = substr($wrd[0],0,-1) + 0;
 
-    print "Job id = ",$jid, "\n";
+#    print "Job id = ",$jid[$njob], "\n";
 
     @joberr = ();
-    
-    @joberr = `crs_job -long $jid | grep Error`;
+    @joberr = `crs_job -long $jid[$njob] | grep Error`;
+
+    @inpfile = ();
+    @inpfile = `crs_job -long $jid[$njob] | grep starsink`;
 
     foreach my $erline (@joberr) {
      chop $erline ;
-     print $erline, "\n";
+#   print $erline, "\n";
      if ( $erline =~ /Error/ ) {
 
      @pt = ();
@@ -146,7 +166,7 @@ if( $sec < 10) { $sec = '0'.$sec };
      $Tperror = $pt[2];
      $Tperror =~ s/://g;
 
-   print "Job id and error number =  ", $jid,"   ",$Tperror,"\n";
+   print "Job id and error number =  ", $jid[$njob],"   ",$Tperror,"\n";
 
       if($Tperror == 10) {
 	 $NFcondor++;
@@ -159,29 +179,61 @@ if( $sec < 10) { $sec = '0'.$sec };
     }elsif($Tperror == 50) {
         $NFjexec++;  
     }elsif($Tperror == 60) {
-        $NFimport++;  
+        $NFexport++;  
     }elsif($Tperror == 70) {
         $Nioerror++;  
      }
 ######
-     }
     }
 
-   `crs_job -kill -f $jid`; 
+    foreach my $fline (@inpfile) {
+     chop $fline ;
+#     print $fline, "\n";
+     if ( $fline =~ /starsink/ ) {
+       @prt = ();
+       @prt = split("starsink", $fline) ;
+#      print "Check line with filename : ", $prt[0],"  ", $prt[1],"\n";
+      $fname = $prt[1];
+      $fname =~ s/.daq'//g;
+      $jbname = basename($fname);
+      $jobname[$njob] = "*".$prodtag."*".$jbname ; 
+      $jbfile[$njob] = $archdir."/".$jobname[$njob]; 
 
-   print "Job   ",$jid,"   was killed","\n";
+#   print "Jobid, Input filename, error number are : ",$njob,"  ",$jid[$njob],"   ",$jbname,"   ",$Tperror,"   ",$jbfile[$njob],"\n";
+
+       if($Tperror == 20 or $Tperror == 40 or $Tperror == 30 ) {
+
+       `mv $jbfile[$njob] $faildir` ;
+          }else{
+
+       `mv $jbfile[$njob] $resubdir` ;
+         }
+
+       }    #if $fline
+
+      }    #foreach my $fline
+
+    }   #foreach  my $erline 
+
+   `crs_job -kill -f $jid[$njob]`; 
+
+    print "Job   ",$jid[$njob],"   was killed","\n";
  
-   `crs_job -destroy -f $jid`; 
+   `crs_job -destroy -f $jid[$njob]`; 
 
-   print "Job   ",$jid,"   was destroyed","\n";
+    print "Job   ",$jid[$njob],"   was destroyed","\n";
 
 #####
+     $njob++;
 
-   }
+   }   #foreach my $jline
 
-     &fillTable();
 
-    print "Ncreate = ", $Ncreate,"   ","Nqueued = ",$Nqueued,"   ","Nstage = ",$Nstage,"   ","Nsubm = ", $Nsubm,"   ","Nimport = ",$Nimport,"   ","Nrun = ",$Nrun,"   ","Nexport = ",$Nexport,"   ","Ndone = ",$Ndone,"   ","Nerror = ",$Nerror,"   ","Nkill = ",$Nkill,"   ","Nheld = ",$Nheld, "\n";
+    &fillTable();
+
+    print "Number of jobs state : ","Ncreate = ", $Ncreate,"   ","Nqueued = ",$Nqueued,"   ","Nstage = ",$Nstage,"   ","Nsubm = ", $Nsubm,"   ","Nimport = ",$Nimport,"   ","Nrun = ",$Nrun,"   ","Nexport = ",$Nexport,"   ","Ndone = ",$Ndone,"   ","Nerror = ",$Nerror,"   ","Nkill = ",$Nkill,"   ","Nheld = ",$Nheld, "\n";
+
+   print "Number of errors : ","NFcondor = ",$NFcondor,"   ","NFprestage = ",$NFprestage,"   ","NFimport = ",$NFimport,"   ","NFexport = ",$NFexport,"   ","NFretry = ",$NFretry,"   ","NFjexec = ",$NFjexec,"   ","Nioerror = ",$Nioerror, "\n";
 
    &StcrsdbDisconnect();
 
