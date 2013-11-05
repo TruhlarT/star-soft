@@ -32,7 +32,7 @@ my $query = new CGI;
 
 my $scriptname = $query->url(-relative=>1);
 
-my @farmstat = ("created","submitted","queued","staging","importing","running","exporting","done","error","killed","held");
+my @farmstat = ("created","submitted","queued","staging","importing","running","exporting","done","retry","error","killed","held");
 
 my @reqperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months","7_month","8_months","9_months","10_months","11_months","12_months");
 
@@ -120,8 +120,6 @@ print $query->end_html;
 
 
 my $qqr = new CGI;
-
-#if ( exists($ENV{'QUERY_STRING'}) ) { print $qqr->header };
 
  my $pryear    =  $qqr->param('ryear');
  my $qstatus   =  $qqr->param('jstatus');
@@ -219,8 +217,7 @@ my $ii = 0;
  
  }
 
-
-    &StcrsdbDisconnect();
+   &StcrsdbDisconnect();
 
    @data = (\@Npoint, \@numjobs );
 

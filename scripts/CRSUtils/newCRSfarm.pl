@@ -46,6 +46,7 @@ my $Ndone = 0;
 my $Nerror = 0;
 my $Nkill = 0;
 my $Nheld = 0;
+my $Nretry = 0;
 
 my $NFprestage = 0;
 my $NFexport = 0;
@@ -127,12 +128,14 @@ if( $sec < 10) { $sec = '0'.$sec };
         $Nkill =  $prt[1];
 	} elsif ($prt[3] eq "HELD") {        
         $Nheld =  $prt[1];
-        }
+        }elsif ($prt[3] eq "RETRY") {        
+        $Nretry =  $prt[1];
+      }
    }
 
    `crs_job -destroy -f -s DONE`; 
 
-  @joblist = `crs_job -stat | grep ERROR` ;
+    @joblist = `crs_job -stat | grep ERROR` ;
 
    
     foreach my $jline (@joblist) {
@@ -140,7 +143,7 @@ if( $sec < 10) { $sec = '0'.$sec };
 #     print $jline, "\n";
      @wrd = ();
      @wrd = split (" ", $jline);
-     print $wrd[0],"   ",$wrd[1], "\n";
+#     print $wrd[0],"   ",$wrd[1], "\n";
 
      $jid[$njob] = $wrd[0];
      $jid[$njob] = substr($wrd[0],0,-1) + 0;
@@ -190,8 +193,8 @@ if( $sec < 10) { $sec = '0'.$sec };
      chop $fline ;
 #     print $fline, "\n";
      if ( $fline =~ /starsink/ ) {
-       @prt = ();
-       @prt = split("starsink", $fline) ;
+      @prt = ();
+      @prt = split("starsink", $fline) ;
 #      print "Check line with filename : ", $prt[0],"  ", $prt[1],"\n";
       $fname = $prt[1];
       $fname =~ s/.daq'//g;
@@ -199,9 +202,9 @@ if( $sec < 10) { $sec = '0'.$sec };
       $jobname[$njob] = "*".$prodtag."*".$jbname ; 
       $jbfile[$njob] = $archdir."/".$jobname[$njob]; 
 
-#   print "Jobid, Input filename, error number are : ",$njob,"  ",$jid[$njob],"   ",$jbname,"   ",$Tperror,"   ",$jbfile[$njob],"\n";
+  print "N, Jobid, jobname, error number, full jobname are : ",$njob,"  ",$jid[$njob],"   ",$jbname,"   ",$Tperror,"   ",$jbfile[$njob],"\n";
 
-       if($Tperror == 20 or $Tperror == 40 or $Tperror == 30 ) {
+      if($Tperror == 20 or $Tperror == 40 or $Tperror == 30 ) {
 
        `mv $jbfile[$njob] $faildir` ;
           }else{
@@ -256,6 +259,7 @@ exit;
  $sql.="held='$Nheld',";
  $sql.="done='$Ndone',";
  $sql.="error='$Nerror',";
+ $sql.="retry='$Nretry',";
  $sql.="prestaging_failed='$NFprestage',";
  $sql.="hpss_export_failed='$NFexport',";
  $sql.="hpss_import_failed='$NFimport',";
