@@ -397,6 +397,8 @@ my @nfileHpss = ();
 my @filehpss = ();
 my @eventhpss = ();
 my @sumevthpss = ();
+my $pdrate = 0;
+my @prodrate = ();
 
 my $prodname = "n/a";
 
@@ -506,6 +508,8 @@ my $query = new CGI;
    $numfiles[$nlist] = scalar(@filelst);
    $nfileHpss[$nlist] = scalar(@filehpss);
 
+   $pdrate = ($numfiles[$nlist]/$nfileHpss[$nlist])*100;
+   $prodrate[$nlist] = sprintf("%.1f", $pdrate);
 
  $prodname = $trig[$nlist].".".$prod[$nlist]."_loc.html";
 
@@ -521,6 +525,7 @@ my $query = new CGI;
 <td HEIGHT=10><h3>$sumsize[$nlist]</h3></td>
 <td HEIGHT=10><h3>$numfiles[$nlist]</h3></td>
 <td HEIGHT=10><h3>$nfileHpss[$nlist]</h3></td>
+<td HEIGHT=10><h3>$prodrate[$nlist]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveNodes.pl?trigs=$trig[$nlist];prod=$prod[$nlist]">list</h3></td>
 </TR>
 END
@@ -558,6 +563,7 @@ Link under production tag has chain options<br>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Size of MuDst on DD (GB)<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of MuDst files on DD<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of MuDst files on HPSS<h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>% of production saved on DD<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>List of nodes <h3></B></TD>
 </TR> 
     </body>
