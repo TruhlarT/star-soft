@@ -542,14 +542,14 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\"> 
- <h2 ALIGN=CENTER> <B> Production Data Summary on Distribited Disk  </B></h2>
+ <h2 ALIGN=CENTER> <B> Production Data Summary on Distributed Disk  </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
-<h4 ALIGN=LEFT>Link under the trigger set name has stream data summary <br>
+<h4 ALIGN=LEFT>Link under the trigger setup name has stream data summary <br>
 Link under production tag has chain options<br>
 <ALIGN=LEFT><font color="blue">Production descriptions can be found on  <a href="http://www.star.bnl.gov/public/comp/prod/ProdList.html"> the page</a></font></h4>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Trigger sets</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Trigger setup name</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Collision</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Year of data taken</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Production Tag</h3></B></TD>
