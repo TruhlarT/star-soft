@@ -31,6 +31,11 @@ my $jobId = 0;
 my $prcId = 0;
 my $jbstat;
 my $dqsize = 0;
+my $nfspath = "/star/data10/daq/2012/";
+my $daqname;
+my $fulldname;
+my $inpsize = 0;
+
 
 # print "Job status path name  ", $jobStatPath, "\n";
 
@@ -71,13 +76,50 @@ my $dqsize = 0;
 #  print "Input for  ", $sline," % ",$line," % ",$dqsize, "\n" ;
  }
 
-  $sql= "update $JobStatusT set jobState = '$jbstat', daqSizeOnSite = '$dqsize' where sumsRequestID = '$jobId' and sumsJobIndex = '$prcId' ";
+  $sql= "update $JobStatusT set jobProgress = '$jbstat', daqSizeOnSite = '$dqsize' where sumsRequestID = '$jobId' and sumsJobIndex = '$prcId' ";
 
  $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
-}else{
+##########
 
- $sql= "update $JobStatusT set jobState = '$jbstat' where sumsRequestID = '$jobId' and sumsJobIndex = '$prcId' ";
+ $sql="SELECT inputFileName, inputFileSize  FROM $JobStatusT where sumsRequestID = '$jobId' and sumsJobIndex = '$prcId'";
+
+    $cursor =$dbh->prepare($sql)
+    || die "Cannot prepare statement: $DBI::errstr\n";
+     $cursor->execute;
+
+   while(@fields = $cursor->fetchrow) {
+     my $cols=$cursor->{NUM_OF_FIELDS};
+
+    for($i=0;$i<$cols;$i++) {
+     my $fvalue=$fields[$i];
+        my $fname=$cursor->{NAME}->[$i];
+
+      print "$fname = $fvalue\n" if $debugOn;
+
+      $daqname = $fvalue    if( $fname eq 'inputFileName');
+      $inpsize = $fvalue    if( $fname eq 'inputFileSize');
+
+         }
+     }
+
+     $fulldname = $nfspath.$daqname;
+     if($inpsize == $dqsize) {
+
+     `rm $fulldname`;
+
+     }else {
+ 
+  $sql= "update $JobStatusT set jobProgress = 'none', jobState = 'none' where sumsRequestID = '$jobId' and sumsJobIndex = '$prcId' ";
+  $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
+   }
+
+############
+
+
+  }else{
+
+ $sql= "update $JobStatusT set jobProgress = '$jbstat' where sumsRequestID = '$jobId' and sumsJobIndex = '$prcId' ";
 
  $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
