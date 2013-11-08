@@ -27,7 +27,7 @@ $fC1->connect_as("Admin");
 
 my $nfspath = "/star/data10/daq/2012/";
 my $nfile = 0;
-my $dbfile;
+my $dbfile = "none";
 my $daqstat;
 my $dsize = 0;
 my $ndays = 2;
@@ -192,7 +192,7 @@ for ($nlist=0; $nlist < $nfile; $nlist++) {
 
  &StDbDisconnect();
 
-    `hpss_user.pl -r $nfspath -f $DCfname >& $dcsubm`;
+#    `hpss_user.pl -r $nfspath -f $DCfname >& $dcsubm`;
 
  exit ;
 
