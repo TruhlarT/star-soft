@@ -143,7 +143,6 @@ if( $sec < 10) { $sec = '0'.$sec };
 #     print $jline, "\n";
      @wrd = ();
      @wrd = split (" ", $jline);
-#     print $wrd[0],"   ",$wrd[1], "\n";
 
      $jid[$njob] = $wrd[0];
      $jid[$njob] = substr($wrd[0],0,-1) + 0;
@@ -164,8 +163,6 @@ if( $sec < 10) { $sec = '0'.$sec };
      @pt = ();
      @pt = split (" ", $erline);
 
-#  print "Error line : ", $pt[1],"  ", $pt[2],"  ",$pt[3], "\n";
-     
      $Tperror = $pt[2];
      $Tperror =~ s/://g;
 
@@ -202,7 +199,7 @@ if( $sec < 10) { $sec = '0'.$sec };
       $jobname[$njob] = "*".$prodtag."*".$jbname ; 
       $jbfile[$njob] = $archdir."/".$jobname[$njob]; 
 
-  print "N, Jobid, jobname, error number, full jobname are : ",$njob,"  ",$jid[$njob],"   ",$jbname,"   ",$Tperror,"   ",$jbfile[$njob],"\n";
+  print "N, jobid, jobname, error number, full jobname are : ",$njob,"  ",$jid[$njob],"   ",$jbname,"   ",$Tperror,"   ",$jbfile[$njob],"\n";
 
       if($Tperror == 20 or $Tperror == 40 or $Tperror == 30 ) {
 
@@ -220,11 +217,11 @@ if( $sec < 10) { $sec = '0'.$sec };
 
    `crs_job -kill -f $jid[$njob]`; 
 
-    print "Job   ",$jid[$njob],"   was killed","\n";
+    print "Job   ",$jid[$njob],"  killed","\n";
  
    `crs_job -destroy -f $jid[$njob]`; 
 
-    print "Job   ",$jid[$njob],"   was destroyed","\n";
+    print "Job   ",$jid[$njob],"  destroyed","\n";
 
 #####
      $njob++;
@@ -232,9 +229,9 @@ if( $sec < 10) { $sec = '0'.$sec };
    }   #foreach my $jline
 
 
-    &fillTable();
+   &fillTable();
 
-    print "Number of jobs state : ","Ncreate = ", $Ncreate,"   ","Nqueued = ",$Nqueued,"   ","Nstage = ",$Nstage,"   ","Nsubm = ", $Nsubm,"   ","Nimport = ",$Nimport,"   ","Nrun = ",$Nrun,"   ","Nexport = ",$Nexport,"   ","Ndone = ",$Ndone,"   ","Nerror = ",$Nerror,"   ","Nkill = ",$Nkill,"   ","Nheld = ",$Nheld, "\n";
+    print "Number of jobs state : ","Ncreate = ",$Ncreate,"   ","Nqueued = ",$Nqueued,"   ","Nstage = ",$Nstage,"   ","Nsubm = ", $Nsubm,"   ","Nimport = ",$Nimport,"   ","Nrun = ",$Nrun,"   ","Nexport = ",$Nexport,"   ","Ndone = ",$Ndone,"   ","Nerror = ",$Nerror,"   ", "Nretry = ",$Nretry,"   ","Nkill = ",$Nkill,"   ","Nheld = ",$Nheld, "\n";
 
    print "Number of errors : ","NFcondor = ",$NFcondor,"   ","NFprestage = ",$NFprestage,"   ","NFimport = ",$NFimport,"   ","NFexport = ",$NFexport,"   ","NFretry = ",$NFretry,"   ","NFjexec = ",$NFjexec,"   ","Nioerror = ",$Nioerror, "\n";
 
