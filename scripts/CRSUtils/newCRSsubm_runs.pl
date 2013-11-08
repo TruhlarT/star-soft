@@ -141,13 +141,13 @@ $MAXPRCT= 0.75;  # there will be a loop until at least $NJOBS*$MAXPRCT are in th
 			 if ( -f $jbfile) {
 			     print  $jbfile, "\n";
 			     
-#                             `$CRSDIR/crs_job -insert $jbfile`;
+                             `$CRSDIR/crs_job -insert $jbfile`;
 
-#			     `/bin/mv $jbfile $archdir`;
+			     `/bin/mv $jbfile $archdir`;
 			     $Ncreate++;
 
-#	$sql= "update $JobStatusT set submitTime = '$timestamp', submitAttempt = 1 where jobfileName = '$jbfile' ";
-#	$rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;        
+	$sql= "update $JobStatusT set submitTime = '$timestamp', submitAttempt = 1 where jobfileName = '$jbfile' ";
+	$rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;        
 
 			 } else {
 			     print "[?] $jbfile is not a file\n";
