@@ -32,6 +32,8 @@ my $JobStatusT = "jobs_prod_2013";
 
 my $nfspath = "/star/data10/daq/2012/";
 my $daqpat = $nfspath."*.daq";
+my @prdset = ();
+my $nl = 0;
 
 my @daqlist = `ls $daqpat` ;
 
@@ -39,7 +41,22 @@ my $MAXNUM = 1000;
 
 print "There are  ", scalar(@daqlist),"  daq files in the ", $nfspath,"  directory", "\n";
  
-if(scalar(@daqlist) <= $MAXNUM ) {
+ &StDbConnect();
+
+ $sql= "select inputFileName from $JobStatusT where  prodTag = '$prodTg' and inputFileExists = 'no' ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mfile = $cursor->fetchrow() ) {
+          $prdset[$nl] = $mfile;
+          $nl++;
+       }
+    $cursor->finish();
+
+
+if(scalar(@daqlist) <= $MAXNUM and scalar(@prdset) < $MAXNUM  ) {
 
  if( -f $lockfile) {
      `/bin/rm  $lockfile` ;
@@ -109,8 +126,6 @@ my $dcsubm = "/star/u/starreco/runkisti/".$dclog;
  if (!open (NEWLIST, ">$listName" ))  {printf ("Unable to create file %s\n",$listName);}
 	 
  if (!open (CFILE, ">$DCfname")) {printf ("Unable to create file %s\n",$DCfname);};
-
- &StDbConnect();
 
 ########
 
