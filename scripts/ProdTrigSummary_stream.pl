@@ -16,7 +16,6 @@ use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use FileCatalog;
 
 use DBI;
-use Mysql;
 use File::Basename;
 use Time::Local;
 
