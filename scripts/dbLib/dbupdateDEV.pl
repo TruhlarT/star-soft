@@ -16,7 +16,6 @@ use File::Find;
 use Net::FTP;
 use Class::Struct;
 use File::Basename;
-use Mysql;
 
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
