@@ -9,7 +9,6 @@
 # L.Didenko
 ############################################################################
 
-use Mysql;
 use Class::Struct;
 use File::Basename;
 use Compress::Zlib;
@@ -30,7 +29,7 @@ my $DISK1 = "/star/rcf/prodlog";
 my $prodSr = $ARGV[0]; 
 my $trig = $ARGV[1];
 my $comcalib = $ARGV[2];
-my $bldisk = "/star/data16";
+my $bldisk = "data16";
 
 my $lastDTime;
 
