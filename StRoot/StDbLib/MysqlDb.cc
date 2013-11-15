@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: MysqlDb.cc,v 1.65 2013/11/15 17:46:38 dmitry Exp $
+ * $Id: MysqlDb.cc,v 1.60.2.1 2013/11/15 20:10:56 didenko Exp $
  *
  * Author: Laurent Conin
  ***************************************************************************
@@ -10,20 +10,8 @@
  ***************************************************************************
  *
  * $Log: MysqlDb.cc,v $
- * Revision 1.65  2013/11/15 17:46:38  dmitry
- * do not try to free memory which we don\'t own..
- *
- * Revision 1.64  2013/11/14 21:25:47  dmitry
- * override for the mysql user autodetect functionality
- *
- * Revision 1.63  2013/05/23 19:27:08  dmitry
- * simple hook to use database with login/pass when really needed
- *
- * Revision 1.62  2012/12/12 21:58:37  fisyak
- * Add check for HAVE_CLOCK_GETTIME flag and for APPLE
- *
- * Revision 1.61  2012/05/04 17:19:14  dmitry
- * Part One integration for Hyper Cache. HyperCache added to workflow, but config is set to DISABLE
+ * Revision 1.60.2.1  2013/11/15 20:10:56  didenko
+ * patch due to user id problem on SL6
  *
  * Revision 1.60  2011/04/04 15:44:24  dmitry
  * fix to blacklist Calibrations_bla only
@@ -247,7 +235,6 @@
  * each header and src file
  *
  **************************************************************************/
-#include <assert.h>
 #include "MysqlDb.h"
 #include "StDbManager.hh" // for now & only for getting the message service
 #include "stdb_streams.h"
@@ -309,12 +296,8 @@ namespace {
 
 time_t get_time_nanosec() {
     timespec ts;
-#ifdef HAVE_CLOCK_GETTIME
     clock_gettime(CLOCK_MONOTONIC, &ts);
     return (ts.tv_sec*1000 + ts.tv_nsec/1000000);
-#else
-    return 0;
-#endif
 }
 
 }
@@ -327,11 +310,6 @@ static const char* binaryMessage = {"Cannot Print Query with Binary data"};
 ////////////////////////////////////////////////////////////////////////
 
 MysqlDb::MysqlDb(): mdbhost(0), mdbName(NULL), mdbuser(0), mdbpw(0), mdbPort(0),mdbServerVersion(0),mlogTime(false) {
-
-	if (mdbuser == NULL && getenv("USE_LB_LOGIN") != NULL) {
-		mdbuser = "loadbalancer";
-		mdbpw = "lbdb";
-	}
 
 mhasConnected=false;
 mhasBinaryQuery=false;
@@ -346,12 +324,13 @@ mRes= new MysqlResult;
   pwd = getpwuid(geteuid());
   if (pwd) {
     mSysusername = pwd->pw_name;
-	mdbuser = (char*)mSysusername.c_str();
-	std::cout << "DB OVERRIDE default user with: " << mdbuser << std::endl;
+    mdbuser = (char*)mSysusername.c_str();
+    std::cout << "DB OVERRIDE default user with: " << mdbuser << std::endl;
   } else {
-	std::cout << "DB OVERRIDE failure, user ID cannot be retrieved" << std::endl;
+    std::cout << "DB OVERRIDE failure, user ID cannot be retrieved" << std::endl;
   }
 }
+
 //////////////////////////////////////////////////////////////////////
 
 MysqlDb::~MysqlDb(){
@@ -360,9 +339,8 @@ if(mQueryLast) delete [] mQueryLast;
 Release();
 if(mRes) delete mRes;
 if(mhasConnected)mysql_close(&mData);
-
-//if(mdbhost) delete [] mdbhost; // no guarantee that we own this data, really
-//if(mdbuser) delete [] mdbuser; // thus do not destroy..
+//if(mdbhost) delete [] mdbhost;
+//if(mdbuser) delete [] mdbuser;
 //if(mdbpw)   delete [] mdbpw;
 //if(mdbName)  delete [] mdbName;
 // if(mdbServerVersion) delete [] mdbServerVersion;
@@ -395,11 +373,9 @@ bool MysqlDb::reConnect(){
 
     // always returns 0, no way to check for SSL validity     
 	// "AES-128-SHA" = less CPU-intensive than AES-256                                                                                               
-#ifndef __APPLE__
     mysql_ssl_set(&mData, NULL, NULL, NULL, NULL, "AES128-SHA");
-#endif
-	unsigned long client_flag = CLIENT_COMPRESS;
 
+	unsigned long client_flag = CLIENT_COMPRESS;
 
     if(mysql_real_connect(&mData,mdbhost,mdbuser,mdbpw,mdbName,mdbPort,NULL,client_flag)) {
     	connected=true;
@@ -453,8 +429,6 @@ bool MysqlDb::reConnect(){
 //////////////////////////////////////////////////////////////////////// 
 bool MysqlDb::Connect(const char *aHost, const char *aUser, const char *aPasswd,  const char *aDb, const int aPort){
 #define __METHOD__ "Connect(host,user,pw,database,port)"
-
-	m_Mgr.init();
 
   if(aUser){
    if(mdbuser) delete [] mdbuser;
@@ -618,17 +592,7 @@ bool MysqlDb::ExecQuery(){
 
 mqueryState=false;
 
-	size_t cache_length = 0;
-	if (m_Mgr.isActive()) {
-		std::string dbName = mdbName ? mdbName : "";
-		const char* res = m_Mgr.get(dbName, mQuery, cache_length);
-		if (res && cache_length) {
-			return mqueryState = true;			
-		}
-	}
-
 if(mlogTime)mqueryLog.start();
-
 
 //int status=mysql_real_query(&mData,mQuery,mQueryLen);
   int status=mysql_real_query(&mData,mQ.c_str(), mQ.size());
@@ -885,24 +849,6 @@ bool MysqlDb::Input(const char *table,StDbBuffer *aBuff){
 ////////////////////////////////////////////////////////////////////////
 
 bool  MysqlDb::Output(StDbBuffer *aBuff){
-	//std::cout << "processing db: " << mdbName << ", query: " << mQuery << std::endl;
-
-
-  if (m_Mgr.isValueFound()) {
-	//std::cout << "Found value in cache! " << std::endl;
-	// process JSON data
-	return m_Mgr.processOutput(aBuff);
-  } else if (!m_Mgr.isValueFound() && mRes->mRes) {
-	if (!m_Mgr.getLastGroupKey().empty() && !m_Mgr.getLastKey().empty() && m_Mgr.getLastGroupKey() != " " && m_Mgr.getLastKey() != " ") {
-		//std::cout << "lastdb: " << m_Mgr.getLastGroupKey() << " | query: " << m_Mgr.getLastKey() << ", " << std::endl;
-		
-		aBuff->SetStorageMode();
-  		m_Mgr.set(m_Mgr.getLastGroupKey().c_str(), m_Mgr.getLastKey().c_str(), mRes->mRes, 0);
-		mysql_data_seek(mRes->mRes, 0); // return to the beginning of result set..
-		aBuff->SetClientMode();
-	}
-  }
-
 
   if(mlogTime)msocketLog.start();
   MYSQL_ROW tRow=mysql_fetch_row(mRes->mRes);
