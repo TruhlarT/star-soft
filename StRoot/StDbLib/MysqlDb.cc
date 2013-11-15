@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: MysqlDb.cc,v 1.65 2013/11/15 17:46:38 dmitry Exp $
+ * $Id: MysqlDb.cc,v 1.53.2.1 2013/11/15 20:30:27 didenko Exp $
  *
  * Author: Laurent Conin
  ***************************************************************************
@@ -10,41 +10,8 @@
  ***************************************************************************
  *
  * $Log: MysqlDb.cc,v $
- * Revision 1.65  2013/11/15 17:46:38  dmitry
- * do not try to free memory which we don\'t own..
- *
- * Revision 1.64  2013/11/14 21:25:47  dmitry
- * override for the mysql user autodetect functionality
- *
- * Revision 1.63  2013/05/23 19:27:08  dmitry
- * simple hook to use database with login/pass when really needed
- *
- * Revision 1.62  2012/12/12 21:58:37  fisyak
- * Add check for HAVE_CLOCK_GETTIME flag and for APPLE
- *
- * Revision 1.61  2012/05/04 17:19:14  dmitry
- * Part One integration for Hyper Cache. HyperCache added to workflow, but config is set to DISABLE
- *
- * Revision 1.60  2011/04/04 15:44:24  dmitry
- * fix to blacklist Calibrations_bla only
- *
- * Revision 1.59  2011/03/19 01:21:49  dmitry
- * connect error messages converted to more user-frienly format
- *
- * Revision 1.58  2011/02/24 03:54:35  dmitry
- * commented out unused variable
- *
- * Revision 1.57  2011/01/07 18:19:02  dmitry
- * user name lookup is done once now (for speedup, based on profiler report)
- *
- * Revision 1.56  2011/01/07 17:12:29  dmitry
- * fixed pseudo-leaks in c-string and xml-string assignments
- *
- * Revision 1.55  2010/11/19 14:54:30  dmitry
- * added define guard (mysql version) to enable automatic reconnect in mysql 5.0.44+, excluding mysql 4
- *
- * Revision 1.54  2010/11/18 20:34:01  dmitry
- * enabled automatic reconnect via mysql option
+ * Revision 1.53.2.1  2013/11/15 20:30:27  didenko
+ * patch due to user id problem on SL6
  *
  * Revision 1.53  2010/02/17 23:39:26  dmitry
  * indirect log info added
@@ -247,7 +214,6 @@
  * each header and src file
  *
  **************************************************************************/
-#include <assert.h>
 #include "MysqlDb.h"
 #include "StDbManager.hh" // for now & only for getting the message service
 #include "stdb_streams.h"
@@ -309,29 +275,20 @@ namespace {
 
 time_t get_time_nanosec() {
     timespec ts;
-#ifdef HAVE_CLOCK_GETTIME
     clock_gettime(CLOCK_MONOTONIC, &ts);
     return (ts.tv_sec*1000 + ts.tv_nsec/1000000);
-#else
-    return 0;
-#endif
 }
 
 }
 
 static const char* binaryMessage = {"Cannot Print Query with Binary data"};
-//static MYSQL *conn;
+static MYSQL *conn;
 
 
 
 ////////////////////////////////////////////////////////////////////////
 
 MysqlDb::MysqlDb(): mdbhost(0), mdbName(NULL), mdbuser(0), mdbpw(0), mdbPort(0),mdbServerVersion(0),mlogTime(false) {
-
-	if (mdbuser == NULL && getenv("USE_LB_LOGIN") != NULL) {
-		mdbuser = "loadbalancer";
-		mdbpw = "lbdb";
-	}
 
 mhasConnected=false;
 mhasBinaryQuery=false;
@@ -346,12 +303,13 @@ mRes= new MysqlResult;
   pwd = getpwuid(geteuid());
   if (pwd) {
     mSysusername = pwd->pw_name;
-	mdbuser = (char*)mSysusername.c_str();
-	std::cout << "DB OVERRIDE default user with: " << mdbuser << std::endl;
+    mdbuser = (char*)mSysusername.c_str();
+    std::cout << "DB OVERRIDE default user with: " << mdbuser << std::endl;
   } else {
-	std::cout << "DB OVERRIDE failure, user ID cannot be retrieved" << std::endl;
+    std::cout << "DB OVERRIDE failure, user ID cannot be retrieved" << std::endl;
   }
 }
+
 //////////////////////////////////////////////////////////////////////
 
 MysqlDb::~MysqlDb(){
@@ -360,18 +318,11 @@ if(mQueryLast) delete [] mQueryLast;
 Release();
 if(mRes) delete mRes;
 if(mhasConnected)mysql_close(&mData);
-
-//if(mdbhost) delete [] mdbhost; // no guarantee that we own this data, really
-//if(mdbuser) delete [] mdbuser; // thus do not destroy..
+//if(mdbhost) delete [] mdbhost;
+//if(mdbuser) delete [] mdbuser;
 //if(mdbpw)   delete [] mdbpw;
 //if(mdbName)  delete [] mdbName;
 // if(mdbServerVersion) delete [] mdbServerVersion;
-
-#ifdef MYSQL_VERSION_ID
-# if MYSQL_VERSION_ID > 50044
-mysql_library_end();
-# endif
-#endif
 
 }
 //////////////////////////////////////////////////////////////////////// 
@@ -380,31 +331,21 @@ bool MysqlDb::reConnect(){
 
   bool connected=false;
   unsigned int timeOutConnect=mtimeout;
-  my_bool auto_reconnect = 1;
-
   while(!connected && timeOutConnect<600){ 
     mysql_options(&mData,MYSQL_OPT_CONNECT_TIMEOUT,(const char*)&timeOutConnect);
-
-#ifdef MYSQL_VERSION_ID
-# if MYSQL_VERSION_ID > 50044
-    mysql_options(&mData,MYSQL_OPT_RECONNECT, &auto_reconnect);
-# endif
-#endif
 
     loadBalance(); // does nothing in the fall-back scenario
 
     // always returns 0, no way to check for SSL validity     
 	// "AES-128-SHA" = less CPU-intensive than AES-256                                                                                               
-#ifndef __APPLE__
     mysql_ssl_set(&mData, NULL, NULL, NULL, NULL, "AES128-SHA");
-#endif
-	unsigned long client_flag = CLIENT_COMPRESS;
 
+	unsigned long client_flag = CLIENT_COMPRESS;
 
     if(mysql_real_connect(&mData,mdbhost,mdbuser,mdbpw,mdbName,mdbPort,NULL,client_flag)) {
     	connected=true;
-        std::string query = "SHOW STATUS LIKE 'Ssl_cipher'";                                                                                                 
-        mysql_query(&mData, query.c_str());                                                                                                                          
+        const char* query = "SHOW STATUS LIKE 'Ssl_cipher'";                                                                                                 
+        mysql_query(&mData, query);                                                                                                                          
         MYSQL_RES *result = 0;                                                                                                                               
         MYSQL_ROW row = 0;                                                                                                                                   
         int num_fields = 0;                                                                                                                                  
@@ -416,16 +357,15 @@ bool MysqlDb::reConnect(){
 				LOG_INFO << row[0] << " = " << row[1] << endm; 
             }                                                                                                                                                
         } 
-		mysql_free_result(result);
 	}
 
     if(!connected){
       timeOutConnect*=2;
       StString wm;
-	  wm << " Cannot connect to " << mdbhost << ":" << mdbPort << ", database server is busy or unreachable.\n";
-      wm << " Returned error =";
-      wm << mysql_error(&mData)<<".\n  Will re-try with timeout set at \n==> ";
-      wm << timeOutConnect<<" seconds <==";
+      wm<<" Connection Failed with MySQL on "<<mdbhost<<":"<<mdbPort<<stendl;
+      wm<<" Returned error =";
+      wm<<mysql_error(&mData)<<".  Will re-try with timeout set at \n==> ";
+      wm<<timeOutConnect<<" seconds <==";
       StDbManager::Instance()->printInfo((wm.str()).c_str(),dbMConnect,__LINE__,__CLASS__,__METHOD__); 
     }
   }      
@@ -435,7 +375,7 @@ bool MysqlDb::reConnect(){
  //MPD added 4/28/04 check for valid (not Null) mData.server_version 
     if(!mData.server_version){
 	    StString smm;
-	    smm<<" No Server version - most likely incompatible libraries \n CONTACT DATABASE ADMINISTRATOR";
+	    smm<<" No Server version - most likely incompatable libraries \n CONTACT ADMIN";
 	    StDbManager::Instance()->printInfo((smm.str()).c_str(),dbMConnect,__LINE__,__CLASS__,__METHOD__); 
 	    assert(mData.server_version);
     }
@@ -453,8 +393,6 @@ bool MysqlDb::reConnect(){
 //////////////////////////////////////////////////////////////////////// 
 bool MysqlDb::Connect(const char *aHost, const char *aUser, const char *aPasswd,  const char *aDb, const int aPort){
 #define __METHOD__ "Connect(host,user,pw,database,port)"
-
-	m_Mgr.init();
 
   if(aUser){
    if(mdbuser) delete [] mdbuser;
@@ -604,10 +542,16 @@ return true;
 bool MysqlDb::ExecQuery(){
 #define __METHOD__ "ExecQuery()"
 
+  struct passwd *pwd = 0;
+  pwd = getpwuid(geteuid());
+  std::string sysusername = "N/A";
+  if (pwd) {
+    sysusername = pwd->pw_name;
+  }
 
   std::string mQ(mQuery,mQueryLen);
   mQ.append(" /* RUSR: "); // real user name
-  mQ.append(mSysusername);
+  mQ.append(sysusername);
   mQ.append(" | SUSR: "); // set user name
   if (mdbuser) {
     mQ.append(mdbuser);
@@ -618,17 +562,7 @@ bool MysqlDb::ExecQuery(){
 
 mqueryState=false;
 
-	size_t cache_length = 0;
-	if (m_Mgr.isActive()) {
-		std::string dbName = mdbName ? mdbName : "";
-		const char* res = m_Mgr.get(dbName, mQuery, cache_length);
-		if (res && cache_length) {
-			return mqueryState = true;			
-		}
-	}
-
 if(mlogTime)mqueryLog.start();
-
 
 //int status=mysql_real_query(&mData,mQuery,mQueryLen);
   int status=mysql_real_query(&mData,mQ.c_str(), mQ.size());
@@ -885,24 +819,6 @@ bool MysqlDb::Input(const char *table,StDbBuffer *aBuff){
 ////////////////////////////////////////////////////////////////////////
 
 bool  MysqlDb::Output(StDbBuffer *aBuff){
-	//std::cout << "processing db: " << mdbName << ", query: " << mQuery << std::endl;
-
-
-  if (m_Mgr.isValueFound()) {
-	//std::cout << "Found value in cache! " << std::endl;
-	// process JSON data
-	return m_Mgr.processOutput(aBuff);
-  } else if (!m_Mgr.isValueFound() && mRes->mRes) {
-	if (!m_Mgr.getLastGroupKey().empty() && !m_Mgr.getLastKey().empty() && m_Mgr.getLastGroupKey() != " " && m_Mgr.getLastKey() != " ") {
-		//std::cout << "lastdb: " << m_Mgr.getLastGroupKey() << " | query: " << m_Mgr.getLastKey() << ", " << std::endl;
-		
-		aBuff->SetStorageMode();
-  		m_Mgr.set(m_Mgr.getLastGroupKey().c_str(), m_Mgr.getLastKey().c_str(), mRes->mRes, 0);
-		mysql_data_seek(mRes->mRes, 0); // return to the beginning of result set..
-		aBuff->SetClientMode();
-	}
-  }
-
 
   if(mlogTime)msocketLog.start();
   MYSQL_ROW tRow=mysql_fetch_row(mRes->mRes);
@@ -1076,9 +992,6 @@ if(strcmp(dbName," ")==0)return true;
 
 bool tOk=false;
 unsigned int mysqlError;
-std::string sdbName(dbName);
-size_t found;
-found = sdbName.find("blacklist");
 
  if(mysql_select_db(&mData,dbName)){
 
@@ -1086,17 +999,13 @@ found = sdbName.find("blacklist");
     if(mysqlError==CR_SERVER_GONE_ERROR || mysqlError==CR_SERVER_LOST){
        reConnect();  
        if(mysql_select_db(&mData,dbName)){
-		if (found == std::string::npos) {
          LOG_ERROR<< "Error selecting database=" << dbName << endm;
-		}
          tOk=false;
        } else {
          tOk=true;
        }
     } else {
-		if (found == std::string::npos) {
-          LOG_ERROR<< "Error selecting database=" << dbName << endm;
-		}
+       LOG_ERROR<< "Error selecting database=" << dbName << endm;
        tOk=false;
     }
  } else {
