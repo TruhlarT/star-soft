@@ -38,7 +38,7 @@ my $inpsize = 0;
 
 # print "Job status path name  ", $jobStatPath, "\n";
 
- chdir $jobStatPath;
+ chdir $statusPath;
 
  @statusfile = `ls *`;
 
