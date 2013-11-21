@@ -14,6 +14,7 @@ $ROOTSYS    = $ENV{ROOTSYS};
 $OS         = $ENV{STAR_HOST_SYS};
 $CERN       = $ENV{CERN};
 $CERN_LEVEL = $ENV{CERN_LEVEL};
+$OPTSTAR    = $ENV{OPTSTAR};
 $OSG        = $ENV{OSG};
 $DEBUG      = $ENV{NMPL_DEBUG};
 
@@ -107,6 +108,14 @@ print "\tAdding files from $CERN/$CERN_LEVEL/lib/*.a\n";
 push(@all,glob("$CERN/$CERN_LEVEL/lib/*.a"));
 
 
+# also pushing OPTSTAR now but this will take time
+if ( -e "$OPTSTAR/lib"){
+    print "\tAdding files from $OPTSTAR/lib/$pat\n";
+    push(@all,glob("$OPTSTAR/lib/$pat"));
+}
+    
+    
+    
 if ( defined($OSG) ){
     print "\tAdding Globus libraries from $OSG/globus/lib/*.so\n";
     push(@all,glob("$OSG/globus/lib/*.so"));
