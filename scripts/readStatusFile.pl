@@ -10,7 +10,6 @@
 
 use DBI;
 use Time::Local;
-use Mysql;
 
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
@@ -26,9 +25,9 @@ my @statusfile = ();
 my @statfile = ();
 my @wrd = ();
 my @prt = ();
-my $JbID;
-my $jobId = 0;
-my $prcId = 0;
+my $prodtg;
+my $prod = 0;
+my $dqfile = 0;
 my $jbstat;
 my $dqsize = 0;
 my $nfspath = "/star/data10/daq/2012/";
@@ -51,14 +50,11 @@ my $inpsize = 0;
      $outfile = $jobStatPath."/".$sline ;
      @wrd = ();
      @wrd = split ("-", $sline);
-     $JbID = $wrd[0];
-     $jbstat = $wrd[1];
-     @wrd = ();
-     @wrd = split ("_", $JbID);
-     $jobId = $wrd[0];
-     $prcId = $wrd[1];
+     $prodtg = $wrd[0];
+     $dqfile = $wrd[1].".daq";
+     $jbstat = $wrd[2];
 
-#  print "From the status file name  ", $JbID,"  %  ",$jbstat,"  %  ",$jobId,"  %  ",$prcId, "\n"; 
+#  print "From the status file name  ",$prodtg ,"  %  ",$dqfile ,"  %  ", $jbstat, "\n"; 
 
   if ($jbstat eq "daq_transferred" ) {
 
@@ -76,13 +72,13 @@ my $inpsize = 0;
 #  print "Input for  ", $sline," % ",$line," % ",$dqsize, "\n" ;
  }
 
-  $sql= "update $JobStatusT set jobProgress = '$jbstat', daqSizeOnSite = '$dqsize' where sumsRequestID = '$jobId' and sumsJobIndex = '$prcId' ";
+  $sql= "update $JobStatusT set jobProgress = '$jbstat', daqSizeOnSite = '$dqsize' where prodTag = '$prodtg' and inputfileName = '$dqfile' ";
 
  $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
 ##########
 
- $sql="SELECT inputFileName, inputFileSize  FROM $JobStatusT where sumsRequestID = '$jobId' and sumsJobIndex = '$prcId'";
+ $sql="SELECT inputFileName, inputFileSize  FROM $JobStatusT where prodTag = '$prodtg' and inputfileName = '$dqfile' ";
 
     $cursor =$dbh->prepare($sql)
     || die "Cannot prepare statement: $DBI::errstr\n";
@@ -110,7 +106,7 @@ my $inpsize = 0;
 
      }else {
  
-  $sql= "update $JobStatusT set jobProgress = 'none', jobState = 'none' where sumsRequestID = '$jobId' and sumsJobIndex = '$prcId' ";
+  $sql= "update $JobStatusT set jobProgress = 'none', jobState = 'none' where prodTag = '$prodtg' and inputfileName = '$dqfile' ";
   $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
    }
 
@@ -119,7 +115,7 @@ my $inpsize = 0;
 
   }else{
 
- $sql= "update $JobStatusT set jobProgress = '$jbstat' where sumsRequestID = '$jobId' and sumsJobIndex = '$prcId' ";
+ $sql= "update $JobStatusT set jobProgress = '$jbstat' where prodTag = '$prodtg' and inputfileName = '$dqfile' ";
 
  $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
