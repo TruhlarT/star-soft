@@ -54,7 +54,7 @@ my $flsize = 0;
    $sumfile[$nlist] = $setname[$nlist].".".$prodtag[$nlist]."_loc.html";
 
 
-`wget --user=protected --password=BeamMeUp 'http://www.star.bnl.gov/devcgi/RetriveStreamDd.pl?trigs=$setname[$nlist];prod=$prodtag[$nlist]' -O $sumfile[$nlist]`;
+`wget --user=protected --password=#1,Engage! 'http://www.star.bnl.gov/devcgi/RetriveStreamDd.pl?trigs=$setname[$nlist];prod=$prodtag[$nlist]' -O $sumfile[$nlist]`;
 
    $flsize = (stat($sumfile[$nlist]))[7];
    if($flsize > 1000) {    
