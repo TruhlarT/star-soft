@@ -178,7 +178,7 @@ if( $sec < 10) { $sec = '0'.$sec };
     }elsif($Tperror == 50) {
         $NFjexec++;  
     }elsif($Tperror == 60) {
-        $NFimport++;  
+        $NFexport++;  
     }elsif($Tperror == 70) {
         $Nioerror++;  
      }
