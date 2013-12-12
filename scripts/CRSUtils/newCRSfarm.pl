@@ -59,6 +59,7 @@ my $Tperror = 0;
 my @joberr = ();
 my @jid = ();
 my @jobname = ();
+my @fullname = ();
 my @inpfile = ();
 my $njob = 0;
 my $fname;
@@ -152,6 +153,23 @@ if( $sec < 10) { $sec = '0'.$sec };
     @inpfile = ();
     @inpfile = `crs_job -long $jid[$njob] | grep starsink`;
 
+
+    foreach my $fline (@inpfile) {
+     chop $fline ;
+#     print $fline, "\n";
+    if ( $fline =~ /starsink/ ) {
+       @prt = ();
+       @prt = split("starsink", $fline) ;
+#       print "Check line with filename : ", $prt[0],"  ", $prt[1],"\n";
+       $fname = $prt[1];
+       $fname =~ s/.daq'//g;
+       $jobname[$njob] = basename($fname); 
+       $fullname[$njob] = $archdir."/*".$jobname[$njob]; 
+       $new
+ 
+       }
+      }    #foreach my $fline
+
     foreach my $erline (@joberr) {
      chop $erline ;
 #   print $erline, "\n";
@@ -190,7 +208,13 @@ if( $sec < 10) { $sec = '0'.$sec };
   print "Job   ",$jid[$njob],"   was reset due to execution error","\n";
 
     }elsif($Tperror == 60) {
-        $NFexport++;  
+        $NFexport++; 
+ 
+     `crs_job -kill -f $jid[$njob]`; 
+     `crs_job -destroy -f $jid[$njob]`; 
+
+    print "Job   ",$jid[$njob],"   was killed, failed due to HPSS export problem","\n";
+
     }elsif($Tperror == 70) {
         $Nioerror++;  
 
@@ -200,35 +224,25 @@ if( $sec < 10) { $sec = '0'.$sec };
   print "Job   ",$jid[$njob],"   was reset due to I/O error","\n";
 
      }
+
+    print "Jobid, Input filename, error number are : ",$njob,"  ",$jid[$njob],"  ",$jobname[$njob],"   ",$Tperror,"\n";
+
+     if( $Tperror == 20 or $Tperror == 30 or $Tperror == 40 ) {
+
+     `crs_job -kill -f $jid[$njob]`; 
+     `crs_job -destroy -f $jid[$njob]`; 
+
+    print "Job   ",$jid[$njob],"   was killed, failed due to HPSS import problem","\n";
+
+     `mv $fullname[$njob] $hpssfail \n`;
+
+    print "Jobfilename  ",$fullname[$njob]," was moved to ", $hpssfail, "\n";  
+
+       }   
 ######
-    }
-
-    foreach my $fline (@inpfile) {
-     chop $fline ;
-#     print $fline, "\n";
-    if ( $fline =~ /starsink/ ) {
-       @prt = ();
-       @prt = split("starsink", $fline) ;
-#       print "Check line with filename : ", $prt[0],"  ", $prt[1],"\n";
-       $fname = $prt[1];
-       $fname =~ s/.daq'//g;
-       $jobname[$njob] = basename($fname); 
-
-     print "Jobid, Input filename, error number are : ",$njob,"  ",$jid[$njob],"   ",$jobname[$njob],"   ",$Tperror,"\n";
-
-       }
-
-      }    #foreach my $fline
+     }
 
     }   #foreach  my $erline 
-
-#   `crs_job -kill -f $jid[$njob]`; 
-
-    print "Job   ",$jid[$njob],"   was killed","\n";
- 
-#   `crs_job -destroy -f $jid[$njob]`; 
-
-    print "Job   ",$jid[$njob],"   was destroyed","\n";
 
 #####
      $njob++;
