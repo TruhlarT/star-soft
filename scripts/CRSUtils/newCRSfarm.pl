@@ -46,7 +46,6 @@ my $Ndone = 0;
 my $Nerror = 0;
 my $Nkill = 0;
 my $Nheld = 0;
-my $Nretry = 0;
 
 my $NFprestage = 0;
 my $NFexport = 0;
@@ -61,14 +60,13 @@ my @joberr = ();
 my @jid = ();
 my @jobname = ();
 my @inpfile = ();
-my $jbname;
-my @jbfile = ();
 my $njob = 0;
 my $fname;
 
 my $infile;
+my $jbfile;
 my $JOBDIR = "/star/u/starreco/".$prodtag."/requests/daq/";
-my $faildir = $JOBDIR."jobs_lostfiles";
+my $hpssfail = $JOBDIR."jobs_lostfiles";
 my $archdir = $JOBDIR."archive";
 my $resubdir = $JOBDIR."jobs_rerun";
 
@@ -128,14 +126,12 @@ if( $sec < 10) { $sec = '0'.$sec };
         $Nkill =  $prt[1];
 	} elsif ($prt[3] eq "HELD") {        
         $Nheld =  $prt[1];
-        }elsif ($prt[3] eq "RETRY") {        
-        $Nretry =  $prt[1];
-      }
+        }
    }
 
    `crs_job -destroy -f -s DONE`; 
 
-    @joblist = `crs_job -stat | grep ERROR` ;
+  @joblist = `crs_job -stat | grep ERROR` ;
 
    
     foreach my $jline (@joblist) {
@@ -143,6 +139,7 @@ if( $sec < 10) { $sec = '0'.$sec };
 #     print $jline, "\n";
      @wrd = ();
      @wrd = split (" ", $jline);
+     print $wrd[0],"   ",$wrd[1], "\n";
 
      $jid[$njob] = $wrd[0];
      $jid[$njob] = substr($wrd[0],0,-1) + 0;
@@ -163,6 +160,8 @@ if( $sec < 10) { $sec = '0'.$sec };
      @pt = ();
      @pt = split (" ", $erline);
 
+#  print "Error line : ", $pt[1],"  ", $pt[2],"  ",$pt[3], "\n";
+     
      $Tperror = $pt[2];
      $Tperror =~ s/://g;
 
@@ -179,7 +178,7 @@ if( $sec < 10) { $sec = '0'.$sec };
     }elsif($Tperror == 50) {
         $NFjexec++;  
     }elsif($Tperror == 60) {
-        $NFexport++;  
+        $NFimport++;  
     }elsif($Tperror == 70) {
         $Nioerror++;  
      }
@@ -189,39 +188,29 @@ if( $sec < 10) { $sec = '0'.$sec };
     foreach my $fline (@inpfile) {
      chop $fline ;
 #     print $fline, "\n";
-     if ( $fline =~ /starsink/ ) {
-      @prt = ();
-      @prt = split("starsink", $fline) ;
-#      print "Check line with filename : ", $prt[0],"  ", $prt[1],"\n";
-      $fname = $prt[1];
-      $fname =~ s/.daq'//g;
-      $jbname = basename($fname);
-      $jobname[$njob] = "*".$prodtag."*".$jbname ; 
-      $jbfile[$njob] = $archdir."/".$jobname[$njob]; 
+    if ( $fline =~ /starsink/ ) {
+       @prt = ();
+       @prt = split("starsink", $fline) ;
+#       print "Check line with filename : ", $prt[0],"  ", $prt[1],"\n";
+       $fname = $prt[1];
+       $fname =~ s/.daq'//g;
+       $jobname[$njob] = basename($fname); 
 
-  print "N, jobid, jobname, error number, full jobname are : ",$njob,"  ",$jid[$njob],"   ",$jbname,"   ",$Tperror,"   ",$jbfile[$njob],"\n";
+     print "Jobid, Input filename, error number are : ",$njob,"  ",$jid[$njob],"   ",$jobname[$njob],"   ",$Tperror,"\n";
 
-      if($Tperror == 20 or $Tperror == 40 or $Tperror == 30 ) {
-
-       `mv $jbfile[$njob] $faildir` ;
-          }else{
-
-       `mv $jbfile[$njob] $resubdir` ;
-         }
-
-       }    #if $fline
+       }
 
       }    #foreach my $fline
 
     }   #foreach  my $erline 
 
-   `crs_job -kill -f $jid[$njob]`; 
+#   `crs_job -kill -f $jid[$njob]`; 
 
-    print "Job   ",$jid[$njob],"  killed","\n";
+    print "Job   ",$jid[$njob],"   was killed","\n";
  
-   `crs_job -destroy -f $jid[$njob]`; 
+#   `crs_job -destroy -f $jid[$njob]`; 
 
-    print "Job   ",$jid[$njob],"  destroyed","\n";
+    print "Job   ",$jid[$njob],"   was destroyed","\n";
 
 #####
      $njob++;
@@ -229,9 +218,9 @@ if( $sec < 10) { $sec = '0'.$sec };
    }   #foreach my $jline
 
 
-   &fillTable();
+     &fillTable();
 
-    print "Number of jobs state : ","Ncreate = ",$Ncreate,"   ","Nqueued = ",$Nqueued,"   ","Nstage = ",$Nstage,"   ","Nsubm = ", $Nsubm,"   ","Nimport = ",$Nimport,"   ","Nrun = ",$Nrun,"   ","Nexport = ",$Nexport,"   ","Ndone = ",$Ndone,"   ","Nerror = ",$Nerror,"   ", "Nretry = ",$Nretry,"   ","Nkill = ",$Nkill,"   ","Nheld = ",$Nheld, "\n";
+    print "Number of jobs state : ","Ncreate = ", $Ncreate,"   ","Nqueued = ",$Nqueued,"   ","Nstage = ",$Nstage,"   ","Nsubm = ", $Nsubm,"   ","Nimport = ",$Nimport,"   ","Nrun = ",$Nrun,"   ","Nexport = ",$Nexport,"   ","Ndone = ",$Ndone,"   ","Nerror = ",$Nerror,"   ","Nkill = ",$Nkill,"   ","Nheld = ",$Nheld, "\n";
 
    print "Number of errors : ","NFcondor = ",$NFcondor,"   ","NFprestage = ",$NFprestage,"   ","NFimport = ",$NFimport,"   ","NFexport = ",$NFexport,"   ","NFretry = ",$NFretry,"   ","NFjexec = ",$NFjexec,"   ","Nioerror = ",$Nioerror, "\n";
 
@@ -256,7 +245,6 @@ exit;
  $sql.="held='$Nheld',";
  $sql.="done='$Ndone',";
  $sql.="error='$Nerror',";
- $sql.="retry='$Nretry',";
  $sql.="prestaging_failed='$NFprestage',";
  $sql.="hpss_export_failed='$NFexport',";
  $sql.="hpss_import_failed='$NFimport',";
