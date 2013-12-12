@@ -46,7 +46,7 @@ my @legend;
 
 
 print $query->header;
-print $query->start_html('CRS HPSS transferring status');
+print $query->start_html('CRS jobs failure status');
 print <<END;
 <META HTTP-EQUIV="Expires" CONTENT="0">
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
@@ -55,7 +55,7 @@ END
 print $query->startform(-action=>"$scriptname");  
 
 print "<body bgcolor=\"cornsilk\">\n";
-print "<h1 align=center><u>HPSS files transferring status for CRS farm jobs</u></h1>\n";
+print "<h1 align=center><u>CRS jobs failure plots </u></h1>\n";
 print "<br>";
 print <<END;
 
