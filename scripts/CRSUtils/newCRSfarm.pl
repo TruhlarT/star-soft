@@ -169,6 +169,12 @@ if( $sec < 10) { $sec = '0'.$sec };
 
       if($Tperror == 10) {
 	 $NFcondor++;
+
+     `crs_job -reset $jid[$njob]`;
+     `crs_job -submit $jid[$njob]`;
+
+  print "Job   ",$jid[$njob],"   was reset due to condor problem","\n";
+
     }elsif($Tperror == 20) {
         $NFprestage++;
     }elsif($Tperror == 30) {
@@ -177,10 +183,22 @@ if( $sec < 10) { $sec = '0'.$sec };
         $NFimport++;  
     }elsif($Tperror == 50) {
         $NFjexec++;  
+
+     `crs_job -reset $jid[$njob]`;
+     `crs_job -submit $jid[$njob]`;
+
+  print "Job   ",$jid[$njob],"   was reset due to execution error","\n";
+
     }elsif($Tperror == 60) {
         $NFexport++;  
     }elsif($Tperror == 70) {
         $Nioerror++;  
+
+     `crs_job -reset $jid[$njob]`;
+     `crs_job -submit $jid[$njob]`;
+
+  print "Job   ",$jid[$njob],"   was reset due to I/O error","\n";
+
      }
 ######
     }
