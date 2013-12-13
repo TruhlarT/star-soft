@@ -127,6 +127,10 @@ if( $sec < 10) { $sec = '0'.$sec };
         $Nkill =  $prt[1];
 	} elsif ($prt[3] eq "HELD") {        
         $Nheld =  $prt[1];
+
+	`crs_job -reset -s HELD`;
+	`crs_job -submit -s HELD`;
+  
         }
    }
 
