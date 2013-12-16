@@ -68,7 +68,7 @@ my $infile;
 my $jbfile;
 my $JOBDIR = "/star/u/starreco/".$prodtag."/requests/daq/";
 my $hpssfail = $JOBDIR."jobs_lostfiles";
-my $archdir = $JOBDIR."archive";
+my $archdir = $JOBDIR."archive_calib";
 my $resubdir = $JOBDIR."jobs_rerun";
 
 my @prt = ();
@@ -129,7 +129,7 @@ if( $sec < 10) { $sec = '0'.$sec };
         $Nheld =  $prt[1];
 
 	`crs_job -reset -s HELD`;
-	`crs_job -submit -s HELD`;
+	`crs_job -submit -s CREATED`;
   
         }
    }
