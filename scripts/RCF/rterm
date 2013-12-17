@@ -240,7 +240,7 @@ if ("$node" == "") then
         if ( `$HOSTNM | $GREP starp` != "") then
 	    # support STAR online domain 
 	    set node="onl+";
-	    set pool="-pool onlam2.starp.bnl.gov:9618";     
+	    set pool="-pool onlam3.starp.bnl.gov:9618";     
  	else
 	    # RCF
 	    set node="rcas6+"
@@ -291,7 +291,7 @@ if ("$node" == "") then
 else
     switch ($node)
        case "onl*":
-        set pool="-pool onlam2.starp.bnl.gov:9618";
+        set pool="-pool onlam3.starp.bnl.gov:9618";
 	breaksw;
 
        case "rcas6*":
