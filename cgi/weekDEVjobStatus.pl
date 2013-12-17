@@ -217,7 +217,6 @@ $JobStatusT = "JobStatus";
  print $qqr->start_html('Nightly test status for DEV library');
  print "<body bgcolor=\"cornsilk\">\n";
 
-# $qpath = "/star/rcf/test/dev/%ittf%$wkday%"; 
 
  $qpath = "/star/rcf/test/dev/%/$wkday%"; 
 
