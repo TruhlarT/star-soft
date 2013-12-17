@@ -28,17 +28,19 @@ $FilesCatalogT = "FilesCatalog";
 my $TOP_DIRD = "/star/rcf/test/dev/";
 
 my @dir_year = ("year_2000", "year_2001", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008","year_2009", "year_2010", "year_2011", "year_2012");
-my @node_dir = ("daq_sl302.ittf", "daq_sl302.ittf_opt" ,"trs_sl302.ittf", "trs_sl302.ittf_opt");
+my @node_dir = ("daq_sl302.ittf", "daq_sl302.ittf_opt" ,"trs_sl302.ittf", "trs_sl302.ittf_opt","simu");
 
 
 my @OUT_DIR0 = ();
 my @OUT_DIR1 = ();
 my @OUT_DIR2 = ();
 my @OUT_DIR3 = ();
+my @OUT_DIR4 = ();
 my @OUT_DIRB0 = ();
 my @OUT_DIRB1 = ();
 my @OUT_DIRB2 = ();
 my @OUT_DIRB3 = ();
+my @OUT_DIRB4 = ();
 my @OUT_DIR;
 my @TDIR = ();
 my @BDIR = ();
@@ -89,9 +91,6 @@ my $thistime;
  
  ##### setup output directories for thisday
  
-# $testDay = "Fri";
-# $beforeDay = "Wed";
-
 
  for ($i = 0; $i < scalar(@node_dir); $i++) {
 
@@ -101,6 +100,7 @@ my $thistime;
     @OUT_DIR1 = `ls -d $TDIR[1]`;
     @OUT_DIR2 = `ls -d $TDIR[2]`;
     @OUT_DIR3 = `ls -d $TDIR[3]`;
+    @OUT_DIR4 = `ls -d $TDIR[4]`;
 
  $ii = 0;
 
@@ -130,6 +130,14 @@ my $thistime;
       $ii++;
   }
 
+  for ($i = 0; $i < scalar(@OUT_DIR4); $i++) {
+     $OUT_DIR[$ii] = $OUT_DIR4[$i];
+     chop $OUT_DIR[$ii];
+  print "Output Dir for $testDay :", $OUT_DIR[$ii],"\n";
+      $ii++;
+  }
+
+
  @BDIR = ();  
 
  ##### setup output directories for beforday
@@ -142,6 +150,7 @@ my $thistime;
     @OUT_DIRB1 = `ls -d $BDIR[1]`;
     @OUT_DIRB2 = `ls -d $BDIR[2]`;
     @OUT_DIRB3 = `ls -d $BDIR[3]`;
+    @OUT_DIRB4 = `ls -d $BDIR[4]`;
 
 $ik = $ii;
 
@@ -167,6 +176,13 @@ $ik = $ii;
 }
   for ($i = 0; $i < scalar(@OUT_DIRB3); $i++) {
      $OUT_DIR[$ik] = $OUT_DIRB3[$i];
+     chop $OUT_DIR[$ik];
+  print "Output Dir for $beforeDay :", $OUT_DIR[$ik],"\n";
+      $ik++;
+  }
+
+  for ($i = 0; $i < scalar(@OUT_DIRB4); $i++) {
+     $OUT_DIR[$ik] = $OUT_DIRB4[$i];
      chop $OUT_DIR[$ik];
   print "Output Dir for $beforeDay :", $OUT_DIR[$ik],"\n";
       $ik++;
@@ -439,6 +455,7 @@ my $pyear = 0;
       next if $fname =~ /^\.\.?$/;    
       next if $fname =~ /hijing.log/;
       next if $fname =~ /starsim.log/;
+      next if $fname =~ /simu.log/;
      
  $jrun = "Run not completed";
  $EvDone = 0;
