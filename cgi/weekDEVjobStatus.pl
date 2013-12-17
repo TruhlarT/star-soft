@@ -217,7 +217,9 @@ $JobStatusT = "JobStatus";
  print $qqr->start_html('Nightly test status for DEV library');
  print "<body bgcolor=\"cornsilk\">\n";
 
- $qpath = "/star/rcf/test/dev/%ittf%$wkday%"; 
+# $qpath = "/star/rcf/test/dev/%ittf%$wkday%"; 
+
+ $qpath = "/star/rcf/test/dev/%/$wkday%"; 
 
 &StDbTJobsConnect();
 
@@ -276,9 +278,10 @@ my @prt;
        $evtype = "embedding";
     }elsif($myPath =~ /daq/)  {
       $evtype = "realData";
-    }elsif($myPath =~ /trs/ ) {
+    }elsif($myPath =~ /trs/ or $myPath =~ /simu/ ) {
         $evtype = "MC";
     }
+
 
        @prt = split (" ", $myCtime);
     $cdate = $prt[0];
