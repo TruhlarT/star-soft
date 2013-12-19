@@ -19,7 +19,7 @@ $dbname="Embedding_job_stats";
 my $JobStatusT = "jobs_prod_2013";
 
 my $statusPath = $ARGV[0];
-#my $jobStatPath = "/star/data08/users/didenko/gridwork/prodtest/job_status";
+
 my $outfile;
 my @statusfile = ();
 my @statfile = ();
@@ -35,18 +35,18 @@ my $fulldname;
 my $inpsize = 0;
 
 
-# print "Job status path name  ", $jobStatPath, "\n";
+# print "Job status path name  ", $statusPath, "\n";
 
  chdir $statusPath;
 
- @statusfile = `ls *`;
+ @statusfile = `ls *daq_transferred`;
 
  &StDbConnect();
 
  foreach my $sline (@statusfile) {
      chop $sline ;
   print $sline, "\n" ;
-     $outfile = $jobStatPath."/".$sline ;
+     $outfile = $statusPath."/".$sline ;
      @wrd = ();
      @wrd = split ("-", $sline);
      $prodtg = $wrd[0];
@@ -54,8 +54,6 @@ my $inpsize = 0;
      $jbstat = $wrd[2];
 
   print "From the status file name  ",$prodtg ,"  %  ",$dqfile ,"  %  ", $jbstat, "\n"; 
-
-  if ($jbstat eq "daq_transferred" ) {
 
  open (STATFILE, $outfile ) or die "cannot open $outfile: $!\n";
 
@@ -96,43 +94,81 @@ my $inpsize = 0;
       $inpsize = $fvalue    if( $fname eq 'inputFileSize');
 
          }
-     }
+   }
+
+  `rm -f $outfile`;
 
      $fulldname = $nfspath.$daqname;
      if($inpsize == $dqsize) {
 
-     `rm $fulldname`;
+#     `rm -f $fulldname`;
 
      }else {
  
-  $sql= "update $JobStatusT set jobProgress = 'none', jobState = 'none', daqSizeOnSite = 0  where prodTag = '$prodtg' and inputfileName = '$dqfile' ";
+     $sql= "update $JobStatusT set jobProgress = 'none', jobState = 'none', daqSizeOnSite = 0  where prodTag = '$prodtg' and inputfileName = '$dqfile' ";
 
-  $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
+     $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
+
+     }
+ 
+  }   #  $sline
+
+
+#######################################################################################
+
+   @statusfile = ();
+
+   @statusfile = `ls *reco_finish`;
+
+
+   foreach my $sline (@statusfile) {
+     chop $sline ;
+  print $sline, "\n" ;
+     $outfile = $statusPath."/".$sline ;
+     @wrd = ();
+     @wrd = split ("-", $sline);
+     $prodtg = $wrd[0];
+     $dqfile = $wrd[1].".daq";
+     $jbstat = $wrd[2];
+
+
+   $sql= "update $JobStatusT set jobProgress = '$jbstat' where prodTag = '$prodtg' and inputfileName = '$dqfile' and jobProgress = 'daq_transferred' ";
+
+   $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
+
+  `rm -f $outfile`;
+
+  }
+
+##########################################################################################
+
+
+   @statusfile = ();
+
+   @statusfile = `ls *mudst_transferred`;
+
+
+   foreach my $sline (@statusfile) {
+     chop $sline ;
+  print $sline, "\n" ;
+     $outfile = $statusPath."/".$sline ;
+     @wrd = ();
+     @wrd = split ("-", $sline);
+     $prodtg = $wrd[0];
+     $dqfile = $wrd[1].".daq";
+     $jbstat = $wrd[2];
+
+
+   $sql= "update $JobStatusT set jobProgress = '$jbstat' where prodTag = '$prodtg' and inputfileName = '$dqfile' and jobProgress = 'reco_finish' ";
+
+   $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
+
+
+     `rm -f $outfile`;
+
    }
-
-############
-
-
-  }elsif($jbstat eq "reco_finish") {
-
- $sql= "update $JobStatusT set jobProgress = '$jbstat' where prodTag = '$prodtg' and inputfileName = '$dqfile' and jobProgress = 'daq_transferred' ";
-
- $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
-
-############
-
- }elsif($jbstat eq "mudst_transferred") {
-
- $sql= "update $JobStatusT set jobProgress = '$jbstat' where prodTag = '$prodtg' and inputfileName = '$dqfile' and jobProgress = 'reco_finish' ";
-
- }else{
-     next;
- }
-
-  `rm $outfile`;
-
- }
-
+  
+##########################################################################
 
  &StDbDisconnect();
 
