@@ -30,7 +30,7 @@ my $nfile = 0;
 my $dbfile = "none";
 my $daqstat;
 my $dsize = 0;
-my $ndays = 2;
+my $ndays = 1;
 my $daydiff = 0;
 
 my @dqfiles = ();
@@ -192,7 +192,7 @@ for ($nlist=0; $nlist < $nfile; $nlist++) {
 
  &StDbDisconnect();
 
-#    `hpss_user.pl -r $nfspath -f $DCfname >& $dcsubm`;
+    `hpss_user.pl -r $nfspath -z -f $DCfname >& $dcsubm`;
 
  exit ;
 
