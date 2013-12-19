@@ -40,7 +40,7 @@ my $sctime = 0;
 my @fileset = ();
 my $nlist = 0;
 my @flname = ();
-
+my $nll = 0;
 
   chdir $nfspath;
 
@@ -162,6 +162,8 @@ for ($nlist=0; $nlist < $nfile; $nlist++) {
 
   if ( $daydiff >= $ndays ) {
 
+      $nll++;
+
   @fileset = ();
 
  $fC1->set_context("filename=$dfile","filetype=online_daq");
@@ -192,7 +194,11 @@ for ($nlist=0; $nlist < $nfile; $nlist++) {
 
  &StDbDisconnect();
 
+ if( $nll >= 1 ) {
+
     `hpss_user.pl -r $nfspath -z -f $DCfname >& $dcsubm`;
+
+  }
 
  exit ;
 
