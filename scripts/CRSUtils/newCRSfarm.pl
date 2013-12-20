@@ -20,7 +20,18 @@ $dbname="operation";
 # Tables
 $crsJobStatusT = "newcrsJobState";
 
-my $prodtag = $ARGV[0];
+ my $prodtag = $ARGV[0];
+ my $pflag = $ARGV[1];
+
+ if( $pflag eq "reco" ) {
+
+ $JobStatusT = "JobStatus2012";
+
+ }elsif( $pflag eq "calib" ) {
+
+ $JobStatusT = "CalibJobStatus";
+
+   }
 
  my @statlist = ();
  my @joblist  = ();
@@ -55,7 +66,7 @@ my $Nioerror = 0;
 my $NFcondor = 0;
 my $NFjexec = 0;
 my $Tperror = 0;
-
+my $hpsserr;
 my @joberr = ();
 my @jid = ();
 my @jobname = ();
@@ -63,13 +74,25 @@ my @fullname = ();
 my @inpfile = ();
 my $njob = 0;
 my $fname;
+my @jobFname = ();
 
 my $infile;
 my $jbfile;
 my $JOBDIR = "/star/u/starreco/".$prodtag."/requests/daq/";
 my $hpssfail = $JOBDIR."jobs_lostfiles";
-my $archdir = $JOBDIR."archive_calib";
 my $resubdir = $JOBDIR."jobs_rerun";
+my $archdir;
+
+
+    if($pflag eq "reco" ) {
+
+    $archdir = $JOBDIR."archive";
+
+   }elsif($pflag eq "calib" ) {
+
+    $archdir = $JOBDIR."archive_calib";
+   }
+
 
 my @prt = ();
 my @wrd = ();
@@ -169,7 +192,7 @@ if( $sec < 10) { $sec = '0'.$sec };
        $fname =~ s/.daq'//g;
        $jobname[$njob] = basename($fname); 
        $fullname[$njob] = $archdir."/*".$jobname[$njob]; 
-       $new
+       $jobFname[$njob] = "%".$prodtag."%".$jobname[$njob];
  
        }
       }    #foreach my $fline
@@ -237,6 +260,13 @@ if( $sec < 10) { $sec = '0'.$sec };
      `crs_job -destroy -f $jid[$njob]`; 
 
     print "Job   ",$jid[$njob],"   was killed, failed due to HPSS import problem","\n";
+
+     $hpsserr = "error_".$Tperror;
+
+    $sql="update $JobStatusT set inputHpssStatus = '$hpsserr' where jobfileName like '$jobFname[$njob]' and jobStatus = 'n/a' ";
+
+    $rv = $dbh->do($sql) || die $dbh->errstr;
+
 
      `mv $fullname[$njob] $hpssfail \n`;
 
