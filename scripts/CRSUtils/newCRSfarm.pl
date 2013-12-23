@@ -22,14 +22,18 @@ $crsJobStatusT = "newcrsJobState";
 
  my $prodtag = $ARGV[0];
  my $pflag = $ARGV[1];
+ my $caltag;
+ my @prt = ();
 
  if( $pflag eq "reco" ) {
 
  $JobStatusT = "JobStatus2012";
 
- }elsif( $pflag eq "calib" ) {
+ }elsif( $pflag =~ /calib/ ) {
 
  $JobStatusT = "CalibJobStatus";
+  @prt = split ("_",$pflag);
+   $caltag = $prt[1];
 
    }
 
@@ -192,7 +196,7 @@ if( $sec < 10) { $sec = '0'.$sec };
        $fname =~ s/.daq'//g;
        $jobname[$njob] = basename($fname); 
        $fullname[$njob] = $archdir."/*".$jobname[$njob]; 
-       $jobFname[$njob] = "%".$prodtag."%".$jobname[$njob];
+       $jobFname[$njob] = "%".$prodtag."_".$caltag."_".$jobname[$njob];
  
        }
       }    #foreach my $fline
