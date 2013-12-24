@@ -12,8 +12,6 @@
 
 
 use DBI;
-use File::Find;
-use Net::FTP;
 use Class::Struct;
 use File::Basename;
 
