@@ -208,7 +208,7 @@ my $nprod = 0;
 
 ########## 
 
-   $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%' and prodSeries = '$prodtag[$nprod]' and inputHpssStatus like 'hpss_error%'  and calibTag = '$calbtag[$nprod]' ";
+   $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%' and prodSeries = '$prodtag[$nprod]' and inputHpssStatus like 'error%'  and calibTag = '$calbtag[$nprod]' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
