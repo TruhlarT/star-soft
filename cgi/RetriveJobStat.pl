@@ -126,7 +126,7 @@ my $jobname = $qtrg."%".$qprod."%";
 
    &beginHpHtml();
 
-     $sql="SELECT jobfileName, inputHpssStatus, NoEvents, submitTime  FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and trigsetName = ? and inputHpssStatus like 'hpss_error%' ";
+     $sql="SELECT jobfileName, inputHpssStatus, NoEvents, submitTime  FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and trigsetName = ? and inputHpssStatus like '%error%' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
