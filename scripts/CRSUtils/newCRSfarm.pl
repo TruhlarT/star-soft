@@ -25,15 +25,22 @@ $crsJobStatusT = "newcrsJobState";
  my $caltag;
  my @prt = ();
 
+ my $JOBDIR = "/star/u/starreco/".$prodtag."/requests/daq/";
+ my $archdir;
+ my $hpssfail = $JOBDIR."jobs_lostfiles";
+ my $resubdir = $JOBDIR."jobs_rerun";
+
  if( $pflag eq "reco" ) {
 
  $JobStatusT = "JobStatus2012";
+ $archdir = $JOBDIR."archive";
 
  }elsif( $pflag =~ /calib/ ) {
 
  $JobStatusT = "CalibJobStatus";
   @prt = split ("_",$pflag);
-   $caltag = $prt[1];
+  $caltag = $prt[1];
+  $archdir = $JOBDIR."archive_calib";
 
    }
 
@@ -82,21 +89,6 @@ my @jobFname = ();
 
 my $infile;
 my $jbfile;
-my $JOBDIR = "/star/u/starreco/".$prodtag."/requests/daq/";
-my $hpssfail = $JOBDIR."jobs_lostfiles";
-my $resubdir = $JOBDIR."jobs_rerun";
-my $archdir;
-
-
-    if($pflag eq "reco" ) {
-
-    $archdir = $JOBDIR."archive";
-
-   }elsif($pflag eq "calib" ) {
-
-    $archdir = $JOBDIR."archive_calib";
-   }
-
 
 my @prt = ();
 my @wrd = ();
@@ -196,8 +188,13 @@ if( $sec < 10) { $sec = '0'.$sec };
        $fname =~ s/.daq'//g;
        $jobname[$njob] = basename($fname); 
        $fullname[$njob] = $archdir."/*".$jobname[$njob]; 
+
+   if( $pflag eq "reco" ) {
+
+       $jobFname[$njob] = "%".$prodtag."_".$jobname[$njob];
+   }elsif( $pflag =~ /calib/ ) {
        $jobFname[$njob] = "%".$prodtag."_".$caltag."_".$jobname[$njob];
- 
+         } 
        }
       }    #foreach my $fline
 
