@@ -343,7 +343,7 @@ print <<END;
           <title>Summary of production jobs for run 2012</title> 
     </head>
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>Summary of production jobs status for<font color="blue"> run 2012 </font>data  </B></h2>
+ <h2 ALIGN=CENTER> <B>Summary of production jobs status for<font color="blue"> run 2013 </font>data  </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <h4 ALIGN=LEFT><font color="#ff0000">Ongoing production is in red color</font></h4>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
@@ -378,9 +378,9 @@ print <<END;
 </TABLE>
       <h5>
       <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
-<!-- Created: Thu June 30 2012 -->
+<!-- Created: Thu December 26 2013 -->
 <!-- hhmts start -->
-Last modified: 2012-11-07
+Last modified: 2013-12-26
 <!-- hhmts end -->
   </body>
 </html>
