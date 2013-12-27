@@ -20,7 +20,9 @@ $MIN   =  1;                                             # 4
 $MAX   =  6;                                             # for testing
 $MAX   = 99;                                             # Upper number ; can be as high
 $MAIN  = "/star/data";                                   # default base path
-@ADDD  = ("/star/institutions/*",                        # will be used in a glob statement
+@ADDD  = (
+          "/star/institutions/*",                        # will be used in a glob statement
+          "/star/subsys/*",                              # ditto
 	  "/star/u/",
 	  "/star/simu/",
 	  "/star/grid/",
@@ -88,13 +90,28 @@ if ( -e $1."dfpanfs"){
 for ( $i = $MIN ; $i <= $MAX ; $i++){
     push(@DISKS,sprintf("$MAIN%2.2d",$i));
 }
+$kk = 0;
 if ( $#ADDD != -1 ){
     foreach $i (@ADDD){
-	push(@DISKS,glob($i));
+	# print "Adding $i\n";
+	if ( $i =~ m/\*/ ){
+	    push(@DISKS,glob($i));
+	    push(@DISKS,"---$kk---"); $kk++;
+	} else {
+	    push(@DISKS,$i);
+	}
     }
 }
 
+$pdisk = "";
 foreach $disk (@DISKS){
+    if ( $disk =~ m/(--)(\d+)(--)/ ){
+	# print "Found a separator $disk $pdisk\n";
+	$DINFO{$pdisk."_".$2} = "---";
+	next;
+    } 
+    $pdisk = $disk;
+
     if ( ! -e "$disk" && ! -e "$disk/."){  next;}  # -l may be a unmounted disk
     if ( ! -d "$disk/." ){                         # this is definitly not mounted
 	$DINFO{$disk} = "?;?;?;?;".
@@ -271,9 +288,19 @@ printf $FO
 $idx     = 0;
 $col     = 0;
 @$totals = (0,0,0);
-foreach $disk (sort keys %DINFO){
 
-    # print STDERR "$DINFO{$disk}\n";
+foreach $disk ( sort keys %DINFO){
+    #print STDERR "$disk $DINFO{$disk}\n";
+
+    # special separators may be inserted anywhere
+    if ( $DINFO{$disk} eq "---"){
+	printf $FO
+	    "<TR BGCOLOR=\"#AAAAAA\">".
+	    "  <TD ALIGN=\"center\" COLSPAN=\"6\"><FONT SIZE=\"-2\">&nbsp;</FONT></TD>\n".
+	    "</TR>\n";
+	next;
+    }
+
     @items = split(";",$DINFO{$disk});
 
     # 4 and 5 are the message and library listing
