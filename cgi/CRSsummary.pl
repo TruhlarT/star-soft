@@ -136,7 +136,7 @@ print <<END;
 
    <body BGCOLOR=\"cornsilk\">
  <h2 ALIGN=CENTER> <B>CRS jobs states summary</h2>
- <h3 ALIGN=CENTER> Generated on $todate</h3>
+ <h3 ALIGN=CENTER> Status on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
