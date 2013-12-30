@@ -25,7 +25,7 @@ $dbname="operation";
 
 $JobStatusT = "JobStatus2013";
 
-$NJOBS  = 1000;  # max jobs in CREATED state
+$NJOBS  = 2000;  # max jobs in CREATED state
 #$NJOBS  = 500;   # max jobs in CREATED state
 $MAXPRCT= 0.75;  # there will be a loop until at least $NJOBS*$MAXPRCT are in the CREATED state
 
@@ -93,15 +93,19 @@ $MAXPRCT= 0.75;  # there will be a loop until at least $NJOBS*$MAXPRCT are in th
 
 	     @prt = ();
 	     @prt = split (" ", $line);
-	     if ($prt[3] eq "QUEUED" ) {
+
+	     if ($prt[3] eq "CREATED" ) {
+                 $Ncreate = $Ncreate + $prt[1];
+		 print "Check  status ", $prt[1],"  %  ",$prt[3], "\n";
+	     }elsif ($prt[3] eq "QUEUED" ) {
                  $Ncreate = $Ncreate + $prt[1];
 		 print "Check  status ", $prt[1],"  %  ",$prt[3], "\n";
 
-	     }elseif($prt[3] eq "SUBMITTED" ) {
+	     }elsif($prt[3] eq "SUBMITTED" ) {
                  $Ncreate = $Ncreate +  $prt[1];  
 		 print "Check  status ", $prt[1],"  %  ",$prt[3], "\n";           
 
-	     }elseif($prt[3] eq "STAGING" ) {
+	     }elsif($prt[3] eq "STAGING" ) {
                  $Ncreate = $Ncreate +  $prt[1];  
 		 print "Check  status ", $prt[1],"  %  ",$prt[3], "\n";           
 
