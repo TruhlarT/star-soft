@@ -4,7 +4,7 @@
 #
 # L.Didenko
 #
-# CRSsummary.pl - summary of jobs states on CRS farm
+# CRSsummary.pl - current summary of jobs states on CRS farm
 #
 ########################################################################################
 
