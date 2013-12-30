@@ -112,7 +112,7 @@ END
 #==============================================================================
 
 ######################
-sub StcrsdbDisconnect {
+sub StcrsdbConnect {
     $dbh = DBI->connect("dbi:mysql:$dbname:$dbhost", $dbuser, $dbpass)
         || die "Cannot connect to db server $DBI::errstr\n";
 }
