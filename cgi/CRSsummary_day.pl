@@ -141,10 +141,16 @@ END
   my $qday = $qqr->param('pday');
   my $qdate = $qday."%";
 
-#    &StcrsdbConnect();
+ print $qqr->header;
+ print $qqr->start_html('CRS jobs state summary');
+ print "<body bgcolor=\"cornsilk\">\n";
 
 
-  $sql="SELECT sum(created), sum(submitted), sum(queued), sum(staging), sum(importing), sum(running), sum(exporting), sum(done), sum(error), sum(killed), sum(held)  from $crsJobStatusT where sdate like $qday% ";
+
+#   &StcrsdbConnect();
+
+
+  $sql="SELECT sum(created), sum(submitted), sum(queued), sum(staging), sum(importing), sum(running), sum(exporting), sum(done), sum(error), sum(killed), sum(held)  from $crsJobStatusT where sdate like $qdate ";
 
 
             $cursor =$dbh->prepare($sql)
@@ -189,6 +195,8 @@ END
 END
 
  &StcrsdbDisconnect();
+
+ print $qqr->end_html;
 
  &endHtml();
 
