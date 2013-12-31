@@ -62,7 +62,7 @@ my @rvdays = ()
    &StcrsdbConnect();
 
 
-   $sql="SELECT DISTINCT  date_format(createTime, '%Y-%m-%d') as PDATE  FROM $crsJobStatusT order by createTime ";
+   $sql="SELECT DISTINCT  date_format(sdate, '%Y-%m-%d') as PDATE  FROM $crsJobStatusT order by sdate ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
