@@ -188,6 +188,8 @@ END
 </TR>
 END
 
+  }
+
   &StcrsdbDisconnect();
 
  &endHtml();
