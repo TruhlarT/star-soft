@@ -70,7 +70,7 @@ my @rvdays = ()
 
        while( $mhr = $cursor->fetchrow() ) {
 
-          $ardays[$nhr] = $mhr;
+          $ardays[$nd] = $mhr;
           $nd++;
        }
     $cursor->finish();
@@ -112,7 +112,7 @@ END
     print "<h3 align=center> Date of production<br></h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'pday',
-                                  -values=>\@ardays,
+                                  -values=>\@rvdays,
                                   -default=>\$nowdate,
                                   -size =>1);
 
