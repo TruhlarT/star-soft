@@ -112,7 +112,7 @@ END
     print "<h3 align=center> Date of production<br></h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'pday',
-                                  -values=>\@rvdays,
+                                  -values=>\@ardays,
                                   -default=>\$nowdate,
                                   -size =>1);
 
