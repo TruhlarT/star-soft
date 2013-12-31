@@ -45,22 +45,22 @@ my $nowdate = ($year+1900).$mon.$mday;
 
 my $thisdate = ($year+1900)."-".$mon."-".$mday." ".$hour."%";
 
-my $ncreate = 0;
-my $nsubmit = 0;
-my $nqueued = 0;
+my $ncreate  = 0;
+my $nsubmit  = 0;
+my $nqueued  = 0;
 my $nstaging = 0;
-my $nimport = 0;
+my $nimport  = 0;
 my $nrunning = 0;
-my $nexport = 0;
-my $ndone = 0;
-my $nerror = 0;
-my $nkilled = 0;
-my $nheld = 0;
+my $nexport  = 0;
+my $ndone    = 0;
+my $nerror   = 0;
+my $nkilled  = 0;
+my $nheld    = 0;
 
 
    &StcrsdbConnect();
 
-  $sql="SELECT created, submitted, queued, staging, importing, running, exporting, done, error, killed, held  from $crsJobStatus where sdate like $thisdate ";
+  $sql="SELECT created, submitted, queued, staging, importing, running, exporting, done, error, killed, held  from $crsJobStatusT where sdate like $thisdate ";
 
 
             $cursor =$dbh->prepare($sql)
@@ -69,17 +69,17 @@ my $nheld = 0;
 
         while(@fields = $cursor->fetchrow) {
 
-          $ncreate = $fields[0];
-          $nsubmit = $fields[1];
-          $nqueued = $fields[2];
+          $ncreate  = $fields[0];
+          $nsubmit  = $fields[1];
+          $nqueued  = $fields[2];
           $nstaging = $fields[3];
-          $nimport = $fields[4];
+          $nimport  = $fields[4];
           $nrunning = $fields[5];
-          $nexport = $fields[6];
-          $ndone = $fields[7];
-          $nerror = $fields[8];
-          $nkilled = $fields[9];
-          $nheld = $fields[10];
+          $nexport  = $fields[6];
+          $ndone    = $fields[7];
+          $nerror   = $fields[8];
+          $nkilled  = $fields[9];
+          $nheld    = $fields[10];
          }
 
 
