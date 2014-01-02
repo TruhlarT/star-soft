@@ -15,7 +15,6 @@ BEGIN {
 
 use DBI;
 use CGI qw(:standard);
-use Class::Struct;
 use Time::Local;
 
 $dbhost="duvall.star.bnl.gov";
@@ -24,8 +23,6 @@ $dbpass="";
 $dbname="operation";
 
 my $crsJobStatusT = "newcrsJobState";
-
-&cgiSetup();
 
 my $query = new CGI;
 
@@ -60,7 +57,7 @@ my $nheld    = 0;
 
    &StcrsdbConnect();
 
-  $sql="SELECT created, submitted, queued, staging, importing, running, exporting, done, error, killed, held  from $crsJobStatusT where sdate like $thisdate ";
+  $sql="SELECT created, submitted, queued, staging, importing, running, exporting, done, error, killed, held  from $crsJobStatusT where sdate like '$thisdate' ";
 
 
             $cursor =$dbh->prepare($sql)
@@ -165,9 +162,9 @@ print <<END;
 </TABLE>
       <h5>
       <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
-<!-- Created: January 8 2014 -->
+<!-- Created: January 3 2014 -->
 <!-- hhmts start -->
-Last modified: 2014-01-08
+Last modified: 2014-01-03
 <!-- hhmts end -->
   </body>
 </html>
@@ -175,8 +172,3 @@ END
 
 }
 
-##############
-sub cgiSetup {
-    $q=new CGI;
-    if ( exists($ENV{'QUERY_STRING'}) ) { print $q->header };
-}
