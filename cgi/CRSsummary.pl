@@ -162,9 +162,9 @@ print <<END;
 </TABLE>
       <h5>
       <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
-<!-- Created: January 3 2014 -->
+<!-- Created: January 8 2014 -->
 <!-- hhmts start -->
-Last modified: 2014-01-03
+Last modified: 2014-01-08
 <!-- hhmts end -->
   </body>
 </html>
