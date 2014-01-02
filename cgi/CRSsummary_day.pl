@@ -151,7 +151,7 @@ END
    &StcrsdbConnect();
 
 
-  $sql="SELECT sum(created), sum(submitted), sum(queued), sum(staging), sum(importing), sum(running), sum(exporting), sum(done), sum(error), sum(killed), sum(held)  from $crsJobStatusT where sdate like $qdate ";
+  $sql="SELECT sum(created), sum(submitted), sum(queued), sum(staging), sum(importing), sum(running), sum(exporting), sum(done), sum(error), sum(killed), sum(held)  from $crsJobStatusT where sdate like '$qdate' ";
 
 
             $cursor =$dbh->prepare($sql)
