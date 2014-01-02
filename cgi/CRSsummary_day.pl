@@ -139,6 +139,7 @@ END
   my $qqr = new CGI;
 
   my $qday = $qqr->param('pday');
+  chop $qday;
   my $qdate = $qday."%";
 
  print $qqr->header;
