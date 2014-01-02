@@ -77,7 +77,7 @@ my @rvdays = ()
 
     @rvdays = reverse @ardays ;
 
-#  &StcrsdbDisconnect();
+  &StcrsdbDisconnect();
 
 
 my $query = new CGI;
@@ -147,7 +147,7 @@ END
 
 
 
-#   &StcrsdbConnect();
+   &StcrsdbConnect();
 
 
   $sql="SELECT sum(created), sum(submitted), sum(queued), sum(staging), sum(importing), sum(running), sum(exporting), sum(done), sum(error), sum(killed), sum(held)  from $crsJobStatusT where sdate like $qdate ";
