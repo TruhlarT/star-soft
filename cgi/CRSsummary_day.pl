@@ -15,7 +15,6 @@ BEGIN {
 
 use DBI;
 use CGI qw(:standard);
-use Class::Struct;
 use Time::Local;
 
 $dbhost="duvall.star.bnl.gov";
@@ -139,7 +138,6 @@ END
   my $qqr = new CGI;
 
   my $qday = $qqr->param('pday');
-  chop $qday;
   my $qdate = $qday."%";
 
  print $qqr->header;
