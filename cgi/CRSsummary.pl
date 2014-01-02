@@ -24,6 +24,8 @@ $dbname="operation";
 
 my $crsJobStatusT = "newcrsJobState";
 
+&cgiSetup();
+
 my $query = new CGI;
 
 ($sec,$min,$hour,$mday,$mon,$year) = localtime();
@@ -172,3 +174,8 @@ END
 
 }
 
+##############
+sub cgiSetup {
+    $q=new CGI;
+    if ( exists($ENV{'QUERY_STRING'}) ) { print $q->header };
+}
