@@ -7,8 +7,9 @@
 # scanFastDEV.pl - script to scan error messages in log files for Fast DEV release test. 
 #
 ##########################################################################################################
-use DBI;
 
+use DBI;
+use Time::Local;
 
 my $TOPDIR = "/star/rcf/test/devfast/";
 my @OUTDIR = ();
