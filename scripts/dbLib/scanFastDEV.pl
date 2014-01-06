@@ -7,6 +7,8 @@
 # scanFastDEV.pl - script to scan error messages in log files for Fast DEV release test. 
 #
 ##########################################################################################################
+use DBI;
+
 
 my $TOPDIR = "/star/rcf/test/devfast/";
 my @OUTDIR = ();
@@ -20,8 +22,25 @@ my $email = "didenko\@bnl.gov,jeromel\@bnl.gov";
 my $message = "DEV test failed";
 my $subject = "DEV fast test";
 
-my $lockfile = "/afs/rhic.bnl.gov/star/packages/adev/.log/DEVrelease.lock";
-my $relsfile = "/afs/rhic.bnl.gov/star/packages/adev/.log/afs.release";
+$dbhost="duvall.star.bnl.gov";
+$dbuser="starreco";
+$dbpass="";
+$dbname="LibraryJobs";
+
+$JobStatusT = "fastJobsStatus";
+
+($sec,$min,$hour,$mday,$mon,$year) = localtime();
+
+$mon++;
+if( $mon < 10) { $mon = '0'.$mon };
+if( $mday < 10) { $mday = '0'.$mday };
+if( $hour < 10) { $hour = '0'.$hour };
+if( $min < 10) { $min = '0'.$min };
+if( $sec < 10) { $sec = '0'.$sec };
+
+
+my $todate = ($year+1900)."-".$mon."-".$mday ;
+
 
 my $dirtree =  $TOPDIR."*/*" ;
 
@@ -88,22 +107,19 @@ my $dirtree =  $TOPDIR."*/*" ;
 
    if($devflag eq "failed") {
 
-   if (!open (LCFILE, ">$lockfile" ))  {printf ("Unable to create file %s\n",$lockfile);}
+   system("echo \"$message\" | mail -s \"$subject\" $email");
 
-    print LCFILE "Test failed:  ", $errMessage, "\n";
+     $sql="update $JobStatusT set testStatus = 'failed', errorCode = '$errMessage' where date = '$todate' and testStatus = 'submitted' ";
 
-    close (LCFILE);
-
-    system("echo \"$message\" | mail -s \"$subject\" $email");
-
+    $rv = $dbh->do($sql) || die $dbh->errstr;
+   
 
    }elsif($devflag eq "complete" and $logcount == 3 ) {
 
-   if (!open (RFILE, ">$relsfile" ))  {printf ("Unable to create file %s\n",$relsfile);}  
+    $sql="update $JobStatusT set testStatus = 'OK', errorCode = 'none' where date = '$todate' and testStatus = 'submitted' ";
 
-    print RFILE "Ready to release on ".localtime()."\n";
+    $rv = $dbh->do($sql) || die $dbh->errstr;
 
-    close (RFILE);
 
   }
 
