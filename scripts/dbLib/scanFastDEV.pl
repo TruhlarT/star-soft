@@ -106,6 +106,8 @@ my $dirtree =  $TOPDIR."*/*" ;
 
  }
 
+ $message = "DEV test failed:  ".$errMessage ;
+
   &StDbConnect(); 
 
    if($devflag eq "failed") {
