@@ -16,7 +16,7 @@ my $fullname;
 my $output = ();
 my $errMessage = "none";
 my $logcount = 0;
-my $email = "didenko\@bnl.gov";
+my $email = "didenko\@bnl.gov,jeromel\@bnl.gov";
 my $message = "DEV test failed";
 my $subject = "DEV fast test";
 
