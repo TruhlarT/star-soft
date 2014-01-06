@@ -105,6 +105,8 @@ my $dirtree =  $TOPDIR."*/*" ;
 
  }
 
+  &StDbConnect(); 
+
    if($devflag eq "failed") {
 
    system("echo \"$message\" | mail -s \"$subject\" $email");
@@ -123,4 +125,18 @@ my $dirtree =  $TOPDIR."*/*" ;
 
   }
 
+ &StDbDisconnect();
+
 exit;
+
+################################################################################
+
+sub StDbConnect {
+    $dbh = DBI->connect("dbi:mysql:$dbname:$dbhost", $dbuser, $dbpass)
+        || die "Cannot connect to db server $DBI::errstr\n";
+}
+
+######################
+sub StDbDisconnect {
+    $dbh = $dbh->disconnect() || die "Disconnect failure $DBI::errstr\n";
+}
