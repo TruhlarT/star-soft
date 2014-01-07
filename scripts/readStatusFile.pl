@@ -1,4 +1,4 @@
-#!/opt/star/bin/perl -w
+#!/usr/bin/env perl
 #
 #  $Id:
 #
@@ -26,16 +26,13 @@ my @statfile = ();
 my @wrd = ();
 my @prt = ();
 my $prodtg;
-my $dqfile = 0;
+my $daqfile;
 my $jbstat;
 my $dqsize = 0;
 my $nfspath = "/star/data10/daq/2012/";
 my $daqname;
 my $fulldname;
 my $inpsize = 0;
-
-
-# print "Job status path name  ", $statusPath, "\n";
 
  chdir $statusPath;
 
@@ -50,10 +47,12 @@ my $inpsize = 0;
      @wrd = ();
      @wrd = split ("-", $sline);
      $prodtg = $wrd[0];
-     $dqfile = $wrd[1].".daq";
+     $daqfile = $wrd[1].".daq";
      $jbstat = $wrd[2];
 
-  print "From the status file name  ",$prodtg ,"  %  ",$dqfile ,"  %  ", $jbstat, "\n"; 
+#  print "From the status file name  ",$prodtg ,"  %  ",$daqfile ,"  %  ", $jbstat, "\n"; 
+
+     @statfile = ();
 
  open (STATFILE, $outfile ) or die "cannot open $outfile: $!\n";
 
@@ -64,18 +63,26 @@ my $inpsize = 0;
  foreach my $line (@statfile) {
     chop $line;
     @prt = ();
-    @prt = split ("%", $line);
-    $dqsize = $prt[3];     
-  print "Input for  ", $sline," % ",$line," % ",$dqsize, "\n" ;
+    @prt = split ("% ", $line);
+    $dqsize = $prt[3];  
+    chop $dqsize;
+   
+#  print "Input for  ", $sline," % ",$line," % ",$dqsize, "\n" ;
  }
 
-  $sql= "update $JobStatusT set jobProgress = '$jbstat', daqSizeOnSite = '$dqsize' where prodTag = '$prodtg' and inputfileName = '$dqfile' and jobProgress = 'none' ";
+  $sql= "update $JobStatusT set jobProgress = '$jbstat', daqSizeOnSite = '$dqsize' where prodTag = '$prodtg' and inputFileName = '$daqfile' and jobProgress = 'none' ";
 
+  print "$sql\n";
+ 
  $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
+
+  `rm -f $outfile`;
+
+   }   #  $sline
 
 ##########
 
- $sql="SELECT inputFileName, inputFileSize  FROM $JobStatusT where prodTag = '$prodtg' and inputfileName = '$dqfile' and jobProgress = 'daq_transferred' ";
+ $sql="SELECT inputFileName, inputFileSize  FROM $JobStatusT where prodTag = '$prodtg' and inputFileName = '$daqfile' and jobProgress = 'daq_transferred' ";
 
     $cursor =$dbh->prepare($sql)
     || die "Cannot prepare statement: $DBI::errstr\n";
@@ -90,13 +97,14 @@ my $inpsize = 0;
 
       print "$fname = $fvalue\n" if $debugOn;
 
+#     print "$fname = $fvalue\n";
+
       $daqname = $fvalue    if( $fname eq 'inputFileName');
       $inpsize = $fvalue    if( $fname eq 'inputFileSize');
 
          }
    }
 
-  `rm -f $outfile`;
 
      $fulldname = $nfspath.$daqname;
      if($inpsize == $dqsize) {
@@ -105,14 +113,12 @@ my $inpsize = 0;
 
      }else {
  
-     $sql= "update $JobStatusT set jobProgress = 'none', jobState = 'none', daqSizeOnSite = 0  where prodTag = '$prodtg' and inputfileName = '$dqfile' ";
+     $sql= "update $JobStatusT set jobProgress = 'none', jobState = 'none', daqSizeOnSite = 0  where prodTag = '$prodtg' and inputFileName = '$daqfile' ";
 
      $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
      }
  
-  }   #  $sline
-
 
 #######################################################################################
 
@@ -128,11 +134,13 @@ my $inpsize = 0;
      @wrd = ();
      @wrd = split ("-", $sline);
      $prodtg = $wrd[0];
-     $dqfile = $wrd[1].".daq";
+     $daqfile = $wrd[1].".daq";
      $jbstat = $wrd[2];
 
+ print "CHeck reco_finish  ",$prodtg,"  ",$daqfile,"  ",$jbstat, "\n"; 
 
-   $sql= "update $JobStatusT set jobProgress = '$jbstat' where prodTag = '$prodtg' and inputfileName = '$dqfile' and jobProgress = 'daq_transferred' ";
+
+   $sql= "update $JobStatusT set jobProgress = '$jbstat' where prodTag = '$prodtg' and inputFileName = '$daqfile' and jobProgress = 'daq_transferred' ";
 
    $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
@@ -155,11 +163,12 @@ my $inpsize = 0;
      @wrd = ();
      @wrd = split ("-", $sline);
      $prodtg = $wrd[0];
-     $dqfile = $wrd[1].".daq";
+     $daqfile = $wrd[1].".daq";
      $jbstat = $wrd[2];
 
+ print "CHeck  mudst_transferred ",$prodtg,"  ",$daqfile,"  ",$jbstat, "\n"; 
 
-   $sql= "update $JobStatusT set jobProgress = '$jbstat' where prodTag = '$prodtg' and inputfileName = '$dqfile' and jobProgress = 'reco_finish' ";
+   $sql= "update $JobStatusT set jobProgress = '$jbstat' where prodTag = '$prodtg' and inputFileName = '$daqfile' and jobProgress = 'reco_finish' ";
 
    $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
