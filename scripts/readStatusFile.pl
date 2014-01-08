@@ -50,8 +50,6 @@ my $inpsize = 0;
      $daqfile = $wrd[1].".daq";
      $jbstat = $wrd[2];
 
-#  print "From the status file name  ",$prodtg ,"  %  ",$daqfile ,"  %  ", $jbstat, "\n"; 
-
      @statfile = ();
 
  open (STATFILE, $outfile ) or die "cannot open $outfile: $!\n";
@@ -66,15 +64,14 @@ my $inpsize = 0;
     @prt = split ("% ", $line);
     $dqsize = $prt[3];  
     chop $dqsize;
-   
-#  print "Input for  ", $sline," % ",$line," % ",$dqsize, "\n" ;
+
  }
 
-  $sql= "update $JobStatusT set jobProgress = '$jbstat', daqSizeOnSite = '$dqsize' where prodTag = '$prodtg' and inputFileName = '$daqfile' and jobProgress = 'none' ";
+   $sql= "update $JobStatusT set jobProgress = '$jbstat', daqSizeOnSite = '$dqsize' where prodTag = '$prodtg' and inputFileName = '$daqfile' and jobProgress = 'none' ";
 
-  print "$sql\n";
+#  print "$sql\n";
  
- $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
+   $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
   `rm -f $outfile`;
 
@@ -97,8 +94,6 @@ my $inpsize = 0;
 
       print "$fname = $fvalue\n" if $debugOn;
 
-#     print "$fname = $fvalue\n";
-
       $daqname = $fvalue    if( $fname eq 'inputFileName');
       $inpsize = $fvalue    if( $fname eq 'inputFileSize');
 
@@ -109,7 +104,7 @@ my $inpsize = 0;
      $fulldname = $nfspath.$daqname;
      if($inpsize == $dqsize) {
 
-#     `rm -f $fulldname`;
+     `rm -f $fulldname`;
 
      }else {
  
