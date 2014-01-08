@@ -42,7 +42,7 @@ my $inpsize = 0;
 
  foreach my $sline (@statusfile) {
      chop $sline ;
-  print $sline, "\n" ;
+     print $sline, "\n" ;
      $outfile = $statusPath."/".$sline ;
      @wrd = ();
      @wrd = split ("-", $sline);
@@ -104,7 +104,7 @@ my $inpsize = 0;
      $fulldname = $nfspath.$daqname;
      if($inpsize == $dqsize) {
 
-     `rm -f $fulldname`;
+#     `rm -f $fulldname`;
 
      }else {
  
@@ -124,16 +124,13 @@ my $inpsize = 0;
 
    foreach my $sline (@statusfile) {
      chop $sline ;
-  print $sline, "\n" ;
+     print $sline, "\n" ;
      $outfile = $statusPath."/".$sline ;
      @wrd = ();
      @wrd = split ("-", $sline);
      $prodtg = $wrd[0];
      $daqfile = $wrd[1].".daq";
      $jbstat = $wrd[2];
-
- print "CHeck reco_finish  ",$prodtg,"  ",$daqfile,"  ",$jbstat, "\n"; 
-
 
    $sql= "update $JobStatusT set jobProgress = '$jbstat' where prodTag = '$prodtg' and inputFileName = '$daqfile' and jobProgress = 'daq_transferred' ";
 
@@ -153,15 +150,13 @@ my $inpsize = 0;
 
    foreach my $sline (@statusfile) {
      chop $sline ;
-  print $sline, "\n" ;
+     print $sline, "\n" ;
      $outfile = $statusPath."/".$sline ;
      @wrd = ();
      @wrd = split ("-", $sline);
      $prodtg = $wrd[0];
      $daqfile = $wrd[1].".daq";
      $jbstat = $wrd[2];
-
- print "CHeck  mudst_transferred ",$prodtg,"  ",$daqfile,"  ",$jbstat, "\n"; 
 
    $sql= "update $JobStatusT set jobProgress = '$jbstat' where prodTag = '$prodtg' and inputFileName = '$daqfile' and jobProgress = 'reco_finish' ";
 
