@@ -21,7 +21,7 @@ my $errMessage = "none";
 my $logcount = 0;
 my $email = "didenko\@bnl.gov,jeromel\@bnl.gov";
 my $message = "DEV test failed";
-my $subject = "DEV test";
+my $subject = "DEV test failed";
 
 my $mTime;
 my $ltime;
@@ -156,7 +156,7 @@ my $dirtree =  $TOPDIR."*/*" ;
 
    if($devflag eq "failed") {
 
- $message = "DEV test failed;  error message:  ".$errMessage."; test path: ".$jobpath ;
+ $message = "DEV test failed;  error message:  ".$errMessage."; for more information look at the test path: ".$jobpath ;
 
    system("echo \"$message\" | mail -s \"$subject\" $email");
 
