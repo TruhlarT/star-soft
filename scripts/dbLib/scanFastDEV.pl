@@ -58,7 +58,6 @@ if( $sec < 10) { $sec = '0'.$sec };
 
 my $todate = ($year+1900)."-".$mon."-".$mday ;
 
-
 my $dirtree =  $TOPDIR."*/*" ;
 
  @OUTDIR = `ls -d $dirtree` ;
@@ -79,18 +78,14 @@ my $dirtree =  $TOPDIR."*/*" ;
    
       if ($fname =~ /.log/)  {
 
-      $logcount++;
+    $logcount++;
 
-#    print "File Name:",$fname, "\n";
-
-     $fullname = $eachdir."/".$fname;
+    $fullname = $eachdir."/".$fname;
 
     ($mTime) = (stat($fullname))[9];
-
     ($sec,$min,$hr,$dy,$mo,$yr) = (localtime($mTime))[0,1,2,3,4,5];
 
     $mo++;
-
     $tyear = $yr + 2000;
 
     $ltime = sprintf ("%4.4d-%2.2d-%2.2d %2.2d:%2.2d:%2.2d",
@@ -100,7 +95,6 @@ my $dirtree =  $TOPDIR."*/*" ;
 
       $artime[$ii] = $ltime;
       $ii++;
-
 
      @output = ();
      @output = `tail -1200 $fullname`;
@@ -135,12 +129,10 @@ my $dirtree =  $TOPDIR."*/*" ;
          $devflag = "failed"; 
          $errMessage = "glibc detected";
          $jobpath = $fullname;
-
     }
          }
        }
      }
-
  }
 
   for ($ii = 0;$ii<scalar(@artime);$ii++) {
@@ -151,7 +143,6 @@ my $dirtree =  $TOPDIR."*/*" ;
 
 #   print "Max time ", $maxtime, "\n";
 
-
   &StDbConnect(); 
 
    if($devflag eq "failed") {
@@ -160,13 +151,11 @@ my $dirtree =  $TOPDIR."*/*" ;
 
    system("echo \"$message\" | mail -s \"$subject\" $email");
 
-     $sql="update $JobStatusT set testStatus = 3, testCompleteTime = '$maxtime', testInfo = '$errMessage' where entryDate like '$todate%' and testStatus = 1 ";
+    $sql="update $JobStatusT set testStatus = 3, testCompleteTime = '$maxtime', testInfo = '$errMessage' where entryDate like '$todate%' and testStatus = 1 ";
 
     $rv = $dbh->do($sql) || die $dbh->errstr;
    
-
    }elsif($devflag eq "complete" and $logcount == 3 ) {
-
 
     $sql="update $JobStatusT set testStatus = 2, testCompleteTime = '$maxtime', testInfo = 'none' where entryDate like '$todate%' and testStatus = 1 ";
 
