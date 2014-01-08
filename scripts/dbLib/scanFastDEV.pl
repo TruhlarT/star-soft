@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl -w
+#!/usr/bin/env perl
 #
 # $Id: scanFastDEV.pl
 #
@@ -21,7 +21,23 @@ my $errMessage = "none";
 my $logcount = 0;
 my $email = "didenko\@bnl.gov,jeromel\@bnl.gov";
 my $message = "DEV test failed";
-my $subject = "DEV fast test";
+my $subject = "DEV test";
+
+my $mTime;
+my $ltime;
+my $tyear;
+my @artime = ();
+my $maxtime = "0000-00-00 00:00:00";
+my $ii = 0;
+
+my $yr;
+my $mo;
+my $dy;
+my $hr;
+my $min;
+my $sec;
+
+my $jobpath = "none";
 
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
@@ -47,13 +63,10 @@ my $dirtree =  $TOPDIR."*/*" ;
 
  @OUTDIR = `ls -d $dirtree` ;
 
- for ($i = 0; $i < scalar(@OUTDIR); $i++) {
- print $OUTDIR[$i], "\n"; 
- }
-
  foreach my $eachdir (@OUTDIR) {
 
   chop $eachdir;
+  print $eachdir, "\n";
 
   opendir(DIR, $eachdir) or die "can't open $eachdir\n";
 
@@ -64,13 +77,30 @@ my $dirtree =  $TOPDIR."*/*" ;
       next if $fname =~ /^\.\.?$/;
       next if $fname =~ /.root/;  
    
-       if ($fname =~ /.log/)  {
+      if ($fname =~ /.log/)  {
 
       $logcount++;
 
 #    print "File Name:",$fname, "\n";
 
      $fullname = $eachdir."/".$fname;
+
+    ($mTime) = (stat($fullname))[9];
+
+    ($sec,$min,$hr,$dy,$mo,$yr) = (localtime($mTime))[0,1,2,3,4,5];
+
+    $mo++;
+
+    $tyear = $yr + 2000;
+
+    $ltime = sprintf ("%4.4d-%2.2d-%2.2d %2.2d:%2.2d:%2.2d",
+                       $tyear,$mo,$dy,$hr,$min,$sec);
+
+#   print $fullname,"   ", $ltime, "\n";
+
+      $artime[$ii] = $ltime;
+      $ii++;
+
 
      @output = ();
      @output = `tail -1200 $fullname`;
@@ -80,24 +110,31 @@ my $dirtree =  $TOPDIR."*/*" ;
     if ($line =~ /Abort/)  {  
          $devflag = "failed";
          $errMessage = "Abort";
+         $jobpath = $fullname;
     }elsif ($line =~ /segmentation violation/) {
          $devflag = "failed"; 
-         $errMessage = "Segmentation violation";  
+         $errMessage = "Segmentation violation";
+         $jobpath = $fullname;  
     } elsif ($line =~ /segmentation fault/) {
          $devflag = "failed"; 
-         $errMessage = "Segmentation fault";  
+         $errMessage = "Segmentation fault";
+         $jobpath = $fullname;  
     } elsif ($line =~ /undefined symbol/) {
          $devflag = "failed";  
          $errMessage = "undefined symbol";
+         $jobpath = $fullname;
     }elsif ($line =~ /Assertion/ & $line =~ /failed/)  {
          $devflag = "failed";  
          $errMessage = "Assertion failed";
+         $jobpath = $fullname;
     }elsif ($line =~ /FATAL/ and $line =~ /floating point exception/) {
          $devflag = "failed"; 
          $errMessage = "FATAL, floating point exception", 
+         $jobpath = $fullname;
     }elsif ($line =~ /glibc detected/)  {
          $devflag = "failed"; 
          $errMessage = "glibc detected";
+         $jobpath = $fullname;
 
     }
          }
@@ -106,25 +143,34 @@ my $dirtree =  $TOPDIR."*/*" ;
 
  }
 
- $message = "DEV test failed:  ".$errMessage ;
+  for ($ii = 0;$ii<scalar(@artime);$ii++) {
+      if ($artime[$ii] gt  $maxtime ) {
+	  $maxtime = $artime[$ii];
+      }
+   }
+
+#   print "Max time ", $maxtime, "\n";
+
 
   &StDbConnect(); 
 
    if($devflag eq "failed") {
 
+ $message = "DEV test failed;  error message:  ".$errMessage."; test path: ".$jobpath ;
+
    system("echo \"$message\" | mail -s \"$subject\" $email");
 
-     $sql="update $JobStatusT set testStatus = 'failed', errorCode = '$errMessage' where date = '$todate' and testStatus = 'submitted' ";
+     $sql="update $JobStatusT set testStatus = 3, testCompleteTime = '$maxtime', testInfo = '$errMessage' where entryDate like '$todate%' and testStatus = 1 ";
 
     $rv = $dbh->do($sql) || die $dbh->errstr;
    
 
    }elsif($devflag eq "complete" and $logcount == 3 ) {
 
-    $sql="update $JobStatusT set testStatus = 'OK', errorCode = 'none' where date = '$todate' and testStatus = 'submitted' ";
+
+    $sql="update $JobStatusT set testStatus = 2, testCompleteTime = '$maxtime', testInfo = 'none' where entryDate like '$todate%' and testStatus = 1 ";
 
     $rv = $dbh->do($sql) || die $dbh->errstr;
-
 
   }
 
