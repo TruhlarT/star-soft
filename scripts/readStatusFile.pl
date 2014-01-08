@@ -104,7 +104,7 @@ my $inpsize = 0;
      $fulldname = $nfspath.$daqname;
      if($inpsize == $dqsize) {
 
-#     `rm -f $fulldname`;
+     `rm -f $fulldname`;
 
      }else {
  
