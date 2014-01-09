@@ -238,7 +238,7 @@ print <<END;
  <h2 ALIGN=CENTER> <B>Fast DEV nightly test status for the period of $qperiod</h2>
  <h3 ALIGN=CENTER> Created on $todate</h3>
 <br>
-<TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
+<TABLE ALIGN=CENTER BORDER=1 CELLSPACING=1 CELLPADDING=1 bgcolor=\"#ffdc9f\">
 <TR>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Date</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>AutoBuild status</h3></B></TD>
