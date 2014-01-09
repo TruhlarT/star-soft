@@ -209,7 +209,7 @@ END
  print $qqr->end_html;
 
  &endHtml();
-
+}
 
 ######################
 sub StDbConnect {
