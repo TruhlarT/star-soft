@@ -240,13 +240,13 @@ print <<END;
 <br>
 <TABLE ALIGN=CENTER BORDER=4 CELLSPACING=1 CELLPADDING=1 bgcolor=\"#ffdc9f\">
 <TR>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=20><B><h3>Date</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=20><B><h3>AutoBuild status</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=20><B><h3>AutoBuild infor</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=20><B><h3>Test status</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=20><B><h3>Error message</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=20><B><h3>Test submit time</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=20><B><h3>Test complete time</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=40><B><h3>Date</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=40><B><h3>AutoBuild status</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=40><B><h3>AutoBuild info</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=40><B><h3>Test status</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=40><B><h3>Error message</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=40><B><h3>Test submit time</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=40><B><h3>Test complete time</h3></B></TD>
 </TR>
     </body>
 END
