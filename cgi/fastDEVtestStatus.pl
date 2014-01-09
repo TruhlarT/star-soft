@@ -125,8 +125,8 @@ END
   my @complTime = ();
   my @testErr = ();
   my @testday = ();
-  my $autostat;
-  my $teststat;  
+  my $autostat = 0;
+  my $teststat = 0;  
 
 
  print $qqr->header;
@@ -173,18 +173,18 @@ END
 
    for (my $ii=0; $ii<$nday; $ii++ ) {
 
-       if ( $autStatus[$ii] ) {
+       if ( $autStatus[$ii]== 0 ) {
 	   $autostat = "failed";
-       }elsif($autStatus[$ii] = 1 ) {
+       }elsif($autStatus[$ii] == 1 ) {
            $autostat = "success";
        }
-       if ($jbstatus[$ii] ) {
+       if ($jbstatus[$ii] == 0 ) {
          $teststat = "not submitted";
-      }elsif($jbstatus[$ii] = 1) {
+      }elsif($jbstatus[$ii] == 1) {
          $teststat = "submitted";      
-      }elsif($jbstatus[$ii] = 2) {
+      }elsif($jbstatus[$ii] == 2) {
          $teststat = "success";
-      }elsif($jbstatus[$ii] = 3) {
+      }elsif($jbstatus[$ii] == 3) {
          $teststat = "failed"; 
       }
 
