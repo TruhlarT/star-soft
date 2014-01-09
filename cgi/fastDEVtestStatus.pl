@@ -61,7 +61,7 @@ END
     print $query->startform(-action=>"$scriptname");
 
     print "<body bgcolor=\"cornsilk\">\n";
-    print "<h1 align=center><u>Fast DEV test status </u></h1>\n";
+    print "<h1 align=center><u>Fast DEV nightly test status </u></h1>\n";
     print "<br>";
     print "<br>";
     print <<END;
@@ -73,7 +73,7 @@ END
 
     print "<p>";
     print "</td><td>";  
-    print "<h3 align=center> Period for test results <br> </h3>";
+    print "<h3 align=center> Period to query test results <br> </h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'period',
                                   -values=>\@arperiod,
