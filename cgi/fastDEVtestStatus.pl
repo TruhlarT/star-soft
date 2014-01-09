@@ -15,6 +15,8 @@ BEGIN {
 
 use DBI;
 use CGI qw(:standard);
+use Time::Local;
+
 
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
@@ -38,12 +40,9 @@ my $nowdate = ($year+1900)."-".$mon."-".$mday ." ".$hour.":".$min.":".$sec ;
 
 my @arperiod = ("week","1_month","2_months","6_months");
 
-  &StDbProdConnect();
 
 my $JobStatusT = "fastJobsStatus";  
 
-
-&StDbProdDisconnect();
 
 my $query = new CGI;
 
@@ -78,6 +77,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'period',
                                   -values=>\@arperiod,
+                                  -default=>week,
                                   -size =>1); 
 
     
@@ -134,9 +134,6 @@ END
  print "<body bgcolor=\"cornsilk\">\n";
 
 
- &beginHtml();
-
-
  &StDbConnect();
 
      if( $qperiod eq "week") {
@@ -168,6 +165,9 @@ END
     }
 
    $cursor->finish();
+
+
+   &beginHtml();
 
 ##############################
 
