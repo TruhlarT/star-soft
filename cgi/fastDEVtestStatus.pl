@@ -191,13 +191,13 @@ END
 print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3>$testday[$ii]</h3></td>
-<td HEIGHT=10><h3>$autostat</h3></td>
-<td HEIGHT=10><h3>$autInfo[$ii]</h3></td>
-<td HEIGHT=10><h3>$teststat</h3></td>
-<td HEIGHT=10><h3>$testErr[$ii]</h3></td>
-<td HEIGHT=10><h3>$submTime[$ii]</h3></td>
-<td HEIGHT=10><h3>$complTime[$ii]</h3></td>
+<td HEIGHT=10>$testday[$ii]</td>
+<td HEIGHT=10>$autostat</td>
+<td HEIGHT=10>$autInfo[$ii]</td>
+<td HEIGHT=10>$teststat</td>
+<td HEIGHT=10>$testErr[$ii]</td>
+<td HEIGHT=10>$submTime[$ii]</td>
+<td HEIGHT=10>$complTime[$ii]</td>
 </TR>
 END
 
