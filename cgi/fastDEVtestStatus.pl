@@ -103,9 +103,8 @@ END
   my $qqr = new CGI;
  
   my $qperiod = $qqr->param('period');
- 
-    
- # Tables
+     
+# Tables
       
  $JobStatusT = "fastJobsStatus";
 
@@ -203,8 +202,7 @@ END
 
    }
 
-
-    &StDbDisconnect();
+ &StDbDisconnect();
 
  print $qqr->end_html;
 
@@ -236,11 +234,11 @@ print <<END;
 
    <body BGCOLOR=\"cornsilk\">
  <h2 ALIGN=CENTER> <B>Fast DEV nightly test status for the period of $qperiod</h2>
- <h3 ALIGN=CENTER> Created on $todate</h3>
+ <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=4 CELLSPACING=1 CELLPADDING=1 bgcolor=\"#ffdc9f\">
 <TR>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Date</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Date of release</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>AutoBuild status</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>AutoBuild info</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Test status</h3></B></TD>
