@@ -168,7 +168,7 @@ END
           $nkilled = $fields[9];
           $nheld = $fields[10];
          }
-
+    $cursor->finish();
 
   &beginHtml();
 
