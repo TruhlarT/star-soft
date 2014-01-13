@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-#  $Id:
+#  $Id: readStatusFile.pl
 #
 #  $Log:   readStatusFile.pl - script to read status files on NFS and update production job status database
 #          
@@ -99,7 +99,7 @@ my $nn = 0;
 
   $cursor->finish();
 
-for ( my $ii=0; $ii < $nn; $ii++) {
+for ( my $ii=0; $ii< $nn; $ii++) {
 
      $fulldname = $nfspath.$daqname[$ii];
      if($inpsize[$ii] == $sitedsize[$ii]) {
