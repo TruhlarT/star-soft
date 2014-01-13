@@ -76,7 +76,7 @@ my $nn = 0;
  
    $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
-#  `rm -f $outfile`;
+  `rm -f $outfile`;
 
    }   #  $sline
 
@@ -136,7 +136,7 @@ for ( my $ii=0; $ii< $nn; $ii++) {
 
    $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
-#  `rm -f $outfile`;
+  `rm -f $outfile`;
 
   }
 
@@ -163,7 +163,7 @@ for ( my $ii=0; $ii< $nn; $ii++) {
    $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
 
-#     `rm -f $outfile`;
+     `rm -f $outfile`;
 
    }
   
