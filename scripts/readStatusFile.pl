@@ -30,9 +30,12 @@ my $daqfile;
 my $jbstat;
 my $dqsize = 0;
 my $nfspath = "/star/data10/daq/2012/";
-my $daqname;
+my @daqname = ();
 my $fulldname;
-my $inpsize = 0;
+my @inpsize = ();
+my @sitedsize = ();
+my $nn = 0;
+
 
  chdir $statusPath;
 
@@ -73,48 +76,45 @@ my $inpsize = 0;
  
    $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
-  `rm -f $outfile`;
+#  `rm -f $outfile`;
 
    }   #  $sline
 
 ##########
 
- $sql="SELECT inputFileName, inputFileSize  FROM $JobStatusT where prodTag = '$prodtg' and inputFileName = '$daqfile' and jobProgress = 'daq_transferred' ";
+ $sql="SELECT inputFileName, inputFileSize, daqSizeOnSite  FROM $JobStatusT where prodTag = '$prodtg' and jobProgress = 'daq_transferred' ";
 
     $cursor =$dbh->prepare($sql)
     || die "Cannot prepare statement: $DBI::errstr\n";
      $cursor->execute;
 
    while(@fields = $cursor->fetchrow) {
-     my $cols=$cursor->{NUM_OF_FIELDS};
 
-    for($i=0;$i<$cols;$i++) {
-     my $fvalue=$fields[$i];
-        my $fname=$cursor->{NAME}->[$i];
+      $daqname[$nn] = $fields[0];
+      $inpsize[$nn] = $fields[1];
+      $sitedsize[$nn] = $fields[2];
 
-      print "$fname = $fvalue\n" if $debugOn;
+     $nn++;
+    }
 
-      $daqname = $fvalue    if( $fname eq 'inputFileName');
-      $inpsize = $fvalue    if( $fname eq 'inputFileSize');
+  $cursor->finish();
 
-         }
-   }
+for ( my $ii=0; $ii < $nn; $ii++) {
 
+     $fulldname = $nfspath.$daqname[$ii];
+     if($inpsize[$ii] == $sitedsize[$ii]) {
 
-     $fulldname = $nfspath.$daqname;
-     if($inpsize == $dqsize) {
-
-     `rm -f $fulldname`;
+#     `rm -f $fulldname`;
 
      }else {
  
-     $sql= "update $JobStatusT set jobProgress = 'none', jobState = 'none', daqSizeOnSite = 0  where prodTag = '$prodtg' and inputFileName = '$daqfile' ";
+     $sql= "update $JobStatusT set jobProgress = 'none', jobState = 'none'  where prodTag = '$prodtg' and inputFileName = '$daqname[$ii]' ";
 
      $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
      }
+  }
  
-
 #######################################################################################
 
    @statusfile = ();
@@ -136,7 +136,7 @@ my $inpsize = 0;
 
    $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
-  `rm -f $outfile`;
+#  `rm -f $outfile`;
 
   }
 
@@ -158,12 +158,12 @@ my $inpsize = 0;
      $daqfile = $wrd[1].".daq";
      $jbstat = $wrd[2];
 
-   $sql= "update $JobStatusT set jobProgress = '$jbstat' where prodTag = '$prodtg' and inputFileName = '$daqfile' and jobProgress = 'reco_finish' ";
+   $sql= "update $JobStatusT set jobProgress = '$jbstat' where prodTag = '$prodtg' and inputFileName = '$daqfile'  ";
 
    $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
 
-     `rm -f $outfile`;
+#     `rm -f $outfile`;
 
    }
   
