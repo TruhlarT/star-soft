@@ -181,7 +181,7 @@ my $min_y = 0;
 my $max_y = 5000;
 my $maxval = 0;
 my $minVal = 0;
-my @arsite = ("rcf","pdsf");
+my @arsite = ("rcf","pdsf","kisti");
 
 my $query = new CGI;
 
@@ -308,6 +308,7 @@ my $agml;
 @plotvalpdsf = ();
 @plotvalvmcdg = ();
 @plotvalvmcop = ();
+@plotvalkisti = ();
 
 @libtag = ();
 
@@ -324,6 +325,9 @@ $nl = 0;
 @plotmemvmclstd = ();
 @plotmemfstpdsf = ();
 @plotmemlstpdsf = ();
+@plotmemfstkisti = ();
+@plotmemlstkisti = ();
+
 
 $min_y = 1;
 $max_y = 1000;
@@ -371,8 +375,28 @@ for ($npt = 0; $npt<scalar(@libtag); $npt++)  {
 		  $minval =  $plotvalpdsf[$npt];
 	          }
 	       }
+           }elsif ($fields[2] eq "kisti" or $fields[3] eq "kisti") {
+          
+             if ($plotVal eq "MemUsage") {
+                $plotmemfstkisti[$npt] = $fields[1];
+                $plotmemlstkisti[$npt] = $fields[2];
+                if( $plotmemlstkisti[$npt] >= $maxval) {
+		    $maxval =  $plotmemlstkisti[$npt];
+                  }
+	        if( $plotmemfstkisti[$npt] >= 0 and $plotmemfstkisti[$npt] <= $minval ) {
+		  $minval =  $plotmemfstkisti[$npt];
+	          }
+	   }else{
+		$plotvalkisti[$npt] = $fields[1];
+		if( $plotvalkisti[$npt] >= $maxval) {
+		    $maxval =  $plotvalkisti[$npt];
+                  }
+	        if( $plotvalkisti[$npt] >=0 and $plotvalkisti[$npt] <= $minval ) {
+		  $minval =  $plotvalkisti[$npt];
+	          }
+	       }
 
-	    }elsif($fields[2] eq "rcf" or $fields[3] eq "rcf") {
+	   }elsif($fields[2] eq "rcf" or $fields[3] eq "rcf") {
 
             if ($fields[0] =~ /sl302.ittf_opt/) {
               if ($plotVal eq "MemUsage") {
@@ -492,7 +516,7 @@ my $graph = new GD::Graph::linespoints(650,500);
 
 
 if ($plotVal eq "MemUsage") {
-    @data = (\@libtag, \@plotmemfsto, \@plotmemlsto, \@plotmemfstd, \@plotmemlstd, \@plotmemfstpdsf, \@plotmemlstpdsf,\@plotmemvmcfsto, \@plotmemvmclsto, \@plotmemvmcfstd, \@plotmemvmclstd );
+    @data = (\@libtag, \@plotmemfsto, \@plotmemlsto, \@plotmemfstd, \@plotmemlstd, \@plotmemfstpdsf, \@plotmemlstpdsf,\@plotmemvmcfsto, \@plotmemvmclsto, \@plotmemvmcfstd, \@plotmemvmclstd, \@plotmemfstkisti, \@plotmemlstkisti,);
 
     $legend[0] = "MemUsageFirst(optimized,rcf)";
     $legend[1] = "MemUsageLast(optimized,rcf)";
@@ -504,18 +528,21 @@ if ($plotVal eq "MemUsage") {
     $legend[7] = "MemUsageLast(optimized.AgML,rcf)";
     $legend[8] = "MemUsageFirst(nonoptimized.AgML,rcf)";
     $legend[9] = "MemUsageLast(nonoptimized.AgML,rcf)";
+    $legend[10] = "MemUsageFirst(kisti)";
+    $legend[11] = "MemUsageLast(kisti)";
 
     $mplotVal="MemUsageFirstEvent,MemUsageLastEvent";
 
   } else {
 
-    @data = (\@libtag, \@plotvalop, \@plotvaldg, \@plotvalpdsf, \@plotvalvmcop, \@plotvalvmcdg );
+    @data = (\@libtag, \@plotvalop, \@plotvaldg, \@plotvalpdsf, \@plotvalvmcop, \@plotvalvmcdg, \@plotvalkisti, );
 
     $legend[0] = "$plotVal"."(optimized,rcf)";
     $legend[1] = "$plotVal"."(nonoptimized,rcf)";
     $legend[2] = "$plotVal"."(pdsf)";
     $legend[3] = "$plotVal"."(optimized.AgML,rcf)";
     $legend[4] = "$plotVal"."(nonoptimized.AgML,rcf)";
+    $legend[5] = "$plotVal"."(kisti)";
 
 }
 
