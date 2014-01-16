@@ -11,8 +11,6 @@
 #
 ##############################################################################
 
-use File::Find;
-use Net::FTP;
 use Class::Struct;
 use File::Basename;
 
@@ -20,13 +18,14 @@ require "/afs/rhic.bnl.gov/star/packages/scripts/dbLib/dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/new/";
 
-my @dir_year = ("year_2000", "year_2001", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008","year_2009","year_2010","year_2011","year_2012","year_2013");
-my @node_dir = ("daq_sl302.ittf", "daq_sl302.ittf_opt" ,"trs_sl302.ittf", "trs_sl302.ittf_opt"); 
+my @dir_year = ("year_2000", "year_2001", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008","year_2009","year_2010","year_2011","year_2012","year_2013","year_2014");
+my @node_dir = ("daq_sl302.ittf", "daq_sl302.ittf_opt" ,"trs_sl302.ittf", "trs_sl302.ittf_opt","simu"); 
 
 my @OUT_DIR0 = ();
 my @OUT_DIR1 = ();
 my @OUT_DIR2 = ();
 my @OUT_DIR3 = ();
+my @OUT_DIR4 = ();
 my @OUT_DIR = ();
 my @OUTD_DIR = ();
 my @TDIR = ();
@@ -52,6 +51,8 @@ my $ii = 0;
     @OUT_DIR1 = `ls -d $TDIR[1]`;
     @OUT_DIR2 = `ls -d $TDIR[2]`;
     @OUT_DIR3 = `ls -d $TDIR[3]`;
+    @OUT_DIR4 = `ls -d $TDIR[4]`;
+
  $ii = 0;
   
   for ($i = 0; $i < scalar(@OUT_DIR0); $i++) {
@@ -75,6 +76,13 @@ my $ii = 0;
 }
   for ($i = 0; $i < scalar(@OUT_DIR3); $i++) {
      $OUT_DIR[$ii] = $OUT_DIR3[$i];
+     chop $OUT_DIR[$ii]; 
+  print "Output Dir for NEW :", $OUT_DIR[$ii],"\n";
+      $ii++;  
+  }
+
+  for ($i = 0; $i < scalar(@OUT_DIR4); $i++) {
+     $OUT_DIR[$ii] = $OUT_DIR4[$i];
      chop $OUT_DIR[$ii]; 
   print "Output Dir for NEW :", $OUT_DIR[$ii],"\n";
       $ii++;  
