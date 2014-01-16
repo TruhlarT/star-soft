@@ -178,17 +178,31 @@ END
            $autostat = "success";
        }
        if ($jbstatus[$ii] == 0 ) {
-         $teststat = "not submitted";
+           $teststat = "not submitted";
       }elsif($jbstatus[$ii] == 1) {
-         $teststat = "submitted";      
+           $teststat = "submitted";      
       }elsif($jbstatus[$ii] == 2) {
-         $teststat = "success";
+           $teststat = "success";
       }elsif($jbstatus[$ii] == 3) {
-         $teststat = "failed"; 
+           $teststat = "failed"; 
       }
 
+       if ( $autostat eq "failed" ) {
+  
+print <<END;
 
-       if ( $autostat eq "failed" or $teststat eq "failed" ) {
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"pink\">
+<td HEIGHT=10>$testday[$ii]</td>
+<td HEIGHT=10>$autostat</td>
+<td HEIGHT=10>$autInfo[$ii]</td>
+<td HEIGHT=10>$teststat</td>
+<td HEIGHT=10>$testErr[$ii]</td>
+<td HEIGHT=10>$submTime[$ii]</td>
+<td HEIGHT=10>$complTime[$ii]</td>
+</TR>
+END
+
+      }elsif($teststat eq "failed" ) {
 
 print <<END;
 
