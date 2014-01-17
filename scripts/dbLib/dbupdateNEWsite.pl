@@ -34,47 +34,49 @@ print  $SITE, "\n";
 
  $dsite = "rcf";
  $TOP_DIRD = "/star/rcf/test/new/";
-  @node_dir = ("daq_sl302.ittf", "daq_sl302.ittf_opt" ,"trs_sl302.ittf", "trs_sl302.ittf_opt"); 
+  @node_dir = ("daq_sl302.ittf", "trs_sl302.ittf", "simu", "daq_sl302.ittf_opt", "trs_sl302.ittf_opt"); 
 
  }elsif($SITE eq "rcf_embed" ) {
 
   $dsite = "rcf";
  $TOP_DIRD = "/star/rcf/test/new_embed/";
- @node_dir = ("daq_sl302.ittf", "daq_sl302.ittf_opt" ,"trs_sl302.ittf", "trs_sl302.ittf_opt"); 
+ @node_dir = ("daq_sl302.ittf", "trs_sl302.ittf", "simu", "daq_sl302.ittf_opt", "trs_sl302.ittf_opt"); 
 
  }elsif($SITE eq "pdsf" ) {
 
    $dsite = "pdsf"; 
   $TOP_DIRD = "/star/data08/users/didenko/pdsf/new/";
-  @node_dir = ("daq_sl53.ittf", "trs_sl53.ittf");  
+  @node_dir = ("daq_sl53.ittf", "trs_sl53.ittf","simu");  
 
  }elsif($SITE eq "pdsf_embed" ) {
 
   $dsite = "pdsf";  
   $TOP_DIRD = "/star/data08/users/didenko/pdsf/new_embed/";
-  @node_dir = ("daq_sl53.ittf", "trs_sl53.ittf");  
+  @node_dir = ("daq_sl53.ittf", "trs_sl53.ittf","simu");  
 
  }elsif($SITE eq "kisti" ) {
 
    $dsite = "kisti"; 
   $TOP_DIRD = "/star/data08/users/didenko/kisti/new/";
-  @node_dir = ("daq_sl53.ittf", "trs_sl53.ittf");  
+  @node_dir = ("daq_sl53.ittf", "trs_sl53.ittf","simu");  
 
  }elsif($SITE eq "kisti_embed" ) {
 
   $dsite = "kisti";  
   $TOP_DIRD = "/star/data08/users/didenko/kisti/new_embed/";
-  @node_dir = ("daq_sl53.ittf", "trs_sl53.ittf");   
+  @node_dir = ("daq_sl53.ittf", "trs_sl53.ittf","simu");   
 
 }
 my @prt = ();
 
-my @dir_year = ("year_2000", "year_2001", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008","year_2009", "year_2010", "year_2011", "year_2012");
+my @dir_year = ("year_2000", "year_2001", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008","year_2009", "year_2010", "year_2011", "year_2012","year_2013","year_2014");
 
 my @OUT_DIR0 = ();
 my @OUT_DIR1 = ();
 my @OUT_DIR2 = ();
 my @OUT_DIR3 = ();
+my @OUT_DIR4 = ();
+
 my @OUT_DIR = ();
 my @OUTD_DIR = ();
 my @TDIR = ();
@@ -100,11 +102,12 @@ my $ii = 0;
 
     @OUT_DIR0 = `ls -d $TDIR[0]`;
     @OUT_DIR1 = `ls -d $TDIR[1]`;
+    @OUT_DIR2 = `ls -d $TDIR[2]`;
 
   if ($dsite eq "rcf" ) { 
 
-    @OUT_DIR2 = `ls -d $TDIR[2]`;
     @OUT_DIR3 = `ls -d $TDIR[3]`;
+    @OUT_DIR4 = `ls -d $TDIR[4]`;
 }
  $ii = 0;
   
@@ -121,15 +124,22 @@ my $ii = 0;
      $ii++;
 }
 
+  for ($i = 0; $i < scalar(@OUT_DIR2); $i++) {
+     $OUT_DIR[$ii] = $OUT_DIR1[$i]; 
+     chop $OUT_DIR[$ii];
+  print "Output Dir for NEW :", $OUT_DIR[$ii],"\n";
+     $ii++;
+}
+
   if ($dsite eq "rcf" ) { 
 
-  for ($i = 0; $i < scalar(@OUT_DIR2); $i++) {
+  for ($i = 0; $i < scalar(@OUT_DIR3); $i++) {
      $OUT_DIR[$ii] = $OUT_DIR2[$i];
      chop $OUT_DIR[$ii];  
   print "Output Dir for NEW :", $OUT_DIR[$ii],"\n";
    $ii++; 
 }
-  for ($i = 0; $i < scalar(@OUT_DIR3); $i++) {
+  for ($i = 0; $i < scalar(@OUT_DIR4); $i++) {
      $OUT_DIR[$ii] = $OUT_DIR3[$i];
      chop $OUT_DIR[$ii]; 
   print "Output Dir for NEW :", $OUT_DIR[$ii],"\n";
