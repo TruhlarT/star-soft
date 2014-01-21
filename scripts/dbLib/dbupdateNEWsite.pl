@@ -403,6 +403,7 @@ my $pyear = 0;
  @prt = ();
 
 
+      next if($fname =~ /.simu.log/);
        if ($fname =~ /.log/)  {
 #    print "File Name:",$fname, "\n";       
        $fullname = $eachOutLDir."/".$fname;
