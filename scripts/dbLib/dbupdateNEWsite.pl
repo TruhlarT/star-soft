@@ -134,13 +134,13 @@ my $ii = 0;
   if ($dsite eq "rcf" ) { 
 
   for ($i = 0; $i < scalar(@OUT_DIR3); $i++) {
-     $OUT_DIR[$ii] = $OUT_DIR2[$i];
+     $OUT_DIR[$ii] = $OUT_DIR3[$i];
      chop $OUT_DIR[$ii];  
   print "Output Dir for NEW :", $OUT_DIR[$ii],"\n";
    $ii++; 
 }
   for ($i = 0; $i < scalar(@OUT_DIR4); $i++) {
-     $OUT_DIR[$ii] = $OUT_DIR3[$i];
+     $OUT_DIR[$ii] = $OUT_DIR4[$i];
      chop $OUT_DIR[$ii]; 
   print "Output Dir for NEW :", $OUT_DIR[$ii],"\n";
       $ii++;  
