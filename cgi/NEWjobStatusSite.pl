@@ -194,7 +194,8 @@ my @prt = ();
  if($lsite =~ /embed/) {
    $newpath = "%/new_embed/%ittf%" ;
  } else{
-   $newpath = "%/new/%ittf%" ;
+#   $newpath = "%/new/%ittf%" ;
+    $newpath = "%/new/%" ; 
  }
   
 $JobStatusT = "siteJobStatus";
