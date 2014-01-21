@@ -84,7 +84,7 @@ my $nd = 0;
 &StDbTJobsConnect();
 
 
- $sql="SELECT distinct LibTag FROM $JobStatusT where path LIKE '%test/new%ittf%' order by createTime ";
+ $sql="SELECT distinct LibTag FROM $JobStatusT where path LIKE '%test/new/%' order by createTime ";
 
   $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -103,7 +103,7 @@ my $lastlib = $arlib[$nd-1];
  &beginHtml();
 
 
-$sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%test/new%ittf%'  AND avail = 'Y' order by prodyear ";
+$sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%test/new/%'  AND avail = 'Y' order by prodyear ";
 
 
     $cursor =$dbh->prepare($sql)
@@ -171,7 +171,7 @@ $sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, 
        $evtype = "embedding";
     }elsif($myPath =~ /daq/)  {
       $evtype = "realData";
-    }elsif($myPath =~ /trs/ ) {
+    }elsif($myPath =~ /trs/ or $myPath =~ /simu/ ) {
         $evtype = "MC";
     }
 
