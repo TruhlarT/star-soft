@@ -273,7 +273,7 @@ my $dPath;
       $evtype = "embedding";
     }elsif($dPath =~ /daq/)  {
       $evtype = "realData";
-    }elsif($dPath =~ /trs/ ) {
+    }elsif($dPath =~ /trs/ or $dPath =~ /simu/ ) {
        $evtype = "MC";
     }
 
