@@ -53,7 +53,7 @@ $DOWN = "<A HREF=\"#BOT\"><IMG ALT=\"[DOWN]\" BORDER=\"0\" SRC=\"/icons/down.gif
 $BREAK{"01"}   =  "User Space";
 $BREAK{"03"}   =  "Reserved Usage Space Area";
 $BREAK{"06"}   =  "Production Disks / Special usage/ Assigned TEMPORARY space for Projects";
-$BREAK{"15"}   =  "Production Disks";
+$BREAK{"23"}   =  "Production Disks";
 
 # Addiitonal header based on patterns
 $BHEAD{"inst"} =  "Institution or specialized usage disks";
