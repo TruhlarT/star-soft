@@ -1,5 +1,9 @@
-* $Id: geometry.g,v 1.269 2013/12/09 14:45:58 jwebb Exp $
+* $Id: geometry.g,v 1.270 2014/01/23 17:04:34 jwebb Exp $
 * $Log: geometry.g,v $
+* Revision 1.270  2014/01/23 17:04:34  jwebb
+* Added y2013b production geometries with extra HFT dead material near east
+* poletip.  Modified y2014 first cut.
+*
 * Revision 1.269  2013/12/09 14:45:58  jwebb
 * Changes to pixel detector for y2014.
 *
@@ -1282,6 +1286,8 @@ replace [exe ISTD01;] with [ "Add the ist detector to the IDSM"; ISTD=on; IstdCo
 replace [exe ISTD02;] with [ "Add the ist detector to the IDSM"; ISTD=on; IstdConfig=2; ]
 
 replace [exe PXST01;] with [ "Add the PST to the IDSM"; PXST=on; PxstConfig=0; ]
+replace [exe PSUPof;] with [ "Add the pixel supports to the IDSM"; PSUP=off; ]
+replace [exe PSUP01;] with [ "Add the pixel supports to the IDSM"; PSUP=on; ]
 
 replace [exe RICHof;] with [;RICH=off;]
 replace [exe RICH02;] with [;RICH=on; richPos=2; richConfig=2;]
@@ -2131,6 +2137,7 @@ REPLACE [exe y2013;] with ["Y2013 first cut geometry";
     exe PXST01;      "PIXEL detector support version 1";
     exe PIXL05;      "Production version of the pixl detector";
     exe DTUB01;      "DTUB";
+    exe PSUPof;      "Switch off pixel support";
 ]
 
 """ Configuration 1 baseline, 2 without pixl """
@@ -2164,11 +2171,16 @@ REPLACE [exe y2013a;] with ["Y2013a first production geometry";
     exe PXST01;      "PIXEL detector support version 1";
     exe PIXL05;      "Production version of the pixl detector";
     exe DTUB01;      "DTUB";
+    exe PSUPof;      "Switch off pixel support";
 ]
 
 """ Configuration 1 baseline, 2 without pixl """
-REPLACE [exe y2013_1a;] with ["Y2013 first cut"          ; exe Y2013; ];
-REPLACE [exe y2013_2a;] with ["Y2013 first cut sans PIXL"; exe Y2013;  PIXL=off; PXST=on; ];
+REPLACE [exe y2013_1a;] with ["Y2013 first cut"          ; exe Y2013a; ];
+REPLACE [exe y2013_2a;] with ["Y2013 first cut sans PIXL"; exe Y2013a;  PIXL=off; PXST=on; ];
+
+REPLACE [exe y2013b;]   with ["Y2013 production b";           exe y2013a;   exe PSUP01; ];
+REPLACE [exe y2013_1b;] with ["Y2013 production b";           exe y2013_1a; exe PSUP01; ];
+REPLACE [exe y2013_2b;] with ["Y2013 production b sans PIXL"; exe y2013_2a; exe PSUP01; PIXL=off; PXST=off; PSUP=off; ];
 
 REPLACE [exe y2013x;] with [                                      "Y2013 asymptotic";
     EXE y2013a;   "First production geometry";
@@ -2442,7 +2454,8 @@ replace [exe UPGR22;] with ["upgr16a + fhcm01"
               RICH,ZCAL,MFLD,BBCM,FPDM,PHMD,
               PIXL,ISTB,GEMB,FSTD,FTRO,FGTD,
               SHLD,QUAD,MUTD,IGTD,HPDT,ITSP,
-              DUMM,SCON,IDSM,FSCE,EIDD,ISTD,PXST
+              DUMM,SCON,IDSM,FSCE,EIDD,ISTD,
+              PXST,PSUP
 
 * Qualifiers:  TPC        TOF         etc
    Logical    emsEdit,svtWater,
@@ -3099,15 +3112,31 @@ If LL>0
                   Geom = 'y2013_1x';
                   exe y2013_1x; }
 
-  Case Y2013_2x { Y2013_2x : Y2013 asymptotic sans PIXL; Geom = 'y2013_2x  '; exe y2013_2x; }
+  Case Y2013_2x { Y2013_2x : Y2013 asymptotic sans PIXL; 
+                  Geom = 'y2013_2x  '; 
+                  exe y2013_2x; }
 
-  Case Y2013a   { Y2013a   : Y2013 1st prod geometry w/  PIXL; Geom = 'y2013a    '; exe y2013a;   }
-  Case Y2013_1a { Y2013_1a : Y2013 1st prod geometry w/  PIXL; Geom = 'y2013a    '; exe y2013a;   }
-  Case Y2013_2a { Y2013_2a : Y2013 1st prod geometry w/o PIXL; Geom = 'y2013a    '; exe y2013a;   }
+  Case Y2013a   { Y2013a   : Y2013 1st prod geometry w/  PIXL; 
+                  Geom = 'y2013a    '; 
+                  exe y2013a;   }
+  Case Y2013_1a { Y2013_1a : Y2013 1st prod geometry w/  PIXL; 
+                  Geom = 'y2013_1a  '; 
+                  exe y2013_1a;   }
+  Case Y2013_2a { Y2013_2a : Y2013 1st prod geometry w/o PIXL; 
+                  Geom = 'y2013_2a  '; 
+                  exe y2013_2a;   }
+  Case Y2013b   { Y2013b   : Y2013 2nd prod geometry w/  PIXL; 
+                  Geom = 'y2013b    '; 
+                  exe y2013b;   }
+  Case Y2013_1b { Y2013_1b : Y2013 2nd prod geometry w/  PIXL; 
+                  Geom = 'y2013_1b  '; 
+                  exe y2013_1b;   }
+  Case Y2013_2b { Y2013_2b : Y2013 2nd prod geometry w/o PIXL; 
+                  Geom = 'y2013_2b  '; 
+                  exe y2013_2b;   }
 
-  Case y2014 { y2014 : y2014 first cut;
-                 Geom = 'y2014   ';
-                 exe y2014; }
+  Case y2014    { y2014 : y2014 first cut;                     
+                  Geom = 'y2014     '; exe y2014; }
 
   Case devE  { devE : eSTAR development geometry;
                  Geom = 'devE    ';
@@ -4858,6 +4887,7 @@ c          write(*,*) '************** Creating the 2007-     version of the Barr
            call AgDetp add ('PXLW.SecVersion=',   7.0, 1); 
            CONSTRUCT PixlGeo5   """ Pixl Detector """
            CONSTRUCT DtubGeo1   """ Electronics etc... """  
+IF (PSUP){ CONSTRUCT PsupGeo;}    """ Insertion structures """
      }
      IF PixlConfig==60 {               "Dev14 Pixel Configuration"
            call AgDetp new ('PIXL')
@@ -4865,6 +4895,7 @@ c          write(*,*) '************** Creating the 2007-     version of the Barr
            call AgDetp add ('PXLW.LadrConfig=',   1.0, 1);
            CONSTRUCT PixlGeo6   """ Pixl Detector """
            CONSTRUCT DtubGeo1   """ Electronics etc... """
+IF (PSUP){ CONSTRUCT PsupGeo;}    """ Insertion structures """
      }
 
    }
