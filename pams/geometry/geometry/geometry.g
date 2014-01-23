@@ -1,5 +1,8 @@
-* $Id: geometry.g,v 1.270 2014/01/23 17:04:34 jwebb Exp $
+* $Id: geometry.g,v 1.271 2014/01/23 23:04:39 jwebb Exp $
 * $Log: geometry.g,v $
+* Revision 1.271  2014/01/23 23:04:39  jwebb
+* Make sure pixl support shows up in y2014.
+*
 * Revision 1.270  2014/01/23 17:04:34  jwebb
 * Added y2013b production geometries with extra HFT dead material near east
 * poletip.  Modified y2014 first cut.
@@ -2221,6 +2224,7 @@ REPLACE [exe y2014;] with ["Y2014 first cut geometry";
     exe PXST01;      "PIXEL detector support version 1";
     exe PIXL06;      "Full config of the pixl detector";
     exe DTUB01;      "DTUB";
+    exe PSUP01;      "1st version of pixl supports";
 ]
 
 
