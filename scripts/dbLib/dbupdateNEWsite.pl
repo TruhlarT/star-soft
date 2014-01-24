@@ -45,25 +45,25 @@ print  $SITE, "\n";
  }elsif($SITE eq "pdsf" ) {
 
    $dsite = "pdsf"; 
-  $TOP_DIRD = "/star/data08/users/didenko/pdsf/new/";
+  $TOP_DIRD = "/star/data14/GRID/librarytest/pdsf/new/";
   @node_dir = ("daq_sl53.ittf", "trs_sl53.ittf","simu");  
 
  }elsif($SITE eq "pdsf_embed" ) {
 
   $dsite = "pdsf";  
-  $TOP_DIRD = "/star/data08/users/didenko/pdsf/new_embed/";
+  $TOP_DIRD = "/star/data14/GRID/librarytest/pdsf/new_embed/";
   @node_dir = ("daq_sl53.ittf", "trs_sl53.ittf","simu");  
 
  }elsif($SITE eq "kisti" ) {
 
    $dsite = "kisti"; 
-  $TOP_DIRD = "/star/data08/users/didenko/kisti/new/";
+  $TOP_DIRD = "/star/data14/GRID/librarytest/kisti/new/";
   @node_dir = ("daq_sl53.ittf", "trs_sl53.ittf","simu");  
 
  }elsif($SITE eq "kisti_embed" ) {
 
   $dsite = "kisti";  
-  $TOP_DIRD = "/star/data08/users/didenko/kisti/new_embed/";
+  $TOP_DIRD = "/star/data14/GRID/librarytest/kisti/new_embed/";
   @node_dir = ("daq_sl53.ittf", "trs_sl53.ittf","simu");   
 
 }
