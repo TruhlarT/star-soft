@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.118 2013/06/03 17:06:30 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.119 2014/01/28 20:34:56 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -14,7 +14,6 @@
 #include "St_db_Maker/St_db_Maker.h"
 #include "StTreeMaker/StTreeMaker.h"
 #include "StIOMaker/StIOMaker.h"
-#include "StChallenger/StChallenger.h"
 #include "StDbUtilities/StMagUtilities.h"
 #include "StMessMgr.h"
 #include "StEnumerations.h"
@@ -886,15 +885,18 @@ Bfc_st BFC[] = {
    "B2012b,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis"
    , "","","Production chain for 2011 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"B2013" ,"","","B2013_c2","","", "Alias for B2013 Configuration 2",kFALSE},
-  {"B2013_c2","","","ry2013_2,in,tpcX,ITTF,AgML,UseXgeom,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
+  {"B2013_c2","","","ry2013_2,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
    , "Base chain for 2013 ITTF (tpc)",kFALSE},
-  {"B2013_c1","","","ry2013_1,in,tpcX,ITTF,AgML,UseXgeom,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
+  {"B2013_c1","","","ry2013_1,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
    , "Base chain for 2013 ITTF (tpc)",kFALSE},
   {"pp2013a","" ,"",
-   "B2013_c2,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis",
+   "B2013_c2,ITTF,UseXgeom,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis",
    "","", "Production chain for 2013 data - no Corr (+ l3, bcc/fpd, e/b-emc, no VF)",kFALSE},
   {"pp2013b","" ,"",
-   "B2013_c1,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis",
+   "B2013_c1,ITTF,UseXgeom,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis",
+   "","", "Production chain for 2013 data - no Corr (+ l3, bcc/fpd, e/b-emc, no VF)",kFALSE},
+  {"pp2013","" ,"",
+   "BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis",
    "","", "Production chain for 2013 data - no Corr (+ l3, bcc/fpd, e/b-emc, no VF)",kFALSE},
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","",""
    , "Laser Calibration Chain (tcl)",kFALSE},
@@ -1060,6 +1062,7 @@ Bfc_st BFC[] = {
   {"MtdUtil" ,"" ,"","","" ,"StMtdUtil","Load StMtdUtil",kFALSE},
   {"StBichsel" ,"" ,"","","" ,"StBichsel","Load Bichsel model for dE/dx",kFALSE},
   {"StEvent" ,"","","globT,SCL,TRGDef,StBichsel,EmcUtil,TbUtil,detDb","","StEvent","Load StEvent",kFALSE},
+  {"PxlUtil" ,"" ,"","","", "StPxlUtil","Load StPxlUtil",kFALSE},
   {"SsdUtil" ,"" ,"","StarMagField,StEvent","" ,"Geom,StSsdUtil","Load SSD Util",kFALSE},
   {"EmcUtil" ,"" ,"","emc_T,geomT,StDbT","" ,"StEmcUtil","Load StEmcUtil",kFALSE},
   {"EEmcUtil" ,"" ,"","","" ,"StEEmcUtil","Load StEEmcUtil",kFALSE},
@@ -1081,7 +1084,7 @@ Bfc_st BFC[] = {
   {"gstar" ,"geant" ,"","-fzin,-ntin,-geant,Simu,geantL","St_geant_Maker"
    , "","gstar for 80 muon tracks with pT = 1GeV in |eta|<4",kFALSE},
   {"pythia" ,"geant" ,"","-gstar,-fzin,-ntin,-geant,geantL","St_geant_Maker"
-   , "Pythia6_4_23,bpythia","Load Pythia in starsim, set pp 510 GeV",kFALSE},
+   , "Pythia6_4_26,bpythia","Load Pythia in starsim, set pp 510 GeV",kFALSE},
   {"Wenu" ,"" ,"","pythia","", "" ,"set pp 510 GeV -> W+/- -> e+/- nu/nubar",kFALSE},
   {"tdaq" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"miniDAQ" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
@@ -1107,6 +1110,7 @@ Bfc_st BFC[] = {
   {"eemcDb" ,"eeDb" ,"","db,EEmcUtil", "StEEmcDbMaker","StEEmcDbMaker","Load EEmcDbMaker",kFALSE},
   {"fmsDb" ,"fmsDb","","db", "StFmsDbMaker","StFmsDbMaker","Load FmsDbMaker",kFALSE},
   {"fgtDb" ,"fgtDb","","db,fgtutil", "StFgtDbMaker","StFgtDbMaker","Load FgtDbMaker",kFALSE},
+  {"pxlDb" ,"pxlDb","","db", "StPxlDbMaker","StPxlDbMaker","Load PxlDbMaker",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"MAKERS      ","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
@@ -1299,9 +1303,12 @@ Bfc_st BFC[] = {
   {"StiSvt" ,"",""," " ,"","StSvtClassLibrary,StSvtDbMaker,StiSvt","Load StiSvt",kFALSE},
   {"StiSsd" ,"","","" ,"","StSsdUtil,StSsdDbMaker,StiSsd","Load StiSvt",kFALSE},
   {"StiLibs" ,"","","StiTpc,StiSvt,StiSsd,BTofUtil" ,"","StEEmcDbMaker","Load Sti Detector libs",kFALSE},
-  {"VFPPV" ,"" ,"","ctf_T,eemcDb,StiLib","StGenericVertexMaker"
-   , "ctf,St_ctf,St_ctf_Maker,Minui,StGenericVertexMaker","... Pile-up proof vertex finder",kFALSE},
-  {"VFPPVnoCTB" ,"" ,"","VFPPV","" ,"","... Pile-up proof vertex finder, noCTB",kFALSE},
+  {"VFPPV" ,"" ,"" ,"ctf_T,eemcDb,StiLib" ,"StGenericVertexMaker"
+                ,"ctf,St_ctf,St_ctf_Maker,Minui,StGenericVertexMaker" ,"... Pile-up proof vertex finder",kFALSE},
+  {"VFPPVnoCTB" ,"" ,"" ,"VFPPV" ,"" ,"","... Pile-up proof vertex finder, noCTB",kFALSE},
+  {"VFPPVEv" ,"" ,"" ,"ctf_T,eemcDb,StiLib" ,"StGenericVertexMaker"
+              ,"ctf,St_ctf,St_ctf_Maker,Minui,StGenericVertexMaker" ,"... StEvent based VFPPV, noCTB",kFALSE},
+  {"VFPPVEvNoBtof" ,"" ,"" ,"VFPPVEv" ,"" ,"","...VFPPVEv with no Btof ",kFALSE},
   {"Sti" ,"Sti","","StiLib,StiLibs,SCL,StEvent,StDbT,TpcIT,compend,tbutil","StiMaker"
    , "StEventUtilities,StiUtilities,StiMaker","Sti tracker",kFALSE},
   {"StiCA" ,"Sti","","-Sti,-StiLib,StiCALib,StiLibs,SCL,StEvent,StDbT,TpcIT,compend,tbutil","StiMaker"
@@ -2317,15 +2324,18 @@ Bfc_st BFC[] = {
    "B2012b,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis"
    , "","","Production chain for 2011 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"B2013" ,"","","B2013_c2","","", "Alias for B2013 Configuration 2",kFALSE},
-  {"B2013_c2","","","ry2013_2,in,tpcX,ITTF,AgML,UseXgeom,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
+  {"B2013_c2","","","ry2013_2,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
    , "Base chain for 2013 ITTF (tpc)",kFALSE},
-  {"B2013_c1","","","ry2013_1,in,tpcX,ITTF,AgML,UseXgeom,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
+  {"B2013_c1","","","ry2013_1,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
    , "Base chain for 2013 ITTF (tpc)",kFALSE},
   {"pp2013a","" ,"",
-   "B2013_c2,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis",
+   "B2013_c2,ITTF,UseXgeom,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis",
    "","", "Production chain for 2013 data - no Corr (+ l3, bcc/fpd, e/b-emc, no VF)",kFALSE},
   {"pp2013b","" ,"",
-   "B2013_c1,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis",
+   "B2013_c1,ITTF,UseXgeom,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis",
+   "","", "Production chain for 2013 data - no Corr (+ l3, bcc/fpd, e/b-emc, no VF)",kFALSE},
+  {"pp2013","" ,"",
+   "BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis",
    "","", "Production chain for 2013 data - no Corr (+ l3, bcc/fpd, e/b-emc, no VF)",kFALSE},
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","",""
    , "Laser Calibration Chain (tcl)",kFALSE},
@@ -2491,6 +2501,7 @@ Bfc_st BFC[] = {
   {"MtdUtil" ,"" ,"","","" ,"StMtdUtil","Load StMtdUtil",kFALSE},
   {"StBichsel" ,"" ,"","","" ,"StBichsel","Load Bichsel model for dE/dx",kFALSE},
   {"StEvent" ,"","","globT,SCL,TRGDef,StBichsel,EmcUtil,TbUtil,detDb","","StEvent","Load StEvent",kFALSE},
+  {"PxlUtil" ,"" ,"","","", "StPxlUtil","Load StPxlUtil",kFALSE},
   {"SsdUtil" ,"" ,"","StarMagField,StEvent","" ,"Geom,StSsdUtil","Load SSD Util",kFALSE},
   {"EmcUtil" ,"" ,"","emc_T,geomT,StDbT","" ,"StEmcUtil","Load StEmcUtil",kFALSE},
   {"EEmcUtil" ,"" ,"","","" ,"StEEmcUtil","Load StEEmcUtil",kFALSE},
@@ -2512,7 +2523,7 @@ Bfc_st BFC[] = {
   {"gstar" ,"geant" ,"","-fzin,-ntin,-geant,Simu,geantL","St_geant_Maker"
    , "","gstar for 80 muon tracks with pT = 1GeV in |eta|<4",kFALSE},
   {"pythia" ,"geant" ,"","-gstar,-fzin,-ntin,-geant,geantL","St_geant_Maker"
-   , "Pythia6_4_23,bpythia","Load Pythia in starsim, set pp 510 GeV",kFALSE},
+   , "Pythia6_4_26,bpythia","Load Pythia in starsim, set pp 510 GeV",kFALSE},
   {"Wenu" ,"" ,"","pythia","", "" ,"set pp 510 GeV -> W+/- -> e+/- nu/nubar",kFALSE},
   {"tdaq" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"miniDAQ" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
@@ -2538,6 +2549,7 @@ Bfc_st BFC[] = {
   {"eemcDb" ,"eeDb" ,"","db,EEmcUtil", "StEEmcDbMaker","StEEmcDbMaker","Load EEmcDbMaker",kFALSE},
   {"fmsDb" ,"fmsDb","","db", "StFmsDbMaker","StFmsDbMaker","Load FmsDbMaker",kFALSE},
   {"fgtDb" ,"fgtDb","","db,fgtutil", "StFgtDbMaker","StFgtDbMaker","Load FgtDbMaker",kFALSE},
+  {"pxlDb" ,"pxlDb","","db", "StPxlDbMaker","StPxlDbMaker","Load PxlDbMaker",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"MAKERS      ","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
@@ -2730,9 +2742,12 @@ Bfc_st BFC[] = {
   {"StiSvt" ,"",""," " ,"","StSvtClassLibrary,StSvtDbMaker,StiSvt","Load StiSvt",kFALSE},
   {"StiSsd" ,"","","" ,"","StSsdUtil,StSsdDbMaker,StiSsd","Load StiSvt",kFALSE},
   {"StiLibs" ,"","","StiTpc,StiSvt,StiSsd,BTofUtil" ,"","StEEmcDbMaker","Load Sti Detector libs",kFALSE},
-  {"VFPPV" ,"" ,"","ctf_T,eemcDb,StiLib","StGenericVertexMaker"
-   , "ctf,St_ctf,St_ctf_Maker,Minui,StGenericVertexMaker","... Pile-up proof vertex finder",kFALSE},
-  {"VFPPVnoCTB" ,"" ,"","VFPPV","" ,"","... Pile-up proof vertex finder, noCTB",kFALSE},
+  {"VFPPV" ,"" ,"" ,"ctf_T,eemcDb,StiLib" ,"StGenericVertexMaker"
+                ,"ctf,St_ctf,St_ctf_Maker,Minui,StGenericVertexMaker" ,"... Pile-up proof vertex finder",kFALSE},
+  {"VFPPVnoCTB" ,"" ,"" ,"VFPPV" ,"" ,"","... Pile-up proof vertex finder, noCTB",kFALSE},
+  {"VFPPVEv" ,"" ,"" ,"ctf_T,eemcDb,StiLib" ,"StGenericVertexMaker"
+              ,"ctf,St_ctf,St_ctf_Maker,Minui,StGenericVertexMaker" ,"... StEvent based VFPPV, noCTB",kFALSE},
+  {"VFPPVEvNoBtof" ,"" ,"" ,"VFPPVEv" ,"" ,"","...VFPPVEv with no Btof ",kFALSE},
   {"Sti" ,"Sti","","StiLib,StiLibs,SCL,StEvent,StDbT,TpcIT,compend,tbutil","StiMaker"
    , "StEventUtilities,StiUtilities,StiMaker","Sti tracker",kFALSE},
   {"StiCA" ,"Sti","","-Sti,-StiLib,StiCALib,StiLibs,SCL,StEvent,StDbT,TpcIT,compend,tbutil","StiMaker"
@@ -2946,7 +2961,8 @@ void StBFChain::Setup(Int_t mode) {
   }
   FDate  = FTime  = 0;
   FDateS = FTimeS = 0;
-  fRunG  = -1;
+  fFiltTrg   = "";
+  fRunG      = -1;
   Gproperty  = ".gopt.";
   Gvalue     = "";
   Gpattern   = "*";
@@ -3105,7 +3121,9 @@ Int_t StBFChain::Instantiate()
 	if (! dbMk) {
 	  TString MySQLDb("MySQL:StarDb");
 	  TString MainCintDb("$STAR/StarDb");
+	  TString MainCintDbObj("$STAR/.$STAR_HOST_SYS/obj/StarDb");
 	  TString MyCintDb("$PWD/StarDb");
+	  TString MyCintDbObj("$PWD/.$STAR_HOST_SYS/obj/StarDb");
 	  if (GetOption("NoMySQLDb"))   {MySQLDb = "";}
 	  // Removed twice already and put back (start to be a bit boring)
 	  // DO NOT REMOVE THE NEXT OPTION - Used in AutoCalibration
@@ -3113,14 +3131,16 @@ Int_t StBFChain::Instantiate()
 	  if (GetOption("NoStarCintDb") ) {MainCintDb = "";}
 	  if (GetOption("NoCintDb")     ) {MainCintDb = ""; MyCintDb = "";}
 	  
-	  TString Dirs[3];
+	  TString Dirs[10];
 	  Int_t j;
-	  for (j = 0; j < 3; j++) Dirs[j] = "";
+	  for (j = 0; j < 10; j++) Dirs[j] = "";
 	  j = 0;
 	  if (MySQLDb    != "") {Dirs[j] = MySQLDb;    j++;}
 	  if (MainCintDb != "") {Dirs[j] = MainCintDb; j++;}
+	  if (MainCintDbObj != "") {Dirs[j] = MainCintDbObj; j++;}
 	  if (MyCintDb   != "") {Dirs[j] = MyCintDb;   j++;}
-	  dbMk = new St_db_Maker(fBFC[i].Name,Dirs[0],Dirs[1],Dirs[2]);
+	  if (MyCintDbObj   != "") {Dirs[j] = MyCintDbObj;   j++;}
+	  dbMk = new St_db_Maker(fBFC[i].Name,Dirs[0],Dirs[1],Dirs[2],Dirs[3],Dirs[4]);
 	  if (!dbMk) goto Error;
 	  strcpy (fBFC[i].Name, (Char_t *) dbMk->GetName());
 
@@ -3315,6 +3335,14 @@ Int_t StBFChain::Instantiate()
       if (GetOption("VFppLMV"    ) ) mk->SetAttr("VFppLMV"    	, kTRUE);
       if (GetOption("VFppLMV5"   ) ) mk->SetAttr("VFppLMV5"   	, kTRUE);
       if (GetOption("VFPPV"      ) ) mk->SetAttr("VFPPV"      	, kTRUE);
+      if (GetOption("VFPPVEv"  ) ) {
+        gSystem->Load("StBTofUtil.so");
+        mk->SetAttr("VFPPVEv"      , kTRUE);
+      }
+      if (GetOption("VFPPVEvNoBtof")){
+        gSystem->Load("StBTofUtil.so"); //Not used but loaded to avoid fail
+        mk->SetAttr("VFPPVEvNoBtof", kTRUE);
+      }
       if (GetOption("VFPPVnoCTB" ) ) mk->SetAttr("VFPPVnoCTB" 	, kTRUE);
       if (GetOption("VFFV"       ) ) mk->SetAttr("VFFV"       	, kTRUE);
       if (GetOption("VFMCE"      ) ) mk->SetAttr("VFMCE"      	, kTRUE);
@@ -3560,6 +3588,12 @@ Int_t StBFChain::Instantiate()
 	ProcessLine(Form("((StMaker *) %p)->SetMode(%i);", mk, mode));
     }
     if (maker == "StBTofCalibMaker" && GetOption("UseProjectedVertex")) mk->SetAttr("UseProjectedVertex",kTRUE);
+    if (maker == "StEventMaker" && fFiltTrg.Length()) {
+      mk->SetAttr("FiltTrg",(Int_t) (fFiltTrg.BeginsWith('+') ? 1 : -1));
+      TString FiltTrgFlavor = fFiltTrg(1,128);
+      if (FiltTrgFlavor.Length())
+        SetFlavor((FiltTrgFlavor += "+ofl").Data(),"trgOfflineFilter");
+    }
   Add2Chain:
     if (! mk) continue;
     if (name == "") strcpy (fBFC[i].Name,(Char_t *) mk->GetName());
@@ -3674,7 +3708,7 @@ Int_t StBFChain::Init() {
 Int_t StBFChain::Finish()
 {
   if (!fBFC) return kStOK;
-  Int_t ians = StMaker::Finish();
+  Int_t ians = StChain::Finish();
   SafeDelete(fchainOpt);
   fBFC = 0;
   TFile *tf = GetTFile();
@@ -3801,6 +3835,11 @@ Int_t StBFChain::kOpt (const TString *tag, Bool_t Check) const {
   }
   // GoptXXXvvvvvv -> Gopt 4 / XXX 3 / vvvvvv 6 = 13
   if ( Tag.BeginsWith("gopt") && Tag.Length() == 13 ) return 0;
+
+  if ( Tag.BeginsWith("FiltTrg",TString::kIgnoreCase) ) {
+    Check = kTRUE;
+    if ( TPRegexp("^FiltTrg(Inc|Exc)?(_.*)*$").Match(Tag,"i") > 0) return 0;
+  }
 
   if (Check) {
     gMessMgr->Error() << "Option " << Tag.Data() << " has not been recognized" << endm;
@@ -3931,6 +3970,24 @@ void StBFChain::SetOptions(const Char_t *options, const Char_t *chain) {
 	  if (Tag.Length() > 4)  (void) sscanf(Tag.Data(),"rung.%d",&fRunG);
 	  gMessMgr->QAInfo() << Tag.Data() << " will be considered as Run number (& rndm seed set) " 
 			     << fRunG << " for simulation." << endm; 
+	} else if (Tag.BeginsWith("FiltTrg",TString::kIgnoreCase)) {
+          TString filtTrgTag = Tag;
+          Ssiz_t flavorIdx = Tag.Index('_');
+          if (flavorIdx > 0) {
+            filtTrgTag = Tag(0,flavorIdx);
+            fFiltTrg = Tag(flavorIdx+1,64);
+          }
+          if (filtTrgTag.CompareTo("FiltTrgExc",TString::kIgnoreCase)==0) {
+	    gMessMgr->QAInfo() << "Trigger Filtering exclude with flavor=" << fFiltTrg << endm;
+            fFiltTrg.Prepend('-');
+          } else if (filtTrgTag.CompareTo("FiltTrgInc",TString::kIgnoreCase)==0 ||
+                     filtTrgTag.CompareTo("FiltTrg"   ,TString::kIgnoreCase)==0) {
+	    gMessMgr->QAInfo() << "Trigger Filtering include with flavor=" << fFiltTrg << endm;
+            fFiltTrg.Prepend('+');
+          } else {
+            // not a match, disable
+            fFiltTrg = "";
+          }
 	} else { // Check for predefined db time stamps ?
 	  kgo = kOpt(Tag.Data(),kFALSE);
 	  if (kgo != 0){
@@ -4160,53 +4217,9 @@ void StBFChain::Set_IO_Files (const Char_t *infile, const Char_t *outfile){
       gc = TString(infile,3);
       gc.ToLower();
     }
-    if (gc == "gc:") {SetGC(infile+3); goto SetOut;}
   }
   SetInputFile(infile);
- SetOut:
   if (! GetOption("NoOutput")) SetOutputFile(outfile);
-}
-//_____________________________________________________________________
-void StBFChain::SetGC (const Char_t *queue){
-  TString Queue(queue);
-  gMessMgr->QAInfo() << "Requested GC queue is :\t" << Queue.Data() << endm;
-  TObjArray Opts;
-  ParseString(Queue,Opts);
-  TIter next(&Opts);
-  TObjString *Opt;
-  static TString ARGV[40];
-  Int_t Argc = -1;
-  while ((Opt = (TObjString *) next())) {
-    TString string = Opt->GetString();
-    const Char_t *argv = string.Data();
-    if (argv[0] == '-') {
-      switch (argv[1]) {
-      case 'o':
-      case 'i':
-      case 'c':
-      case 'q':
-      case 's':
-      case 'n':
-      case 'm':
-      case 't':
-      case '-': // now do --options, they get added to Config
-        ARGV[++Argc] = string.Data();
-        Argc++;
-	break;
-      default :
-	gMessMgr->QAInfo() << "Unrecognized option :\t" << string << endm;
-	break;
-      }
-    }
-    else if (Argc > 0) {ARGV[Argc] += " "; ARGV[Argc] += string;}
-  }
-  Opts.Delete();
-  fSetFiles = (StFileI *)StChallenger::Challenge();
-  fSetFiles->SetDebug();
-  Argc++;
-  Char_t **Argv = new Char_t* [Argc];
-  for (Int_t i=0;i<Argc;i++)  {Argv[i] = (Char_t *) ARGV[i].Data();}
-  fSetFiles->Init(Argc,(const Char_t **) Argv);
 }
 //_____________________________________________________________________
 void StBFChain::SetInputFile (const Char_t *infile){
