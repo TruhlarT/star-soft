@@ -266,7 +266,6 @@ my $rtmax = 1;
     $legend[4] = "Jobs failed due to 'hpss_retry_failed'";
     $legend[5] = "Jobs failed due to 'job_exec_failed'";
     $legend[6] = "Jobs failed due to 'io_error'";
-    $legend[7] = "Total number of failed jobs on CRS farm";
 
  my $ylabel;
  my $gtitle; 
@@ -371,7 +370,7 @@ $ymax = 1;
 		y_number_format => \&y_format,
 		#labelclr => "lblack",
                 titleclr => "lblack",
-		dclrs => [ qw(lblue lred lgreen lpurple lgrey lpink lyellow lblack ) ],
+		dclrs => [ qw(lblue lred lgreen lpurple lblack lgrey lpink lyellow lgrey ) ],
 		line_width => 2,
 		markers => [ 2,3,4,5,6,7,8,9],
 		marker_size => 1,
