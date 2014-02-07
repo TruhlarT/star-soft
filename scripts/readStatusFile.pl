@@ -29,13 +29,12 @@ my $prodtg;
 my $daqfile;
 my $jbstat;
 my $dqsize = 0;
-my $nfspath = "/star/data10/daq/2012/";
+my $nfspath = "/star/data16/GRID/daq/2012/";
 my @daqname = ();
 my $fulldname;
 my @inpsize = ();
 my @sitedsize = ();
 my $nn = 0;
-
 
  chdir $statusPath;
 
@@ -104,13 +103,17 @@ for ( my $ii=0; $ii< $nn; $ii++) {
      $fulldname = $nfspath.$daqname[$ii];
      if($inpsize[$ii] == $sitedsize[$ii]) {
 
-#     `rm -f $fulldname`;
+     `rm -f $fulldname`;
 
      }else {
  
+	 print "Check files with different sizes ",$daqname[$ii]," % ",$inpsize[$ii]," % ",$sitedsize[$ii],"\n";
+
      $sql= "update $JobStatusT set jobProgress = 'none', jobState = 'none'  where prodTag = '$prodtg' and inputFileName = '$daqname[$ii]' ";
 
      $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
+
+   print "$sql\n";
 
      }
   }
@@ -158,7 +161,7 @@ for ( my $ii=0; $ii< $nn; $ii++) {
      $daqfile = $wrd[1].".daq";
      $jbstat = $wrd[2];
 
-   $sql= "update $JobStatusT set jobProgress = '$jbstat' where prodTag = '$prodtg' and inputFileName = '$daqfile'  ";
+   $sql= "update $JobStatusT set jobProgress = '$jbstat' where prodTag = '$prodtg' and inputFileName = '$daqfile' and (jobProgress = 'reco_finish' or jobProgress = 'daq_transferred') ";
 
    $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
