@@ -28,7 +28,7 @@ my @node_dir = ();
 my $TOP_DIRD;
 my $dsite;
 
-print  $SITE, "\n";
+# print  $SITE, "\n";
 
  if ($SITE eq "rcf" ) { 
 
@@ -426,7 +426,6 @@ my $pyear = 0;
        $platf = $dirF[7];
         @prt =split("_", $dirF[8]);
        $pyear = $prt[1]; 
-
    }
 
        $logName = $fname; 
