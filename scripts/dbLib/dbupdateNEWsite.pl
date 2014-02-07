@@ -38,7 +38,7 @@ print  $SITE, "\n";
 
  }elsif($SITE eq "rcf_embed" ) {
 
-  $dsite = "rcf";
+  $dsite = "rcf_embed";
  $TOP_DIRD = "/star/rcf/test/new_embed/";
  @node_dir = ("daq_sl302.ittf", "trs_sl302.ittf", "simu", "daq_sl302.ittf_opt", "trs_sl302.ittf_opt"); 
 
@@ -125,13 +125,13 @@ my $ii = 0;
 }
 
   for ($i = 0; $i < scalar(@OUT_DIR2); $i++) {
-     $OUT_DIR[$ii] = $OUT_DIR1[$i]; 
+     $OUT_DIR[$ii] = $OUT_DIR2[$i]; 
      chop $OUT_DIR[$ii];
   print "Output Dir for NEW :", $OUT_DIR[$ii],"\n";
      $ii++;
 }
 
-  if ($dsite eq "rcf" ) { 
+  if ($dsite eq "rcf" or $dsite eq "rcf_embed") { 
 
   for ($i = 0; $i < scalar(@OUT_DIR3); $i++) {
      $OUT_DIR[$ii] = $OUT_DIR3[$i];
@@ -407,6 +407,7 @@ my $pyear = 0;
        if ($fname =~ /.log/)  {
 #    print "File Name:",$fname, "\n";       
        $fullname = $eachOutLDir."/".$fname;
+
       $mpath = $eachOutLDir;
       @dirF = split(/\//, $eachOutLDir);
   if ($SITE eq "rcf" or $SITE eq "rcf_embed" ) { 
