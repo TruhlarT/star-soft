@@ -30,15 +30,25 @@ set extra=""
 set col=""
 set excluded=""
 set DEBUG=0
-set pool="condor02.rcf.bnl.gov:9664"
+set pool="condor01.rcf.bnl.gov:9664" # O2 -> O1
 
 # Specific path to Unix executables (security and remote call issue)
 set GREP=/bin/grep
 set AWK=/bin/awk
 set ID=/usr/bin/id
 set SED=/bin/sed
+set CAT=/bin/cat
 set SORT=/bin/sort
 set HOSTNM=/bin/hostname
+
+# check validity 
+if ( ! $?USER ) then
+    set USER=`whoami`
+endif
+if ( "$USER" == "") then
+    set USER=`whoami`
+endif
+
 
 # default argument value	    
 set X11Opt="-X"
@@ -109,7 +119,7 @@ while ( $count <= $#argv)
 		    echo "Perl is located as    [$PERL]"
 		    echo "Temp file is named    [$file]"
 		endif
-		cat <<__EOF__ >$file
+		$CAT <<__EOF__ >$file
 @COLORS=(
 	"gainsboro","blanchedalmond","bisque","peachpuff","navajowhite",
 	"moccasin","dimgray","dimgrey","slategray","slategrey",
@@ -244,13 +254,13 @@ if ("$node" == "") then
  	else
 	    # RCF
 	    set node="rcas6+"
-	    set pool="-pool  condor02.rcf.bnl.gov:9664"
+	    set pool="-pool  condor01.rcf.bnl.gov:9664" # 02 -> 01
         endif
 	breaksw;
 
        case "rhphobos":
         set node="rcas4+"
-        set pool="-pool  condor02.rcf.bnl.gov:9663"
+        set pool="-pool  condor01.rcf.bnl.gov:9663"  # 02 -> 01
 	breaksw;
 
        case "rhphenix":
@@ -331,7 +341,7 @@ if ($help) then
    endif
    set prgm=`echo $0 | $SED "s/.*\///g"`
    set wnode=`echo $node | $SED "s/+//"`
-   cat <<EOF | more
+   $CAT <<EOF | more
 
 rterm, $VERSION - Written by J. Lauret 2001 
 This command will open a connection to any remote node using the slogin 
@@ -421,9 +431,36 @@ if ("$TEST" != "$node") then
 
     # if not found, bail out
     if( "$LOAD" != "") then    
-	# set CANDIDATES=`$LOAD -R "select[inter] order[r1m:pg]" | $GREP $TEST | $GREP -i " ok" | $AWK '{print $1}'`
+        # The below was for LSF
+	#   set CANDIDATES=`$LOAD -R "select[inter] order[r1m:pg]" | $GREP $TEST | 
+	#                   $GREP -i " ok" | $AWK '{print $1}'`
         setenv CONDOR_CONFIG /dev/null
-        set CANDIDATES=`$LOAD $pool -constraint 'interactive_node == True' -format "%s " Machine -format "%f\n" TotalLoadAvg | $SORT -un -k 2 | $GREP $TEST | $AWK '{print $1}'`
+	if ( $DEBUG ) then
+	    echo "We will try to execute $LOAD $pool -constraint 'interactive_node == True'"
+	    echo "Result in              [/tmp/$$.$USER.lis]"
+	endif
+
+	# create an intermediate file so we d not bump into
+	# command syntax error in case the $LOAD command fails
+	# and do not produce the expected result
+	$LOAD $pool -constraint 'interactive_node == True' -format "%s " Machine -format "%f\n" TotalLoadAvg  >&/tmp/$$.$USER.lis
+
+	if ( $status ) then
+	    echo "$LOAD comand failed - we cannot get queue information"
+	    echo "Please select a node manually (or use -h  for more information)"
+	    exit
+	else
+	    set TCMD=`$CAT /tmp/$$.$USER.lis`
+	    if ( "$TCMD" == "") then
+		echo "$LOAD command failed - ir produced no results"
+		echo "Please select a node manually (or use -h  for more information)"
+		exit
+	    endif
+	endif
+
+        set CANDIDATES=`$CAT /tmp/$$.$USER.lis | $SORT -un -k 2 | $GREP $TEST | $AWK '{print $1}'`
+	/bin/rm -f /tmp/$$.$USER.lis
+
 	if ( $#CANDIDATES != 0) then
 	    set i=1
 	    AGAIN:
