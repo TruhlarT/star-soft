@@ -1,5 +1,8 @@
-* $Id: geometry.g,v 1.272 2014/01/24 19:45:13 jwebb Exp $
+* $Id: geometry.g,v 1.273 2014/02/11 21:42:40 jwebb Exp $
 * $Log: geometry.g,v $
+* Revision 1.273  2014/02/11 21:42:40  jwebb
+* kOnly --> konly.
+*
 * Revision 1.272  2014/01/24 19:45:13  jwebb
 * Revert to CaveGeo for y2014 geometry.
 *
@@ -2219,8 +2222,8 @@ REPLACE [exe y2014;] with ["Y2014 first cut geometry";
     exe SVTTof;      "No SVT";
     exe PHMDof;      "Photon mult detector off";
     exe MUTD13;      "Muon telescope detector";
-    exe CAVE04;      "Cave and tunnel";
-    exe IDSM02;      "Inner detector support";
+    exe CAVE05;      "Cave and tunnel";
+    exe IDSM14;      "Inner detector support";
     exe SISD85;      "SSD version 7"
     exe PIPEv3;      "The small diameter beam pipe";
     exe ISTD02;      "IST version 2";
