@@ -62,7 +62,7 @@ my @allst = ();
 
   &StDbProdConnect();
 
-  $sql="SELECT distinct prodTag, datasetName, inputFileName, date_format(submissionTime, '%Y-%m-%d') as SDATE, submitAttempt, daqSizeOnSite, jobProgress, globusError, jobState, recoStatus, muDstStatus, logFileState, overallJobStates  from $JobStatusT where  overallJobStates <> 'done' ";
+  $sql="SELECT distinct prodTag, datasetName, inputFileName, date_format(submissionTime, '%Y-%m-%d') as SDATE, submitAttempt, daqSizeOnSite, jobProgress, globusError, jobState, recoStatus, muDstStatus, logFileState, overallJobStates  from $JobStatusT where  overallJobStates <> 'done' order by SDATE ";
 
 
             $cursor =$dbh->prepare($sql)
