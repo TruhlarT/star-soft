@@ -25,7 +25,7 @@ my $JobStatusT = "jobs_prod_2013";
 $fC1 = FileCatalog->new();
 $fC1->connect_as("Admin");
 
-my $nfspath = "/star/data10/daq/2012/";
+my $nfspath = "/star/data16/GRID/daq/2012/";
 my $nfile = 0;
 my $dbfile = "none";
 my $daqstat;
@@ -76,11 +76,11 @@ if(scalar(@daqlist) > 1 ) {
 
 #  print "Size of ", $daqfile,"  is  ",$dsize, "\n";
 
-  $dbfile = "none";   
+   $dbfile = "none";   
  
- $sql= "select inputFileName, inputFileExists from $JobStatusT where  prodTag = '$prodTg' and  inputFileName = '$daqfile' and inputFileExists = 'no' ";
+   $sql= "select inputFileName, inputFileExists from $JobStatusT where  prodTag = '$prodTg' and  inputFileName = '$daqfile' and inputFileExists = 'no' ";
 
- $cursor =$dbh->prepare($sql)
+   $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
    $cursor->execute();
 
@@ -97,11 +97,13 @@ if(scalar(@daqlist) > 1 ) {
     
 ########
 
-    if ($dbfile eq $daqfile and $dsize > 100000 ) {
-        
- $sql= "update $JobStatusT set inputFileExists = 'yes', inputFileSize = '$dsize' where inputFileName = '$daqfile' and  prodTag = '$prodTg' ";
+    next if ( !defined $dbfile) ;
 
- $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
+    if ( $dbfile eq $daqfile and $dsize > 100000 ) {
+        
+   $sql= "update $JobStatusT set inputFileExists = 'yes', inputFileSize = '$dsize' where inputFileName = '$daqfile' and  prodTag = '$prodTg' and inputFileExists = 'no' ";
+
+   $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
     
      }else{
     next;
@@ -112,9 +114,9 @@ if(scalar(@daqlist) > 1 ) {
 ################## start creating list of files failed to be restorted on NFS
 
 
- $sql= "select inputFileName, carouselSubTime from $JobStatusT where  prodTag = '$prodTg' and inputFileExists = 'no' ";
+   $sql= "select inputFileName, carouselSubTime from $JobStatusT where  prodTag = '$prodTg' and inputFileExists = 'no' ";
 
- $cursor =$dbh->prepare($sql)
+   $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
    $cursor->execute();
 
@@ -137,8 +139,11 @@ my $dclog = "dcarousel_resub"."_".$nowtime.".log";
 my $dcsubm = "/star/u/starreco/runkisti/".$dclog;
 
 
+if($nfile >= 1) {
+
  if (!open (CFILE, ">$DCfname")) {printf ("Unable to create file %s\n",$DCfname);}
 
+}
 
 $fC1 = FileCatalog->new();
 $fC1->connect_as("Admin");
@@ -177,7 +182,7 @@ for ($nlist=0; $nlist < $nfile; $nlist++) {
 
  print CFILE $flname[$nlist], "\n";
 
- $sql= "update $JobStatusT set carouselSubTime = '$timestamp', inputFileExists = 'no' where prodTag = '$prodTg' and inputFileName = '$dfile' ";
+ $sql= "update $JobStatusT set carouselSubTime = '$timestamp' where prodTag = '$prodTg' and inputFileName = '$dfile' ";
  $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
  }else{          #$daydiff
@@ -188,7 +193,7 @@ for ($nlist=0; $nlist < $nfile; $nlist++) {
 
  }  # for 
 
-  close (CFILE);
+#  close (CFILE);
 
  $fC1->destroy();  
 
@@ -196,7 +201,9 @@ for ($nlist=0; $nlist < $nfile; $nlist++) {
 
  if( $nll >= 1 ) {
 
-    `hpss_user.pl -r $nfspath -z -f $DCfname >& $dcsubm`;
+  close (CFILE);
+
+#    `hpss_user.pl -r $nfspath -z -f $DCfname >& $dcsubm`;
 
   }
 
