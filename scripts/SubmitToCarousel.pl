@@ -30,20 +30,21 @@ $dbname="Embedding_job_stats";
 
 my $JobStatusT = "jobs_prod_2013";
 
-my $nfspath = "/star/data10/daq/2012/";
+my $nfspath = "/star/data16/GRID/daq/2012/";
 my $daqpat = $nfspath."*.daq";
 my @prdset = ();
 my $nl = 0;
 
 my @daqlist = `ls $daqpat` ;
 
-my $MAXNUM = 1000;
+my $MAXNUM = 300;
+my $LIMNUM = 100;
 
 print "There are  ", scalar(@daqlist),"  daq files in the ", $nfspath,"  directory", "\n";
  
  &StDbConnect();
 
- $sql= "select inputFileName from $JobStatusT where  prodTag = '$prodTg' and inputFileExists = 'no' ";
+ $sql= "select inputFileName from $JobStatusT where  prodTag = '$prodSer' and inputFileExists = 'no' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -56,7 +57,7 @@ print "There are  ", scalar(@daqlist),"  daq files in the ", $nfspath,"  directo
     $cursor->finish();
 
 
-if(scalar(@daqlist) <= $MAXNUM and scalar(@prdset) < $MAXNUM  ) {
+ if(scalar(@daqlist) <= $MAXNUM and scalar(@prdset) < $MAXNUM  ) {
 
  if( -f $lockfile) {
      `/bin/rm  $lockfile` ;
@@ -138,7 +139,9 @@ my $dcsubm = "/star/u/starreco/runkisti/".$dclog;
 
   @fileset = ();
 
- $fC1->set_context("runnumber=$prodrun","filetype=online_daq");
+# $fC1->set_context("runnumber=$prodrun","filetype=online_daq","filename~st_physics");
+
+ $fC1->set_context("runnumber=$prodrun","filetype=online_daq","sanity=1");
 
  @fileset = $fC1->run_query("trgsetupname","path","filename");
 
@@ -157,6 +160,8 @@ my $dcsubm = "/star/u/starreco/runkisti/".$dclog;
 
  print CFILE $filelist[$nlist], "\n";
 
+# print  $prodrun,"   ",$filelist[$nlist],"  ", $nlist,"\n";
+
  $sql= "insert into $JobStatusT set datasetName = '$trigname[$nlist]', prodTag = '$prodSer', inputFileName = '$daqfile[$nlist]', carouselSubTime = '$timestamp', inputFileExists = 'no' ";
 
  $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;   
@@ -169,7 +174,8 @@ my $dcsubm = "/star/u/starreco/runkisti/".$dclog;
 
 #####
 
-  if($nlist >= $MAXNUM ) {
+#  if($nlist >= $MAXNUM ) {
+  if($nlist >= $LIMNUM ) {
 
   close (CFILE);
   goto GO_SUBMIT; 
