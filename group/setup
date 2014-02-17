@@ -291,7 +291,11 @@ switch ($pkg)
       endif
 
       if ( $version != 0 ) then
-        set TEST=`/usr/bin/test -d $OPTSTAR/alt && /bin/ls -ld $OPTSTAR/alt/lib/gcc-lib/*/$version/`
+        if ( -d "$OPTSTAR/alt/lib/gcc-lib" ) then
+	    set TEST=`/bin/ls -ld $OPTSTAR/alt/lib/gcc-lib/*/$version/`
+        else
+	    set TEST=""
+        endif
         if ("$TEST" == "") then
 	  set TEST=`/usr/bin/test -d /opt/gcc/$version && echo "/opt/gcc/$version"`
 	  if ( "$TEST" == "") then
