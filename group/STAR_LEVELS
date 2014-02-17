@@ -46,6 +46,7 @@ if ($ARGV[0] eq "-g"){
 	if ($version eq ""){
 	    print "Scanning .$shs/share ...\n" if ($DEBUG);
 	    if ( defined($shs = $ENV{STAR_HOST_SYS}) ){
+		print "Scanning .$shs/share .$shs/* ...\n" if ($DEBUG);
 		if ( -d ".$shs/share"){
 		    print "Searching for LinkDef.h files ...\n" if ($DEBUG);
 		    @all = `/usr/bin/find .$shs/share -type f -name '*LinkDef.h'`;
@@ -55,6 +56,24 @@ if ($ARGV[0] eq "-g"){
 			if ( defined($ver = &Found($file)) ){
 			    $version = $ver;
 			    last;
+			}
+		    }
+		}
+		# if still not found, try more aggressively
+		if ( $version eq ""){
+		    print "Search deeper for LinkDef.h files ...\n" if ($DEBUG);
+		    $O = "";
+		    $O = "obj" if ( -d ".$shs/obj/StRoot");
+		    $O = "OBJ" if ( -d ".$shs/OBJ/StRoot");
+		    if ( $O ne ""){
+			@all = `/usr/bin/find .$shs/$O/StRoot/ -type f -name '*LinkDef.h'`;
+			foreach $file (@all){
+			    chomp($file);
+			    print "\tGot $file\n" if ($DEBUG);
+			    if ( defined($ver = &Found($file)) ){
+				$version = $ver;
+				last;
+			    }
 			}
 		    }
 		}
@@ -124,6 +143,10 @@ sub Found
 	}
 	close(FF);
     }
-    if ( defined($ver) ){  $ver =~ s/\'//g;}
+    if ( defined($ver) ){  
+	$ver =~ s/\'//g;
+	$ver =~ s/\*.*//g;
+	$ver =~ s/\s+//g;
+    }
     $ver;
 }
