@@ -30,7 +30,7 @@ set extra=""
 set col=""
 set excluded=""
 set DEBUG=0
-set pool="condor01.rcf.bnl.gov:9664" # O2 -> O1
+set pool="condor02.rcf.bnl.gov:9664" 
 
 # Specific path to Unix executables (security and remote call issue)
 set GREP=/bin/grep
@@ -254,23 +254,23 @@ if ("$node" == "") then
  	else
 	    # RCF
 	    set node="rcas6+"
-	    set pool="-pool  condor01.rcf.bnl.gov:9664" # 02 -> 01
+	    set pool="-pool  condor02.rcf.bnl.gov:9664" 
         endif
 	breaksw;
 
        case "rhphobos":
         set node="rcas4+"
-        set pool="-pool  condor01.rcf.bnl.gov:9663"  # 02 -> 01
+        set pool="-pool  condor02.rcf.bnl.gov:9663"  
 	breaksw;
 
        case "rhphenix":
 	set node="rcas2+"
-        set pool="-pool condor01.rcf.bnl.gov:9662"
+        set pool="-pool condor02.rcf.bnl.gov:9662"
 	breaksw;
 
        case "rhbrahms":
         set node="rcas0+"
-        set pool="-pool condor01.rcf.bnl.gov:9661"
+        set pool="-pool condor02.rcf.bnl.gov:9661"
 	breaksw;
 
        case "usatlas":
@@ -313,11 +313,11 @@ else
         breaksw;
 
        case "rcas2*":
-        set pool="-pool condor01.rcf.bnl.gov:9662"
+        set pool="-pool condor02.rcf.bnl.gov:9662"
         breaksw;
 
        case "rcas0*":
-        set pool="-pool condor01.rcf.bnl.gov:9661"
+        set pool="-pool condor02.rcf.bnl.gov:9661"
         breaksw;
 
        case "acas*":
