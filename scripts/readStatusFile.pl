@@ -103,7 +103,7 @@ for ( my $ii=0; $ii< $nn; $ii++) {
      $fulldname = $nfspath.$daqname[$ii];
      if($inpsize[$ii] == $sitedsize[$ii]) {
 
-     `rm -f $fulldname`;
+#     `rm -f $fulldname`;
 
      }else {
  
