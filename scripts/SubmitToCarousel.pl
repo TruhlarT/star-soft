@@ -37,8 +37,8 @@ my $nl = 0;
 
 my @daqlist = `ls $daqpat` ;
 
-my $MAXNUM = 300;
-my $LIMNUM = 100;
+my $MAXNUM = 360;
+my $LIMNUM = 20;
 
 print "There are  ", scalar(@daqlist),"  daq files in the ", $nfspath,"  directory", "\n";
  
