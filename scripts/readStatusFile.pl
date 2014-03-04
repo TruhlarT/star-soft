@@ -42,6 +42,8 @@ my $nn = 0;
 
  &StDbConnect();
 
+if( scalar(@statusfile) >= 1) {
+
  foreach my $sline (@statusfile) {
      chop $sline ;
      print $sline, "\n" ;
@@ -103,7 +105,13 @@ for ( my $ii=0; $ii< $nn; $ii++) {
      $fulldname = $nfspath.$daqname[$ii];
      if($inpsize[$ii] == $sitedsize[$ii]) {
 
-#     `rm -f $fulldname`;
+     `rm -f $fulldname`;
+
+  print $fulldname "  removed ","\n";
+
+     $sql= "update $JobStatusT set inputFileExists = 'removed'  where prodTag = '$prodtg' and inputFileName = '$daqname[$ii]' and inputFileExists = 'yes' ";
+
+     $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
      }else {
  
@@ -116,14 +124,16 @@ for ( my $ii=0; $ii< $nn; $ii++) {
    print "$sql\n";
 
      }
-  }
- 
+   }
+  } 
+
 #######################################################################################
 
    @statusfile = ();
 
    @statusfile = `ls *reco_finish`;
 
+  if( scalar(@statusfile) >= 1) {
 
    foreach my $sline (@statusfile) {
      chop $sline ;
@@ -142,6 +152,7 @@ for ( my $ii=0; $ii< $nn; $ii++) {
   `rm -f $outfile`;
 
   }
+}
 
 ##########################################################################################
 
@@ -150,6 +161,7 @@ for ( my $ii=0; $ii< $nn; $ii++) {
 
    @statusfile = `ls *mudst_transferred`;
 
+ if( scalar(@statusfile) >= 1) {
 
    foreach my $sline (@statusfile) {
      chop $sline ;
@@ -169,7 +181,8 @@ for ( my $ii=0; $ii< $nn; $ii++) {
      `rm -f $outfile`;
 
    }
-  
+ }
+
 ##########################################################################
 
  &StDbDisconnect();
