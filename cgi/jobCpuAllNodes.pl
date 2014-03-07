@@ -50,7 +50,7 @@ my $nowdate = $todate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2010","2011","2012");
+my @prodyear = ("2010","2011","2012","2013");
 my @arval = ("rtime/cpu","cpu");
 my @arnode = ("rcrs","rcas");
 my @arcrs = ();
@@ -70,7 +70,7 @@ my $npr = 0;
 my $pcpu;
 my $prtime;
 my $pstream;
-my $pryear = "2010";
+my $pryear = "2013";
 my $dy;
 my $mpr;
 
@@ -244,7 +244,7 @@ my @cpwb = ();
     $cursor->finish();
 
 
-    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2012-11-10' order by runDay" ;
+    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2014-02-20' order by runDay" ;
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -367,7 +367,7 @@ my $qnode   = $qqr->param('pnode');
  if( $qprod =~ /P11/ ) {$pryear = "2011"};
  if( $qprod =~ /P12/ ) {$pryear = "2012"};
  if( $qprod =~ /P13ib/ ) {$pryear = "2012"};
-
+ if( $qprod =~ /P14ia/ ) {$pryear = "2013"};
 
   $JobStatusT = "JobStatus".$pryear;
 
@@ -564,7 +564,7 @@ my $qnode   = $qqr->param('pnode');
               }elsif( $mfile eq "hlt" ) {
                $arhlt[$ndt] = $rte{$mfile,$ndt};
                $cphlt[$ndt] = $arcpu{$mfile,$ndt};
-              }elsif( $mfile eq "fmsfast" ) {
+              }elsif( $mfile eq "fms" ) {
                $arfmsfast[$ndt] = $rte{$mfile,$ndt};
                $cpfmsfast[$ndt] = $arcpu{$mfile,$ndt};
               }elsif( $mfile eq "ht" ) {
@@ -582,7 +582,7 @@ my $qnode   = $qqr->param('pnode');
               }elsif( $mfile eq "upc" ) {
                $arupc[$ndt] =  $rte{$mfile,$ndt};
                $cpupc[$ndt] =  $arcpu{$mfile,$ndt};
-              }elsif( $mfile eq "W" ) {
+              }elsif( $mfile eq "W" or $mfile eq "WB" or $mfile eq "WE" ) {
                $arwb[$ndt] =  $rte{$mfile,$ndt};
                $cpwb[$ndt] =  $arcpu{$mfile,$ndt};
                }
@@ -624,6 +624,8 @@ my $qnode   = $qqr->param('pnode');
        $legend[8] = "st_mtd       ";
        $legend[9] = "st_centralpro ";
        $legend[10] = "st_atomcules ";
+       $legend[11] = "st_fms ";
+
 
        if ( $qvalue eq "rtime/cpu" ) {
 
@@ -632,7 +634,7 @@ my $qnode   = $qqr->param('pnode');
 
     @data = ();
 
-  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules ) ;
+  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfmsfast ) ;
 
   	$max_y = 1.2*$maxval; 
 
@@ -643,7 +645,7 @@ my $qnode   = $qqr->param('pnode');
 
     @data = ();
 
-  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules ) ;
+  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cpfmsfast ) ;
 
     	$max_y = 1.2*$maxcpu; 
         $max_y = int($max_y);
@@ -673,7 +675,7 @@ my $qnode   = $qqr->param('pnode');
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple lorange lred marine lblack lbrown lyellow lgray ) ],
+                    dclrs => [ qw(lblue lgreen lpurple lorange lred marine lblack lbrown lyellow lgray lred) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
