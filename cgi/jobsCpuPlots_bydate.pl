@@ -514,7 +514,7 @@ END
 #               $jbpmdftp[$ndt] = $jbTottime;   
            }elsif( $pstream eq "upc" ) {
                $jbupc[$ndt] =  $jbTottime;
-          }elsif( $pstream eq "W" or $pstream eq "WB" $pstream eq "WE" ) {
+          }elsif( $pstream eq "W" or $pstream eq "WB" or $pstream eq "WE" ) {
                $jbwb[$ndt] =  $jbTottime;
 	       }
 	    $ndt++;
@@ -618,7 +618,7 @@ END
               }elsif( $pstream eq "upc" ) {
                $arupc[$ndt] =  $rte{$pstream,$ndt};
                $cpupc[$ndt] =  $pcpu;
-              }elsif( $pstream eq "W" or $pstream eq "WB" $pstream eq "WE" ) {
+              }elsif( $pstream eq "W" or $pstream eq "WB" or $pstream eq "WE" ) {
                $arwb[$ndt] =  $rte{$pstream,$ndt};
                $cpwb[$ndt] =  $pcpu;
 	       }
