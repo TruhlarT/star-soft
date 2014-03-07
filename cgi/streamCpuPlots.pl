@@ -1130,7 +1130,7 @@ END
 
      }else{
 
-   $sql="SELECT runDay, exectime, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND  exectime > 0.1 AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 ";
+   $sql="SELECT runDay, exectime, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND  exectime > 0.1 AND jobStatus = 'Done' AND NoEvents >= 10 ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
