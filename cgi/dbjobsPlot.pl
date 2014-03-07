@@ -44,7 +44,7 @@ my $nowdate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2012","2013");
+my @prodyear = ("2012","2013","2014");
 
 
 my @arperiod = ( );
@@ -60,7 +60,7 @@ my @jbstime = ();
 my @jbtime = ();
 my @numjobs = ();
 my $mpr;
-my $pryear = "2012";
+my $pryear = "2013";
 
 my @ndate = ();
 my $ndt = 0;
@@ -84,6 +84,22 @@ $JobStatusT = "JobStatus2012";
           $npr++;
        }
     $cursor->finish();
+
+
+$JobStatusT = "JobStatus2013";  
+
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $arrprod[$npr] = $mpr;
+          $npr++;
+       }
+    $cursor->finish();
+
 
 &StDbProdDisconnect();
 
@@ -122,7 +138,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P13ib,
+	                          -default=>P14ia,
       			          -size =>1);
 
 
@@ -176,10 +192,9 @@ END
 
  if( $qprod =~ /P12/ ) {$pryear = "2012"};
  if( $qprod =~ /P13ib/ ) {$pryear = "2012"};
+ if( $qprod =~ /P14ia/ ) {$pryear = "2013"};
 
-#    $JobStatusT = "JobStatus".$pryear;
-
-  $JobStatusT = "JobStatus2012";
+    $JobStatusT = "JobStatus".$pryear;
 
   my $day_diff = 0;
   my $nmonth = 0;
