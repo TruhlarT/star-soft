@@ -652,7 +652,7 @@ my $gtitle;
        $legend[8] = "st_mtd      ";
        $legend[9] = "st_centralpro ";
        $legend[10] = "st_atomcules ";
-       $legend[10] = "st_fms ";
+       $legend[11] = "st_fms ";
 
 #       $legend[3] = "st_upsilon   ";
     
