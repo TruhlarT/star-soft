@@ -234,7 +234,7 @@ $JobStatusT = "JobStatus2012";
 
 $JobStatusT = "JobStatus2013";  
 
-    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT where runDay >= '2014-02-20' order by runDay ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
