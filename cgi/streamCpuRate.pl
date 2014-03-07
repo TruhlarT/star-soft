@@ -1002,7 +1002,7 @@ END
     	$max_y = $maxcpu + 0.2*$maxcpu; 
         $max_y = int($max_y);
 
-  }elsif(  $srate eq "jobtottime" ) {
+  }elsif(  $srate eq "exectime" ) {
 
     @data = ();
 
