@@ -51,7 +51,7 @@ my $nowdate = $todate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2010","2011","2012","2013");
+my @prodyear = ("2010","2011","2012","2013","2014");
 
 
 my @arperiod = ( );
@@ -72,7 +72,7 @@ my $prtime;
 my $pstream;
 my $ptrack;
 my $jbTottime;
-my $pryear = "2012";
+my $pryear = "2013";
 
 my %rte = {};
 my %nstr = {};
@@ -259,6 +259,36 @@ my $nhr = 0;
        }
     $cursor->finish();
 
+
+$JobStatusT = "JobStatus2013";
+
+
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $arrprod[$npr] = $mpr;
+          $npr++;
+       }
+    $cursor->finish();
+
+    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2014-02-20' order by runDay" ;
+
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $dy = $cursor->fetchrow() ) {
+          $rdays[$ndy] = $dy;
+          $ndy++;
+       }
+    $cursor->finish();
+
+
 @rvdays = reverse @rdays ;
 
 &StDbProdDisconnect();
@@ -299,7 +329,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P13ib,
+	                          -default=>P14ia,
       			          -size =>1);
  
    print "<p>";
@@ -350,6 +380,7 @@ END
   if( $qprod =~ /P11/ ) {$pryear = "2011"};
   if( $qprod =~ /P12/ ) {$pryear = "2012"};
   if( $qprod =~ /P13ib/ ) {$pryear = "2012"};
+  if( $qprod =~ /P14ia/ ) {$pryear = "2013"};
     
     $JobStatusT = "JobStatus".$pryear;
 
@@ -505,7 +536,7 @@ END
 #               $jbpmdftp[$ndt] = $arjbtime{$mfile,$ndt};
             }elsif( $mfile eq "upc" ) {
                $jbupc[$ndt] =  $arjbtime{$mfile,$ndt};
-            }elsif( $mfile eq "W" ) {
+            }elsif( $mfile eq "W" or $mfile eq "WB" or $mfile eq "WE") {
                $jbwb[$ndt] =  $arjbtime{$mfile,$ndt};
 
            }else{
@@ -664,7 +695,7 @@ END
               }elsif( $mfile eq "upc" ) {
                $arupc[$ndt] =  $rte{$mfile,$ndt};
                $cpupc[$ndt] =  $arcpu{$mfile,$ndt};
-             }elsif( $mfile eq "W" ) {
+             }elsif( $mfile eq "W" or $mfile eq "WB" or $mfile eq "WE" ) {
                $arwb[$ndt] =  $rte{$mfile,$ndt};
                $cpwb[$ndt] =  $arcpu{$mfile,$ndt};
 
@@ -772,7 +803,7 @@ END
 #               $trpmdftp[$ndt] = $artrk{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $trupc[$ndt] =  $artrk{$mfile,$ndt};
-             }elsif( $mfile eq "W" ) {
+             }elsif( $mfile eq "W" or $mfile eq "WB" or $mfile eq "WE" ) {
                $trwb[$ndt] =  $artrk{$mfile,$ndt};
 
            }else{
@@ -888,7 +919,7 @@ END
 #               $nstpmdftp[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $nstupc[$ndt] =  $nstr{$mfile,$ndt};
-              }elsif( $mfile eq "W" ) {
+              }elsif( $mfile eq "W" or $mfile eq "WB" or $mfile eq "WE" ) {
                $nstwb[$ndt] =  $nstr{$mfile,$ndt};
 	       }
              }
