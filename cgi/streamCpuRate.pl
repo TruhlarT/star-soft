@@ -56,7 +56,9 @@ my @prodyear = ("2010","2011","2012","2013","2014");
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("cpu","rtime/cpu","exectime","ntracks","stream_rate","njobs");
+#my @arrate = ("cpu","rtime/cpu","jobtotalTime","ntracks","stream_rate","njobs");
+
+my @arrate = ("cpu","rtime/cpu","ntracks","stream_rate","njobs");
 
 my @arrprod = ();
 my @arstream = ();
@@ -440,7 +442,7 @@ END
  @ndate = ();
  $ndt = 0;
 
- if( $srate eq "exectime" ) {
+ if( $srate eq "jobtotalTime" ) {
 
  %arjbtime = {};
 
@@ -465,7 +467,7 @@ END
 	@jbstat = ();  
 	$nstat = 0;
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, exectime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND exectime > 0.1 AND jobStatus = 'Done' AND NoEvents >= 10  order by createTime";
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, jobtotalTime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND jobtotalTime > 0.1 AND jobStatus = 'Done' AND NoEvents >= 10  order by createTime";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -524,7 +526,7 @@ END
                $jbgamma[$ndt] = $arjbtime{$mfile,$ndt};
             }elsif( $mfile eq "hlt" ) {
                $jbhlt[$ndt] =  $arjbtime{$mfile,$ndt};
-            }elsif( $mfile eq "fmsfast" ) {
+            }elsif( $mfile eq "fms" ) {
                $jbfmsfast[$ndt] =  $arjbtime{$mfile,$ndt};
             }elsif( $mfile eq "ht" ) {
                $jbht[$ndt] =  $arjbtime{$mfile,$ndt};
@@ -677,7 +679,7 @@ END
               }elsif( $mfile eq "hlt" ) {
                $arhlt[$ndt] = $rte{$mfile,$ndt};
                $cphlt[$ndt] = $arcpu{$mfile,$ndt};
-              }elsif( $mfile eq "fmsfast" ) {
+              }elsif( $mfile eq "fms" ) {
                $arfmsfast[$ndt] = $rte{$mfile,$ndt};
                $cpfmsfast[$ndt] = $arcpu{$mfile,$ndt};
               }elsif( $mfile eq "ht" ) {
@@ -791,7 +793,7 @@ END
                $trgamma[$ndt] = $artrk{$mfile,$ndt};
               }elsif( $mfile eq "hlt" ) {
                $trhlt[$ndt] = $artrk{$mfile,$ndt};
-              }elsif( $mfile eq "fmsfast" ) {
+              }elsif( $mfile eq "fms" ) {
                $trfmsfast[$ndt] = $artrk{$mfile,$ndt};
               }elsif( $mfile eq "ht" ) {
                $trht[$ndt] = $artrk{$mfile,$ndt};
@@ -907,7 +909,7 @@ END
                $nstgamma[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "hlt" ) {
                $nsthlt[$ndt] = $nstr{$mfile,$ndt};
-              }elsif( $mfile eq "fmsfast" ) {
+              }elsif( $mfile eq "fms" ) {
                $nstfmsfast[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "ht" ) {
                $nstht[$ndt] = $nstr{$mfile,$ndt};
@@ -942,7 +944,7 @@ END
       $rtupc[$ii] = $nstupc[$ii]/$numstream[$ii];
       $rtupsilon[$ii] = $nstupsilon[$ii]/$numstream[$ii];
       $rtgamma[$ii] = $nstgamma[$ii]/$numstream[$ii];
-#      $rtfmsfast[$ii] = $nstfmsfast[$ii]/$numstream[$ii];
+      $rtfmsfast[$ii] = $nstfmsfast[$ii]/$numstream[$ii];
       $rtatomcules[$ii] = $nstatomcules[$ii]/$numstream[$ii];
       $rtwb[$ii] = $nstwb[$ii]/$numstream[$ii];
 
@@ -1002,7 +1004,7 @@ END
     	$max_y = $maxcpu + 0.2*$maxcpu; 
         $max_y = int($max_y);
 
-  }elsif(  $srate eq "exectime" ) {
+  }elsif(  $srate eq "jobtotalTime" ) {
 
     @data = ();
 
