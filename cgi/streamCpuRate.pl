@@ -56,7 +56,7 @@ my @prodyear = ("2010","2011","2012","2013","2014");
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("cpu","rtime/cpu","jobtottime","ntracks","stream_rate","njobs");
+my @arrate = ("cpu","rtime/cpu","exectime","ntracks","stream_rate","njobs");
 
 my @arrprod = ();
 my @arstream = ();
@@ -440,7 +440,7 @@ END
  @ndate = ();
  $ndt = 0;
 
- if( $srate eq "jobtottime" ) {
+ if( $srate eq "exectime" ) {
 
  %arjbtime = {};
 
@@ -465,7 +465,7 @@ END
 	@jbstat = ();  
 	$nstat = 0;
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, jobtotalTime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND jobtotalTime > 0.1 AND jobStatus = 'Done' AND NoEvents >= 10  order by createTime";
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, exectime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND exectime > 0.1 AND jobStatus = 'Done' AND NoEvents >= 10  order by createTime";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
