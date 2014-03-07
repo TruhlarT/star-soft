@@ -690,7 +690,7 @@ my $gtitle;
        $legend[8] = "st_mtd       ";
        $legend[9] = "st_centralpro ";
        $legend[10] = "st_atomcules ";
-       $legend[11] = "st_fms   ";
+       $legend[11] = "st_fms";
     
        if( $srate eq "cpu" )  {
 
@@ -700,7 +700,7 @@ my $gtitle;
         $ylabel = "Number of jobs";
 	$gtitle = "CPU in sec/evt for different stream jobs for $qday day";
 
-    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules ) ; 
+    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cpfmsfast ) ; 
 
       }elsif( $srate eq "rtime/cpu"){
 
@@ -711,7 +711,7 @@ my $gtitle;
 	$gtitle = "Ratios RealTime/CPU for different stream jobs for $qday day";
 
   
-    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules ) ;
+    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfmsfast ) ;
 
      }elsif( $srate eq "jobtottime"){
 
@@ -722,7 +722,7 @@ my $gtitle;
 	$gtitle = "Total time on the farm for different stream jobs for $qday day";
 
   
-    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules ) ;
+    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfmsfast ) ;
 
 
      }
