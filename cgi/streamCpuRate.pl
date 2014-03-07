@@ -978,7 +978,7 @@ END
        $legend[7] = "st_atomcules ";
        $legend[8] = "st_mtd       ";
        $legend[9] = "st_centralpro";
-
+       $legend[10] = "st_fms";
 
        if ( $srate eq "rtime/cpu" ) {
 
@@ -987,7 +987,7 @@ END
 
     @data = ();
 
-  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arwb, \@arupc, \@aratomcules, \@armtd, \@arcentralpro ) ;
+  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arwb, \@arupc, \@aratomcules, \@armtd, \@arcentralpro, \@arfmsfast ) ;
 
   	$max_y = $maxval + 0.2*$maxval; 
 #        $max_y = int($max_y);
@@ -999,7 +999,7 @@ END
 
     @data = ();
 
-  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cpwb, \@cpupc, \@cpatomcules, \@cpmtd, \@cpcentralpro ) ;
+  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cpwb, \@cpupc, \@cpatomcules, \@cpmtd, \@cpcentralpro, \@cpfmsfast ) ;
 
     	$max_y = $maxcpu + 0.2*$maxcpu; 
         $max_y = int($max_y);
@@ -1011,7 +1011,7 @@ END
    $ylabel = "Average total time jobs stay on the farm in hours";
    $gtitle = "Average total time jobs stay on the farm  for $qday ";
 
-@data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbwb, \@jbupc, \@jbatomcules, \@jbmtd, \@jbcentralpro ) ;
+@data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbwb, \@jbupc, \@jbatomcules, \@jbmtd, \@jbcentralpro, \@jbfmsfast ) ;
 
   $max_y = $maxjbtime + 0.2*$maxjbtime;
   $max_y = int($max_y);
@@ -1024,7 +1024,7 @@ END
 
    @data = ();
 
- @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trht, \@trmonitor, \@trwb, \@trupc, \@tratomcules, \@trmtd, \@trcentralpro ) ;
+ @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trht, \@trmonitor, \@trwb, \@trupc, \@tratomcules, \@trmtd, \@trcentralpro, \@trfmsfast ) ;
   
       $max_y = $maxtrk + 0.2*$maxtrk;
       $max_y = int($max_y);
@@ -1036,7 +1036,7 @@ END
 
     @data = ();
 
- @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstht, \@nstmonitor, \@nstwb, \@nstupc, \@nstatomcules, \@nstmtd, \@nstcentralpro ) ;
+ @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstht, \@nstmonitor, \@nstwb, \@nstupc, \@nstatomcules, \@nstmtd, \@nstcentralpro, \@nstfmsfast ) ;
 
   }elsif(  $srate eq "stream_rate" ) {
 
@@ -1045,7 +1045,7 @@ END
 
  @data = ();
 
- @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtwb, \@rtupc, \@rtatomcules, \@rtmtd, \@rtcentralpro ) ;
+ @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtwb, \@rtupc, \@rtatomcules, \@rtmtd, \@rtcentralpro, \@rtfmsfast ) ;
 
         $max_y = 1.2;
     }
