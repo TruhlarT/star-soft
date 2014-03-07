@@ -52,12 +52,13 @@ my $nowdate = $todate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2010","2011","2012");
+my @prodyear = ("2010","2011","2012","2013");
 
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("cpu","rtime/cpu","jobtottime");
+#my @arrate = ("cpu","rtime/cpu","jobtottime");
+my @arrate = ("cpu","rtime/cpu");
 
 my @arrprod = ();
 my @arstream = ();
@@ -280,7 +281,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P13ib,
+	                          -default=>P14ia,
       			          -size =>1);
 
   
@@ -335,7 +336,7 @@ END
   if( $qprod =~ /P11/ ) {$pryear = "2011"};
   if( $qprod =~ /P12/ ) {$pryear = "2012"};
   if( $qprod =~ /P13ib/ ) {$pryear = "2012"};
-
+  if( $qprod =~ /P14ia/ ) {$pryear = "2013"};
 
     $JobStatusT = "JobStatus".$pryear;
 
@@ -493,7 +494,7 @@ END
                $jbgamma[$ndt]++; 
            }elsif( $pstream eq "hlt" ) {
                $jbhlt[$ndt]++;  
-           }elsif( $pstream eq "fmsfast" ) {
+           }elsif( $pstream eq "fms" ) {
                $jbfmsfast[$ndt]++; 
            }elsif( $pstream eq "ht" ) {
                $jbht[$ndt]++;  
@@ -505,7 +506,7 @@ END
                $jbpmdftp[$ndt]++;   
            }elsif( $pstream eq "upc" ) {
                $jbupc[$ndt]++;
-           }elsif( $pstream eq "W" ) {
+           }elsif( $pstream eq "W" or $pstream eq "WE" or $pstream eq "WB" ) {
                $jbwb[$ndt]++;
 	       }
  	    }
@@ -580,7 +581,7 @@ END
                $cpgamma[$ndt]++; 
               }elsif( $pstream eq "hlt" ) {
                $cphlt[$ndt]++;  
-              }elsif( $pstream eq "fmsfast" ) {
+              }elsif( $pstream eq "fms" ) {
                $cpfmsfast[$ndt]++; 
               }elsif( $pstream eq "ht" ) {
                $cpht[$ndt]++;  
@@ -592,7 +593,7 @@ END
                $cppmdftp[$ndt]++;   
               }elsif( $pstream eq "upc" ) {
                $cpupc[$ndt]++;
-              }elsif( $pstream eq "W" ) {
+              }elsif( $pstream eq "W" or $pstream eq "WE" or $pstream eq "WB" ) {
                $cpwb[$ndt]++;
 	       }
 	    }
@@ -641,7 +642,7 @@ END
                $argamma[$ndt]++ ;
               }elsif( $pstream eq "hlt" ) {
                $arhlt[$ndt]++;
-              }elsif( $pstream eq "fmsfast" ) {
+              }elsif( $pstream eq "fms" ) {
                $arfmsfast[$ndt]++ ;
               }elsif( $pstream eq "ht" ) {
                $arht[$ndt]++ ;
@@ -653,7 +654,7 @@ END
                $arpmdftp[$ndt]++ ;   
               }elsif( $pstream eq "upc" ) {
                $arupc[$ndt]++;
-              }elsif( $pstream eq "W" ) {
+              }elsif( $pstream eq "W" or $pstream eq "WE" or $pstream eq "WB"  ) {
                $arwb[$ndt]++;
 	       }
 	    } 
@@ -689,7 +690,7 @@ my $gtitle;
        $legend[8] = "st_mtd       ";
        $legend[9] = "st_centralpro ";
        $legend[10] = "st_atomcules ";
-#       $legend[3] = "st_upsilon   ";
+       $legend[11] = "st_fms   ";
     
        if( $srate eq "cpu" )  {
 
@@ -749,7 +750,7 @@ my $gtitle;
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple lorange lred marine lblack lbrown lyellow lgray ) ],
+                    dclrs => [ qw(lblue lgreen lpurple lorange lred marine lblack lbrown lyellow lpink lgray lred) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
