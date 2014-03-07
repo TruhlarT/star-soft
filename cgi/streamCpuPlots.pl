@@ -563,7 +563,7 @@ END
 #               $cppmdftp[$ndt] = $arcpu{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $cpupc[$ndt] =  $arcpu{$mfile,$ndt};
-              }elsif( $mfile eq "W" ) {
+              }elsif( $mfile eq "W" or $mfile eq "WB" $mfile eq "WE") {
                $cpwb[$ndt] =  $arcpu{$mfile,$ndt};
               }elsif( $mfile eq "fgt" ) {
                $cpfgt[$ndt] =  $arfgt{$mfile,$ndt};
@@ -733,7 +733,7 @@ END
 #               $arpmdftp[$ndt] =  $rte{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $arupc[$ndt] =  $rte{$mfile,$ndt};
-              }elsif( $mfile eq "W" ) {
+              }elsif( $mfile eq "W"  or $mfile eq "WB" $mfile eq "WE" ) {
                $arwb[$ndt] =  $rte{$mfile,$ndt};
               }elsif( $mfile eq "fgt" ) {
                $arfgt[$ndt] =  $rte{$mfile,$ndt};
@@ -879,7 +879,7 @@ END
 #               $trpmdftp[$ndt] = $artrk{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $trupc[$ndt] =  $artrk{$mfile,$ndt};
-              }elsif( $mfile eq "W" ) {
+              }elsif( $mfile eq "W" or $mfile eq "WB" $mfile eq "WE" ) {
                $trwb[$ndt] =  $artrk{$mfile,$ndt};
               }elsif( $mfile eq "fgt" ) {
                $trfgt[$ndt] =  $artrk{$mfile,$ndt};
@@ -1027,7 +1027,7 @@ END
 #               $nstpmdftp[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $nstupc[$ndt] =  $nstr{$mfile,$ndt};
-              }elsif( $mfile eq "W" ) {
+              }elsif( $mfile eq "W" or $mfile eq "WB" $mfile eq "WE" ) {
                $nstwb[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "fgt" ) {
                $nstfgt[$ndt] =  $nstr{$mfile,$ndt};
@@ -1199,7 +1199,7 @@ END
 #               $jbpmdftp[$ndt] = $arjbtime{$mfile,$ndt};
             }elsif( $mfile eq "upc" ) {
                $jbupc[$ndt] =  $arjbtime{$mfile,$ndt};
-            }elsif( $mfile eq "W" ) {
+            }elsif( $mfile eq "W" or $mfile eq "WB" $mfile eq "WE" ) {
                $jbwb[$ndt] =  $arjbtime{$mfile,$ndt};
             }elsif( $mfile eq "fgt" ) {
                $jbfgt[$ndt] =  $arjbtime{$mfile,$ndt};
