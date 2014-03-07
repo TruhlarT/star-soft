@@ -54,12 +54,14 @@ my $nowdate = $todate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2009","2010","2011","2012");
+my @prodyear = ("2009","2010","2011","2012","2013");
 
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("rtime/cpu","cpu","jobtottime");
+#my @arrate = ("rtime/cpu","cpu","jobtottime");
+my @arrate = ("rtime/cpu","cpu");
+
 
 my @arrprod = ();
 my @arstream = ();
@@ -72,7 +74,7 @@ my $pcpu;
 my $prtime;
 my $pstream;
 my $jbTottime;
-my $pryear = "2010";
+my $pryear = "2013";
 
 my %rte = {};
 my %nstr = {};
@@ -291,7 +293,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P13ib,
+	                          -default=>P14ia,
       			          -size =>1);
 
   
@@ -346,6 +348,7 @@ END
    if( $qprod =~ /P11/ ) {$pryear = "2011"};
    if( $qprod =~ /P12/ ) {$pryear = "2012"};
    if( $qprod =~ /P13ib/ ) {$pryear = "2012"};
+   if( $qprod =~ /P14ia/ ) {$pryear = "2013"};
   
     $JobStatusT = "JobStatus".$pryear;
 
@@ -499,7 +502,7 @@ END
                $jbgamma[$ndt] = $jbTottime; 
            }elsif( $pstream eq "hlt" ) {
                $jbhlt[$ndt] = $jbTottime;  
-           }elsif( $pstream eq "fmsfast" ) {
+           }elsif( $pstream eq "fms" ) {
                $jbfmsfast[$ndt] =  $jbTottime; 
            }elsif( $pstream eq "ht" ) {
                $jbht[$ndt] = $jbTottime;  
@@ -511,7 +514,7 @@ END
 #               $jbpmdftp[$ndt] = $jbTottime;   
            }elsif( $pstream eq "upc" ) {
                $jbupc[$ndt] =  $jbTottime;
-          }elsif( $pstream eq "W" ) {
+          }elsif( $pstream eq "W" or $pstream eq "WB" $pstream eq "WE" ) {
                $jbwb[$ndt] =  $jbTottime;
 	       }
 	    $ndt++;
@@ -597,7 +600,7 @@ END
               }elsif( $pstream eq "hlt" ) {
                $arhlt[$ndt] =  $rte{$pstream,$ndt};
                $cphlt[$ndt] = $pcpu;  
-              }elsif( $pstream eq "fmsfast" ) {
+              }elsif( $pstream eq "fms" ) {
                $arfmsfast[$ndt] =  $rte{$pstream,$ndt};
                $cpfmsfast[$ndt] =  $pcpu; 
               }elsif( $pstream eq "ht" ) {
@@ -615,7 +618,7 @@ END
               }elsif( $pstream eq "upc" ) {
                $arupc[$ndt] =  $rte{$pstream,$ndt};
                $cpupc[$ndt] =  $pcpu;
-              }elsif( $pstream eq "W" ) {
+              }elsif( $pstream eq "W" or $pstream eq "WB" $pstream eq "WE" ) {
                $arwb[$ndt] =  $rte{$pstream,$ndt};
                $cpwb[$ndt] =  $pcpu;
 	       }
@@ -649,7 +652,7 @@ my $gtitle;
        $legend[8] = "st_mtd      ";
        $legend[9] = "st_centralpro ";
        $legend[10] = "st_atomcules ";
-
+       $legend[10] = "st_fms ";
 
 #       $legend[3] = "st_upsilon   ";
     
@@ -663,7 +666,7 @@ my $gtitle;
       $max_y = $maxcpu + 0.2*$maxcpu; 
       $max_y = int($max_y);
 
-    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules ) ; 
+    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cpfmsfast ) ; 
 
       }elsif( $srate eq "rtime/cpu"){
 
@@ -675,7 +678,7 @@ my $gtitle;
        $max_y = $maxval + 0.2*$maxval; 
 #      $max_y = int($max_y);
   
-    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules ) ;
+    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfmsfast ) ;
 
      }elsif( $srate eq "jobtottime"){
 
@@ -687,7 +690,7 @@ my $gtitle;
        $max_y = $maxjbtime + 0.2*$maxjbtime; 
       $max_y = int($max_y);
   
-    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules ) ;
+    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfmsfast ) ;
 
 
      }
@@ -715,7 +718,7 @@ my $gtitle;
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple lorange lred lblack marine lbrown lyellow lgray) ],
+                    dclrs => [ qw(lblue lgreen lpurple lorange lred lblack marine lpink lbrown lyellow lgray lred) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
