@@ -196,7 +196,7 @@ my @prt = ();
    foreach my $tdate (@sdays) {
 
 
-        $sql="SELECT count(jobState) FROM  $JobStatusT WHERE submissionTime like '$tdate%' where jobState = 'running' ";
+        $sql="SELECT count(jobState) FROM  $JobStatusT WHERE submissionTime like '$tdate%' and jobState = 'running' ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute( ) ;
@@ -207,7 +207,7 @@ my @prt = ();
 
     $cursor->finish();
 
-       $sql="SELECT count(jobState) FROM  $JobStatusT WHERE submissionTime like '$tdate%' where jobState = 'done' ";
+       $sql="SELECT count(jobState) FROM  $JobStatusT WHERE submissionTime like '$tdate%' and jobState = 'done' ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute( ) ;
@@ -219,7 +219,7 @@ my @prt = ();
     $cursor->finish();
  
 
-      $sql="SELECT count(jobState) FROM  $JobStatusT WHERE submissionTime like '$tdate%' where jobState = 'idle' ";
+      $sql="SELECT count(jobState) FROM  $JobStatusT WHERE submissionTime like '$tdate%' and jobState = 'idle' ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute( ) ;
@@ -230,7 +230,7 @@ my @prt = ();
 
     $cursor->finish();
 
-      $sql="SELECT count(jobState) FROM  $JobStatusT WHERE submissionTime like '$tdate%' where jobState = 'held' ";
+      $sql="SELECT count(jobState) FROM  $JobStatusT WHERE submissionTime like '$tdate%' and jobState = 'held' ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute( ) ;
