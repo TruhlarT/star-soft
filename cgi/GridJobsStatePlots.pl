@@ -49,7 +49,7 @@ my @strun = ();
 my @stdone = ();
 my @stidle = ();
 my @stheld = ();
-my $nd = 0:
+my $nd = 0;
 
 
  my $fperiod   =  $query->param('period');
@@ -173,7 +173,7 @@ my @prt = ();
  @stdone = ();
  @stidle = ();
  @stheld = ();
- $nd = 0:
+ $nd = 0;
 
 
    $sql="SELECT DISTINCT date_format(submissionTime, '%Y-%m-%d') as SDATE  FROM $JobStatusT where (TO_DAYS(\"$nowdate\") - TO_DAYS(submissionTime)) <= ? order by SDATE" ;
