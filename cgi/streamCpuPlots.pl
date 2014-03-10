@@ -72,7 +72,7 @@ my $pstream;
 my $jbTottime;
 my $jbextime;
 
-my $pryear = "2012";
+my $pryear = "2014";
 
 my %rte = {};
 my %nstr = {};
@@ -406,6 +406,8 @@ END
         $nday++;
     }
 
+       $cursor->finish();
+
 ##############################
 
    }else{ 
@@ -420,6 +422,8 @@ END
         $ardays[$nday] = $myday;
         $nday++;
     }
+
+         $cursor->finish();
 
    }
 
