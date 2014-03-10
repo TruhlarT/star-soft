@@ -36,11 +36,11 @@ my @reqperiod = ("week","1_month","2_months","3_months","4_months","5_months","6
 
 
 my $day_diff = 0;
-my $max_y = 10000;
+my $max_y = 1000;
 my $min_y = 0;
 my @data = ();
 my @legend = ();
-my $maxvalue = 10000;
+my $maxvalue = 1000;
 
 my @Npoint = ();
 my @sdays = ();
@@ -164,6 +164,7 @@ my @prt = ();
 
   $day_diff = int($day_diff);
 
+ $day_diff = 30 ;
 
    &StdbConnect();
 
@@ -187,10 +188,6 @@ my @prt = ();
           $ndy++;
        }
     $cursor->finish();
-
-@sdays = ();
-@sdays = ("2014-03-03","2014-03-04","2014-03-05","2014-03-06","2014-03-07","2014-03-08","2014-03-09","2014-03-10");
-
 
 
    foreach my $tdate (@sdays) {
@@ -277,7 +274,7 @@ $xLabelSkip = 16 if( $fperiod eq "6_months" );
 		title   => "Number of jobs in different states for the period of $fperiod ",
 		y_tick_number => 10,
 #		y_min_value => $min_y,
-#		y_max_value => $max_y,
+		y_max_value => $max_y,
 		y_number_format => \&y_format,
 		dclrs => [ qw(lblack lblue lred lgreen lpink lpurple lorange lyellow ) ],
 		line_width => 2,
