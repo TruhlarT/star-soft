@@ -67,7 +67,7 @@ END
 print $query->startform(-action=>"$scriptname");  
 
 print "<body bgcolor=\"cornsilk\">\n";
-print "<h1 align=center><u>GRID jobs states </u></h1>\n";
+print "<h1 align=center><u>Plots for GRID jobs states by date of submission </u></h1>\n";
 
 print "<br>";
 print <<END;
@@ -277,7 +277,7 @@ $xLabelSkip = 16 if( $fperiod eq "6_months" );
  
     $graph->set(x_label => "  ",
 		y_label => "Number of jobs",
-		title   => "Number of jobs in different states for the period of $fperiod ",
+		title   => "Number of jobs in different states for the period of $fperiod by date of submission",
 		y_tick_number => 10,
 		y_min_value => $min_y,
 #		y_max_value => $max_y,
