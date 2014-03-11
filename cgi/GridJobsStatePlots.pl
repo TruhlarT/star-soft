@@ -113,7 +113,7 @@ my $fperiod   =  $qqr->param('period');
 $JobStatusT = "jobs_prod_2013";
 
  $day_diff = 0;
- $max_y = 10000;
+ $max_y = 2000;
  $min_y = 0;
  @data = ();
  @legend = ();
@@ -165,8 +165,6 @@ my @prt = ();
     }
 
   $day_diff = int($day_diff);
-
-# $day_diff = 30 ;
 
    &StdbConnect();
 
@@ -275,8 +273,8 @@ $xLabelSkip = 16 if( $fperiod eq "6_months" );
 		y_label => "Number of jobs",
 		title   => "Number of jobs in different states for the period of $fperiod ",
 		y_tick_number => 10,
-#		y_min_value => $min_y,
-		y_max_value => $max_y,
+		y_min_value => $min_y,
+#		y_max_value => $max_y,
 		y_number_format => \&y_format,
 		dclrs => [ qw(lblack lblue lred lgreen lpink lpurple lorange lyellow ) ],
 		line_width => 2,
