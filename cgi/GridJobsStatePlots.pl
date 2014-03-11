@@ -292,7 +292,7 @@ $xLabelSkip = 16 if( $fperiod eq "6_months" );
 
     $graph->set_legend(@legend);
     $graph->set_legend_font(gdMediumBoldFont);
-    $graph->set_title_font(gdLargeFont);
+    $graph->set_title_font(gdLargeBoldFont);
     $graph->set_x_label_font(gdMediumBoldFont);
     $graph->set_y_label_font(gdMediumBoldFont);
     $graph->set_x_axis_font(gdMediumBoldFont);
