@@ -55,7 +55,7 @@ my @arval = ("rtime/cpu","cpu");
 my @arnode = ("rcrs","rcas");
 my @arcrs = ();
 my @arcas = ();
-
+my @arfeval = ();
 
 my @arrprod = ();
 my @arstream = ();
@@ -400,6 +400,7 @@ my $qnode   = $qqr->param('pnode');
  @arpmdftp = ();
  @arcentralpro = ();
  @arwb = ();
+ @arfeval = ();
 
  @rtphysics = ();
  @rtgamma = ();
@@ -434,9 +435,10 @@ my $qnode   = $qqr->param('pnode');
  $ndt = 0;
  @ndate = ();
 
+
      if($qnode eq "rcrs" ) {
 
-   $sql="SELECT DISTINCT nodeID  FROM $JobStatusT where nodeID like ' rcrs6%' and runDay = ? order by nodeID" ;
+   $sql="SELECT DISTINCT nodeID  FROM $JobStatusT where ( nodeID like ' rcrs6%' or nodeID like ' farmeval%') and runDay = ? order by nodeID" ;
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -453,7 +455,7 @@ my $qnode   = $qqr->param('pnode');
 
    }elsif($qnode eq "rcas" ) {
 
-   $sql="SELECT DISTINCT nodeID  FROM $JobStatusT where nodeID like ' rcas6%' and runDay = ? order by nodeID" ;
+   $sql="SELECT DISTINCT nodeID  FROM $JobStatusT where ( nodeID like ' rcas6%' or nodeID like ' farmeval%') and runDay = ? order by nodeID" ;
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
