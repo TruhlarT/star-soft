@@ -1,5 +1,15 @@
-* $Id: geometry.g,v 1.273 2014/02/11 21:42:40 jwebb Exp $
+* $Id: geometry.g,v 1.274 2014/03/11 18:24:15 jwebb Exp $
 * $Log: geometry.g,v $
+* Revision 1.274  2014/03/11 18:24:15  jwebb
+* Defined y2013_1a, _1b, _1c, _2a, _2b, _2c geometry tags.
+*
+* y2013_1x and y2013_2x were mistakenly used in the y2013 data production, using
+* library SL14a.  The tags y2013_1c and y2013_2c freeze the y2013_1x and y2013_2x
+* geometry tags ase they exist in SL14a.  They are equivalent to the geometries
+* used in y2013 data production.
+*
+* Added y2010x asymptotic tag for STV testing.
+*
 * Revision 1.273  2014/02/11 21:42:40  jwebb
 * kOnly --> konly.
 *
@@ -2191,6 +2201,11 @@ REPLACE [exe y2013b;]   with ["Y2013 production b";           exe y2013a;   exe 
 REPLACE [exe y2013_1b;] with ["Y2013 production b";           exe y2013_1a; exe PSUP01; ];
 REPLACE [exe y2013_2b;] with ["Y2013 production b sans PIXL"; exe y2013_2a; exe PSUP01; PIXL=off; PXST=off; PSUP=off; ];
 
+REPLACE [exe y2013c;]   with ["Y2013c   = y2013x   in SL14a"; exe y2013b;   exe CAVE05; exe TPCE31;];
+REPLACE [exe y2013_1c;] with ["Y2013_1c = y2013_1x in SL14a"; exe y2013_1b; exe CAVE05; exe TPCE31;];
+REPLACE [exe y2013_2c;] with ["Y2013_2c = y2013_2x in SL14a"; exe y2013_2b; exe CAVE05; exe TPCE31;];
+
+
 REPLACE [exe y2013x;] with [                                      "Y2013 asymptotic";
     EXE y2013a;   "First production geometry";
     EXE TPCE31;   "version 3.1 of the TPC (increase deadzone and integration time)";
@@ -3144,6 +3159,19 @@ If LL>0
   Case Y2013_2b { Y2013_2b : Y2013 2nd prod geometry w/o PIXL; 
                   Geom = 'y2013_2b  '; 
                   exe y2013_2b;   }
+
+  Case Y2013c   { Y2013c equals Y2013x in library SL14a;                 
+                  Geom = 'y2013c    ';
+                  exe y2013c; }
+
+  Case Y2013_1c { Y2013_1c equals Y2013_1x in library SL14a;
+                  Geom = 'y2013_1c   ';
+                  exe y2013_1c; }
+
+  Case Y2013_2c { Y2013_2c equals Y2013_2x in library SL14a;
+                  Geom = 'y2013_2c   ';
+                  exe y2013_2c; }
+                                      
 
   Case y2014    { y2014 : y2014 first cut;                     
                   Geom = 'y2014     '; exe y2014; }
