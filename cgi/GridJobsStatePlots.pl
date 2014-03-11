@@ -58,7 +58,7 @@ my $nd = 0;
   if( $fperiod eq "" ) {
 
 print $query->header();
-print $query->start_html('GRID jobs states');
+print $query->start_html('Plots for GRID jobs states');
 print <<END;
 <META HTTP-EQUIV="Expires" CONTENT="0">
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
