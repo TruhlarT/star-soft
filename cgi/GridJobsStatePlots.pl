@@ -151,10 +151,12 @@ my $nowdatetime ;
 my $nmonth = 0;
 my @prt = ();
 
-    if( $fperiod eq "day") {
-           $day_diff = 1;
+#    if( $fperiod eq "day") {
+#           $day_diff = 1;
     
-    }elsif( $fperiod eq "week") {
+#    }elsif( $fperiod eq "week") {
+
+   if( $fperiod eq "week") {
            $day_diff = 7;
     }elsif ( $fperiod =~ /month/) {
        @prt = split("_", $fperiod);
@@ -164,7 +166,7 @@ my @prt = ();
 
   $day_diff = int($day_diff);
 
- $day_diff = 30 ;
+# $day_diff = 30 ;
 
    &StdbConnect();
 
