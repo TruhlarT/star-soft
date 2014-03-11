@@ -36,11 +36,11 @@ my @reqperiod = ("week","1_month","2_months","3_months","4_months","5_months","6
 
 
 my $day_diff = 0;
-my $max_y = 1000;
+my $max_y = 2000;
 my $min_y = 0;
 my @data = ();
 my @legend = ();
-my $maxvalue = 1000;
+my $maxvalue = 5000;
 
 my @Npoint = ();
 my @sdays = ();
@@ -256,7 +256,13 @@ if ( ! $graph){
     print STDOUT "Failed\n";
 
 } else {
- 
+
+
+ $legend[0] = "running  ";
+ $legend[1] = "done     ";
+ $legend[2] = "idle     ";
+ $legend[3] = "held     ";
+  
 
  my $xLabelsVertical = 1;
  my $xLabelPosition = 0;
