@@ -38,7 +38,7 @@ my $nl = 0;
 my @daqlist = `ls $daqpat` ;
 
 my $MAXNUM = 360;
-my $LIMNUM = 20;
+my $LIMNUM = 100;
 
 print "There are  ", scalar(@daqlist),"  daq files in the ", $nfspath,"  directory", "\n";
  
@@ -111,7 +111,7 @@ my ($sec,$min,$hour,$mday,$mon,$yr) = localtime();
  print "Today is  ",$timestamp, "\n";
 
 my $fname = "dcfile"."_".$todate.".list";
-my $DCfname = "/star/u/starreco/".$fname;
+my $DCfname = "/star/u/starreco/runkisti/".$fname;
 
 my $dclog = "dcarousel"."_".$todate.".log";
 my $dcsubm = "/star/u/starreco/runkisti/".$dclog;
@@ -141,7 +141,7 @@ my $dcsubm = "/star/u/starreco/runkisti/".$dclog;
 
 # $fC1->set_context("runnumber=$prodrun","filetype=online_daq","filename~st_physics");
 
- $fC1->set_context("runnumber=$prodrun","filetype=online_daq","sanity=1");
+ $fC1->set_context("runnumber=$prodrun","filetype=online_daq","sanity=1","limit=0");
 
  @fileset = $fC1->run_query("trgsetupname","path","filename");
 
