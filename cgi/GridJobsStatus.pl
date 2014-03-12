@@ -58,11 +58,12 @@ my @recost = ();
 my @mudstst  = ();
 my @logst = ();
 my @allst = ();
+my @gsite = ();
 
 
   &StDbProdConnect();
 
-  $sql="SELECT distinct prodTag, datasetName, inputFileName, date_format(submissionTime, '%Y-%m-%d') as SDATE, submitAttempt, daqSizeOnSite, jobProgress, globusError, jobState, recoStatus, muDstStatus, logFileState, overallJobStates  from $JobStatusT where  overallJobStates <> 'done' order by SDATE ";
+  $sql="SELECT distinct prodTag, datasetName, inputFileName, date_format(submissionTime, '%Y-%m-%d') as SDATE, submitAttempt, daqSizeOnSite, jobProgress, globusError, jobState, recoStatus, muDstStatus, logFileState, overallJobStates, site  from $JobStatusT where  overallJobStates <> 'done' order by SDATE ";
 
 
             $cursor =$dbh->prepare($sql)
@@ -84,6 +85,7 @@ my @allst = ();
                $mudstst[$nst]   = $fields[10];
                $logst[$nst]     = $fields[11];
                $allst[$nst]   = $fields[12];
+               $gsite[$nst]  = $fields[13];
 
                $nst++;
     }
@@ -114,6 +116,7 @@ my @allst = ();
 <td HEIGHT=10><h3>$mudstst[$ii]</h3></td>
 <td HEIGHT=10><h3>$logst[$ii] </h3></td>
 <td HEIGHT=10><h3>$allst[$ii]</h3></td>
+<td HEIGHT=10><h3>$gsite[$ii]</h3></td>
 </TR>
 END
 
@@ -167,6 +170,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>MuDst status</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Log file status</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Overral job status</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Production site</h3></B></TD>
 </TR>
    </body>
 END
@@ -181,9 +185,9 @@ print <<END;
 </TABLE>
       <h5>
       <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
-<!-- Created: Thu December 26 2013 -->
+<!-- Created: Thu February 20 2014 -->
 <!-- hhmts start -->
-Last modified: 2013-12-26
+Last modified: 2014-03-12
 <!-- hhmts end -->
   </body>
 </html>
