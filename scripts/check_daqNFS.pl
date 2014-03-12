@@ -133,17 +133,11 @@ if(scalar(@daqlist) > 1 ) {
       $cursor->finish;
 
 my $fname = "dcfile_resub"."_".$nowtime.".list";
-my $DCfname = "/star/u/starreco/".$fname;
+my $DCfname = "/star/u/starreco/runkisti/".$fname;
 
 my $dclog = "dcarousel_resub"."_".$nowtime.".log";
 my $dcsubm = "/star/u/starreco/runkisti/".$dclog;
 
-
-if($nfile >= 1) {
-
- if (!open (CFILE, ">$DCfname")) {printf ("Unable to create file %s\n",$DCfname);}
-
-}
 
 $fC1 = FileCatalog->new();
 $fC1->connect_as("Admin");
@@ -168,6 +162,8 @@ for ($nlist=0; $nlist < $nfile; $nlist++) {
   if ( $daydiff >= $ndays ) {
 
       $nll++;
+
+ if (!open (CFILE, ">$DCfname")) {printf ("Unable to create file %s\n",$DCfname);}
 
   @fileset = ();
 
@@ -203,7 +199,7 @@ for ($nlist=0; $nlist < $nfile; $nlist++) {
 
   close (CFILE);
 
-#    `hpss_user.pl -r $nfspath -z -f $DCfname >& $dcsubm`;
+    `hpss_user.pl -r $nfspath -z -f $DCfname >& $dcsubm`;
 
   }
 
