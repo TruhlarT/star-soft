@@ -201,7 +201,7 @@ print <<END;
   <html>
 
     <head>
-          <title>CRS jobs states summary</title>
+          <title>GRID jobs states summary</title>
     </head>
 
    <body BGCOLOR=\"cornsilk\">
