@@ -205,7 +205,7 @@ print <<END;
     </head>
 
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>Current CRS jobs states summary</h2>
+ <h2 ALIGN=CENTER> <B>Current GRID jobs states summary</h2>
  <h3 ALIGN=CENTER> Status on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
