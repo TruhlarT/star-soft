@@ -55,6 +55,7 @@ my @prodtag    = ();
 my @trigset    = ();
 my @recosucces = ();
 my @recofailed = ();
+my @recounknown = ();
 my $nset = 0;
 
 my $prtag;
@@ -212,6 +213,21 @@ my $dtset;
          }
    $cursor->finish();
 
+
+  $sql="SELECT count(recoStatus) from $JobStatusT where recoStatus = 'unknown' and jobState = 'done' and prodTag = '$prtag' and datasetName = '$dtset' ";
+
+          $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n"; 
+          $cursor->execute();
+
+        while(@fields = $cursor->fetchrow) {
+
+          $recounknown[$ii]  = $fields[0];
+
+         }
+   $cursor->finish();
+
+
   }
 
   &beginHtml();
@@ -234,6 +250,7 @@ my $dtset;
 <td HEIGHT=10><h3>$nnone[$ik]</h3></td>
 <td HEIGHT=10><h3>$recosucces[$ik]</h3></td>
 <td HEIGHT=10><h3>$recofailed[$ik]</h3></td>
+<td HEIGHT=10><h3>$recounknown[$ik]</h3></td>
 
 </TR>
 END
@@ -286,6 +303,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>NOT SUBMITTED</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Reco success</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Reco failed</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Reco unknown</h3></B></TD>
 </TR>
     </body>
 END
