@@ -55,7 +55,7 @@ my @prodtag    = ();
 my @trigset    = ();
 my @recosucces = ();
 my @recofailed = ();
-my $nset = ();
+my $nset = 0;
 
 my $prtag;
 my $dtset;
