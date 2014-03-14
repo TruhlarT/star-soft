@@ -85,7 +85,7 @@ my $qday = $query->param('pday');
 
 if( $qday eq "" ) {
     print $query->header();
-    print $query->start_html('CRS jobs status');
+    print $query->start_html('CRS jobs states summary');
     print <<END;
 <META HTTP-EQUIV="Expires" CONTENT="0">
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
@@ -257,7 +257,7 @@ print <<END;
       <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
 <!-- Created: January 3 2014 -->
 <!-- hhmts start -->
-Last modified: 2014-01-03
+Last modified: 2014-03-14
 <!-- hhmts end -->
   </body>
 </html>
