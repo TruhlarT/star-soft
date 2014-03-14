@@ -62,7 +62,7 @@ my $dtset;
 
    &StdbConnect();
 
-    $sql="SELECT distinct prodTag, datasetName from $JobStatusT ;
+    $sql="SELECT distinct prodTag, datasetName from $JobStatusT ";
 
            $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n"; 
