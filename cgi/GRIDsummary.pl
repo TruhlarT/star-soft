@@ -44,17 +44,47 @@ my $nowdate = ($year+1900).$mon.$mday;
 
 my $thisdate = ($year+1900)."-".$mon."-".$mday." ".$hour."%";
 
-my $nnone    = 0;
-my $nsubmit  = ();
-my $nrunning = ();
-my $ndone    = ();
-my $nidle    = ();
-my $nnotInQ  = ();
-my $nheld    = ();
+my @nnone      = ();
+my @nsubmit    = ();
+my @nrunning   = ();
+my @ndone      = ();
+my @nidle      = ();
+my @nnotInQ    = ();
+my @nheld      = ();
+my @prodtag    = ();
+my @trigset    = ();
+my @recosucces = ();
+my @recofailed = ();
+my $nset = ();
+
+my $prtag;
+my $dtset;
 
    &StdbConnect();
 
-   $sql="SELECT count(jobState) from $JobStatusT where jobState = 'submitted' ";
+    $sql="SELECT distinct prodTag, datasetName from $JobStatusT ;
+
+           $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n"; 
+            $cursor->execute();
+
+        while(@fields = $cursor->fetchrow) {
+
+         $prodtag[$nset]  = $fields[0];
+         $trigset[$nset]  = $fields[1];
+         $nset++; 
+
+         }
+ 
+  $cursor->finish();
+
+
+  for ($ii = 0; $ii <$nset; $ii++) {
+
+  $prtag = $prodtag[$ii];
+  $dtset = $trigset[$ii];
+
+   $sql="SELECT count(jobState) from $JobStatusT where jobState = 'submitted' and prodTag = '$prtag' and datasetName = '$dtset' ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n"; 
@@ -62,14 +92,14 @@ my $nheld    = ();
 
         while(@fields = $cursor->fetchrow) {
 
-         $nsubmit  = $fields[0];
+         $nsubmit[$ii]  = $fields[0];
 
          }
  
   $cursor->finish();
 
 
-   $sql="SELECT count(jobState) from $JobStatusT where jobState = 'running' ";
+   $sql="SELECT count(jobState) from $JobStatusT where jobState = 'running' and prodTag = '$prtag' and datasetName = '$dtset' ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n"; 
@@ -77,14 +107,14 @@ my $nheld    = ();
 
         while(@fields = $cursor->fetchrow) {
 
-         $nrunning  = $fields[0];
+         $nrunning[$ii]  = $fields[0];
 
          }
  
   $cursor->finish();
 
 
-   $sql="SELECT count(jobState) from $JobStatusT where jobState = 'done' ";
+   $sql="SELECT count(jobState) from $JobStatusT where jobState = 'done' and prodTag = '$prtag' and datasetName = '$dtset' ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n"; 
@@ -92,13 +122,13 @@ my $nheld    = ();
 
         while(@fields = $cursor->fetchrow) {
 
-         $ndone  = $fields[0];
+         $ndone[$ii]  = $fields[0];
 
          }
  
   $cursor->finish();
 
-  $sql="SELECT count(jobState) from $JobStatusT where jobState = 'idle' ";
+  $sql="SELECT count(jobState) from $JobStatusT where jobState = 'idle' and prodTag = '$prtag' and datasetName = '$dtset' ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n"; 
@@ -106,13 +136,13 @@ my $nheld    = ();
 
         while(@fields = $cursor->fetchrow) {
 
-         $nidle  = $fields[0];
+         $nidle[$ii]  = $fields[0];
 
          }
  
   $cursor->finish();
 
- $sql="SELECT count(jobState) from $JobStatusT where jobState = 'held' ";
+ $sql="SELECT count(jobState) from $JobStatusT where jobState = 'held' and prodTag = '$prtag' and datasetName = '$dtset' ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n"; 
@@ -120,13 +150,13 @@ my $nheld    = ();
 
         while(@fields = $cursor->fetchrow) {
 
-         $nheld  = $fields[0];
+         $nheld[$ii]  = $fields[0];
 
          }
  
   $cursor->finish();
 
- $sql="SELECT count(jobState) from $JobStatusT where jobState = 'notInQ' ";
+ $sql="SELECT count(jobState) from $JobStatusT where jobState = 'notInQ' and prodTag = '$prtag' and datasetName = '$dtset' ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n"; 
@@ -134,13 +164,13 @@ my $nheld    = ();
 
         while(@fields = $cursor->fetchrow) {
 
-         $nnotInQ  = $fields[0];
+         $nnotInQ[$ii]  = $fields[0];
 
          }
  
   $cursor->finish();
 
- $sql="SELECT count(jobState) from $JobStatusT where jobState = 'none' ";
+ $sql="SELECT count(jobState) from $JobStatusT where jobState = 'none' and prodTag = '$prtag' and datasetName = '$dtset' ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n"; 
@@ -148,31 +178,66 @@ my $nheld    = ();
 
         while(@fields = $cursor->fetchrow) {
 
-         $nnone  = $fields[0];
+         $nnone[$ii]  = $fields[0];
 
          }
  
   $cursor->finish();
 
+
+ $sql="SELECT count(recoStatus) from $JobStatusT where recoStatus = 'completed' and prodTag = '$prtag' and datasetName = '$dtset' ";
+
+         $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n"; 
+         $cursor->execute();
+
+        while(@fields = $cursor->fetchrow) {
+
+         $recosucces[$ii]  = $fields[0];
+
+         }
+ 
+  $cursor->finish();
+
+ $sql="SELECT count(recoStatus) from $JobStatusT where recoStatus <> 'completed' and recoStatus <> 'unknown' and prodTag = '$prtag' and datasetName = '$dtset' ";
+
+          $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n"; 
+          $cursor->execute();
+
+        while(@fields = $cursor->fetchrow) {
+
+          $recofailed[$ii]  = $fields[0];
+
+         }
+   $cursor->finish();
+
+  }
 
   &beginHtml();
 
 ###########
 
+   for ($ik = 0; $ik <$nset; $ik++) {
+
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3>$nsubmit</h3></td>
-<td HEIGHT=10><h3>$nrunning</h3></td>
-<td HEIGHT=10><h3>$ndone</h3></td>
-<td HEIGHT=10><h3>$nidle</h3></td>
-<td HEIGHT=10><h3>$nheld</h3></td>
-<td HEIGHT=10><h3>$nnotInQ</h3></td>
-<td HEIGHT=10><h3>$nnone</h3></td>
+<td HEIGHT=10><h3>$trigset[$ik]</h3></td>
+<td HEIGHT=10><h3>$prodtag[$ik]</h3></td>
+<td HEIGHT=10><h3>$nsubmit[$ik]</h3></td>
+<td HEIGHT=10><h3>$nrunning[$ik]</h3></td>
+<td HEIGHT=10><h3>$ndone[$ik]</h3></td>
+<td HEIGHT=10><h3>$nidle[$ik]</h3></td>
+<td HEIGHT=10><h3>$nheld[$ik]</h3></td>
+<td HEIGHT=10><h3>$nnotInQ[$ik]</h3></td>
+<td HEIGHT=10><h3>$nnone[$ik]</h3></td>
+<td HEIGHT=10><h3>$recosucces[$ik]</h3></td>
+<td HEIGHT=10><h3>$recofailed[$ik]</h3></td>
 
 </TR>
 END
-
+ }
 
   &StdbDisconnect();
 
@@ -210,6 +275,8 @@ print <<END;
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Trigger Set</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Prod Tag</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>SUBMITTED</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>RUNNING</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>DONE</h3></B></TD>
@@ -217,6 +284,8 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>HELD</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>notInQ</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>NOT SUBMITTED</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Reco success</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Reco failed</h3></B></TD>
 </TR>
     </body>
 END
@@ -233,7 +302,7 @@ print <<END;
       <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
 <!-- Created: March 12 2014 -->
 <!-- hhmts start -->
-Last modified: 2014-03-12
+Last modified: 2014-03-14
 <!-- hhmts end -->
   </body>
 </html>
