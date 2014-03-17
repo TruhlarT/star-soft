@@ -1,5 +1,8 @@
-* $Id: geometry.g,v 1.274 2014/03/11 18:24:15 jwebb Exp $
+* $Id: geometry.g,v 1.275 2014/03/17 21:30:18 jwebb Exp $
 * $Log: geometry.g,v $
+* Revision 1.275  2014/03/17 21:30:18  jwebb
+* Fix bug in y2013 definitions eliminating pixel support tube.
+*
 * Revision 1.274  2014/03/11 18:24:15  jwebb
 * Defined y2013_1a, _1b, _1c, _2a, _2b, _2c geometry tags.
 *
@@ -2199,7 +2202,7 @@ REPLACE [exe y2013_2a;] with ["Y2013 first cut sans PIXL"; exe Y2013a;  PIXL=off
 
 REPLACE [exe y2013b;]   with ["Y2013 production b";           exe y2013a;   exe PSUP01; ];
 REPLACE [exe y2013_1b;] with ["Y2013 production b";           exe y2013_1a; exe PSUP01; ];
-REPLACE [exe y2013_2b;] with ["Y2013 production b sans PIXL"; exe y2013_2a; exe PSUP01; PIXL=off; PXST=off; PSUP=off; ];
+REPLACE [exe y2013_2b;] with ["Y2013 production b sans PIXL"; exe y2013_2a; exe PSUP01; PIXL=off; PSUP=off; ];
 
 REPLACE [exe y2013c;]   with ["Y2013c   = y2013x   in SL14a"; exe y2013b;   exe CAVE05; exe TPCE31;];
 REPLACE [exe y2013_1c;] with ["Y2013_1c = y2013_1x in SL14a"; exe y2013_1b; exe CAVE05; exe TPCE31;];
@@ -2215,7 +2218,6 @@ REPLACE [exe y2013_1x;] with [ "Y2013 asymptotic";
 ]
 REPLACE [exe y2013_2x;] with [ "Y2013 asymptotic sans PIXL"; 
     EXE y2013x; PIXL=off; 
-    PXST=on; 
 ]
 
 
