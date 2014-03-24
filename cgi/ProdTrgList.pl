@@ -43,7 +43,7 @@ my $pyear;
 
 my %collHash = (
                  AuAu_200_production_2014 => 'auau200',
-                 production_15GeV_2014 => 'auau15';
+                 production_15GeV_2014 => 'auau15',
                  pp500_production_2013 => 'pp500',
                  pp500_production_2013a => 'pp500',
                  pp500_production_2013_noendcap => 'pp500',
