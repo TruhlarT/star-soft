@@ -9,7 +9,7 @@
 #
 # Written by J.Lauret 2002-2013
 #
-# Uncodumented paramaters
+# Undocumented paramaters
 #   -debug      : maintainance option
 #   -coffee     : maintainance option
 #
