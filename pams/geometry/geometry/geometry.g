@@ -1,5 +1,8 @@
-* $Id: geometry.g,v 1.275 2014/03/17 21:30:18 jwebb Exp $
+* $Id: geometry.g,v 1.276 2014/03/24 19:58:30 jwebb Exp $
 * $Log: geometry.g,v $
+* Revision 1.276  2014/03/24 19:58:30  jwebb
+* Setup y2014a candidate as y2014x.
+*
 * Revision 1.275  2014/03/17 21:30:18  jwebb
 * Fix bug in y2013 definitions eliminating pixel support tube.
 *
@@ -1271,6 +1274,7 @@ Replace [exe MUTD04;] with [ "MTD Run 11 - single backleg, 3 trays";  MUTD=on;  
 Replace [exe MUTD05;] with [ "MTD Run 28 backlegs, 118 trays";        MUTD=on;   MutdConfig= 5;]
 Replace [exe MUTD12;] with [ "MTD Run 12 - 3  backlegs, 13 trays";    MUTD=on;   MutdConfig=12;]
 Replace [exe MUTD13;] with [ "MTD Run 13 - 15 backlegs, 75 trays";    MUTD=on;   MutdConfig=13;]
+Replace [exe MUTD14;] with [ "MTD Run 13 - 15 backlegs, 75 trays";    MUTD=on;   MutdConfig=14;]
 
 
 
@@ -1444,6 +1448,8 @@ replace [exe TPCE04r;] with [;"New version of the TPC backplane "; TpceConfig = 
 
 replace [exe TPCE30;] with [;"Equivalent to TPCE04r"; exe TPCE30; ]
 replace [exe TPCE31;] with [;"                     "; TpceConfig = 31; ]
+
+
 
 replace [exe tpcx10;] with [;"TPC test version";    TpcxConfig=1;
                             ;"Disable old TPC";     TpceConfig=0;
@@ -2239,6 +2245,32 @@ REPLACE [exe y2014;] with ["Y2014 first cut geometry";
     exe SVTTof;      "No SVT";
     exe PHMDof;      "Photon mult detector off";
     exe MUTD13;      "Muon telescope detector";
+    exe CAVE05;      "Cave and tunnel";
+    exe IDSM14;      "Inner detector support";
+    exe SISD85;      "SSD version 7"
+    exe PIPEv3;      "The small diameter beam pipe";
+    exe ISTD02;      "IST version 2";
+    exe PXST01;      "PIXEL detector support version 1";
+    exe PIXL06;      "Full config of the pixl detector";
+    exe DTUB01;      "DTUB";
+    exe PSUP01;      "1st version of pixl supports";
+]
+
+REPLACE [exe y2014x;] with ["Y2014 first cut geometry";
+    exe FGTDof;      "switch off FGT";
+    exe TPCE31;      "agstar version of yf model with reduced Rmax";
+    exe BTOFv8;      "time of flight";
+    exe CALB02;      "updated bemc model";
+    exe ECALv6;      "several bugfixes in eemc geometry";
+    exe EMCUTS(eemc,1);   "10 keV EM thresholds in barrel and endcap calorimeters";
+    exe EMCUTS(bemc,1);   "10 keV EM thresholds in barrel and endcap calorimeters";
+    exe BBCMon;      "beam beam counters";
+    exe FPDMof;      "Latest version of FPD";
+    exe VPDD07;      "Latest version of VPD";
+    exe FTPCof;      "no FTPC";
+    exe SVTTof;      "No SVT";
+    exe PHMDof;      "Photon mult detector off";
+    exe MUTD14;      "Muon telescope detector";
     exe CAVE05;      "Cave and tunnel";
     exe IDSM14;      "Inner detector support";
     exe SISD85;      "SSD version 7"
@@ -3177,6 +3209,9 @@ If LL>0
 
   Case y2014    { y2014 : y2014 first cut;                     
                   Geom = 'y2014     '; exe y2014; }
+
+  Case y2014x   { y2014x : y2014 first cut;                     
+                  Geom = 'y2014x    '; exe y2014x; }
 
   Case devE  { devE : eSTAR development geometry;
                  Geom = 'devE    ';
@@ -4900,6 +4935,10 @@ c          write(*,*) '************** Creating the 2007-     version of the Barr
          Call AgDetp ADD( 'MTDG.config=', MutdConfig, 1);   
          CONSTRUCT mutdgeo4;
      } 
+     IF MutdConfig=14 {
+         Call AgDetp ADD( 'MTDG.config=', MutdConfig, 1);   
+         CONSTRUCT mutdgeo5;
+     }
 
    }
 
