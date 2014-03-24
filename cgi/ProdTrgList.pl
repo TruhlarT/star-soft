@@ -42,6 +42,8 @@ my $mondif;
 my $pyear;
 
 my %collHash = (
+                 AuAu_200_production_2014 => 'auau200',
+                 production_15GeV_2014 => 'auau15';
                  pp500_production_2013 => 'pp500',
                  pp500_production_2013a => 'pp500',
                  pp500_production_2013_noendcap => 'pp500',
@@ -194,6 +196,8 @@ my %collHash = (
 	      );
              
 my %yrHash = (
+                 AuAu_200_production_2014 => 'year2014',
+                 production_15GeV_2014 => 'year2014',
                  pp500_production_2013 => 'year2013',
                  pp500_production_2013a => 'year2013',
                  pp500_production_2013_noendcap => 'year2013',
@@ -473,7 +477,8 @@ my $query = new CGI;
         next if($prod[$nlist] eq "P03gb");
         next if($prod[$nlist] eq "P03gc"); 
         next if($prod[$nlist] eq "P03ie");          
-
+        next if($prod[$nlist] eq "P14ic");  
+ 
 
     $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_MuDst","storage=hpss","sanity=1","limit=0");
  
