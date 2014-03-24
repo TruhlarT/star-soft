@@ -136,7 +136,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.396";
+$VERSION   =   "V01.398";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -360,7 +360,7 @@ $obsolete{"datetaken"} = "datastarts";
 # $keywrds{"tpc"           }    =   "dTPC"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
 my @DETECTORS=("tpc","svt","tof","emc","eemc","fpd","ftpc",
 	       "pmd","rich","ssd","bbc","bsmd","esmd","zdc",
-	       "ctb","tpx","fgt");
+	       "ctb","tpx","fgt","mtd","pxl","ist","sst");
 
 
 
@@ -599,15 +599,29 @@ sub _GetTableName {
 # Returns:
 # the list of valid keywords to use in FileCatalog queries
 sub get_keyword_list {
-    my($val,$kwd);
-    my(@items,@kwds);
+    my($val,$kwd,$alldets);
+    my(@items,@kwds,@dets);
+
+
+    $alldets = ",".join(",",@DETECTORS).",";
+    #print "[$alldets]";
 
     foreach $val (sort { $a cmp $b } keys %keywrds){
 	@items = split(",",$keywrds{$val});
-	if ($items[6] == 1){ push(@kwds,$val);}
-	else { &print_debug("get_keyword_list","Rejecting $items[0]"); }
+	if ($items[6] == 1){
+	    if ( index($alldets,",$val,") != -1 ){
+		# this is a detector presence flag - append at the end
+		# print "Found $val\n";
+		push(@dets,$val);
+	    } else {
+		push(@kwds,$val);
+	    }
+	} else {
+	    &print_debug("get_keyword_list","Rejecting $items[0]");
+	}
     }
-  return @kwds;
+    push(@kwds,@dets);
+    return @kwds;
 }
 
 #============================================
