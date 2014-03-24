@@ -360,7 +360,8 @@ $obsolete{"datetaken"} = "datastarts";
 # $keywrds{"tpc"           }    =   "dTPC"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
 my @DETECTORS=("tpc","svt","tof","emc","eemc","fpd","ftpc",
 	       "pmd","rich","ssd","bbc","bsmd","esmd","zdc",
-	       "ctb","tpx","fgt","mtd","pxl","ist","sst");
+	       "ctb","tpx","fgt","mtd","pxl","ist","sst",
+	       "gmt","l4");
 
 
 
