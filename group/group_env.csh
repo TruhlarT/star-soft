@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.256 2014/03/27 20:51:19 jeromel Exp $
+#       $Id: group_env.csh,v 1.257 2014/03/27 21:09:55 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -24,7 +24,7 @@ if ( ! $?prompt) then
     set ECHO = 0
 else
     # otherwise, set this for convenience but make a few
-    # more checks 
+    # more checks
     if ( $?SSH_TTY || $?DISPLAY ) then
 	setenv INTERACTIVE 1
     endif
@@ -267,7 +267,7 @@ if ( $?USE_GCC_DIR ) then
 	# a messed up path and ldpath
         if ( ! $?ALT_GCC ) then
             setenv ALT_GCC $USE_GCC_DIR
-	
+
             set path=($USE_GCC_DIR/bin $path)
 	    if ( $?LD_LIBRARY_PATH ) then
 	        setenv LD_LIBRARY_PATH $USE_GCC_DIR/lib:${LD_LIBRARY_PATH}
@@ -342,11 +342,11 @@ setenv STAF ${STAR_PATH}/StAF/${STAF_VERSION} ;   if ($ECHO) echo   "Setting up 
 setenv STAF_LIB  $STAF/.${STAR_HOST_SYS}/lib  ;   if ($ECHO) echo   "Setting up STAF_LIB  = ${STAF_LIB}"
 setenv STAF_BIN  $STAF/.${STAR_HOST_SYS}/bin  ;   if ($ECHO) echo   "Setting up STAF_BIN  = ${STAF_BIN}"
 # STAR
-setenv STARL     $STAR_PATH/${STAR_VERSION}   
+setenv STARL     $STAR_PATH/${STAR_VERSION}
 if ( $STAR_LEVEL == "cal" ) then
     # do not redefine STAR in this case - this is used in cons
     # heavily for finding includes and such. But define lib
-    # and conditionally bin so PATH and LD path will be set 
+    # and conditionally bin so PATH and LD path will be set
     # properly. cd to STARL instead.
     if ( ! $?STAR_BIN ) then
 	# make a default
@@ -354,7 +354,7 @@ if ( $STAR_LEVEL == "cal" ) then
     endif
     if ( -e $STAR_PATH/${STAR_VERSION}/.${STAR_HOST_SYS}/bin ) then
 	# overwrite if exists
-	setenv STAR_BIN $STAR_PATH/${STAR_VERSION}/.${STAR_HOST_SYS}/lib 
+	setenv STAR_BIN $STAR_PATH/${STAR_VERSION}/.${STAR_HOST_SYS}/lib
     endif
     if ( ! $?STAR_LIB ) then
 	setenv STAR_LIB $STAR_PATH/dev/.${STAR_HOST_SYS}/lib
@@ -544,7 +544,7 @@ if ( -f $STAR/mgr/ROOT_LEVEL && -f $STAR/mgr/CERN_LEVEL ) then
 else
  # this block should really not be expanded - use the
  # method above instead to change version so we do not
- # have to maintain this long list of switch statements  
+ # have to maintain this long list of switch statements
  if ( $?DECHO) echo "$self :: We will use old logic of hard-coding LEVEL to a specific SL"
  switch ( $STAR_VERSION )
 
@@ -742,7 +742,7 @@ switch ($STAR_SYS)
       # PGI
       if ( $?redhat ) then
 	# from SL5 onward, stop loading PGI automatically
-        if ( -x "/usr/bin/bc") then 
+        if ( -x "/usr/bin/bc") then
 	    # not tha bc may not be installed
 	    set loadPGI=`echo "$redhat < 50" | /usr/bin/bc`
 	    if ( $loadPGI  ) then
@@ -829,13 +829,13 @@ if ( ! $?JAVA_ROOT ) then
 	    if ( "$a" != "") then
 		if ( -d $p/$a/jre ) then
 		    setenv JAVA_ROOT $p/$a/jre
-		else 
+		else
 		    setenv JAVA_ROOT $p/$a
 		endif
 		break
 	    endif
 	endif
-    end   
+    end
     if ( ! $?JAVA_ROOT ) then
 	if ( -d /opt/VDT ) then
 	    set a = `/bin/ls /opt/VDT | $GREP -e jdk -e j2sdk | /usr/bin/tail -1`
@@ -964,7 +964,7 @@ if ($?SCRATCH == 0) then
     if ( ! -d $SCRATCH ) then
 	/bin/mkdir -p $SCRATCH && /bin/chmod 755 $SCRATCH
     endif
-    if ($?ECHO) echo   "Setting up SCRATCH   = $SCRATCH"
+    if ($ECHO) echo   "Setting up SCRATCH   = $SCRATCH"
 else
     if ($?DECHO )  echo "$self :: SCRATCH already defined as $SCRATCH"
 endif
@@ -1016,7 +1016,7 @@ if ( -x ${GROUP_DIR}/dropit) then
 	if ( -d ${OPTSTAR}/lib/mysql ) then
 	    setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} -p ${OPTSTAR}/lib/mysql`
 
-	# ... but in the default system path - changing this may chang previous 
+	# ... but in the default system path - changing this may chang previous
 	# behavior however
 	#else if ( -d /usr/lib64/mysql && $USE_64BITS == 1 ) then
 	#    setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} -p /usr/lib64/mysql`
