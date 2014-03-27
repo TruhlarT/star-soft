@@ -656,14 +656,14 @@ my $qnode   = $qqr->param('pnode');
 	my $xLabelsVertical = 1;
 	my $xLabelPosition = 0;
 	my $xLabelSkip = 1;
-	my $skipnum = 1;
+	my $skipnum = 0;
  
 
 	$min_y = 0;
 
-	if (scalar(@ndate) >= 40 ) {
-	    $skipnum = int(scalar(@ndate)/20);
-	}
+#	if (scalar(@ndate) >= 40 ) {
+#	    $skipnum = int(scalar(@ndate)/20);
+#	}
 
 	$xLabelSkip = $skipnum;
 
