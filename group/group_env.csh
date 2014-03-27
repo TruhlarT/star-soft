@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.255 2014/03/27 20:41:42 jeromel Exp $
+#       $Id: group_env.csh,v 1.256 2014/03/27 20:51:19 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -966,9 +966,8 @@ if ($?SCRATCH == 0) then
     endif
     if ($?ECHO) echo   "Setting up SCRATCH   = $SCRATCH"
 else
-    if ( $?DECHO )  echo "$self :: SCRATCH already defined as $SCRATCH"
+    if ($?DECHO )  echo "$self :: SCRATCH already defined as $SCRATCH"
 endif
-if ($ECHO) echo   "Setting up SCRATCH   = $SCRATCH"
 
 
 # Echo CERN level information
