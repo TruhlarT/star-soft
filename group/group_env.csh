@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.254 2013/08/09 09:46:25 jeromel Exp $
+#       $Id: group_env.csh,v 1.255 2014/03/27 20:41:42 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -942,16 +942,31 @@ endif
 # We need this aliases even during BATCH
 if (-r $GROUP_DIR/group_aliases.csh) source $GROUP_DIR/group_aliases.csh
 
-# Scratch space ... Also in star_login but defined here in case
-# undefined
+#
+# Scratch space ...  Prepare the scratch disk if not present
+# This will be called from the star_login.csh
+#
 if ($?SCRATCH == 0) then
-    setenv SCRATCH /tmp/$LOGNAME
-endif
-
-
-# User Scratch directory
-if ( ! -d $SCRATCH ) then
-    /bin/mkdir -p $SCRATCH && /bin/chmod 755 $SCRATCH
+    if ( $?TMPDIR ) then
+	setenv SCRATCH "$TMPDIR"
+    #else if ( -w /scr20 ) then
+    #	setenv SCRATCH /scr20/$LOGNAME
+    #else if ( -w /scr21 ) then
+    #	setenv SCRATCH /scr21/$LOGNAME
+    #else if ( -w /scr22 ) then
+    #	setenv SCRATCH /scr22/$LOGNAME
+    else if ( -w /scratch ) then
+	setenv SCRATCH /scratch/$LOGNAME
+    else
+	# echo No scratch directory available. Using /tmp/$USER ...
+	setenv SCRATCH /tmp/$LOGNAME
+    endif
+    if ( ! -d $SCRATCH ) then
+	/bin/mkdir -p $SCRATCH && /bin/chmod 755 $SCRATCH
+    endif
+    if ($?ECHO) echo   "Setting up SCRATCH   = $SCRATCH"
+else
+    if ( $?DECHO )  echo "$self :: SCRATCH already defined as $SCRATCH"
 endif
 if ($ECHO) echo   "Setting up SCRATCH   = $SCRATCH"
 
