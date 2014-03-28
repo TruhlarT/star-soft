@@ -250,7 +250,7 @@ my $nprod = 0;
 ########## 
 
 
-  $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%'  and trigsetName  = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and jobStatus <> 'n/a' and jobStatus <> 'hung' and inputHpssStatus = 'OK' and ( outputHpssStatus = 'n/a' or size = 0 ) ";
+  $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%'  and trigsetName  = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and jobStatus <> 'n/a' and jobStatus <> 'hung' and inputHpssStatus = 'OK' and outputHpssStatus = 'n/a' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
