@@ -4,7 +4,7 @@
 #
 # L.Didenko
 #
-# jobSummary2014.pl - summary of production jobs status for run 2013
+# jobSummary2014.pl - summary of production jobs status for run 2014
 #
 ########################################################################################
 
@@ -378,9 +378,9 @@ print <<END;
 </TABLE>
       <h5>
       <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
-<!-- Created: Thu December 26 2013 -->
+<!-- Created: Mon March 31 2014 -->
 <!-- hhmts start -->
-Last modified: 2014-03-14
+Last modified: 2014-03-31
 <!-- hhmts end -->
   </body>
 </html>
