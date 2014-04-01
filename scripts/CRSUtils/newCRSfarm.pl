@@ -32,7 +32,7 @@ $crsJobStatusT = "newcrsJobState";
 
  if( $pflag eq "reco" ) {
 
- $JobStatusT = "JobStatus2012";
+ $JobStatusT = "JobStatus2013";
  $archdir = $JOBDIR."archive";
 
  }elsif( $pflag =~ /calib/ ) {
