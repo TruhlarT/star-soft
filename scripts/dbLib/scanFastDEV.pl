@@ -155,7 +155,7 @@ my $dirtree =  $TOPDIR."*/*" ;
 
     $rv = $dbh->do($sql) || die $dbh->errstr;
    
-   }elsif($devflag eq "complete" and $logcount == 3 ) {
+   }elsif($devflag eq "complete" and $logcount == 4 ) {
 
     $sql="update $JobStatusT set testStatus = 2, testCompleteTime = '$maxtime', testInfo = 'none' where entryDate like '$todate%' and testStatus = 1 ";
 
