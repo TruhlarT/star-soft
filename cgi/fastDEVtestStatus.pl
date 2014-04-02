@@ -38,7 +38,7 @@ my $todate = ($year+1900)."-".$mon."-".$mday;
 
 my $nowdate = ($year+1900)."-".$mon."-".$mday ." ".$hour.":".$min.":".$sec ;
 
-my @arperiod = ("week","1_month","2_months","6_months");
+my @arperiod = ("week","1_month","2_months","3_month","4_month","5_month","6_months");
 
 
 my $JobStatusT = "fastJobsStatus";  
@@ -164,7 +164,6 @@ END
     }
 
    $cursor->finish();
-
 
    &beginHtml();
 
@@ -315,7 +314,7 @@ print <<END;
       <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
 <!-- Created: January 10 2014 -->
 <!-- hhmts start -->
-Last modified: 2014-01-14
+Last modified: 2014-04-02
 <!-- hhmts end -->
   </body>
 </html>
