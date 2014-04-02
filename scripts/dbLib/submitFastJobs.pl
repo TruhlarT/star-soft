@@ -61,6 +61,7 @@ my $nowtime = ($year+1900)."-".$mon."-".$mday." ".$hour.":".$min.":".$sec;
 
        chdir $subpath;
  
+       `star-submit -p bnl_condor_high  /star/u/starreco/devfast/test_daq.auau200.y2014.xml`;
        `star-submit -p bnl_condor_high  /star/u/starreco/devfast/test_daq.pp500.y2013.xml`;
        `star-submit -p bnl_condor_high  /star/u/starreco/devfast/test_daq.UU193.y2012.xml`;
        `star-submit -p bnl_condor_high  /star/u/starreco/devfast/test_pp500.trs.y2012.xml`;
