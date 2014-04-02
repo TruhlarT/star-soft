@@ -1,7 +1,10 @@
-* $Id: geometry.g,v 1.276 2014/03/24 19:58:30 jwebb Exp $
+* $Id: geometry.g,v 1.277 2014/04/02 21:03:16 jwebb Exp $
 * $Log: geometry.g,v $
+* Revision 1.277  2014/04/02 21:03:16  jwebb
+* y2014x geometry is moved to y2014a production.
+*
 * Revision 1.276  2014/03/24 19:58:30  jwebb
-* Setup y2014a candidate as y2014x.
+* Setup y2014a candidate as y2014a.
 *
 * Revision 1.275  2014/03/17 21:30:18  jwebb
 * Fix bug in y2013 definitions eliminating pixel support tube.
@@ -2256,7 +2259,7 @@ REPLACE [exe y2014;] with ["Y2014 first cut geometry";
     exe PSUP01;      "1st version of pixl supports";
 ]
 
-REPLACE [exe y2014x;] with ["Y2014 first cut geometry";
+REPLACE [exe y2014a;] with ["Y2014 first cut geometry";
     exe FGTDof;      "switch off FGT";
     exe TPCE31;      "agstar version of yf model with reduced Rmax";
     exe BTOFv8;      "time of flight";
@@ -3210,8 +3213,8 @@ If LL>0
   Case y2014    { y2014 : y2014 first cut;                     
                   Geom = 'y2014     '; exe y2014; }
 
-  Case y2014x   { y2014x : y2014 first cut;                     
-                  Geom = 'y2014x    '; exe y2014x; }
+  Case y2014a   { y2014a : y2014 first cut;                     
+                  Geom = 'y2014a    '; exe y2014a; }
 
   Case devE  { devE : eSTAR development geometry;
                  Geom = 'devE    ';
