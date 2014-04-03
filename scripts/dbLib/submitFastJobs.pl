@@ -11,8 +11,7 @@
 use DBI;
 use Time::Local;
 
-my @libInfo = ();
-my $nn = 0;
+my $maxdate = "0000-00-00 00:00:00;
 my $subpath = "/star/u/starreco/ngtest/jobs"; 
 my $TESTDIR = "/star/rcf/test/devfast/*/*/*";
 
@@ -39,23 +38,22 @@ my $nowtime = ($year+1900)."-".$mon."-".$mday." ".$hour.":".$min.":".$sec;
   &StDbConnect(); 
 
 
-   $sql="select autoBuildStatus from $JobStatusT  where entryDate like '$todate%' and testStatus = 0 order by id ";
+   $sql="select max(entryDate) from $JobStatusT  where entryDate like '$todate%' and autoBuildStatus = 1 and testStatus = 0  ";
     
       $cursor =$dbh->prepare($sql)
            || die "Cannot prepare statement: $DBI::errstr\n";
       $cursor->execute();
 
-    while( my $stat = $cursor->fetchrow) {
+    while( my $mxdt = $cursor->fetchrow) {
 
-       $libInfo[$nn] = $stat ;
-       $nn++;  
+       $maxdate = $mxdt ;
 
         }
 
    $cursor->finish();
 
 
-   if ( defined $libInfo[$nn-1] and  $libInfo[$nn-1] == 1 ){
+   if ( defined $maxdate ){
 
        `rm $TESTDIR` ;
 
@@ -66,7 +64,7 @@ my $nowtime = ($year+1900)."-".$mon."-".$mday." ".$hour.":".$min.":".$sec;
        `star-submit -p bnl_condor_high  /star/u/starreco/devfast/test_daq.UU193.y2012.xml`;
        `star-submit -p bnl_condor_high  /star/u/starreco/devfast/test_pp500.trs.y2012.xml`;
   
-    $sql="update $JobStatusT set testStatus = 1 , testSubmitTime = '$nowtime' where entryDate like '$todate%' and autoBuildStatus = 1 ";
+    $sql="update $JobStatusT set testStatus = 1 , testSubmitTime = '$nowtime' where entryDate = '$maxdate' and autoBuildStatus = 1 and testStatus = 0 ";
 
     $rv = $dbh->do($sql) || die $dbh->errstr;
 
