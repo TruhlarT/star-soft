@@ -144,7 +144,7 @@ END
 	$day_diff = 30*$nmonth + 1; 
     }
 
-    $sql="SELECT DISTINCT date_format(entryDate, '%Y-%m-%d') as PDATE, autoBuildStatus, autoBuildInfo, testStatus, testInfo, testSubmitTime, testCompleteTime  FROM $JobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(entryDate)) <= $day_diff  order by PDATE ";
+    $sql="SELECT DISTINCT date_format(entryDate, '%Y-%m-%d') as PDATE, autoBuildStatus, autoBuildInfo, testStatus, testInfo, testSubmitTime, testCompleteTime  FROM $JobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(entryDate)) <= $day_diff  order by entryDate ";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
