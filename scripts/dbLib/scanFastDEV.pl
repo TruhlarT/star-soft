@@ -28,6 +28,7 @@ my $ltime;
 my $tyear;
 my @artime = ();
 my $maxtime = "0000-00-00 00:00:00";
+my $maxdate = "0000-00-00 00:00:00";
 my $ii = 0;
 
 my $yr;
@@ -145,19 +146,34 @@ my $dirtree =  $TOPDIR."*/*" ;
 
   &StDbConnect(); 
 
+  $sql="select max(entryDate) from $JobStatusT  where entryDate like '$todate%' and autoBuildStatus = 1 and testStatus = 1  ";
+
+      $cursor =$dbh->prepare($sql)
+           || die "Cannot prepare statement: $DBI::errstr\n";
+      $cursor->execute();
+
+    while( my $mxdt = $cursor->fetchrow) {
+
+       $maxdate = $mxdt ;
+
+        }
+
+   $cursor->finish();
+
+
    if($devflag eq "failed") {
 
  $message = "DEV test failed;  error message:  ".$errMessage."; for more information look at the test path: ".$jobpath ;
 
    system("echo \"$message\" | mail -s \"$subject\" $email");
 
-    $sql="update $JobStatusT set testStatus = 3, testCompleteTime = '$maxtime', testInfo = '$errMessage' where entryDate like '$todate%' and testStatus = 1 ";
+    $sql="update $JobStatusT set testStatus = 3, testCompleteTime = '$maxtime', testInfo = '$errMessage' where entryDate = '$maxdate' and testStatus = 1 ";
 
     $rv = $dbh->do($sql) || die $dbh->errstr;
    
    }elsif($devflag eq "complete" and $logcount == 4 ) {
 
-    $sql="update $JobStatusT set testStatus = 2, testCompleteTime = '$maxtime', testInfo = 'none' where entryDate like '$todate%' and testStatus = 1 ";
+    $sql="update $JobStatusT set testStatus = 2, testCompleteTime = '$maxtime', testInfo = 'none' where entryDate = '$maxdate' and testStatus = 1 ";
 
     $rv = $dbh->do($sql) || die $dbh->errstr;
 
