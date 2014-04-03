@@ -11,7 +11,7 @@
 use DBI;
 use Time::Local;
 
-my $maxdate = "0000-00-00 00:00:00;
+my $maxdate = "0000-00-00 00:00:00";
 my $subpath = "/star/u/starreco/ngtest/jobs"; 
 my $TESTDIR = "/star/rcf/test/devfast/*/*/*";
 
