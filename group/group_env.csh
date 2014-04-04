@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.257 2014/03/27 21:09:55 jeromel Exp $
+#       $Id: group_env.csh,v 1.258 2014/04/04 18:07:04 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -946,7 +946,11 @@ if (-r $GROUP_DIR/group_aliases.csh) source $GROUP_DIR/group_aliases.csh
 # Scratch space ...  Prepare the scratch disk if not present
 # This will be called from the star_login.csh
 #
-if ($?SCRATCH == 0) then
+if ( $?SCRATCH_LOCAL ) then
+    if ($?DECHO )  echo "$self :: SCRATCH redefined as $SCRATCH_LOCAL"
+    setenv SCRATCH $SCRATCH_LOCAL
+else
+    # not defined, redefined
     if ( $?TMPDIR ) then
 	setenv SCRATCH "$TMPDIR"
     #else if ( -w /scr20 ) then
@@ -965,10 +969,7 @@ if ($?SCRATCH == 0) then
 	/bin/mkdir -p $SCRATCH && /bin/chmod 755 $SCRATCH
     endif
     if ($ECHO) echo   "Setting up SCRATCH   = $SCRATCH"
-else
-    if ($?DECHO )  echo "$self :: SCRATCH already defined as $SCRATCH"
 endif
-
 
 # Echo CERN level information
 if ($?CERN_ROOT == 1 ) then
