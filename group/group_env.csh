@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.258 2014/04/04 18:07:04 jeromel Exp $
+#       $Id: group_env.csh,v 1.259 2014/04/06 17:18:35 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -950,25 +950,24 @@ if ( $?SCRATCH_LOCAL ) then
     if ($?DECHO )  echo "$self :: SCRATCH redefined as $SCRATCH_LOCAL"
     setenv SCRATCH $SCRATCH_LOCAL
 else
-    # not defined, redefined
-    if ( $?TMPDIR ) then
-	setenv SCRATCH "$TMPDIR"
-    #else if ( -w /scr20 ) then
-    #	setenv SCRATCH /scr20/$LOGNAME
-    #else if ( -w /scr21 ) then
-    #	setenv SCRATCH /scr21/$LOGNAME
-    #else if ( -w /scr22 ) then
-    #	setenv SCRATCH /scr22/$LOGNAME
-    else if ( -w /scratch ) then
-	setenv SCRATCH /scratch/$LOGNAME
+    if ( ! $?SCRATCH ) then
+	# not defined, redefined
+	if ( $?TMPDIR ) then
+	    setenv SCRATCH "$TMPDIR"
+	else if ( -w /scratch ) then
+	    setenv SCRATCH /scratch/$LOGNAME
+	else
+	    # echo No scratch directory available. Using /tmp/$USER ...
+	    setenv SCRATCH /tmp/$LOGNAME
+	endif
+	if ($ECHO) echo   "Setting up SCRATCH   = $SCRATCH"
     else
-	# echo No scratch directory available. Using /tmp/$USER ...
-	setenv SCRATCH /tmp/$LOGNAME
+	# need this for backward compat
+	if ($?DECHO )  echo "$self :: SCRATCH redefined as $SCRATCH"
     endif
-    if ( ! -d $SCRATCH ) then
-	/bin/mkdir -p $SCRATCH && /bin/chmod 755 $SCRATCH
-    endif
-    if ($ECHO) echo   "Setting up SCRATCH   = $SCRATCH"
+endif
+if ( ! -d $SCRATCH ) then
+    /bin/mkdir -p $SCRATCH && /bin/chmod 755 $SCRATCH
 endif
 
 # Echo CERN level information
