@@ -42,11 +42,16 @@ my $mondif;
 my $pyear;
 
 my %collHash = (
+                 AuAu_200_production_2014 => 'auau200',
+                 production_15GeV_2014 => 'auau15',
                  pp500_production_2013 => 'pp500',
                  pp500_production_2013a => 'pp500',
                  pp500_production_2013_noendcap => 'pp500',
                  pp500_production_fms_2013 => 'pp500',
                  pp500_production_fmsonly_2013 => 'pp500',
+                 pp500_upc_2013 => 'pp500',
+                 pp500_lowlumi_2013 => 'pp500',
+                 pp500_strawman_2013 => 'pp500',
                  UU_production_2012 => 'UU193',
                  cuAu_production_2012 => 'cuAu200',
                  cuAu_production_2012_noemc => 'cuAu200',
@@ -194,11 +199,16 @@ my %collHash = (
 	      );
              
 my %yrHash = (
+                 AuAu_200_production_2014 => 'year2014',
+                 production_15GeV_2014 => 'year2014',
                  pp500_production_2013 => 'year2013',
                  pp500_production_2013a => 'year2013',
                  pp500_production_2013_noendcap => 'year2013',
                  pp500_production_fms_2013 => 'year2013',
                  pp500_production_fmsonly_2013 => 'year2013',
+                 pp500_upc_2013 => 'year2013',
+                 pp500_lowlumi_2013 => 'year2013',
+                 pp500_strawman_2013 =>'year2013',
                  UU_production_2012 => 'year2012',
                  cuAu_production_2012 => 'year2012',
                  cuAu_production_2012_noemc => 'year2012',
