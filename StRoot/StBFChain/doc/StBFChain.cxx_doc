@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.122 2014/04/10 16:00:39 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.123 2014/04/10 23:38:37 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -903,10 +903,10 @@ Bfc_st BFC[] = {
   {"B2014a","","","ry2014a,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
    , "Base chain for 2014a ITTF (tpc)",kFALSE},
   {"P2014","" ,"",
-   "B2014,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis"
+   "B2014,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,analysis"
    , "","","Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"P2014a","" ,"",
-   "B2014a,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,analysis"
+   "B2014a,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiLibsHft,analysis,"
    , "","","Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","",""
    , "Laser Calibration Chain (tcl)",kFALSE},
@@ -1317,10 +1317,10 @@ Bfc_st BFC[] = {
   {"StiSst" ,"","","" ,"","StSsdUtil,StSsdDbMaker,StiSsd","Load StiSsd(t)",kFALSE},
   {"StiPxl" ,"","","" ,"","StPxlUtil,StPxlDbMaker,StiPxl","Load StiPxl",kFALSE},
   {"StiIst" ,"","","" ,"","StIstUtil,StIstDbMaker,StiIst","Load StiIst",kFALSE},
-  {"StiLibs0" ,"","","StiTpc,StiSvt,StiSsd,StiPxl,StiIst,BTofUtil"
+  {"StiLibs" ,"","","StiTpc,StiSvt,StiSsd,BTofUtil"
                                                        ,"","StEEmcDbMaker","Load Sti Detector libs",kFALSE},
-  {"StiLibs" ,"","","StiTpc,StiSvt,StiSst,StiPxl,StiIst,BTofUtil"
-                                                       ,"","StEEmcDbMaker","Load Sti Detector libs",kFALSE},
+  {"StiLibsHft" ,"","","StiLibs,StiSst,StiPxl,StiIst"
+                                                           ,"","","Load Sti Detector libs for HFT",kFALSE},
   {"VFPPV" ,"" ,"" ,"ctf_T,eemcDb,StiLib" ,"StGenericVertexMaker"
                 ,"ctf,St_ctf,St_ctf_Maker,Minui,StGenericVertexMaker" ,"... Pile-up proof vertex finder",kFALSE},
   {"VFPPVnoCTB" ,"" ,"" ,"VFPPV" ,"" ,"","... Pile-up proof vertex finder, noCTB",kFALSE},
@@ -1348,7 +1348,7 @@ Bfc_st BFC[] = {
   {"PixelIT","" ,"","PxlIT","" ,"","Alias for PxlIT",kFALSE},
   {"PxlIT" ,"" ,"","ITTF","" ,"Sti,StiPxl","Sti tracking: Pixel geom",kFALSE},
   {"IstIT" ,"" ,"","ITTF","" ,"Sti,StiIst","Sti tracking: Ist geom",kFALSE},
-  {"SstIT" ,"" ,"","ITTF","" ,"Sti,StiSsd","Sti tracking: Sst geom",kFALSE},
+  {"SstIT" ,"" ,"","ITTF","" ,"Sti,StiSst","Sti tracking: Sst geom",kFALSE},
   {"BTofIT" ,"" ,"","ITTF","" ,"Sti,StiBTof","Sti tracking: BTof geom",kFALSE},
   {"NoSvtIT" ,"" ,"","-SvtIT","" ,"","ITTF: track with switch off SVT geom",kFALSE},
   {"NoSsdIT" ,"" ,"","-SsdIT","" ,"","ITTF: track with switch off SSD geom",kFALSE},
@@ -2362,10 +2362,10 @@ Bfc_st BFC[] = {
   {"B2014a","","","ry2014a,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
    , "Base chain for 2014a ITTF (tpc)",kFALSE},
   {"P2014","" ,"",
-   "B2014,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis"
+   "B2014,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,analysis"
    , "","","Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"P2014a","" ,"",
-   "B2014a,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,analysis"
+   "B2014a,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiLibsHft,analysis,"
    , "","","Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","",""
    , "Laser Calibration Chain (tcl)",kFALSE},
@@ -2776,10 +2776,10 @@ Bfc_st BFC[] = {
   {"StiSst" ,"","","" ,"","StSsdUtil,StSsdDbMaker,StiSsd","Load StiSsd(t)",kFALSE},
   {"StiPxl" ,"","","" ,"","StPxlUtil,StPxlDbMaker,StiPxl","Load StiPxl",kFALSE},
   {"StiIst" ,"","","" ,"","StIstUtil,StIstDbMaker,StiIst","Load StiIst",kFALSE},
-  {"StiLibs0" ,"","","StiTpc,StiSvt,StiSsd,StiPxl,StiIst,BTofUtil"
+  {"StiLibs" ,"","","StiTpc,StiSvt,StiSsd,BTofUtil"
                                                        ,"","StEEmcDbMaker","Load Sti Detector libs",kFALSE},
-  {"StiLibs" ,"","","StiTpc,StiSvt,StiSst,StiPxl,StiIst,BTofUtil"
-                                                       ,"","StEEmcDbMaker","Load Sti Detector libs",kFALSE},
+  {"StiLibsHft" ,"","","StiLibs,StiSst,StiPxl,StiIst"
+                                                           ,"","","Load Sti Detector libs for HFT",kFALSE},
   {"VFPPV" ,"" ,"" ,"ctf_T,eemcDb,StiLib" ,"StGenericVertexMaker"
                 ,"ctf,St_ctf,St_ctf_Maker,Minui,StGenericVertexMaker" ,"... Pile-up proof vertex finder",kFALSE},
   {"VFPPVnoCTB" ,"" ,"" ,"VFPPV" ,"" ,"","... Pile-up proof vertex finder, noCTB",kFALSE},
@@ -2807,7 +2807,7 @@ Bfc_st BFC[] = {
   {"PixelIT","" ,"","PxlIT","" ,"","Alias for PxlIT",kFALSE},
   {"PxlIT" ,"" ,"","ITTF","" ,"Sti,StiPxl","Sti tracking: Pixel geom",kFALSE},
   {"IstIT" ,"" ,"","ITTF","" ,"Sti,StiIst","Sti tracking: Ist geom",kFALSE},
-  {"SstIT" ,"" ,"","ITTF","" ,"Sti,StiSsd","Sti tracking: Sst geom",kFALSE},
+  {"SstIT" ,"" ,"","ITTF","" ,"Sti,StiSst","Sti tracking: Sst geom",kFALSE},
   {"BTofIT" ,"" ,"","ITTF","" ,"Sti,StiBTof","Sti tracking: BTof geom",kFALSE},
   {"NoSvtIT" ,"" ,"","-SvtIT","" ,"","ITTF: track with switch off SVT geom",kFALSE},
   {"NoSsdIT" ,"" ,"","-SsdIT","" ,"","ITTF: track with switch off SSD geom",kFALSE},
@@ -3319,50 +3319,60 @@ Int_t StBFChain::Instantiate()
       }
       if (GetOption("Embedding")) mk->SetAttr("Embedding",kTRUE);
     }
+
+    // ---
     //		Sti(ITTF) start
+    // ---
     if (maker == "StiMaker" || maker == "StiVMCMaker" || maker == "StvMaker") {
       if ( maker == "StvMaker" &&  GetOption("StvCA")) {
 	//      mk->SetAttr("seedFinders","CA","Stv");              // for CA seed finder
 	mk->SetAttr("seedFinders","CA,Default","Stv");      // for CA + Default seed finders
       }
-      if (GetOption("NoSvtIT")) mk->SetAttr("useSvt"	,kFALSE);
-      else
-	if (GetOption("SvtIT")){
-	  mk->SetAttr("useSvt"	,kTRUE);
-	  mk->SetAttr("activeSvt"	,kTRUE);
-	}
-      if (GetOption("NoSsdIT")) mk->SetAttr("useSsd"	,kFALSE);
-      else
-	if (GetOption("SsdIT")){
-	  mk->SetAttr("useSsd"	,kTRUE);
-	  mk->SetAttr("activeSsd"	,kTRUE);
-	}
 
+      // old logic for svt and ssd
+      if (GetOption("NoSvtIT")){
+	mk->SetAttr("useSvt"	,kFALSE);
+      } else {
+	if (GetOption("SvtIT")){
+	  mk->SetAttr("useSvt"	  ,kTRUE);
+	  mk->SetAttr("activeSvt" ,kTRUE);
+	}
+      }
+      if (   GetOption("NoSsdIT") &&
+	    !GetOption("SstIT") ){
+	mk->SetAttr("useSsd"	,kFALSE);
+      } else {
+	if (GetOption("SsdIT")){
+	  mk->SetAttr("useSsd"	  ,kTRUE);
+	  mk->SetAttr("activeSsd" ,kTRUE);
+	}
+      }
 
       // this was an R&D detector never implemented
       // simulations were made nonetheless
       if (GetOption("HpdIT")){
-	mk->SetAttr("useHpd"  ,kTRUE);
-	mk->SetAttr("activeHpd",kTRUE);
+	mk->SetAttr("useHpd"     ,kTRUE);
+	mk->SetAttr("activeHpd"  ,kTRUE);
       }
 
       // back to the HFT sub-system
       if (GetOption("PixelIT") || GetOption("PxlIT") ){
-	mk->SetAttr("usePixel"	,kTRUE);
+	mk->SetAttr("usePixel"	 ,kTRUE);
 	mk->SetAttr("activePixel",kTRUE);
       }
       if (GetOption("IstIT")){
-	mk->SetAttr("useIst"  ,kTRUE);
-	mk->SetAttr("activeIst",kTRUE);
+	mk->SetAttr("useIst"     ,kTRUE);
+	mk->SetAttr("activeIst"  ,kTRUE);
       }
       if (GetOption("SstIT")){
-	mk->SetAttr("useSst"	,kTRUE);
-	mk->SetAttr("activeSst",kTRUE);
+	mk->SetAttr("useSst"	 ,kTRUE);
+	mk->SetAttr("activeSst"  ,kTRUE);
       }
 
+      // other sub-systems
       if (GetOption("BTofIT")){
-	mk->SetAttr("useBTof"  ,kTRUE);
-	mk->SetAttr("activeBTof",kTRUE);
+	mk->SetAttr("useBTof"    ,kTRUE);
+	mk->SetAttr("activeBTof" ,kTRUE);
       }
 
       if (GetOption("StiPulls") || 
