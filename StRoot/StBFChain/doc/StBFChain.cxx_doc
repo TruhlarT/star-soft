@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.123 2014/04/10 23:38:37 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.124 2014/04/11 15:33:01 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -906,7 +906,7 @@ Bfc_st BFC[] = {
    "B2014,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,analysis"
    , "","","Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"P2014a","" ,"",
-   "B2014a,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiLibsHft,analysis,"
+   "B2014a,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis,"
    , "","","Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","",""
    , "Laser Calibration Chain (tcl)",kFALSE},
@@ -1319,8 +1319,10 @@ Bfc_st BFC[] = {
   {"StiIst" ,"","","" ,"","StIstUtil,StIstDbMaker,StiIst","Load StiIst",kFALSE},
   {"StiLibs" ,"","","StiTpc,StiSvt,StiSsd,BTofUtil"
                                                        ,"","StEEmcDbMaker","Load Sti Detector libs",kFALSE},
-  {"StiLibsHft" ,"","","StiLibs,StiSst,StiPxl,StiIst"
-                                                           ,"","","Load Sti Detector libs for HFT",kFALSE},
+  {"StiLibsHft" ,"","","StiLibs,StiSst,StiPxl,StiIst" ,"","","Load Sti Detector libs for HFT",kFALSE},
+  {"StiHftP", "","","StiLibsHft,-SvtIT,-SsdIT,PxlIT","" ,"","Enables partial  Hft (PXL)",kFALSE},
+  {"StiHftC", "","","StiLibsHft,-SvtIT,-SsdIT,PxlIT,IstIT,istDb,SstIT,ssdDb"
+                                                           ,"","Enables complete Hft (PXL+IST+SST)",kFALSE},
   {"VFPPV" ,"" ,"" ,"ctf_T,eemcDb,StiLib" ,"StGenericVertexMaker"
                 ,"ctf,St_ctf,St_ctf_Maker,Minui,StGenericVertexMaker" ,"... Pile-up proof vertex finder",kFALSE},
   {"VFPPVnoCTB" ,"" ,"" ,"VFPPV" ,"" ,"","... Pile-up proof vertex finder, noCTB",kFALSE},
@@ -2365,7 +2367,7 @@ Bfc_st BFC[] = {
    "B2014,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,analysis"
    , "","","Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"P2014a","" ,"",
-   "B2014a,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiLibsHft,analysis,"
+   "B2014a,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis,"
    , "","","Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","",""
    , "Laser Calibration Chain (tcl)",kFALSE},
@@ -2778,8 +2780,10 @@ Bfc_st BFC[] = {
   {"StiIst" ,"","","" ,"","StIstUtil,StIstDbMaker,StiIst","Load StiIst",kFALSE},
   {"StiLibs" ,"","","StiTpc,StiSvt,StiSsd,BTofUtil"
                                                        ,"","StEEmcDbMaker","Load Sti Detector libs",kFALSE},
-  {"StiLibsHft" ,"","","StiLibs,StiSst,StiPxl,StiIst"
-                                                           ,"","","Load Sti Detector libs for HFT",kFALSE},
+  {"StiLibsHft" ,"","","StiLibs,StiSst,StiPxl,StiIst" ,"","","Load Sti Detector libs for HFT",kFALSE},
+  {"StiHftP", "","","StiLibsHft,-SvtIT,-SsdIT,PxlIT","" ,"","Enables partial  Hft (PXL)",kFALSE},
+  {"StiHftC", "","","StiLibsHft,-SvtIT,-SsdIT,PxlIT,IstIT,istDb,SstIT,ssdDb"
+                                                           ,"","Enables complete Hft (PXL+IST+SST)",kFALSE},
   {"VFPPV" ,"" ,"" ,"ctf_T,eemcDb,StiLib" ,"StGenericVertexMaker"
                 ,"ctf,St_ctf,St_ctf_Maker,Minui,StGenericVertexMaker" ,"... Pile-up proof vertex finder",kFALSE},
   {"VFPPVnoCTB" ,"" ,"" ,"VFPPV" ,"" ,"","... Pile-up proof vertex finder, noCTB",kFALSE},
