@@ -127,7 +127,7 @@ my $JobStatusT = "CRSJobsInfo";
 
 print <<END;
 
-<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"lightorange\">
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"lightblue\">
 <td HEIGHT=10>$jbstate[$ii]</td>
 <td HEIGHT=10>$jbtrigs[$ii]</td>
 <td HEIGHT=10>$prodtags[$ii]</td>
@@ -190,7 +190,7 @@ END
 
 print <<END;
 
-<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"lightblue\">
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"lightorange\">
 <td HEIGHT=10>$jbstate[$ii]</td>
 <td HEIGHT=10>$jbtrigs[$ii]</td>
 <td HEIGHT=10>$prodtags[$ii]</td>
