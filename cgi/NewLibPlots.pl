@@ -567,8 +567,9 @@ if ($plotVal eq "MemUsage") {
 
     if($min_y < 0) {
         $min_y = 0;
- }
-
+    }else{
+  $min_y = $min_y*0.8;
+   }
 
     $graph->set(#x_label => "$xlabel",
                 #y_label => "$mplotVal",
