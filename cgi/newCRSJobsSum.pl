@@ -18,6 +18,8 @@ use DBI;
 use CGI qw(:standard);
 use Time::Local;
 
+ &cgiSetup();
+
 
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
@@ -53,9 +55,7 @@ my $JobStatusT = "CRSJobsInfo";
  my @nstream = ();
 
 
- &cgiSetup();
-
-my $query = new CGI;
+ my $query = new CGI;
 
  &StDbConnect();
 
@@ -87,6 +87,8 @@ my $query = new CGI;
 
        }
     $cursor->finish();
+
+  &beginHtml();
 
   for ( my $ik = 0; $ik < $nj; $ik++ ) {  
 
