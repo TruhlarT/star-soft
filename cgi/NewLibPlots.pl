@@ -501,7 +501,7 @@ for ($npt = 0; $npt<scalar(@libtag); $npt++)  {
 
 &StDbTJobsDisconnect();
 
- $min_y = $minval;
+ $min_y = 0.8*$minval;
  $max_y = $maxval;
 
  my $ylabel;
@@ -559,7 +559,7 @@ if ($plotVal eq "MemUsage") {
         $graph->set(x_label => "(0 value means job failed or data not available)");
     } else {
 #        $min_y = $min_y - $min_y*0.4;
-         $min_y = $min_y*0.8;
+         $min_y = $min_y;
   
     }
 
@@ -567,9 +567,7 @@ if ($plotVal eq "MemUsage") {
 
     if($min_y < 0) {
         $min_y = 0;
-    }else{
-  $min_y = $min_y*0.8;
-   }
+    }
 
     $graph->set(#x_label => "$xlabel",
                 #y_label => "$mplotVal",
