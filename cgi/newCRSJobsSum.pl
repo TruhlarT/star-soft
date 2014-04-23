@@ -48,7 +48,6 @@ my $JobStatusT = "CRSJobsInfo";
  my @jbstate  = ();
  my @prodtags = ();
  my @jbtrigs = ();
- my @jbId = ();
  my @runId = ();
  my $nj = 0;
  my @njbfile = ();
@@ -129,7 +128,6 @@ my $JobStatusT = "CRSJobsInfo";
 print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"lightblue\">
-<td HEIGHT=10>$jbId[$ii]</td>
 <td HEIGHT=10>$jbstate[$ii]</td>
 <td HEIGHT=10>$jbtrigs[$ii]</td>
 <td HEIGHT=10>$prodtags[$ii]</td>
@@ -145,7 +143,6 @@ END
 print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"lightgreen\">
-<td HEIGHT=10>$jbId[$ii]</td>
 <td HEIGHT=10>$jbstate[$ii]</td>
 <td HEIGHT=10>$jbtrigs[$ii]</td>
 <td HEIGHT=10>$prodtags[$ii]</td>
@@ -161,7 +158,6 @@ END
 print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"#ffdc9f\">
-<td HEIGHT=10>$jbId[$ii]</td>
 <td HEIGHT=10>$jbstate[$ii]</td>
 <td HEIGHT=10>$jbtrigs[$ii]</td>
 <td HEIGHT=10>$prodtags[$ii]</td>
@@ -177,7 +173,6 @@ END
 print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"pink\">
-<td HEIGHT=10>$jbId[$ii]</td>
 <td HEIGHT=10>$jbstate[$ii]</td>
 <td HEIGHT=10>$jbtrigs[$ii]</td>
 <td HEIGHT=10>$prodtags[$ii]</td>
@@ -194,7 +189,6 @@ END
 print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
-<td HEIGHT=10>$jbId[$ii]</td>
 <td HEIGHT=10>$jbstate[$ii]</td>
 <td HEIGHT=10>$jbtrigs[$ii]</td>
 <td HEIGHT=10>$prodtags[$ii]</td>
@@ -210,7 +204,6 @@ END
 print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"#D8BFD8\">
-<td HEIGHT=10>$jbId[$ii]</td>
 <td HEIGHT=10>$jbstate[$ii]</td>
 <td HEIGHT=10>$jbtrigs[$ii]</td>
 <td HEIGHT=10>$prodtags[$ii]</td>
@@ -259,11 +252,10 @@ print <<END;
 <br>
 <TABLE ALIGN=CENTER BORDER=4 CELLSPACING=1 CELLPADDING=1 bgcolor=\"#ffdc9f\">
 <TR>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>CRS JobID</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Status</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Trigger set name</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Prod Tag</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Run number</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Runnumber</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of files</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of streams</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Date of scan</h3></B></TD>
