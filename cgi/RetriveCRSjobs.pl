@@ -61,8 +61,6 @@ my $nm = 0;
 
   if($jbname eq "fname" ){ 
 
-  &beginHtmlF();
-
   $nn = 0;
 
     $sql="SELECT jobId, filename  FROM $JobsInfoT where runnumber = ? and prodtag = ? and runDate like ? ";
@@ -79,6 +77,8 @@ my $nm = 0;
        }
     $cursor->finish();
 
+  &beginHtmlF();
+
   for ( my $ii = 0; $ii < $nn; $ii++ ) {
 
  print <<END;
@@ -92,7 +92,6 @@ END
 
   }elsif($jbname eq "fstream" ){
 
-  &beginHtmlS();
 
   $nm = 0;
  
@@ -108,6 +107,8 @@ END
            $nm++;
        }
     $cursor->finish();  
+
+  &beginHtmlS();
 
   for ( my $ii = 0; $ii < $nm; $ii++ ) {
 
@@ -139,9 +140,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>JobID</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Filename</h3></B></TD>
 </TR>
-</TABLE>
     </body>
-</html>
 END
 }
 
@@ -160,9 +159,7 @@ print <<END;
 <TR>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Stream Name</h3></B></TD>
 </TR>
-</TABLE>
     </body>
-</html>
 END
 }
 
