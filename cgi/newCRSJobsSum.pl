@@ -70,7 +70,7 @@ my $JobStatusT = "CRSJobsInfo";
     $cursor->finish();
 
 
-    $sql="SELECT DISTINCT status, prodtag, trigset, runnumber  FROM $JobStatusT where runDate like '$maxdate%' order by runnumber ";
+    $sql="SELECT DISTINCT status, prodtag, trigset, runnumber  FROM $JobStatusT where runDate like '$maxdate%' order by status, runnumber ";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -271,11 +271,11 @@ print <<END;
 <TABLE ALIGN=CENTER BORDER=4 CELLSPACING=1 CELLPADDING=1 bgcolor=\"#ffdc9f\">
 <TR>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Status</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Trigger set name</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Trigger set name</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Prod Tag</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Runnumber</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of files</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of streams</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Number of files</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Number of streams</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Date of scan</h3></B></TD>
 </TR>
     </body>
