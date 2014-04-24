@@ -70,7 +70,7 @@ if( $sec < 10) { $sec = '0'.$sec };
 
     foreach my $jline (@joblist) {
      chop $jline ;
-#     print $jline, "\n";
+     print $jline, "\n";
      @wrd = ();
      @wrd = split (" ", $jline);
 #     print $wrd[0],"   ",$wrd[1], "\n";
@@ -225,7 +225,7 @@ for($ii = 0; $ii<$njob; $ii++) {
        $jbstreams[$ii] = $spl[1]; 
 
        
-       print "Inserting into table values:  ", $jbstate[$njob]," % ",$jbId[$ii]," % ",$jbtrigs[$ii]," % ",$prodtags[$ii]," % ",$runId[$ii]," % ",$jbstreams[$ii]," % ",$jbfiles[$ii], "\n";
+       print "Inserting into table values:  ", $jbstate[$ii]," % ",$jbId[$ii]," % ",$jbtrigs[$ii]," % ",$prodtags[$ii]," % ",$runId[$ii]," % ",$jbstreams[$ii]," % ",$jbfiles[$ii], "\n";
 
 
      &fillTable();
@@ -234,6 +234,39 @@ for($ii = 0; $ii<$njob; $ii++) {
      }
 ###########  insert table
 }
+
+for($ii = 0; $ii<$njob; $ii++) {
+
+    @outfile = ();
+    @outfile = `crs_job -long $jbId[$ii] | grep laser.root`;
+
+     foreach my $fline (@outfile) {
+     if ( $fline =~ /starreco/ ) {
+       @prt = ();
+       @prt = split("starreco", $fline) ;
+       @wrd = ();
+       @wrd = split("/", $prt[1]) ;
+       $jbtrigs[$ii] = $wrd[2];
+       $prodtags[$ii] = $wrd[4];
+       $runId[$ii] = $wrd[7];
+       chop $wrd[8]; 
+       $jbfiles[$ii] = $wrd[8];
+       $jbfiles[$ii] =~ s/laser.root'/daq/g; 
+       @spl = (); 
+       @spl = split("_", $wrd[8]) ; 
+       $jbstreams[$ii] = $spl[1]; 
+
+       
+       print "Inserting into table values:  ", $jbstate[$ii]," % ",$jbId[$ii]," % ",$jbtrigs[$ii]," % ",$prodtags[$ii]," % ",$runId[$ii]," % ",$jbstreams[$ii]," % ",$jbfiles[$ii], "\n";
+
+
+     &fillTable();
+
+      }
+     }
+###########  insert table
+}
+
 
  &StcrsdbDisconnect();
 
