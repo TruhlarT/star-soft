@@ -114,7 +114,7 @@ END
 
 print <<END;
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
-<td HEIGHT=20>$jbstreams[$ii]</td>
+<td HEIGHT=20><B>$jbstreams[$ii]</B></td>
 </TR>
 END
     }
@@ -153,7 +153,7 @@ print <<END;
   <html>
 
    <body BGCOLOR=\"cornsilk\"> 
- <h2 ALIGN=CENTER> <B>Stream names for runnumber <font color="blue">$jbrun </font> in <font color="blue">$jbprod </font> production scanned at $scdate </B></h2>
+ <h2 ALIGN=CENTER> <B>Stream names for runnumber <font color="blue">$jbrun </font> in <font color="blue">$jbprod </font> production scanned at  <font color="blue">$scdate </font></B></h2>
 <br>
 <TABLE ALIGN=CENTER BORDER=4 CELLSPACING=1 CELLPADDING=1 bgcolor=\"#ffdc9f\">
 <TR>
