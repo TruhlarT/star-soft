@@ -265,7 +265,7 @@ print <<END;
     </head>
 
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>Jobs Info currently running on the CRS farm</h2>
+ <h2 ALIGN=CENTER> <B>Jobs currently running on the CRS farm</B></h2>
  <h3 ALIGN=CENTER> Generated on $nowdate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=4 CELLSPACING=1 CELLPADDING=1 bgcolor=\"#ffdc9f\">
