@@ -133,7 +133,7 @@ print <<END;
   <html>
 
    <body BGCOLOR=\"cornsilk\"> 
- <h2 ALIGN=CENTER> <B> Files with runnumber <font color="blue">$jbrun </font> in <font color="blue">$jbprod </font> production scanned at <font color="blue">$scdate </font></B></h2>
+ <h2 ALIGN=CENTER> <B> Files for runnumber <font color="blue">$jbrun </font> in <font color="blue">$jbprod </font> production scanned at <font color="blue">$scdate </font></B></h2>
 <br>
 <TABLE ALIGN=CENTER BORDER=4 CELLSPACING=1 CELLPADDING=1 bgcolor=\"#ffdc9f\">
 <TR>
