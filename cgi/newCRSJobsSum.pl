@@ -18,9 +18,6 @@ use DBI;
 use CGI qw(:standard);
 use Time::Local;
 
- &cgiSetup();
-
-
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
 $dbpass="";
@@ -55,6 +52,9 @@ my $JobStatusT = "CRSJobsInfo";
 
 
  my $query = new CGI;
+
+if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
+
 
  &StDbConnect();
 
@@ -138,6 +138,21 @@ print <<END;
 </TR>
 END
 
+      }elsif($jbstate[$ii] eq "CREATED" ) {
+
+print <<END;
+
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"lightblue\">
+<td HEIGHT=10>$jbstate[$ii]</td>
+<td HEIGHT=10>$jbtrigs[$ii]</td>
+<td HEIGHT=10>$prodtags[$ii]</td>
+<td HEIGHT=10>$runId[$ii]</td>
+<td HEIGHT=10>$njbfile[$ii]</td>
+<td HEIGHT=10>$nstream[$ii]</td>
+<td HEIGHT=10>$maxdate</td>
+</TR>
+END
+
       }elsif($jbstate[$ii] eq "STAGING" ) {
 
 print <<END;
@@ -199,6 +214,21 @@ print <<END;
 </TR>
 END
 
+ }elsif($jbstate[$ii] eq "EXPORTING" ) {
+
+print <<END;
+
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"pink\">
+<td HEIGHT=10>$jbstate[$ii]</td>
+<td HEIGHT=10>$jbtrigs[$ii]</td>
+<td HEIGHT=10>$prodtags[$ii]</td>
+<td HEIGHT=10>$runId[$ii]</td>
+<td HEIGHT=10>$njbfile[$ii]</td>
+<td HEIGHT=10>$nstream[$ii]</td>
+<td HEIGHT=10>$maxdate</td>
+</TR>
+END
+
   }elsif($jbstate[$ii] eq "ERROR" or $jbstate[$ii] eq "HELD" ) {
 
 print <<END;
@@ -214,7 +244,21 @@ print <<END;
 </TR>
 END
 
-  }
+  }else{
+
+print <<END;
+
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"#D8BFD8\">
+<td HEIGHT=10>$jbstate[$ii]</td>
+<td HEIGHT=10>$jbtrigs[$ii]</td>
+<td HEIGHT=10>$prodtags[$ii]</td>
+<td HEIGHT=10>$runId[$ii]</td>
+<td HEIGHT=10>$njbfile[$ii]</td>
+<td HEIGHT=10>$nstream[$ii]</td>
+<td HEIGHT=10>$maxdate</td>
+</TR>
+END
+
  }
 
  &StDbDisconnect();
@@ -248,7 +292,7 @@ print <<END;
 
    <body BGCOLOR=\"cornsilk\">
  <h2 ALIGN=CENTER> <B>Jobs currently running on the CRS farm</B></h2>
- <h3 ALIGN=CENTER> Generated on $nowdate</h3>
+ <h3 ALIGN=CENTER>Created on $nowdate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=4 CELLSPACING=1 CELLPADDING=1 bgcolor=\"#ffdc9f\">
 <TR>
@@ -285,8 +329,5 @@ END
 }
 
 ##############
-sub cgiSetup {
-    $q=new CGI;
-    if ( exists($ENV{'QUERY_STRING'}) ) { print $q->header };
-}
+
 
