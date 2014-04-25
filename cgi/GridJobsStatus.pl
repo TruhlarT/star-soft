@@ -17,11 +17,11 @@ use DBI;
 use CGI qw(:standard);
 use Class::Struct;
 
-&cgiSetup();
+ my $query = new CGI;
+
+if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
 
 #$dbhost="fc2.star.bnl.gov:3386";
-
-
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
 $dbpass="";
@@ -187,7 +187,7 @@ print <<END;
       <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
 <!-- Created: Thu February 20 2014 -->
 <!-- hhmts start -->
-Last modified: 2014-03-12
+Last modified: 2014-04-25
 <!-- hhmts end -->
   </body>
 </html>
@@ -196,7 +196,4 @@ END
 }
 
 ##############
-sub cgiSetup {
-    $q=new CGI;
-    if ( exists($ENV{'QUERY_STRING'}) ) { print $q->header };
-}
+
