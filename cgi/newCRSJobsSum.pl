@@ -186,23 +186,6 @@ END
 
  }elsif($jbstate[$ii] eq "RUNNING" ) {
 
-   if($prodtags[$ii] eq "dev" ) {
-
-print <<END;
-
-<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"orange\">
-<td HEIGHT=10>$jbstate[$ii]</td>
-<td HEIGHT=10>$jbtrigs[$ii]</td>
-<td HEIGHT=10>$prodtags[$ii]</td>
-<td HEIGHT=10>$runId[$ii]</td>
-<td HEIGHT=10>$njbfile[$ii]</td>
-<td HEIGHT=10>$nstream[$ii]</td>
-<td HEIGHT=10>$maxdate</td>
-</TR>
-END
-
-    }else{
-
 print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
@@ -215,7 +198,6 @@ print <<END;
 <td HEIGHT=10>$maxdate</td>
 </TR>
 END
-   }
 
   }elsif($jbstate[$ii] eq "ERROR" or $jbstate[$ii] eq "HELD" ) {
 
