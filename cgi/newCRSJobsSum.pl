@@ -259,6 +259,7 @@ print <<END;
 </TR>
 END
 
+  }
  }
 
  &StDbDisconnect();
