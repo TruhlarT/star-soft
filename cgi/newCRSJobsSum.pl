@@ -293,7 +293,7 @@ print <<END;
 
    <body BGCOLOR=\"cornsilk\">
  <h2 ALIGN=CENTER> <B>Jobs currently running on the CRS farm</B></h2>
- <h3 ALIGN=CENTER>Created on $nowdate</h3>
+ <h3 ALIGN=CENTER>Status on $nowdate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=4 CELLSPACING=1 CELLPADDING=1 bgcolor=\"#ffdc9f\">
 <TR>
@@ -321,7 +321,7 @@ print <<END;
       <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
 <!-- Created: April 24 2014 -->
 <!-- hhmts start -->
-Last modified: 2014-04-24
+Last modified: 2014-04-25
 <!-- hhmts end -->
   </body>
 </html>

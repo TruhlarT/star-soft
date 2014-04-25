@@ -153,7 +153,7 @@ print <<END;
     </head>
    <body BGCOLOR=\"cornsilk\">
  <h2 ALIGN=CENTER> <B>GRID production jobs status </B></h2>
- <h3 ALIGN=CENTER> Generated on $todate</h3>
+ <h3 ALIGN=CENTER> Status on $todate</h3>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <br>
 <TR>
