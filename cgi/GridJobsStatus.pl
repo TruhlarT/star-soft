@@ -103,20 +103,20 @@ my @gsite = ();
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3>$trigset[$ii]</h3></td>
-<td HEIGHT=10><h3>$prodtag[$ii]</h3></td>
-<td HEIGHT=10><h3>$daqfile[$ii]</h3></td>
-<td HEIGHT=10><h3>$subdate[$ii]</h3></td>
-<td HEIGHT=10><h3>$subAtt[$ii]</h3></td>
-<td HEIGHT=10><h3>$jobprg[$ii]</h3></td>
-<td HEIGHT=10><h3>$daqsize[$ii]</h3></td>
-<td HEIGHT=10><h3>$jobst[$ii]</h3></td>
-<td HEIGHT=10><h3>$globerr[$ii]</h3></td>
-<td HEIGHT=10><h3>$recost[$ii]</h3></td>
-<td HEIGHT=10><h3>$mudstst[$ii]</h3></td>
-<td HEIGHT=10><h3>$logst[$ii] </h3></td>
-<td HEIGHT=10><h3>$allst[$ii]</h3></td>
-<td HEIGHT=10><h3>$gsite[$ii]</h3></td>
+<td HEIGHT=10>$trigset[$ii]</td>
+<td HEIGHT=10>$prodtag[$ii]</td>
+<td HEIGHT=10>$daqfile[$ii]</td>
+<td HEIGHT=10>$subdate[$ii]</td>
+<td HEIGHT=10>$subAtt[$ii]</td>
+<td HEIGHT=10>$jobprg[$ii]</td>
+<td HEIGHT=10>$daqsize[$ii]</td>
+<td HEIGHT=10>$jobst[$ii]</td>
+<td HEIGHT=10>$globerr[$ii]</td>
+<td HEIGHT=10>$recost[$ii]</td>
+<td HEIGHT=10>$mudstst[$ii]</td>
+<td HEIGHT=10>$logst[$ii]</td>
+<td HEIGHT=10>$allst[$ii]</td>
+<td HEIGHT=10>$gsite[$ii]</td>
 </TR>
 END
 
