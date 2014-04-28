@@ -57,6 +57,7 @@ my @recosucces = ();
 my @recofailed = ();
 my @recounknown = ();
 my $nset = 0;
+my @hpssset     = ();
 
 my $prtag;
 my $dtset;
@@ -228,6 +229,20 @@ my $dtset;
    $cursor->finish();
 
 
+  $sql="SELECT count(inputFileName) from $JobStatusT where jobProgress = 'mudst_sunk' and prodTag = '$prtag' and datasetName = '$dtset' ";
+
+          $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n"; 
+          $cursor->execute();
+
+        while(@fields = $cursor->fetchrow) {
+
+          $hpssset[$ii]  = $fields[0];
+
+         }
+   $cursor->finish();
+
+
   }
 
   &beginHtml();
@@ -251,7 +266,7 @@ my $dtset;
 <td HEIGHT=10><h3>$recosucces[$ik]</h3></td>
 <td HEIGHT=10><h3>$recofailed[$ik]</h3></td>
 <td HEIGHT=10><h3>$recounknown[$ik]</h3></td>
-
+<td HEIGHT=10><h3>$hpssset[$ik]</h3></td>
 </TR>
 END
  }
@@ -299,11 +314,12 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>DONE</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>IDLE</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>HELD</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>notInQ</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>NOT SUBMITTED</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>notInQ</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>NOT SUBMITTED</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Reco success</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Reco failed</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Reco unknown</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Sunk to HPSS</h3></B></TD>
 </TR>
     </body>
 END
