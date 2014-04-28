@@ -84,7 +84,7 @@ print "<h3 align=center> Select period of monitoring</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'period',
                              -values=>\@reqperiod,
-                             -default=>day,
+                             -default=>week,
                              -size =>1); 
 
 print "</td> </tr> </table><hr><center>";
@@ -193,7 +193,7 @@ my @prt = ();
    foreach my $tdate (@sdays) {
 
 
-        $sql="SELECT count(jobState) FROM  $JobStatusT WHERE submissionTime like '$tdate%' and jobState = 'running' ";
+        $sql="SELECT count(jobState) FROM  $JobStatusT WHERE jobState = 'RUNNING' and submissionTime like '$tdate%' ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute( ) ;
