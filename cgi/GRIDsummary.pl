@@ -243,7 +243,6 @@ my $dtset;
          }
    $cursor->finish();
 
-overallJobStates
 
   $sql="SELECT count(inputFileName) from $JobStatusT where overallJobStates = 'done' and prodTag = '$prtag' and datasetName = '$dtset' ";
 
