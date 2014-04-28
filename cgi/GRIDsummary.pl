@@ -24,9 +24,9 @@ $dbname="Embedding_job_stats";
 
 my $JobStatusT = "jobs_prod_2013";
 
-&cgiSetup();
-
 my $query = new CGI;
+
+    if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
 
 ($sec,$min,$hour,$mday,$mon,$year) = localtime();
 
@@ -288,6 +288,7 @@ END
 
   &StdbDisconnect();
 
+
  &endHtml();
 
 
@@ -326,7 +327,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Prod Tag</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>SUBMITTED</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>RUNNING</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>FINISHED</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>FINISH</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>IDLE</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>HELD</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>notInQ</h3></B></TD>
@@ -361,7 +362,4 @@ END
 }
 
 ##############
-sub cgiSetup {
-    $q=new CGI;
-    if ( exists($ENV{'QUERY_STRING'}) ) { print $q->header };
-}
+
