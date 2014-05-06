@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.125 2014/04/28 21:45:56 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.126 2014/05/06 22:24:12 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -1230,8 +1230,11 @@ Bfc_st BFC[] = {
   {"dEdx" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"svtdEdx" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"Event" , "","","MakeEvent", "","","Request to initialize event",kFALSE},
-  {"pxlFastSim","","","StMcEvent,StEvent"
+  {"pxlFastSim" ,"","","StMcEvent,StEvent"
    , "StPxlSimMaker","StPxlSimMaker","FastPixelSimulator",kFALSE},
+  {"pxlRaw" ,"","","pxlUtil", "StPxlRawHitMaker","StPxlRawHitMaker","Pxl Raw Hit Maker",kFALSE},
+  {"pxlCluster" ,"","","pxlUtil", "StPxlClusterMaker","StPxlClusterMaker","Pxl Cluster Maker",kFALSE},
+  {"pxlHit" ,"","","pxlUtil,event,pxlDb", "StPxlHitMaker","StPxlHitMaker","Pxl Hit Maker",kFALSE},
   {"ssddat" ,"","","ssd_daq" ,"","","SSD full chain for Real Data",kFALSE},
   {"ssd_daq","","","ssdCalDb,svt_T,-sls,-spa,ssdUtil","StSsdDaqMaker","StSsdDaqMaker","... SSD Daq",kFALSE},
   {"ssdfast" ,"","","ssdDb,StMcEvent,StEvent","StSsdFastSimMaker","StSsdFastSimMaker",
@@ -1288,7 +1291,8 @@ Bfc_st BFC[] = {
    "StGammaFilterMaker","StFilterMaker", "BEmc Gamma filtering", kFALSE},
   {"FiltEemcGamma" ,"","","StEvent,StMcEvent,EmcUtil",
    "StEemcGammaFilterMaker","StFilterMaker", "EEmc Gamma filtering", kFALSE},
-  {"fmsSim","" ,"","StEvent,fmsDb","StFmsSimulatorMaker","StFmsSimulatorMaker","Fms Simulator",kFALSE},
+  {"fmsSim","" ,"","StEvent,fmsDb",
+   "StFmsFastSimulatorMaker","StFmsFastSimulatorMaker","FMS Fast Simulator", kFALSE},
   {"fmsDat" ,"","", "StEvent,fmsdb",
    "StFmsHitMaker","StFmsHitMaker","Fill FMS struct and zero TRG", kFALSE},
   {"fgt" ,"FgtChain","","fgtDat,fgtClu,fgtAtoC" ,"StMaker","StChain","Fgt data Chain",kFALSE},
@@ -2691,8 +2695,11 @@ Bfc_st BFC[] = {
   {"dEdx" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"svtdEdx" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"Event" , "","","MakeEvent", "","","Request to initialize event",kFALSE},
-  {"pxlFastSim","","","StMcEvent,StEvent"
+  {"pxlFastSim" ,"","","StMcEvent,StEvent"
    , "StPxlSimMaker","StPxlSimMaker","FastPixelSimulator",kFALSE},
+  {"pxlRaw" ,"","","pxlUtil", "StPxlRawHitMaker","StPxlRawHitMaker","Pxl Raw Hit Maker",kFALSE},
+  {"pxlCluster" ,"","","pxlUtil", "StPxlClusterMaker","StPxlClusterMaker","Pxl Cluster Maker",kFALSE},
+  {"pxlHit" ,"","","pxlUtil,event,pxlDb", "StPxlHitMaker","StPxlHitMaker","Pxl Hit Maker",kFALSE},
   {"ssddat" ,"","","ssd_daq" ,"","","SSD full chain for Real Data",kFALSE},
   {"ssd_daq","","","ssdCalDb,svt_T,-sls,-spa,ssdUtil","StSsdDaqMaker","StSsdDaqMaker","... SSD Daq",kFALSE},
   {"ssdfast" ,"","","ssdDb,StMcEvent,StEvent","StSsdFastSimMaker","StSsdFastSimMaker",
@@ -2749,7 +2756,8 @@ Bfc_st BFC[] = {
    "StGammaFilterMaker","StFilterMaker", "BEmc Gamma filtering", kFALSE},
   {"FiltEemcGamma" ,"","","StEvent,StMcEvent,EmcUtil",
    "StEemcGammaFilterMaker","StFilterMaker", "EEmc Gamma filtering", kFALSE},
-  {"fmsSim","" ,"","StEvent,fmsDb","StFmsSimulatorMaker","StFmsSimulatorMaker","Fms Simulator",kFALSE},
+  {"fmsSim","" ,"","StEvent,fmsDb",
+   "StFmsFastSimulatorMaker","StFmsFastSimulatorMaker","FMS Fast Simulator", kFALSE},
   {"fmsDat" ,"","", "StEvent,fmsdb",
    "StFmsHitMaker","StFmsHitMaker","Fill FMS struct and zero TRG", kFALSE},
   {"fgt" ,"FgtChain","","fgtDat,fgtClu,fgtAtoC" ,"StMaker","StChain","Fgt data Chain",kFALSE},
