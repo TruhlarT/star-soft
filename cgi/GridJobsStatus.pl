@@ -64,7 +64,7 @@ my @inputExt = ();
 
   &StDbProdConnect();
 
-  $sql="SELECT distinct prodTag, datasetName, inputFileName, date_format(submissionTime, '%Y-%m-%d') as SDATE, submitAttempt, daqSizeOnSite, jobProgress, globusError, jobState, recoStatus, muDstStatus, logFileState, overallJobStates, site, carouselSubTime, inputFileExists  from $JobStatusT where  overallJobStates <> 'done' order by SDATE ";
+  $sql="SELECT distinct prodTag, datasetName, inputFileName, date_format(submissionTime, '%Y-%m-%d') as SDATE, submitAttempt, daqSizeOnSite, jobProgress, globusError, jobState, recoStatus, muDstStatus, logFileState, overallJobStates, site, date_format(carouselSubTime, '%Y-%m-%d') as CDATE, inputFileExists  from $JobStatusT where  overallJobStates <> 'done' order by SDATE ";
 
 
             $cursor =$dbh->prepare($sql)
@@ -164,8 +164,8 @@ print <<END;
 <TR>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Trigger set name</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Prod <br>tag</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=60><B><h3>Input file name</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=60><B><h3>Submit to DC</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Input file name</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Submit to DC</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Check on disk</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Date of submission</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Submit attempt</h3></B></TD>
