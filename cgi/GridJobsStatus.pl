@@ -59,11 +59,12 @@ my @mudstst  = ();
 my @logst = ();
 my @allst = ();
 my @gsite = ();
+my @carouselSubm = ();
 my @inputExt = ();
 
   &StDbProdConnect();
 
-  $sql="SELECT distinct prodTag, datasetName, inputFileName, date_format(submissionTime, '%Y-%m-%d') as SDATE, submitAttempt, daqSizeOnSite, jobProgress, globusError, jobState, recoStatus, muDstStatus, logFileState, overallJobStates, site, inputFileExists  from $JobStatusT where  overallJobStates <> 'done' order by SDATE ";
+  $sql="SELECT distinct prodTag, datasetName, inputFileName, date_format(submissionTime, '%Y-%m-%d') as SDATE, submitAttempt, daqSizeOnSite, jobProgress, globusError, jobState, recoStatus, muDstStatus, logFileState, overallJobStates, site, carouselSubTime, inputFileExists  from $JobStatusT where  overallJobStates <> 'done' order by SDATE ";
 
 
             $cursor =$dbh->prepare($sql)
@@ -86,7 +87,8 @@ my @inputExt = ();
                $logst[$nst]     = $fields[11];
                $allst[$nst]   = $fields[12];
                $gsite[$nst]  = $fields[13];
-               $inputExt[$nst]  = $fields[14];
+               $carouselSubm[$nst]  = $fields[14]; 
+               $inputExt[$nst]  = $fields[15];
 
                $nst++;
     }
@@ -107,6 +109,7 @@ my @inputExt = ();
 <td HEIGHT=10>$trigset[$ii]</td>
 <td HEIGHT=10>$prodtag[$ii]</td>
 <td HEIGHT=10>$daqfile[$ii]</td>
+<td HEIGHT=10>$carouselSubm[$ii]</td>
 <td HEIGHT=10>$inputExt[$ii]</td>
 <td HEIGHT=10>$subdate[$ii]</td>
 <td HEIGHT=10>$subAtt[$ii]</td>
@@ -162,6 +165,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Trigger set name</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Prod <br>tag</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=60><B><h3>Input file name</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=60><B><h3>Submit to DC</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Check on disk</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Date of submission</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Submit attempt</h3></B></TD>
