@@ -172,7 +172,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Job progress</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Input file size on site</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Job state</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Globus error</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Globus error</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Reco status</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>MuDst status</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Log file status</h3></B></TD>
