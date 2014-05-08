@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.126 2014/05/06 22:24:12 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.127 2014/05/08 19:37:20 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -1232,7 +1232,7 @@ Bfc_st BFC[] = {
   {"Event" , "","","MakeEvent", "","","Request to initialize event",kFALSE},
   {"pxlFastSim" ,"","","StMcEvent,StEvent"
    , "StPxlSimMaker","StPxlSimMaker","FastPixelSimulator",kFALSE},
-  {"pxlRaw" ,"","","pxlUtil", "StPxlRawHitMaker","StPxlRawHitMaker","Pxl Raw Hit Maker",kFALSE},
+  {"pxlRaw" ,"","","pxlUtil,pxlDb", "StPxlRawHitMaker","StPxlRawHitMaker","Pxl Raw Hit Maker",kFALSE},
   {"pxlCluster" ,"","","pxlUtil", "StPxlClusterMaker","StPxlClusterMaker","Pxl Cluster Maker",kFALSE},
   {"pxlHit" ,"","","pxlUtil,event,pxlDb", "StPxlHitMaker","StPxlHitMaker","Pxl Hit Maker",kFALSE},
   {"ssddat" ,"","","ssd_daq" ,"","","SSD full chain for Real Data",kFALSE},
@@ -2697,7 +2697,7 @@ Bfc_st BFC[] = {
   {"Event" , "","","MakeEvent", "","","Request to initialize event",kFALSE},
   {"pxlFastSim" ,"","","StMcEvent,StEvent"
    , "StPxlSimMaker","StPxlSimMaker","FastPixelSimulator",kFALSE},
-  {"pxlRaw" ,"","","pxlUtil", "StPxlRawHitMaker","StPxlRawHitMaker","Pxl Raw Hit Maker",kFALSE},
+  {"pxlRaw" ,"","","pxlUtil,pxlDb", "StPxlRawHitMaker","StPxlRawHitMaker","Pxl Raw Hit Maker",kFALSE},
   {"pxlCluster" ,"","","pxlUtil", "StPxlClusterMaker","StPxlClusterMaker","Pxl Cluster Maker",kFALSE},
   {"pxlHit" ,"","","pxlUtil,event,pxlDb", "StPxlHitMaker","StPxlHitMaker","Pxl Hit Maker",kFALSE},
   {"ssddat" ,"","","ssd_daq" ,"","","SSD full chain for Real Data",kFALSE},
