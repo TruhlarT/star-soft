@@ -30,15 +30,15 @@ $dbname="Embedding_job_stats";
 
 my $JobStatusT = "jobs_prod_2013";
 
-my $nfspath = "/star/data16/GRID/daq/2012/";
+my $nfspath = "/star/data23/GRID/daq/2012/";
 my $daqpat = $nfspath."*.daq";
 my @prdset = ();
 my $nl = 0;
 
 my @daqlist = `ls $daqpat` ;
 
-my $MAXNUM = 360;
-my $LIMNUM = 100;
+my $MAXNUM = 500;
+my $LIMNUM = 400;
 
 print "There are  ", scalar(@daqlist),"  daq files in the ", $nfspath,"  directory", "\n";
  
@@ -58,6 +58,8 @@ print "There are  ", scalar(@daqlist),"  daq files in the ", $nfspath,"  directo
 
 
  if(scalar(@daqlist) <= $MAXNUM and scalar(@prdset) < $MAXNUM  ) {
+
+# if(scalar(@daqlist) <= $MAXNUM  ) {
 
  if( -f $lockfile) {
      `/bin/rm  $lockfile` ;
