@@ -25,12 +25,12 @@ my $JobStatusT = "jobs_prod_2013";
 $fC1 = FileCatalog->new();
 $fC1->connect_as("Admin");
 
-my $nfspath = "/star/data16/GRID/daq/2012/";
+my $nfspath = "/star/data23/GRID/daq/2012/";
 my $nfile = 0;
 my $dbfile = "none";
 my $daqstat;
 my $dsize = 0;
-my $ndays = 1;
+my $ndays = 2;
 my $daydiff = 0;
 
 my @dqfiles = ();
@@ -159,7 +159,7 @@ for ($nlist=0; $nlist < $nfile; $nlist++) {
 
   print "Check submission time ", $today,"   ",$sctime,"   ",$daydiff, "\n";
 
-  if ( $daydiff >= $ndays ) {
+  if ( $daydiff >= $ndays and  $daydiff < 4 ) {
 
       $nll++;
 
