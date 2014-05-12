@@ -484,7 +484,7 @@ my $query = new CGI;
         next if($prod[$nlist] eq "P03gc"); 
         next if($prod[$nlist] eq "P03ie");          
         next if($prod[$nlist] eq "P14ic");  
- 
+        next if($prod[$nlist] eq "P14ie");  
 
     $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_MuDst","storage=hpss","sanity=1","limit=0");
  
