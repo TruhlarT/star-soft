@@ -43,6 +43,11 @@ my $pyear;
 
 my %collHash = (
                  AuAu_200_production_2014 => 'auau200',
+                 AuAu_200_production_high_2014 => 'auau200',
+                 AuAu_200_production_mid_2014 => 'auau200',
+                 AuAu_200_production_low_2014 => 'auau200',
+                 AuAu_200_LowLuminosity_2014 => 'auau200',
+                 AuAu200_production_high_2014_RDO14-4-off => 'auau200',
                  production_15GeV_2014 => 'auau15',
                  pp500_production_2013 => 'pp500',
                  pp500_production_2013a => 'pp500',
@@ -200,6 +205,11 @@ my %collHash = (
              
 my %yrHash = (
                  AuAu_200_production_2014 => 'year2014',
+                 AuAu_200_production_high_2014 => 'year2014',
+                 AuAu_200_production_mid_2014 => 'year2014',
+                 AuAu_200_production_low_2014 => 'year2014',
+                 AuAu_200_LowLuminosity_2014 => 'year2014',
+                 AuAu200_production_high_2014_RDO14-4-off => 'year2014',
                  production_15GeV_2014 => 'year2014',
                  pp500_production_2013 => 'year2013',
                  pp500_production_2013a => 'year2013',
