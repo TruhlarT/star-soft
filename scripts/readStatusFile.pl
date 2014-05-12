@@ -29,7 +29,7 @@ my $prodtg;
 my $daqfile;
 my $jbstat;
 my $dqsize = 0;
-my $nfspath = "/star/data16/GRID/daq/2012/";
+my $nfspath = "/star/data13/GRID/daq/2012/";
 my @daqname = ();
 my $fulldname;
 my @inpsize = ();
