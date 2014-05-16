@@ -30,11 +30,10 @@ my $daqfile;
 my $jbstat;
 my $dqsize = 0;
 my $nfspath = "/star/data23/GRID/daq/2012/";
-my @daqname = ();
+my $statSize = 0;
 my $fulldname;
 my $inpsize = 0;
 my $sitedsize = 0;
-my $nn = 0;
 
  chdir $statusPath;
 
@@ -49,6 +48,10 @@ if( scalar(@statusfile) >= 1) {
      chop $sline ;
      print $sline, "\n" ;
      $outfile = $statusPath."/".$sline ;
+     $statSize = (stat($outfile))[7];
+
+  print "Size of status file  ", $outfile,"   %   ", $statSize, "\n"; 
+     next if( $statSize <= 1) ;
      @wrd = ();
      @wrd = split ("-", $sline);
      $prodtg = $wrd[0];
@@ -72,7 +75,7 @@ if( scalar(@statusfile) >= 1) {
 
  }
 
-     print "Check name of file  ", $daqfile, "  %  ", $dqsize, "\n";
+#     print "Check name of file  ", $daqfile, "  %  ", $dqsize, "\n";
 
    $sql= "update $JobStatusT set jobProgress = '$jbstat', daqSizeOnSite = '$dqsize' where prodTag = '$prodtg' and inputFileName = '$daqfile' and jobProgress = 'none' ";
 
@@ -81,8 +84,6 @@ if( scalar(@statusfile) >= 1) {
    $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
   `rm -f $outfile`;
-
-#   }   #  $sline
 
 ##########
 
@@ -153,7 +154,7 @@ inputFileName = '$daqfile' and jobProgress = 'daq_transferred' and inputFileExis
 
    $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
- print "Check  reco_finish line   ",$outfile, "\n"; 
+# print "Check  reco_finish line   ",$outfile, "\n"; 
 
   `rm -f $outfile`;
 
@@ -183,7 +184,7 @@ inputFileName = '$daqfile' and jobProgress = 'daq_transferred' and inputFileExis
 
    $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
- print "Check  mudst status line   ",$outfile, "\n"; 
+# print "Check  mudst status line   ",$outfile, "\n"; 
 
      `rm -f $outfile`;
 
