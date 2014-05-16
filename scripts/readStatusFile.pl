@@ -29,15 +29,16 @@ my $prodtg;
 my $daqfile;
 my $jbstat;
 my $dqsize = 0;
-my $nfspath = "/star/data13/GRID/daq/2012/";
+my $nfspath = "/star/data23/GRID/daq/2012/";
 my @daqname = ();
 my $fulldname;
-my @inpsize = ();
-my @sitedsize = ();
+my $inpsize = 0;
+my $sitedsize = 0;
 my $nn = 0;
 
  chdir $statusPath;
 
+ @statusfile = ();
  @statusfile = `ls *daq_transferred`;
 
  &StDbConnect();
@@ -71,6 +72,8 @@ if( scalar(@statusfile) >= 1) {
 
  }
 
+     print "Check name of file  ", $daqfile, "  %  ", $dqsize, "\n";
+
    $sql= "update $JobStatusT set jobProgress = '$jbstat', daqSizeOnSite = '$dqsize' where prodTag = '$prodtg' and inputFileName = '$daqfile' and jobProgress = 'none' ";
 
 #  print "$sql\n";
@@ -79,11 +82,15 @@ if( scalar(@statusfile) >= 1) {
 
   `rm -f $outfile`;
 
-   }   #  $sline
+#   }   #  $sline
 
 ##########
 
- $sql="SELECT inputFileName, inputFileSize, daqSizeOnSite  FROM $JobStatusT where prodTag = '$prodtg' and jobProgress = 'daq_transferred' ";
+ $inpsize = 0;
+ $sitedsize = 0;
+
+ $sql="SELECT inputFileSize, daqSizeOnSite  FROM $JobStatusT where prodTag = '$prodtg' and
+inputFileName = '$daqfile' and jobProgress = 'daq_transferred' and inputFileExists = 'yes' ";
 
     $cursor =$dbh->prepare($sql)
     || die "Cannot prepare statement: $DBI::errstr\n";
@@ -91,33 +98,30 @@ if( scalar(@statusfile) >= 1) {
 
    while(@fields = $cursor->fetchrow) {
 
-      $daqname[$nn] = $fields[0];
-      $inpsize[$nn] = $fields[1];
-      $sitedsize[$nn] = $fields[2];
-
-     $nn++;
+      $inpsize = $fields[0];
+      $sitedsize = $fields[1];
     }
 
   $cursor->finish();
 
-for ( my $ii=0; $ii< $nn; $ii++) {
-
-     $fulldname = $nfspath.$daqname[$ii];
-     if($inpsize[$ii] == $sitedsize[$ii]) {
+     $fulldname = $nfspath.$daqfile;
+     if($inpsize == $sitedsize ) {
 
      `rm -f $fulldname`;
 
-  print $fulldname "  removed ","\n";
+  print "File removed  ", $fulldname, "\n";
 
-     $sql= "update $JobStatusT set inputFileExists = 'removed'  where prodTag = '$prodtg' and inputFileName = '$daqname[$ii]' and inputFileExists = 'yes' ";
+     $sql= "update $JobStatusT set inputFileExists = 'removed'  where prodTag = '$prodtg' and inputFileName = '$daqfile' and inputFileExists = 'yes' ";
 
      $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
+   print "$sql\n";
+
      }else {
  
-	 print "Check files with different sizes ",$daqname[$ii]," % ",$inpsize[$ii]," % ",$sitedsize[$ii],"\n";
+	 print "Check files with different sizes ",$daqfile," % ",$inpsize," % ",$sitedsize,"\n";
 
-     $sql= "update $JobStatusT set jobProgress = 'none', jobState = 'none'  where prodTag = '$prodtg' and inputFileName = '$daqname[$ii]' ";
+     $sql= "update $JobStatusT set jobProgress = 'none', jobState = 'none'  where prodTag = '$prodtg' and inputFileName = '$daqfile' ";
 
      $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
@@ -145,9 +149,11 @@ for ( my $ii=0; $ii< $nn; $ii++) {
      $daqfile = $wrd[1].".daq";
      $jbstat = $wrd[2];
 
-   $sql= "update $JobStatusT set jobProgress = '$jbstat' where prodTag = '$prodtg' and inputFileName = '$daqfile' and jobProgress = 'daq_transferred' ";
+   $sql= "update $JobStatusT set jobProgress = '$jbstat' where prodTag = '$prodtg' and inputFileName = '$daqfile' and (jobProgress = 'daq_transferred' or jobProgress = 'none') ";
 
    $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
+
+ print "Check  reco_finish line   ",$outfile, "\n"; 
 
   `rm -f $outfile`;
 
@@ -177,6 +183,7 @@ for ( my $ii=0; $ii< $nn; $ii++) {
 
    $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
+ print "Check  mudst status line   ",$outfile, "\n"; 
 
      `rm -f $outfile`;
 
