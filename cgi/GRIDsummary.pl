@@ -59,6 +59,8 @@ my @recounknown = ();
 my $nset = 0;
 my @hpssset     = ();
 my @overstat = ();
+my @ndaq = ();
+my @nmisdst = ();
 
 my $prtag;
 my $dtset;
@@ -257,7 +259,40 @@ my $dtset;
          }
    $cursor->finish();
 
+
+ $sql="SELECT count(inputFileName) from $JobStatusT where inputFileExists = 'yes' and prodTag = '$prtag' and datasetName = '$dtset' ";
+
+          $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n"; 
+          $cursor->execute();
+
+        while(@fields = $cursor->fetchrow) {
+
+          $ndaq[$ii]  = $fields[0];
+
+         }
+   $cursor->finish();
+
+
+ $sql="SELECT count(inputFileName) from $JobStatusT where  jobState = 'done' and recoStatus <> 'unknown' and prodTag = '$prtag' and datasetName = '$dtset' and ( muDstStatus = 'missing' or  muDstStatus = 'corrupted')  ";
+
+          $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n"; 
+          $cursor->execute();
+
+        while(@fields = $cursor->fetchrow) {
+
+          $nmisdst[$ii]  = $fields[0];
+
+         }
+   $cursor->finish();
+
+
+
   }
+
+
+
 
   &beginHtml();
 
@@ -270,6 +305,7 @@ my $dtset;
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$trigset[$ik]</h3></td>
 <td HEIGHT=10><h3>$prodtag[$ik]</h3></td>
+<td HEIGHT=10><h3>$ndaq[$ik]</h3></td>
 <td HEIGHT=10><h3>$nsubmit[$ik]</h3></td>
 <td HEIGHT=10><h3>$nrunning[$ik]</h3></td>
 <td HEIGHT=10><h3>$ndone[$ik]</h3></td>
@@ -281,6 +317,7 @@ my $dtset;
 <td HEIGHT=10><h3>$recofailed[$ik]</h3></td>
 <td HEIGHT=10><h3>$recounknown[$ik]</h3></td>
 <td HEIGHT=10><h3>$hpssset[$ik]</h3></td>
+<td HEIGHT=10><h3>$nmisdst[$ik]</h3></td>
 <td HEIGHT=10><h3>$overstat[$ik]</h3></td>
 </TR>
 END
@@ -325,6 +362,7 @@ print <<END;
 <TR>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Trigger Set</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Prod Tag</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>N daq files on disk</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>SUBMITTED</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>RUNNING</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>FINISH</h3></B></TD>
@@ -336,6 +374,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Reco failed</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Reco unknown</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Sunk to HPSS</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Missing MuDst</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>All done</h3></B></TD>
 </TR>
     </body>
