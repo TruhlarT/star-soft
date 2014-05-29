@@ -61,6 +61,8 @@ my @hpssset     = ();
 my @overstat = ();
 my @ndaq = ();
 my @nmisdst = ();
+my @nevents = ();
+
 
 my $prtag;
 my $dtset;
@@ -287,6 +289,19 @@ my $dtset;
          }
    $cursor->finish();
 
+ $sql="SELECT sum(Nevents) from $JobStatusT where prodTag = '$prtag' and datasetName = '$dtset' and jobState = 'done' and  muDstStatus = 'present' ";
+
+          $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n"; 
+          $cursor->execute();
+
+        while(@fields = $cursor->fetchrow) {
+
+          $nevents[$ii]  = $fields[0];
+
+         }
+   $cursor->finish();
+
 
 
   }
@@ -317,6 +332,7 @@ my $dtset;
 <td HEIGHT=10><h3>$recofailed[$ik]</h3></td>
 <td HEIGHT=10><h3>$recounknown[$ik]</h3></td>
 <td HEIGHT=10><h3>$hpssset[$ik]</h3></td>
+<td HEIGHT=10><h3>$nevents[$ik]</h3></td>
 <td HEIGHT=10><h3>$nmisdst[$ik]</h3></td>
 <td HEIGHT=10><h3>$overstat[$ik]</h3></td>
 </TR>
@@ -374,6 +390,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Reco failed</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Reco unknown</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Sunk to HPSS</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>N events</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Missing MuDst</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>All done</h3></B></TD>
 </TR>
@@ -392,7 +409,7 @@ print <<END;
       <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
 <!-- Created: March 12 2014 -->
 <!-- hhmts start -->
-Last modified: 2014-05-23
+Last modified: 2014-05-29
 <!-- hhmts end -->
   </body>
 </html>
