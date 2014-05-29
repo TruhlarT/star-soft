@@ -1652,8 +1652,8 @@ $jrun = "Run not completed";
    }elsif ($line =~ /Abort/)  {
              $Err_messg = "Abort";
 
-   }elsif ($line =~ /glibc detected/)  {
-             $Err_messg = "glibc detected";
+#   }elsif ($line =~ /glibc detected/)  {
+#             $Err_messg = "glibc detected";
 
    } elsif ($line =~ /Catch exception FATAL/) {
   
