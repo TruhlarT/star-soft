@@ -62,7 +62,7 @@ my @overstat = ();
 my @ndaq = ();
 my @nmisdst = ();
 my @nevents = ();
-
+my @nmislog = ();
 
 my $prtag;
 my $dtset;
@@ -234,7 +234,7 @@ my $dtset;
    $cursor->finish();
 
 
-  $sql="SELECT count(inputFileName) from $JobStatusT where jobProgress = 'mudst_sunk' and prodTag = '$prtag' and datasetName = '$dtset' ";
+  $sql="SELECT count(inputFileName) from $JobStatusT where prodTag = '$prtag' and datasetName = '$dtset' and  jobProgress = 'mudst_sunk'  ";
 
           $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n"; 
@@ -248,7 +248,7 @@ my $dtset;
    $cursor->finish();
 
 
-  $sql="SELECT count(inputFileName) from $JobStatusT where overallJobStates = 'done' and prodTag = '$prtag' and datasetName = '$dtset' ";
+  $sql="SELECT count(inputFileName) from $JobStatusT where prodTag = '$prtag' and datasetName = '$dtset' and overallJobStates = 'done' ";
 
           $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n"; 
@@ -262,7 +262,7 @@ my $dtset;
    $cursor->finish();
 
 
- $sql="SELECT count(inputFileName) from $JobStatusT where inputFileExists = 'yes' and prodTag = '$prtag' and datasetName = '$dtset' ";
+ $sql="SELECT count(inputFileName) from $JobStatusT where prodTag = '$prtag' and datasetName = '$dtset' and inputFileExists = 'yes' ";
 
           $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n"; 
@@ -276,7 +276,7 @@ my $dtset;
    $cursor->finish();
 
 
- $sql="SELECT count(inputFileName) from $JobStatusT where  jobState = 'done' and recoStatus <> 'unknown' and prodTag = '$prtag' and datasetName = '$dtset' and ( muDstStatus = 'missing' or  muDstStatus = 'corrupted')  ";
+ $sql="SELECT count(inputFileName) from $JobStatusT where  prodTag = '$prtag' and datasetName = '$dtset' and  jobState = 'done' and recoStatus <> 'unknown' and ( muDstStatus = 'missing' or  muDstStatus = 'corrupted')  ";
 
           $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n"; 
@@ -288,6 +288,21 @@ my $dtset;
 
          }
    $cursor->finish();
+
+
+ $sql="SELECT count(inputFileName) from $JobStatusT where  prodTag = '$prtag' and datasetName = '$dtset' and  jobState = 'done' and (logFileState = 'missing' or logFileState = 'truncated' )  ";
+
+          $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n"; 
+          $cursor->execute();
+
+        while(@fields = $cursor->fetchrow) {
+
+          $nmislog[$ii]  = $fields[0];
+
+         }
+   $cursor->finish();
+
 
  $sql="SELECT sum(Nevents) from $JobStatusT where prodTag = '$prtag' and datasetName = '$dtset' and jobState = 'done' and  muDstStatus = 'present' ";
 
@@ -334,6 +349,7 @@ my $dtset;
 <td HEIGHT=10><h3>$hpssset[$ik]</h3></td>
 <td HEIGHT=10><h3>$nevents[$ik]</h3></td>
 <td HEIGHT=10><h3>$nmisdst[$ik]</h3></td>
+<td HEIGHT=10><h3>$nmislog[$ik]</h3></td>
 <td HEIGHT=10><h3>$overstat[$ik]</h3></td>
 </TR>
 END
@@ -392,6 +408,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Sunk to HPSS</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>N events</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Missing MuDst</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Missing log file</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>All done</h3></B></TD>
 </TR>
     </body>
@@ -409,7 +426,7 @@ print <<END;
       <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
 <!-- Created: March 12 2014 -->
 <!-- hhmts start -->
-Last modified: 2014-05-29
+Last modified: 2014-05-30
 <!-- hhmts end -->
   </body>
 </html>
