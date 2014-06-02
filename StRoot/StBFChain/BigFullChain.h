@@ -962,9 +962,9 @@ Bfc_st BFC[] = {
 
   // Year 13 chains 
   {"B2013"   ,"","","B2013_c2","","",                             "Alias for B2013 Configuration 2",kFALSE},
-  {"B2013_c2","","","ry2013_2,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
+  {"B2013_c2","","","ry2013_2c,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
    ,                                                               "Base chain for 2013 ITTF (tpc)",kFALSE},
-  {"B2013_c1","","","ry2013_1,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
+  {"B2013_c1","","","ry2013_1c,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
    ,                                                               "Base chain for 2013 ITTF (tpc)",kFALSE},
 
   {"pp2013a","" ,"",
@@ -980,29 +980,13 @@ Bfc_st BFC[] = {
    "","",                "Production chain for 2013 data - no Corr (+ l3, bcc/fpd, e/b-emc, no VF)",kFALSE},
 
 
-  // Year 14 chains 
-  {"B2014"  ,"","","ry2014,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
-   ,                                                               "Base chain for 2014 ITTF (tpc)",kFALSE},
-  {"B2014a","","","ry2014a,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
-   ,                                                              "Base chain for 2014a ITTF (tpc)",kFALSE},
-
-  {"P2014","" ,"",
-   "B2014,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,analysis"
-   ,                      "","","Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
-
-  // Target Chain options for BES -> P2014a,DbV20140410,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D
-  {"P2014a","" ,"",
-   "B2014a,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis,"
-   ,                      "","","Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
-
-
 
   // TEST
   //{"B2013_X","","","ry2012,in,tpcX,ITTF,AgML,UseXgeom,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
-  // ,                                                               "Base chain for 2014 ITTF (tpc)",kFALSE},
+  // ,                                                               "Base chain for 2013 ITTF (tpc)",kFALSE},
   //{"pp2013X","" ,"",
   // "B2013_X,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis",
-  // "","",                "Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc, no VF)",kFALSE},
+  // "","",                "Production chain for 2013 data - no Corr (+ l3, bcc/fpd, e/b-emc, no VF)",kFALSE},
 
 
 
@@ -1181,8 +1165,6 @@ Bfc_st BFC[] = {
   {"MtdUtil"    ,""  ,"","",""                                        ,"StMtdUtil","Load StMtdUtil",kFALSE},
   {"StBichsel"   ,""  ,"","",""                         ,"StBichsel","Load Bichsel model for dE/dx",kFALSE},
   {"StEvent"   ,"","","globT,SCL,TRGDef,StBichsel,EmcUtil,TbUtil,detDb","","StEvent","Load StEvent",kFALSE},
-  {"PxlUtil"     ,""  ,"","","",                                       "StPxlUtil","Load StPxlUtil",kFALSE},
-  {"IstUtil"     ,""  ,"","","",                                       "StIstUtil","Load StIstUtil",kFALSE},
   {"SsdUtil"     ,""  ,"","StarMagField,StEvent",""               ,"Geom,StSsdUtil","Load SSD Util",kFALSE},
   {"EmcUtil"     ,""  ,"","emc_T,geomT,StDbT",""                      ,"StEmcUtil","Load StEmcUtil",kFALSE},
   {"EEmcUtil"    ,""  ,"","",""                                     ,"StEEmcUtil","Load StEEmcUtil",kFALSE},
@@ -1193,7 +1175,6 @@ Bfc_st BFC[] = {
   {"l3Util"      ,"","","",                              "","","WARNING *** Option is OBSOLETE ***",kFALSE},
 #endif
   {"PmdUtil"     ,""  ,"","","",                                       "StPmdUtil","Load StPmdUtil",kFALSE},
-
   {"QUtils"      ,""  ,"","PmdUtil,EmcUtil","",                      "","Load QA Libs dependencies",kFALSE},
   {"Stu"         ,""  ,"","","",                         "StEventUtilities","Load StEventUtilities",kFALSE},
 #ifndef  __NoStrangeMuDst__
@@ -1246,8 +1227,6 @@ Bfc_st BFC[] = {
   {"eemcDb"      ,"eeDb" ,"","db,EEmcUtil",      "StEEmcDbMaker","StEEmcDbMaker","Load EEmcDbMaker",kFALSE},
   {"fmsDb"       ,"fmsDb","","db",                  "StFmsDbMaker","StFmsDbMaker","Load FmsDbMaker",kFALSE},
   {"fgtDb"       ,"fgtDb","","db,fgtutil",          "StFgtDbMaker","StFgtDbMaker","Load FgtDbMaker",kFALSE},
-  {"pxlDb"       ,"pxlDb","","tpcDb",               "StPxlDbMaker","StPxlDbMaker","Load PxlDbMaker",kFALSE},
-  {"istDb"       ,"istDb","","tpcDb",               "StIstDbMaker","StIstDbMaker","Load IstDbMaker",kFALSE},
 
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"MAKERS      ","-----------","-----------","------------------------------------------","","","",kFALSE},
@@ -1359,14 +1338,8 @@ Bfc_st BFC[] = {
   {"dEdx"        ,"","","",                              "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"svtdEdx"     ,"","","",                              "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"Event"       ,  "","","MakeEvent",                          "","","Request to initialize event",kFALSE},
-
-  {"pxlFastSim"  ,"","","StMcEvent,StEvent"
-   ,                                           "StPxlSimMaker","StPxlSimMaker","FastPixelSimulator",kFALSE},
-  {"pxlRaw"      ,"","","pxlUtil,pxlDb",  "StPxlRawHitMaker","StPxlRawHitMaker","Pxl Raw Hit Maker",kFALSE},
-  {"pxlCluster"  ,"","","pxlUtil",      "StPxlClusterMaker","StPxlClusterMaker","Pxl Cluster Maker",kFALSE},
-  {"pxlHit"      ,"","","pxlUtil,event,pxlDb",      "StPxlHitMaker","StPxlHitMaker","Pxl Hit Maker",kFALSE},
-  //{"pxlMon"    ,"","","StEvent"              ,"StPxlMonMaker","StPxlMonMaker","Example of Pxl QA",kFALSE},
-
+  {"pxlFastSim","","","StMcEvent,StEvent"
+   ,                               "StPxlSimMaker","StPxlSimMaker","FastPixelSimulator",kFALSE},
   {"ssddat"      ,"","","ssd_daq"                             ,"","","SSD full chain for Real Data",kFALSE},
   {"ssd_daq","","","ssdCalDb,svt_T,-sls,-spa,ssdUtil","StSsdDaqMaker","StSsdDaqMaker","... SSD Daq",kFALSE},
   {"ssdfast"     ,"","","ssdDb,StMcEvent,StEvent","StSsdFastSimMaker","StSsdFastSimMaker",
@@ -1433,13 +1406,10 @@ Bfc_st BFC[] = {
    "StGammaFilterMaker","StFilterMaker",  "BEmc Gamma filtering",                                   kFALSE},
   {"FiltEemcGamma" ,"","","StEvent,StMcEvent,EmcUtil",
    "StEemcGammaFilterMaker","StFilterMaker",  "EEmc Gamma filtering",                               kFALSE},
-
-  // FMS
-  {"fmsSim",""    ,"","StEvent,fmsDb",
-   "StFmsFastSimulatorMaker","StFmsFastSimulatorMaker","FMS Fast Simulator",                        kFALSE},
+  // fms
+  {"fmsSim",""      ,"","StEvent,fmsDb","StFmsSimulatorMaker","StFmsSimulatorMaker","Fms Simulator",kFALSE},
   {"fmsDat"     ,"","", "StEvent,fmsdb",
    "StFmsHitMaker","StFmsHitMaker","Fill FMS struct and zero TRG",                                  kFALSE},
-
   // FGT
   {"fgt"        ,"FgtChain","","fgtDat,fgtClu,fgtAtoC"        ,"StMaker","StChain","Fgt data Chain",kFALSE},
   {"fgtDat"     ,"","", "event,fgtdb","StFgtRawMaker","StFgtRawMaker",            "FGT Data reader",kFALSE},
@@ -1466,21 +1436,8 @@ Bfc_st BFC[] = {
   {"StiCALib" ,"","",""                                                   ,"","StiCA","Load Sti+CA",kFALSE},
   {"StiTpc"   ,"","","TpcDb,ITTF,tpc_T,dbutil,detDb,StarMagField,magF"   ,"","StiTpc","Load StiTpc",kFALSE},
   {"StiSvt"   ,"",""," "                  ,"","StSvtClassLibrary,StSvtDbMaker,StiSvt","Load StiSvt",kFALSE},
-  {"StiSsd"   ,"","",""                           ,"","StSsdUtil,StSsdDbMaker,StiSsd","Load StiSsd",kFALSE},
-  {"StiSst"   ,"","",""                        ,"","StSsdUtil,StSsdDbMaker,StiSsd","Load StiSsd(t)",kFALSE},
-  {"StiPxl"   ,"","",""                           ,"","StPxlUtil,StPxlDbMaker,StiPxl","Load StiPxl",kFALSE},
-  {"StiIst"   ,"","",""                           ,"","StIstUtil,StIstDbMaker,StiIst","Load StiIst",kFALSE},
-
-  // left for historical purpose
-  {"StiLibs"    ,"","","StiTpc,StiSvt,StiSsd,BTofUtil"   
-                                                       ,"","StEEmcDbMaker","Load Sti Detector libs",kFALSE},
-  // switch to the HFT based chain
-  {"StiLibsHft" ,"","","StiLibs,StiSst,StiPxl,StiIst"       ,"","","Load Sti Detector libs for HFT",kFALSE},
-  {"StiHftP", "","","StiLibsHft,-SvtIT,-SsdIT,PxlIT,pxlDb",""      ,"","Enables partial  Hft (PXL)",kFALSE},
-  {"StiHftC", "","","StiLibsHft,-SvtIT,-SsdIT,PxlIT,pxlDb,IstIT,istDb,SstIT,ssdDb"
-                                                           ,"","Enables complete Hft (PXL+IST+SST)",kFALSE},
-
-
+  {"StiSsd"   ,"","",""                           ,"","StSsdUtil,StSsdDbMaker,StiSsd","Load StiSvt",kFALSE},
+  {"StiLibs"  ,"","","StiTpc,StiSvt,StiSsd,BTofUtil"   ,"","StEEmcDbMaker","Load Sti Detector libs",kFALSE},
   // depends on Sti symbols
   {"VFPPV"    	,""  	,""	,"ctf_T,eemcDb,StiLib"	,"StGenericVertexMaker"
                 ,"ctf,St_ctf,St_ctf_Maker,Minui,StGenericVertexMaker"	,"... Pile-up proof vertex finder",kFALSE},
@@ -1506,13 +1463,9 @@ Bfc_st BFC[] = {
   {"TpcIT"    ,"","","ITTF"                                              ,"","","Sti tracking: TPC",kFALSE},
   {"SvtIT"    ,"","","ITTF"                                              ,"","","Sti tracking: SVT",kFALSE},
   {"SsdIT"    ,"","","ITTF"                                              ,"","","Sti tracking: SSD",kFALSE},
-
   {"HpdIT"  ,""  ,"","ITTF",""                               ,"Sti,StiRnD","Sti tracking: Hpd geom",kFALSE},
-  {"PixelIT",""  ,"","PxlIT",""                                               ,"","Alias for PxlIT",kFALSE},
-  {"PxlIT"  ,""  ,"","ITTF",""                             ,"Sti,StiPxl","Sti tracking: Pixel geom",kFALSE},
-  {"IstIT"  ,""  ,"","ITTF",""                               ,"Sti,StiIst","Sti tracking: Ist geom",kFALSE},
-  {"SstIT"  ,""  ,"","ITTF",""                               ,"Sti,StiSst","Sti tracking: Sst geom",kFALSE},
-
+  {"PixelIT",""  ,"","ITTF",""                             ,"Sti,StiRnD","Sti tracking: Pixel geom",kFALSE},
+  {"IstIT"  ,""  ,"","ITTF",""                               ,"Sti,StiRnD","Sti tracking: Ist geom",kFALSE},
   {"BTofIT"  ,""  ,"","ITTF",""                            ,"Sti,StiBTof","Sti tracking: BTof geom",kFALSE},
   {"NoSvtIT"     ,""  ,"","-SvtIT",""                    ,"","ITTF: track with switch off SVT geom",kFALSE},
   {"NoSsdIT"     ,""  ,"","-SsdIT",""                    ,"","ITTF: track with switch off SSD geom",kFALSE},
