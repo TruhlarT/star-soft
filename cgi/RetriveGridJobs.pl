@@ -69,7 +69,7 @@ my $ii = 0;
 
  $nn = 0; 
 
- $sql="SELECT inputFileName, recoStatus, nEvents, submissionTime, jobFinishTime from $JobStatusT where recoStatus <> 'completed' and recoStatus <> 'unknown' and prodTag = '$qprod' and datasetName = '$qtrg' ";
+ $sql="SELECT inputFileName, recoStatus, nEvents, submissionTime, muDstCreateTime from $JobStatusT where recoStatus <> 'completed' and recoStatus <> 'unknown' and prodTag = '$qprod' and datasetName = '$qtrg' ";
 
           $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -119,7 +119,7 @@ my $ii = 0;
 
   $nn = 0; 
 
-  $sql="SELECT inputFileName, recoStatus, nEvents, submissionTime, jobFinishTime from $JobStatusT where prodTag = '$qprod' and datasetName = '$qtrg' and recoStatus <> 'unknown' and ( muDstStatus = 'missing' or  muDstStatus = 'corrupted')" ;
+  $sql="SELECT inputFileName, recoStatus, nEvents, submissionTime from $JobStatusT where prodTag = '$qprod' and datasetName = '$qtrg' and recoStatus <> 'unknown' and ( muDstStatus = 'missing' or  muDstStatus = 'corrupted')" ;
 
           $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -131,7 +131,6 @@ my $ii = 0;
           $jbStatus[$nn]  = $fields[1];
           $jbEvent[$nn]   = $fields[2];
           $jbsubdate[$nn] = $fields[3];
-          $jbftime[$nn]   = $fields[4];
 	  $nn++;
 
          }
