@@ -95,7 +95,7 @@ my $ii = 0;
 
   $nn = 0; 
 
- $sql="SELECT inputFileName, jobState, submissionTime from $JobStatusT where recoStatus = 'unknown' and prodTag = '$qprod' and datasetName = '$qtrg' ";
+ $sql="SELECT inputFileName, jobProgress, submissionTime from $JobStatusT where jobState = 'done' and recoStatus = 'unknown' and prodTag = '$qprod' and datasetName = '$qtrg' ";
 
           $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
