@@ -344,12 +344,12 @@ my $dtset;
 <td HEIGHT=10><h3>$nnotInQ[$ik]</h3></td>
 <td HEIGHT=10><h3>$nnone[$ik]</h3></td>
 <td HEIGHT=10><h3>$recosucces[$ik]</h3></td>
-<td HEIGHT=10><h3>$recofailed[$ik]</h3></td>
-<td HEIGHT=10><h3>$recounknown[$ik]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveGridJobs.pl?trigs=$trigset[$ik];prod=$prodtag[$ik];jflag=jstat">$recofailed[$ik]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveGridJobs.pl?trigs=$trigset[$ik];prod=$prodtag[$ik];jflag=unknown">$recounknown[$ik]</h3></td>
 <td HEIGHT=10><h3>$hpssset[$ik]</h3></td>
 <td HEIGHT=10><h3>$nevents[$ik]</h3></td>
-<td HEIGHT=10><h3>$nmisdst[$ik]</h3></td>
-<td HEIGHT=10><h3>$nmislog[$ik]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveGridJobs.pl?trigs=$trigset[$ik];prod=$prodtag[$ik];jflag=mudst">$nmisdst[$ik]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveGridJobs.pl?trigs=$trigset[$ik];prod=$prodtag[$ik];jflag=mlog">$nmislog[$ik]</h3></td>
 <td HEIGHT=10><h3>$overstat[$ik]</h3></td>
 </TR>
 END
