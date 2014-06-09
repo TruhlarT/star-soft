@@ -74,8 +74,7 @@ if( scalar(@statusfile) >= 1) {
     chop $dqsize;
 
  }
-
-#     print "Check name of file  ", $daqfile, "  %  ", $dqsize, "\n";
+     print "Check name of file  ", $daqfile, "  %  ", $dqsize, "\n";
 
    $sql= "update $JobStatusT set jobProgress = '$jbstat', daqSizeOnSite = '$dqsize' where prodTag = '$prodtg' and inputFileName = '$daqfile' and jobProgress = 'none' ";
 
@@ -91,7 +90,7 @@ if( scalar(@statusfile) >= 1) {
  $sitedsize = 0;
 
  $sql="SELECT inputFileSize, daqSizeOnSite  FROM $JobStatusT where prodTag = '$prodtg' and
-inputFileName = '$daqfile' and jobProgress = 'daq_transferred' and inputFileExists = 'yes' ";
+inputFileName = '$daqfile' and jobProgress = 'daq_transferred' and inputFileExists = 'yes'  ";
 
     $cursor =$dbh->prepare($sql)
     || die "Cannot prepare statement: $DBI::errstr\n";
@@ -112,7 +111,7 @@ inputFileName = '$daqfile' and jobProgress = 'daq_transferred' and inputFileExis
 
   print "File removed  ", $fulldname, "\n";
 
-     $sql= "update $JobStatusT set inputFileExists = 'removed'  where prodTag = '$prodtg' and inputFileName = '$daqfile' and inputFileExists = 'yes' ";
+     $sql= "update $JobStatusT set inputFileExists = 'removed'  where prodTag = '$prodtg' and inputFileName = '$daqfile' ";
 
      $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
