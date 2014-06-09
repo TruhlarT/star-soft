@@ -276,7 +276,7 @@ my $dtset;
    $cursor->finish();
 
 
- $sql="SELECT count(inputFileName) from $JobStatusT where  prodTag = '$prtag' and datasetName = '$dtset' and  jobState = 'done' and recoStatus <> 'unknown' and ( muDstStatus = 'missing' or  muDstStatus = 'corrupted')  ";
+ $sql="SELECT count(inputFileName) from $JobStatusT where  prodTag = '$prtag' and datasetName = '$dtset' and  jobState = 'done'  and ( muDstStatus = 'missing' or  muDstStatus = 'corrupted')  ";
 
           $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n"; 
