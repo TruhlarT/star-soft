@@ -104,7 +104,7 @@ my $ii = 0;
         while(@fields = $cursor->fetchrow) {
 
           $jbfName [$nn]  = $fields[0];
-          $jbStatus[$nn]  = $fields[1];
+          $jbstate[$nn]  = $fields[1];
           $jbsubdate[$nn] = $fields[2];
 	  $nn++;
 
@@ -119,7 +119,7 @@ my $ii = 0;
 
   $nn = 0; 
 
-  $sql="SELECT inputFileName, recoStatus, nEvents, submissionTime from $JobStatusT where prodTag = '$qprod' and datasetName = '$qtrg' and ( muDstStatus = 'missing' or  muDstStatus = 'corrupted')" ;
+  $sql="SELECT inputFileName, jobProgress, recoStatus, nEvents, submissionTime from $JobStatusT where prodTag = '$qprod' and datasetName = '$qtrg' and jobState = 'done'  and ( muDstStatus = 'missing' or  muDstStatus = 'corrupted')" ;
 
           $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -128,9 +128,10 @@ my $ii = 0;
         while(@fields = $cursor->fetchrow) {
 
           $jbfName [$nn]  = $fields[0];
-          $jbStatus[$nn]  = $fields[1];
-          $jbEvent[$nn]   = $fields[2];
-          $jbsubdate[$nn] = $fields[3];
+          $jbstate[$nn]  = $fields[1];
+          $jbStatus[$nn]  = $fields[2];
+          $jbEvent[$nn]   = $fields[3];
+          $jbsubdate[$nn] = $fields[4];
 	  $nn++;
 
          }
@@ -154,7 +155,7 @@ my $ii = 0;
         while(@fields = $cursor->fetchrow) {
 
           $jbfName [$nn]  = $fields[0];
-          $jbStatus[$nn]  = $fields[1];
+          $jbstate[$nn]  = $fields[1];
           $jbsubdate[$nn] = $fields[2];
           $jbmudst[$nn]   = $fields[3];
 
@@ -196,6 +197,7 @@ print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$jbfName[$ii]</h3></td>
+<td HEIGHT=10><h3>$jbstate[$ii]</h3></td>
 <td HEIGHT=10><h3>$jbStatus[$ii]</h3></td>
 <td HEIGHT=10><h3>$jbEvent[$ii]</h3></td>
 <td HEIGHT=10><h3>$jbsubdate[$ii]</h3></td>
@@ -213,7 +215,7 @@ print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$jbfName[$ii]</h3></td>
-<td HEIGHT=10><h3>$jbStatus[$ii]</h3></td>
+<td HEIGHT=10><h3>$jbstate[$ii]</h3></td>
 <td HEIGHT=10><h3>$jbsubdate[$ii]</h3></td>
 </TR>
 END
@@ -315,6 +317,7 @@ print <<END;
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
 <TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Input filename</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Last job state</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Reco status</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>No.events</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Date of submission</h3></B></TD>
