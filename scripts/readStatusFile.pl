@@ -78,7 +78,7 @@ if( scalar(@statusfile) >= 1) {
 
    $sql= "update $JobStatusT set jobProgress = '$jbstat', daqSizeOnSite = '$dqsize' where prodTag = '$prodtg' and inputFileName = '$daqfile' and jobProgress = 'none' ";
 
-#  print "$sql\n";
+  print "$sql\n";
  
    $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
