@@ -119,7 +119,7 @@ my $ii = 0;
 
   $nn = 0; 
 
-  $sql="SELECT inputFileName, recoStatus, nEvents, submissionTime from $JobStatusT where prodTag = '$qprod' and datasetName = '$qtrg' and recoStatus <> 'unknown' and ( muDstStatus = 'missing' or  muDstStatus = 'corrupted')" ;
+  $sql="SELECT inputFileName, recoStatus, nEvents, submissionTime from $JobStatusT where prodTag = '$qprod' and datasetName = '$qtrg' and ( muDstStatus = 'missing' or  muDstStatus = 'corrupted')" ;
 
           $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
