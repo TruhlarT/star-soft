@@ -213,7 +213,7 @@ print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$jbfName[$ii]</h3></td>
-<td HEIGHT=10><h3>$jbstate[$ii]</h3></td>
+<td HEIGHT=10><h3>$jbStatus[$ii]</h3></td>
 <td HEIGHT=10><h3>$jbsubdate[$ii]</h3></td>
 </TR>
 END
@@ -227,7 +227,7 @@ print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$jbfName[$ii]</h3></td>
-<td HEIGHT=10><h3>$jbstate[$ii]</h3></td>
+<td HEIGHT=10><h3>$jbStatus[$ii]</h3></td>
 <td HEIGHT=10><h3>$jbsubdate[$ii]</h3></td>
 <td HEIGHT=10><h3>$jbmudst[$ii]</h3></td>
 </TR>
