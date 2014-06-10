@@ -81,7 +81,7 @@ $INSU::JPRLOAD = "staradev";
 $INSU::VLGLOAD = "staradev";
 
 # directory which will contain the test result files
-$INSU::TDIR    ="/star/rcf/test/dev/Insure";
+$INSU::TDIR    ="/gpfs01/star/rcf/test/dev/Insure";
 
 # Misc values
 $INSU::FLNMLCK = "";
@@ -103,59 +103,59 @@ $INSU::BSUB = (defined($ENV{LSF_BINDIR})?$ENV{LSF_BINDIR}."/bsub":"/usr/local/ls
 #
 %INSU::TESTS=(
 	      "p00h",
-	      "/star/data03/daq/2000/09/st_physics_1248022_raw_0001.daq",
+	      "/gpfs01/star/daq/2000/09/st_physics_1248022_raw_0001.daq",
 
 	      "trs srs fss rrs C2001 GeantOut big evout fzin",
-	      "/star/rcf/simu/cocktail/hadronic/default/highdensity/year2001/hadronic_on/Gstardata/hc_highdensity.16_evts.fz",
+	      "/gpfs01/star/rcf/simu/cocktail/hadronic/default/highdensity/year2001/hadronic_on/Gstardata/hc_highdensity.16_evts.fz",
 
 	      "trs sss fss rrs C2001 GeantOut big evout fzin",
-	      "/star/rcf/simu/cocktail/hadronic/default/highdensity/year2001/hadronic_on/Gstardata/hc_highdensity.16_evts.fz",
+	      "/gpfs01/star/rcf/simu/cocktail/hadronic/default/highdensity/year2001/hadronic_on/Gstardata/hc_highdensity.16_evts.fz",
 
 	      "p2000",
-	      "/star/data03/daq/2000/08/st_physics_1229021_raw_0003.daq",
+	      "/gpfs01/star/daq/2000/08/st_physics_1229021_raw_0003.daq",
 
 	      #"p2001 -Kalman fiedloff",
-	      #"/star/data03/daq/2001/192/st_physics_2192029_raw_0003.daq",
+	      #"/gpfs01/star/daq/2001/192/st_physics_2192029_raw_0003.daq",
 
 	      "p2001a",
-	      "/star/data03/daq/2001/251/st_physics_2251004_raw_0001.daq",
+	      "/gpfs01/star/daq/2001/251/st_physics_2251004_raw_0001.daq",
 
 	      "p2001",
-	      "/star/data03/daq/2001/251/st_physics_2251004_raw_0001.daq",
+	      "/gpfs01/star/daq/2001/251/st_physics_2251004_raw_0001.daq",
 
 	      "pp2001",
-	      "/star/data03/daq/2002/017/st_physics_3017028_raw_0006.daq",
+	      "/gpfs01/star/daq/2002/017/st_physics_3017028_raw_0006.daq",
 
 	      "dau2003 est beamLine CMuDst",
-	      "/star/rcf/test/daq/2003/041/st_physics_4041002_raw_0020001.daq",
+	      "/gpfs01/star/rcf/test/daq/2003/041/st_physics_4041002_raw_0020001.daq",
 
 	      "pp2003 eemcD alltrigger trgd",
-	      "/star/data03/daq/2003/111/st_physics_4111036_raw_0030004.daq",
+	      "/gpfs01/star/daq/2003/111/st_physics_4111036_raw_0030004.daq",
 
 	      # Y4 chains
 	      "P2004 EST svt_daq svtD eemcD pmdRaw OShortR Xi2 V02 CMuDst",
-	      "/star/rcf/test/daq/2004/028/st_physics_5028066_raw_1010003.daq",
+	      "/gpfs01/star/rcf/test/daq/2004/028/st_physics_5028066_raw_1010003.daq",
 
 	      "trs,srs,y2004,tpc,l0,svt,Cdst,Kalman,tags,Tree,bbcsim,tofsim,evout,est,-xi,-v0,xi2,XiSvt,svtdEdx,SvtMatchVtx,emcY2,eefs,GeantOut,big,-dstout,CMuDst,fzin ; Full Y4 sim chain",
-	      "/star/rcf/simu/rcf1207_01_225evts.fzd",
+	      "/gpfs01/star/rcf/simu/rcf1207_01_225evts.fzd",
 
 	      # ITTF chains
 	      "ry2004 in tpc_daq tpc -tcl -tpt -PreVtx fcf Physics svtDb ITTF dst event ".
 	      "genvtx Sti Tree evout trgd debug1".
 	      "; TPC based chain",
-	      "/star/data03/daq/2004/061a/st_physics_5061059_raw_3030004.daq",
+	      "/gpfs01/star/daq/2004/061a/st_physics_5061059_raw_3030004.daq",
 
 	      "ry2004 in tpc_daq tpc -tcl -tpt -PreVtx fcf Physics svtDb ITTF dst ".
 	      "event genvtx Sti analysis EventQA tags Tree evout  l3onl tofDat emcDY2 ".
 	      "fpd Corr2 ftpc trgd OSpaceZ OShortR Kink2 V02 Xi2 debug1".
 	      "; ITTF full chain",
-	      "/star/data03/daq/2004/061a/st_physics_5061059_raw_3030004.daq",
+	      "/gpfs01/star/daq/2004/061a/st_physics_5061059_raw_3030004.daq",
 
 	      "trs y2004 globT tcl TpcHitMover sim_T svt_T ftpcT ctf_T l0 SvtCL svtDb ITTF ".
 	      "genvtx Sti DstOut gen_T l3_T dst dEdxY2 EventQA geant tags bbcSim tofsim EvOut ".
 	      "analysis emcY2 -Match EEfs GeantOut big V02 Xi2 Kink2 CMuDst fzin MiniMcMk ".
 	      "; ITTF nightly test",
-	      "/star/rcf/simu/rcf1207_01_225evts.fzd"
+	      "/gpfs01/star/rcf/simu/rcf1207_01_225evts.fzd"
 
 
 	      );

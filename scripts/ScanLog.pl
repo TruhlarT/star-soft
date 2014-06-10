@@ -44,8 +44,8 @@ my $max_time = 3600;   # age of log a necessary before the creation of a marker 
 my $max_file = 250000; # PANASAS 350000 max
 
 #dirs
-my $log_dir = "/star/rcf/prodlog/$ProdTag/log/$Kind/";
-my $job_dir = "/star/u/starreco/$ProdTag/requests/$Kind/jobfiles/";
+my $log_dir  = "/gpfs01/star/rcf/prodlog/$ProdTag/log/$Kind/";
+my $job_dir  = "/star/u/starreco/$ProdTag/requests/$Kind/jobfiles/";
 my $arch_dir = "/star/u/starreco/$ProdTag/requests/$Kind/archive/";
 
 my $datasourse = "DBI:mysql:operation:duvall.star.bnl.gov";

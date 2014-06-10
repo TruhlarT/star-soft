@@ -29,7 +29,7 @@ $SPDR::NAME    = "SpiderUtil";
 
 # Now global variables and default values
 $SPDR::WDIR      = "/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/Spider";
-$SPDR::LOGDIR    = "/star/rcf/prodlog";
+$SPDR::LOGDIR    = "/gpfs01/star/rcf/prodlog";
 $SPDR::HPSSD     = "/home/starreco";
 $SPDR::THRESHOLD = 0.9;
 $SPDR::CACHELM   = 10;
