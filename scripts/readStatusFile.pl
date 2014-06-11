@@ -82,8 +82,6 @@ if( scalar(@statusfile) >= 1) {
  
    $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
-  `rm -f $outfile`;
-
 ##########
 
  $inpsize = 0;
@@ -108,6 +106,8 @@ inputFileName = '$daqfile' and jobProgress = 'daq_transferred' and inputFileExis
      if($inpsize == $sitedsize ) {
 
      `rm -f $fulldname`;
+     `rm -f $outfile`;
+
 
   print "File removed  ", $fulldname, "\n";
 
@@ -179,7 +179,7 @@ inputFileName = '$daqfile' and jobProgress = 'daq_transferred' and inputFileExis
      $daqfile = $wrd[1].".daq";
      $jbstat = $wrd[2];
 
-   $sql= "update $JobStatusT set jobProgress = '$jbstat' where prodTag = '$prodtg' and inputFileName = '$daqfile' and (jobProgress = 'reco_finish' or jobProgress = 'daq_transferred') ";
+   $sql= "update $JobStatusT set jobProgress = '$jbstat' where prodTag = '$prodtg' and inputFileName = '$daqfile' and (jobProgress = 'reco_finish' or jobProgress = 'daq_transferred' or jobProgress = 'none' ) ";
 
    $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
