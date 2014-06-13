@@ -265,9 +265,9 @@ if( $sec < 10) { $sec = '0'.$sec };
 
 my $todate = ($year+1900)."-".($mon+1)."-".$mday." ".$hour.":".$min.":".$sec ;
 
-#my $day_diff = 365;
+my $day_diff = 366;
 
-my $day_diff = 545;
+#my $day_diff = 545;
 
 my $tyear = $year+1900;
 
