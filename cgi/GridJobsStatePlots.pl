@@ -213,7 +213,7 @@ my @prt = ();
 
     $cursor->finish();
 
-       $sql="SELECT count(jobState) FROM  $JobStatusT WHERE submissionTime like '$tdate%' and jobState = 'done' ";
+       $sql="SELECT count(jobState) FROM  $JobStatusT WHERE jobState = 'done' and submissionTime like '$tdate%' ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute( ) ;
