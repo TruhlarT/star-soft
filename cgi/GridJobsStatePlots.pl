@@ -50,6 +50,10 @@ my @stdone = ();
 my @stidle = ();
 my @stheld = ();
 my $nd = 0;
+my $sdle = 0;
+my $sdn = 0;
+my $srun = 0;
+my $sdhd = 0;
 
 
  my $fperiod   =  $query->param('period');
@@ -121,6 +125,11 @@ $JobStatusT = "jobs_prod_2013";
 
  @numjobs = ();
  @Npoint = ();
+
+ $sdle = 0;
+ $sdn = 0;
+ $srun = 0;
+ $sdhd = 0;
 
 
 ($sec,$min,$hour,$mday,$mon,$year) = localtime;
@@ -197,7 +206,7 @@ my @prt = ();
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute( ) ;
-	while( my $srun = $cursor->fetchrow) {
+	while( $srun = $cursor->fetchrow) {
 
              $strun[$nd] =  $srun;
 	 }
@@ -208,7 +217,7 @@ my @prt = ();
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute( ) ;
-	while( my $sdn = $cursor->fetchrow) {
+	while( $sdn = $cursor->fetchrow) {
 
              $stdone[$nd] =  $sdn;
 	 }
@@ -216,22 +225,22 @@ my @prt = ();
     $cursor->finish();
  
 
-      $sql="SELECT count(jobState) FROM  $JobStatusT WHERE submissionTime like '$tdate%' and jobState = 'idle' ";
+      $sql="SELECT count(jobState) FROM  $JobStatusT WHERE jobState = 'idle' and submissionTime like '$tdate%'  ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute( ) ;
-	while( my $sdle = $cursor->fetchrow) {
+	while( $sdle = $cursor->fetchrow) {
 
              $stidle[$nd] =  $sdle;
 	 }
 
     $cursor->finish();
 
-      $sql="SELECT count(jobState) FROM  $JobStatusT WHERE submissionTime like '$tdate%' and jobState = 'held' ";
+      $sql="SELECT count(jobState) FROM  $JobStatusT WHERE jobState = 'held' and submissionTime like '$tdate%' ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute( ) ;
-	while( my $sdhd = $cursor->fetchrow) {
+	while( $sdhd = $cursor->fetchrow) {
 
              $stheld[$nd] =  $sdhd;
 	 }
