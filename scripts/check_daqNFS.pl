@@ -100,6 +100,8 @@ if(scalar(@daqlist) > 1 ) {
     next if ( !defined $dbfile) ;
 
     if ( $dbfile eq $daqfile and $dsize > 100000 ) {
+
+   print "Update file status ", $daqfile,"  exists", "\n";
         
    $sql= "update $JobStatusT set inputFileExists = 'yes', inputFileSize = '$dsize' where inputFileName = '$daqfile' and  prodTag = '$prodTg' and inputFileExists = 'no' ";
 
@@ -157,7 +159,7 @@ for ($nlist=0; $nlist < $nfile; $nlist++) {
   $sctime =~ s/-//g;
   $daydiff = $today -  $sctime;
 
-  print "Check submission time ", $today,"   ",$sctime,"   ",$daydiff, "\n";
+#  print "Check submission time ", $today,"   ",$sctime,"   ",$daydiff, "\n";
 
   if ( $daydiff >= $ndays and  $daydiff < 4 ) {
 
@@ -199,7 +201,7 @@ for ($nlist=0; $nlist < $nfile; $nlist++) {
 
   close (CFILE);
 
-    `hpss_user.pl -r $nfspath -z -f $DCfname >& $dcsubm`;
+    `hpss_user.pl -a -r $nfspath -f $DCfname >& $dcsubm`;
 
   }
 
