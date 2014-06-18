@@ -63,6 +63,7 @@ my @ndaq = ();
 my @nmisdst = ();
 my @nevents = ();
 my @nmislog = ();
+my @nodaq   = ();
 
 my $prtag;
 my $dtset;
@@ -276,6 +277,22 @@ my $dtset;
    $cursor->finish();
 
 
+ $sql="SELECT count(inputFileName) from $JobStatusT where prodTag = '$prtag' and datasetName = '$dtset' and inputFileExists = 'no' ";
+
+          $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n"; 
+          $cursor->execute();
+
+        while(@fields = $cursor->fetchrow) {
+
+          $nodaq[$ii]  = $fields[0];
+
+         }
+   $cursor->finish();
+
+
+
+
  $sql="SELECT count(inputFileName) from $JobStatusT where  prodTag = '$prtag' and datasetName = '$dtset' and  jobState = 'done'  and ( muDstStatus = 'missing' or  muDstStatus = 'corrupted')  ";
 
           $cursor =$dbh->prepare($sql)
@@ -336,6 +353,7 @@ my $dtset;
 <td HEIGHT=10><h3>$trigset[$ik]</h3></td>
 <td HEIGHT=10><h3>$prodtag[$ik]</h3></td>
 <td HEIGHT=10><h3>$ndaq[$ik]</h3></td>
+<td HEIGHT=10><h3>$nodaq[$ik]</h3></td>
 <td HEIGHT=10><h3>$nsubmit[$ik]</h3></td>
 <td HEIGHT=10><h3>$nrunning[$ik]</h3></td>
 <td HEIGHT=10><h3>$ndone[$ik]</h3></td>
@@ -395,6 +413,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Trigger Set</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Prod Tag</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>N daq files </h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Missing daq files </h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>SUBMIT</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>RUNNING</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>FINISH</h3></B></TD>
