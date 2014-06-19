@@ -172,7 +172,7 @@ my $ii = 0;
 
   $nn = 0; 
 
- $sql="SELECT inputFileName, carouselSubTime, jobState from $JobStatusT where prodTag = '$qprod' and datasetName = '$qtrg' ";
+ $sql="SELECT inputFileName, carouselSubTime, jobState from $JobStatusT where prodTag = '$qprod' and datasetName = '$qtrg' and inputFileName = 'no' ";
 
           $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
