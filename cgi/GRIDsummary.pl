@@ -353,7 +353,7 @@ my $dtset;
 <td HEIGHT=10><h3>$trigset[$ik]</h3></td>
 <td HEIGHT=10><h3>$prodtag[$ik]</h3></td>
 <td HEIGHT=10><h3>$ndaq[$ik]</h3></td>
-<td HEIGHT=10><h3>$nodaq[$ik]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveGridJobs.pl?trigs=$trigset[$ik];prod=$prodtag[$ik];jflag=mdaq">$nodaq[$ik]</h3></td>
 <td HEIGHT=10><h3>$nsubmit[$ik]</h3></td>
 <td HEIGHT=10><h3>$nrunning[$ik]</h3></td>
 <td HEIGHT=10><h3>$ndone[$ik]</h3></td>
