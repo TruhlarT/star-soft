@@ -64,6 +64,8 @@ my @nmisdst = ();
 my @nevents = ();
 my @nmislog = ();
 my @nodaq   = ();
+my @globuserr = ();
+
 
 my $prtag;
 my $dtset;
@@ -321,6 +323,21 @@ my $dtset;
    $cursor->finish();
 
 
+ $sql="SELECT count(inputFileName) from $JobStatusT where  prodTag = '$prtag' and datasetName = '$dtset' and  globusError <> ' ' ";
+
+          $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n"; 
+          $cursor->execute();
+
+        while(@fields = $cursor->fetchrow) {
+
+          $globuserr[$ii]  = $fields[0];
+
+         }
+   $cursor->finish();
+
+
+
  $sql="SELECT sum(Nevents) from $JobStatusT where prodTag = '$prtag' and datasetName = '$dtset' and jobState = 'done' and  muDstStatus = 'present' ";
 
           $cursor =$dbh->prepare($sql)
@@ -335,9 +352,7 @@ my $dtset;
    $cursor->finish();
 
 
-
   }
-
 
 
 
@@ -364,6 +379,7 @@ my $dtset;
 <td HEIGHT=10><h3>$recosucces[$ik]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveGridJobs.pl?trigs=$trigset[$ik];prod=$prodtag[$ik];jflag=jstat">$recofailed[$ik]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveGridJobs.pl?trigs=$trigset[$ik];prod=$prodtag[$ik];jflag=unknown">$recounknown[$ik]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveGridJobs.pl?trigs=$trigset[$ik];prod=$prodtag[$ik];jflag=mglob">$globuserr[$ik]</h3></td>
 <td HEIGHT=10><h3>$hpssset[$ik]</h3></td>
 <td HEIGHT=10><h3>$nevents[$ik]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveGridJobs.pl?trigs=$trigset[$ik];prod=$prodtag[$ik];jflag=mudst">$nmisdst[$ik]</h3></td>
@@ -424,6 +440,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Reco success</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Reco failed</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Reco unknown</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Globus error</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Sunk to HPSS</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>N events</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Missing MuDst</h3></B></TD>
