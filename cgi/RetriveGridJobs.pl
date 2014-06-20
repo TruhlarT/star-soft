@@ -477,7 +477,7 @@ print <<END;
 <TR>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Input filename</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Globus error </h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Date of submission</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Date of submission</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Job progress statement</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Last job state</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>MuDst status</h3></B></TD>
