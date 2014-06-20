@@ -58,6 +58,8 @@ my @jbstate = ();
 my @jbmudst = ();
 my @jbdaq = ();
 my @crsubdate = ();
+my @globuserr = ();
+my @jbprogress = ();
 
 my $nn = 0;
 my $ii = 0;
@@ -189,6 +191,32 @@ my $ii = 0;
 
    $cursor->finish();
 
+ }elsif($qflag eq "mglob") {
+
+   &beginGLHtml();
+
+  $nn = 0; 
+
+
+ $sql="SELECT inputFileName, globusError, submissionTime, jobProgress, jobState, muDstStatus from $JobStatusT where prodTag = '$qprod' and datasetName = '$qtrg' and globusError <> ' ' ";
+
+          $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n";
+          $cursor->execute();
+
+        while(@fields = $cursor->fetchrow) {
+
+          $jbfName [$nn]  = $fields[0];
+          $globuserr[$nn]  = $fields[1];
+          $jbsubdate[$nn] = $fields[2];
+          $jbprogress[$nn] = $fields[3];
+          $jbstate[$nn]  = $fields[4];
+          $jbmudst[$nn]  = $fields[5];
+	  $nn++;
+
+         }
+
+   $cursor->finish();
 
 
 
@@ -276,6 +304,26 @@ print <<END;
 </TR>
 END
    }
+
+ }elsif($qflag eq "mglob") {
+
+for ($ii=0; $ii<$nn; $ii++ ) {
+
+print <<END;
+
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
+<td HEIGHT=10><h3>$jbfName[$ii]</h3></td>
+<td HEIGHT=10><h3>$globuserr[$ii]</h3></td>
+<td HEIGHT=10><h3>$jbsubdate[$ii]</h3></td>
+<td HEIGHT=10><h3>$jbprogress[$ii]</h3></td>
+<td HEIGHT=10><h3>$jbstate[$ii]</h3></td>
+<td HEIGHT=10><h3>$jbmudst[$ii]</h3></td>
+
+</TR>
+END
+   }
+
+
 
  }
 
@@ -400,7 +448,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>List of daq files not restored on disk fo <font color="blue"> $qprod </font> production <br> and <font color="blue">$qtrg </font> dataset  </B></h2>
+ <h2 ALIGN=CENTER> <B>List of daq files not restored on disk for <font color="blue"> $qprod </font> production <br> and <font color="blue">$qtrg </font> dataset  </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
@@ -412,6 +460,33 @@ print <<END;
     </body>
 END
 }
+
+
+#####################################
+
+sub beginGLHtml {
+
+print <<END;
+
+  <html>
+   <body BGCOLOR=\"cornsilk\">
+ <h2 ALIGN=CENTER> <B>List of jobs with globus error<font color="blue"> $qprod </font> production <br> and <font color="blue">$qtrg </font> dataset  </B></h2>
+ <h3 ALIGN=CENTER> Generated on $todate</h3>
+<br>
+<TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
+<TR>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Input filename</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Globus error </h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Date of submission</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Job progress statement</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Last job state</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>MuDst status</h3></B></TD>
+</TR>
+    </body>
+END
+}
+
+
 
 
 #####################################
