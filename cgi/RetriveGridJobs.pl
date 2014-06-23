@@ -309,6 +309,7 @@ print <<END;
 <td HEIGHT=10><h3>$jbsubdate[$ii]</h3></td>
 <td HEIGHT=10><h3>$jblogstate[$ii]</h3></td>
 <td HEIGHT=10><h3>$jbmudst[$ii]</h3></td>
+<td HEIGHT=10><h3>$globuserr[$ii]</h3></td>
 </TR>
 END
    }
