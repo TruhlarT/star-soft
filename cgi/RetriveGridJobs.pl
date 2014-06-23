@@ -103,7 +103,7 @@ my $ii = 0;
 
   $nn = 0; 
 
- $sql="SELECT inputFileName, inputFileSize, daqSizeOnSite, jobProgress, submissionTime, condorJobID, globusError, logFileState, muDstStatus from $JobStatusT where jobState = 'done' and recoStatus = 'unknown' and prodTag = '$qprod' and datasetName = '$qtrg' ";
+ $sql="SELECT inputFileName, inputFileSize, daqSizeOnSite, jobProgress, submissionTime, condorJobID, logFileState, muDstStatus, globusError from $JobStatusT where jobState = 'done' and recoStatus = 'unknown' and prodTag = '$qprod' and datasetName = '$qtrg' ";
 
           $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -117,10 +117,9 @@ my $ii = 0;
           $jbprogress[$nn]  = $fields[3];
           $jbsubdate[$nn] = $fields[4];
           $jbcondorid[$nn] = $fields[5];
-          $globuserr[$nn] = $fields[6];
-          $jblogstat[$nn]   = $fields[7];
-          $jbmudst[$nn]   = $fields[8];
-
+          $jblogstat[$nn]   = $fields[6];
+          $jbmudst[$nn]   = $fields[7];
+          $globuserr[$nn] = $fields[8];
 	  $nn++;
 
          }
@@ -288,9 +287,9 @@ print <<END;
 <td HEIGHT=10><h3>$jbprogress[$ii]</h3></td>
 <td HEIGHT=10><h3>$jbsubdate[$ii]</h3></td>
 <td HEIGHT=10><h3>$jbcondorid[$ii]</h3></td>
-<td HEIGHT=10><h3>$globuserr[$ii]</h3></td>
 <td HEIGHT=10><h3>$jblogstat[$ii]</h3></td>
 <td HEIGHT=10><h3>$jbmudst[$ii]</h3></td>
+<td HEIGHT=10><h3>$globuserr[$ii]</h3></td>
 </TR>
 END
  }
