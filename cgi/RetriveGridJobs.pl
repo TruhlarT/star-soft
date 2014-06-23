@@ -60,6 +60,9 @@ my @jbdaq = ();
 my @crsubdate = ();
 my @globuserr = ();
 my @jbprogress = ();
+my @jbdaqsize = ();
+my @jblogstat = ();
+my @jbcondorid = ();
 
 my $nn = 0;
 my $ii = 0;
@@ -99,7 +102,7 @@ my $ii = 0;
 
   $nn = 0; 
 
- $sql="SELECT inputFileName, jobProgress, submissionTime from $JobStatusT where jobState = 'done' and recoStatus = 'unknown' and prodTag = '$qprod' and datasetName = '$qtrg' ";
+ $sql="SELECT inputFileName, daqSizeOnSite, jobProgress, submissionTime, condorJobID, logFileState, muDstStatus from $JobStatusT where jobState = 'done' and recoStatus = 'unknown' and prodTag = '$qprod' and datasetName = '$qtrg' ";
 
           $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -107,9 +110,14 @@ my $ii = 0;
 
         while(@fields = $cursor->fetchrow) {
 
-          $jbfName [$nn]  = $fields[0];
-          $jbstate[$nn]  = $fields[1];
-          $jbsubdate[$nn] = $fields[2];
+          $jbfName[$nn]  = $fields[0];
+          $jbdaqsize[$nn]  = $fields[1]; 
+          $jbprogress[$nn]  = $fields[2];
+          $jbsubdate[$nn] = $fields[3];
+          $jbcondorid[$nn] = $fields[4];
+          $jblogstat[$nn]   = $fields[5];
+          $jbmudst[$nn]   = $fields[6];
+
 	  $nn++;
 
          }
@@ -149,7 +157,7 @@ my $ii = 0;
 
   $nn = 0; 
 
- $sql="SELECT inputFileName, jobProgress, submissionTime, muDstStatus  from $JobStatusT where  prodTag = '$qprod' and datasetName = '$qtrg' and  jobState = 'done' and (logFileState = 'missing' or logFileState = 'truncated' )  ";
+ $sql="SELECT inputFileName, jobProgress, jobState, submissionTime, logFileState, muDstStatus  from $JobStatusT where  prodTag = '$qprod' and datasetName = '$qtrg' and  jobState = 'done' and (logFileState = 'missing' or logFileState = 'truncated' )  ";
 
 
           $cursor =$dbh->prepare($sql)
@@ -159,9 +167,11 @@ my $ii = 0;
         while(@fields = $cursor->fetchrow) {
 
           $jbfName [$nn]  = $fields[0];
-          $jbstate[$nn]  = $fields[1];
-          $jbsubdate[$nn] = $fields[2];
-          $jbmudst[$nn]   = $fields[3];
+          $jbprogess[$nn]  = $fields[1];
+          $jbstate[$nn]  = $fields[2];
+          $jbsubdate[$nn] = $fields[3];
+          $jblogstate[$nn] = $fields[4];
+          $jbmudst[$nn]   = $fields[5];
 
 	  $nn++;
          }
@@ -270,8 +280,12 @@ print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$jbfName[$ii]</h3></td>
-<td HEIGHT=10><h3>$jbstate[$ii]</h3></td>
+<td HEIGHT=10><h3>$jbdaqsize[$ii]</h3></td>
+<td HEIGHT=10><h3>$jbprogress[$ii]</h3></td>
 <td HEIGHT=10><h3>$jbsubdate[$ii]</h3></td>
+<td HEIGHT=10><h3>$jbcondorid[$ii]</h3></td>
+<td HEIGHT=10><h3>$jblogstat[$ii]</h3></td>
+<td HEIGHT=10><h3>$jbmudst[$ii]</h3></td>
 </TR>
 END
  }
@@ -284,8 +298,10 @@ print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$jbfName[$ii]</h3></td>
+<td HEIGHT=10><h3>$jbprogess[$ii]</h3></td>
 <td HEIGHT=10><h3>$jbstate[$ii]</h3></td>
 <td HEIGHT=10><h3>$jbsubdate[$ii]</h3></td>
+<td HEIGHT=10><h3>$jblogstate[$ii]</h3></td>
 <td HEIGHT=10><h3>$jbmudst[$ii]</h3></td>
 </TR>
 END
@@ -323,10 +339,7 @@ print <<END;
 END
    }
 
-
-
  }
-
 
  &endHtml();
 
@@ -379,14 +392,18 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>List of jobs wth reco status 'unknown' in<font color="blue"> $qprod </font> production <br> and <font color="blue">$qtrg </font> dataset  </B></h2>
+ <h2 ALIGN=CENTER> <B>List of jobs wth reco status <font color="red">unknown</font> and job status <font color="red">done</font> in<font color="blue"> $qprod </font> production <br> and <font color="blue">$qtrg </font> dataset  </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
-<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Input filename</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Last job state</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Date of submission</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Input filename</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Input file size on site</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Last job progress state</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Date of submission</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Condor job ID</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Log file status</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>MuDst status</h3></B></TD>
 </TR>
     </body>
 END
@@ -431,8 +448,10 @@ print <<END;
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
 <TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Input filename</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Last job progess state</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Last job state</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Date of submission</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Log file status</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>MuDst status</h3></B></TD>
 
 </TR>
@@ -485,8 +504,6 @@ print <<END;
     </body>
 END
 }
-
-
 
 
 #####################################
