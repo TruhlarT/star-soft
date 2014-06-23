@@ -133,7 +133,7 @@ my $ii = 0;
 
   $nn = 0; 
 
-  $sql="SELECT inputFileName, jobProgress, recoStatus, nEvents, submissionTime from $JobStatusT where prodTag = '$qprod' and datasetName = '$qtrg' and jobState = 'done'  and ( muDstStatus = 'missing' or  muDstStatus = 'corrupted')" ;
+  $sql="SELECT inputFileName, jobProgress, recoStatus, nEvents, submissionTime, globusError from $JobStatusT where prodTag = '$qprod' and datasetName = '$qtrg' and jobState = 'done'  and ( muDstStatus = 'missing' or  muDstStatus = 'corrupted')" ;
 
           $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -146,6 +146,7 @@ my $ii = 0;
           $jbStatus[$nn]  = $fields[2];
           $jbEvent[$nn]   = $fields[3];
           $jbsubdate[$nn] = $fields[4];
+          $globuserr[$nn] = $fields[5];
 	  $nn++;
 
          }
@@ -159,7 +160,7 @@ my $ii = 0;
 
   $nn = 0; 
 
- $sql="SELECT inputFileName, jobProgress, jobState, submissionTime, logFileState, muDstStatus  from $JobStatusT where  prodTag = '$qprod' and datasetName = '$qtrg' and  jobState = 'done' and (logFileState = 'missing' or logFileState = 'truncated' )  ";
+ $sql="SELECT inputFileName, jobProgress, jobState, submissionTime, logFileState, muDstStatus, globusError  from $JobStatusT where  prodTag = '$qprod' and datasetName = '$qtrg' and  jobState = 'done' and (logFileState = 'missing' or logFileState = 'truncated' )  ";
 
 
           $cursor =$dbh->prepare($sql)
@@ -174,6 +175,7 @@ my $ii = 0;
           $jbsubdate[$nn] = $fields[3];
           $jblogstate[$nn] = $fields[4];
           $jbmudst[$nn]   = $fields[5];
+          $globuserr[$nn] = $fields[6];
 
 	  $nn++;
          }
@@ -429,12 +431,12 @@ print <<END;
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
-<TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Input filename</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Input filename</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Last job state</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Reco status</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>No.events</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Date of submission</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Finish time</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Globus error</h3></B></TD>
 </TR>
     </body>
 END
@@ -453,12 +455,13 @@ print <<END;
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
-<TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Input filename</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Input filename</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Last job progess state</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Last job state</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Date of submission</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Log file status</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>MuDst status</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Log file status</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>MuDst status</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Globus error</h3></B></TD>
 
 </TR>
     </body>
