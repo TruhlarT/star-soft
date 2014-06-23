@@ -61,6 +61,7 @@ my @crsubdate = ();
 my @globuserr = ();
 my @jbprogress = ();
 my @jbdaqsize = ();
+my @dqsizeOnsite = ();
 my @jblogstat = ();
 my @jbcondorid = ();
 
@@ -102,7 +103,7 @@ my $ii = 0;
 
   $nn = 0; 
 
- $sql="SELECT inputFileName, daqSizeOnSite, jobProgress, submissionTime, condorJobID, logFileState, muDstStatus from $JobStatusT where jobState = 'done' and recoStatus = 'unknown' and prodTag = '$qprod' and datasetName = '$qtrg' ";
+ $sql="SELECT inputFileName, inputFileSize, daqSizeOnSite, jobProgress, submissionTime, condorJobID, globusError, logFileState, muDstStatus from $JobStatusT where jobState = 'done' and recoStatus = 'unknown' and prodTag = '$qprod' and datasetName = '$qtrg' ";
 
           $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -111,12 +112,14 @@ my $ii = 0;
         while(@fields = $cursor->fetchrow) {
 
           $jbfName[$nn]  = $fields[0];
-          $jbdaqsize[$nn]  = $fields[1]; 
-          $jbprogress[$nn]  = $fields[2];
-          $jbsubdate[$nn] = $fields[3];
-          $jbcondorid[$nn] = $fields[4];
-          $jblogstat[$nn]   = $fields[5];
-          $jbmudst[$nn]   = $fields[6];
+          $jbdaqsize[$nn]  = $fields[1];
+          $dqsizeOnsite[$nn]  = $fields[2]; 
+          $jbprogress[$nn]  = $fields[3];
+          $jbsubdate[$nn] = $fields[4];
+          $jbcondorid[$nn] = $fields[5];
+          $globuserr[$nn] = $fields[6];
+          $jblogstat[$nn]   = $fields[7];
+          $jbmudst[$nn]   = $fields[8];
 
 	  $nn++;
 
@@ -281,9 +284,11 @@ print <<END;
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$jbfName[$ii]</h3></td>
 <td HEIGHT=10><h3>$jbdaqsize[$ii]</h3></td>
+<td HEIGHT=10><h3>$dqsizeOnsite[$ii]</h3></td>
 <td HEIGHT=10><h3>$jbprogress[$ii]</h3></td>
 <td HEIGHT=10><h3>$jbsubdate[$ii]</h3></td>
 <td HEIGHT=10><h3>$jbcondorid[$ii]</h3></td>
+<td HEIGHT=10><h3>$globuserr[$ii]</h3></td>
 <td HEIGHT=10><h3>$jblogstat[$ii]</h3></td>
 <td HEIGHT=10><h3>$jbmudst[$ii]</h3></td>
 </TR>
@@ -398,10 +403,12 @@ print <<END;
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Input filename</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Input file size</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Input file size on site</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Last job progress state</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Date of submission</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Condor job ID</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Globus error</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Log file status</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>MuDst status</h3></B></TD>
 </TR>
@@ -518,7 +525,7 @@ print <<END;
       <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
 <!-- Created:  June 10 2014 -->
 <!-- hhmts start -->
-Last modified: 2014-06-19
+Last modified: 2014-06-23
 <!-- hhmts end -->
   </body>
 </html>
