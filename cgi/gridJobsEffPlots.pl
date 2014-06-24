@@ -90,7 +90,7 @@ my @recoComeff = ();
 my @overeff = ();
 my @ndate = ();
 my @effpdsf = ();
-my @effspu = ();
+my @effkisti = ();
 my @effwsu = ();
 my @effbnl = ();
 my %globEfH = { };
@@ -400,8 +400,8 @@ my $ndt = 0;
    $overeff[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
    if ($msite eq "PDSF")  {
    $effpdsf[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
-   }elsif($msite eq "SPU")  {
-   $effspu[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
+   }elsif($msite eq "KISTI")  {
+   $effkisti[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
    }elsif($msite eq "WSU")  {
    $effwsu[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
    }elsif($msite eq "BNL")  {
@@ -432,11 +432,11 @@ my $ndt = 0;
 	$ptag = "ALL";
 
     $legend[0] = "Efficiency for PDSF; ";
-    $legend[1] = "Efficiency for SPU; "; 
+    $legend[1] = "Efficiency for KISTI; "; 
     $legend[2] = "Efficiency for WSU; "; 
     $legend[3] = "Efficiency for BNL; ";
 
-    @data = (\@ndate, \@effpdsf, \@effspu, \@effwsu, \@effbnl );
+    @data = (\@ndate, \@effpdsf, \@effkisti, \@effwsu, \@effbnl );
 
       }else{
 
