@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.55 2014/04/04 18:34:58 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.56 2014/06/30 14:47:54 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.56  2014/06/30 14:47:54  didenko
+# add more run 2014 datasets for test
+#
 # Revision 1.55  2014/04/04 18:34:58  didenko
 # add run 2014 datasample
 #
@@ -169,6 +172,8 @@ my $debugOn = 0;
 
 my $rand = rand(100);
 my @prod_set = (
+                "daq_sl302/year_2014/AuAu200_production_mid_2014",
+                "daq_sl302/year_2014/AuHe3_production_2014",
                 "daq_sl302/year_2014/AuAu200_production_2014",
                 "daq_sl302/year_2014/production_15GeV_2014",
                 "daq_sl302/year_2013/pp500_production_2013",
