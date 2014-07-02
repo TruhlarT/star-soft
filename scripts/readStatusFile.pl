@@ -48,7 +48,7 @@ if( $sec < 10) { $sec = '0'.$sec };
 my $todate = ($year+1900)."-".$mon."-".$mday." ".$hour.":".$min.":".$sec;
 
  print "UPDATE JOBS STATUS at   ",$todate, "\n";
-
+ print "############################################", "\n";
 
  chdir $statusPath;
 
