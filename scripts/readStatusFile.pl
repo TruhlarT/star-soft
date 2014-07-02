@@ -47,7 +47,7 @@ if( $sec < 10) { $sec = '0'.$sec };
 
 my $todate = ($year+1900)."-".$mon."-".$mday." ".$hour.":".$min.":".$sec;
 
- print "COPY STARTS  at   ",$todate, "\n";
+ print "PARSING JOBS STATUS at   ",$todate, "\n";
 
 
  chdir $statusPath;
