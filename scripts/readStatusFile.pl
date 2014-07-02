@@ -35,6 +35,21 @@ my $fulldname;
 my $inpsize = 0;
 my $sitedsize = 0;
 
+my ($sec,$min,$hour,$mday,$mon,$year) = localtime(time);
+
+$mon++;
+if( $mon < 10) { $mon = '0'.$mon };
+if( $mday < 10) { $mday = '0'.$mday };
+if( $hour < 10) { $hour = '0'.$hour };
+if( $min < 10) { $min = '0'.$min };
+if( $sec < 10) { $sec = '0'.$sec };
+
+
+my $todate = ($year+1900)."-".$mon."-".$mday." ".$hour.":".$min.":".$sec;
+
+ print "COPY STARTS  at   ",$todate, "\n";
+
+
  chdir $statusPath;
 
  @statusfile = ();
@@ -74,7 +89,7 @@ if( scalar(@statusfile) >= 1) {
     chop $dqsize;
 
  }
-     print "Check name of file  ", $daqfile, "  %  ", $dqsize, "\n";
+     print "Check name, size of file  ", $daqfile, "  %  ", $dqsize, "\n";
 
    $sql= "update $JobStatusT set jobProgress = '$jbstat', daqSizeOnSite = '$dqsize' where prodTag = '$prodtg' and inputFileName = '$daqfile' and jobProgress = 'none' ";
 
@@ -87,8 +102,7 @@ if( scalar(@statusfile) >= 1) {
  $inpsize = 0;
  $sitedsize = 0;
 
- $sql="SELECT inputFileSize, daqSizeOnSite  FROM $JobStatusT where prodTag = '$prodtg' and
-inputFileName = '$daqfile' and jobProgress = 'daq_transferred' and inputFileExists = 'yes'  ";
+ $sql="SELECT inputFileSize, daqSizeOnSite  FROM $JobStatusT where prodTag = '$prodtg' and inputFileName = '$daqfile' and jobProgress = 'daq_transferred' and inputFileExists = 'yes'  ";
 
     $cursor =$dbh->prepare($sql)
     || die "Cannot prepare statement: $DBI::errstr\n";
@@ -107,7 +121,6 @@ inputFileName = '$daqfile' and jobProgress = 'daq_transferred' and inputFileExis
 
      `rm -f $fulldname`;
      `rm -f $outfile`;
-
 
   print "File removed  ", $fulldname, "\n";
 
