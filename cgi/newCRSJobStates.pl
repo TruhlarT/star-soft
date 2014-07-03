@@ -32,7 +32,7 @@ my $query = new CGI;
 
 my $scriptname = $query->url(-relative=>1);
 
-my @reqperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months","7_month","8_months","9_months","10_months","11_months","12_months");
+my @reqperiod = ("week","1_month","2_months","3_months","4_months","5_months","6_months","7_month","8_months","9_months","10_months","11_months","12_months");
 
 
 my $day_diff = 0;
@@ -253,9 +253,20 @@ if ( ! $graph){
    $max_y = $maxval + 500;  
   }
 
+   $max_y = int($maxval + 0.2* $maxval);
+
  my $xLabelsVertical = 1;
  my $xLabelPosition = 0;
  my $xLabelSkip = 1;
+
+
+   $legend[0] = "jobs running";
+   $legend[0] = "jobs staging";
+   $legend[0] = "jobs importing";
+   $legend[0] = "jobs exporting";
+   $legend[0] = "jobs queued";
+   $legend[0] = "jobs done";
+   $legend[0] = "jobs error";
 
 $xLabelSkip = 2  if( $fperiod eq "day" );
 $xLabelSkip = 12 if( $fperiod eq "week" );
@@ -288,8 +299,10 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
                 x_labels_vertical =>$xLabelsVertical, 		
 		);
 
-#    $graph->set_legend(@legend);
-#    $graph->set_legend_font(gdMediumBoldFont);
+    $graph->set_legend(@legend);
+    $graph->set_legend_font(gdMediumBoldFont);
+
+
     $graph->set_title_font(gdLargeFont);
     $graph->set_x_label_font(gdMediumBoldFont);
     $graph->set_y_label_font(gdMediumBoldFont);
