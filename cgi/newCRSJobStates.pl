@@ -138,6 +138,7 @@ $crsJobStatusT = "newcrsJobState";
  @numqueued = ();
  @numerror = ();
  @numdone = ();
+ @numheld = ();
  @Npoint = ();
 
 
@@ -202,7 +203,7 @@ my $ii = 0;
 	 }
 
 
-        $sql="SELECT running, staging, importing, exporting, queued, done, error, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ?  and sdate <= '$nowdatetime' ORDER by sdate ";
+        $sql="SELECT running, staging, importing, exporting, queued, done, error, held, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ?  and sdate <= '$nowdatetime' ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($day_diff);
@@ -215,7 +216,8 @@ my $ii = 0;
 	     $numqueued[$ii] = $fields[4];
 	     $numdone[$ii]   = $fields[5];
 	     $numerror[$ii]  = $fields[6];
-             $Npoint[$ii]    = $fields[7]; 
+             $numheld[$ii]   = $fields[7];
+             $Npoint[$ii]    = $fields[8]; 
              $ii++;
  
  }
@@ -229,7 +231,7 @@ my $ii = 0;
     } 
 
 
-   @data = (\@Npoint, \@numrun, \@numstage, \@numimport, \@numexport, \@numqueued, \@numdone, \@numerror );
+   @data = (\@Npoint, \@numrun, \@numstage, \@numimport, \@numexport, \@numqueued, \@numdone, \@numerror, \@numheld );
 
 my  $graph = new GD::Graph::linespoints(750,650);
 
@@ -239,20 +241,6 @@ if ( ! $graph){
 
 } else {
  
-   if($maxval <= 20) {
-    $max_y = $maxval + 10;
-  }elsif($maxval <= 50) {
-    $max_y = $maxval + 20;
-  }elsif( $maxval <= 200) {
-    $max_y = $maxval + 50;
-  }elsif( $maxval <= 1000) {
-    $max_y = $maxval + 100;
-  }elsif( $maxval <= 2000) {
-    $max_y = $maxval + 200;
-   }else{
-   $max_y = $maxval + 500;  
-  }
-
    $max_y = int($maxval + 0.2* $maxval);
 
  my $xLabelsVertical = 1;
@@ -267,6 +255,8 @@ if ( ! $graph){
    $legend[4] = "jobs queued";
    $legend[5] = "jobs done";
    $legend[6] = "jobs error";
+   $legend[7] = "jobs held";
+
 
 $xLabelSkip = 2  if( $fperiod eq "day" );
 $xLabelSkip = 12 if( $fperiod eq "week" );
