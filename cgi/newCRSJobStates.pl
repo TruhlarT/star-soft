@@ -32,7 +32,7 @@ my $query = new CGI;
 
 my $scriptname = $query->url(-relative=>1);
 
-my @reqperiod = ("week","1_month","2_months","3_months","4_months","5_months","6_months","7_month","8_months","9_months","10_months","11_months","12_months");
+my @reqperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months","7_month","8_months","9_months","10_months","11_months","12_months");
 
 
 my $day_diff = 0;
@@ -261,12 +261,12 @@ if ( ! $graph){
 
 
    $legend[0] = "jobs running";
-   $legend[0] = "jobs staging";
-   $legend[0] = "jobs importing";
-   $legend[0] = "jobs exporting";
-   $legend[0] = "jobs queued";
-   $legend[0] = "jobs done";
-   $legend[0] = "jobs error";
+   $legend[1] = "jobs staging";
+   $legend[2] = "jobs importing";
+   $legend[3] = "jobs exporting";
+   $legend[4] = "jobs queued";
+   $legend[5] = "jobs done";
+   $legend[6] = "jobs error";
 
 $xLabelSkip = 2  if( $fperiod eq "day" );
 $xLabelSkip = 12 if( $fperiod eq "week" );
