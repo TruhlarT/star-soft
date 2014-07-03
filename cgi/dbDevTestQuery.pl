@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.56 2014/06/30 14:47:54 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.57 2014/07/03 19:35:36 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.57  2014/07/03 19:35:36  didenko
+# remove simu directories
+#
 # Revision 1.56  2014/06/30 14:47:54  didenko
 # add more run 2014 datasets for test
 #
@@ -231,13 +234,11 @@ my @prod_set = (
                 "trs_sl302/year_2011/pp500_pileup",
                 "trs_sl302/year_2010/auau200_minbias",
                 "trs_sl302/year_2010/auau62_minbias",
-                "trs_sl302/year_2010/auau62_simu",
                 "trs_sl302/year_2010/auau39_minbias",
                 "trs_sl302/year_2010/auau11_minbias",
                 "trs_sl302/year_2010/auau7_minbias",
                 "trs_sl302/year_2009/pp200_minbias",
                 "trs_sl302/year_2009/pp500_minbias",
-                "trs_sl302/year_2009/pp500_simu",
                 "trs_sl302/year_2008/dau200_minbias",
                 "trs_sl302/year_2008/pp200_minbias",
                 "trs_sl302/year_2007/auau200_central",
