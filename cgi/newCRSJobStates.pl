@@ -89,7 +89,7 @@ print "<h3 align=center> Select period of monitoring</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'period',
                              -values=>\@reqperiod,
-                             -default=>day,
+                             -default=>week,
                              -size =>1); 
 
 print "</td> </tr> </table><hr><center>";
