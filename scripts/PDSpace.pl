@@ -23,11 +23,30 @@ $MAIN  = "/star/data";                                   # default base path
 @ADDD  = (
           "/star/institutions/*",                        # will be used in a glob statement
           "/star/subsys/*",                              # ditto
-	  "/star/u/",
-	  "/star/simu/",
-	  "/star/grid/",
-	  "/star/scratch/",
-	  "/star/starlib/");                       
+	  "/star/u",
+	  "/star/simu",
+	  "/star/grid",
+	  "/star/scratch",
+	  "/star/rcf",
+	  "/star/xrootd",
+	  "/star/starlib");                       
+
+%ALIAS = (                                               # a list of aliases for sorting
+          "/star/data01" => "/gpfs01/star/pwg",							 
+          "/star/data02" => "/star/data01",		 # an alias pointing to another will merge
+
+          "/star/data03" => "/gpfs01/star/daq",
+          "/star/data04" => "/gpfs01/star/usim",
+          "/star/data05" => "/gpfs01/star/scratch",			
+				 
+          "/star/data06" => "/gpfs01/star/subsysg",							 
+          "/star/data07" => "/star/data06",             # merge with data06
+							 
+          "/star/rcf"    => "/gpfs01/star/rcf",	
+          "/star/xrootd" => "/gpfs01/star/XROOTD",						 
+
+          "/star/institutions/uky" => "/gpfs01/star/i_uky",
+          ); 
 
 
 # Static configuration
@@ -43,17 +62,21 @@ $DINFO =~ s/%%RELP%%/public/;
 
 
 @COLORS = ("#7FFFD4","#40E0D0","#00DEFF","#87CEFA","#CCCCEE","#D8BFD8","#DB7093"); #"#D02090"); #"#FF69B4");
-$RED = "#B03060";
+$RED    = "#B03060"; 
+
+$DGREY  = "#777777";     # dark grey color for some info
+$COL1COL= "#DDDDDD";     # light grey for the first column and eventually, a row
+
 
 $UPGO = "<A HREF=\"#TOP\"><IMG ALT=\"[TOP]\"  BORDER=\"0\" SRC=\"/icons/up.gif\"   WIDTH=10></A>";
 $DOWN = "<A HREF=\"#BOT\"><IMG ALT=\"[DOWN]\" BORDER=\"0\" SRC=\"/icons/down.gif\" WIDTH=10></A>";
 
 
 # Insert an extra table break before those numbers
-$BREAK{"01"}   =  "User Space";
-$BREAK{"03"}   =  "Reserved Usage Space Area";
-$BREAK{"06"}   =  "Production Disks / Special usage/ Assigned TEMPORARY space for Projects";
-$BREAK{"23"}   =  "Production Disks";
+my %BREAK;
+$BREAK{"01"}   =  "User Space and Reserved Usage Space Area";
+$BREAK{"06"}   =  "Assigned TEMPORARY space for sub-systems and Core-Activities";
+$BREAK{"23"}   =  "Data Production Disks";
 
 # Addiitonal header based on patterns
 $BHEAD{"inst"} =  "Institution or specialized usage disks";
@@ -64,13 +87,14 @@ $TAG           = "Disk_Group_";
 
 
 # Exclude those completely (alias, un-usable etc ...)
-#$DEXCLUDE{"46"} = 1;
+##$DEXCLUDE{"46"} = 1;
 
 
 # Added 2005 to skip searching the root dir for the README.
 # data46 for example could not be scanned at its root by any tool whenever
 # mounted over NFS (was PANFS).
-$RDMEXCLUDE{"/star/data46"} = 1;
+my %RDMEXCLUDE;
+#$RDMEXCLUDE{"/star/data46"} = 1;
 
 
 # Standard header style
@@ -112,13 +136,36 @@ foreach $disk (@DISKS){
     } 
     $pdisk = $disk;
 
+    # treat aliases
+    if ( defined($ALIAS{$disk}) ){
+	$disk = $ALIAS{$disk};
+    }
+
+
     if ( ! -e "$disk" && ! -e "$disk/."){  next;}  # -l may be a unmounted disk
     if ( ! -d "$disk/." ){                         # this is definitly not mounted
-	$DINFO{$disk} = "?;?;?;?;".
+	$DINFO{$pdisk} = "?;?;?;?;".
 	    "<BLINK><B><FONT COLOR=#FF0000>Offline or bad mount point".
 		"</FONT></B></BLINK>; ";
 	next;
     }
+    
+    # Format of DINFO is a list of information separated by ";"
+    #   Total size in Bytes (a later treatment will add TB size info)
+    #   Space used on device
+    #   Space left on device
+    #   %tage used
+    #   Comment
+
+    # we have already sorted out the alias - if it resolves again,
+    # this means we have a merging
+    if ( defined($ALIAS{$disk}) ){
+	$DINFO{$pdisk} = "-;-;-;;".
+	    "<FONT SIZE=\"-1\"><FONT COLOR=\"$DGREY\">Merged with $disk</FONT></FONT>";
+	next;
+    }
+
+
 
     # print "DEBUG Checking $disk using $DF\n";
     chomp($res = `$DF $disk | /bin/grep % | /bin/grep '/'`);
@@ -166,9 +213,9 @@ foreach $disk (@DISKS){
 		$ver =~ s/.*\///;
 		$LIBS{$ver} = 1;
 		if ( defined($ALIBS{$ver}) ){
-		    $ALIBS{$ver} .= "$tmp;$disk ";
+		    $ALIBS{$ver} .= "$tmp;$pdisk ";
 		} else {
-		    $ALIBS{$ver}  = "$tmp;$disk ";
+		    $ALIBS{$ver}  = "$tmp;$pdisk ";
 		}
 	    }
 	}
@@ -176,7 +223,7 @@ foreach $disk (@DISKS){
     }
 
 
-    $DINFO{$disk} = "$tota;$used;$avai;$prct;";
+    $DINFO{$pdisk} = "$tota;$used;$avai;$prct;";
     $trg = " ";
     foreach $tmp (@TRGS){
 	$trg .= "$tmp ";
@@ -184,7 +231,7 @@ foreach $disk (@DISKS){
 
     # print "DEBUG Will now search for a README file on $disk\n";
 
-    if ( ! defined($RDMEXCLUDE{$disk}) ){
+    if ( ! defined($RDMEXCLUDE{$disk}) && ! defined($RDMEXCLUDE{$pdisk}) ){
 	if ( -e "$disk/AAAREADME"){
 	    @all = `/bin/cat $disk/AAAREADME`;
 
@@ -200,8 +247,7 @@ foreach $disk (@DISKS){
 		$tmp .= "&nbsp; $l<BR>\n";
 	    }
 	    $tmp .= "</FONT>\n";
-	    $README{$disk} = $tmp;
-	    
+	    $README{$pdisk} = $tmp;
 	}
     }
 
@@ -209,9 +255,9 @@ foreach $disk (@DISKS){
     # Add the list of trigger setup
     #
     if ( $trg !~ m/^\s*$/ ){
-	$DINFO{$disk} .= "<FONT SIZE=\"-1\" FACE=\"verdana\">$trg</FONT>";
+	$DINFO{$pdisk} .= "<FONT SIZE=\"-1\" FACE=\"verdana\">$trg</FONT>";
     }
-    $DINFO{$disk} .= ";";
+    $DINFO{$pdisk} .= ";";
 
     
     
@@ -221,7 +267,7 @@ foreach $disk (@DISKS){
     foreach $tmp (keys %LIBS){
 	$ver .= "<A HREF=\"#".&GetRef($tmp)."\">$tmp</A> ";
     }
-    $DINFO{$disk} .= "$ver;";
+    $DINFO{$pdisk} .= "$ver;";
     # print STDERR "$disk --> $DINFO{$disk}\n";
 }
 
@@ -257,7 +303,8 @@ print $FO
     "<UL>\n";
 
 # add markers
-foreach $tmp (keys %BREAK){
+my @T = keys %BREAK;
+foreach $tmp ( sort @T ){
     print $FO "<LI><A HREF=\"\#$TAG$tmp\">$BREAK{$tmp}</A>\n";
 }
 foreach $tmp (keys %BHEAD){
@@ -271,9 +318,10 @@ print $FO
 
 for ($i=0 ; $i <= $#COLORS ; $i++){
     $low  = int(100*$i/($#COLORS+1));
-    $high = int(100*($i+1)/($#COLORS+1));
+    $high = int(100*($i+1)/($#COLORS+1)-1);
     print $FO "\t<TD BGCOLOR=\"$COLORS[$i]\">$low - $high</TD>\n";
 }
+print $FO "\t<TD BGCOLOR=\"$RED\">100</TD>\n";
 
 print $FO
     "</TR>\n</TABLE>\n",
@@ -291,6 +339,18 @@ $col     = 0;
 
 foreach $disk ( sort keys %DINFO){
     #print STDERR "$disk $DINFO{$disk}\n";
+    $pdisk = $disk;
+
+    # what we will print
+    if ( defined($ALIAS{$disk}) ){
+	$pdisk = 
+	    "<B>$disk</B><BR><FONT SIZE=\"-2\"><FONT COLOR=\"$DGREY\">Alias for ".
+	    $ALIAS{$disk}.
+	    "</FONT></FONT>";
+    } else {
+	$pdisk = "<B>$disk</B>";
+    }
+
 
     # special separators may be inserted anywhere
     if ( $DINFO{$disk} eq "---"){
@@ -308,15 +368,20 @@ foreach $disk ( sort keys %DINFO){
     $items[4] =  "&nbsp;" if ( $items[4] =~ m/^\s*$/);
     $items[5] =  "&nbsp;" if ( $items[5] =~ m/^\s*$/);
 
-    $icol =  $items[3];
-    $icol =~ s/%//;
-    # print "$icol ";
-    $col =  int( ($#COLORS+1) * ( $icol /100.0));
-    # print "$col ";
-    if( $icol >= 99 ){
-	$col = $RED;
+    if ( $items[1] eq "-"){
+	# some grey
+	$col = $COL1COL;
     } else {
-	$col = $COLORS[$col];
+	$icol =  $items[3];
+	$icol =~ s/%//;
+	# print "$icol ";
+	$col =  int( ($#COLORS+1) * ( $icol /100.0));
+	# print "$col ";
+	if( $icol >= 99 ){
+	    $col = $RED;
+	} else {
+	    $col = $COLORS[$col];
+	}
     }
 
     # print "$col\n";
@@ -327,7 +392,8 @@ foreach $disk ( sort keys %DINFO){
 	    printf $FO
 		"<TR BGCOLOR=\"#333333\">".
 	        "  <TD ALIGN=\"center\" COLSPAN=\"6\">".
-		"     <FONT COLOR=\"white\" FACE=\"arial\"><A NAME=\"$TAG$1\">$BREAK{$1}</A></FONT>".
+		"     <FONT COLOR=\"white\" FACE=\"arial\"><FONT SIZE=\"-1\"><A NAME=\"$TAG$1\">".
+		"".                                        "$BREAK{$1}</A></FONT></FONT>".
 	        "  </TD>\n".
 	        "</TR>\n";
 	}
@@ -364,22 +430,41 @@ foreach $disk ( sort keys %DINFO){
     # This is where the lines from the main table get formatted
     #
     # "<TR onMouseOver=\"style.backgroundColor='$col'\" onmouseout=\"style.backgroundColor='$dcol'\">\n".
-    printf $FO
-        "<TR><TD COLSPAN=\"6\"><A NAME=\"%s\"></TD></TR>\n".
-        "<TR>\n".
-	"  <TD align=\"right\" BGCOLOR=\"#DDDDDD\"><B> %10s </B>                                    </TD>\n".
-	"  <TD align=\"right\" BGCOLOR=\"$col\"> %11s<br>(<I>%5.2f TB</I>)                          </TD>\n".
-	"  <TD align=\"right\" BGCOLOR=\"$col\"> %11s<BR>%11s                                       </TD>\n".
-	"  <TD align=\"right\" BGCOLOR=\"$col\"> <B> %3s </B>                                       </TD>\n".
-	"  <TD BGCOLOR=\"$col\">                 %s                                                 </TD>\n".
-	"  <TD align=\"right\" BGCOLOR=\"$col\"> <FONT SIZE=\"-1\">%s%s%s</FONT>                    </TD>\n".
-	"</A></TR>\n",
-	&GetRef($disk),$disk,
-        $items[0],($items[0]/1024/1024/1024), 
-        $items[1],$items[2],
-        $items[3], 
-        $dskinfo,
-        $FCRef,(($FCRef eq "")?"":"<BR>"),$items[5];
+    if ( $items[0] ne "-"){
+	printf $FO
+	    "<TR><TD COLSPAN=\"6\"><A NAME=\"%s\"></TD></TR>\n".
+	    "<TR>\n".
+	    "  <TD align=\"right\" BGCOLOR=\"$COL1COL\">%10s                           </TD>\n".
+	    "  <TD align=\"right\" BGCOLOR=\"$col\"> %11s<br>(<I>%5.2f TB</I>)         </TD>\n".
+	    "  <TD align=\"right\" BGCOLOR=\"$col\"> %11s<BR>%11s                      </TD>\n".
+	    "  <TD align=\"right\" BGCOLOR=\"$col\"> <B> %3s </B>                      </TD>\n".
+	    "  <TD BGCOLOR=\"$col\">                 %s                                </TD>\n".
+	    "  <TD align=\"right\" BGCOLOR=\"$col\"> <FONT SIZE=\"-1\">%s%s%s</FONT>   </TD>\n".
+	    "</A></TR>\n",
+	    &GetRef($disk),$pdisk,
+	    $items[0],($items[0]/1024/1024/1024), 
+	    $items[1],$items[2],
+	    $items[3], 
+	    $dskinfo,
+	    $FCRef,(($FCRef eq "")?"":"<BR>"),$items[5];
+    } else {
+	printf $FO
+	    "<TR><TD COLSPAN=\"6\"><A NAME=\"%s\"></TD></TR>\n".
+	    "<TR>\n".
+	    "  <TD align=\"right\" BGCOLOR=\"#DDDDDD\">%10s                            </TD>\n".
+	    "  <TD align=\"right\" BGCOLOR=\"$col\"> %11s                              </TD>\n".
+	    "  <TD align=\"right\" BGCOLOR=\"$col\"> %11s                              </TD>\n".
+	    "  <TD align=\"right\" BGCOLOR=\"$col\"> <B> %3s </B>                      </TD>\n".
+	    "  <TD BGCOLOR=\"$col\">                 %s                                </TD>\n".
+	    "  <TD align=\"right\" BGCOLOR=\"$col\"> <FONT SIZE=\"-1\">%s%s%s</FONT>   </TD>\n".
+	    "</A></TR>\n",
+	    &GetRef($disk),$pdisk,
+	    $items[0],
+	    $items[1],
+	    $items[3], 
+	    $dskinfo,
+	    $FCRef,(($FCRef eq "")?"":"<BR>"),$items[5];
+    }
 
     $totals[0] += $items[0];
     $totals[1] += $items[1];
