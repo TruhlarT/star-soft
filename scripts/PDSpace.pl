@@ -29,30 +29,30 @@ $MAIN  = "/star/data";                                   # default base path
 	  "/star/scratch",
 	  "/star/rcf",
 	  "/star/xrootd",
-	  "/star/starlib");                       
+	  "/star/starlib");
 
 %ALIAS = (                                               # a list of aliases for sorting
-          "/star/data01" => "/gpfs01/star/pwg",							 
+          "/star/data01" => "/gpfs01/star/pwg",
           "/star/data02" => "/star/data01",		 # an alias pointing to another will merge
 
           "/star/data03" => "/gpfs01/star/daq",
           "/star/data04" => "/gpfs01/star/usim",
-          "/star/data05" => "/gpfs01/star/scratch",			
-				 
-          "/star/data06" => "/gpfs01/star/subsysg",							 
+          "/star/data05" => "/gpfs01/star/scratch",
+
+          "/star/data06" => "/gpfs01/star/subsysg",
           "/star/data07" => "/star/data06",             # merge with data06
-							 
-          "/star/rcf"    => "/gpfs01/star/rcf",	
-          "/star/xrootd" => "/gpfs01/star/XROOTD",						 
+
+          "/star/rcf"    => "/gpfs01/star/rcf",
+          "/star/xrootd" => "/gpfs01/star/XROOTD",
 
           "/star/institutions/uky" => "/gpfs01/star/i_uky",
-          ); 
+          );
 
 
 # Static configuration
 $OUTD  = "/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/Spider"; # this will be used for Catalog hand-shake
 $ICON1 = "/icons/transfer.gif";                                # Icon to display for indexer result
-$ICON2 = "/images/Spider1.jpg";                                # Icon to display for spider result
+#$ICON2 = "/images/Spider1.jpg";                               # Icon to display for spider result
 
 $SpiderControl = "/cgi-bin/%%RELP%%/SpiderControl.cgi"; # a CGI controling the spiders
 
@@ -62,14 +62,14 @@ $DINFO =~ s/%%RELP%%/public/;
 
 
 @COLORS = ("#7FFFD4","#40E0D0","#00DEFF","#87CEFA","#CCCCEE","#D8BFD8","#DB7093"); #"#D02090"); #"#FF69B4");
-$RED    = "#B03060"; 
+$RED    = "#B03060";
 
 $DGREY  = "#777777";     # dark grey color for some info
 $COL1COL= "#DDDDDD";     # light grey for the first column and eventually, a row
 
 
 $UPGO = "<A HREF=\"#TOP\"><IMG ALT=\"[TOP]\"  BORDER=\"0\" SRC=\"/icons/up.gif\"   WIDTH=10></A>";
-$DOWN = "<A HREF=\"#BOT\"><IMG ALT=\"[DOWN]\" BORDER=\"0\" SRC=\"/icons/down.gif\" WIDTH=10></A>";
+#$DOWN = "<A HREF=\"#BOT\"><IMG ALT=\"[DOWN]\" BORDER=\"0\" SRC=\"/icons/down.gif\" WIDTH=10></A>";
 
 
 # Insert an extra table break before those numbers
@@ -87,6 +87,7 @@ $TAG           = "Disk_Group_";
 
 
 # Exclude those completely (alias, un-usable etc ...)
+my %DEXCLUDE;
 ##$DEXCLUDE{"46"} = 1;
 
 
@@ -133,7 +134,7 @@ foreach $disk (@DISKS){
 	# print "Found a separator $disk $pdisk\n";
 	$DINFO{$pdisk."_".$2} = "---";
 	next;
-    } 
+    }
     $pdisk = $disk;
 
     # treat aliases
@@ -149,13 +150,19 @@ foreach $disk (@DISKS){
 		"</FONT></B></BLINK>; ";
 	next;
     }
-    
+
     # Format of DINFO is a list of information separated by ";"
     #   Total size in Bytes (a later treatment will add TB size info)
     #   Space used on device
     #   Space left on device
     #   %tage used
     #   Comment
+    #
+    # If the total size field is "-", the display format will be a grey
+    # row and no attempt to covert size in TB.
+    # The syntax may also contain other characters and "?" is used when
+    # an automated pattern does not lead to a mounted disk.
+    #
 
     # we have already sorted out the alias - if it resolves again,
     # this means we have a merging
@@ -237,7 +244,7 @@ foreach $disk (@DISKS){
 
 	    $tmp = "<FONT SIZE=\"-1\" FACE=\"helvetica,sans-serif\">\n";
 	    foreach $l (@all){
-	  	chomp($l); 
+	  	chomp($l);
 		if ( length($l) >= 80){
 		    $l = substr($l,0,75)." [...]";
 		}
@@ -259,8 +266,8 @@ foreach $disk (@DISKS){
     }
     $DINFO{$pdisk} .= ";";
 
-    
-    
+
+
     # print "DEBUG Done and ready to format information ...\n";
 
     $ver = " ";
@@ -303,8 +310,7 @@ print $FO
     "<UL>\n";
 
 # add markers
-my @T = keys %BREAK;
-foreach $tmp ( sort @T ){
+foreach $tmp ( sort keys %BREAK ){
     print $FO "<LI><A HREF=\"\#$TAG$tmp\">$BREAK{$tmp}</A>\n";
 }
 foreach $tmp (keys %BHEAD){
@@ -343,7 +349,7 @@ foreach $disk ( sort keys %DINFO){
 
     # what we will print
     if ( defined($ALIAS{$disk}) ){
-	$pdisk = 
+	$pdisk =
 	    "<B>$disk</B><BR><FONT SIZE=\"-2\"><FONT COLOR=\"$DGREY\">Alias for ".
 	    $ALIAS{$disk}.
 	    "</FONT></FONT>";
@@ -368,7 +374,7 @@ foreach $disk ( sort keys %DINFO){
     $items[4] =  "&nbsp;" if ( $items[4] =~ m/^\s*$/);
     $items[5] =  "&nbsp;" if ( $items[5] =~ m/^\s*$/);
 
-    if ( $items[1] eq "-"){
+    if ( $items[0] eq "-"){
 	# some grey
 	$col = $COL1COL;
     } else {
@@ -412,24 +418,23 @@ foreach $disk ( sort keys %DINFO){
 	}
     }
 
-    
+
     $idx++;
     $FCRef = &GetFCRef("FC",$ICON1,$disk);
     if ($FCRef ne ""){
 	$FCRef = "<A HREF=\"#FCREF\">$FCRef</A>";
     }
-    $dcol  = "#EFEFEF";
-    
+
+    # if a readme exists, shows it 
     if ( defined($README{$disk}) ){
 	$dskinfo = $README{$disk}.$items[4];
     } else {
 	$dskinfo = $items[4];
     }
-    
+
     #
     # This is where the lines from the main table get formatted
     #
-    # "<TR onMouseOver=\"style.backgroundColor='$col'\" onmouseout=\"style.backgroundColor='$dcol'\">\n".
     if ( $items[0] ne "-"){
 	printf $FO
 	    "<TR><TD COLSPAN=\"6\"><A NAME=\"%s\"></TD></TR>\n".
@@ -442,9 +447,9 @@ foreach $disk ( sort keys %DINFO){
 	    "  <TD align=\"right\" BGCOLOR=\"$col\"> <FONT SIZE=\"-1\">%s%s%s</FONT>   </TD>\n".
 	    "</A></TR>\n",
 	    &GetRef($disk),$pdisk,
-	    $items[0],($items[0]/1024/1024/1024), 
+	    $items[0],($items[0]/1024/1024/1024),
 	    $items[1],$items[2],
-	    $items[3], 
+	    $items[3],
 	    $dskinfo,
 	    $FCRef,(($FCRef eq "")?"":"<BR>"),$items[5];
     } else {
@@ -461,7 +466,7 @@ foreach $disk ( sort keys %DINFO){
 	    &GetRef($disk),$pdisk,
 	    $items[0],
 	    $items[1],
-	    $items[3], 
+	    $items[3],
 	    $dskinfo,
 	    $FCRef,(($FCRef eq "")?"":"<BR>"),$items[5];
     }
@@ -515,7 +520,7 @@ if ($#FCRefs == -1){
 
 	$refdisk = $disk;
 	$refdisk =~ s/\//_/g;
-	
+
 	# remove previous ref but presrve icon and numbers
 	$ind     =~ s/.*<IMG/<IMG/;
 	$ind     =~ s/<\/A>//;
