@@ -20,9 +20,12 @@ $MIN   =  1;                                             # 4
 $MAX   =  6;                                             # for testing
 $MAX   = 99;                                             # Upper number ; can be as high
 $MAIN  = "/star/data";                                   # default base path
+
+# An array of disks to add to the $MAIN pattern - entries can also be wildcarded patterns
+# which will be used in a glob() statement or sunngle disk entries
 @ADDD  = (
-          "/star/institutions/*",                        # will be used in a glob statement
-          "/star/subsys/*",                              # ditto
+          "/star/institutions/*",                        
+          "/star/subsys/*",                              
 	  "/star/u",
 	  "/star/simu",
 	  "/star/grid",
@@ -31,21 +34,32 @@ $MAIN  = "/star/data";                                   # default base path
 	  "/star/xrootd",
 	  "/star/starlib");
 
-%ALIAS = (                                               # a list of aliases for sorting
+# Associative array if aliases - aliases can be used for sorting
+# If an alias also A->B exists as B->, then A is considered merged
+# wih A.
+%ALIAS = (                                               
           "/star/data01" => "/gpfs01/star/pwg",
-          "/star/data02" => "/star/data01",		 # an alias pointing to another will merge
+          "/star/data02" => "/star/data01",	        # merged
 
           "/star/data03" => "/gpfs01/star/daq",
           "/star/data04" => "/gpfs01/star/usim",
           "/star/data05" => "/gpfs01/star/scratch",
 
           "/star/data06" => "/gpfs01/star/subsysg",
-          "/star/data07" => "/star/data06",             # merge with data06
+          "/star/data07" => "/star/data06",             # merged 
 
           "/star/rcf"    => "/gpfs01/star/rcf",
           "/star/xrootd" => "/gpfs01/star/XROOTD",
 
           "/star/institutions/uky" => "/gpfs01/star/i_uky",
+          );
+
+# Associative array containing patterns - patterns can be overwritten but the order
+# matters (the first encountered will stop parsing). All sizes will be reduced by the
+# replication factor
+%REPLICATION = (
+          "/gpfs01/star/XROOTD" => 1,
+          "/gpfs01/"            => 2,
           );
 
 
@@ -182,15 +196,29 @@ foreach $disk (@DISKS){
 
     # print STDERR "$disk $res\n";
 
+    $rep    = 0;
+    foreach $pat (keys %REPLICATION){
+	if ($disk =~ m/$pat/){
+	    $rep = $REPLICATION{$pat};
+	    #print "DEBUG: $disk matches $pat => $rep\n";
+	    last;
+	}
+    }
+    if ( $rep == 0){
+	#print "DEBUG: $disk did not match any patterns\n";
+	$rep = 1;
+    }
+
+
     if ($#items < 5){
-	$tota = $items[0];
-	$used = $items[1];
-	$avai = $items[2];
+	$tota = $items[0] / $rep;
+	$used = $items[1] / $rep;
+	$avai = $items[2] / $rep;
 	$prct = $items[3];
     } else {
-	$tota = $items[1];
-	$used = $items[2];
-	$avai = $items[3];
+	$tota = $items[1] / $rep;
+	$used = $items[2] / $rep;
+	$avai = $items[3] / $rep;
 	$prct = $items[4];
     }
     # print STDERR "\t$tota $used $avai $prct\n";
@@ -231,6 +259,12 @@ foreach $disk (@DISKS){
 
 
     $DINFO{$pdisk} = "$tota;$used;$avai;$prct;";
+
+    # add the replication information
+    if ( $rep > 1){
+	$DINFO{$pdisk} .= "<I>This disk has a replication factor of x$rep</i><br>";
+    }
+
     $trg = " ";
     foreach $tmp (@TRGS){
 	$trg .= "$tmp ";
