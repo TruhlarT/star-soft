@@ -51,7 +51,11 @@ $MAIN  = "/star/data";                                   # default base path
           "/star/rcf"    => "/gpfs01/star/rcf",
           "/star/xrootd" => "/gpfs01/star/XROOTD",
 
-          "/star/institutions/uky" => "/gpfs01/star/i_uky",
+          "/star/institutions/lbl"          => "/gpfs01/star/i_lbl",
+          "/star/institutions/lbl_prod"     => "/gpfs01/star/i_lbl_prod",
+          "/star/institutions/lbl_scratch"  => "/gpfs01/star/i_lbl_scratch",
+          "/star/institutions/ucla"         => "/gpfs01/star/i_ucla",
+          "/star/institutions/uky"          => "/gpfs01/star/i_uky",
           );
 
 # Associative array containing patterns - patterns can be overwritten but the order
