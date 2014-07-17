@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.50 2013/01/29 16:27:42 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.51 2014/07/17 21:56:23 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -13,17 +13,22 @@ use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use ABUtils;
 
 # Source, library, directory
-$LIBRARY = "adev";                   # Default library version to work with
-$TRGTDIR = IUHtmlDir();              # Directory where the reports will be at the end
-$COMPDIR = "";                       # Compilation directory (later assigned)
+$LIBRARY = "adev";                     # Default library version to work with
+$TRGTDIR = IUHtmlDir();                # Dir where the reports will be at the end
+$COMPDIR = "";                         # Compilation directory (later assigned)
 
 
 # Cvs command and directory
-$CVSCMDT = "cvs -n -q checkout -A";  # check differences and updates
-$CVSCMDR = "cvs -q checkout -A";     # first timer directory or real checkout
-$CVSUPDC = "cvs update -A";          # update command
-$BY      = 50;                       # checkout by
-@DIRS    = IUSourceDirs();           # default relative directories to checkout
+#if ( -x "/usr/bin/cvs"){
+#    $CVSCMD = "/usr/bin/cvs";
+#} else {
+    $CVSCMD = "cvs";
+#}
+$CVSCMDT = "$CVSCMD -n -q checkout -A";#  check differences and updates
+$CVSCMDR = "$CVSCMD -q checkout -A";   # first timer directory or real checkout
+$CVSUPDC = "$CVSCMD update -A";        # update command
+$BY      = 50;                         # checkout by
+@DIRS    = IUSourceDirs();             # default relative directories to checkout
 
 
 # tasks to peform after compilation
