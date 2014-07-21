@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.57 2014/07/03 19:35:36 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.58 2014/07/21 16:19:52 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.58  2014/07/21 16:19:52  didenko
+# add auau 200GeV run 2014 production_low dataset for year 2014 with pxl chain
+#
 # Revision 1.57  2014/07/03 19:35:36  didenko
 # remove simu directories
 #
@@ -176,6 +179,7 @@ my $debugOn = 0;
 my $rand = rand(100);
 my @prod_set = (
                 "daq_sl302/year_2014/AuAu200_production_mid_2014",
+                "daq_sl302/year_2014/AuAu200_production_low_2014",
                 "daq_sl302/year_2014/AuHe3_production_2014",
                 "daq_sl302/year_2014/AuAu200_production_2014",
                 "daq_sl302/year_2014/production_15GeV_2014",
