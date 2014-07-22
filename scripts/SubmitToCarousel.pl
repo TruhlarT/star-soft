@@ -37,8 +37,9 @@ my $nl = 0;
 
 my @daqlist = `ls $daqpat` ;
 
-my $MAXNUM = 500;
-my $LIMNUM = 400;
+my $MAXNUM = 900;
+my $LIMNUM = 600;
+my $NNUM = 100;
 
 print "There are  ", scalar(@daqlist),"  daq files in the ", $nfspath,"  directory", "\n";
  
@@ -57,7 +58,7 @@ print "There are  ", scalar(@daqlist),"  daq files in the ", $nfspath,"  directo
     $cursor->finish();
 
 
- if(scalar(@daqlist) <= $MAXNUM and scalar(@prdset) < $MAXNUM  ) {
+ if(scalar(@daqlist) <= $MAXNUM and scalar(@prdset) < $NNUM  ) {
 
 # if(scalar(@daqlist) <= $MAXNUM  ) {
 
