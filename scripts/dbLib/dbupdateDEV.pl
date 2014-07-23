@@ -22,10 +22,12 @@ $dbname="LibraryJobs";
 
 $JobStatusT = "JobStatus";
 $FilesCatalogT = "FilesCatalog";
+$JobQAT = "newJobsQA";
+
 
 my $TOP_DIRD = "/star/rcf/test/dev/";
 
-my @dir_year = ("year_2000", "year_2001", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008","year_2009", "year_2010", "year_2011", "year_2012");
+my @dir_year = ("year_2000", "year_2001", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008","year_2009", "year_2010", "year_2011", "year_2012", "year_2013", "year_2014");
 my @node_dir = ("daq_sl302.ittf", "daq_sl302.ittf_opt" ,"trs_sl302.ittf", "trs_sl302.ittf_opt","simu");
 
 
@@ -351,7 +353,14 @@ struct JFileAttr => {
  my $jEvSkip;
  my $logName; 
  my $crCode = "n\/a"; 
- 
+ my $nMtdHits = 0;
+ my $nPxlHits = 0;
+ my $totMtdHits = 0;
+ my $totPxlHits = 0;
+ my $avgMtdHits = 0;
+ my $avgPxlHits = 0;
+
+
   $now = time;
 ##### connect to DB TestJobs
 
@@ -602,6 +611,14 @@ my $pyear = 0;
 
   print  "files to be inserted:", $mjID, " % ",$mpath, " % ",$timeS , " % ", $memFst," % ",$memLst," % ", $mavail, "\n";  
     &fillJSTable();
+##############
+
+   if($mpath =~ /AuAu200_production_low_2014/ ) {
+    next if ($mpath =~ /nohft/);
+    &fillQATable();
+   }
+
+############
 
    }else{
    }  
@@ -609,14 +626,14 @@ my $pyear = 0;
      next;
    }
     last;
-	}
+      }
     }
     }else {
       next;
     }
    }
  closedir DIR;
-   }
+  }
  }
 
 
@@ -710,6 +727,15 @@ my $pyear = 0;
 ###########################
 
     &fillJSTable();
+
+########## remove next week
+
+  if($mpath =~ /AuAu200_production_low_2014/ ) {
+    next if ($mpath =~ /nohft/);
+    &fillQATable();
+   }
+
+##########
 
         foreach my $nOldJob (@old_jobs) {
           $pvjbId = ($$nOldJob)->oldjbId;
@@ -1158,6 +1184,7 @@ foreach  $eachOutNDir (@OUT_DIR) {
     print "Filling Files Catalog with DEV output files for testDay and beforeDay\n";
     print "file to be inserted:", $mjID, " % ",$thfullName, " % ", $mcTime," % ", $mavail, "\n";
    &fillDbTable();
+
 	    }else{
 	    }
 	}else{          
@@ -1318,6 +1345,23 @@ sub fillJSTable {
     $new_id = $dbh->{'mysql_insertid'};  
 
   }
+############
+sub fillQATable {
+
+    $sql="insert into $JobQAT set ";
+    $sql.="jobID='$mjID',";
+    $sql.="LibTag='$libV',";
+    $sql.="path='$mpath',";
+    $sql.="logFile='$logName',";
+    $sql.="createTime='$jobTime',";
+    $sql.="jobStatus='$jrun',";
+    $sql.="NoEventDone='$EvDone',";
+    $sql.="PxlHits='$avgPxlHits',";
+    $sql.="MtdHits='$avgMtdHits'"; 
+    print "$sql\n" if $debugOn;
+    $rv = $dbh->do($sql) || die $dbh->errstr;
+    $new_id = $dbh->{'mysql_insertid'}; 
+}
 
 ###########
 sub  updateJSTable {
@@ -1382,6 +1426,13 @@ sub  updateJSTable {
     $EvCom = 0;
    @maker_size = ();
 
+ $nMtdHits = 0;
+ $nPxlHits = 0;
+ $totMtdHits = 0;
+ $totPxlHits = 0;
+ $avgMtdHits = 0;
+ $avgPxlHits = 0;
+
 #---------------------------------------------------------
 
 #  print $fl_log, "\n";
@@ -1409,8 +1460,6 @@ my @tmm = ();
 my $mixline = "StRoot/macros/embedding";
 my $evtcomp = 0;
 my $Err_messg = "none";
-
-
 
 $jrun = "Run not completed";
 
@@ -1474,6 +1523,26 @@ $jrun = "Run not completed";
 # print $mchain, "\n";
 
          }
+      
+   if($fl_log =~ /AuAu200_production_low_2014/ ) {
+
+     next if ($fl_log =~ /nohft/);
+
+      @prt = ();
+      if ( $line =~ /StMtdHitMaker:INFO/ and  $line =~ /MTD hits in event/) {
+      @prt = split( " ", $line) ;
+      $nMtdHits = $prt[2];
+      $totMtdHits += $nMtdHits;
+      }
+      @prt = ();
+      if ( $line =~ /StiPxlHitLoader:loadHits/) {
+      @prt = split( " ", $line) ;
+      $nPxlHits = $prt[3];
+      $totPxlHits += $nPxlHits;
+     }
+#      print "MTD and PXL hits  ", "MTD hits = ", $nMtdHits,"   ","PXL hits = ",$nPxlHits, "\n";
+
+   }
 
 #   get  number of events
 #     if ( $line =~ /QAInfo: Done with Event/ ) {
@@ -1783,6 +1852,16 @@ $jrun = "Run not completed";
 
 #  print "Number of vertices = ", $no_prvertx,"   ", "Number of events ", $no_event,"  ",$EvCom,"  ",$nevent_vtx,"  ",$numevt_vtx, "  Average No vtx = ", $avr_prvertx,"   ","Avg no primary tracks   ", $avr_prtracks,"   ",$avr_prtrck_nfit15, "\n"; 
 
+  if($fl_log =~ /AuAu200_production_low_2014/ ) {
+     next if ($fl_log =~ /nohft/);
+     if($EvDone >= 1) {
+     $avgMtdHits = $totMtdHits/$EvDone;
+     $avgPxlHits = $totPxlHits/$EvDone;
+     }
+  print "Avg #MtdHits = ",  $avgMtdHits, "  ", "Avg #PxlHits = ", $avgPxlHits,"\n";
+
+  }
+
     if ( defined $maker_size[0]) { 
     $memFst = $maker_size[0];
     }else {
@@ -1800,7 +1879,7 @@ $jrun = "Run not completed";
 
 #  } # close log file
 
-}
+ }
 
 
 ######################
