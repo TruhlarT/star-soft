@@ -51,18 +51,8 @@ $MAIN  = "/star/data";                                   # default base path
           "/star/rcf"    => "/gpfs01/star/rcf",
           "/star/xrootd" => "/gpfs01/star/XROOTD",
 
-          # Beta tester 2014/06/12
-          "/star/institutions/uky"          => "/gpfs01/star/i_uky",
-
-          # Moved 2014/07/15
-          "/star/institutions/lbl"          => "/gpfs01/star/i_lbl",
-          "/star/institutions/lbl_prod"     => "/gpfs01/star/i_lbl_prod",
-          "/star/institutions/lbl_scratch"  => "/gpfs01/star/i_lbl_scratch",
-          "/star/institutions/ucla"         => "/gpfs01/star/i_ucla",
-
-          # Moved 2014/07/21
-          "/star/institutions/bnl"          => "/gpfs01/star/i_bnl",
-          "/star/institutions/npiascr"      => "/gpfs01/star/i_npiascr",
+          # Institution disks were added one aftre another and complete transition was
+          # done on 2014/07/22 - Busines logic was added for aliasing all but emn
 
           );
 
@@ -166,7 +156,20 @@ foreach $disk (@DISKS){
     # treat aliases
     if ( defined($ALIAS{$disk}) ){
 	$disk = $ALIAS{$disk};
+
+    } elsif ( $disk =~ /(\/star\/institutions\/)(.*)/ ){
+	# In principle, hard-coding Business Logic is not the greatest idea
+	# but a transiiton in 2014 made this block likely the esaiest way
+	# to simplify ...
+	if ( $disk !~ /\emn/){ 
+	    my $d="/gpfs01/star/i_$2";
+	    if ( -d $d ){
+		$ALIAS{$disk} = $d; # it is re-used later
+		$disk         = $d;
+	    }
+	}
     }
+
 
 
     if ( ! -e "$disk" && ! -e "$disk/."){  next;}  # -l may be a unmounted disk
