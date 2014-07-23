@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.51 2014/07/17 21:56:23 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.52 2014/07/23 16:05:43 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -26,7 +26,7 @@ $COMPDIR = "";                         # Compilation directory (later assigned)
 #}
 $CVSCMDT = "$CVSCMD -n -q checkout -A";#  check differences and updates
 $CVSCMDR = "$CVSCMD -q checkout -A";   # first timer directory or real checkout
-$CVSUPDC = "$CVSCMD update -A";        # update command
+$CVSUPDC = "$CVSCMD update -AP";       # update command
 $BY      = 50;                         # checkout by
 @DIRS    = IUSourceDirs();             # default relative directories to checkout
 
