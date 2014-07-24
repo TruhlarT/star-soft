@@ -45,6 +45,16 @@ my $maxvalue = 10000;
 my @numjobs = ();
 my @Npoint = ();
 
+my @numrun = ();
+my @numstage = ();
+my @numimport = ();
+my @numexport = ();
+my @numqueued = ();
+my @numsubmit = ();
+my @numerror = ();
+my @numdone = ();
+my @numheld = ();
+
 
  my $pryear    =  $query->param('ryear');
  my $fperiod   =  $query->param('period');
@@ -136,6 +146,7 @@ $crsJobStatusT = "newcrsJobState";
  @numimport = ();
  @numexport = ();
  @numqueued = ();
+ @numsubmit = ();
  @numerror = ();
  @numdone = ();
  @numheld = ();
@@ -203,7 +214,7 @@ my $ii = 0;
 	 }
 
 
-        $sql="SELECT running, staging, importing, exporting, queued, done, error, held, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ?  and sdate <= '$nowdatetime' ORDER by sdate ";
+        $sql="SELECT running, staging, importing, exporting, queued, done, error, held, submitted sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ?  and sdate <= '$nowdatetime' ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($day_diff);
@@ -217,7 +228,8 @@ my $ii = 0;
 	     $numdone[$ii]   = $fields[5];
 	     $numerror[$ii]  = $fields[6];
              $numheld[$ii]   = $fields[7];
-             $Npoint[$ii]    = $fields[8]; 
+             $numsubmit[$ii] = $fields[8];             
+             $Npoint[$ii]    = $fields[9]; 
              $ii++;
  
  }
@@ -231,7 +243,7 @@ my $ii = 0;
     } 
 
 
-   @data = (\@Npoint, \@numrun, \@numstage, \@numimport, \@numexport, \@numqueued, \@numdone, \@numerror, \@numheld );
+   @data = (\@Npoint, \@numrun, \@numstage, \@numsubmit, \@numimport, \@numexport, \@numqueued, \@numdone, \@numerror, \@numheld );
 
 my  $graph = new GD::Graph::linespoints(750,650);
 
@@ -250,12 +262,13 @@ if ( ! $graph){
 
    $legend[0] = "jobs running";
    $legend[1] = "jobs staging";
-   $legend[2] = "jobs importing";
-   $legend[3] = "jobs exporting";
-   $legend[4] = "jobs queued";
-   $legend[5] = "jobs done";
-   $legend[6] = "jobs error";
-   $legend[7] = "jobs held";
+   $legend[2] = "jobs submitted";
+   $legend[3] = "jobs importing";
+   $legend[4] = "jobs exporting";
+   $legend[5] = "jobs queued";
+   $legend[6] = "jobs done";
+   $legend[7] = "jobs error";
+   $legend[8] = "jobs held";
 
 
 $xLabelSkip = 2  if( $fperiod eq "day" );
@@ -281,7 +294,7 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
 		y_min_value => $min_y,
 		y_max_value => $max_y,
 		y_number_format => \&y_format,
-		dclrs => [ qw(lblack lblue lgreen lbrown lpurple lred lviolet lorange ) ],
+		dclrs => [ qw(lblack lblue lgreen lbrown lpurple lred lviolet lorange pink) ],
 		line_width => 2,
 		markers => [ 2,3,4,5,6,7,8,9],
 		marker_size => 1,
