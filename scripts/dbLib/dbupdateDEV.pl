@@ -728,14 +728,6 @@ my $pyear = 0;
 
     &fillJSTable();
 
-########## remove next week
-
-  if($mpath =~ /AuAu200_production_low_2014/ ) {
-    next if ($mpath =~ /nohft/);
-    &fillQATable();
-   }
-
-##########
 
         foreach my $nOldJob (@old_jobs) {
           $pvjbId = ($$nOldJob)->oldjbId;
