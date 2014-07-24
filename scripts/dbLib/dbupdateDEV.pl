@@ -1518,8 +1518,6 @@ $jrun = "Run not completed";
       
    if($fl_log =~ /AuAu200_production_low_2014/ ) {
 
-     next if ($fl_log =~ /nohft/);
-
       @prt = ();
       if ( $line =~ /StMtdHitMaker:INFO/ and  $line =~ /MTD hits in event/) {
       @prt = split( " ", $line) ;
@@ -1845,7 +1843,7 @@ $jrun = "Run not completed";
 #  print "Number of vertices = ", $no_prvertx,"   ", "Number of events ", $no_event,"  ",$EvCom,"  ",$nevent_vtx,"  ",$numevt_vtx, "  Average No vtx = ", $avr_prvertx,"   ","Avg no primary tracks   ", $avr_prtracks,"   ",$avr_prtrck_nfit15, "\n"; 
 
   if($fl_log =~ /AuAu200_production_low_2014/ ) {
-     next if ($fl_log =~ /nohft/);
+
      if($EvDone >= 1) {
      $avgMtdHits = $totMtdHits/$EvDone;
      $avgPxlHits = $totPxlHits/$EvDone;
