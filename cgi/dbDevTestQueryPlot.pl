@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.83 2014/07/25 18:34:26 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.84 2014/07/25 18:40:16 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.84  2014/07/25 18:40:16  didenko
+# try more
+#
 # Revision 1.83  2014/07/25 18:34:26  didenko
 # try more
 #
@@ -317,7 +320,7 @@ while($n_weeks >= 0) {
 
 #  $nohftpath = $Nday[$d_week]."/year_2014/AuAu200_production_low.nohft_2014";
 
- if($path =~ /AuAu200_production_low_2014/) {
+ if($set1 eq "daq_sl302/year_2014/AuAu200_production_low_2014") {
    $nohftpath =~ s(low)(low.hft); 
   }
 
