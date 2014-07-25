@@ -1,10 +1,10 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.85 2014/07/25 18:46:30 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.86 2014/07/25 18:52:10 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.85  2014/07/25 18:46:30  didenko
+# Revision 1.86  2014/07/25 18:52:10  didenko
 # check if array fillin
 #
 # Revision 1.83  2014/07/25 18:34:26  didenko
@@ -318,11 +318,11 @@ while($n_weeks >= 0) {
   $agmlpath = "%$path%";
   $agmlpath =~ s($spl[1])($agml)g;
 
-#  $nohftpath = $Nday[$d_week]."/year_2014/AuAu200_production_low.nohft_2014";
+  $nohftpath = $Nday[$d_week]."/year_2014/AuAu200_production_low.nohft_2014";
 
- if($set1 eq "daq_sl302/year_2014/AuAu200_production_low_2014") {
-   $nohftpath =~ s(low)(low.hft); 
-  }
+# if($set1 eq "daq_sl302/year_2014/AuAu200_production_low_2014") {
+#   $nohftpath =~ s(low)(low.hft); 
+#  }
 
 my $qnohftp = "%$nohftpath%";
 
