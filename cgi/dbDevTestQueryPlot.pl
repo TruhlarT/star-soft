@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.89 2014/07/25 19:08:16 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.90 2014/07/25 19:10:31 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.89  2014/07/25 19:08:16  didenko
-# fixed typo
+# Revision 1.90  2014/07/25 19:10:31  didenko
+# cleanup after test
 #
 # Revision 1.87  2014/07/25 18:54:39  didenko
 # come back to joint plot
@@ -507,10 +507,9 @@ my $qnohftp = "%$nohftpath%";
 	}
 
 #############
-#        if($set1 eq "daq_sl302/year_2014/AuAu200_production_low_2014" ) {
+
         if($set1 eq $setbase ) { 
         
-
 	if ($n_weeks == 0) {
 
 	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE ? AND avail='Y' AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? ORDER by createTime DESC LIMIT 5";
@@ -595,13 +594,10 @@ if ($plotVal eq "MemUsage") {
 
 #    @data = (\@Nday, \@point2, \@point6 );
 
-#    if( $set1 eq "daq_sl302/year_2014/AuAu200_production_low_2014") {
-
    if( $set1 eq $setbase ) { 
 
   @data = (\@Nday, \@point2, \@point6, \@point18, \@point20 );
 
-#  @data = (\@Nday, \@point18, \@point20 );
 
     $legend[0] = "$plotVal"."(ittf.optimized)";
     $legend[1] = "$plotVal"."(ittf)";
