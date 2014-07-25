@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.87 2014/07/25 18:54:39 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.88 2014/07/25 19:05:57 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.88  2014/07/25 19:05:57  didenko
+# add valiables
+#
 # Revision 1.87  2014/07/25 18:54:39  didenko
 # come back to joint plot
 #
@@ -280,6 +283,8 @@ my $agmlpath;
 my $pth;
 my $agml;
 my $nohftpath;
+my $setnohft;
+my $setbase;
 
 my $n_weeks = $weeks - 1;
 while($n_weeks >= 0) {
@@ -318,11 +323,10 @@ while($n_weeks >= 0) {
   $agmlpath = "%$path%";
   $agmlpath =~ s($spl[1])($agml)g;
 
-  $nohftpath = $Nday[$d_week]."/year_2014/AuAu200_production_low.nohft_2014";
+  $setbase = "year_2014/AuAu200_production_low_2014" ; 
+  $setnohft = "/year_2014/AuAu200_production_low.nohft_2014" ;
 
-# if($set1 eq "daq_sl302/year_2014/AuAu200_production_low_2014") {
-#   $nohftpath =~ s(low)(low.hft); 
-#  }
+  $nohftpath = $Nday[$d_week].$setnohft;
 
 my $qnohftp = "%$nohftpath%";
 
@@ -503,7 +507,9 @@ my $qnohftp = "%$nohftpath%";
 	}
 
 #############
-        if($set1 eq "daq_sl302/year_2014/AuAu200_production_low_2014" ) {
+#        if($set1 eq "daq_sl302/year_2014/AuAu200_production_low_2014" ) {
+        if($set1 eq $setbase ) { 
+        
 
 	if ($n_weeks == 0) {
 
@@ -589,7 +595,9 @@ if ($plotVal eq "MemUsage") {
 
 #    @data = (\@Nday, \@point2, \@point6 );
 
-    if( $set1 eq "daq_sl302/year_2014/AuAu200_production_low_2014") {
+#    if( $set1 eq "daq_sl302/year_2014/AuAu200_production_low_2014") {
+
+   if( $set1 eq $setbase ) { 
 
   @data = (\@Nday, \@point2, \@point6, \@point18, \@point20 );
 
