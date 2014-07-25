@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.81 2014/07/25 18:26:19 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.82 2014/07/25 18:29:39 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.81  2014/07/25 18:26:19  didenko
-# added comparison of tracks reconstrcution with/without hft
+# Revision 1.82  2014/07/25 18:29:39  didenko
+# try more
 #
 # Revision 1.80  2014/07/25 18:21:59  didenko
 # added comparison of tracks reconstrcution with/without hft
@@ -497,7 +497,7 @@ my $qnohftp = "%$nohftpath%";
 	}
 
 #############
-        if($path = ~ /AuAu200_production_low_2014/) {
+        if($qupath = ~ /AuAu200_production_low_2014/) {
 
 	if ($n_weeks == 0) {
 
@@ -583,7 +583,7 @@ if ($plotVal eq "MemUsage") {
 
 #    @data = (\@Nday, \@point2, \@point6 );
 
-    if( $path =~ /AuAu200_production_low_2014/) {
+    if( $qupath =~ /AuAu200_production_low_2014/) {
 
   @data = (\@Nday, \@point2, \@point6, \@point18, \@point20 );
 
