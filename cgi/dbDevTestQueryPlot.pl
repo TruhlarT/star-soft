@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.88 2014/07/25 19:05:57 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.89 2014/07/25 19:08:16 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.88  2014/07/25 19:05:57  didenko
-# add valiables
+# Revision 1.89  2014/07/25 19:08:16  didenko
+# fixed typo
 #
 # Revision 1.87  2014/07/25 18:54:39  didenko
 # come back to joint plot
@@ -323,7 +323,7 @@ while($n_weeks >= 0) {
   $agmlpath = "%$path%";
   $agmlpath =~ s($spl[1])($agml)g;
 
-  $setbase = "year_2014/AuAu200_production_low_2014" ; 
+  $setbase = "daq_sl302/year_2014/AuAu200_production_low_2014" ; 
   $setnohft = "/year_2014/AuAu200_production_low.nohft_2014" ;
 
   $nohftpath = $Nday[$d_week].$setnohft;
