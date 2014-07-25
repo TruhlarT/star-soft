@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.80 2014/07/25 18:21:59 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.81 2014/07/25 18:26:19 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.81  2014/07/25 18:26:19  didenko
+# added comparison of tracks reconstrcution with/without hft
+#
 # Revision 1.80  2014/07/25 18:21:59  didenko
 # added comparison of tracks reconstrcution with/without hft
 #
@@ -580,13 +583,6 @@ if ($plotVal eq "MemUsage") {
 
 #    @data = (\@Nday, \@point2, \@point6 );
 
-    @data = (\@Nday, \@point2, \@point6, \@point10, \@point12 );
-
-    $legend[0] = "$plotVal"."(ittf.optimized)";
-    $legend[1] = "$plotVal"."(ittf)";
-    $legend[2] = "$plotVal"."(ittf,AgML)";    
-    $legend[3] = "$plotVal"."(ittf.optimized,AgML)"; 
-
     if( $path =~ /AuAu200_production_low_2014/) {
 
   @data = (\@Nday, \@point2, \@point6, \@point18, \@point20 );
@@ -596,8 +592,16 @@ if ($plotVal eq "MemUsage") {
     $legend[2] = "$plotVal"."(ittf,nohft)";    
     $legend[3] = "$plotVal"."(ittf.optimized,nohft)"; 
 
-    }
+    }else{
+  
+    @data = (\@Nday, \@point2, \@point6, \@point10, \@point12 );
 
+    $legend[0] = "$plotVal"."(ittf.optimized)";
+    $legend[1] = "$plotVal"."(ittf)";
+    $legend[2] = "$plotVal"."(ittf,AgML)";    
+    $legend[3] = "$plotVal"."(ittf.optimized,AgML)"; 
+
+   } 
 }
 
 
