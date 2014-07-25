@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.79 2013/06/28 18:21:19 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.80 2014/07/25 18:21:59 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.80  2014/07/25 18:21:59  didenko
+# added comparison of tracks reconstrcution with/without hft
+#
 # Revision 1.79  2013/06/28 18:21:19  didenko
 # remove Mysql
 #
@@ -196,7 +199,8 @@ my @point14 = ();
 my @point15 = ();
 my @point16 = ();
 my @point17 = ();
-
+my @point18 = ();
+my @point20 = ();
 
 my @Nday;
 for($i=0;$i<7*$weeks;$i++) {
@@ -218,6 +222,8 @@ for($i=0;$i<7*$weeks;$i++) {
     $point15[$i]=undef;
     $point16[$i]=undef;
     $point17[$i]=undef;
+    $point18[$i]=undef;
+    $point20[$i]=undef;
     $Nday[$i] = undef;
 }
 
@@ -264,6 +270,7 @@ my $sql;
 my $agmlpath;
 my $pth;
 my $agml;
+my $nohftpath;
 
 my $n_weeks = $weeks - 1;
 while($n_weeks >= 0) {
@@ -284,8 +291,9 @@ while($n_weeks >= 0) {
   
    @spl = split(" ", $set1);
    $path = $spl[0];  
-	$path =~ s(year)($Nday[$d_week]/year);
-
+   $path =~ s(year)($Nday[$d_week]/year);
+   $nohftpath = $path;
+ 
    @spl = ();
    @spl = split("/", $set1);
    $pth = $spl[0]."%" ;
@@ -300,6 +308,14 @@ while($n_weeks >= 0) {
 
   $agmlpath = "%$path%";
   $agmlpath =~ s($spl[1])($agml)g;
+
+#  $nohftpath = $Nday[$d_week]."/year_2014/AuAu200_production_low.nohft_2014";
+
+ if($path =~ /AuAu200_production_low_2014/) {
+   $nohftpath =~ s(low)(low.hft); 
+  }
+
+my $qnohftp = "%$nohftpath%";
 
 	if ($n_weeks == 0) {
 
@@ -475,8 +491,50 @@ while($n_weeks >= 0) {
                 }
 ########               
 	    }
-	   }
 	}
+
+#############
+        if($path = ~ /AuAu200_production_low_2014/) {
+
+	if ($n_weeks == 0) {
+
+	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE ? AND avail='Y' AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? ORDER by createTime DESC LIMIT 5";
+
+ 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
+	$cursor->execute($qnohftp,$day_diff);
+
+	} else {
+	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE ? AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) > ? ORDER by createTime DESC LIMIT 5";
+
+	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
+	$cursor->execute($qnohftp,$day_diff, $day_diff1);
+
+       }
+	while(@fields = $cursor->fetchrow_array) {
+
+	    if ($fields[0] =~ /sl302.ittf_opt/) {
+		$point20[$d_week+7*$rn_weeks] = $fields[1];
+		if($point20[$d_week+7*$rn_weeks] > $max_y) {
+		    $max_y = $point20[$d_week+7*$rn_weeks];
+		}
+		if($point20[$d_week+7*$rn_weeks] < $min_y) {
+		    $min_y = $point20[$d_week+7*$rn_weeks];
+		}
+#######
+		} elsif($fields[0] =~ /sl302.ittf/) {
+		$point18[$d_week+7*$rn_weeks] = $fields[1];
+		if($point18[$d_week+7*$rn_weeks] > $max_y) {
+		    $max_y = $point18[$d_week+7*$rn_weeks];
+		}
+		if($point18[$d_week+7*$rn_weeks] < $min_y) {
+		    $min_y = $point18[$d_week+7*$rn_weeks];
+		}
+
+	      }
+           }
+	}
+#############
+     }
 #############
 
     $n_weeks--;
@@ -528,6 +586,18 @@ if ($plotVal eq "MemUsage") {
     $legend[1] = "$plotVal"."(ittf)";
     $legend[2] = "$plotVal"."(ittf,AgML)";    
     $legend[3] = "$plotVal"."(ittf.optimized,AgML)"; 
+
+    if( $path =~ /AuAu200_production_low_2014/) {
+
+  @data = (\@Nday, \@point2, \@point6, \@point18, \@point20 );
+
+    $legend[0] = "$plotVal"."(ittf.optimized)";
+    $legend[1] = "$plotVal"."(ittf)";
+    $legend[2] = "$plotVal"."(ittf,nohft)";    
+    $legend[3] = "$plotVal"."(ittf.optimized,nohft)"; 
+
+    }
+
 }
 
 
