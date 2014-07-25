@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.84 2014/07/25 18:40:16 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.85 2014/07/25 18:46:30 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.84  2014/07/25 18:40:16  didenko
-# try more
+# Revision 1.85  2014/07/25 18:46:30  didenko
+# check if array fillin
 #
 # Revision 1.83  2014/07/25 18:34:26  didenko
 # try more
@@ -591,12 +591,14 @@ if ($plotVal eq "MemUsage") {
 
     if( $set1 eq "daq_sl302/year_2014/AuAu200_production_low_2014") {
 
-  @data = (\@Nday, \@point2, \@point6, \@point18, \@point20 );
+#  @data = (\@Nday, \@point2, \@point6, \@point18, \@point20 );
 
-    $legend[0] = "$plotVal"."(ittf.optimized)";
-    $legend[1] = "$plotVal"."(ittf)";
-    $legend[2] = "$plotVal"."(ittf,nohft)";    
-    $legend[3] = "$plotVal"."(ittf.optimized,nohft)"; 
+@data = (\@Nday, \@point18, \@point20 );
+
+#    $legend[0] = "$plotVal"."(ittf.optimized)";
+#    $legend[1] = "$plotVal"."(ittf)";
+    $legend[0] = "$plotVal"."(ittf,nohft)";    
+    $legend[1] = "$plotVal"."(ittf.optimized,nohft)"; 
 
     }else{
   
