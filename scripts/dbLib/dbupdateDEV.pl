@@ -360,6 +360,11 @@ struct JFileAttr => {
  my $avgMtdHits = 0;
  my $avgPxlHits = 0;
 
+ my @nmatchMtdHits = ();
+ my $totmatchMtdHits = 0;
+ my $avgmatchMtdHits = 0;
+ my $NevtMtdHits = 0;
+
 
   $now = time;
 ##### connect to DB TestJobs
@@ -500,6 +505,14 @@ my $pyear = 0;
  $memLst = 0; 
  $EvSkip = 0;
  $jobTime = 0; 
+ $nMtdHits = 0;
+ $nPxlHits = 0;
+ $avgMtdHits = 0;
+ $avgPxlHits = 0;
+ @nmatchMtdHits = ();
+ $avgmatchMtdHits = 0;
+ $NevtMtdHits = 0;
+
  @prt = ();
  
       if ($fname =~ /.log/)  {
@@ -1349,6 +1362,7 @@ sub fillQATable {
     $sql.="jobStatus='$jrun',";
     $sql.="NoEventDone='$EvDone',";
     $sql.="PxlHits='$avgPxlHits',";
+    $sql.="MtdMatchHits='$avgmatchMtdHits',";
     $sql.="MtdHits='$avgMtdHits'"; 
     print "$sql\n" if $debugOn;
     $rv = $dbh->do($sql) || die $dbh->errstr;
@@ -1424,6 +1438,10 @@ sub  updateJSTable {
  $totPxlHits = 0;
  $avgMtdHits = 0;
  $avgPxlHits = 0;
+ @nmatchMtdHits = ();
+ $totmatchMtdHits = 0;
+ $avgmatchMtdHits = 0;
+ $NevtMtdHits = 0;
 
 #---------------------------------------------------------
 
@@ -1531,7 +1549,11 @@ $jrun = "Run not completed";
       $totPxlHits += $nPxlHits;
      }
 #      print "MTD and PXL hits  ", "MTD hits = ", $nMtdHits,"   ","PXL hits = ",$nPxlHits, "\n";
+     if ( $line =~ /mtd hit matched with track successfully/ ) {
+	 $nmatchMtdHits[$no_event]++;
+#     print "Number of matched MTD hits  ", $nmatchMtdHits[$no_event], "  ", "in the event #",$no_event, "\n";
 
+     }
    }
 
 #   get  number of events
@@ -1849,6 +1871,17 @@ $jrun = "Run not completed";
      $avgPxlHits = $totPxlHits/$EvDone;
      }
   print "Avg #MtdHits = ",  $avgMtdHits, "  ", "Avg #PxlHits = ", $avgPxlHits,"\n";
+
+     for ($jj = 0; $jj < $no_event; $jj++ ) {
+	 if ( $nmatchMtdHits[$jj] >= 1 ) {
+	     $totmatchMtdHits += $nmatchMtdHits[$jj];
+             $NevtMtdHits++;
+         }
+     }
+        if($NevtMtdHits >= 1) {
+          $avgmatchMtdHits = $totmatchMtdHits/$NevtMtdHits;      
+        }
+  print "Avg number of matched Mtd Hits = ",  $avgmatchMtdHits,"   ", "in number of events =  ", $NevtMtdHits, "\n"; 
 
   }
 
