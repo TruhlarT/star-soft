@@ -214,7 +214,7 @@ my $ii = 0;
 	 }
 
 
-        $sql="SELECT running, staging, importing, exporting, queued, done, error, held, submitted sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ?  and sdate <= '$nowdatetime' ORDER by sdate ";
+        $sql="SELECT running, staging, importing, exporting, queued, done, error, held, submitted, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ?  and sdate <= '$nowdatetime' ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($day_diff);
