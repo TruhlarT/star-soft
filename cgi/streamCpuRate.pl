@@ -277,6 +277,7 @@ $JobStatusT = "JobStatus2013";
        }
     $cursor->finish();
 
+
     $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2014-02-20' order by runDay" ;
 
 
@@ -289,6 +290,37 @@ $JobStatusT = "JobStatus2013";
           $ndy++;
        }
     $cursor->finish();
+
+
+$JobStatusT = "JobStatus2014";
+
+
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $arrprod[$npr] = $mpr;
+          $npr++;
+       }
+    $cursor->finish();
+
+
+    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2014-07-10' order by runDay" ;
+
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $dy = $cursor->fetchrow() ) {
+          $rdays[$ndy] = $dy;
+          $ndy++;
+       }
+    $cursor->finish();
+
 
 
 @rvdays = reverse @rdays ;
@@ -331,7 +363,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P14ia,
+	                          -default=>P14ig,
       			          -size =>1);
  
    print "<p>";
