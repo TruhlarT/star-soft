@@ -52,7 +52,7 @@ my $nowdate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2010","2011","2012","2013");
+my @prodyear = ("2010","2011","2012","2013","2014");
 
 
 my @arperiod = ( );
@@ -247,6 +247,21 @@ $JobStatusT = "JobStatus2013";
     $cursor->finish();
 
 
+$JobStatusT = "JobStatus2014";  
+
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT where runDay >= '2014-07-10' order by runDay ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $arrprod[$npr] = $mpr;
+          $npr++;
+       }
+    $cursor->finish();
+
+
 &StDbProdDisconnect();
 
 my $query = new CGI;
@@ -285,7 +300,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P14ia,
+	                          -default=>P14ig,
       			          -size =>1);
 
 
