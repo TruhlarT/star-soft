@@ -50,7 +50,7 @@ my $nowdate = $todate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2010","2011","2012","2013");
+my @prodyear = ("2010","2011","2012","2013","2014");
 my @arval = ("rtime/cpu","cpu");
 my @arnode = ("rcrs","rcas");
 my @arcrs = ();
@@ -257,6 +257,36 @@ my @cpwb = ();
     $cursor->finish();
 
 
+  $JobStatusT = "JobStatus2014";
+
+
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $arrprod[$npr] = $mpr;
+          $npr++;
+       }
+    $cursor->finish();
+
+
+    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2014-02-20' order by runDay" ;
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $dy = $cursor->fetchrow() ) {
+          $ardays[$ndy] = $dy;
+          $ndy++;
+       }
+    $cursor->finish();
+
+
+
   @rvdays = reverse @ardays ;
 
 &StDbProdDisconnect();
@@ -299,7 +329,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P14ia,
+	                          -default=>P14ig,
       			          -size =>1);
  
     
