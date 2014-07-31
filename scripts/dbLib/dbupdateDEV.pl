@@ -628,6 +628,7 @@ my $pyear = 0;
 
    if($mpath =~ /AuAu200_production_low_2014/ ) {
     next if ($mpath =~ /nohft/);
+    &updateQATable();
     &fillQATable();
    }
 
