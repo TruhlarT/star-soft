@@ -1295,7 +1295,7 @@ sub  updateDbTable {
      $sql="update $FilesCatalogT set ";
      $sql.="avail='$newAvail',";
      $sql.="status= 1";
-     $sql.=" WHERE path = '$pvpath' AND fName = '$pvfile' AND avail = 'Y' ";
+     $sql.=" WHERE path = '$pvpath' AND fName = '$pvfile' AND avail = 'Y'";
      print "$sql\n" if $debugOn;
      $rv = $dbh->do($sql) || die $dbh->errstr;
 
@@ -1363,7 +1363,8 @@ sub fillQATable {
     $sql.="NoEventDone='$EvDone',";
     $sql.="PxlHits='$avgPxlHits',";
     $sql.="MtdMatchHits='$avgmatchMtdHits',";
-    $sql.="MtdHits='$avgMtdHits'"; 
+    $sql.="MtdHits='$avgMtdHits',";
+    $sql.="avail='$mavail'";  
     print "$sql\n" if $debugOn;
     $rv = $dbh->do($sql) || die $dbh->errstr;
     $new_id = $dbh->{'mysql_insertid'}; 
@@ -1374,11 +1375,23 @@ sub  updateJSTable {
 
      $sql="update $JobStatusT set ";
      $sql.="avail='$newAvail'";
-     $sql.=" WHERE path = '$pvpath' AND logFile = '$pvfile'";   
+     $sql.=" WHERE path = '$pvpath' AND logFile = '$pvfile' AND avail = 'Y'";   
      print "$sql\n" if $debugOn;
      $rv = $dbh->do($sql) || die $dbh->errstr;
 
    }
+
+###########
+sub  updateQATable {
+
+     $sql="update $JobQAT set ";
+     $sql.="avail='$newAvail'";
+     $sql.=" WHERE path = '$pvpath' AND jobID = '$pvjbId' AND avail = 'Y'";   
+     print "$sql\n" if $debugOn;
+     $rv = $dbh->do($sql) || die $dbh->errstr;
+
+   }
+
 
 #####=======================================================================
    sub logInfo {
