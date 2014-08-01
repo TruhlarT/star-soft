@@ -208,12 +208,11 @@ my $day_diff = 0;
        while(@fields = $cursor->fetchrow_array) {
            if ($fields[0] =~ /sl302.ittf_opt/) {
                 $point1[$ndt] = $fields[1];
-                $Ndate[$ndt] = $fields[2]; 
           }elsif($fields[0] =~ /sl302.ittf/) {
                 $point2[$ndt] = $fields[1];
-                $Ndate[$ndt] = $fields[2]; 
 
 	  }
+               $Ndate[$ndt] = $fields[2]; 
 	       $ndt++;
           }
 
