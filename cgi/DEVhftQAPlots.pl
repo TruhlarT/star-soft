@@ -36,7 +36,7 @@ my @data = ();
 my @legend = ();
 
 my @prod_set = (
-                "/year_2014/AuAu200_production_low_2014",
+                "year_2014/AuAu200_production_low_2014",
 		);
 
 
@@ -191,8 +191,8 @@ my $day_diff = 0;
  @Ndate = ();
 
  $day_diff = int(7*$qweek);
- $path_opt = "sl302.ittf_opt/%".$tset;
- $path = "sl302.ittf/%".$tset;
+ $path_opt = "sl302.ittf_opt/%/".$tset;
+ $path = "sl302.ittf/%/".$tset;
 
  &StDbTJobsConnect();
 
@@ -275,9 +275,8 @@ my $graph = new GD::Graph::linespoints(650,500);
  $min_y = 0;
 
     $graph->set(#x_label => "$xlabel",
-                #y_label => "$plotVal",
                 x_label_position => 0.5,
-                title   => "$tset"."($plotVal)",
+                title   => "$tset"." ($plotVal)",
                 y_label => $ylabel,
                 y_tick_number => 10,
                 y_min_value => $min_y,
