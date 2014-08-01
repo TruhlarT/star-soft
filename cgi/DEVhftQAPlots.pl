@@ -221,7 +221,7 @@ my $day_diff = 0;
             $sql="SELECT path, $plotVal FROM $JobQAT WHERE path LIKE ? AND jobStatus=\"Done\" AND createTime like '$Ndate[$ik]%'  ";
 
         $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
-        $cursor->execute($qupath,$day_diff);
+        $cursor->execute($qupath);
 
 
        while(@fields = $cursor->fetchrow_array) {
