@@ -256,13 +256,13 @@ my $graph = new GD::Graph::linespoints(650,500);
 
 
      if( $plotVal eq "avg_ratio_tracks" ) {
-	 $ylabel = "Ratio of global tracks";
+	 $ylabel = "Ratio of global tracks with/without HFT";
      }elsif( $plotVal eq "avg_ratio_tracksnfit15") {
-	 $ylabel = "Ratio of global tracks with nfits >= 15";
+	 $ylabel = "Ratio of global tracks with nfits >= 15 for reco with/without HFT";
      }elsif( $plotVal eq "avg_ratio_primaryT" ) {
-          $ylabel = "Ratio of primary tracks";
+          $ylabel = "Ratio of primary tracks with/without HFT";
      }elsif( $plotVal eq "avg_ratio_primaryTnfit15" ) {
-          $ylabel = "Ratio of primary tracks with nfits >= 15";
+          $ylabel = "Ratio of primary tracks with nfits >= 15 for reco with/without HFT" ;
      }else{
           $ylabel = "Number of hits";
      }
