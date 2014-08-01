@@ -188,6 +188,7 @@ my $path;
 my $qupath;
 my $day_diff = 0;
 
+ @Ndate = ();
 
  &StDbTJobsConnect();
 
@@ -198,7 +199,7 @@ my $day_diff = 0;
   $path = $tset;
   $qupath = "%$path%";
 
-            $sql="SELECT path, $plotVal, date_format(createTime, '%Y-%m-%d') as CDATE FROM $JobQAT WHERE path LIKE ? AND avail='Y' AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? ORDER by CDATE  ";
+            $sql="SELECT path, $plotVal, date_format(createTime, '%Y-%m-%d') as CDATE FROM $JobQAT WHERE path LIKE ? AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? ORDER by createTime  ";
 
         $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
         $cursor->execute($qupath,$day_diff);
@@ -207,7 +208,7 @@ my $day_diff = 0;
        while(@fields = $cursor->fetchrow_array) {
            if ($fields[0] =~ /sl302.ittf_opt/) {
                 $point1[$ndt] = $fields[1];
-
+                $Ndate[$ndt] = $fields[2]; 
           }elsif($fields[0] =~ /sl302.ittf/) {
                 $point2[$ndt] = $fields[1];
                 $Ndate[$ndt] = $fields[2]; 
