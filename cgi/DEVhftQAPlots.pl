@@ -215,25 +215,23 @@ my $day_diff = 0;
 
 
  $qupath = "%$path_opt%";
- $ndt = 0;
 
+      for (my $ik = 0; $ik < $ndt; $ik++) {  
 
-            $sql="SELECT path, $plotVal, date_format(createTime, '%Y-%m-%d') as CDATE FROM $JobQAT WHERE path LIKE ? AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? ORDER by createTime  ";
+            $sql="SELECT path, $plotVal FROM $JobQAT WHERE path LIKE ? AND jobStatus=\"Done\" AND createTime like '$Ndate[$ik]%'  ";
 
         $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
         $cursor->execute($qupath,$day_diff);
 
 
        while(@fields = $cursor->fetchrow_array) {
-                $point2[$ndt] = $fields[1];
-                $Ndate[$ndt] = $fields[2]; 
-	        $ndt++;
+                $point2[$ik] = $fields[1];
           }
 
-
+      }
 
 ########
-   }
+  }
 
 
 &StDbTJobsDisconnect();
@@ -254,9 +252,18 @@ my $graph = new GD::Graph::linespoints(650,500);
 
      @data = (\@Ndate, \@point1, \@point2 );
 
-    $legend[0] = "optimized,rcf)";
-    $legend[1] = "nonoptimized,rcf)";
+    $legend[0] = "nonoptimized";
+    $legend[1] = "optimized";
 
+
+     if( $plotVal =~ /avg_ratio_track/ ) {
+	 $ylabel = "Ratio of global tracks";
+     } elsif( $plotVal =~ /avg_ratio_primary/ ) {
+          $ylabel = "Ratio of primary tracks";
+     }else{
+          $ylabel = "Number of hits";
+     }
+ 
  
  my $xLabelsVertical = 1;
  my $xLabelPosition = 0.5;
@@ -267,7 +274,8 @@ my $graph = new GD::Graph::linespoints(650,500);
     $graph->set(#x_label => "$xlabel",
                 #y_label => "$plotVal",
                 x_label_position => 0.5,
-                title   => "$tset"." ($plotVal)",
+                title   => "$tset"."   ($plotVal)",
+                y_label => $ylabel,
                 y_tick_number => 10,
                 y_min_value => $min_y,
 #                y_max_value => $max_y,
