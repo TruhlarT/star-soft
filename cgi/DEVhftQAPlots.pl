@@ -185,18 +185,20 @@ for($i=1;$i<$weeks;$i++) {
 }
 
 my $path;
+my $path_opt;
 my $qupath;
 my $day_diff = 0;
 
  @Ndate = ();
 
+ $day_diff = int(7*$qweek);
+ $path_opt = "sl302.ittf_opt/%".$tset;
+ $path = "sl302.ittf/%".$tset;
+
  &StDbTJobsConnect();
 
  if( $qweek >= 1 ) {
 
-  $day_diff = int(7*$qweek);
-
-  $path = $tset;
   $qupath = "%$path%";
 
             $sql="SELECT path, $plotVal, date_format(createTime, '%Y-%m-%d') as CDATE FROM $JobQAT WHERE path LIKE ? AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? ORDER by createTime  ";
@@ -206,15 +208,29 @@ my $day_diff = 0;
 
 
        while(@fields = $cursor->fetchrow_array) {
-           if ($fields[0] =~ /sl302.ittf_opt/) {
                 $point1[$ndt] = $fields[1];
-          }elsif($fields[0] =~ /sl302.ittf/) {
-                $point2[$ndt] = $fields[1];
-
-	  }
-               $Ndate[$ndt] = $fields[2]; 
-	       $ndt++;
+                $Ndate[$ndt] = $fields[2]; 
+	        $ndt++;
           }
+
+
+ $qupath = "%$path_opt%";
+ $ndt = 0;
+
+
+            $sql="SELECT path, $plotVal, date_format(createTime, '%Y-%m-%d') as CDATE FROM $JobQAT WHERE path LIKE ? AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? ORDER by createTime  ";
+
+        $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
+        $cursor->execute($qupath,$day_diff);
+
+
+       while(@fields = $cursor->fetchrow_array) {
+                $point2[$ndt] = $fields[1];
+                $Ndate[$ndt] = $fields[2]; 
+	        $ndt++;
+          }
+
+
 
 ########
    }
