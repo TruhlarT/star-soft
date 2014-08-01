@@ -255,10 +255,14 @@ my $graph = new GD::Graph::linespoints(650,500);
     $legend[1] = "optimized";
 
 
-     if( $plotVal =~ /avg_ratio_track/ ) {
+     if( $plotVal eq "avg_ratio_tracks" ) {
 	 $ylabel = "Ratio of global tracks";
-     } elsif( $plotVal =~ /avg_ratio_primary/ ) {
+     }elsif( $plotVal eq "avg_ratio_tracksnfit15") {
+	 $ylabel = "Ratio of global tracks with nfits >= 15";
+     }elsif( $plotVal eq "avg_ratio_primaryT" ) {
           $ylabel = "Ratio of primary tracks";
+     }elsif( $plotVal eq "avg_ratio_primaryTnfit15" ) {
+          $ylabel = "Ratio of primary tracks with nfits >= 15";
      }else{
           $ylabel = "Number of hits";
      }
