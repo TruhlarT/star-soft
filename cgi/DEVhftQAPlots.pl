@@ -37,7 +37,6 @@ my @legend = ();
 
 my @prod_set = (
                 "/year_2014/AuAu200_production_low_2014",
-                "/year_2014/AuAu200_production_mid_2014",
 		);
 
 
@@ -93,7 +92,7 @@ print "<h3 align=center>Select test sample</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'sets',
 			     -values=>\@prod_set,
-			     -size=>1);
+			     -size=>8);
 print "</td><td>";
 print "<h3 align=center> Select plot:</h3>";
 print "<h4 align=center>";
