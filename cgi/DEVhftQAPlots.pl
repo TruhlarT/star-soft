@@ -93,18 +93,18 @@ print "<h3 align=center>Select test sample</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'sets',
 			     -values=>\@prod_set,
-			     -size=>2);
+			     -size=>1);
 print "</td><td>";
 print "<h3 align=center> Select plot:</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'plotVal',
 			     -values=>\@myplot,
-			     -size =>2); 
+			     -size =>8); 
 
 print "</td> </tr> </table><hr><center>";
 print "<br>";
 print "<h3 align=center> How many weeks do you want to show: ";
-print $query->popup_menu(-name=>'weeks',
+print $query->popup_menu(-name=>'nweek',
                          -values=>['1','2','3','4','5','6','7','8','9','10','12','13','14','15','16'],
                          -defaults=>1);
 print "</h4>";
@@ -186,6 +186,8 @@ for($i=1;$i<$weeks;$i++) {
 
 my $path;
 my $qupath;
+my $day_diff = 0;
+
 
  &StDbTJobsConnect();
 
@@ -193,7 +195,7 @@ my $qupath;
 
   $day_diff = int(7*$qweek);
 
-  $path = "/".$Nday[$d_week].$tset;
+  $path = $tset;
   $qupath = "%$path%";
 
             $sql="SELECT path, $plotVal, date_format(createTime, '%Y-%m-%d') as CDATE FROM $JobQAT WHERE path LIKE ? AND avail='Y' AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? ORDER by CDATE  ";
@@ -208,9 +210,9 @@ my $qupath;
 
           }elsif($fields[0] =~ /sl302.ittf/) {
                 $point2[$ndt] = $fields[1];
+                $Ndate[$ndt] = $fields[2]; 
 
 	  }
-               $Ndate[$ndt] = $fields[2]; 
 	       $ndt++;
           }
 
@@ -321,7 +323,7 @@ print <<END;
           <title>Plots for new detecrors QA </title>
    </head>
    <body BGCOLOR=\"#ccffff\">
-     <h1 align=center>No $plotVal data for $tset and $weeks period </h1>
+     <h1 align=center>No $plotVal data for $tset and $qweek period </h1>
 
 
     </body>
