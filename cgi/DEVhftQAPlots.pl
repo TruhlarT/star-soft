@@ -187,6 +187,8 @@ my $path;
 my $path_opt;
 my $qupath;
 my $day_diff = 0;
+my $maxvalue = 0;
+
 
  @Ndate = ();
 
@@ -232,6 +234,27 @@ my $day_diff = 0;
 ########
   }
 
+$maxvalue = 0;
+
+      for (my $ik = 0; $ik < $ndt; $ik++) {  
+
+	  if($point1[$ik] >= $maxvalue ) {
+            $maxvalue = $point1[$ik];
+          }else{
+           next;
+          }  
+      }
+
+     for (my $ik = 0; $ik < $ndt; $ik++) {  
+
+	  if($point2[$ik] >= $maxvalue ) {
+            $maxvalue = $point2[$ik];
+          }else{
+           next;
+          }  
+      }
+
+
 
 &StDbTJobsDisconnect();
 
@@ -273,6 +296,9 @@ my $graph = new GD::Graph::linespoints(650,500);
  my $xLabelSkip = 1;
 
  $min_y = 0;
+ $max_y = 1.5*$maxvalue; 
+
+
 
     $graph->set(#x_label => "$xlabel",
                 x_label_position => 0.5,
