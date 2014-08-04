@@ -296,7 +296,7 @@ my $graph = new GD::Graph::linespoints(650,500);
  my $xLabelSkip = 1;
 
  $min_y = 0;
- $max_y = 1.5*$maxvalue; 
+ $max_y = 1.4*$maxvalue; 
 
 
 
@@ -306,7 +306,7 @@ my $graph = new GD::Graph::linespoints(650,500);
                 y_label => $ylabel,
                 y_tick_number => 10,
                 y_min_value => $min_y,
-#                y_max_value => $max_y,
+                y_max_value => $max_y,
                 y_number_format => \&y_format,
                 labelclr => "lblack",
                 dclrs => [ qw(lblack lred lgreen lpurple lgray lblue lorange lyellow lpink dbrown) ],
