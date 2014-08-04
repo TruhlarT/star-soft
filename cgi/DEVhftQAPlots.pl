@@ -298,6 +298,18 @@ my $graph = new GD::Graph::linespoints(650,500);
  $min_y = 0;
  $max_y = 1.4*$maxvalue; 
 
+$xLabelSkip = 2 if( $qweek eq "4" );
+$xLabelSkip = 2 if( $qweek eq "5" );
+$xLabelSkip = 2 if( $qweek eq "6" );
+$xLabelSkip = 2 if( $qweek eq "7" );
+$xLabelSkip = 2 if( $qweek eq "8" );
+$xLabelSkip = 2 if( $qweek eq "9" );
+$xLabelSkip = 2 if( $qweek eq "10" );
+$xLabelSkip = 3 if( $qweek eq "12" );
+$xLabelSkip = 3 if( $qweek eq "13" );
+$xLabelSkip = 3 if( $qweek eq "14" );
+$xLabelSkip = 4 if( $qweek eq "15" );
+$xLabelSkip = 4 if( $qweek eq "16" );
 
 
     $graph->set(#x_label => "$xlabel",
