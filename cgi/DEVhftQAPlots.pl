@@ -34,6 +34,9 @@ $JobQAT = "newJobsQA";
 my $debugOn = 0;
 my @data = ();
 my @legend = ();
+my @Ndate = ();
+my @Nday = ();
+my $ndt = 0;
 
 my @prod_set = (
                 "year_2014/AuAu200_production_low_2014",
@@ -76,7 +79,7 @@ END
 print $query->startform(-action=>"$scriptname");  
 
 print "<body bgcolor=\"cornsilk\">\n";
-print "<h1 align=center><u>Plots for new detectors code validation</u></h1>\n";
+print "<h1 align=center><u>Plots for new detectors codes validation</u></h1>\n";
 
 print "<br>";
 print "<br>";
@@ -128,13 +131,14 @@ my $qweek   =  $qqr->param('nweek');
 
 my $JobQAT = "newJobsQA";
 
-my @Nday = ();
+ @Nday = ();
 
 my @point1 = ();
 my @point2 = ();
 
-my $ndt = 0;
-my @Ndate = ();
+@Nday = ();
+$ndt = 0;
+@Ndate = ();
 
 for($i=0;$i<7*$qweek;$i++) {
 
