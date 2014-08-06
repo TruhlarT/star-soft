@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.128 2014/07/01 20:30:39 fisyak Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.129 2014/08/06 11:42:53 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -52,7 +52,7 @@ Bfc_st BFC[] = {
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"Geometry    ","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
-  {"AgML" ,"" ,"","-Agi,-VmcGeo","",""
+  {"AgML" ,"" ,"","-Agi,-VmcGeo","","StarAgmlLib,Geometry,StarGeometry"
    , "Alias VmcGeometry to AgiLGeometry",kFALSE},
   {"Agi" ,"" ,"","-VmcGeo","","" ,"Alias VmcGeometry to AgiGeometry (gstar original geometry)",kFALSE},
   {"VmcGeo" ,"" ,"","-AgML,-Agi" ,"","" ,"Alias VmcGeometry to VmcGeo",kFALSE},
@@ -998,7 +998,7 @@ Bfc_st BFC[] = {
   {"Corr5" ,"" ,"","Corr4,SCEbyE,OGridLeak3D,OSpaceZ2","",""
    , "... Corr4+SCEbyE,OGridLeak3D,OSpaceZ2...",kFALSE},
   {"CorrX" ,"" ,"","ExB,OShortR,OBmap,OPr13,OIFC,OSectorAlign,NewTpcAlignment"
-   , "","","New Tpc Alignment",kFALSE},
+   ",-AlignSectors,-OBmap2D,-OClock,-OTwist" ,"","","New Tpc Alignment",kFALSE},
   {"ExB" ,"" ,"","","" ,"","Activate ExB correction",kFALSE},
   {"EB1" ,"" ,"","","" ,"","Force ExB configuration 1",kFALSE},
   {"EB2" ,"" ,"","","" ,"","Force ExB configuration 2",kFALSE},
@@ -1559,7 +1559,7 @@ Bfc_st BFC[] = {
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"Geometry    ","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
-  {"AgML" ,"" ,"","-Agi,-VmcGeo","",""
+  {"AgML" ,"" ,"","-Agi,-VmcGeo","","StarAgmlLib,Geometry,StarGeometry"
    , "Alias VmcGeometry to AgiLGeometry",kFALSE},
   {"Agi" ,"" ,"","-VmcGeo","","" ,"Alias VmcGeometry to AgiGeometry (gstar original geometry)",kFALSE},
   {"VmcGeo" ,"" ,"","-AgML,-Agi" ,"","" ,"Alias VmcGeometry to VmcGeo",kFALSE},
@@ -2505,7 +2505,7 @@ Bfc_st BFC[] = {
   {"Corr5" ,"" ,"","Corr4,SCEbyE,OGridLeak3D,OSpaceZ2","",""
    , "... Corr4+SCEbyE,OGridLeak3D,OSpaceZ2...",kFALSE},
   {"CorrX" ,"" ,"","ExB,OShortR,OBmap,OPr13,OIFC,OSectorAlign,NewTpcAlignment"
-   , "","","New Tpc Alignment",kFALSE},
+   ",-AlignSectors,-OBmap2D,-OClock,-OTwist" ,"","","New Tpc Alignment",kFALSE},
   {"ExB" ,"" ,"","","" ,"","Activate ExB correction",kFALSE},
   {"EB1" ,"" ,"","","" ,"","Force ExB configuration 1",kFALSE},
   {"EB2" ,"" ,"","","" ,"","Force ExB configuration 2",kFALSE},
@@ -3836,7 +3836,7 @@ Int_t StBFChain::Init() {
       SetAttr(".call","SetActive(0)","StTagsMaker::");
       SetAttr(".call","SetActive(0)","StStrangeMuDstMaker::");
     }
-#if 0
+#if 1
     // force load of geometry for VMC and Sti
     
     if (GetOption("Sti") || GetOption("StiCA") || 
