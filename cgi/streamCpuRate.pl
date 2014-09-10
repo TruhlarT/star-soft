@@ -325,6 +325,8 @@ $JobStatusT = "JobStatus2014";
 
 @rvdays = reverse @rdays ;
 
+$nowdate = "2014-09-10";
+
 &StDbProdDisconnect();
 
 my $query = new CGI;
