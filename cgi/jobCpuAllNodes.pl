@@ -257,33 +257,33 @@ my @cpwb = ();
     $cursor->finish();
 
 
-  $JobStatusT = "JobStatus2014";
+#  $JobStatusT = "JobStatus2014";
 
 
-    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
+#    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
 
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
+#      $cursor =$dbh->prepare($sql)
+#          || die "Cannot prepare statement: $DBI::errstr\n";
+#       $cursor->execute();
 
-       while( $mpr = $cursor->fetchrow() ) {
-          $arrprod[$npr] = $mpr;
-          $npr++;
-       }
-    $cursor->finish();
+#       while( $mpr = $cursor->fetchrow() ) {
+#          $arrprod[$npr] = $mpr;
+#          $npr++;
+#       }
+#    $cursor->finish();
 
 
-    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2014-02-20' order by runDay" ;
+#    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2014-02-20' order by runDay" ;
 
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
+#      $cursor =$dbh->prepare($sql)
+#          || die "Cannot prepare statement: $DBI::errstr\n";
+#       $cursor->execute();
 
-       while( $dy = $cursor->fetchrow() ) {
-          $ardays[$ndy] = $dy;
-          $ndy++;
-       }
-    $cursor->finish();
+#       while( $dy = $cursor->fetchrow() ) {
+#          $ardays[$ndy] = $dy;
+#          $ndy++;
+#       }
+#    $cursor->finish();
 
 
 
@@ -398,7 +398,7 @@ my $qnode   = $qqr->param('pnode');
  if( $qprod =~ /P12/ ) {$pryear = "2012"};
  if( $qprod =~ /P13ib/ ) {$pryear = "2012"};
  if( $qprod =~ /P14ia/ ) {$pryear = "2013"};
- if( $qprod =~ /P14ig/ ) {$pryear = "2014"};
+ if( $qprod =~ /P14ig/ ) {$pryear = "2013"};
 
 
   $JobStatusT = "JobStatus".$pryear;
