@@ -292,34 +292,34 @@ $JobStatusT = "JobStatus2013";
     $cursor->finish();
 
 
-$JobStatusT = "JobStatus2014";
+#$JobStatusT = "JobStatus2014";
 
 
-    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
+#    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
 
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
+#      $cursor =$dbh->prepare($sql)
+#          || die "Cannot prepare statement: $DBI::errstr\n";
+#       $cursor->execute();
 
-       while( $mpr = $cursor->fetchrow() ) {
-          $arrprod[$npr] = $mpr;
-          $npr++;
-       }
-    $cursor->finish();
-
-
-    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2014-07-10' order by runDay" ;
+#       while( $mpr = $cursor->fetchrow() ) {
+#          $arrprod[$npr] = $mpr;
+#          $npr++;
+#       }
+#    $cursor->finish();
 
 
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
+#    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2014-07-10' order by runDay" ;
 
-       while( $dy = $cursor->fetchrow() ) {
-          $rdays[$ndy] = $dy;
-          $ndy++;
-       }
-    $cursor->finish();
+
+#      $cursor =$dbh->prepare($sql)
+#          || die "Cannot prepare statement: $DBI::errstr\n";
+#       $cursor->execute();
+
+#       while( $dy = $cursor->fetchrow() ) {
+#          $rdays[$ndy] = $dy;
+#          $ndy++;
+#       }
+#    $cursor->finish();
 
 
 
