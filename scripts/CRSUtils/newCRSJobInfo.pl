@@ -40,7 +40,13 @@ $crsJobStatusT = "CRSJobsInfo";
  my $hour = 0;
  my $min = 0;
  my $sec = 0;
- my $thisday ;
+ my $thisdate ;
+
+ my @prevdate = ();
+ my $nn = 0;
+ my @runstart = ();
+ my $nk = 0;
+
 
  ($sec,$min,$hour,$mday,$mon,$yr) = localtime;
 
@@ -54,13 +60,55 @@ if( $sec < 10) { $sec = '0'.$sec };
 
  $year = $yr + 1900;
 
- $thisday = $year."-".$mon."-".$mday." ".$hour.":".$min.":".$sec;
+ $thisdate = $year."-".$mon."-".$mday." ".$hour.":".$min.":".$sec;
 
 
  print "-------------------------------------","\n";
- print $thisday, "\n";
+ print $thisdate, "\n";
 
    &StcrsdbConnect();
+
+  $sql="SELECT DISTINCT runDate  FROM $crsJobStatusT where flag = 'Start' ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $ftmp = $cursor->fetchrow() ) {
+          $runstart[$nk] = $ftmp;
+          $nk++;
+       }
+    $cursor->finish();
+
+  for ($ii=0;$ii<$nk;$ii++) {
+      if ( $runstart[$ii] eq 'Start') {
+	  exit;
+      }else{
+	  next;
+      }
+   }
+
+
+  $sql="SELECT DISTINCT runDate  FROM $crsJobStatusT where flag = 'Done' ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $tmp = $cursor->fetchrow() ) {
+          $prevdate[$nn] = $tmp;
+          $nn++;
+       }
+    $cursor->finish();
+
+  print "Previous dates ", "\n";
+  for ($ii=0;$ii<$nn;$ii++) {
+   print  $prevdate[$ii], "\n";
+ }
+
+  $sql= "insert into $crsJobStatusT set runDate = '$thisdate', flag = 'Start' ";
+      $dbh->do($sql) || die $dbh->errstr; 
+
 
 ########### jobs in QUEUED
 
@@ -70,7 +118,7 @@ if( $sec < 10) { $sec = '0'.$sec };
 
     foreach my $jline (@joblist) {
      chop $jline ;
-     print $jline, "\n";
+#     print $jline, "\n";
      @wrd = ();
      @wrd = split (" ", $jline);
 #     print $wrd[0],"   ",$wrd[1], "\n";
@@ -162,6 +210,27 @@ if( $sec < 10) { $sec = '0'.$sec };
      $njob++;
  } 
 
+########### jobs in EXPORTING
+
+ @joblist = ();
+
+ @joblist = `crs_job -stat | grep EXPORTING` ;
+
+    foreach my $jline (@joblist) {
+     chop $jline ;
+#     print $jline, "\n";
+     @wrd = ();
+     @wrd = split (" ", $jline);
+#     print $wrd[0],"   ",$wrd[1], "\n";
+
+     $jbId[$njob] = $wrd[0];
+     $jbId[$njob] = substr($wrd[0],0,-1) + 0;
+     $jbstate[$njob] = "EXPORTING";  
+
+     $njob++;
+ } 
+
+
 ########### jobs in ERROR
 
  @joblist = ();
@@ -225,7 +294,7 @@ for($ii = 0; $ii<$njob; $ii++) {
        $jbstreams[$ii] = $spl[1]; 
 
        
-       print "Inserting into table values:  ", $jbstate[$ii]," % ",$jbId[$ii]," % ",$jbtrigs[$ii]," % ",$prodtags[$ii]," % ",$runId[$ii]," % ",$jbstreams[$ii]," % ",$jbfiles[$ii], "\n";
+#       print "Inserting into table values:  ", $jbstate[$ii]," % ",$jbId[$ii]," % ",$jbtrigs[$ii]," % ",$prodtags[$ii]," % ",$runId[$ii]," % ",$jbstreams[$ii]," % ",$jbfiles[$ii], "\n";
 
 
      &fillTable();
@@ -235,38 +304,19 @@ for($ii = 0; $ii<$njob; $ii++) {
 ###########  insert table
 }
 
-for($ii = 0; $ii<$njob; $ii++) {
+    print "Data inserted into the table for $thisdate","\n";
 
-    @outfile = ();
-    @outfile = `crs_job -long $jbId[$ii] | grep laser.root`;
+     $sql= "update $crsJobStatusT set flag = 'Done' where runDate = '$thisdate' and flag = 'Start' ";
+       $dbh->do($sql) || die $dbh->errstr;
 
-     foreach my $fline (@outfile) {
-     if ( $fline =~ /starreco/ ) {
-       @prt = ();
-       @prt = split("starreco", $fline) ;
-       @wrd = ();
-       @wrd = split("/", $prt[1]) ;
-       $jbtrigs[$ii] = $wrd[2];
-       $prodtags[$ii] = $wrd[4];
-       $runId[$ii] = $wrd[7];
-       chop $wrd[8]; 
-       $jbfiles[$ii] = $wrd[8];
-       $jbfiles[$ii] =~ s/laser.root'/daq/g; 
-       @spl = (); 
-       @spl = split("_", $wrd[8]) ; 
-       $jbstreams[$ii] = $spl[1]; 
+    for ($ii=0; $ii<$nn; $ii++) {
+    
+     $sql= "delete from $crsJobStatusT where runDate = '$prevdate[$ii]' ";
+        $dbh->do($sql) || die $dbh->errstr;
 
-       
-       print "Inserting into table values:  ", $jbstate[$ii]," % ",$jbId[$ii]," % ",$jbtrigs[$ii]," % ",$prodtags[$ii]," % ",$runId[$ii]," % ",$jbstreams[$ii]," % ",$jbfiles[$ii], "\n";
+	print "Data deleted for runData = ", $prevdate[$ii], "\n";
 
-
-     &fillTable();
-
-      }
-     }
-###########  insert table
-}
-
+    }
 
  &StcrsdbDisconnect();
 
@@ -285,7 +335,7 @@ exit;
  $sql.="runnumber='$runId[$ii]',";
  $sql.="filename='$jbfiles[$ii]',";
  $sql.="stream='$jbstreams[$ii]',";
- $sql.="runDate='$thisday' "; 
+ $sql.="runDate='$thisdate' "; 
    print "$sql\n" if $debugOn;
 #   $rv = $dbh->do($sql) || die $dbh->errstr;
     $dbh->do($sql) || die $dbh->errstr;
