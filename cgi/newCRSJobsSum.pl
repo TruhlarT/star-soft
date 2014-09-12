@@ -94,7 +94,7 @@ if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
 ##############   find N files
 
 
-   $sql="SELECT count(filename)  FROM $JobStatusT where runnumber = '$runId[$ik]' and runDate like '$maxdate%' ";
+   $sql="SELECT count(filename)  FROM $JobStatusT where runnumber = '$runId[$ik]' and prodtag = '$prodtags[$ik]' and status = '$jbstate[$ik]' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -108,7 +108,7 @@ if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
 ###############   find N streams
 
  
-  $sql="SELECT count(distinct stream)  FROM $JobStatusT where runnumber = '$runId[$ik]'and runDate like '$maxdate%' ";
+  $sql="SELECT count(distinct stream)  FROM $JobStatusT where runnumber = '$runId[$ik]' and prodtag = '$prodtags[$ik]' and status = '$jbstate[$ik]' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
