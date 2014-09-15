@@ -124,6 +124,8 @@ if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
 
  }
 
+my $maxdate = $rundate[0];
+
   for ( my $ii = 0; $ii < $nj; $ii++ ) {  
 
  if($jbstate[$ii] eq "RUNNING" ) {
@@ -137,7 +139,7 @@ print <<END;
 <td HEIGHT=10>$runId[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qdate=$maxdate">$njbfile[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qdate=$maxdate">$nstream[$ii]</td>
-<td HEIGHT=10>$maxdate</td>
+<td HEIGHT=10>$rundate[0]</td>
 </TR>
 END
 
@@ -152,7 +154,7 @@ print <<END;
 <td HEIGHT=10>$runId[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qdate=$maxdate">$njbfile[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qdate=$maxdate">$nstream[$ii]</td>
-<td HEIGHT=10>$maxdate</td>
+<td HEIGHT=10>$rundate[0]</td>
 </TR>
 END
 
@@ -167,7 +169,7 @@ print <<END;
 <td HEIGHT=10>$runId[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qdate=$maxdate">$njbfile[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qdate=$maxdate">$nstream[$ii]</td>
-<td HEIGHT=10>$maxdate</td>
+<td HEIGHT=10>$rundate[0]</td>
 </TR>
 END
 
@@ -182,7 +184,7 @@ print <<END;
 <td HEIGHT=10>$runId[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qdate=$maxdate">$njbfile[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qdate=$maxdate">$nstream[$ii]</td>
-<td HEIGHT=10>$maxdate</td>
+<td HEIGHT=10>$rundate[0]</td>
 </TR>
 END
 
@@ -197,7 +199,7 @@ print <<END;
 <td HEIGHT=10>$runId[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qdate=$maxdate">$njbfile[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qdate=$maxdate">$nstream[$ii]</td>
-<td HEIGHT=10>$maxdate</td>
+<td HEIGHT=10>$rundate[0]</td>
 </TR>
 END
 
@@ -212,7 +214,7 @@ print <<END;
 <td HEIGHT=10>$runId[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qdate=$maxdate">$njbfile[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qdate=$maxdate">$nstream[$ii]</td>
-<td HEIGHT=10>$maxdate</td>
+<td HEIGHT=10>$rundate[0]</td>
 </TR>
 END
 
@@ -228,7 +230,7 @@ print <<END;
 <td HEIGHT=10>$runId[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qdate=$maxdate">$njbfile[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qdate=$maxdate">$nstream[$ii]</td>
-<td HEIGHT=10>$maxdate</td>
+<td HEIGHT=10>$rundate[0]</td>
 </TR>
 END
 
@@ -243,7 +245,7 @@ print <<END;
 <td HEIGHT=10>$runId[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qdate=$maxdate">$njbfile[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qdate=$maxdate">$nstream[$ii]</td>
-<td HEIGHT=10>$maxdate</td>
+<td HEIGHT=10>$rundate[0]</td>
 </TR>
 END
 
@@ -258,7 +260,7 @@ print <<END;
 <td HEIGHT=10>$runId[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qdate=$maxdate">$njbfile[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qdate=$maxdate">$nstream[$ii]</td>
-<td HEIGHT=10>$maxdate</td>
+<td HEIGHT=10>$rundate[0]</td>
 </TR>
 END
 
