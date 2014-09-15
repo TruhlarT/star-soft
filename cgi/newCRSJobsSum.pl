@@ -100,7 +100,7 @@ my $maxdate = $rundate[0];
 ##############   find N files
 
 
-   $sql="SELECT count(filename)  FROM $JobStatusT where runnumber = '$runId[$ik]' and prodtag = '$prodtags[$ik]' and status = '$jbstate[$ik]' and runDate = $maxdate ";
+   $sql="SELECT count(filename)  FROM $JobStatusT where runnumber = '$runId[$ik]' and prodtag = '$prodtags[$ik]' and status = '$jbstate[$ik]' and runDate = '$maxdate' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -114,7 +114,7 @@ my $maxdate = $rundate[0];
 ###############   find N streams
 
  
-  $sql="SELECT count(distinct stream)  FROM $JobStatusT where runnumber = '$runId[$ik]' and prodtag = '$prodtags[$ik]' and status = '$jbstate[$ik]' and runDate = $maxdate ";
+  $sql="SELECT count(distinct stream)  FROM $JobStatusT where runnumber = '$runId[$ik]' and prodtag = '$prodtags[$ik]' and status = '$jbstate[$ik]' and runDate = '$maxdate' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
