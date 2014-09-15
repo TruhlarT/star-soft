@@ -47,7 +47,7 @@ my $JobStatusT = "CRSJobsInfo";
  my $nj = 0;
  my @njbfile = ();
  my @nstream = ();
- my $rundate = ();
+ my @rundate = ();
  my $ni = 0;
 
  my $query = new CGI;
@@ -69,7 +69,7 @@ if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
        }
     $cursor->finish();
 
-  for ( my $kk = 0; $kk < $nl; $kk++ ) {  
+  for ( my $kk = 0; $kk < $ni; $kk++ ) {  
 
     $sql="SELECT DISTINCT status, prodtag, trigset, runnumber  FROM $JobStatusT where runDate = '$rundate[$kk]' order by status, runnumber ";
 
