@@ -40,8 +40,6 @@ my $nowdate = ($year+1900)."-".$mon."-".$mday ." ".$hour.":".$min.":".$sec ;
 
 my $JobStatusT = "CRSJobsInfo";  
 
- my $maxdate = "0000-00-00 00";
-
  my @jbstate  = ();
  my @prodtags = ();
  my @jbtrigs = ();
@@ -49,7 +47,8 @@ my $JobStatusT = "CRSJobsInfo";
  my $nj = 0;
  my @njbfile = ();
  my @nstream = ();
-
+ my $rundate = ();
+ my $ni = 0;
 
  my $query = new CGI;
 
@@ -58,19 +57,21 @@ if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
 
  &StDbConnect();
 
-    $sql="SELECT DISTINCT date_format(max(runDate), '%Y-%m-%d %H') as PDATE FROM $JobStatusT  ";
+    $sql="SELECT DISTINCT runDate FROM $JobStatusT where flag = 'Done'  ";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
     $cursor->execute();
 
     while( $mpr = $cursor->fetchrow() ) {
-          $maxdate = $mpr;
+          $rundate[$ni] = $mpr;
+          $ni++;
        }
     $cursor->finish();
 
+  for ( my $kk = 0; $kk < $nl; $kk++ ) {  
 
-    $sql="SELECT DISTINCT status, prodtag, trigset, runnumber  FROM $JobStatusT where runDate like '$maxdate%' order by status, runnumber ";
+    $sql="SELECT DISTINCT status, prodtag, trigset, runnumber  FROM $JobStatusT where runDate = '$rundate[$kk]' order by status, runnumber ";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -86,6 +87,8 @@ if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
 
        }
     $cursor->finish();
+
+  }
 
   &beginHtml();
 
@@ -123,7 +126,22 @@ if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
 
   for ( my $ii = 0; $ii < $nj; $ii++ ) {  
 
-      if($jbstate[$ii] eq "QUEUED" )  {
+ if($jbstate[$ii] eq "RUNNING" ) {
+
+print <<END;
+
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
+<td HEIGHT=10>$jbstate[$ii]</td>
+<td HEIGHT=10>$jbtrigs[$ii]</td>
+<td HEIGHT=10>$prodtags[$ii]</td>
+<td HEIGHT=10>$runId[$ii]</td>
+<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qdate=$maxdate">$njbfile[$ii]</td>
+<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qdate=$maxdate">$nstream[$ii]</td>
+<td HEIGHT=10>$maxdate</td>
+</TR>
+END
+
+ }elsif($jbstate[$ii] eq "QUEUED" )  {
 
 print <<END;
 
@@ -198,21 +216,6 @@ print <<END;
 </TR>
 END
 
-
- }elsif($jbstate[$ii] eq "RUNNING" ) {
-
-print <<END;
-
-<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
-<td HEIGHT=10>$jbstate[$ii]</td>
-<td HEIGHT=10>$jbtrigs[$ii]</td>
-<td HEIGHT=10>$prodtags[$ii]</td>
-<td HEIGHT=10>$runId[$ii]</td>
-<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qdate=$maxdate">$njbfile[$ii]</td>
-<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qdate=$maxdate">$nstream[$ii]</td>
-<td HEIGHT=10>$maxdate</td>
-</TR>
-END
 
  }elsif($jbstate[$ii] eq "EXPORTING" ) {
 
