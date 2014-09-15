@@ -79,7 +79,7 @@ if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
 
     while( @fields = $cursor->fetchrow() ) {
 
-	next if ( ! defined $fields[0]);
+	next if ( $fields[3] = 0 );
 
        $jbstate[$nj]  =  $fields[0];
        $prodtags[$nj] =  $fields[1];
