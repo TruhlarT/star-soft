@@ -91,6 +91,8 @@ if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
 
   }
 
+my $maxdate = $rundate[0];
+
   &beginHtml();
 
   for ( my $ik = 0; $ik < $nj; $ik++ ) {  
@@ -98,7 +100,7 @@ if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
 ##############   find N files
 
 
-   $sql="SELECT count(filename)  FROM $JobStatusT where runnumber = '$runId[$ik]' and prodtag = '$prodtags[$ik]' and status = '$jbstate[$ik]' ";
+   $sql="SELECT count(filename)  FROM $JobStatusT where runnumber = '$runId[$ik]' and prodtag = '$prodtags[$ik]' and status = '$jbstate[$ik]' and runDate = $maxdate ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -112,7 +114,7 @@ if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
 ###############   find N streams
 
  
-  $sql="SELECT count(distinct stream)  FROM $JobStatusT where runnumber = '$runId[$ik]' and prodtag = '$prodtags[$ik]' and status = '$jbstate[$ik]' ";
+  $sql="SELECT count(distinct stream)  FROM $JobStatusT where runnumber = '$runId[$ik]' and prodtag = '$prodtags[$ik]' and status = '$jbstate[$ik]' and runDate = $maxdate ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -125,7 +127,6 @@ if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
 
  }
 
-my $maxdate = $rundate[0];
 
   for ( my $ii = 0; $ii < $nj; $ii++ ) {  
 
