@@ -71,7 +71,7 @@ if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
 
   for ( my $kk = 0; $kk < $ni; $kk++ ) {  
 
-    $sql="SELECT DISTINCT status, prodtag, trigset, runnumber  FROM $JobStatusT where runDate = '$rundate[$kk]' order by status, runnumber ";
+    $sql="SELECT DISTINCT status, prodtag, trigset, runnumber  FROM $JobStatusT where runDate = '$rundate[$kk]' and runnumber <> 0 order by status, runnumber ";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
