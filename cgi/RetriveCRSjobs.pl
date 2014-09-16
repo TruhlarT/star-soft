@@ -63,7 +63,7 @@ my $nm = 0;
 
   $nn = 0;
 
-    $sql="SELECT jobId, filename  FROM $JobsInfoT where runnumber = ? and prodtag = ? and runDate like ? ";
+    $sql="SELECT jobId, filename  FROM $JobsInfoT where runnumber = ? and prodtag = ? and runDate = ? ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -95,7 +95,7 @@ END
 
   $nm = 0;
  
-    $sql="SELECT distinct stream  FROM $JobsInfoT where runnumber = ? and prodtag = ? and runDate like ? ";
+    $sql="SELECT distinct stream  FROM $JobsInfoT where runnumber = ? and prodtag = ? and runDate = ? ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -153,7 +153,7 @@ print <<END;
   <html>
 
    <body BGCOLOR=\"cornsilk\"> 
- <h2 ALIGN=CENTER> <B>Stream names for runnumber <font color="blue">$jbrun </font> in <font color="blue">$jbprod </font> production scanned at  <font color="blue">$scdate </font></B></h2>
+ <h2 ALIGN=CENTER> <B>Streams for runnumber <font color="blue">$jbrun </font> in <font color="blue">$jbprod </font> production scanned at  <font color="blue">$scdate </font></B></h2>
 <br>
 <TABLE ALIGN=CENTER BORDER=4 CELLSPACING=1 CELLPADDING=1 bgcolor=\"#ffdc9f\">
 <TR>
