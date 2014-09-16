@@ -139,8 +139,8 @@ print <<END;
 <td HEIGHT=10>$jbtrigs[$ii]</td>
 <td HEIGHT=10>$prodtags[$ii]</td>
 <td HEIGHT=10>$runId[$ii]</td>
-<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qdate=$maxdate">$njbfile[$ii]</td>
-<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qdate=$maxdate">$nstream[$ii]</td>
+<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qstate=$jbstate[$ii];qdate=$maxdate">$njbfile[$ii]</td>
+<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qstate=$jbstate[$ii];qdate=$maxdate">$nstream[$ii]</td>
 <td HEIGHT=10>$rundate[0]</td>
 </TR>
 END
@@ -154,8 +154,8 @@ print <<END;
 <td HEIGHT=10>$jbtrigs[$ii]</td>
 <td HEIGHT=10>$prodtags[$ii]</td>
 <td HEIGHT=10>$runId[$ii]</td>
-<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qdate=$maxdate">$njbfile[$ii]</td>
-<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qdate=$maxdate">$nstream[$ii]</td>
+<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qstate=$jbstate[$ii];qdate=$maxdate">$njbfile[$ii]</td>
+<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qstate=$jbstate[$ii];qdate=$maxdate">$nstream[$ii]</td>
 <td HEIGHT=10>$rundate[0]</td>
 </TR>
 END
@@ -169,8 +169,8 @@ print <<END;
 <td HEIGHT=10>$jbtrigs[$ii]</td>
 <td HEIGHT=10>$prodtags[$ii]</td>
 <td HEIGHT=10>$runId[$ii]</td>
-<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qdate=$maxdate">$njbfile[$ii]</td>
-<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qdate=$maxdate">$nstream[$ii]</td>
+<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qstate=$jbstate[$ii];qdate=$maxdate">$njbfile[$ii]</td>
+<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qstate=$jbstate[$ii];qdate=$maxdate">$nstream[$ii]</td>
 <td HEIGHT=10>$rundate[0]</td>
 </TR>
 END
@@ -184,8 +184,8 @@ print <<END;
 <td HEIGHT=10>$jbtrigs[$ii]</td>
 <td HEIGHT=10>$prodtags[$ii]</td>
 <td HEIGHT=10>$runId[$ii]</td>
-<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qdate=$maxdate">$njbfile[$ii]</td>
-<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qdate=$maxdate">$nstream[$ii]</td>
+<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qstate=$jbstate[$ii];qdate=$maxdate">$njbfile[$ii]</td>
+<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qstate=$jbstate[$ii];qdate=$maxdate">$nstream[$ii]</td>
 <td HEIGHT=10>$rundate[0]</td>
 </TR>
 END
@@ -199,8 +199,8 @@ print <<END;
 <td HEIGHT=10>$jbtrigs[$ii]</td>
 <td HEIGHT=10>$prodtags[$ii]</td>
 <td HEIGHT=10>$runId[$ii]</td>
-<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qdate=$maxdate">$njbfile[$ii]</td>
-<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qdate=$maxdate">$nstream[$ii]</td>
+<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qstate=$jbstate[$ii];qdate=$maxdate">$njbfile[$ii]</td>
+<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qstate=$jbstate[$ii];qdate=$maxdate">$nstream[$ii]</td>
 <td HEIGHT=10>$rundate[0]</td>
 </TR>
 END
@@ -214,8 +214,8 @@ print <<END;
 <td HEIGHT=10>$jbtrigs[$ii]</td>
 <td HEIGHT=10>$prodtags[$ii]</td>
 <td HEIGHT=10>$runId[$ii]</td>
-<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qdate=$maxdate">$njbfile[$ii]</td>
-<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qdate=$maxdate">$nstream[$ii]</td>
+<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qstate=$jbstate[$ii];qdate=$maxdate">$njbfile[$ii]</td>
+<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qstate=$jbstate[$ii];qdate=$maxdate">$nstream[$ii]</td>
 <td HEIGHT=10>$rundate[0]</td>
 </TR>
 END
@@ -230,8 +230,8 @@ print <<END;
 <td HEIGHT=10>$jbtrigs[$ii]</td>
 <td HEIGHT=10>$prodtags[$ii]</td>
 <td HEIGHT=10>$runId[$ii]</td>
-<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qdate=$maxdate">$njbfile[$ii]</td>
-<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qdate=$maxdate">$nstream[$ii]</td>
+<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qstate=$jbstate[$ii];qdate=$maxdate">$njbfile[$ii]</td>
+<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qstate=$jbstate[$ii];qdate=$maxdate">$nstream[$ii]</td>
 <td HEIGHT=10>$rundate[0]</td>
 </TR>
 END
@@ -245,7 +245,7 @@ print <<END;
 <td HEIGHT=10>$jbtrigs[$ii]</td>
 <td HEIGHT=10>$prodtags[$ii]</td>
 <td HEIGHT=10>$runId[$ii]</td>
-<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qdate=$maxdate">$njbfile[$ii]</td>
+<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qstate=$jbstate[$ii];qdate=$maxdate">$njbfile[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qdate=$maxdate">$nstream[$ii]</td>
 <td HEIGHT=10>$rundate[0]</td>
 </TR>
@@ -260,8 +260,8 @@ print <<END;
 <td HEIGHT=10>$jbtrigs[$ii]</td>
 <td HEIGHT=10>$prodtags[$ii]</td>
 <td HEIGHT=10>$runId[$ii]</td>
-<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qdate=$maxdate">$njbfile[$ii]</td>
-<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qdate=$maxdate">$nstream[$ii]</td>
+<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qstate=$jbstate[$ii];qdate=$maxdate">$njbfile[$ii]</td>
+<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qstate=$jbstate[$ii];qdate=$maxdate">$nstream[$ii]</td>
 <td HEIGHT=10>$rundate[0]</td>
 </TR>
 END
