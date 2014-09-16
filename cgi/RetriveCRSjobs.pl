@@ -63,7 +63,7 @@ my $nm = 0;
 
   $nn = 0;
 
-    $sql="SELECT jobId, filename  FROM $JobsInfoT where runnumber = ? and prodtag = ? and runDate = ? ";
+    $sql="SELECT jobId, filename  FROM $JobsInfoT where runnumber = ? and prodtag = ? and runDate like ? ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -95,7 +95,7 @@ END
 
   $nm = 0;
  
-    $sql="SELECT distinct stream  FROM $JobsInfoT where runnumber = ? and prodtag = ? and runDate = ? ";
+    $sql="SELECT distinct stream  FROM $JobsInfoT where runnumber = ? and prodtag = ? and runDate like ? ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
