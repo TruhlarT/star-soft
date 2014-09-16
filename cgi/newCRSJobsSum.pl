@@ -299,8 +299,7 @@ print <<END;
     </head>
 
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>Jobs currently running on the CRS farm</B></h2>
- <h3 ALIGN=CENTER>Status on $nowdate</h3>
+ <h2 ALIGN=CENTER> <B>Jobs currently processing on the CRS farm</B></h2>
 <br>
 <TABLE ALIGN=CENTER BORDER=4 CELLSPACING=1 CELLPADDING=1 bgcolor=\"#ffdc9f\">
 <TR>
@@ -310,7 +309,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Runnumber</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Number of files</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Number of streams</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Date of scan</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Date-time of scan</h3></B></TD>
 </TR>
     </body>
 END
