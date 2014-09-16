@@ -63,11 +63,11 @@ my $nm = 0;
 
   $nn = 0;
 
-    $sql="SELECT jobId, filename  FROM $JobsInfoT where runnumber = ? and prodtag = ? and runDate like ? ";
+    $sql="SELECT jobId, filename  FROM $JobsInfoT where runnumber = ? and prodtag = ? and runDate = ? ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute($jbrun,$jbprod,$rdate);
+       $cursor->execute($jbrun,$jbprod,$scdate);
 
        while( @fields = $cursor->fetchrow() ) {
 
@@ -95,11 +95,11 @@ END
 
   $nm = 0;
  
-    $sql="SELECT distinct stream  FROM $JobsInfoT where runnumber = ? and prodtag = ? and runDate like ? ";
+    $sql="SELECT distinct stream  FROM $JobsInfoT where runnumber = ? and prodtag = ? and runDate = ? ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute($jbrun,$jbprod,$rdate);
+       $cursor->execute($jbrun,$jbprod,$scdate);
 
        while( my $strm = $cursor->fetchrow() ) {
 
