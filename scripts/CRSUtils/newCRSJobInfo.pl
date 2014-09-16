@@ -32,6 +32,9 @@ $crsJobStatusT = "CRSJobsInfo";
  my @wrd = ();
  my @spl = ();
  my @joblist  = ();
+ my @errlines = ();
+ my @jberror = ();
+ my $Tperror = 0;
 
  
  my $year;
@@ -126,6 +129,7 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbId[$njob] = $wrd[0];
      $jbId[$njob] = substr($wrd[0],0,-1) + 0;
      $jbstate[$njob] = "QUEUED";  
+     $jberror[$njob] = 0;
 
      $njob++;
  }
@@ -146,6 +150,7 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbId[$njob] = $wrd[0];
      $jbId[$njob] = substr($wrd[0],0,-1) + 0;
      $jbstate[$njob] = "STAGING";  
+     $jberror[$njob] = 0;
 
      $njob++;
  } 
@@ -166,6 +171,7 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbId[$njob] = $wrd[0];
      $jbId[$njob] = substr($wrd[0],0,-1) + 0;
      $jbstate[$njob] = "SUBMITTED";  
+     $jberror[$njob] = 0;
 
      $njob++;
  } 
@@ -186,6 +192,7 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbId[$njob] = $wrd[0];
      $jbId[$njob] = substr($wrd[0],0,-1) + 0;
      $jbstate[$njob] = "IMPORTING";  
+     $jberror[$njob] = 0;
 
      $njob++;
  } 
@@ -206,6 +213,7 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbId[$njob] = $wrd[0];
      $jbId[$njob] = substr($wrd[0],0,-1) + 0;
      $jbstate[$njob] = "RUNNING";  
+     $jberror[$njob] = 0;
 
      $njob++;
  } 
@@ -226,6 +234,7 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbId[$njob] = $wrd[0];
      $jbId[$njob] = substr($wrd[0],0,-1) + 0;
      $jbstate[$njob] = "EXPORTING";  
+     $jberror[$njob] = 0;
 
      $njob++;
  } 
@@ -248,6 +257,26 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbId[$njob] = substr($wrd[0],0,-1) + 0;
      $jbstate[$njob] = "ERROR";  
 
+     @errlines = ();
+     @errlines = `crs_job -long $jbId[$njob] | grep Error`; 
+
+   foreach my $erline (@errlines) {
+     chop $erline ;
+#   print $erline, "\n";
+     if ( $erline =~ /Error/ ) {
+
+     @prt = ();
+     @prt = split (" ", $erline);
+
+#  print "Error line : ", $pt[1],"  ", $pt[2],"  ",$pt[3], "\n";
+
+     $Tperror = $prt[2];
+     $Tperror =~ s/://g;
+
+      }
+    }
+     $jberror[$njob] =  $Tperror;
+
      $njob++;
  } 
 
@@ -267,6 +296,7 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbId[$njob] = $wrd[0];
      $jbId[$njob] = substr($wrd[0],0,-1) + 0;
      $jbstate[$njob] = "HELD";  
+     $jberror[$njob] = 0;
 
      $njob++;
  } 
@@ -335,6 +365,7 @@ exit;
  $sql.="runnumber='$runId[$ii]',";
  $sql.="filename='$jbfiles[$ii]',";
  $sql.="stream='$jbstreams[$ii]',";
+ $sql.="error='$jberror[$ii]',";
  $sql.="runDate='$thisdate' "; 
    print "$sql\n" if $debugOn;
 #   $rv = $dbh->do($sql) || die $dbh->errstr;
