@@ -48,7 +48,8 @@ my $jbrun = $query->param('qrun');
 my $jbprod = $query->param('qprod');
 my $jbname = $query->param('qname');
 my $scdate = $query->param('qdate');
-
+my $jbstat = $query->param('qstate');
+ 
 my $rdate = $scdate."%";
 
 my @jbId = ();
@@ -63,11 +64,11 @@ my $nm = 0;
 
   $nn = 0;
 
-    $sql="SELECT jobId, filename  FROM $JobsInfoT where runnumber = ? and prodtag = ? and runDate = ? ";
+    $sql="SELECT jobId, filename  FROM $JobsInfoT where runnumber = ? and prodtag = ? and status = ? and runDate = ? ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute($jbrun,$jbprod,$scdate);
+       $cursor->execute($jbrun,$jbprod,$jbstat,$scdate);
 
        while( @fields = $cursor->fetchrow() ) {
 
@@ -95,11 +96,11 @@ END
 
   $nm = 0;
  
-    $sql="SELECT distinct stream  FROM $JobsInfoT where runnumber = ? and prodtag = ? and runDate = ? ";
+    $sql="SELECT distinct stream  FROM $JobsInfoT where runnumber = ? and prodtag = ? and status = ? and runDate = ? ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute($jbrun,$jbprod,$scdate);
+       $cursor->execute($jbrun,$jbprod,$jbstat,$scdate);
 
        while( my $strm = $cursor->fetchrow() ) {
 
