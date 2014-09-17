@@ -137,11 +137,11 @@ END
 
   &beginHtmlS();
 
-  for ( my $ii = 0; $ii < $nm; $ii++ ) {
+  for ( my $ij = 0; $ij < $nm; $ij++ ) {
 
 print <<END;
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
-<td HEIGHT=20><B>$jbstreams[$ii]</B></td>
+<td HEIGHT=20><B>$jbstreams[$ij]</B></td>
 </TR>
 END
     }
