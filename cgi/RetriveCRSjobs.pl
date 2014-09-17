@@ -104,7 +104,6 @@ my $nm = 0;
 <td HEIGHT=10>$jberror[$ii]</td>
 </TR>
 END
-  }
 
  }else{ 
 
@@ -116,7 +115,7 @@ END
 </TR>
 END
   }
- 
+ }
 
   }elsif($jbname eq "fstream" ){
 
