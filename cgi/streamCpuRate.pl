@@ -368,7 +368,7 @@ END
  
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Stream values: <br> CPU, rtime/CPU,<br>jobs total time on the farm,<br> avg number of tracks, <br>stream jobs ratios by finish time,<br>number of finished jobs</h3>";
+    print "<h3 align=center> Stream values: <br> CPU, rtime/CPU,<br>avg number of tracks, <br>stream jobs ratios by finish time,<br>number of finished jobs</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
 	                          -values=>\@arrate,
