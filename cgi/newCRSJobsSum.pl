@@ -295,7 +295,7 @@ print <<END;
   <html>
 
     <head>
-          <title>CRS Jobs Info</title>
+          <title>CRS Jobs </title>
     </head>
 
    <body BGCOLOR=\"cornsilk\">
