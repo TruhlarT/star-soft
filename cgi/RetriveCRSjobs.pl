@@ -59,8 +59,17 @@ my @jberror = ();
 my $nn = 0;
 my $nm = 0;
 
-  &StDbConnect();
+my %ErrHash = (
+               10 => 'condor_failed',
+               20 => 'prestaging_failed',
+               30 => 'hpss_retry_failed',
+               40 => 'hpss_import_failed', 
+               50 => 'job_execution_failed',
+               60 => 'output_export_failed',
+               70 => 'io_error',
+              );  
 
+  &StDbConnect();
 
 
   if($jbname eq "fname" ){ 
@@ -101,7 +110,7 @@ my $nm = 0;
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10>$jbId[$ii]</td>
 <td HEIGHT=10>$jbfiles[$ii]</td>
-<td HEIGHT=10>$jberror[$ii]</td>
+<td HEIGHT=10>$ErrHash{$jberror[$ii]}</td>
 </TR>
 END
 
