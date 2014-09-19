@@ -262,9 +262,9 @@ my $rtmax = 1;
     $legend[0] = "Jobs failed due to 'condor_failed'";
     $legend[1] = "Jobs failed due to 'prestaging_failed'";
     $legend[2] = "Jobs failed due to 'hpss_import_failed'";
-    $legend[3] = "Jobs failed due to 'hpss_export_failed'";
+    $legend[3] = "Jobs failed due to 'output_export_failed'";
     $legend[4] = "Jobs failed due to 'hpss_retry_failed'";
-    $legend[5] = "Jobs failed due to 'job_exec_failed'";
+    $legend[5] = "Jobs failed due to 'job_execution_failed'";
     $legend[6] = "Jobs failed due to 'io_error'";
 
  my $ylabel;
