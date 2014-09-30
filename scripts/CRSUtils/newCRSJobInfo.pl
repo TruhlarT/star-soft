@@ -314,7 +314,10 @@ for($ii = 0; $ii<$njob; $ii++) {
        @wrd = ();
        @wrd = split("/", $prt[1]) ;
        $jbtrigs[$ii] = $wrd[2];
-       $prodtags[$ii] = $wrd[4];
+       @spl = (); 
+       @spl = split("_", $wrd[4]) ;         
+#       $prodtags[$ii] = $wrd[4];
+       $prodtags[$ii] = $spl[0];
        $runId[$ii] = $wrd[7];
        chop $wrd[8]; 
        $jbfiles[$ii] = $wrd[8];
