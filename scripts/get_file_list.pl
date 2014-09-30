@@ -7,9 +7,9 @@
 # Initially written by Adam Kisiel, Warsaw University of Technology
 # in 2002 as part of a service task under J. Lauret.
 #
-# Written by J.Lauret 2002-2013
+# Written by J.Lauret 2002-2014
 #
-# Undocumented paramaters
+# Uncodumented paramaters
 #   -debug      : maintainance option
 #   -coffee     : maintainance option
 #
@@ -38,6 +38,11 @@ my ($debug,$sqlcaching,$docache );
 my ($all, $alls, $unique, $field_list, $class);
 my ($cond_list, $start, $limit, $rlimit, $delim, $onefile, $outfilename);
 my ($intent)="User";
+
+my $SELF = $0;
+
+$SELF =~ s/.*\///;
+$SELF =~ s/\..*//;
 
 # Load the modules to store the data into a new database
 # Simple way to connect (possibly using XML or default values)
@@ -70,6 +75,7 @@ while (defined $ARGV[$count]){
 	$onefile = 1;
     } elsif ($ARGV[$count] eq "-distinct"){
 	$unique = 1;
+	&PDebug("-distinct is obsolete");
     } elsif ($ARGV[$count] eq "-sqlcache"){
 	$sqlcaching= 1;
     } elsif ($ARGV[$count] eq "-cache"){
@@ -107,12 +113,12 @@ while (defined $ARGV[$count]){
     elsif ($ARGV[$count] eq "-keys")
       {
 	$field_list = $ARGV[++$count];
-	if ($debug > 0) { print "The field list is $field_list\n"; }
+	&PDebug("The field list is $field_list");
       }
     elsif ($ARGV[$count] eq "-cond")
       {
 	$cond_list = $ARGV[++$count];
-	if ($debug > 0) { print "The conditions list is $cond_list\n"; }
+	&PDebug("The conditions list is $cond_list");
       }
     elsif ($ARGV[$count] eq "-o")
     {
@@ -170,7 +176,7 @@ if ($count == 0){
     }
 
 
-    print "Full context is ".$fileC->get_context()."\n" if ($debug > 0);
+    &PDebug("Full context is ".$fileC->get_context());
 
     # Getting the data - DO NOT use query_cache() for all querries
     if ($sqlcaching){
@@ -181,8 +187,8 @@ if ($count == 0){
 
     # This requires version V01.395 or above
     # Note that file based query caching is enabled by the keyword cache=1
-    if ($fileC->was_file_cache_used() && $debug > 0){
-	print "File based query cache was used\n";
+    if ($fileC->was_file_cache_used() ){
+	&PDebug("File based query cache was used");
     }
 
     # Printing the output
@@ -207,8 +213,23 @@ if ($count == 0){
 	    }
 	    $cline = substr($line,0,$i);
 
-	    if ($cline ne $lastfname){     print "$cline\n"; }
+	    if ($cline ne $lastfname){
+		print "$cline\n";
+	    }
 	    $lastfname = $cline;
+	}
+    }
+}
+
+sub PDebug
+{
+    my(@msg)=@_;
+    my($m);
+
+    if ( $debug > 0){
+	foreach $m (@msg){
+	    chomp($m);
+	    printf("%20.20s :: %s\n","$SELF($$)",$m);
 	}
     }
 }
@@ -221,32 +242,31 @@ sub Usage
   print "\nCommand usage:\n %% get_file_list.pl [qualifiers] -keys fie";
   print "ld{,field} [-cond field=value{,field=value}]\n\n where the qu";
   print "alifiers may be\n -all                  use  all entries rega";
-  print "rdless of availability  flag default is \n                   ";
-  print "    available=1\n -alls                 use all entries regar";
-  print "dless of sanity flag default is sanity=1  \n                 ";
-  print "      unless the  sanity key  was used as condition\n\n -onef";
-  print "ile              returns only one location (slow)\n -distinct";
-  print "             get only one value for a key-set (not the defaul";
-  print "t which is \n                       faster)\n\n -delim <strin";
-  print "g>       sets the default delimeter in between keys\n\n -limi";
-  print "t <Num>          limits  the number of returned records to Nu";
-  print "m  (0 for all \n                       records, 100 is the de";
-  print "fault value)\n -rlimit <Num>         limits the number of uni";
-  print "que LFN to Num (number of returned \n                       l";
-  print "ines will be more). rlimit will  switch limit logic off.\n -s";
-  print "tart <Num>          start at the n-th record of the sample fo";
-  print "r either limit or \n                       rlimit mode\n\n -c";
-  print "ache                Use disk cache for querries (default)\n -";
-  print "nocache              Do not use disk caching \n -sqlcache    ";
-  print "         attempt to use server side cache (expert mode, the m";
-  print "odule\n                       should deternine if it can auto";
-  print "matically)\n\n -help --help          print this help\n\n -o <";
-  print "output filename>  redirects results to an ouput file (use STD";
-  print "OUT)\n\n -V                    print version and exits\n -as ";
-  print "<scope>           connects as specified, scopes={Admin|User}\n";
-  print " -as <site>::<scope>   connects to site as specified\n\n Fiel";
-  print "ds appearing in -keys and/or -cond may be amongst the followi";
-  print "ng\n\n";
+  print "rdless of availability  flag \n                       default";
+  print " is available=1\n -alls                 use all entries regar";
+  print "dless of sanity flag \n                       default is sani";
+  print "ty=1 unless the  sanity key was used \n                      ";
+  print " as a condition\n\n -onefile              returns only one lo";
+  print "cation (slow)\n\n -delim <string>       sets the default deli";
+  print "meter in between keys\n\n -limit <Num>          limits  the n";
+  print "umber of returned records to Num \n                       (us";
+  print "e 0 for all records, 100 is the default value)\n -rlimit <Num";
+  print ">         limits the number of unique LFN to Num (number of \n";
+  print "                       returned lines will be more). rlimit w";
+  print "ill switch \n                       limit logic off.\n -start";
+  print " <Num>          start at the n-th record of the sample for ei";
+  print "ther \n                       limit or rlimit mode\n\n -cache";
+  print "                Use disk cache for querries (default)\n -noca";
+  print "che              Do not use disk caching \n -sqlcache        ";
+  print "     attempt to use server side cache (expert mode, the \n   ";
+  print "                    module should deternine if it can automat";
+  print "ically)\n\n -help --help          print this help\n\n -o <out";
+  print "put filename>  redirects results to an ouput file (use STDOUT";
+  print ")\n\n -V                    print version and exits\n -as <sc";
+  print "ope>           connects as specified, scopes={Admin|User}\n -";
+  print "as <site>::<scope>   connects to site as specified\n\n Fields";
+  print " appearing in -keys and/or -cond may be amongst the following";
+  print "\n\n";
   print join(" ",$fileC->get_keyword_list())."\n\n";
 
 }
