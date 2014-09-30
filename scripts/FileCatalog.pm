@@ -6521,7 +6521,7 @@ sub print_message
 
     foreach $line (@lines){
 	chomp($line);
-	printf STDERR "FileCatalog($$) :: %15.15s : %s\n",$routine,$line;
+	printf STDERR "%20.20s :: %15.15s : %s\n","FileCatalog($$)",$routine,$line;
     }
     return;
 }
