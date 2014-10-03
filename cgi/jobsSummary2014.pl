@@ -64,7 +64,7 @@ my @sumevt = ();
 my @jbdone = ();
 my @jbcreat = ();
 my @jbcrsh = ();
-my @jbhung = ();
+my @jberror = ();
 my @jbhpss = ();
 my @jbresub  = ();
 my @jbmudst = ();
@@ -145,7 +145,7 @@ my $nprod = 0;
     $jbcreat[$nprod] = 0;
     $jbdone[$nprod] = 0;
     $jbcrsh[$nprod] = 0;
-    $jbhung[$nprod] = 0;
+    $jberror[$nprod] = 0;
     $jbhpss[$nprod] = 0;
     $jbresub[$nprod] = 0;
     $jbmudst[$nprod] = 0;
@@ -182,7 +182,7 @@ my $nprod = 0;
 
 ###########
 
-   $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%'  and trigsetName  = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and jobStatus <> 'Done' and jobStatus <> 'n/a' and jobStatus <> 'hung'  ";
+   $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%'  and trigsetName  = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and jobStatus <> 'Done' and jobStatus <> 'n/a'  ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -196,14 +196,14 @@ my $nprod = 0;
 
 ##########
 
-   $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%'  and trigsetName  = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and jobStatus = 'hung' ";
+   $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%'  and trigsetName  = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and crsError like '%error%' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
        $cursor->execute();
 
        while( $mpr = $cursor->fetchrow() ) {
-          $jbhung[$nprod] = $mpr;
+          $jberror[$nprod] = $mpr;
        }
     $cursor->finish();
 
@@ -250,7 +250,7 @@ my $nprod = 0;
 ########## 
 
 
-  $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%'  and trigsetName  = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and jobStatus <> 'n/a' and jobStatus <> 'hung' and inputHpssStatus = 'OK' and outputHpssStatus = 'n/a' ";
+  $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%'  and trigsetName  = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and jobStatus <> 'n/a' and inputHpssStatus = 'OK' and outputHpssStatus = 'n/a' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -273,7 +273,7 @@ print <<END;
 <td HEIGHT=10><h3><font color="red">$jbcreat[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$jbdone[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2014;pflag=jstat">$jbcrsh[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2014;pflag=hung">$jbhung[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2014;pflag=crserr">$jberror[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2014;pflag=hpss">$jbhpss[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$jbresub[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2014;pflag=mudst">$mismudst[$nprod]</font></h3></td>
@@ -296,7 +296,7 @@ END
 <td HEIGHT=10><h3>$jbcreat[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbdone[$nprod]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2014;pflag=jstat">$jbcrsh[$nprod]</h3></td>
-<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2014;pflag=hung">$jbhung[$nprod]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2014;pflag=crserr">$jberror[$nprod]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2014;pflag=hpss">$jbhpss[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbresub[$nprod]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveJobStat.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];pyear=2014;pflag=mudst">$mismudst[$nprod]</h3></td>
