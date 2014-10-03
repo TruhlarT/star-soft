@@ -86,6 +86,9 @@ my @inpfile = ();
 my $njob = 0;
 my $fname;
 my @jobFname = ();
+my @jobnode = ();
+my @jbnode = ();
+my $conderr;
 
 my $infile;
 my $jbfile;
@@ -176,6 +179,20 @@ if( $sec < 10) { $sec = '0'.$sec };
     @inpfile = ();
     @inpfile = `crs_job -long $jid[$njob] | grep starsink`;
 
+    @jobnode = ();
+    @jobnode = `crs_job -long $jid[$njob] | grep Machine`;
+
+
+    foreach my $jnode (@jobnode) {
+     chop $jnode ;
+#     print $jnode, "\n";
+    if ( $jnode =~ /Machine/ ) {
+       @prt = ();
+       @prt = split(" ", $jnode) ;
+    $jbnode[$njob] = $prt[1];
+
+     }
+  } 
 
     foreach my $fline (@inpfile) {
      chop $fline ;
@@ -198,6 +215,7 @@ if( $sec < 10) { $sec = '0'.$sec };
        }
       }    #foreach my $fline
 
+
     foreach my $erline (@joberr) {
      chop $erline ;
 #   print $erline, "\n";
@@ -211,13 +229,20 @@ if( $sec < 10) { $sec = '0'.$sec };
      $Tperror = $pt[2];
      $Tperror =~ s/://g;
 
-   print "Job id and error number =  ", $jid[$njob],"   ",$Tperror,"\n";
+   print "Job id, node and error number =  ", $jid[$njob],"   ",$jbnode[$njob],"   ",$Tperror,"\n";
 
       if($Tperror == 10) {
 	 $NFcondor++;
 
      `crs_job -reset $jid[$njob]`;
      `crs_job -submit $jid[$njob]`;
+
+    $conderr = "error_".$Tperror;
+
+    $sql="update $JobStatusT set crsError = '$conderr', nodeID = '$jbnode[$njob]' where jobfileName like '$jobFname[$njob]' and jobStatus = 'n/a' ";
+
+    $rv = $dbh->do($sql) || die $dbh->errstr;
+
 
   print "Job   ",$jid[$njob],"   was reset due to condor problem","\n";
 
@@ -233,6 +258,13 @@ if( $sec < 10) { $sec = '0'.$sec };
      `crs_job -reset $jid[$njob]`;
      `crs_job -submit $jid[$njob]`;
 
+    $conderr = "error_".$Tperror;
+
+    $sql="update $JobStatusT set crsError = '$conderr', nodeID = '$jbnode[$njob]' where jobfileName like '$jobFname[$njob]' and jobStatus = 'n/a' ";
+
+    $rv = $dbh->do($sql) || die $dbh->errstr;
+
+
   print "Job   ",$jid[$njob],"   was reset due to execution error","\n";
 
     }elsif($Tperror == 60) {
@@ -240,6 +272,12 @@ if( $sec < 10) { $sec = '0'.$sec };
  
      `crs_job -kill -f $jid[$njob]`; 
      `crs_job -destroy -f $jid[$njob]`; 
+
+    $hpsserr = "error_".$Tperror;
+
+    $sql="update $JobStatusT set inputHpssStatus = '$hpsserr', nodeID = '$jbnode[$njob]'  where jobfileName like '$jobFname[$njob]' ";
+
+    $rv = $dbh->do($sql) || die $dbh->errstr;
 
     print "Job   ",$jid[$njob],"   was killed, failed due to HPSS export problem","\n";
 
@@ -249,22 +287,29 @@ if( $sec < 10) { $sec = '0'.$sec };
      `crs_job -reset $jid[$njob]`;
      `crs_job -submit $jid[$njob]`;
 
+    $conderr = "error_".$Tperror;
+
+    $sql="update $JobStatusT set crsError = '$conderr', nodeID = '$jbnode[$njob]' where jobfileName like '$jobFname[$njob]' and jobStatus = 'n/a' ";
+
+    $rv = $dbh->do($sql) || die $dbh->errstr;
+
   print "Job   ",$jid[$njob],"   was reset due to I/O error","\n";
 
      }
-
-    print "Jobid, Input filename, error number are : ",$njob,"  ",$jid[$njob],"  ",$jobname[$njob],"   ",$Tperror,"\n";
 
      if( $Tperror == 20 or $Tperror == 30 or $Tperror == 40 ) {
 
      `crs_job -kill -f $jid[$njob]`; 
      `crs_job -destroy -f $jid[$njob]`; 
 
+
+    print "Jobid, nodeID, input filename, error number are : ",$njob,"  ",$jid[$njob],"  ",$jbnode[$njob],"  ",$jobname[$njob],"   ",$Tperror,"\n";
+
     print "Job   ",$jid[$njob],"   was killed, failed due to HPSS import problem","\n";
 
-     $hpsserr = "error_".$Tperror;
+    $hpsserr = "error_".$Tperror;
 
-    $sql="update $JobStatusT set inputHpssStatus = '$hpsserr' where jobfileName like '$jobFname[$njob]' and jobStatus = 'n/a' ";
+    $sql="update $JobStatusT set inputHpssStatus = '$hpsserr', nodeID = '$jbnode[$njob]'  where jobfileName like '$jobFname[$njob]' and jobStatus = 'n/a' ";
 
     $rv = $dbh->do($sql) || die $dbh->errstr;
 
