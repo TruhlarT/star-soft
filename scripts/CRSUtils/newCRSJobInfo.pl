@@ -34,6 +34,9 @@ $crsJobStatusT = "CRSJobsInfo";
  my @joblist  = ();
  my @errlines = ();
  my @jberror = ();
+ my @jbnode = ();
+ my @jobnode = ();
+ my @strflag = ();
  my $Tperror = 0;
 
  
@@ -49,7 +52,7 @@ $crsJobStatusT = "CRSJobsInfo";
  my $nn = 0;
  my @runstart = ();
  my $nk = 0;
-
+ my $kk = 0;
 
  ($sec,$min,$hour,$mday,$mon,$yr) = localtime;
 
@@ -71,6 +74,32 @@ if( $sec < 10) { $sec = '0'.$sec };
 
    &StcrsdbConnect();
 
+ $sql="SELECT DISTINCT flag  FROM $crsJobStatusT where flag <> ' ' ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( my $ftmp = $cursor->fetchrow() ) {
+
+          $strflag[$kk] = $ftmp;
+          $kk++;
+       }
+    $cursor->finish();
+
+  for ($ii = 0; $ii< $kk; $ii++) {
+  
+  if ($strflag[$ii] eq "Start" ) {
+
+      print "There is a flag ", $strflag[$ii], "\n";
+
+      print "Script JobInfo is running","\n";
+
+   exit;
+
+  }  
+}
+
   $sql="SELECT DISTINCT runDate  FROM $crsJobStatusT where flag = 'Start' ";
 
       $cursor =$dbh->prepare($sql)
@@ -83,13 +112,6 @@ if( $sec < 10) { $sec = '0'.$sec };
        }
     $cursor->finish();
 
-  for ($ii=0;$ii<$nk;$ii++) {
-      if ( $runstart[$ii] eq 'Start') {
-	  exit;
-      }else{
-	  next;
-      }
-   }
 
 
   $sql="SELECT DISTINCT runDate  FROM $crsJobStatusT where flag = 'Done' ";
@@ -130,7 +152,7 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbId[$njob] = substr($wrd[0],0,-1) + 0;
      $jbstate[$njob] = "QUEUED";  
      $jberror[$njob] = 0;
-
+     $jbnode[$njob] = "none";   
      $njob++;
  }
 
@@ -151,7 +173,7 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbId[$njob] = substr($wrd[0],0,-1) + 0;
      $jbstate[$njob] = "STAGING";  
      $jberror[$njob] = 0;
-
+     $jbnode[$njob] = "none";   
      $njob++;
  } 
 
@@ -172,7 +194,7 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbId[$njob] = substr($wrd[0],0,-1) + 0;
      $jbstate[$njob] = "SUBMITTED";  
      $jberror[$njob] = 0;
-
+     $jbnode[$njob] = "none";     
      $njob++;
  } 
 
@@ -194,6 +216,19 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbstate[$njob] = "IMPORTING";  
      $jberror[$njob] = 0;
 
+    @jobnode = ();
+    @jobnode = `crs_job -long $jbId[$njob] | grep Machine`;
+
+   foreach my $jnode (@jobnode) {
+     chop $jnode ;
+#     print $jnode, "\n";
+    if ( $jnode =~ /Machine/ ) {
+       @prt = ();
+       @prt = split(" ", $jnode) ;
+     $jbnode[$njob] = $prt[1];
+    }
+  }
+####
      $njob++;
  } 
 
@@ -214,6 +249,10 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbId[$njob] = substr($wrd[0],0,-1) + 0;
      $jbstate[$njob] = "RUNNING";  
      $jberror[$njob] = 0;
+     $jbnode[$njob] = "none";  
+
+#    @jobnode = ();
+#    @jobnode = `crs_job -long $jbId[$njob] | grep Machine`;
 
      $njob++;
  } 
@@ -236,6 +275,19 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbstate[$njob] = "EXPORTING";  
      $jberror[$njob] = 0;
 
+    @jobnode = ();
+    @jobnode = `crs_job -long $jbId[$njob] | grep Machine`;
+
+   foreach my $jnode (@jobnode) {
+     chop $jnode ;
+#     print $jnode, "\n";
+    if ( $jnode =~ /Machine/ ) {
+       @prt = ();
+       @prt = split(" ", $jnode) ;
+     $jbnode[$njob] = $prt[1];
+    }
+  }
+#######
      $njob++;
  } 
 
@@ -277,6 +329,20 @@ if( $sec < 10) { $sec = '0'.$sec };
     }
      $jberror[$njob] =  $Tperror;
 
+    @jobnode = ();
+    @jobnode = `crs_job -long $jbId[$njob] | grep Machine`;
+
+   foreach my $jnode (@jobnode) {
+     chop $jnode ;
+#     print $jnode, "\n";
+    if ( $jnode =~ /Machine/ ) {
+       @prt = ();
+       @prt = split(" ", $jnode) ;
+     $jbnode[$njob] = $prt[1];
+    }
+  }
+
+########
      $njob++;
  } 
 
@@ -297,6 +363,20 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbId[$njob] = substr($wrd[0],0,-1) + 0;
      $jbstate[$njob] = "HELD";  
      $jberror[$njob] = 0;
+
+    @jobnode = ();
+    @jobnode = `crs_job -long $jbId[$njob] | grep Machine`;
+
+   foreach my $jnode (@jobnode) {
+     chop $jnode ;
+#     print $jnode, "\n";
+    if ( $jnode =~ /Machine/ ) {
+       @prt = ();
+       @prt = split(" ", $jnode) ;
+     $jbnode[$njob] = $prt[1];
+    }
+  }
+######
 
      $njob++;
  } 
@@ -366,6 +446,7 @@ exit;
  $sql.="filename='$jbfiles[$ii]',";
  $sql.="stream='$jbstreams[$ii]',";
  $sql.="error='$jberror[$ii]',";
+ $sql.="nodeID='$jbnode[$ii]',";
  $sql.="runDate='$thisdate' "; 
    print "$sql\n" if $debugOn;
 #   $rv = $dbh->do($sql) || die $dbh->errstr;
