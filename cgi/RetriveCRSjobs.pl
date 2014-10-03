@@ -93,9 +93,13 @@ my %ErrHash = (
        }
     $cursor->finish();
 
- if($jbstat eq "ERROR" ){ 
+ if($jbstat eq "ERROR" or $jbstat eq "HELD"){ 
 
   &beginHtmlFEr();
+
+ }elsif( $jbstat eq "IMPORTING" or $jbstat eq "EXPORTING" ) {
+
+  &beginHtmlFN();
 
  }else{
 
@@ -105,7 +109,7 @@ my %ErrHash = (
 
   for ( my $ii = 0; $ii < $nn; $ii++ ) {
 
- if($jbstat eq "ERROR" ){ 
+ if($jbstat eq "ERROR" or $jbstat eq "HELD" ){ 
 
  print <<END;
 
@@ -117,6 +121,19 @@ my %ErrHash = (
 </TR>
 END
 
+
+ }elsif( $jbstat eq "IMPORTING" or $jbstat eq "EXPORTING" ) {
+ 
+ print <<END;
+
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
+<td HEIGHT=10>$jbId[$ii]</td>
+<td HEIGHT=10>$jbfiles[$ii]</td>
+<td HEIGHT=10>$jbnode[$ii]</td>
+</TR>
+END
+
+
  }else{ 
 
  print <<END;
@@ -124,7 +141,6 @@ END
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10>$jbId[$ii]</td>
 <td HEIGHT=10>$jbfiles[$ii]</td>
-<td HEIGHT=10>$jbnode[$ii]</td>
 </TR>
 END
   }
@@ -179,11 +195,33 @@ print <<END;
 <TR>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>JobID</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Filename</h3></B></TD>
+</TR>
+    </body>
+END
+}
+
+######################
+
+sub beginHtmlFN {
+
+print <<END;
+
+  <html>
+
+   <body BGCOLOR=\"cornsilk\"> 
+ <h2 ALIGN=CENTER> <B> Files for runnumber <font color="blue">$jbrun </font> in <font color="blue">$jbprod </font> production scanned at <font color="blue">$scdate </font></B></h2>
+<br>
+<TABLE ALIGN=CENTER BORDER=4 CELLSPACING=1 CELLPADDING=1 bgcolor=\"#ffdc9f\">
+<TR>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>JobID</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Filename</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Node name</h3></B></TD>
 </TR>
     </body>
 END
 }
+
+
 ########################
 
 sub beginHtmlFEr {
