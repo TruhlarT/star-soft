@@ -126,7 +126,7 @@ my $jobname = $qtrg."%".$qprod."%";
 
    &beginHpHtml();
 
-     $sql="SELECT jobfileName, inputHpssStatus, NoEvents, nodeID, submitTime  FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and trigsetName = ? and inputHpssStatus like '%error%' ";
+     $sql="SELECT jobfileName, inputHpssStatus, NoEvents, submitTime  FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and trigsetName = ? and inputHpssStatus like '%error%' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -143,8 +143,7 @@ my $jobname = $qtrg."%".$qprod."%";
 
                 ($$fObjAdr)->jbname($fvalue)   if( $fname eq 'jobfileName');
                 ($$fObjAdr)->jbst($fvalue)     if( $fname eq 'inputHpssStatus');
-                ($$fObjAdr)->jbevt($fvalue)    if( $fname eq 'NoEvents');
-                ($$fObjAdr)->jbnode($fvalue)   if( $fname eq 'nodeID');      
+                ($$fObjAdr)->jbevt($fvalue)    if( $fname eq 'NoEvents');     
                 ($$fObjAdr)->jbsbm($fvalue)    if( $fname eq 'submitTime'); 
 
             }
@@ -391,7 +390,6 @@ print <<END;
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$jbfName[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbStatus[$nn]</h3></td>
-<td HEIGHT=10><h3>$jbnoden[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbsubm[$nn]</h3></td>
 </TR>
 END
@@ -507,8 +505,7 @@ print <<END;
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
 <TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Jobfilename</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>HPSS error</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Node name</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>HPSS error</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Submit time</h3></B></TD>
 </TR>
     </body>
