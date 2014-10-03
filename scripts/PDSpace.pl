@@ -32,7 +32,17 @@ $MAIN  = "/star/data";                                   # default base path
 	  "/star/scratch",
 	  "/star/rcf",
 	  "/star/xrootd",
-	  "/star/starlib");
+	  "/star/starlib",
+          "/gpfs01/star/pwg_tasks" 
+          );
+
+# The mechanism below will gradually supplement the ADDD mechanism
+# Format will be disk => group it belongs to. Tis logic is not
+# done/complete or implemented. 
+%DGRP = (
+          "/gpfs01/star/pwg_tasks" => 1
+         );
+
 
 # Associative array if aliases - aliases can be used for sorting
 # If an alias also A->B exists as B->, then A is considered merged
@@ -147,7 +157,7 @@ if ( $#ADDD != -1 ){
 $pdisk = "";
 foreach $disk (@DISKS){
     if ( $disk =~ m/(--)(\d+)(--)/ ){
-	# print "Found a separator $disk $pdisk\n";
+	#print "<!-- DEBUG Found a separator $disk $pdisk -->\n";
 	$DINFO{$pdisk."_".$2} = "---";
 	next;
     }
