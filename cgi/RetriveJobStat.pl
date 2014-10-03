@@ -126,7 +126,7 @@ my $jobname = $qtrg."%".$qprod."%";
 
    &beginHpHtml();
 
-     $sql="SELECT jobfileName, inputHpssStatus, NoEvents, submitTime  FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and trigsetName = ? and inputHpssStatus like '%error%' ";
+     $sql="SELECT jobfileName, inputHpssStatus, NoEvents, nodeID, submitTime  FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and trigsetName = ? and inputHpssStatus like '%error%' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -144,6 +144,7 @@ my $jobname = $qtrg."%".$qprod."%";
                 ($$fObjAdr)->jbname($fvalue)   if( $fname eq 'jobfileName');
                 ($$fObjAdr)->jbst($fvalue)     if( $fname eq 'inputHpssStatus');
                 ($$fObjAdr)->jbevt($fvalue)    if( $fname eq 'NoEvents');
+                ($$fObjAdr)->jbnode($fvalue)   if( $fname eq 'nodeID');      
                 ($$fObjAdr)->jbsbm($fvalue)    if( $fname eq 'submitTime'); 
 
             }
@@ -151,11 +152,11 @@ my $jobname = $qtrg."%".$qprod."%";
             $nst++;
          }
 
- }elsif($qflag eq "hung") {
+ }elsif($qflag eq "crserr") {
 
    &beginHgHtml();
 
-     $sql="SELECT jobfileName, jobStatus, NoEvents FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and trigsetName = ? and jobStatus = 'hung' ";
+     $sql="SELECT jobfileName, crsError, NoEvents, nodeID, submitTime FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and trigsetName = ? and crsError like '%error%' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -171,8 +172,10 @@ my $jobname = $qtrg."%".$qprod."%";
                 # print "$fname = $fvalue\n" ;
 
                 ($$fObjAdr)->jbname($fvalue)   if( $fname eq 'jobfileName');
-                ($$fObjAdr)->jbst($fvalue)     if( $fname eq 'jobStatus');
-                ($$fObjAdr)->jbevt($fvalue)    if( $fname eq 'NoEvents');                
+                ($$fObjAdr)->jbst($fvalue)     if( $fname eq 'crsError');
+                ($$fObjAdr)->jbevt($fvalue)    if( $fname eq 'NoEvents');
+                ($$fObjAdr)->jbnode($fvalue)   if( $fname eq 'nodeID');                
+                ($$fObjAdr)->jbsbm($fvalue)    if( $fname eq 'submitTime');                  
 
             }
             $jbstat[$nst] = $fObjAdr;
@@ -182,7 +185,7 @@ my $jobname = $qtrg."%".$qprod."%";
 
    &beginMuHtml();
 
-     $sql="SELECT jobfileName, jobStatus, NoEvents, avg_no_tracks, createTime FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and trigsetName = ? and jobStatus <> 'n/a' and jobStatus <> 'hung' and inputHpssStatus = 'OK' and outputHpssStatus = 'n/a'  ";
+     $sql="SELECT jobfileName, jobStatus, NoEvents, avg_no_tracks, createTime FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and trigsetName = ? and jobStatus <> 'n/a' and inputHpssStatus = 'OK' and outputHpssStatus = 'n/a'  ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -369,13 +372,15 @@ print <<END;
 </TR>
 END
 
- }elsif($qflag eq "hung") {
+ }elsif($qflag eq "crserr") {
 
 print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$jbfName[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbStatus[$nn]</h3></td>
+<td HEIGHT=10><h3>$jbnoden[$nn]</h3></td>
+<td HEIGHT=10><h3>$jbsubm[$nn]</h3></td>
 </TR>
 END
 
@@ -386,6 +391,7 @@ print <<END;
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10><h3>$jbfName[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbStatus[$nn]</h3></td>
+<td HEIGHT=10><h3>$jbnoden[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbsubm[$nn]</h3></td>
 </TR>
 END
@@ -472,13 +478,15 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>List of jobs 'hung' for<font color="blue"> $qprod </font> production <br> and <font color="blue">$qtrg </font> dataset  </B></h2>
+ <h2 ALIGN=CENTER> <B>List of jobs with CRS errors for<font color="blue"> $qprod </font> production <br> and <font color="blue">$qtrg </font> dataset  </B></h2>
  <h3 ALIGN=CENTER> Generated on $todate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
-<TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=60><B><h3>Jobfilename</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Job status</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Jobfilename</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>CRS error</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Node name</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Submit time</h3></B></TD>
 </TR>
     </body>
 END
@@ -499,7 +507,8 @@ print <<END;
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
 <TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Jobfilename</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>HPSS error</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>HPSS error</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Node name</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Submit time</h3></B></TD>
 </TR>
     </body>
