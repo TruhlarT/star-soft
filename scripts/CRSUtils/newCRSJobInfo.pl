@@ -363,6 +363,28 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbId[$njob] = substr($wrd[0],0,-1) + 0;
      $jbstate[$njob] = "HELD";  
      $jberror[$njob] = 0;
+     $Tperror = 0;
+
+     @errlines = ();
+     @errlines = `crs_job -long $jbId[$njob] | grep Error`; 
+
+   foreach my $erline (@errlines) {
+     chop $erline ;
+#   print $erline, "\n";
+     if ( $erline =~ /Error/ ) {
+
+     @prt = ();
+     @prt = split (" ", $erline);
+
+#  print "Error line : ", $pt[1],"  ", $pt[2],"  ",$pt[3], "\n";
+
+     $Tperror = $prt[2];
+     $Tperror =~ s/://g;
+
+      }
+    }
+     $jberror[$njob] =  $Tperror;
+
 
     @jobnode = ();
     @jobnode = `crs_job -long $jbId[$njob] | grep Machine`;
