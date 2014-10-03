@@ -56,11 +56,12 @@ my @jbId = ();
 my @jbfiles = ();
 my @jbstreams = ();
 my @jberror = ();
+my @jbnode = ();
 my $nn = 0;
 my $nm = 0;
 
 my %ErrHash = (
-               10 => 'condor_failed',
+               10 => 'not_found_in_condor',
                20 => 'prestaging_failed',
                30 => 'hpss_retry_failed',
                40 => 'hpss_import_failed', 
@@ -76,7 +77,7 @@ my %ErrHash = (
 
   $nn = 0;
 
-    $sql="SELECT jobId, filename, error  FROM $JobsInfoT where runnumber = ? and prodtag = ? and status = ? and runDate = ? ";
+    $sql="SELECT jobId, filename, nodeID, error  FROM $JobsInfoT where runnumber = ? and prodtag = ? and status = ? and runDate = ? ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -86,7 +87,8 @@ my %ErrHash = (
 
 	   $jbId[$nn]    = $fields[0];
            $jbfiles[$nn] = $fields[1];
-           $jberror[$nn] = $fields[2];
+           $jbnode[$nn]  = $fields[2];
+           $jberror[$nn] = $fields[3];
            $nn++;
        }
     $cursor->finish();
@@ -111,6 +113,7 @@ my %ErrHash = (
 <td HEIGHT=10>$jbId[$ii]</td>
 <td HEIGHT=10>$jbfiles[$ii]</td>
 <td HEIGHT=10>$ErrHash{$jberror[$ii]}</td>
+<td HEIGHT=10>$jbnode[$ii]</td>
 </TR>
 END
 
@@ -121,6 +124,7 @@ END
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10>$jbId[$ii]</td>
 <td HEIGHT=10>$jbfiles[$ii]</td>
+<td HEIGHT=10>$jbnode[$ii]</td>
 </TR>
 END
   }
@@ -175,6 +179,7 @@ print <<END;
 <TR>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>JobID</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Filename</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Node name</h3></B></TD>
 </TR>
     </body>
 END
@@ -195,6 +200,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>JobID</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Filename</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Error type</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Node name</h3></B></TD>
 </TR>
     </body>
 END
