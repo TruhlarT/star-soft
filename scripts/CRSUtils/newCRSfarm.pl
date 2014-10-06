@@ -275,7 +275,7 @@ if( $sec < 10) { $sec = '0'.$sec };
 
     $hpsserr = "error_".$Tperror;
 
-    $sql="update $JobStatusT set inputHpssStatus = '$hpsserr', nodeID = '$jbnode[$njob]'  where jobfileName like '$jobFname[$njob]' ";
+    $sql="update $JobStatusT set crsError = '$hpsserr', nodeID = '$jbnode[$njob]'  where jobfileName like '$jobFname[$njob]' ";
 
     $rv = $dbh->do($sql) || die $dbh->errstr;
 
