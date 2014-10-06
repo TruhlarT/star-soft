@@ -184,7 +184,7 @@ my $jobname = $qtrg."%".$qprod."%";
 
    &beginMuHtml();
 
-     $sql="SELECT jobfileName, jobStatus, NoEvents, avg_no_tracks, createTime FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and trigsetName = ? and jobStatus <> 'n/a' and inputHpssStatus = 'OK' and outputHpssStatus = 'n/a'  ";
+     $sql="SELECT jobfileName, jobStatus, NoEvents, avg_no_tracks, createTime FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and trigsetName = ? and jobStatus <> 'n/a' and outputHpssStatus = 'n/a'  ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
