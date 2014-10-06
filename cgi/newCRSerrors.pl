@@ -259,7 +259,7 @@ my $rtmax = 1;
  } else {
 
 
-    $legend[0] = "Jobs failed due to 'condor_failed'";
+    $legend[0] = "Jobs failed due to 'not_found_in_condor'";
     $legend[1] = "Jobs failed due to 'prestaging_failed'";
     $legend[2] = "Jobs failed due to 'hpss_import_failed'";
     $legend[3] = "Jobs failed due to 'output_export_failed'";
