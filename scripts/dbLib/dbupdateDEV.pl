@@ -626,7 +626,7 @@ my $pyear = 0;
     &fillJSTable();
 ##############
 
-   if($mpath =~ /AuAu200_production_low_2014/ ) {
+   if($mpath =~ /AuAu200_production_low_2014/ or ($mpath =~ /AuAu200_production_mid_2014/) {
     next if ($mpath =~ /nohft/);
     &updateQATable();
     &fillQATable();
@@ -1548,7 +1548,7 @@ $jrun = "Run not completed";
 
          }
       
-   if($fl_log =~ /AuAu200_production_low_2014/ ) {
+   if($fl_log =~ /AuAu200_production_low_2014/  or $fl_log =~ /AuAu200_production_mid_2014/) {
 
       @prt = ();
       if ( $line =~ /StMtdHitMaker:INFO/ and  $line =~ /MTD hits in event/) {
