@@ -1766,6 +1766,10 @@ $jrun = "Run not completed";
   
        $Err_messg = "Fatal in <operator new>";   
   }
+       elsif ($line =~ /std::runtime_error/) {
+  
+       $Err_messg = "runtime_error";   
+  }
 
        if ( $line =~ /INFO  - QAInfo:Run/ and $line =~ /Total events processed/) {
          @part = split /:/,$line;
