@@ -392,7 +392,7 @@ print <<END;
           <title>Plots for new detecrors QA </title>
    </head>
    <body BGCOLOR=\"#ccffff\">
-     <h1 align=center>No $plotVal data for $tset and $qweek period </h1>
+     <h1 align=center>No $plotVal data for $tset and $qweek week period </h1>
 
 
     </body>
