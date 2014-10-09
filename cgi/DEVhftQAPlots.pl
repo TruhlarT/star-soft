@@ -40,6 +40,7 @@ my $ndt = 0;
 
 my @prod_set = (
                 "year_2014/AuAu200_production_low_2014",
+                "year_2014/AuAu200_production_mid_2014",
 		);
 
 
