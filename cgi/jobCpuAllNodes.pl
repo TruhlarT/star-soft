@@ -470,7 +470,7 @@ my $qnode   = $qqr->param('pnode');
 
      if($qnode eq "rcrs" ) {
 
-   $sql="SELECT DISTINCT nodeID  FROM $JobStatusT where ( nodeID like ' rcrs6%' or nodeID like ' farmeval%') and runDay = ? order by nodeID" ;
+   $sql="SELECT DISTINCT nodeID  FROM $JobStatusT where ( nodeID like ' rcrs6%' ) and runDay = ? order by nodeID" ;
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -487,7 +487,7 @@ my $qnode   = $qqr->param('pnode');
 
    }elsif($qnode eq "rcas" ) {
 
-   $sql="SELECT DISTINCT nodeID  FROM $JobStatusT where ( nodeID like ' rcas6%' or nodeID like ' farmeval%') and runDay = ? order by nodeID" ;
+   $sql="SELECT DISTINCT nodeID  FROM $JobStatusT where ( nodeID like ' rcas%' or nodeID like ' farmeval%') and runDay = ? order by nodeID" ;
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
