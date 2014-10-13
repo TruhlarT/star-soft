@@ -324,13 +324,10 @@ print <<END;
 
   <html>
 
-    <head>
-          <title>CRS Jobs Summary </title>
-    </head>
-
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER> <B>Summary of jobs currently processing on the CRS farm</B></h2>
 <br>
+<br>
+
 <TABLE ALIGN=CENTER BORDER=4 CELLSPACING=1 CELLPADDING=1 bgcolor=\"#ffdc9f\">
 <TR>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Trigger set name</h3></B></TD>
