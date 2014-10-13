@@ -49,6 +49,12 @@ my $JobStatusT = "CRSJobsInfo";
  my @nstream = ();
  my @rundate = ();
  my $ni = 0;
+ my @smstate  = ();
+ my @smprodtags = ();
+ my @smtrigs = (); 
+ my $kj= 0;
+ my @smfiles = ();
+
 
  my $query = new CGI;
 
@@ -269,9 +275,60 @@ END
   }
  }
 
+
+     $sql="SELECT DISTINCT status, prodtag, trigset  FROM $JobStatusT where runDate = '$rundate[$kk]' and runnumber <> 0 order by status, runnumber ";
+
+    $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+    $cursor->execute();
+
+    while( @fields = $cursor->fetchrow() ) {
+
+
+       $smstate[$kj]  =  $fields[0];
+       $smprodtags[$kj] =  $fields[1];
+       $smtrigs[$kj]  =  $fields[2];
+       $kj++;
+
+       }
+    $cursor->finish();
+
+  }
+
+   for ( my $jj = 0; $jj < $kj; $jj++ ) {    
+
+   $sql="SELECT count(filename)  FROM $JobStatusT where status = '$smstate[$jj]' and trigset = '$smtrigs[$jj]' and prodtag = '$smprodtags[$jj]' ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $smfiles[$jj] = $mpr;
+       }
+    $cursor->finish();
+
+    }
+
+
  &StDbDisconnect();
 
  &summaryHtml();
+
+  for ( my $jj = 0; $jj < $kj; $jj++ ) {  
+
+print <<END;
+
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
+<td HEIGHT=10>$smstate[$jj]</td>
+<td HEIGHT=10>$smtrigs[$jj]</td>
+<td HEIGHT=10>$smprodtags[$jj]</td>
+<td HEIGHT=10>$smfiles[$jj]</td>
+</TR>
+END
+
+  }
+
 
  &endHtml();
 
@@ -334,7 +391,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Status</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Trigger set name</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Prod Tag</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of jobs</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Number of jobs</h3></B></TD>
 
 </TR>
     </body>
