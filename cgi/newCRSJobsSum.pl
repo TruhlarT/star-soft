@@ -293,7 +293,6 @@ END
        }
     $cursor->finish();
 
-  }
 
    for ( my $jj = 0; $jj < $kj; $jj++ ) {    
 
