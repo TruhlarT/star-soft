@@ -278,7 +278,7 @@ END
  }
 
 
-     $sql="SELECT DISTINCT status, prodtag, trigset  FROM $JobStatusT where and runDate = '$maxdate' and runnumber <> 0  order by status, trigset ";
+     $sql="SELECT DISTINCT status, prodtag, trigset  FROM $JobStatusT where runDate = '$maxdate' and runnumber <> 0  order by status, trigset ";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
