@@ -271,6 +271,7 @@ END
 
  &StDbDisconnect();
 
+ &summaryHtml();
 
  &endHtml();
 
@@ -315,6 +316,31 @@ print <<END;
 END
 }
 
+################################################################################
+
+sub summaryHtml {
+
+print <<END;
+
+  <html>
+
+    <head>
+          <title>CRS Jobs Summary </title>
+    </head>
+
+   <body BGCOLOR=\"cornsilk\">
+ <h2 ALIGN=CENTER> <B>Summary of jobs currently processing on the CRS farm</B></h2>
+<br>
+<TABLE ALIGN=CENTER BORDER=4 CELLSPACING=1 CELLPADDING=1 bgcolor=\"#ffdc9f\">
+<TR>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Trigger set name</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Prod Tag</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of jobs</h3></B></TD>
+
+</TR>
+    </body>
+END
+}
 
 #####################
 
