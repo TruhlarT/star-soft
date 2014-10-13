@@ -380,14 +380,12 @@ print <<END;
 
   <html>
 
-  <h2 ALIGN=CENTER> <B>Summary of CRS jobs</B></h2>  
-
    <body BGCOLOR=\"cornsilk\">
 
 <TABLE ALIGN=CENTER BORDER=4 CELLSPACING=1 CELLPADDING=1 bgcolor=\"#ffdc9f\">
-
 <br>
 <br>
+ <h2 ALIGN=CENTER> <B>Summary of CRS jobs</B></h2>
 <TR>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Status</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Trigger set name</h3></B></TD>
