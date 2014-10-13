@@ -54,6 +54,7 @@ my $JobStatusT = "CRSJobsInfo";
  my @smtrigs = (); 
  my $kj= 0;
  my @smfiles = ();
+ my $maxdate ;
 
 
  my $query = new CGI;
@@ -74,6 +75,7 @@ if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
           $ni++;
        }
     $cursor->finish();
+
 
   for ( my $kk = 0; $kk < $ni; $kk++ ) {  
 
@@ -97,7 +99,7 @@ if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
 
   }
 
-my $maxdate = $rundate[0];
+ $maxdate = $rundate[0];
 
   &beginHtml();
 
@@ -276,7 +278,7 @@ END
  }
 
 
-     $sql="SELECT DISTINCT status, prodtag, trigset  FROM $JobStatusT where runDate = '$rundate[$kk]' and runnumber <> 0 order by status, runnumber ";
+     $sql="SELECT DISTINCT status, prodtag, trigset  FROM $JobStatusT where and runDate = '$maxdate' and runnumber <> 0  order by status, trigset ";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -296,7 +298,7 @@ END
 
    for ( my $jj = 0; $jj < $kj; $jj++ ) {    
 
-   $sql="SELECT count(filename)  FROM $JobStatusT where status = '$smstate[$jj]' and trigset = '$smtrigs[$jj]' and prodtag = '$smprodtags[$jj]' ";
+   $sql="SELECT count(filename)  FROM $JobStatusT where status = '$smstate[$jj]' and trigset = '$smtrigs[$jj]' and prodtag = '$smprodtags[$jj]' and runDate = '$maxdate' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
