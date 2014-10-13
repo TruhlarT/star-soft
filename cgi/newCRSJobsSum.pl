@@ -325,10 +325,11 @@ print <<END;
   <html>
 
    <body BGCOLOR=\"cornsilk\">
-<br>
-<br>
 
 <TABLE ALIGN=CENTER BORDER=4 CELLSPACING=1 CELLPADDING=1 bgcolor=\"#ffdc9f\">
+
+<br>
+<br>
 <TR>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Trigger set name</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Prod Tag</h3></B></TD>
