@@ -74,7 +74,6 @@ $maxrun = $arruns[0];
 
    $cursor->finish();
 
-#&cgiSetup();
 
 my $query = new CGI;
 
@@ -114,17 +113,22 @@ print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'qrun',
                              -values=>\@arruns,
                              -default=>$maxrun,
+                             -multiple=>'true',
                              -size =>1); 
 
+
+print "<p>";
 print "</td><td>";
 print "<h3 align=center> Select stream</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'qstream',
                              -values=>\@arstreams,
                              -default=>physics,
+                             -multiple=>'true',
                              -size =>1); 
 
 
+print "<p>";
 print "</td><td>";
 print "<h3 align=center> Select number of events in one file</h3>";
 print "<h4 align=center>";
@@ -132,6 +136,7 @@ print $query->scrolling_list(-name=>'qevent',
                              -values=>\@arevents,
                              -default=>1000,
                              -size =>1); 
+
 
 print "<p>";
 print "</td><td>";
