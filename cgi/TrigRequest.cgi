@@ -113,7 +113,6 @@ print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'qrun',
                              -values=>\@arruns,
                              -default=>$maxrun,
-                             -multiple=>'true',
                              -size =>1); 
 
 
@@ -124,7 +123,6 @@ print "<h4 align=center>";
 print $query->scrolling_list(-name=>'qstream',
                              -values=>\@arstreams,
                              -default=>physics,
-                             -multiple=>'true',
                              -size =>1); 
 
 
