@@ -16,8 +16,13 @@ BEGIN {
  use CGI::Carp qw(fatalsToBrowser carpout);
 }
 
+
+use lib "/opt/star/lib";
 use CGI qw(:standard);
 use DBI;
+use Time::Local;
+
+require 'cgi-lib.pl';
 
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
@@ -69,7 +74,7 @@ $maxrun = $arruns[0];
 
    $cursor->finish();
 
-
+&cgiSetup();
 
 my $query = new CGI
 
@@ -189,6 +194,13 @@ sub StdbConnect {
 sub StdbDisconnect {
     $dbh = $dbh->disconnect() || die "Disconnect failure $DBI::errstr\n";
 }
+
+##############
+sub cgiSetup {
+    $q=new CGI;
+    if ( exists($ENV{'QUERY_STRING'}) ) { print $q->header };
+}
+
 
 ##############################################
 sub beginHtml {
