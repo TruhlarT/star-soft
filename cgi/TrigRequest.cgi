@@ -17,8 +17,6 @@ BEGIN {
 }
 
 use CGI qw(:standard);
-use GD;
-use GD::Graph::linespoints;
 use DBI;
 
 $dbhost="duvall.star.bnl.gov";
@@ -29,7 +27,7 @@ $dbname="operation";
 my $TrigRequestT = "TrigJobRequest";
 
 my $DaqInfoT   = "DAQInfo";
-my $DaqStreamT = "FOFileType";
+my $FlStreamT = "FOFileType";
 
 my @arevents = ("20000","10000","5000","2000","1000");
 my @arstreams = ();
@@ -47,7 +45,7 @@ my $nk = 0;
           || die "Cannot prepare statement: $DBI::errstr\n";
        $cursor->execute();
 
-       while( my $mpr = $cursor->fetchrow() ) {
+       while( $mpr = $cursor->fetchrow() ) {
           $runs[$nn] = $mpr;
           $nn++;
    }
@@ -58,13 +56,13 @@ my $nk = 0;
 
 $maxrun = $arruns[0];
 
-   $sql="SELECT DISTINCT Label  FROM $DaqStreamT ";
+   $sql="SELECT DISTINCT Label  FROM $FlStreamT ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
        $cursor->execute();
 
-       while( my $mpr = $cursor->fetchrow() ) {
+       while( $mpr = $cursor->fetchrow() ) {
           $arstreams[$nk] = $mpr;
           $nk++;
    }
@@ -111,7 +109,6 @@ print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'qrun',
                              -values=>\@arruns,
                              -default=>$maxrun,
-                             -multiple=>'true',
                              -size =>1); 
 
 print "</td><td>";
@@ -120,7 +117,6 @@ print "<h4 align=center>";
 print $query->scrolling_list(-name=>'qstream',
                              -values=>\@arstreams,
                              -default=>physics,
-                             -multiple=>'true',
                              -size =>1); 
 
 
@@ -132,6 +128,8 @@ print $query->scrolling_list(-name=>'qevent',
                              -default=>10000,
                              -size =>1); 
 
+print "<p>";
+print "</td><td>";
 print "</td> </tr> </table><hr><center>";
 
 print "</h4>";
@@ -170,6 +168,8 @@ my $nowdate = ($year+1900)."-".($mon+1)."-".$mday;
 my $thisyear = $year+1900;
 my $nowdatetime ;
 
+ &beginHtml();
+
 
 my $ii = 0;
 
@@ -196,7 +196,7 @@ sub beginHtml {
 print <<END;
   <html>
    <body BGCOLOR=\"#ccffff\">
-     <h1 align=center>No data for the period of $fperiod </h1>
+     <h1 align=center>No data  </h1>
 
     </body>
   </html>
