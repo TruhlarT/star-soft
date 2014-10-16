@@ -74,7 +74,7 @@ $maxrun = $arruns[0];
 
    $cursor->finish();
 
-&cgiSetup();
+#&cgiSetup();
 
 my $query = new CGI;
 
@@ -130,7 +130,7 @@ print "<h3 align=center> Select number of events in one file</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'qevent',
                              -values=>\@arevents,
-                             -default=>10000,
+                             -default=>1000,
                              -size =>1); 
 
 print "<p>";
