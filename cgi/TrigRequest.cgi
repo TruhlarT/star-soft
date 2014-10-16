@@ -128,7 +128,7 @@ print $query->scrolling_list(-name=>'qstream',
 
 print "<p>";
 print "</td><td>";
-print "<h3 align=center> Select number of events</h3>";
+print "<h3 align=center> Select number of events<br>in one file</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'qevent',
                              -values=>\@arevents,
