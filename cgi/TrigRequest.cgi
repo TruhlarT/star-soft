@@ -76,7 +76,7 @@ $maxrun = $arruns[0];
 
 &cgiSetup();
 
-my $query = new CGI
+my $query = new CGI;
 
 my $scriptname = $query->url(-relative=>1);
 
