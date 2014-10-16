@@ -81,7 +81,7 @@ my $scriptname = $query->url(-relative=>1);
  my $trgstream   =  $query->param('qstream');
  my $fevents     =  $query->param('qevent');
 
-  if( $trgrun eq "" and $trgstream eq "" and  $fevents "" ) {
+  if( $trgrun eq "" and $trgstream eq "" and  $fevents eq "" ) {
 
 print $query->header();
 print $query->start_html('Trigger request form');
@@ -173,6 +173,7 @@ my $nowdatetime ;
 
 my $ii = 0;
 
+}
 
    &StdbDisconnect();
 
