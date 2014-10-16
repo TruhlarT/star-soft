@@ -116,7 +116,6 @@ print  $query->scrolling_list(-name=>'qrun',
                              -size =>1); 
 
 
-print "<p>";
 print "</td><td>";
 print "<h3 align=center> Select stream</h3>";
 print "<h4 align=center>";
