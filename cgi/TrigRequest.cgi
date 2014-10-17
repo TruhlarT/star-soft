@@ -179,12 +179,12 @@ my $nowtime = ($year+1900)."-".($mon+1)."-".$mday." ".$hour.":".$min.":".$sec;
  print $qqr->header;
  print $qqr->start_html('Requested runnumber');
  print "<body bgcolor=\"cornsilk\">\n"; 
- print "<h2 align=center>Runnumber <font color="red"> $trgrun</font> and stream <font color="red">$trgstream </font> have been requested  <br> for test production</h2>";
+ print "<h2 align=center>Runnumber <font color=\"red\"> $trgrun</font> and stream <font color=\"red\">$trgstream </font> have been requested  <br> for test production</h2>";
 
  print "<br>";
  print "<br>";
  print "<br>";
- print "<h3 align=center><a href=\"$scriptname\"><font color="blue">New Selection</font></a></h3>";
+ print "<h3 align=center><a href=\"$scriptname\">New Selection</a></h3>";
  print "<p>";
  print $qqr->end_html;
 
