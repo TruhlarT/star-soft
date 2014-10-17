@@ -74,6 +74,8 @@ $maxrun = $arruns[0];
 
    $cursor->finish();
 
+ &StdbDisconnect();
+
 
 my $query = new CGI;
 
@@ -172,19 +174,24 @@ if( $sec < 10) { $sec = '0'.$sec };
 
 my $nowtime = ($year+1900)."-".($mon+1)."-".$mday." ".$hour.":".$min.":".$sec;
 
+
+  &StdbConnect();
+
  $sql= "insert into $TrigRequestT set runnumber = '$trgrun', stream = '$trgstream', Nevents = '$fevents', requestTime = '$nowtime' ";
 
       $dbh->do($sql) || die $dbh->errstr;
 
-
-  print $qqr->header(-type => 'text/html')."\n";
+ print $qqr->header;
+ print $qqr->start_html('Requested runnumber');
+ print "<body bgcolor=\"cornsilk\">\n"; 
 
  &beginHtml();
 
-
-}
+ print $qqr->end_html;
 
    &StdbDisconnect();
+
+}
 
  
 
