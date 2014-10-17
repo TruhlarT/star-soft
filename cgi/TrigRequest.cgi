@@ -170,14 +170,15 @@ if( $min < 10) { $min = '0'.$min };
 if( $sec < 10) { $sec = '0'.$sec };
 
 
-my $nowdate = ($year+1900)."-".($mon+1)."-".$mday;
-my $thisyear = $year+1900;
-my $nowdatetime ;
+my $nowtime = ($year+1900)."-".($mon+1)."-".$mday." ".$hour.":".$min.":".$sec;
+
+ $sql= "insert into $TrigRequestT set runnumber = '$trgrun', stream = '$trgstream', Nevents = '$fevents', requestTime = '$nowtime' ";
+
+      $dbh->do($sql) || die $dbh->errstr;
+
 
  &beginHtml();
 
-
-my $ii = 0;
 
 }
 
@@ -196,21 +197,18 @@ sub StdbDisconnect {
     $dbh = $dbh->disconnect() || die "Disconnect failure $DBI::errstr\n";
 }
 
-##############
-sub cgiSetup {
-    $q=new CGI;
-    if ( exists($ENV{'QUERY_STRING'}) ) { print $q->header };
-}
-
-
 ##############################################
 sub beginHtml {
 
 print <<END;
   <html>
    <body BGCOLOR=\"#ccffff\">
-     <h1 align=center>No data  </h1>
-
+     <h2 align=center>Next runnumber and stream have been requested for <br>test production: $trgrun,"   ", $trgstream </h2>
+     <br>
+     <br>
+     <br> 
+     <h3 align=center><a href=\"$scriptname\">New Selection</a></h3>
+     <br> 
     </body>
   </html>
 END
