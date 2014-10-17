@@ -29,7 +29,7 @@ $dbuser="starreco";
 $dbpass="";
 $dbname="operation";
 
-my $TrigRequestT = "TrigJobRequest";
+my $TrigRequestT = "TrigProdRequest";
 
 my $DaqInfoT   = "DAQInfo";
 my $FlStreamT = "FOFileType";
@@ -74,7 +74,7 @@ $maxrun = $arruns[0];
 
    $cursor->finish();
 
- &StdbDisconnect();
+# &StdbDisconnect();
 
 
 my $query = new CGI;
@@ -155,6 +155,8 @@ print $query->end_html;
    }else{
 
 
+$TrigRequestT = "TrigProdRequest";
+
 my $qqr = new CGI;
 
  my $trgrun      =  $qqr->param('qrun');
@@ -174,14 +176,11 @@ if( $sec < 10) { $sec = '0'.$sec };
 
 my $nowtime = ($year+1900)."-".($mon+1)."-".$mday." ".$hour.":".$min.":".$sec;
 
-  &StdbConnect();
 
   $sql= "insert into $TrigRequestT set runnumber = '$trgrun', stream = '$trgstream', Nevents = '$fevents', requestTime = '$nowtime' ";
 
   $dbh->do($sql) || die $dbh->errstr;
 
-
- &StdbDisconnect();
 
 
  print $qqr->header;
@@ -196,6 +195,8 @@ my $nowtime = ($year+1900)."-".($mon+1)."-".$mday." ".$hour.":".$min.":".$sec;
  print "<p>";
  print $qqr->end_html;
 
+
+&StdbDisconnect();
 
 }
 
