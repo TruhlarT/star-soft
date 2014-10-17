@@ -162,6 +162,14 @@ my $qqr = new CGI;
  my $fevents     =  $qqr->param('qevent');
 
 
+$dbhost="duvall.star.bnl.gov";
+$dbuser="";
+$dbpass="";
+$dbname="operation";
+
+$TrigRequestT = "TrigJobRequest";
+
+
 ($sec,$min,$hour,$mday,$mon,$year) = localtime;
 
 
@@ -211,12 +219,14 @@ sub beginHtml {
 
 print <<END;
   <html>
-   <body BGCOLOR=\"#ccffff\">
+  <head>
+          <title>Requested runnumber </title>
+   </head>
      <h2 align=center>Next runnumber and stream have been requested for <br>test production: $trgrun,"   ", $trgstream </h2>
      <br>
      <br>
      <br> 
-     <h3 align=center><a href=\"$scriptname\">New Selection</a></h3>
+     <h3 align=center>New Selection</h3>
      <br> 
     </body>
   </html>
