@@ -191,7 +191,7 @@ my $nowtime = ($year+1900)."-".($mon+1)."-".$mday." ".$hour.":".$min.":".$sec;
  print "<br>";
  print "<br>";
  print "<br>";
- print "<h3 align=center><a href=\"$scriptname\">New Selection</a></h3>";
+ print "<h3 align=center><a href=\"$scriptname\">Next Selection</a></h3>";
  print "<p>";
  print $qqr->end_html;
 
