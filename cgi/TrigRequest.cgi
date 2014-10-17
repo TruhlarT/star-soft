@@ -177,6 +177,8 @@ my $nowtime = ($year+1900)."-".($mon+1)."-".$mday." ".$hour.":".$min.":".$sec;
       $dbh->do($sql) || die $dbh->errstr;
 
 
+  print $qqr->header(-type => 'text/html')."\n";
+
  &beginHtml();
 
 
