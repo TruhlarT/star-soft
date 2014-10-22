@@ -50,6 +50,7 @@ struct JobAttr => {
       jbsbm     => '$',
       sttrk     => '$',      
       jbevt     => '$',
+      jbid      => '$',
       jbnode    => '$'
  };
 
@@ -78,6 +79,7 @@ my @jbstart = ();
 my @jbsubm = ();
 my @jbtrack = ();
 my @jbnoden = ();
+my @jbcrsid = ();
 my $nn = 0;
 
 my @strName = ();
@@ -155,7 +157,7 @@ my $jobname = $qtrg."%".$qprod."%";
 
    &beginHgHtml();
 
-     $sql="SELECT jobfileName, crsError, NoEvents, nodeID, submitTime FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and trigsetName = ? and crsError like '%error%' ";
+     $sql="SELECT jobfileName, crsError, NoEvents, nodeID, crsjobId, submitTime FROM $JobStatusT  where jobfileName like ? and prodSeries = ? and trigsetName = ? and crsError like '%error%' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -173,7 +175,8 @@ my $jobname = $qtrg."%".$qprod."%";
                 ($$fObjAdr)->jbname($fvalue)   if( $fname eq 'jobfileName');
                 ($$fObjAdr)->jbst($fvalue)     if( $fname eq 'crsError');
                 ($$fObjAdr)->jbevt($fvalue)    if( $fname eq 'NoEvents');
-                ($$fObjAdr)->jbnode($fvalue)   if( $fname eq 'nodeID');                
+                ($$fObjAdr)->jbnode($fvalue)   if( $fname eq 'nodeID');  
+                ($$fObjAdr)->jbid($fvalue)     if( $fname eq 'crsjobId');                
                 ($$fObjAdr)->jbsbm($fvalue)    if( $fname eq 'submitTime');                  
 
             }
@@ -335,6 +338,7 @@ END
        $jbtrack[$nn]  = ($$pjob)->jbtrk;
        $jbctime[$nn]  = ($$pjob)->jbcrtime;
        $jbnoden[$nn]  = ($$pjob)->jbnode;
+       $jbcrsid[$nn]  = ($$pjob)->jbid;
        $jbstart[$nn]  = ($$pjob)->jbstr;
        $jbsubm[$nn]   = ($$pjob)->jbsbm;
 
@@ -379,6 +383,7 @@ print <<END;
 <td HEIGHT=10><h3>$jbfName[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbStatus[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbnoden[$nn]</h3></td>
+<td HEIGHT=10><h3>$jbcrsid[$nn]</h3></td>
 <td HEIGHT=10><h3>$jbsubm[$nn]</h3></td>
 </TR>
 END
@@ -484,6 +489,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Jobfilename</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>CRS error</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Node name</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>CRS jobID</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Submit time</h3></B></TD>
 </TR>
     </body>
