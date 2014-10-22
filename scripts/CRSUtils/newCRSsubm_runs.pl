@@ -12,9 +12,9 @@ use DBI;
 
 my $prodSer = $ARGV[0]; 
 my $fileName = $ARGV[1];  
-my $CRSDIR  = "/home/starreco/newcrs/bin";
-my $jobdir  = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobfiles";
-my $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive";
+my $CRSDIR  = "/usr/bin";
+my $jobdir  = "/home/starreco/" . $prodSer ."/requests/daq/jobfiles";
+my $archdir = "/home/starreco/" . $prodSer ."/requests/daq/archive";
 
 my $lockfile = "/star/u/starreco/prodlists/submission.lock";
 
@@ -25,8 +25,8 @@ $dbname="operation";
 
 $JobStatusT = "JobStatus2013";
 
-$NJOBS  = 2000;  # max jobs in CREATED state
-#$NJOBS  = 500;   # max jobs in CREATED state
+#$NJOBS  = 1000;  # max jobs in CREATED state
+$NJOBS  = 500;   # max jobs in CREATED state
 $MAXPRCT= 0.75;  # there will be a loop until at least $NJOBS*$MAXPRCT are in the CREATED state
 
  if( -f $lockfile) {
@@ -145,7 +145,7 @@ $MAXPRCT= 0.75;  # there will be a loop until at least $NJOBS*$MAXPRCT are in th
 			 if ( -f $jbfile) {
 			     print  $jbfile, "\n";
 			     
-                             `$CRSDIR/crs_job -insert $jbfile`;
+                             `/usr/bin/crs_job -insert $jbfile`;
 
 			     `/bin/mv $jbfile $archdir`;
 			     $Ncreate++;
