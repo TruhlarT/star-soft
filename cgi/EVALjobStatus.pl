@@ -110,8 +110,9 @@ my %dmonth = (
 	      );
 
 my $nd = 0;
-my @arlib = ("Sti-CA","Sti","Stv","Stv-CA","Sti.AgML","Stv.AgML");
+my @arlib = ("Sti-CA","Sti","Stv","Stv-CA");
 
+my @arlib = ("Sti","Stv");
 
 my $query=new CGI;
 
@@ -148,7 +149,7 @@ print "<h3 align=center>Select tracker</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'rlib',
                              -values=>\@arlib,
-                             -default=>Stv,
+                             -default=>Sti,
                              -size=>1);
 
 print "</td> </tr> </table><hr><center>";
@@ -421,7 +422,7 @@ print <<END;
 </TABLE>
       <h5>
       <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
-<!-- Created: Wed May 41  05:29:25 MET 2000 -->
+<!-- Created: Wed May 41  05:29:25 MET 2008 -->
 <!-- hhmts start -->
 Last modified: $Date
 <!-- hhmts end -->
