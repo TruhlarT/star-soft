@@ -263,7 +263,6 @@ $sql="SELECT path, prodyear, LibTracker, logFile, jobStatus, NoEventDone, chainO
       $dftime = $ddate - $bdate ;
     }
 
-	$daydif = 1;
 
     if( $dfmon == 1 and $ttime >= $daydif ) {
 
@@ -288,7 +287,7 @@ $sql="SELECT path, prodyear, LibTracker, logFile, jobStatus, NoEventDone, chainO
 
 #     }elsif( $dfmon == 0 and  $dftime > 6.1 ) {
 
-     }elsif( $dfmon == 0 and  $dftime > 1.1 ) {
+     }elsif( $dfmon == 0 and  $dftime > 0.9 ) {
 
       $myJobS = "n/a";
       $myMemF = 0;
