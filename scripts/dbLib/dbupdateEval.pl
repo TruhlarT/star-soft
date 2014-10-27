@@ -27,8 +27,10 @@ $JobStatusT = "evalJobStatus";
 
 my @node_dir = ();
 my @TOP_DIRD = ();
-my @libTr = ("Sti-CA","Sti","Stv","Stv-CA","Sti.AgML","Stv.AgML");
+#my @libTr = ("Sti-CA","Sti","Stv", "Stv_CA");
 my $k = 0;
+
+my @libTr = ("Sti-CA","Sti","Stv");
 
  for ($k =0; $k < scalar(@libTr); $k++) {
 
@@ -40,7 +42,7 @@ my $k = 0;
 
 my @prt = ();
 
-my @dir_year = ( "year_2007", "year_2008","year_2009","year_2010","year_2011","year_2012");
+my @dir_year = ( "year_2000","year_2001", "year_2003", "year_2004", "year_2005","year_2006", "year_2007", "year_2008","year_2009","year_2010","year_2011","year_2012", "year_2013", "year_2014");
 
 my @OUT_DIR0 = ();
 my @OUT_DIR1 = ();
@@ -87,10 +89,8 @@ my $nk = 0;
    }
 }
 
- $TDIR[12] = "/star/rcf/test/eval_Sti/daq_sl53.ittf_opt/"."*/*";
- $TDIR[13] = "/star/rcf/test/eval_Sti.AgML/daq_sl53.ittf_opt/"."*/*";
- $TDIR[14] = "/star/rcf/test/eval_Sti/trs_sl53.ittf_opt/"."*/*";
- $TDIR[15] = "/star/rcf/test/eval_Sti.AgML/trs_sl53.ittf_opt/"."*/*";
+ $TDIR[6] = "/star/rcf/test/eval_Sti/daq_sl53.ittf_opt/"."*/*";
+ $TDIR[7] = "/star/rcf/test/eval_Sti/trs_sl53.ittf_opt/"."*/*";
 
     @OUT_DIR0 = `ls -d $TDIR[0]`;
     @OUT_DIR1 = `ls -d $TDIR[1]`;
@@ -100,15 +100,16 @@ my $nk = 0;
     @OUT_DIR5 = `ls -d $TDIR[5]`;
     @OUT_DIR6 = `ls -d $TDIR[6]`;
     @OUT_DIR7 = `ls -d $TDIR[7]`;
-    @OUT_DIR8 = `ls -d $TDIR[8]`;
-    @OUT_DIR9 = `ls -d $TDIR[9]`;
-    @OUT_DIR10 = `ls -d $TDIR[10]`;
-    @OUT_DIR11 = `ls -d $TDIR[11]`;
 
-    @OUT_DIR12 = `ls -d $TDIR[12]`;
-    @OUT_DIR13 = `ls -d $TDIR[13]`;
-    @OUT_DIR14 = `ls -d $TDIR[14]`;
-    @OUT_DIR15 = `ls -d $TDIR[15]`;
+#    @OUT_DIR8 = `ls -d $TDIR[8]`;
+#    @OUT_DIR9 = `ls -d $TDIR[9]`;
+#    @OUT_DIR10 = `ls -d $TDIR[10]`;
+#    @OUT_DIR11 = `ls -d $TDIR[11]`;
+
+#    @OUT_DIR12 = `ls -d $TDIR[12]`;
+#    @OUT_DIR13 = `ls -d $TDIR[13]`;
+#    @OUT_DIR14 = `ls -d $TDIR[14]`;
+#    @OUT_DIR15 = `ls -d $TDIR[15]`;
 
 
 my $ndir = scalar(@OUT_DIR0);
@@ -172,70 +173,70 @@ my $ndir = scalar(@OUT_DIR0);
       $ii++;
   }
 
- for ($i = 0; $i <scalar(@OUT_DIR8) ; $i++) {
-      $OUT_DIR[$ii] = $OUT_DIR8[$i];
-      chop $OUT_DIR[$ii];
-  print "Output Dir for EVAL :", $OUT_DIR[$ii],"\n";
+# for ($i = 0; $i <scalar(@OUT_DIR8) ; $i++) {
+#      $OUT_DIR[$ii] = $OUT_DIR8[$i];
+#      chop $OUT_DIR[$ii];
+#  print "Output Dir for EVAL :", $OUT_DIR[$ii],"\n";
+#
+#      $ii++;
+#  }
+
+# for ($i = 0; $i <scalar(@OUT_DIR9) ; $i++) {
+#      $OUT_DIR[$ii] = $OUT_DIR9[$i];
+#      chop $OUT_DIR[$ii];
+#  print "Output Dir for EVAL :", $OUT_DIR[$ii],"\n";
 
       $ii++;
-  }
+#  }
 
- for ($i = 0; $i <scalar(@OUT_DIR9) ; $i++) {
-      $OUT_DIR[$ii] = $OUT_DIR9[$i];
-      chop $OUT_DIR[$ii];
-  print "Output Dir for EVAL :", $OUT_DIR[$ii],"\n";
+# for ($i = 0; $i <scalar(@OUT_DIR10) ; $i++) {
+#      $OUT_DIR[$ii] = $OUT_DIR10[$i];
+#      chop $OUT_DIR[$ii];
+#  print "Output Dir for EVAL :", $OUT_DIR[$ii],"\n";
 
-      $ii++;
-  }
+#      $ii++;
+#  }
 
- for ($i = 0; $i <scalar(@OUT_DIR10) ; $i++) {
-      $OUT_DIR[$ii] = $OUT_DIR10[$i];
-      chop $OUT_DIR[$ii];
-  print "Output Dir for EVAL :", $OUT_DIR[$ii],"\n";
+# for ($i = 0; $i <scalar(@OUT_DIR11) ; $i++) {
+#      $OUT_DIR[$ii] = $OUT_DIR11[$i];
+#      chop $OUT_DIR[$ii];
+#  print "Output Dir for EVAL :", $OUT_DIR[$ii],"\n";
 
-      $ii++;
-  }
-
- for ($i = 0; $i <scalar(@OUT_DIR11) ; $i++) {
-      $OUT_DIR[$ii] = $OUT_DIR11[$i];
-      chop $OUT_DIR[$ii];
-  print "Output Dir for EVAL :", $OUT_DIR[$ii],"\n";
-
-      $ii++;
-  }
+#      $ii++;
+#  }
 #############
 
- for ($i = 0; $i <scalar(@OUT_DIR12) ; $i++) {
-      $OUT_DIR[$ii] = $OUT_DIR12[$i];
-      chop $OUT_DIR[$ii];
-  print "Output Dir for EVAL :", $OUT_DIR[$ii],"\n";
+# for ($i = 0; $i <scalar(@OUT_DIR12) ; $i++) {
+#      $OUT_DIR[$ii] = $OUT_DIR12[$i];
+#      chop $OUT_DIR[$ii];
+#  print "Output Dir for EVAL :", $OUT_DIR[$ii],"\n";
 
-      $ii++;
-  }
+#      $ii++;
+#  }
 
- for ($i = 0; $i <scalar(@OUT_DIR13) ; $i++) {
-      $OUT_DIR[$ii] = $OUT_DIR13[$i];
-      chop $OUT_DIR[$ii];
-  print "Output Dir for EVAL :", $OUT_DIR[$ii],"\n";
+# for ($i = 0; $i <scalar(@OUT_DIR13) ; $i++) {
+#      $OUT_DIR[$ii] = $OUT_DIR13[$i];
+#      chop $OUT_DIR[$ii];
+#  print "Output Dir for EVAL :", $OUT_DIR[$ii],"\n";
 
-      $ii++;
-  }
+#      $ii++;
+#  }
 
- for ($i = 0; $i <scalar(@OUT_DIR14) ; $i++) {
-      $OUT_DIR[$ii] = $OUT_DIR14[$i];
-      chop $OUT_DIR[$ii];
-  print "Output Dir for EVAL :", $OUT_DIR[$ii],"\n";
+# for ($i = 0; $i <scalar(@OUT_DIR14) ; $i++) {
+#      $OUT_DIR[$ii] = $OUT_DIR14[$i];
+#      chop $OUT_DIR[$ii];
+#  print "Output Dir for EVAL :", $OUT_DIR[$ii],"\n";
 
-      $ii++;
-  }
+#      $ii++;
+#  }
 
- for ($i = 0; $i <scalar(@OUT_DIR15) ; $i++) {
-      $OUT_DIR[$ii] = $OUT_DIR15[$i];
-      chop $OUT_DIR[$ii];
-  print "Output Dir for EVAL :", $OUT_DIR[$ii],"\n";
+# for ($i = 0; $i <scalar(@OUT_DIR15) ; $i++) {
+#      $OUT_DIR[$ii] = $OUT_DIR15[$i];
+#      chop $OUT_DIR[$ii];
+#  print "Output Dir for EVAL :", $OUT_DIR[$ii],"\n";
 
-      $ii++;
-  }
+#      $ii++;
+#  }
 
 
 struct JFileAttr => {
@@ -445,6 +446,8 @@ my $libTr;
 
 
  foreach  my $eachOutLDir (@OUT_DIR) {
+
+#    next if ( $eachOutLDir =~ /eval_Sti/) ;
 
           if (-d $eachOutLDir) {
 	      next if ($eachOutLDir =~ /temp/) ;
@@ -1116,6 +1119,10 @@ $jrun = "Run not completed";
    }elsif ($line =~ /Fatal in <operator new>/) {
   
        $Err_messg = "Fatal in <operator new>";   
+
+   }elsif ($line =~ /std::runtime_error/) {
+
+       $Err_messg = "runtime_error";
   }
 
        if ( $line =~ /INFO  - QAInfo:Run/ and $line =~ /Total events processed/) {
