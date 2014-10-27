@@ -275,7 +275,7 @@ $sql="SELECT path, prodyear, LibTracker, logFile, jobStatus, NoEventDone, chainO
       &printRowNA();
 
 #     }elsif(  $dftime <= 6 and $myJobS eq "Done") {
-    }elsif(  $dftime <= 1 and $myJobS eq "Done") {
+    }elsif(  $dftime <= 0.5 and $myJobS eq "Done") {
  
      &printRow();
 
