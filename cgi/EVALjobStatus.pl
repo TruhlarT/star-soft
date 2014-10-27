@@ -91,6 +91,7 @@ my $ddate = $yr.$mon.$mday;
 my $mdate = $yr."-".$mon."-".$mday;
 
 my $daydif = 76;
+
 my $ttime = 0;
 my $dftime = 0;
 
@@ -273,17 +274,20 @@ $sql="SELECT path, prodyear, LibTracker, logFile, jobStatus, NoEventDone, chainO
 
       &printRowNA();
 
-     }elsif(  $dftime <= 6 and $myJobS eq "Done") {
+#     }elsif(  $dftime <= 6 and $myJobS eq "Done") {
+    }elsif(  $dftime <= 1 and $myJobS eq "Done") {
+ 
+     &printRow();
 
-      &printRow();
+#    }elsif( $dftime <= 6  and $myJobS ne "Done") {
 
-#     }elsif( $dftime <= 6  and $myJobS eq "Run not completed") {
-
-      }elsif( $dftime <= 6  and $myJobS ne "Done") {
+      }elsif( $dftime <= 1  and $myJobS ne "Done") {
 
       &printRowFd();
 
-     }elsif( $dfmon == 0 and  $dftime > 6.1 ) {
+#     }elsif( $dfmon == 0 and  $dftime > 6.1 ) {
+
+     }elsif( $dfmon == 0 and  $dftime > 1.1 ) {
 
       $myJobS = "n/a";
       $myMemF = 0;
