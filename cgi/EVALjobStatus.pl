@@ -111,7 +111,7 @@ my %dmonth = (
 	      );
 
 my $nd = 0;
-my @arlib = ("Sti-CA","Sti","Stv","Stv-CA");
+#my @arlib = ("Sti-CA","Sti","Stv","Stv-CA");
 
 my @arlib = ("Sti","Stv");
 
