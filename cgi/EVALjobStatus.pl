@@ -263,6 +263,7 @@ $sql="SELECT path, prodyear, LibTracker, logFile, jobStatus, NoEventDone, chainO
       $dftime = $ddate - $bdate ;
     }
 
+	$daydif = 1;
 
     if( $dfmon == 1 and $ttime >= $daydif ) {
 
