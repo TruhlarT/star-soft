@@ -1,7 +1,7 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: DEV hftQAPlits.pl
+# $Id: DEVhftQAPlots.pl
 #
 # L.Didenko
 # Plots to check on dayly bases average numbet of hits for new detectors and 
@@ -35,7 +35,6 @@ my $debugOn = 0;
 my @data = ();
 my @legend = ();
 my @Ndate = ();
-my @Nday = ();
 my $ndt = 0;
 
 my @prod_set = (
@@ -132,12 +131,9 @@ my $qweek   =  $qqr->param('nweek');
 
 my $JobQAT = "newJobsQA";
 
- @Nday = ();
-
 my @point1 = ();
 my @point2 = ();
 
-@Nday = ();
 $ndt = 0;
 @Ndate = ();
 
@@ -160,33 +156,7 @@ if( $sec < 10) { $sec = '0'.$sec };
 
 #my $todate = ($year+1900)."-".($mon+1)."-".$mday." ".$hour.":".$min.":".$sec ;
 
-my $today = (Sun,Mon,Tue,Wed,Thu,Fri,Sat)[(localtime)[6]];
-
 my $nowdate = ($year+1900)."-".($mon+1)."-".$mday;
-
-if ( $today eq Tue ) {
-    $Nday[0] = "Tue"; $Nday[1] = "Wed"; $Nday[2] = "Thu"; $Nday[3] = "Fri"; $Nday[4] = "Sat"; $Nday[5] = "Sun"; $Nday[6] = "Mon";
-} elsif ( $today eq Wed ) {
-    $Nday[6] = "Tue"; $Nday[0] = "Wed"; $Nday[1] = "Thu"; $Nday[2] = "Fri"; $Nday[3] = "Sat"; $Nday[4] = "Sun"; $Nday[5] = "Mon";
-} elsif ( $today eq Thu ) {
-    $Nday[5] = "Tue"; $Nday[6] = "Wed"; $Nday[0] = "Thu"; $Nday[1] = "Fri"; $Nday[2] = "Sat"; $Nday[3] = "Sun"; $Nday[4] = "Mon";
-} elsif ( $today eq Fri ) {
-    $Nday[4] = "Tue"; $Nday[5] = "Wed"; $Nday[6] = "Thu"; $Nday[0] = "Fri"; $Nday[1] = "Sat"; $Nday[2] = "Sun"; $Nday[3] = "Mon";
-} elsif ( $today eq Sat ) {
-    $Nday[3] = "Tue"; $Nday[4] = "Wed"; $Nday[5] = "Thu"; $Nday[6] = "Fri"; $Nday[0] = "Sat"; $Nday[1] = "Sun"; $Nday[2] = "Mon";
-} elsif ( $today eq Sun ) {
-    $Nday[2] = "Tue"; $Nday[3] = "Wed"; $Nday[4] = "Thu"; $Nday[5] = "Fri"; $Nday[6] = "Sat"; $Nday[0] = "Sun"; $Nday[1] = "Mon";
-} else {
-    $Nday[1] = "Tue"; $Nday[2] = "Wed"; $Nday[3] = "Thu"; $Nday[4] = "Fri"; $Nday[5] = "Sat"; $Nday[6] = "Sun"; $Nday[0] = "Mon";
-}
-
-my $weeks = int($qweek);
-
-for($i=1;$i<$weeks;$i++) {
-    for($j=0;$j<7;$j++) {
-        $Nday[$j+7*$i] = $Nday[$j];
-    }
-}
 
 my $path;
 my $path_opt;
