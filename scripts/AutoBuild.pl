@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.52 2014/07/23 16:05:43 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.53 2014/10/28 21:39:40 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -24,9 +24,9 @@ $COMPDIR = "";                         # Compilation directory (later assigned)
 #} else {
     $CVSCMD = "cvs";
 #}
-$CVSCMDT = "$CVSCMD -n -q checkout -A";#  check differences and updates
-$CVSCMDR = "$CVSCMD -q checkout -A";   # first timer directory or real checkout
-$CVSUPDC = "$CVSCMD update -AP";       # update command
+$CVSCMDT = "$CVSCMD -n -q checkout";   # check differences and updates
+$CVSCMDR = "$CVSCMD -q checkout";      # first timer directory or real checkout
+$CVSUPDC = "$CVSCMD update -P";        # update command
 $BY      = 50;                         # checkout by
 @DIRS    = IUSourceDirs();             # default relative directories to checkout
 
@@ -125,6 +125,7 @@ $TRASH     = 1==0;       # trash code cvs finds conflicting
 $NOTIFY    = 1==1;       # notify managers if problems
 $FILO      = STDOUT;     # Default Output file
 $RELCODE   = 1==0;       # Default is not to release code
+$RESETST   = 1==1;       # reset sticky tag i.e. use/append -A
 
 # All arguments will be kept for checksum purposes
 $ALLARGS   = "$^O";      # platform will be kept in for sure
@@ -210,6 +211,9 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	    $CVSCOU   = 1==1;
 	    $SILENT   = 1==1;
 
+	} elsif($arg eq "-pst"){
+	    $RESETST  = 1==0;
+
 	} elsif($arg eq "-R"){
 	    $RELCODE  = 1==1;
 
@@ -236,6 +240,15 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	&lhelp();
 	die "Check syntax.\n";
     }
+}
+
+
+# Check stickey tag flag - default will be to destroy the sticky tag
+# by using -A option. User -pst (preserve stick tag) to bypass the default. 
+if ( $RESETST ){
+    $CVSCMDT .= " -A";
+    $CVSCMDR .= " -A";
+    $CVSUPDC .= " -A";
 }
 
 
@@ -1315,6 +1328,9 @@ sub lhelp
               list $excl
  -1           First compilation pass only
  -k           Keep going as far as possible after errors (cons option)
+
+ -pst         Preserve sticky tag - default is to destroy it upon CVS
+              actions and take the code from the head.
 
  -h or --help Display this help.
 
