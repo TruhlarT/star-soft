@@ -81,6 +81,17 @@ my @myplot =   (
                   );   
 
 
+my %plotHash = (
+                MemUsage => 'memUsageF, memUsageL',
+                CPU_per_Event => 'CPU_per_evt_sec',
+                RealTime_per_Event => 'RealTime_per_evt',
+                Average_NoTracks => 'avg_no_tracks',
+                Average_NoPrimaryT => 'avg_no_primaryT',
+                Average_NoTracksNfit15 => 'avg_no_tracksnfit15',
+                Average_NoPrimaryTNfit15  => 'avg_no_primaryTnfit15',
+
+    );
+
 my $min_y = 0;
 my $max_y = 2000;
 
@@ -165,6 +176,8 @@ for($i=0;$i<7*$qweek;$i++) {
     $point2[$i]=undef;
 }
 
+my $mplotVal = $plotHash{$plotVal};
+
 
 ($sec,$min,$hour,$mday,$mon,$year) = localtime();
 
@@ -207,7 +220,7 @@ my @prt = ();
 
   $qupath = "%$path%";
 
-            $sql="SELECT path, $plotVal, date_format(createTime, '%Y-%m-%d') as CDATE FROM $EvalStatusT WHERE path LIKE ? AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? ORDER by createTime  ";
+            $sql="SELECT path, $mplotVal, date_format(createTime, '%Y-%m-%d') as CDATE FROM $EvalStatusT WHERE path LIKE ? AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? ORDER by createTime  ";
 
         $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
         $cursor->execute($qupath,$day_diff);
@@ -224,7 +237,7 @@ my @prt = ();
 
       for (my $ik = 0; $ik < $ndt; $ik++) {  
 
-            $sql="SELECT path, $plotVal FROM $JobQAT WHERE path LIKE ? AND jobStatus=\"Done\" AND createTime like '$Ndate[$ik]%'  ";
+            $sql="SELECT path, $mplotVal FROM $JobQAT WHERE path LIKE ? AND jobStatus=\"Done\" AND createTime like '$Ndate[$ik]%'  ";
 
         $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
         $cursor->execute($qupath);
