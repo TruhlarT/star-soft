@@ -237,7 +237,7 @@ my @prt = ();
 
       for (my $ik = 0; $ik < $ndt; $ik++) {  
 
-            $sql="SELECT path, $mplotVal FROM $JobQAT WHERE path LIKE ? AND jobStatus=\"Done\" AND createTime like '$Ndate[$ik]%'  ";
+            $sql="SELECT path, $mplotVal FROM $EvalStatusT WHERE path LIKE ? AND jobStatus=\"Done\" AND createTime like '$Ndate[$ik]%'  ";
 
         $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
         $cursor->execute($qupath);
