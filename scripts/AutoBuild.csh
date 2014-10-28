@@ -127,7 +127,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		    setup $2 $3
 		    setenv AutoBuild_setup_cmd "setup $2 $3"
 		endif
-		$SCRIPTD/AutoBuild.pl -k -d $XArgs -T $1$2$3 -R -1 -v $1 -t -B -p $LPATH
+		$SCRIPTD/AutoBuild.pl -pst -k -d $XArgs -T $1$2$3 -R -1 -v $1 -t -B -p $LPATH
 		if( -e $HOME/AutoBuild-$1$2$3-linux.html) then
 		    /bin/mv -f $HOME/AutoBuild-$1$2$3-linux.html $SPATH/AutoBuild-$1$2$3-linux.html
 		endif
