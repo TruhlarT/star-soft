@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.53 2014/10/28 21:39:40 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.54 2014/10/29 15:48:52 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -132,6 +132,9 @@ $ALLARGS   = "$^O";      # platform will be kept in for sure
 $CHENVA    = $CHENVB = "echo noop";# possible additional environment change command
 
 
+# display arguments for debugging
+print $FILO "The arguments passed are [".join(" ",@ARGV)."]\n";
+
 # Quick argument parsing (dirty)
 for ($i=0 ; $i <= $#ARGV ; $i++){
     $arg      = $ARGV[$i];
@@ -153,7 +156,11 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	} elsif($arg eq "-B"){
 	    # Grab it from ENV
 	    $CHENVB   = $ENV{AutoBuild_setup_cmd};
-	    $ALLARGS .= " $CHENVB";
+	    if ( defined($CHENVB) ){
+		$ALLARGS .= " $CHENVB";
+	    } else {
+		print $FILO "Warning -B used but AutoBuild_setup_cmd is not defined\n";
+	    }
 
 	} elsif($arg eq "-A"){
 	    my(@LL) = sort keys %COMPILC;
@@ -250,7 +257,11 @@ if ( $RESETST ){
     $CVSCMDR .= " -A";
     $CVSUPDC .= " -A";
 }
-
+print $FILO 
+    "Our CVS commands will be\n",
+    " - Diff check [$CVSCMDT]\n",
+    " - Checkout   [$CVSCMDR]\n",
+    " - Update     [$CVSUPDC]\n";
 
 # Massage parameters
 if($LIBRARY =~ m/dev/i || $LIBRARY =~ m/new/i ||
