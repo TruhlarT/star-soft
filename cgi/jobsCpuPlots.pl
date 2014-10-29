@@ -52,13 +52,13 @@ my $nowdate = $todate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2010","2011","2012","2013");
+my @prodyear = ("2010","2011","2012","2013","2014");
 
 
 my @arperiod = ( );
 my $mstr;
-#my @arrate = ("cpu","rtime/cpu","jobtottime");
-my @arrate = ("cpu","rtime/cpu");
+my @arrate = ("cpu","rtime/cpu","jobtottime");
+#my @arrate = ("cpu","rtime/cpu");
 
 my @arrprod = ();
 my @arstream = ();
