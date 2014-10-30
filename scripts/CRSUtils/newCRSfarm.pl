@@ -239,7 +239,7 @@ if( $sec < 10) { $sec = '0'.$sec };
 
     $conderr = "error_".$Tperror;
 
-    $sql="update $JobStatusT set crsError = '$conderr', nodeID = '$jbnode[$njob]', crsjobId = '$jid[$njob]' where jobfileName like '$jobFname[$njob]' and jobStatus = 'n/a' ";
+    $sql="update $JobStatusT set crsError = '$conderr', nodeID = '$jbnode[$njob]', crsjobId = '$jid[$njob]' where jobfileName like '$jobFname[$njob]' ";
 
     $rv = $dbh->do($sql) || die $dbh->errstr;
 
@@ -260,7 +260,7 @@ if( $sec < 10) { $sec = '0'.$sec };
 
     $conderr = "error_".$Tperror;
 
-    $sql="update $JobStatusT set crsError = '$conderr', nodeID = '$jbnode[$njob]', crsjobId = '$jid[$njob]' where jobfileName like '$jobFname[$njob]' and jobStatus = 'n/a' ";
+    $sql="update $JobStatusT set crsError = '$conderr', nodeID = '$jbnode[$njob]', crsjobId = '$jid[$njob]' where jobfileName like '$jobFname[$njob]' ";
 
     $rv = $dbh->do($sql) || die $dbh->errstr;
 
@@ -289,7 +289,7 @@ if( $sec < 10) { $sec = '0'.$sec };
 
     $conderr = "error_".$Tperror;
 
-    $sql="update $JobStatusT set crsError = '$conderr', nodeID = '$jbnode[$njob]', crsjobId = '$jid[$njob]' where jobfileName like '$jobFname[$njob]' and jobStatus = 'n/a' ";
+    $sql="update $JobStatusT set crsError = '$conderr', nodeID = '$jbnode[$njob]', crsjobId = '$jid[$njob]' where jobfileName like '$jobFname[$njob]' ";
 
     $rv = $dbh->do($sql) || die $dbh->errstr;
 
