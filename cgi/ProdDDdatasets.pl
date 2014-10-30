@@ -518,8 +518,14 @@ my $query = new CGI;
    $numfiles[$nlist] = scalar(@filelst);
    $nfileHpss[$nlist] = scalar(@filehpss);
 
+    if($nfileHpss[$nlist]) >=1) {
    $pdrate = ($numfiles[$nlist]/$nfileHpss[$nlist])*100;
    $prodrate[$nlist] = sprintf("%.1f", $pdrate);
+
+  }else{
+    $pdrate = 0;
+    $prodrate[$nlist] = 0;
+  }
 
  $prodname = $trig[$nlist].".".$prod[$nlist]."_loc.html";
 
