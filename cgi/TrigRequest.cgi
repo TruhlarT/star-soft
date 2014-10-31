@@ -34,9 +34,11 @@ my $TrigRequestT = "TrigProdRequest";
 my $DaqInfoT   = "DAQInfo";
 my $FlStreamT = "FOFileType";
 
-my @arevents = ("20000","10000","5000","2000","1000");
+my @arevents = ("10000","5000","2000","1000");
 my @arstreams = ();
 my @arruns = ();
+my @prodlibs = ("DEV","SL14h");
+
 my $maxrun = 0;
 my @runs = ();
 my $nn = 0;
@@ -84,8 +86,10 @@ my $scriptname = $query->url(-relative=>1);
  my $trgrun      =  $query->param('qrun');
  my $trgstream   =  $query->param('qstream');
  my $fevents     =  $query->param('qevent');
+ my $plib        =  $query->param('qlib');
 
-  if( $trgrun eq "" and $trgstream eq "" and  $fevents eq "" ) {
+
+  if( $trgrun eq "" and $trgstream eq "" and  $fevents eq "" and $plib eq "" ) {
 
 print $query->header();
 print $query->start_html('Trigger request form');
@@ -139,8 +143,14 @@ print $query->scrolling_list(-name=>'qevent',
 print "<p>";
 print "</td><td>";
 print "</td> </tr> </table><hr><center>";
-
 print "</h4>";
+
+print "<h3 align=center>Select library</h3>"; 
+print $query->scrolling_list(-name=>'qlib',
+                             -values=>\@prodlibs,
+                             -default=>DEV,
+                             -size =>1); 
+
 print "<br>";
 print "<br>";
 print $query->submit,"<p>";
@@ -162,7 +172,7 @@ my $qqr = new CGI;
  my $trgrun      =  $qqr->param('qrun');
  my $trgstream   =  $qqr->param('qstream');
  my $fevents     =  $qqr->param('qevent');
-
+ my $plib        =  $qqr->param('qlib');
 
 ($sec,$min,$hour,$mday,$mon,$year) = localtime;
 
@@ -180,7 +190,6 @@ my $nowtime = ($year+1900)."-".($mon+1)."-".$mday." ".$hour.":".$min.":".$sec;
   $sql= "insert into $TrigRequestT set runnumber = '$trgrun', stream = '$trgstream', Nevents = '$fevents', requestTime = '$nowtime' ";
 
   $dbh->do($sql) || die $dbh->errstr;
-
 
 
  print $qqr->header;
