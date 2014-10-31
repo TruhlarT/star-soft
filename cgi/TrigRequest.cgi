@@ -190,7 +190,7 @@ if( $sec < 10) { $sec = '0'.$sec };
 my $nowtime = ($year+1900)."-".($mon+1)."-".$mday." ".$hour.":".$min.":".$sec;
 
 
-  $sql= "insert into $TrigRequestT set runnumber = '$trgrun', stream = '$trgstream', Nevents = '$fevents', requestTime = '$nowtime' ";
+  $sql= "insert into $TrigRequestT set runnumber = '$trgrun', stream = '$trgstream', Nevents = '$fevents', libtag = '$plib', requestTime = '$nowtime' ";
 
   $dbh->do($sql) || die $dbh->errstr;
 
