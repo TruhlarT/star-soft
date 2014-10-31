@@ -144,13 +144,15 @@ print "<p>";
 print "</td><td>";
 print "</td> </tr> </table><hr><center>";
 print "</h4>";
-
+print "<br>";
+print "<br>";
 print "<h3 align=center>Select library</h3>"; 
 print $query->scrolling_list(-name=>'qlib',
                              -values=>\@prodlibs,
                              -default=>DEV,
                              -size =>1); 
 
+print "<br>";
 print "<br>";
 print "<br>";
 print $query->submit,"<p>";
