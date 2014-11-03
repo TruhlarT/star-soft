@@ -29,8 +29,8 @@ my $FTrgSetT = "FOTriggerSetup";
 
 
 my $prodPeriod = "DEV";
-my $LibTag = "DEV";
 my $datadisk = "/star/data+09-12";
+
 
 ###Set directories to be created for jobfiles
 
@@ -64,11 +64,17 @@ my @runday = ();
 my @jbset = ();
 my @jbid = ();
 my @nfiles = ();
+my @jblib = ();
+my @prtag = ();
+my $prtmp;
+my $prtmp2;
+my $prid;
+
 
 &StDbConnect();
 
 
-    $sql="SELECT runnumber, stream, Nevents  FROM $TrigRequestT where submit = 'no' and runnumber <> 0 order by runnumber ";
+    $sql="SELECT runnumber, stream, Nevents, libtag  FROM $TrigRequestT where submit = 'no' and runnumber <> 0 order by runnumber ";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -79,6 +85,8 @@ my @nfiles = ();
     $runnum[$nj]  = $fields[0];
     $strname[$nj] = $fields[1];
     $nevents[$nj] = $fields[2]; 
+    $jblib[$nj]   = $fields[3]; 
+    
     $nj++;
        }
     $cursor->finish();
@@ -129,9 +137,22 @@ my @nfiles = ();
     $rdtemp = substr($rday,2) + 0;
     $runday[$ik] = substr($rdtemp,0,-3) + 0;
 
-    print "Check runnumber, day   ", $runnum[$ik],"   ",  $runday[$ik], "\n";
+    if($jblib[$ik] eq "DEV" ) {
+	$prtag[$ik] = "DEV";
+    }else{
+	$prtmp = $jblib[$ik];
+        $prtmp =~ s/SL/P/g;
+        $prtmp2 = substr($prtmp,0,-1);
+        $prid  = substr($prtmp,3);
+    $prtag[$ik] = $prtmp2."i". $prid;
 
-    $jbset[$ik] = $trgsetup[$ik]."_".$mField[$ik]."_".$prodPeriod;
+    }
+
+    $prodPeriod = $prtag[$ik];
+
+    print "Check runnumber, day, prodtag   ", $runnum[$ik],"   ",  $runday[$ik],"   ",$prtag[$ik] ,"\n";
+
+    $jbset[$ik] = $trgsetup[$ik]."_".$mField[$ik]."_".$prtag[$ik];
 
     $sql="SELECT distinct file  FROM  $DaqInfoT where runNumber = '$runnum[$ik]' and file like '%$strname[$ik]%' ";
 
@@ -146,9 +167,9 @@ my @nfiles = ();
     $filename[$njob] =~ s/.daq//g;
     $jbid[$njob] = $ik;
 
-   &create_jobs($trgsetup[$ik],$mField[$ik],$filename[$njob],$runday[$ik],$runnum[$ik],$nevents[$ik]);
+   &create_jobs($trgsetup[$ik],$mField[$ik],$jblib[$ik],$filename[$njob],$runday[$ik],$runnum[$ik],$nevents[$ik]);
 
-#   `$CRSDIR/crs_job -insert $jobFname` ; 
+   `$CRSDIR/crs_job -insert $jobFname` ; 
 
     `/bin/mv $jobFname $archdir`;
 
@@ -178,7 +199,7 @@ my @nfiles = ();
 
  sub create_jobs {
 
-  my ($jbtrg, $jbmag, $jbfile, $rnday, $rnum, $jbevents ) = @_ ;
+  my ($jbtrg, $jbmag, $LibTag, $jbfile, $rnday, $rnum, $jbevents ) = @_ ;
 
  my $Jsetd;
  my $Jsetr;
