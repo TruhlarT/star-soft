@@ -37,7 +37,7 @@ my $FlStreamT = "FOFileType";
 my @arevents = ("10000","5000","2000","1000");
 my @arstreams = ();
 my @arruns = ();
-my @prodlibs = ("DEV","SL14h");
+my @prodlibs = ("DEV","SL14h","SL14g");
 
 my $maxrun = 0;
 my @runs = ();
@@ -92,7 +92,7 @@ my $scriptname = $query->url(-relative=>1);
   if( $trgrun eq "" and $trgstream eq "" and  $fevents eq "" and $plib eq "" ) {
 
 print $query->header();
-print $query->start_html('Trigger request form');
+print $query->start_html('Test production request form');
 print <<END;
 <META HTTP-EQUIV="Expires" CONTENT="0">
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
@@ -101,7 +101,7 @@ END
 print $query->startform(-action=>"$scriptname");  
 
 print "<body bgcolor=\"cornsilk\">\n";
-print "<h1 align=center><u>Trigger production requests form </u></h1>\n";
+print "<h1 align=center><u>Trigger/subsystem test production requests form </u></h1>\n";
 
 print "<br>";
 print <<END;
