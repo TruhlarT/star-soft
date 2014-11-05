@@ -171,9 +171,9 @@ my $prid;
 
    &create_jobs($trgsetup[$ik],$mField[$ik],$jblib[$ik],$filename[$njob],$runday[$ik],$runnum[$ik],$nevents[$ik]);
 
-#   `$CRSDIR/crs_job -insert $jobFname` ; 
+   `$CRSDIR/crs_job -insert $jobFname` ; 
 
-#    `/bin/mv $jobFname $archdir`;
+    `/bin/mv $jobFname $archdir`;
 
     print "Check jobfileNAme  ",$jobFname, "\n";      
 
