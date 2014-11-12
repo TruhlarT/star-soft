@@ -108,7 +108,7 @@ print <<END;
 <td HEIGHT=10>$submstat[$ii]</td>
 <td HEIGHT=10>$runstat[$ii]</td>
 <td HEIGHT=10>$reqtime[$ii]</td>
-<td HEIGHT=10>$fintimeime[$ii]</td>
+<td HEIGHT=10>$fintime[$ii]</td>
 </TR>
 END
 
@@ -126,7 +126,7 @@ print <<END;
 <td HEIGHT=10>$submstat[$ii]</td>
 <td HEIGHT=10>$runstat[$ii]</td>
 <td HEIGHT=10>$reqtime[$ii]</td>
-<td HEIGHT=10>$fintimeime[$ii]</td>
+<td HEIGHT=10>$fintime[$ii]</td>
 </TR>
 END
 
@@ -145,7 +145,7 @@ print <<END;
 <td HEIGHT=10>$submstat[$ii]</td>
 <td HEIGHT=10>$runstat[$ii]</td>
 <td HEIGHT=10>$reqtime[$ii]</td>
-<td HEIGHT=10>$fintimeime[$ii]</td>
+<td HEIGHT=10>$fintime[$ii]</td>
 </TR>
 END
 
