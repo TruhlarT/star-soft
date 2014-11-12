@@ -116,7 +116,7 @@ END
 
 print <<END;
 
-<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"blue\">
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"lightblue\">
 <td HEIGHT=10>$runs[$ii]</td>
 <td HEIGHT=10>$datast[$ii]</td>
 <td HEIGHT=10>$streams[$ii]</td>
