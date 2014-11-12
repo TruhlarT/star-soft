@@ -53,7 +53,13 @@ my @fintime = ();
 my $nl = 0;
 
 
-&cgiSetup();
+# &cgiSetup();
+
+
+ my $query = new CGI;
+
+if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
+
 
 
  &StDbConnect();
@@ -80,7 +86,7 @@ my $nl = 0;
 
          $nl++; 
 
-         }
+   }
 
   $cursor->finish();
 
@@ -110,7 +116,7 @@ print <<END;
 </TR>
 END
 
-      }elsif($submstat[$ii] eq "yes" and  $runstat[$ii] eq "no" ) {
+  }elsif($submstat[$ii] eq "yes" and  $runstat[$ii] eq "no" ) {
 
 print <<END;
 
@@ -128,7 +134,7 @@ print <<END;
 </TR>
 END
 
-      }elsif($submstat[$ii] eq "yes" and $runstat[$ii] eq "yes" ) {
+  }elsif($submstat[$ii] eq "yes" and $runstat[$ii] eq "yes" ) {
 
 print <<END;
 
@@ -146,8 +152,26 @@ print <<END;
 </TR>
 END 
 
+}else{
+
+print <<END;
+
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
+<td HEIGHT=10>$runs[$ii]</td>
+<td HEIGHT=10>$datast[$ii]</td>
+<td HEIGHT=10>$streams[$ii]</td>
+<td HEIGHT=10>$prodtg[$ii]</td>
+<td HEIGHT=10>$nfl_subm[$ii]</td>
+<td HEIGHT=10>$nfl_proc[$ii]</td>
+<td HEIGHT=10>$submstat[$ii]</td>
+<td HEIGHT=10>$runstat[$ii]</td>
+<td HEIGHT=10>$reqtime[$ii]</td>
+<td HEIGHT=10>$fintimeime[$ii]</td>
+</TR>
+END 
   }
- }
+
+  }
 
 
  &StDbDisconnect();
@@ -220,8 +244,3 @@ END
 
 }
 
-##############
-sub cgiSetup {
-    $q=new CGI;
-    if ( exists($ENV{'QUERY_STRING'}) ) { print $q->header };
-}
