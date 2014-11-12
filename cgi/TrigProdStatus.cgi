@@ -186,7 +186,7 @@ print <<END;
 
    <body BGCOLOR=\"cornsilk\">
  <h2 ALIGN=CENTER>Status of fast production for trigger/subsystem evaluation</h2>
- <h3 ALIGN=CENTER> $todate</h3>
+ <h3 ALIGN=CENTER> Status on $nowdate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=4 CELLSPACING=1 CELLPADDING=1 bgcolor=\"#ffdc9f\">
 <TR>
