@@ -94,7 +94,7 @@ if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
 
  for (my $ii = 0; $ii < $nl; $ii++) {
 
-     if ($submstat[$ii] eq "no" ) {
+     if ($submstat[$ii] eq "yes" ) {
 
 print <<END;
 
