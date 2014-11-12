@@ -92,6 +92,29 @@ if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
 
   &beginHtml();
 
+ for (my $ii = 0; $ii < $nl; $ii++) {
+
+     if ($submstat[$ii] eq "no" ) {
+
+print <<END;
+
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"pink\">
+<td HEIGHT=10>$runs[$ii]</td>
+<td HEIGHT=10>$datast[$ii]</td>
+<td HEIGHT=10>$streams[$ii]</td>
+<td HEIGHT=10>$prodtg[$ii]</td>
+<td HEIGHT=10>$nfl_subm[$ii]</td>
+<td HEIGHT=10>$nfl_proc[$ii]</td>
+<td HEIGHT=10>$submstat[$ii]</td>
+<td HEIGHT=10>$runstat[$ii]</td>
+<td HEIGHT=10>$reqtime[$ii]</td>
+<td HEIGHT=10>$fintimeime[$ii]</td>
+</TR>
+END
+
+     }
+ }
+
 
  &StDbDisconnect();
 
