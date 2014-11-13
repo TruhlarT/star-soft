@@ -61,7 +61,7 @@ if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
 
  &StDbConnect();
 
-  $sql="SELECT DISTINCT runnumber, stream, dataset, prodtag, Nfiles_subm, Nfiles_proc, submit, done, requestTime, finishTime from $TrigRequestT ";
+  $sql="SELECT DISTINCT runnumber, stream, dataset, prodtag, Nfiles, Nfiles_proc, submit, done, requestTime, finishTime from $TrigRequestT ";
 
 
             $cursor =$dbh->prepare($sql)
