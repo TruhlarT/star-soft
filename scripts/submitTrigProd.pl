@@ -186,7 +186,7 @@ my $prid;
 
   for ( my $jk = 0; $jk < $nj; $jk++ ) {
 
-  $sql="update $TrigRequestT  set dataset = '$trgsetup[$jk]', runday = '$runday[$jk]', prodtag = '$prtag[$jk]', submit = 'yes', Nfiles_subm = '$nfiles[$jk]' where runnumber = '$runnum[$jk]' and submit = 'no' ";
+  $sql="update $TrigRequestT  set dataset = '$trgsetup[$jk]', runday = '$runday[$jk]', prodtag = '$prtag[$jk]', submit = 'yes', Nfiles = '$nfiles[$jk]' where runnumber = '$runnum[$jk]' and submit = 'no' ";
 
   $rv = $dbh->do($sql) || die $dbh->errstr;
 
