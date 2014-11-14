@@ -20,8 +20,8 @@ use GD::Graph::linespoints;
 use Class::Struct;
 
 
-#$dbhost="fc2.star.bnl.gov:3386";
-$dbhost="duvall.star.bnl.gov";
+$dbhost="fc2.star.bnl.gov:3386";
+#$dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
 $dbpass="";
 $dbname="operation";
@@ -1318,7 +1318,7 @@ $ndt = 0;
     $max_y = 20000;
 
        $ylabel = "Size of MuDst data in GB sinking to HPSS per day";
-       $gtitle = "Size of MuDst in GB produced per day for $qperiod period";
+       $gtitle = "Size of MuDst in GB for $qperiod period";
 
   @data = (\@ndate, \@jbsize); 
 
