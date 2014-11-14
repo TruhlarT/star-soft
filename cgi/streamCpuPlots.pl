@@ -32,6 +32,7 @@ struct JobAttr => {
       rtmv      => '$', 
       strk      => '$',
       strv      => '$',
+      msize     => '$',
       jbtot     => '$'
 };
 
