@@ -32,6 +32,7 @@ struct JobAttr => {
       rtmv      => '$', 
       strk      => '$',
       strv      => '$',
+      msize     => '$',
       jbtot     => '$'
 };
 
@@ -57,7 +58,7 @@ my @prodyear = ("2010","2011","2012","2013","2014");
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("cpu","rtime/cpu","exectime","ntracks","stream_rate","njobs" );
+my @arrate = ("cpu","rtime/cpu","exectime","ntracks","stream_rate","njobs","musize" );
 
 my @arrprod = ();
 my @arstream = ();
@@ -182,6 +183,8 @@ my @jbfgt  = ();
 my @jbdaqtenk  = ();
 my @jbwb = ();
 
+my @jbsize = ();
+my $psize = 0;
  
  my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months");
 
@@ -233,6 +236,9 @@ $JobStatusT = "JobStatus2012";
     $cursor->finish();
 
 $JobStatusT = "JobStatus2013";  
+
+my $FileCatalogT = "FileCatalog2013";
+
 
     $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT where runDay >= '2014-02-20' order by runDay ";
 
@@ -1173,7 +1179,51 @@ END
             $jbstat[$nstat] = $fObjAdr;
             $nstat++;
         }
-     }
+
+   }elsif( $srate eq "musize" ) {
+
+$nstat = 0;
+@jbsize = ();
+$ndt = 0;
+
+  foreach my $tdate (@ardays) {
+        @jbstat = ();
+        $nstat = 0;
+
+
+  $sql="SELECT date_format(createTime, '%Y-%m-%d) as PDATE, sum(size) FROM $FileCatalogT WHERE  createTime like '$tdate%' AND prodSeries = ? AND size > 1 group by PDATE  ";
+
+            $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n";
+            $cursor->execute($qprod);
+
+        while(@fields = $cursor->fetchrow) {
+            my $cols=$cursor->{NUM_OF_FIELDS};
+            $fObjAdr = \(JobAttr->new());
+
+            for($i=0;$i<$cols;$i++) {
+                my $fvalue=$fields[$i];
+                my $fname=$cursor->{NAME}->[$i];
+                # print "$fname = $fvalue\n" ;
+
+                ($$fObjAdr)->vday($fvalue)    if( $fname eq 'PDATE');
+                ($$fObjAdr)->msize($fvalue)   if( $fname eq 'size');
+
+            }
+            $jbstat[$nstat] = $fObjAdr;
+            $nstat++;
+
+    }
+
+   foreach $jset (@jbstat) {
+            $pday    = ($$jset)->vday;
+            $psize   = ($$jset)->msize;
+
+            $ndate[$ndt] = $pday;
+            $jbsize[$ndt] = $psize;
+            $ndt++;
+   }
+ }
 
     foreach $jset (@jbstat) {
             $pday      = ($$jset)->vday;
@@ -1255,22 +1305,35 @@ END
     } else {
 	 
 
-       $legend[0] = "st_physics   ";
-       $legend[1] = "st_gamma     ";
-       $legend[2] = "st_hlt       ";
+    if( $srate eq "musize" ) {
+
+    @data = ();
+
+      $legend[0] = "all streams";
+
+
+       $ylabel = "Date of data sinking";
+       $gtitle = "Size of MuDst per day for $qperiod period";
+
+  @data = (\@ndate,\@jbsize); 
+
+
+#       $legend[0] = "st_physics   ";
+#       $legend[1] = "st_gamma     ";
+#       $legend[2] = "st_hlt       ";
 #       $legend[3] = "st_ht        ";
 #       $legend[4] = "st_monitor   ";
 #       $legend[5] = "st_pmdftp    ";
-       $legend[3] = "st_fms ";
-       $legend[4] = "st_fgt ";
-       $legend[5] = "st_daqtenk ";
-       $legend[6] = "st_upc       ";       
-       $legend[7] = "st_W ";
-       $legend[8] = "st_mtd       ";
-       $legend[9] = "st_centralpro ";
-       $legend[10] = "st_atomcules ";        
+#       $legend[3] = "st_fms ";
+#       $legend[4] = "st_fgt ";
+#       $legend[5] = "st_daqtenk ";
+#       $legend[6] = "st_upc       ";       
+#       $legend[7] = "st_W ";
+#       $legend[8] = "st_mtd       ";
+#       $legend[9] = "st_centralpro ";
+#       $legend[10] = "st_atomcules ";        
 
-       if ( $srate eq "rtime/cpu" ) {
+    }elsif ( $srate eq "rtime/cpu" ) {
 
     @data = ();
 
