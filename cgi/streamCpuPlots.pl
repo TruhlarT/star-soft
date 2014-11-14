@@ -932,7 +932,6 @@ $ndt = 0;
 
   foreach my $tdate (@ardays) {
         @jbstat = ();
-        $nstat = 0;
 
 
   $sql="SELECT date_format(createTime, '%Y-%m-%d') as PDATE, sum(size) FROM $FileCatalogT WHERE  createTime like '$tdate%' AND path like '%pp500_production_2013%P14ig%' AND fName like '%MuDst.root' group by PDATE  ";
@@ -958,6 +957,7 @@ $ndt = 0;
             $nstat++;
 
       }
+   }
 
    foreach my $jset (@jbstat) {
             $pday    = ($$jset)->vday;
@@ -967,7 +967,7 @@ $ndt = 0;
             $jbsize[$ndt] = $psize/1000000000;
             $ndt++;
    }
- }
+ 
 
 
 #############################  stream ratios
@@ -1331,10 +1331,10 @@ $ndt = 0;
 
       $legend[0] = "all streams";
 
-    $max_y = 1000000;
+    $max_y = 20000;
 
        $ylabel = "Date of data sinking";
-       $gtitle = "Size of MuDst per day for $qperiod period";
+       $gtitle = "Size of MuDst in GB per day for $qperiod period";
 
   @data = (\@ndate, \@jbsize); 
 
