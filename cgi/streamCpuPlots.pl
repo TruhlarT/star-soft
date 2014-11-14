@@ -1317,8 +1317,8 @@ $ndt = 0;
 
     $max_y = 20000;
 
-       $ylabel = "Date of data sinking";
-       $gtitle = "Size of MuDst in GB per day for $qperiod period";
+       $ylabel = "Size of MuDst data in GB sinking to HPSS per day";
+       $gtitle = "Size of MuDst in GB produced per day for $qperiod period";
 
   @data = (\@ndate, \@jbsize); 
 
