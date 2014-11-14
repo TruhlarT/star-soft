@@ -935,7 +935,7 @@ $ndt = 0;
         $nstat = 0;
 
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d') as PDATE, sum(size) FROM $FileCatalogT WHERE  createTime like '$tdate%' AND path like '%pp500_production_2013%P14ig%' AND fName like '%MuDst.root' AND size > 1 group by PDATE  ";
+  $sql="SELECT date_format(createTime, '%Y-%m-%d') as PDATE, sum(size) FROM $FileCatalogT WHERE  createTime like '$tdate%' AND path like '%pp500_production_2013%P14ig%' AND fName like '%MuDst.root' group by PDATE  ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -964,7 +964,7 @@ $ndt = 0;
             $psize   = ($$jset)->msize;
 
             $ndate[$ndt] = $pday;
-            $jbsize[$ndt] = $psize/1000000;
+            $jbsize[$ndt] = $psize/1000000000;
             $ndt++;
    }
  }
@@ -1309,20 +1309,6 @@ $ndt = 0;
     } else {
 
 
-    if( $srate eq "musize" ) {
-
-    @data = ();
-
-      $legend[0] = "all streams";
-
-
-       $ylabel = "Date of data sinking";
-       $gtitle = "Size of MuDst per day for $qperiod period";
-
-  @data = (\@ndate, \@jbsize); 
-
-	 
-
        $legend[0] = "st_physics   ";
        $legend[1] = "st_gamma     ";
        $legend[2] = "st_hlt       ";
@@ -1336,7 +1322,23 @@ $ndt = 0;
        $legend[7] = "st_W ";
        $legend[8] = "st_mtd       ";
        $legend[9] = "st_centralpro ";
-       $legend[10] = "st_atomcules ";        
+       $legend[10] = "st_atomcules ";      
+
+
+    if( $srate eq "musize" ) {
+
+    @data = ();
+
+      $legend[0] = "all streams";
+
+    $max_y = 1000000;
+
+       $ylabel = "Date of data sinking";
+       $gtitle = "Size of MuDst per day for $qperiod period";
+
+  @data = (\@ndate, \@jbsize); 
+
+	 
 
   }elsif ( $srate eq "rtime/cpu" ) {
 
