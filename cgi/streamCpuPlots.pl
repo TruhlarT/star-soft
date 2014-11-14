@@ -945,7 +945,7 @@ $ndt = 0;
        while(@fields = $cursor->fetchrow) {
 
        $ndate[$ndt] = $fields[0];
-       $jbsize[$ndt] = $fields[1];
+       $jbsize[$ndt] = $fields[1]/1000000000;
 
       $ndt++;
 
