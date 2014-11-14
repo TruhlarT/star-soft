@@ -935,11 +935,11 @@ $ndt = 0;
         $nstat = 0;
 
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d) as PDATE, sum(size) FROM $FileCatalogT WHERE  createTime like '$tdate%' AND prodSeries = ? AND size > 1 group by PDATE  ";
+  $sql="SELECT date_format(createTime, '%Y-%m-%d') as PDATE, sum(size) FROM $FileCatalogT WHERE  createTime like '$tdate%' AND path like '%$qprod%' AND trigset = 'pp500_production_2013' AND fName like '%MuDst.root' AND size > 1 group by PDATE  ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
-            $cursor->execute($qprod);
+            $cursor->execute();
 
         while(@fields = $cursor->fetchrow) {
             my $cols=$cursor->{NUM_OF_FIELDS};
