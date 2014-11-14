@@ -941,34 +941,17 @@ $ndt = 0;
               || die "Cannot prepare statement: $DBI::errstr\n";
             $cursor->execute();
 
-        while(@fields = $cursor->fetchrow) {
-            my $cols=$cursor->{NUM_OF_FIELDS};
-            $fObjAdr = \(JobAttr->new());
 
-            for($i=0;$i<$cols;$i++) {
-                my $fvalue=$fields[$i];
-                my $fname=$cursor->{NAME}->[$i];
-                # print "$fname = $fvalue\n" ;
+       while(@fields = $cursor->fetchrow) {
 
-                ($$fObjAdr)->vday($fvalue)    if( $fname eq 'PDATE');
-                ($$fObjAdr)->msize($fvalue)   if( $fname eq 'sum(size)');
+       $ndate[$ndt] = $fields[0];
+       $jbsize[$ndt] = $fields[1];
 
-            }
-            $jbstat[$nstat] = $fObjAdr;
-            $nstat++;
+      $ndt++;
 
-      }
+     }
+
    }
-
-   foreach my $jset (@jbstat) {
-            $pday    = ($$jset)->vday;
-            $psize   = ($$jset)->msize;
-
-            $ndate[$ndt] = $pday;
-            $jbsize[$ndt] = $psize/1000000000;
-            $ndt++;
-   }
- 
 
 
 #############################  stream ratios
