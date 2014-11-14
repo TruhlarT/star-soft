@@ -926,8 +926,8 @@ END
 
   }elsif( $srate eq "musize" ) {
 
-$nstat = 0;
 @jbsize = ();
+@ndate = ();
 $ndt = 0;
 
   foreach my $tdate (@ardays) {
@@ -951,23 +951,23 @@ $ndt = 0;
                 # print "$fname = $fvalue\n" ;
 
                 ($$fObjAdr)->vday($fvalue)    if( $fname eq 'PDATE');
-                ($$fObjAdr)->msize($fvalue)   if( $fname eq 'size');
+                ($$fObjAdr)->msize($fvalue)   if( $fname eq 'sum(size)');
 
             }
             $jbstat[$nstat] = $fObjAdr;
             $nstat++;
 
-    }
+      }
 
-   foreach $jset (@jbstat) {
+   foreach my $jset (@jbstat) {
             $pday    = ($$jset)->vday;
             $psize   = ($$jset)->msize;
 
             $ndate[$ndt] = $pday;
-            $jbsize[$ndt] = $psize;
+            $jbsize[$ndt] = $psize/1000000;
             $ndt++;
    }
-  }
+ }
 
 
 #############################  stream ratios
@@ -1319,7 +1319,7 @@ $ndt = 0;
        $ylabel = "Date of data sinking";
        $gtitle = "Size of MuDst per day for $qperiod period";
 
-  @data = (\@ndate,\@jbsize); 
+  @data = (\@ndate, \@jbsize); 
 
 	 
 
