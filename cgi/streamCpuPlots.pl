@@ -20,7 +20,6 @@ use GD::Graph::linespoints;
 use Class::Struct;
 
 
-#$dbhost="fc2.star.bnl.gov:3386";
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
 $dbpass="";
@@ -58,7 +57,7 @@ my @prodyear = ("2010","2011","2012","2013","2014");
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("cpu","rtime/cpu","exectime","ntracks","stream_rate","njobs","musize" );
+my @arrate = ("cpu","rtime/cpu","exectime","ntracks","stream_rate","njobs","musize","daqsize" );
 
 my @arrprod = ();
 my @arstream = ();
@@ -185,6 +184,7 @@ my @jbwb = ();
 
 my @jbsize = ();
 my $psize = 0;
+my @daqsize = ();
 
 
  
@@ -252,7 +252,7 @@ $JobStatusT = "JobStatus2013";
     $cursor->finish();
 
 my $FileCatalogT = "FileCatalog2013";
-
+my $ProdSizeT = "ProductionSize";
 
 $JobStatusT = "JobStatus2014";  
 
@@ -932,8 +932,6 @@ END
 $ndt = 0;
 
   foreach my $tdate (@ardays) {
-        @jbstat = ();
-
 
   $sql="SELECT date_format(createTime, '%Y-%m-%d') as PDATE, sum(size) FROM $FileCatalogT WHERE  createTime like '$tdate%' AND path like '%pp500_production_2013%P14ig%' AND fName like '%MuDst.root' group by PDATE  ";
 
@@ -953,6 +951,33 @@ $ndt = 0;
 
    }
 
+#################################  size of daq files
+
+  }elsif( $srate eq "daqsize" ) {
+
+@daqsize = ();
+@ndate = ();
+$ndt = 0;
+
+  foreach my $tdate (@ardays) {
+
+  $sql="SELECT date_format(createTime, '%Y-%m-%d') as PDATE, sum(daqsize) FROM $ProdSizeT WHERE  createTime like '$tdate%' AND Trigset = 'pp500_production_2013' and prodtag = 'P14ig' AND filename like '%MuDst.root' group by PDATE  ";
+
+            $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n";
+            $cursor->execute();
+
+
+       while(@fields = $cursor->fetchrow) {
+
+       $ndate[$ndt] = $fields[0];
+       $daqsize[$ndt] = $fields[1]/1000000000;
+
+      $ndt++;
+
+     }
+
+   }
 
 #############################  stream ratios
 
@@ -1322,7 +1347,19 @@ $ndt = 0;
 
   @data = (\@ndate, \@jbsize); 
 
-	 
+
+ }elsif( $srate eq "musize" ) {
+
+    @data = ();
+
+      $legend[0] = "all streams";
+
+    $max_y = 50000;
+
+       $ylabel = "Size of raw data in GB restored from HPSS per day";
+       $gtitle = "Size of raw data in GB restored from HPSS for $qperiod period";
+
+  @data = (\@ndate, \@daqsize); 	 
 
   }elsif ( $srate eq "rtime/cpu" ) {
 
