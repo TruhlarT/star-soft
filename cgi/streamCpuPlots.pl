@@ -1348,7 +1348,7 @@ $ndt = 0;
   @data = (\@ndate, \@jbsize); 
 
 
- }elsif( $srate eq "musize" ) {
+ }elsif( $srate eq "daqsize" ) {
 
     @data = ();
 
