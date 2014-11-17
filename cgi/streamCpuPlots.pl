@@ -1354,7 +1354,7 @@ $ndt = 0;
 
       $legend[0] = "all streams";
 
-    $max_y = 50000;
+    $max_y = 30000;
 
        $ylabel = "Size of raw data in GB restored from HPSS per day";
        $gtitle = "Size of raw data in GB restored from HPSS for $qperiod period";
