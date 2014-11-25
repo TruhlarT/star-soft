@@ -200,8 +200,7 @@ my $qtrig =   $qqr->param('ptrig')
 
 # Tables
 
- if( $qprod =~ /P14ia/ ) {$pryear = "2013"};
- if( $qprod =~ /P14ig/ ) {$pryear = "2013"};
+ if( $qprod =~ /P14ia/ or $qprod =~ /P14ig/ ) {$pryear = "2013"};
 
  $JobStatusT = "JobStatus".$pryear;
 
