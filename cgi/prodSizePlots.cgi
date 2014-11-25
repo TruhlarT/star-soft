@@ -196,7 +196,7 @@ END
 my $qprod =   $qqr->param('prod');
 my $qperiod = $qqr->param('period');
 my $srate =   $qqr->param('prate');
-my $qtrig =   $qqr->param('ptrig')
+my $qtrig =   $qqr->param('ptrig');
 
 # Tables
 
