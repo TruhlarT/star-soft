@@ -204,7 +204,10 @@ my $qtrig =   $qqr->param('ptrig');
 
  if( $qprod =~ /P14ia/ or $qprod =~ /P14ig/ ) {$pryear = "2013"};
 
- $JobStatusT = "JobStatus".$pryear;
+# $JobStatusT = "JobStatus".$pryear;
+
+ $JobStatusT = "JobStatus2013";
+
 
  $day_diff = 0;
  $nmonth = 0;
@@ -271,7 +274,7 @@ $ndt = 0;
 
   foreach my $tdate (@ardays) {
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d') as PDATE, sum(mudstsize) FROM $ProdSizeT WHERE  createTime like '$tdate%' AND  and prodtag = ? AND filename like '%MuDst.root' group by PDATE  ";
+  $sql="SELECT date_format(createtime, '%Y-%m-%d') as PDATE, sum(mudstsize) FROM $ProdSizeT WHERE  createtime like '$tdate%' AND  and prodtag = ? AND filename like '%MuDst.root' group by PDATE  ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -292,7 +295,7 @@ $ndt = 0;
 
   foreach my $tdate (@ardays) {
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d') as PDATE, sum(mudstsize) FROM $ProdSizeT WHERE  createTime like '$tdate%' AND  and prodtag = ? and Trigset = ? and filename like '%MuDst.root' group by PDATE  ";
+  $sql="SELECT date_format(createtime, '%Y-%m-%d') as PDATE, sum(mudstsize) FROM $ProdSizeT WHERE  createtime like '$tdate%' AND  and prodtag = ? and Trigset = ? and filename like '%MuDst.root' group by PDATE  ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -325,7 +328,7 @@ $ndt = 0;
 
   foreach my $tdate (@ardays) {
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d') as PDATE, sum(daqsize) FROM $ProdSizeT WHERE  createTime like '$tdate%' and and prodtag = ? AND filename like '%MuDst.root' group by PDATE  ";
+  $sql="SELECT date_format(createtime, '%Y-%m-%d') as PDATE, sum(daqsize) FROM $ProdSizeT WHERE  createtime like '$tdate%' and and prodtag = ? AND filename like '%MuDst.root' group by PDATE  ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -345,7 +348,7 @@ $ndt = 0;
 
   foreach my $tdate (@ardays) {
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d') as PDATE, sum(daqsize) FROM $ProdSizeT WHERE  createTime like '$tdate%' and  prodtag = ? and Trigset = ? and filename like '%MuDst.root' group by PDATE  ";
+  $sql="SELECT date_format(createtime, '%Y-%m-%d') as PDATE, sum(daqsize) FROM $ProdSizeT WHERE  createtime like '$tdate%' and  prodtag = ? and Trigset = ? and filename like '%MuDst.root' group by PDATE  ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
