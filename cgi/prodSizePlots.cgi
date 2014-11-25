@@ -170,7 +170,6 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'period',
                                   -values=>\@arperiod,
-                                  -default=>1_month,
                                   -size =>1);
 
 
@@ -190,7 +189,7 @@ END
 
     print $query->end_html();
 
-} else{
+ } else{
 
   my $qqr = new CGI;
 
