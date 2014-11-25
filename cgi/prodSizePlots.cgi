@@ -376,6 +376,7 @@ $ndt = 0;
  @data = ();
  my $ylabel;
  my $gtitle;
+  my $max_y;
 
     my $graph = new GD::Graph::linespoints(750,650);
 
@@ -389,7 +390,7 @@ $ndt = 0;
 
     @data = ();
 
-my $max_y = 20000;
+   $max_y = 20000;
 
        $ylabel = "Size of MuDst data in GB sinking to HPSS per day";
        $gtitle = "Size of MuDst in GB for $qperiod period";
