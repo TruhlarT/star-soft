@@ -20,6 +20,7 @@ use GD::Graph::linespoints;
 use Class::Struct;
 
 
+#$dbhost="fc2.star.bnl.gov:3386";
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
 $dbpass="";
@@ -31,7 +32,6 @@ struct JobAttr => {
       rtmv      => '$', 
       strk      => '$',
       strv      => '$',
-      msize     => '$',
       jbtot     => '$'
 };
 
@@ -57,7 +57,7 @@ my @prodyear = ("2010","2011","2012","2013","2014");
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("cpu","rtime/cpu","exectime","ntracks","stream_rate","njobs","musize","daqsize" );
+my @arrate = ("cpu","rtime/cpu","exectime","ntracks","stream_rate","njobs" );
 
 my @arrprod = ();
 my @arstream = ();
@@ -182,11 +182,6 @@ my @jbfgt  = ();
 my @jbdaqtenk  = ();
 my @jbwb = ();
 
-my @jbsize = ();
-my $psize = 0;
-my @daqsize = ();
-
-
  
  my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months");
 
@@ -251,8 +246,6 @@ $JobStatusT = "JobStatus2013";
        }
     $cursor->finish();
 
-my $FileCatalogT = "FileCatalog2013";
-my $ProdSizeT = "ProductionSize";
 
 $JobStatusT = "JobStatus2014";  
 
@@ -923,62 +916,6 @@ END
 
     } # foreach tdate
 
-#############################  size of MuDst
-
-  }elsif( $srate eq "musize" ) {
-
-@jbsize = ();
-@ndate = ();
-$ndt = 0;
-
-  foreach my $tdate (@ardays) {
-
-  $sql="SELECT date_format(createTime, '%Y-%m-%d') as PDATE, sum(size) FROM $FileCatalogT WHERE  createTime like '$tdate%' AND path like '%pp500_production_2013%P14ig%' AND fName like '%MuDst.root' group by PDATE  ";
-
-            $cursor =$dbh->prepare($sql)
-              || die "Cannot prepare statement: $DBI::errstr\n";
-            $cursor->execute();
-
-
-       while(@fields = $cursor->fetchrow) {
-
-       $ndate[$ndt] = $fields[0];
-       $jbsize[$ndt] = $fields[1]/1000000000;
-
-      $ndt++;
-
-     }
-
-   }
-
-#################################  size of daq files
-
-  }elsif( $srate eq "daqsize" ) {
-
-@daqsize = ();
-@ndate = ();
-$ndt = 0;
-
-  foreach my $tdate (@ardays) {
-
-  $sql="SELECT date_format(createTime, '%Y-%m-%d') as PDATE, sum(daqsize) FROM $ProdSizeT WHERE  createTime like '$tdate%' AND Trigset = 'pp500_production_2013' and prodtag = 'P14ig' AND filename like '%MuDst.root' group by PDATE  ";
-
-            $cursor =$dbh->prepare($sql)
-              || die "Cannot prepare statement: $DBI::errstr\n";
-            $cursor->execute();
-
-
-       while(@fields = $cursor->fetchrow) {
-
-       $ndate[$ndt] = $fields[0];
-       $daqsize[$ndt] = $fields[1]/1000000000;
-
-      $ndt++;
-
-     }
-
-   }
-
 #############################  stream ratios
 
           }elsif( $srate eq "stream_rate" or $srate eq "njobs" ) { 
@@ -1316,7 +1253,7 @@ $ndt = 0;
 	print STDOUT "Failed\n";
 
     } else {
-
+	 
 
        $legend[0] = "st_physics   ";
        $legend[1] = "st_gamma     ";
@@ -1331,37 +1268,9 @@ $ndt = 0;
        $legend[7] = "st_W ";
        $legend[8] = "st_mtd       ";
        $legend[9] = "st_centralpro ";
-       $legend[10] = "st_atomcules ";      
+       $legend[10] = "st_atomcules ";        
 
-
-    if( $srate eq "musize" ) {
-
-    @data = ();
-
-      $legend[0] = "all streams";
-
-    $max_y = 20000;
-
-       $ylabel = "Size of MuDst data in GB sinking to HPSS per day";
-       $gtitle = "Size of MuDst in GB for $qperiod period";
-
-  @data = (\@ndate, \@jbsize); 
-
-
- }elsif( $srate eq "daqsize" ) {
-
-    @data = ();
-
-      $legend[0] = "all streams";
-
-    $max_y = 30000;
-
-       $ylabel = "Size of raw data in GB restored from HPSS per day";
-       $gtitle = "Size of raw data in GB restored from HPSS for $qperiod period";
-
-  @data = (\@ndate, \@daqsize); 	 
-
-  }elsif ( $srate eq "rtime/cpu" ) {
+       if ( $srate eq "rtime/cpu" ) {
 
     @data = ();
 
