@@ -66,6 +66,8 @@ my $day_diff = 0;
 my $nmonth = 0;
 my @prt = ();
 my @ardays = ();
+my @data = ();
+
 
  my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months");
 
@@ -371,7 +373,7 @@ $ndt = 0;
 
     &StDbProdDisconnect();
 
- my @data = ();
+ @data = ();
  my $ylabel;
  my $gtitle;
 
@@ -387,7 +389,7 @@ $ndt = 0;
 
     @data = ();
 
-    $max_y = 20000;
+my $max_y = 20000;
 
        $ylabel = "Size of MuDst data in GB sinking to HPSS per day";
        $gtitle = "Size of MuDst in GB for $qperiod period";
@@ -406,13 +408,13 @@ $ndt = 0;
 
   @data = (\@ndate, \@daqsize);
 
-
+ }
   my $xLabelsVertical = 1;
   my $xLabelPosition = 0;
   my $xLabelSkip = 1;
   my $skipnum = 1;
 
-  $min_y = 0;
+my  $min_y = 0;
 
   if (scalar(@ndate) >= 40 ) {
     $skipnum = int(scalar(@ndate)/20);
@@ -457,9 +459,11 @@ $ndt = 0;
             print STDOUT $graph->plot(\@data)->$format();
         }
 #
-      }
-    }
-}
+     }
+  }
+
+
+############################
 
 sub y_format
 {
