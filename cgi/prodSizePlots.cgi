@@ -72,6 +72,8 @@ my @ardays = ();
 my $JobStatusT = "JobStatus2013";
 my $ProdSizeT = "ProductionSize";
 
+ &StDbProdConnect();
+
 
    $sql="SELECT DISTINCT prodtag  FROM $ProdSizeT ";
 
@@ -79,7 +81,7 @@ my $ProdSizeT = "ProductionSize";
           || die "Cannot prepare statement: $DBI::errstr\n";
        $cursor->execute();
 
-       while( $mpr = $cursor->fetchrow() ) {
+       while( my $mpr = $cursor->fetchrow() ) {
 
           $arrprod[$npr] = $mpr;
           $npr++;
@@ -93,7 +95,7 @@ my $ProdSizeT = "ProductionSize";
           || die "Cannot prepare statement: $DBI::errstr\n";
        $cursor->execute();
 
-       while( $mpr = $cursor->fetchrow() ) {
+       while( my $mpr = $cursor->fetchrow() ) {
           $trigs[$ntr] = $mpr;
           $ntr++;
        }
