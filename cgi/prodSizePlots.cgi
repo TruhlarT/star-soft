@@ -50,7 +50,7 @@ my $pryear = "2014";
 
 my @arperiod = ( );
 
-my @arrate = ("musize","daqsize" );
+my @arrate = ("mudstsize","daqsize","all" );
 
 my @arrprod = ();
 my @trigs = ();
@@ -164,7 +164,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
                                   -values=>\@arrate,
-                                  -default=>musize,
+                                  -default=>mudstsize,
                                   -size =>1);
 
 
@@ -266,7 +266,7 @@ my $qtrig =   $qqr->param('ptrig');
 #############################  size of MuDst
 
  
-  if( $srate eq "musize" ) {
+  if( $srate eq "mudstsize" ) {
 
 @jbsize = ();
 @ndate = ();
@@ -346,6 +346,7 @@ $ndt = 0;
 
        }
       }
+
      }else{
 
   foreach my $tdate (@ardays) {
@@ -367,6 +368,60 @@ $ndt = 0;
        }
       }
      }
+
+  }elsif($srate eq "all" ) {
+
+
+@jbsize = ();
+@daqsize = ();
+@ndate = ();
+$ndt = 0;
+
+ 
+     if($qtrig eq "all") {  
+
+  foreach my $tdate (@ardays) {
+
+  $sql="SELECT date_format(createtime, '%Y-%m-%d') as PDATE, sum(daqsize), sum(mudstsize) FROM $ProdSizeT WHERE  createtime like '$tdate%' and prodtag = ? AND filename like '%MuDst.root' group by PDATE  ";
+
+            $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n";
+            $cursor->execute($qprod);
+
+
+       while(@fields = $cursor->fetchrow) {
+
+       $ndate[$ndt]   = $fields[0];
+       $daqsize[$ndt] = $fields[1]/1000000000;
+       $jbsize[$ndt]  = $fields[2]/1000000000;
+       $ndt++;
+
+       }
+      }
+
+     }else{
+
+  foreach my $tdate (@ardays) {
+
+  $sql="SELECT date_format(createtime, '%Y-%m-%d') as PDATE, sum(daqsize), sum(mudstsize) FROM $ProdSizeT WHERE  createtime like '$tdate%' and  prodtag = ? and Trigset = ? and filename like '%MuDst.root' group by PDATE  ";
+
+            $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n";
+            $cursor->execute($qprod,$qtrig);
+
+
+       while(@fields = $cursor->fetchrow) {
+
+       $ndate[$ndt] = $fields[0];
+       $daqsize[$ndt] = $fields[1]/1000000000;
+       $jbsize[$ndt]  = $fields[2]/1000000000;
+       $ndt++;
+
+       }
+      }
+     }
+##
+
   }
 
 ############################################################
@@ -386,11 +441,11 @@ $ndt = 0;
 
     } else {
 
-    if( $srate eq "musize" ) {
+    if( $srate eq "mudstsize" ) {
 
     @data = ();
 
-   $max_y = 20000;
+   $max_y = 18000;
 
        $ylabel = "Size of MuDst data in GB sinking to HPSS per day";
        $gtitle = "Size of MuDst in GB for $qperiod period";
@@ -409,7 +464,24 @@ $ndt = 0;
 
   @data = (\@ndate, \@daqsize);
 
+ }else{
+
+   @data = ();
+
+    $max_y = 30000;
+
+       $ylabel = "Size of data in GB transferred  from/to HPSS per day";
+       $gtitle = "Size of data in GB transferred  from/to HPSS for $qperiod period";
+
+  @data = (\@ndate, \@daqsize, \@jbsize  );
+
+
+   $legend[0] = "raw data size";
+   $legend[1] = "mudst size";
+
+
  }
+
   my $xLabelsVertical = 1;
   my $xLabelPosition = 0;
   my $xLabelSkip = 1;
@@ -433,7 +505,7 @@ my  $min_y = 0;
                     y_number_format => \&y_format,
                     #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple lorange marine lred lblack lbrown lyellow lgray) ],
+                    dclrs => [ qw(lblack lred lblue lgreen lpurple lorange marine lbrown lyellow lgray) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
