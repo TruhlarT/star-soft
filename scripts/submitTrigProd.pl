@@ -16,8 +16,6 @@ use File::Basename;
 use DBI;
 use Time::Local;
 
-my $CRSDIR  = "/home/starreco/newcrs/bin";
-
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
 $dbpass="";
@@ -171,9 +169,9 @@ my $prid;
 
    &create_jobs($trgsetup[$ik],$mField[$ik],$jblib[$ik],$filename[$njob],$runday[$ik],$runnum[$ik],$nevents[$ik]);
 
-#   `$CRSDIR/crs_job -insert $jobFname` ; 
+   `/usr/bin/crs_job -insert $jobFname` ; 
 
-#    `/bin/mv $jobFname $archdir`;
+    `/bin/mv $jobFname $archdir`;
 
     print "Check jobfileNAme  ",$jobFname, "\n";      
 
