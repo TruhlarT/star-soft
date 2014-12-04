@@ -37,7 +37,7 @@ my $FlStreamT = "FOFileType";
 my @arevents = ("10000","5000","2000","1000");
 my @arstreams = ();
 my @arruns = ();
-my @prodlibs = ("DEV","SL14h","SL14g");
+my @prodlibs = ("dev","SL14h","SL14g");
 
 my $maxrun = 0;
 my @runs = ();
@@ -148,7 +148,7 @@ print "<br>";
 print "<h3 align=center>Select library</h3>"; 
 print $query->scrolling_list(-name=>'qlib',
                              -values=>\@prodlibs,
-                             -default=>DEV,
+                             -default=>dev,
                              -size =>1); 
 
 print "<br>";
