@@ -135,8 +135,8 @@ my $prid;
     $rdtemp = substr($rday,2) + 0;
     $runday[$ik] = substr($rdtemp,0,-3) + 0;
 
-    if($jblib[$ik] eq "DEV" ) {
-	$prtag[$ik] = "DEV";
+    if($jblib[$ik] eq "dev" ) {
+	$prtag[$ik] = "dev";
     }else{
 	$prtmp = $jblib[$ik];
         $prtmp =~ s/SL/P/g;
