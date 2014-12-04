@@ -26,7 +26,7 @@ my $DaqInfoT   = "DAQInfo";
 my $FTrgSetT = "FOTriggerSetup";
 
 
-my $prodPeriod = "DEV";
+my $prodPeriod = "dev";
 my $datadisk = "/star/data+09-12";
 
 
@@ -173,7 +173,7 @@ my $prid;
 
     `/bin/mv $jobFname $archdir`;
 
-    print "Check jobfileNAme  ",$jobFname, "\n";      
+    print "Check jobfileName  ",$jobFname, "\n";      
 
     $njob++;
     }
