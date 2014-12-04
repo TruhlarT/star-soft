@@ -50,6 +50,7 @@ my @submstat = ();
 my @runstat = ();
 my @reqtime = ();
 my @fintime = ();
+my @nevents = ();
 my $nl = 0;
 
 
@@ -61,7 +62,7 @@ if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
 
  &StDbConnect();
 
-  $sql="SELECT DISTINCT runnumber, stream, dataset, prodtag, Nfiles, Nfiles_proc, submit, done, requestTime, finishTime from $TrigRequestT ";
+  $sql="SELECT DISTINCT runnumber, stream, dataset, prodtag, Nfiles, Nfiles_proc, totevents, submit, done, requestTime, finishTime from $TrigRequestT ";
 
 
             $cursor =$dbh->prepare($sql)
@@ -76,10 +77,11 @@ if ( exists($ENV{'QUERY_STRING'}) ) { print $query->header };
          $prodtg[$nl]   = $fields[3];
          $nfl_subm[$nl] = $fields[4];
          $nfl_proc[$nl] = $fields[5];
-         $submstat[$nl] = $fields[6];
-         $runstat[$nl]  = $fields[7];
-         $reqtime[$nl]  = $fields[8];
-         $fintime[$nl]  = $fields[9];
+         $nevents[$nl]  = $fields[6];
+         $submstat[$nl] = $fields[7];
+         $runstat[$nl]  = $fields[8];
+         $reqtime[$nl]  = $fields[9];
+         $fintime[$nl]  = $fields[10];
 
          $nl++; 
 
@@ -105,6 +107,7 @@ print <<END;
 <td HEIGHT=10>$prodtg[$ii]</td>
 <td HEIGHT=10>$nfl_subm[$ii]</td>
 <td HEIGHT=10>$nfl_proc[$ii]</td>
+<td HEIGHT=10>$nevents[$ii]</td>
 <td HEIGHT=10>$submstat[$ii]</td>
 <td HEIGHT=10>$runstat[$ii]</td>
 <td HEIGHT=10>$reqtime[$ii]</td>
@@ -116,13 +119,14 @@ END
 
 print <<END;
 
-<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"lightblue\">
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"lightgreen\">
 <td HEIGHT=10>$runs[$ii]</td>
 <td HEIGHT=10>$datast[$ii]</td>
 <td HEIGHT=10>$streams[$ii]</td>
 <td HEIGHT=10>$prodtg[$ii]</td>
 <td HEIGHT=10>$nfl_subm[$ii]</td>
 <td HEIGHT=10>$nfl_proc[$ii]</td>
+<td HEIGHT=10>$nevents[$ii]</td>
 <td HEIGHT=10>$submstat[$ii]</td>
 <td HEIGHT=10>$runstat[$ii]</td>
 <td HEIGHT=10>$reqtime[$ii]</td>
@@ -142,6 +146,7 @@ print <<END;
 <td HEIGHT=10>$prodtg[$ii]</td>
 <td HEIGHT=10>$nfl_subm[$ii]</td>
 <td HEIGHT=10>$nfl_proc[$ii]</td>
+<td HEIGHT=10>$nevents[$ii]</td>
 <td HEIGHT=10>$submstat[$ii]</td>
 <td HEIGHT=10>$runstat[$ii]</td>
 <td HEIGHT=10>$reqtime[$ii]</td>
@@ -160,6 +165,7 @@ print <<END;
 <td HEIGHT=10>$prodtg[$ii]</td>
 <td HEIGHT=10>$nfl_subm[$ii]</td>
 <td HEIGHT=10>$nfl_proc[$ii]</td>
+<td HEIGHT=10>$nevents[$ii]</td>
 <td HEIGHT=10>$submstat[$ii]</td>
 <td HEIGHT=10>$runstat[$ii]</td>
 <td HEIGHT=10>$reqtime[$ii]</td>
@@ -202,17 +208,18 @@ print <<END;
     </head>
 
    <body BGCOLOR=\"cornsilk\">
- <h2 ALIGN=CENTER>Status of fast production for trigger/subsystem evaluation</h2>
+ <h2 ALIGN=CENTER>Status of fastoffline production for trigger/subsystem evaluation</h2>
  <h3 ALIGN=CENTER> Status on $nowdate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=4 CELLSPACING=1 CELLPADDING=1 bgcolor=\"#ffdc9f\">
 <TR>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Runnumber</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"25%\" HEIGHT=60><B><h3>Trigger setup</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Trigger setup</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Stream</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Prod tag</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.files submitted</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.files processed</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.events produced</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Submit status</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Complete status</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=60><B><h3>Submit time</h3></B></TD>
