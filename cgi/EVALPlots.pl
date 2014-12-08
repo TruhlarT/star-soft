@@ -290,10 +290,12 @@ my $graph = new GD::Graph::linespoints(650,500);
 
  } else {
 
-    @data = (\@Ndate, \@point1, \@point2 );
+#    @data = (\@Ndate, \@point1, \@point2 );
 
-    $legend[0] = "nonoptimized";
-    $legend[1] = "optimized";
+   @data = (\@Ndate, \@point1 );
+
+#    $legend[0] = "nonoptimized";
+#    $legend[1] = "optimized";
 
 
  $ylabel = $plotVal; 
