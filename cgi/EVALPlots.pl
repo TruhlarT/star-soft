@@ -60,7 +60,6 @@ my @prod_set = (
                 "daq_ittf/year_2008/production_dAu2008",
                 "daq_ittf/year_2008/ppProduction2008",
                 "daq_ittf/year_2007/2007ProductionMinBias",
-                "daq_ittf/year_2007/2007Production",
                 "daq_ittf/year_2006/ppProdLong",
                 "daq_ittf/year_2005/CuCu200_MinBias",
                 "daq_ittf/year_2005/CuCu62_MinBias",
