@@ -112,13 +112,12 @@ my @myplot =   (
 
 my %plotHash = (
                 MemUsage => 'memUsageF, memUsageL',
-                CPU_per_Event => 'CPU_per_evt_sec',
-                RealTime_per_Event => 'RealTime_per_evt',
                 Average_NoTracks => 'avg_no_tracks',
                 Average_NoPrimaryT => 'avg_no_primaryT',
                 Average_NoTracksNfit15 => 'avg_no_tracksnfit15',
                 Average_NoPrimaryTNfit15  => 'avg_no_primaryTnfit15',
-
+                CPU_per_Event => 'CPU_per_evt_sec',
+                RealTime_per_evt  => 'RealTime_per_evt',         
     );
 
 my $min_y = 0;
@@ -319,9 +318,9 @@ my $graph = new GD::Graph::linespoints(650,500);
 
  } else {
 
-#    @data = (\@Ndate, \@point1, \@point2 );
+    @data = (\@Ndate, \@point1, \@point2 );
 
-   @data = (\@Ndate, \@point1 );
+#   @data = (\@Ndate, \@point1 );
 
 #    $legend[0] = "nonoptimized";
 #    $legend[1] = "optimized";
