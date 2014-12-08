@@ -233,9 +233,11 @@ my $maxvalue = 0;
 
 my @prt = ();
 
- @prt = split("/", $tset);
- $path = "/eval_Sti/%sl53.ittf/".$prt[1]."/".$prt[2] ;
- $path_opt = "/eval_Sti/%sl53.ittf_opt/".$prt[1]."/".$prt[2] ;
+$path = "/eval_Sti/".$tset ;
+$path =~ s/ittf/sl53.ittf/g ;
+$path_opt = "/eval_Sti/".$tset ;
+$path_opt =~ s/ittf/sl53.ittf_opt/g ;
+
 
  @Ndate = ();
  $ndt = 0;
@@ -247,6 +249,7 @@ my @prt = ();
  if( $qweek >= 1 ) {
 
   $qupath = "%$path%";
+
 
             $sql="SELECT path, $mplotVal, date_format(createTime, '%Y-%m-%d') as CDATE FROM $EvalStatusT WHERE path LIKE ? AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? ORDER by createTime  ";
 
@@ -318,9 +321,9 @@ my $graph = new GD::Graph::linespoints(650,500);
 
  } else {
 
-    @data = (\@Ndate, \@point1, \@point2 );
+#    @data = (\@Ndate, \@point1, \@point2 );
 
-#   @data = (\@Ndate, \@point1 );
+   @data = (\@Ndate, \@point1 );
 
 #    $legend[0] = "nonoptimized";
 #    $legend[1] = "optimized";
