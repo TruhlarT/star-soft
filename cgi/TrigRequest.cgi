@@ -135,21 +135,21 @@ print $query->scrolling_list(-name=>'qstream',
 
 
 print "</td><td>";
-print "<h3 align=center> Select number of events<br>in one file</h3>";
+print "<h3 align=center> Select number of files</h3>";
 print "<h4 align=center>";
-print $query->scrolling_list(-name=>'qevent',
-                             -values=>\@arevents,
-                             -default=>1000,
+print $query->scrolling_list(-name=>'qfile',
+                             -values=>\@prodfiles,
+                             -default=>all,
                              -size =>1); 
 
 
 
 print "</td><td>";
-print "<h3 align=center> Select number of files<br>in one file</h3>";
+print "<h3 align=center> Select number of events<br>in one file</h3>";
 print "<h4 align=center>";
-print $query->scrolling_list(-name=>'qfile',
-                             -values=>\@prodfiles,
-                             -default=>all,
+print $query->scrolling_list(-name=>'qevent',
+                             -values=>\@arevents,
+                             -default=>1000,
                              -size =>1); 
 
 
