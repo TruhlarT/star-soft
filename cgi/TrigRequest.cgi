@@ -34,10 +34,12 @@ my $TrigRequestT = "TrigProdRequest";
 my $DaqInfoT   = "DAQInfo";
 my $FlStreamT = "FOFileType";
 
-my @arevents = ("10000","5000","2000","1000");
+my @arevents = ("1000","2000","5000","10000");
 my @arstreams = ();
 my @arruns = ();
 my @prodlibs = ("dev","SL14h","SL14g");
+my @prodfiles = ("all","10","20","50","100");
+
 
 my $maxrun = 0;
 my @runs = ();
@@ -87,9 +89,10 @@ my $scriptname = $query->url(-relative=>1);
  my $trgstream   =  $query->param('qstream');
  my $fevents     =  $query->param('qevent');
  my $plib        =  $query->param('qlib');
+ my $pfile       =  $query->param('qfile');
 
 
-  if( $trgrun eq "" and $trgstream eq "" and  $fevents eq "" and $plib eq "" ) {
+  if( $trgrun eq "" and $trgstream eq "" and  $fevents eq "" and $plib eq "" and $pfile eq "" ) {
 
 print $query->header();
 print $query->start_html('Test production request form');
@@ -140,6 +143,16 @@ print $query->scrolling_list(-name=>'qevent',
                              -size =>1); 
 
 
+
+print "</td><td>";
+print "<h3 align=center> Select number of events<br>in one file</h3>";
+print "<h4 align=center>";
+print $query->scrolling_list(-name=>'qfile',
+                             -values=>\@prodfiles,
+                             -default=>all,
+                             -size =>1); 
+
+
 print "<p>";
 print "</td><td>";
 print "</td> </tr> </table><hr><center>";
@@ -176,6 +189,8 @@ my $qqr = new CGI;
  my $trgstream   =  $qqr->param('qstream');
  my $fevents     =  $qqr->param('qevent');
  my $plib        =  $qqr->param('qlib');
+ my $pfile       =  $qqr->param('qfile');
+
 
 ($sec,$min,$hour,$mday,$mon,$year) = localtime;
 
@@ -190,10 +205,19 @@ if( $sec < 10) { $sec = '0'.$sec };
 my $nowtime = ($year+1900)."-".($mon+1)."-".$mday." ".$hour.":".$min.":".$sec;
 
 
+ if( $pfile eq "all" ) (
+
   $sql= "insert into $TrigRequestT set runnumber = '$trgrun', stream = '$trgstream', dataset = 'n/a', prodtag = 'n/a', Nevents = '$fevents', libtag = '$plib', requestTime = '$nowtime' ";
 
   $dbh->do($sql) || die $dbh->errstr;
 
+    }else{
+
+  $sql= "insert into $TrigRequestT set runnumber = '$trgrun', stream = '$trgstream', dataset = 'n/a', prodtag = 'n/a', Nevents = '$fevents', libtag = '$plib', Nfiles = '$pfile', requestTime = '$nowtime' ";
+
+  $dbh->do($sql) || die $dbh->errstr;
+
+}
 
  print $qqr->header;
  print $qqr->start_html('Requested runnumber');
