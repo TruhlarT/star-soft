@@ -145,7 +145,7 @@ print $query->scrolling_list(-name=>'qevent',
 
 
 print "</td><td>";
-print "<h3 align=center> Select number of events<br>in one file</h3>";
+print "<h3 align=center> Select number of files<br>in one file</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'qfile',
                              -values=>\@prodfiles,
@@ -205,7 +205,7 @@ if( $sec < 10) { $sec = '0'.$sec };
 my $nowtime = ($year+1900)."-".($mon+1)."-".$mday." ".$hour.":".$min.":".$sec;
 
 
- if( $pfile eq "all" ) (
+if( $pfile eq "all" ) {
 
   $sql= "insert into $TrigRequestT set runnumber = '$trgrun', stream = '$trgstream', dataset = 'n/a', prodtag = 'n/a', Nevents = '$fevents', libtag = '$plib', requestTime = '$nowtime' ";
 
