@@ -190,19 +190,19 @@ print "<h3 align=center>Select test sample</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'sets',
 			     -values=>\@prod_set,
-			     -size=>6);
+			     -size=>10);
 print "</td><td>";
 print "<h3 align=center> Select plot:</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'plotVal',
 			     -values=>\@myplot,
-			     -size =>6); 
+			     -size =>10); 
 
 print "</td> </tr> </table><hr><center>";
 print "<br>";
 print "<h3 align=center> How many weeks do you want to show: ";
 print $query->popup_menu(-name=>'nweek',
-                         -values=>['1','2','3','4','5','6','7','8','9','10','12','13','14','15','16'],
+                         -values=>['1','2','3','4','5','6','7','8','9','10','12','13','14','15','16','17','18','20'],
                          -defaults=>1);
 print "</h4>";
 
