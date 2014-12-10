@@ -328,9 +328,9 @@ $path_opt =~ s/ittf/sl302.ittf_opt\/%/g ;
 
              if ($plotVl eq "MemUsage") {
                 $point2[$ik] = $fields[1];
-                $point4[$ndt] = $fields[2];               
+                $point4[$ik] = $fields[2];               
             }else{
-                $point2[$ndt] = $fields[1];             
+                $point2[$ik] = $fields[1];             
             }
           }
 
@@ -380,6 +380,13 @@ my $graph = new GD::Graph::linespoints(650,500);
    if ($plotVal eq "MemUsage") {
  
     @data = (\@Ndate, \@point1, \@point2, \@point3, \@point4 ); 
+
+
+    $legend[0] = "MemUsageFirst(nonoptimized)";
+    $legend[1] = "MemUsageFirst(optimized)";
+    $legend[2] = "MemUsageLast(nonoptimized)";
+    $legend[3] = "MemUsageLast(optimized)";
+
 
     $plotVal="MemUsageFirstEvent,MemUsageLastEvent";
 
