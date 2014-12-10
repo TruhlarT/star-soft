@@ -204,7 +204,7 @@ print "</td> </tr> </table><hr><center>";
 print "<br>";
 print "<h3 align=center> How many weeks do you want to show: ";
 print $query->popup_menu(-name=>'nweek',
-                         -values=>['1','2','3','4','5','6','7','8','9','10','12','13','14','15','16','17','18','20'],
+                         -values=>['1','2','3','4','5','6','7','8','9','10','12','13','14','15','16','17','18','19','20'],
                          -defaults=>1);
 print "</h4>";
 
@@ -422,6 +422,10 @@ $xLabelSkip = 3 if( $qweek eq "13" );
 $xLabelSkip = 3 if( $qweek eq "14" );
 $xLabelSkip = 4 if( $qweek eq "15" );
 $xLabelSkip = 4 if( $qweek eq "16" );
+$xLabelSkip = 4 if( $qweek eq "17" );
+$xLabelSkip = 4 if( $qweek eq "18" );
+$xLabelSkip = 5 if( $qweek eq "19" );
+$xLabelSkip = 5 if( $qweek eq "20" );
 
 
     $graph->set(#x_label => "$xlabel",
