@@ -36,6 +36,8 @@ my @data = ();
 my @legend = ();
 my @Ndate = ();
 my $ndt = 0;
+my $day_diff = 7;
+
 
 my @prod_set = (
                 "daq_ittf/year_2014/AuAu200_production_mid_2014",
@@ -228,11 +230,16 @@ my $qweek   =  $qqr->param('nweek');
 
 my @point1 = ();
 my @point2 = ();
+my @point3 = ();
+my @point4 = ();
+
 
 for($i=0;$i<7*$qweek;$i++) {
 
     $point1[$i]=undef;
     $point2[$i]=undef;
+    $point3[$i]=undef;
+    $point4[$i]=undef;
 }
 
 my @spl = ();
@@ -262,10 +269,11 @@ my $weeks = int($qweek);
 my $path;
 my $path_opt;
 my $qupath;
-my $day_diff = 0;
 my $maxvalue = 0;
 
 my @prt = ();
+
+$day_diff = 7;
 
 $path = "/star/rcf/test/dev/".$tset ;
 $path =~ s/ittf/sl302.ittf\/%/g ;
@@ -292,8 +300,16 @@ $path_opt =~ s/ittf/sl302.ittf_opt\/%/g ;
 
 
        while(@fields = $cursor->fetchrow_array) {
+
+             if ($plotVl eq "MemUsage") {
+
                 $point1[$ndt] = $fields[1];
-                $Ndate[$ndt] = $fields[2]; 
+                $point3[$ndt] = $fields[2];               
+                $Ndate[$ndt] = $fields[3]; 
+            }else{
+                $point1[$ndt] = $fields[1];               
+                $Ndate[$ndt] = $fields[2];  
+            }
 	        $ndt++;
           }
 
@@ -309,7 +325,13 @@ $path_opt =~ s/ittf/sl302.ittf_opt\/%/g ;
 
 
        while(@fields = $cursor->fetchrow_array) {
+
+             if ($plotVl eq "MemUsage") {
                 $point2[$ik] = $fields[1];
+                $point4[$ndt] = $fields[2];               
+            }else{
+                $point2[$ndt] = $fields[1];             
+            }
           }
 
       }
@@ -355,9 +377,17 @@ my $graph = new GD::Graph::linespoints(650,500);
 
  } else {
 
+   if ($plotVal eq "MemUsage") {
+ 
+    @data = (\@Ndate, \@point1, \@point2, \@point3, \@point4 ); 
+
+    $plotVal="MemUsageFirstEvent,MemUsageLastEvent";
+
+   }else{
+
     @data = (\@Ndate, \@point1, \@point2 );
 
-#   @data = (\@Ndate, \@point1 );
+   }
 
     $legend[0] = "nonoptimized";
     $legend[1] = "optimized";
