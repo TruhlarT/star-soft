@@ -268,9 +268,9 @@ my $maxvalue = 0;
 my @prt = ();
 
 $path = "/star/rcf/test/dev/".$tset ;
-$path =~ s/ittf/sl53.ittf\/%/g ;
+$path =~ s/ittf/sl302.ittf\/%/g ;
 $path_opt = "/star/rcf/test/dev/".$tset ;
-$path_opt =~ s/ittf/sl53.ittf_opt\/%/g ;
+$path_opt =~ s/ittf/sl302.ittf_opt\/%/g ;
 
 
  @Ndate = ();
