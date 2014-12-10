@@ -425,7 +425,7 @@ sub beginHtml {
 print <<END;
   <html>
    <head>
-          <title>Plots for new detecrors QA </title>
+          <title>Plots for EVAL library tests </title>
    </head>
    <body BGCOLOR=\"#ccffff\">
      <h1 align=center>No $plotVal data for $tset and $qweek week period </h1>

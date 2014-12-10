@@ -448,6 +448,28 @@ sub StDbTJobsDisconnect {
 }
 
 
+#####################################
+
+sub beginHtml {
+
+print <<END;
+  <html>
+   <head>
+          <title>Plots for DEV library tests </title>
+   </head>
+   <body BGCOLOR=\"#ccffff\">
+     <h1 align=center>No $plotVl data for $tset and $qweek week period </h1>
+
+
+    </body>
+   </html>
+END
+}
+
+
+
+
+
 ##########################################################
 
 sub y_format
