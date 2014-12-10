@@ -265,12 +265,6 @@ my $qupath;
 my $day_diff = 0;
 my $maxvalue = 0;
 
-
-my @spl = ();
-@spl = split(" ",$plotVal);
-my $plotVl = $spl[0];
-
-
 my @prt = ();
 
 $path = "/star/rcf/test/dev/".$tset ;
@@ -432,7 +426,7 @@ $xLabelSkip = 4 if( $qweek eq "16" );
 
        }
     }
-  }
+ }
 
 exit 0;
 
