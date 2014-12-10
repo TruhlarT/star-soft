@@ -171,7 +171,7 @@ print "</td> </tr> </table><hr><center>";
 print "<br>";
 print "<h3 align=center> How many weeks do you want to show: ";
 print $query->popup_menu(-name=>'nweek',
-                         -values=>['1','2','3','4','5','6','7','8','9','10','12','13','14','15','16'],
+                         -values=>['1','2','3','4','5','6','7','8','9','10','12','13','14','15','16','17','18','19','20'],
                          -defaults=>1);
 print "</h4>";
 
@@ -197,11 +197,15 @@ my $qweek   =  $qqr->param('nweek');
 
 my @point1 = ();
 my @point2 = ();
+my @point3 = ();
+my @point4 = ();
 
 for($i=0;$i<7*$qweek;$i++) {
 
     $point1[$i]=undef;
     $point2[$i]=undef;
+    $point3[$i]=undef;
+    $point4[$i]=undef;
 }
 
 my $mplotVal = $plotHash{$plotVal};
@@ -258,8 +262,16 @@ $path_opt =~ s/ittf/sl53.ittf_opt/g ;
 
 
        while(@fields = $cursor->fetchrow_array) {
+
+             if ($plotVal eq "MemUsage") {
+
                 $point1[$ndt] = $fields[1];
-                $Ndate[$ndt] = $fields[2]; 
+                $point3[$ndt] = $fields[2]; 
+                $Ndate[$ndt] = $fields[3];
+            }else{
+                $point1[$ndt] = $fields[1];               
+                $Ndate[$ndt] = $fields[2];  
+            } 
 	        $ndt++;
           }
 
@@ -275,7 +287,14 @@ $path_opt =~ s/ittf/sl53.ittf_opt/g ;
 
 
        while(@fields = $cursor->fetchrow_array) {
+
+             if ($plotVal eq "MemUsage") {
                 $point2[$ik] = $fields[1];
+                $point4[$ik] = $fields[2];
+               
+            }else{
+                $point2[$ik] = $fields[1];             
+            }
           }
 
       }
@@ -321,13 +340,30 @@ my $graph = new GD::Graph::linespoints(650,500);
 
  } else {
 
-#    @data = (\@Ndate, \@point1, \@point2 );
+ if ($plotVal eq "MemUsage") {
+ 
+#    @data = (\@Ndate, \@point1, \@point2, \@point3, \@point4 ); 
+
+ @data = (\@Ndate, \@point1, \@point3 ); 
+
+
+    $legend[0] = "MemUsageFirst(nonoptimized)";
+#    $legend[1] = "MemUsageFirst(optimized)";
+    $legend[2] = "MemUsageLast(nonoptimized)";
+#    $legend[3] = "MemUsageLast(optimized)";
+
+    $plotVal="MemUsageFirstEvent,MemUsageLastEvent";
+
+   }else{
+
+#   @data = (\@Ndate, \@point1, \@point2 );
 
    @data = (\@Ndate, \@point1 );
 
-#    $legend[0] = "nonoptimized";
+    $legend[0] = "nonoptimized";
 #    $legend[1] = "optimized";
 
+   }
 
  $ylabel = $plotVal; 
 
@@ -351,7 +387,10 @@ $xLabelSkip = 3 if( $qweek eq "13" );
 $xLabelSkip = 3 if( $qweek eq "14" );
 $xLabelSkip = 4 if( $qweek eq "15" );
 $xLabelSkip = 4 if( $qweek eq "16" );
-
+$xLabelSkip = 4 if( $qweek eq "17" );
+$xLabelSkip = 4 if( $qweek eq "18" );
+$xLabelSkip = 5 if( $qweek eq "19" );
+$xLabelSkip = 5 if( $qweek eq "20" );
 
     $graph->set(#x_label => "$xlabel",
                 x_label_position => 0.5,
