@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.259 2014/04/06 17:18:35 jeromel Exp $
+#       $Id: group_env.csh,v 1.260 2014/12/10 21:40:51 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -795,7 +795,13 @@ if ( $?DECHO ) echo "$self :: PATH is now $PATH"
 # ==================================================================
 # Extra package support
 # ==================================================================
-if ( $?DECHO ) echo "$self :: Extraneous packages check"
+if ( $?DECHO ) echo "$self :: Additional packages check"
+
+# in case of GPFS installed from RPM, add this path
+if ( -d /usr/lpp/mmfs/bin/ ) then
+    set path=($path /usr/lpp/mmfs/bin/)
+endif
+
 
 # Support for LSF
 if ( -d /usr/local/lsf/bin && ! $?LSF_ENVDIR ) then
