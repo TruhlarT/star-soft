@@ -232,7 +232,10 @@ my @point1 = ();
 my @point2 = ();
 my @point3 = ();
 my @point4 = ();
-
+my @point5 = ();
+my @point6 = ();
+my @point7 = ();
+my @point8 = ();
 
 for($i=0;$i<7*$qweek;$i++) {
 
@@ -240,6 +243,10 @@ for($i=0;$i<7*$qweek;$i++) {
     $point2[$i]=undef;
     $point3[$i]=undef;
     $point4[$i]=undef;
+    $point5[$i]=undef;
+    $point6[$i]=undef;
+    $point7[$i]=undef;
+    $point8[$i]=undef;
 }
 
 my @spl = ();
@@ -270,6 +277,7 @@ my $path;
 my $path_opt;
 my $qupath;
 my $quagml;
+my $quagml_opt;
 my $maxvalue = 0;
 
 my @prt = ();
@@ -461,7 +469,7 @@ my $graph = new GD::Graph::linespoints(650,500);
 
    if($tset =~ /year_2012/ ) {  
 
-    @data = (\@Ndate, \@point1, \@point2,  \@point3, \@point4 );
+    @data = (\@Ndate, \@point1, \@point2,  \@point5, \@point6 );
 
     $legend[0] = "nonoptimized";
     $legend[1] = "optimized";  
