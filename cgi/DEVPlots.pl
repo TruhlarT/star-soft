@@ -455,10 +455,10 @@ my $graph = new GD::Graph::linespoints(650,500);
     @data = (\@Ndate, \@point1, \@point2, \@point3, \@point4 ); 
 
 
-    $legend[0] = "MemUsageFirst(nonoptimized)<br>";
-    $legend[1] = "MemUsageFirst(optimized)<br>";
-    $legend[2] = "MemUsageLast(nonoptimized)<br>";
-    $legend[3] = "MemUsageLast(optimized)<br>";
+    $legend[0] = "MemUsageFirst(nonoptimized)";
+    $legend[1] = "MemUsageFirst(optimized)";
+    $legend[2] = "MemUsageLast(nonoptimized)";
+    $legend[3] = "MemUsageLast(optimized)";
 
    }
     $plotVal="MemUsageFirstEvent,MemUsageLastEvent";
