@@ -269,6 +269,7 @@ my $weeks = int($qweek);
 my $path;
 my $path_opt;
 my $qupath;
+my $quagml;
 my $maxvalue = 0;
 
 my @prt = ();
@@ -280,6 +281,20 @@ $path =~ s/ittf/sl302.ittf\/%/g ;
 $path_opt = "/star/rcf/test/dev/".$tset ;
 $path_opt =~ s/ittf/sl302.ittf_opt\/%/g ;
 
+my $nohftpath = $path;
+my $nohftpath_opt = $path_opt;
+
+
+my $agml = "year_2012.AgML";
+my $agmlpath = $path;
+my $agmlpath_opt = $path_opt;
+
+if($tset =~ /year_2012/ ) {
+
+    $agmlpath =~ s/year_2012/$agml/g;
+    $agmlpath_opt =~ s/year_2012/$agml/g; 
+
+}
 
  @Ndate = ();
  $ndt = 0;
@@ -291,7 +306,6 @@ $path_opt =~ s/ittf/sl302.ittf_opt\/%/g ;
  if( $qweek >= 1 ) {
 
   $qupath = "$path%";
-
 
             $sql="SELECT path, $mplotVal, date_format(createTime, '%Y-%m-%d') as CDATE FROM $JobStatusT WHERE path LIKE ? AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? ORDER by createTime  ";
 
@@ -311,10 +325,11 @@ $path_opt =~ s/ittf/sl302.ittf_opt\/%/g ;
                 $Ndate[$ndt] = $fields[2];  
             }
 	        $ndt++;
-          }
-
+            }
 
  $qupath = "$path_opt%";
+ $quagml = "$agmlpath%";
+ $quagml_opt = "$agmlpath_opt%";
 
       for (my $ik = 0; $ik < $ndt; $ik++) {  
 
@@ -333,11 +348,47 @@ $path_opt =~ s/ittf/sl302.ittf_opt\/%/g ;
                 $point2[$ik] = $fields[1];             
             }
           }
+########## 1
+        if($tset =~ /year_2012/ ) { 
 
+            $sql="SELECT path, $mplotVal FROM $JobStatusT WHERE path LIKE ? AND jobStatus=\"Done\" AND createTime like '$Ndate[$ik]%'  ";
+
+        $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
+        $cursor->execute($quagml);
+
+
+       while(@fields = $cursor->fetchrow_array) {
+
+             if ($plotVl eq "MemUsage") {
+                $point5[$ik] = $fields[1];
+                $point7[$ik] = $fields[2];               
+            }else{
+                $point5[$ik] = $fields[1];             
+            }
+          }
+
+            $sql="SELECT path, $mplotVal FROM $JobStatusT WHERE path LIKE ? AND jobStatus=\"Done\" AND createTime like '$Ndate[$ik]%'  ";
+
+        $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
+        $cursor->execute($quagml_opt);
+
+
+       while(@fields = $cursor->fetchrow_array) {
+
+             if ($plotVl eq "MemUsage") {
+                $point6[$ik] = $fields[1];
+                $point8[$ik] = $fields[2];               
+            }else{
+                $point6[$ik] = $fields[1];             
+            }
+          }
+
+#######
+	}
       }
 
-########
-  }
+#######
+ }
 
 $maxvalue = 0;
 
@@ -379,6 +430,22 @@ my $graph = new GD::Graph::linespoints(650,500);
 
    if ($plotVal eq "MemUsage") {
  
+    if($tset =~ /year_2012/ ) {   
+
+    @data = (\@Ndate, \@point1, \@point2, \@point3, \@point4, \@point5, \@point6, \@point7, \@point8 ); 
+
+    $legend[0] = "MemUsageFirst(nonoptimized)";
+    $legend[1] = "MemUsageFirst(optimized)";
+    $legend[2] = "MemUsageLast(nonoptimized)";
+    $legend[3] = "MemUsageLast(optimized)";
+    $legend[4] = "MemUsageFirst(nonoptimized,AgML)";
+    $legend[5] = "MemUsageFirst(optimized,AgML)";
+    $legend[6] = "MemUsageLast(nonoptimized,AgML)";
+    $legend[7] = "MemUsageLast(optimized,AgML)";
+
+
+    }else{
+
     @data = (\@Ndate, \@point1, \@point2, \@point3, \@point4 ); 
 
 
@@ -387,8 +454,19 @@ my $graph = new GD::Graph::linespoints(650,500);
     $legend[2] = "MemUsageLast(nonoptimized)";
     $legend[3] = "MemUsageLast(optimized)";
 
-
+   }
     $plotVal="MemUsageFirstEvent,MemUsageLastEvent";
+
+   }else{
+
+   if($tset =~ /year_2012/ ) {  
+
+    @data = (\@Ndate, \@point1, \@point2,  \@point3, \@point4 );
+
+    $legend[0] = "nonoptimized";
+    $legend[1] = "optimized";  
+    $legend[2] = "nonoptimized,AgML";
+    $legend[3] = "optimized,AgML";  
 
    }else{
 
@@ -396,9 +474,9 @@ my $graph = new GD::Graph::linespoints(650,500);
 
     $legend[0] = "nonoptimized";
     $legend[1] = "optimized";
-
+   
+     }
    }
-
 
  $ylabel = $plotVal; 
 
