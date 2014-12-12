@@ -39,6 +39,12 @@ my $JOB_LOG =  $DISK1 . $prodPeriod . "/log/daq";
 my $jobdir = "/star/u/starreco/" . $prodPeriod ."/requests/daq/jobfiles";
 my $archdir = "/star/u/starreco/" . $prodPeriod ."/requests/daq/archive";
 
+my $email = "didenko\@bnl.gov";
+my $message = "Submitted next runnumbers";
+my $subject = "Trigger/subsystem test production submitted";
+my $runlist = " ";
+
+
 my $ryear = "2014";
 my @runnum = ();
 my @strname = ();
@@ -58,6 +64,7 @@ my $njob = 0;
 my $jobFname;
 my $rday = 0;
 my $rdtemp = 0;
+my $rdnum = 0;
 my @runday = ();
 my @jbset = ();
 my @jbid = ();
@@ -67,12 +74,14 @@ my @prtag = ();
 my $prtmp;
 my $prtmp2;
 my $prid;
+my @pfiles = ();
+
 
 
 &StDbConnect();
 
 
-    $sql="SELECT runnumber, stream, Nevents, libtag  FROM $TrigRequestT where submit = 'no' and runnumber <> 0 order by runnumber ";
+    $sql="SELECT runnumber, stream, Nevents, libtag, Nfiles  FROM $TrigRequestT where submit = 'no' and runnumber <> 0 order by runnumber ";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -84,6 +93,7 @@ my $prid;
     $strname[$nj] = $fields[1];
     $nevents[$nj] = $fields[2]; 
     $jblib[$nj]   = $fields[3]; 
+    $pfiles[$nj]  = $fields[4]; 
     
     $nj++;
        }
@@ -133,7 +143,16 @@ my $prid;
 
     $rday = $runnum[$ik];
     $rdtemp = substr($rday,2) + 0;
-    $runday[$ik] = substr($rdtemp,0,-3) + 0;
+    $rdnum = substr($rdtemp,0,-3) + 0;
+    
+    if($rdnum < 10) {
+    $runday[$ik] = "00".$rdnum;
+    }elsif($rdnum < 100 ) {
+    $runday[$ik] = "0".$rdnum;
+    }else{
+    $runday[$ik] = $rdnum;
+    }
+
 
     if($jblib[$ik] eq "dev" ) {
 	$prtag[$ik] = "dev";
@@ -154,7 +173,14 @@ my $prid;
 
     $jbset[$ik] = $trgsetup[$ik]."_".$mField[$ik]."_".$prtag[$ik];
 
+    if ($pfiles[$ik] == 0 ) {
+
     $sql="SELECT distinct file  FROM  $DaqInfoT where runNumber = '$runnum[$ik]' and file like '%$strname[$ik]%' ";
+
+    }else{
+
+     $sql="SELECT distinct file  FROM  $DaqInfoT where runNumber = '$runnum[$ik]' and file like '%$strname[$ik]%' limit $pfiles[$ik] ";
+    }
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -180,6 +206,7 @@ my $prid;
     $cursor->finish(); 
 
     $nfiles[$ik] = $njob;
+
    }
 
   for ( my $jk = 0; $jk < $nj; $jk++ ) {
@@ -188,7 +215,14 @@ my $prid;
 
   $rv = $dbh->do($sql) || die $dbh->errstr;
 
+  $runlist =  $runlist."  ".$runnum[$jk]."  ".$strname[$jk]."; " ;
+
  }
+
+  $message = "Submitted next runnumbers and streams:  ".$runlist; 
+
+   system("echo \"$message\" | mail -s \"$subject\" $email");
+
 
     &StDbDisconnect();
 
