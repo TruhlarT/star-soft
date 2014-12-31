@@ -225,7 +225,9 @@ $day_diff = int($day_diff);
 
  my $ii = 0;
 
-            $sql="SELECT condor_failed, prestaging_failed, hpss_import_failed, hpss_export_failed, hpss_retry_failed, job_exec_failed, io_error, done, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? and sdate <= '$nowdatetime' ORDER by sdate ";
+#            $sql="SELECT condor_failed, prestaging_failed, hpss_import_failed, hpss_export_failed, hpss_retry_failed, job_exec_failed, io_error, done, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? and sdate <= '$nowdatetime' ORDER by sdate ";
+
+           $sql="SELECT condor_failed, prestaging_failed, hpss_import_failed, hpss_export_failed, hpss_retry_failed, job_exec_failed, io_error, done, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? and sdate <= '2014-11-23' ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($day_diff);
