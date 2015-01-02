@@ -58,10 +58,10 @@ my $nowdate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2006","2007","2008","2009","2010","2011","2012","2013","2014");
+my @prodyear = ("2006","2007","2008","2009","2010","2011","2012","2013","2014","2015");
 
 # Tables
-$JobStatusT = "JobStatus_14";
+$JobStatusT = "JobStatus_15";
 
 my @arsites = ( );
 my $mydate;
@@ -255,6 +255,8 @@ my $tdate;
   }elsif($pryear eq "2012") {
     $nowdate = "2012-12-31";
   }elsif($pryear eq "2013") {
+    $nowdate = "2013-12-31";
+  }elsif($pryear eq "2014") {
     $nowdate = "2013-12-31";
   }else{
     $nowdate = $todate;
