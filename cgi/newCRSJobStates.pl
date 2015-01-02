@@ -60,7 +60,7 @@ my @numheld = ();
  my $fperiod   =  $query->param('period');
  
  my $fstatus ;
- my @prodyear = ("2013","2014");
+ my @prodyear = ("2013","2014","2015");
 
   if( $fperiod eq "" and $pryear eq "" ) {
 
@@ -91,7 +91,7 @@ print "<h3 align=center> Select year of production</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'ryear',
                              -values=>\@prodyear,
-                             -default=>2014,
+                             -default=>2015,
                              -size =>1); 
 
 print "</td><td>";
