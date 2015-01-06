@@ -1,5 +1,8 @@
-* $Id: geometry.g,v 1.282 2015/01/06 19:06:46 jwebb Exp $
+* $Id: geometry.g,v 1.283 2015/01/06 19:45:16 jwebb Exp $
 * $Log: geometry.g,v $
+* Revision 1.283  2015/01/06 19:45:16  jwebb
+* Correct version of VPD in 2015
+*
 * Revision 1.282  2015/01/06 19:06:46  jwebb
 * Added FGT to HCAL dev2016 geometry
 *
@@ -1492,6 +1495,7 @@ replace [exe VPDD02;] with  [;"pseudo Vertex Position Detector";VPDD=on;VpddConf
 replace [exe VPDD03;] with  [;"pseudo Vertex Position Detector";VPDD=on;VpddConfig=3;]
 replace [exe VPDD04;] with  [;"pseudo Vertex Position Detector";VPDD=on;VpddConfig=4;]
 replace [exe VPDD07;] with  [;"pseudo Vertex Position Detector";VPDD=on;VpddConfig=7;]
+replace [exe VPDD08;] with  [;"pseudo Vertex Position Detector";VPDD=on;VpddConfig=8;]
 
 
 replace [exe FGTDof;] with  [;FGTD=off;FgtdConfig=0; "FGT off";]
@@ -2321,7 +2325,7 @@ REPLACE [exe y2015;] with ["Y2015 first cut geometry";
     exe EMCUTS(bemc,1);   "10 keV EM thresholds in barrel and endcap calorimeters";
     exe BBCMon;      "beam beam counters";
 
-    exe VPDD07;      "Latest version of VPD";
+    exe VPDD08;      "Latest version of VPD";
     exe FTPCof;      "no FTPC";
     exe SVTTof;      "No SVT";
     exe PHMDof;      "Photon mult detector off";
@@ -4908,6 +4912,7 @@ c    write(*,*) 'BTOF'
      call AgDETP add ('vpdv.vpdConfig=',VpddConfig,1);
      if(VpddConfig <7) { CONSTRUCT vpddgeo; }
      if(VpddConfig==7) { CONSTRUCT vpddgeo2;}
+     if(VpddConfig==8) { CONSTRUCT vpddgeo3;}
    endif
 
 ********************** BARREL CALORIMETER ************************
