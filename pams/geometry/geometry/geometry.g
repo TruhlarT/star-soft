@@ -1,5 +1,8 @@
-* $Id: geometry.g,v 1.280 2014/12/22 22:21:22 jwebb Exp $
+* $Id: geometry.g,v 1.281 2015/01/06 15:58:40 jwebb Exp $
 * $Log: geometry.g,v $
+* Revision 1.281  2015/01/06 15:58:40  jwebb
+* Add HCAL to dev2016
+*
 * Revision 1.280  2014/12/22 22:21:22  jwebb
 * dev2016 geometry implemented in starsim
 *
@@ -2357,6 +2360,7 @@ REPLACE [exe dev2016;] with ["Y2016 development tag";
     exe DTUB01;      "DTUB";
     exe PSUP01;      "1st version of pixl supports";
     exe FGTDv55;     "12 disk FGT";
+    exe HCALv1;      "HCAL prototype";
 
 ];    
 
