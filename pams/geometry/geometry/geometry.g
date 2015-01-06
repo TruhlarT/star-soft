@@ -1,5 +1,8 @@
-* $Id: geometry.g,v 1.281 2015/01/06 15:58:40 jwebb Exp $
+* $Id: geometry.g,v 1.282 2015/01/06 19:06:46 jwebb Exp $
 * $Log: geometry.g,v $
+* Revision 1.282  2015/01/06 19:06:46  jwebb
+* Added FGT to HCAL dev2016 geometry
+*
 * Revision 1.281  2015/01/06 15:58:40  jwebb
 * Add HCAL to dev2016
 *
@@ -1496,6 +1499,7 @@ replace [exe FGTD02;] with  [;FGTD=on;FgtdConfig=2;  "GEM forward tracker"]
 replace [exe FGTDv31;] with [;FGTD=on;FgtdConfig=31; "FGT v3 5 half plus one full disk"]
 replace [exe FGTDv32;] with [;FGTD=on;FgtdConfig=32; "FGT v3 6 disks"]
 replace [exe FGTDv55;] with [;FGTD=on;FgtdConfig=55; "FGT very forward upgrade w/ 12 disks"]
+replace [exe FGTDv56;] with [;FGTD=on;FgtdConfig=56; "FGT very forward w/ 6 disks";]
 
 replace [exe IDSM01;] with [;IDSM=on;IdsmConfig=1; "Inner Detector Support"]
 replace [exe IDSM02;] with [;IDSM=on;IdsmConfig=2; "Inner Detector Support"]
@@ -2359,7 +2363,7 @@ REPLACE [exe dev2016;] with ["Y2016 development tag";
     exe PIXL06;      "Full config of the pixl detector";
     exe DTUB01;      "DTUB";
     exe PSUP01;      "1st version of pixl supports";
-    exe FGTDv55;     "12 disk FGT";
+    exe FGTDv56;     "12 disk FGT";
     exe HCALv1;      "HCAL prototype";
 
 ];    
@@ -5132,6 +5136,7 @@ IF (PSUP){ CONSTRUCT PsupGeo;}    """ Insertion structures """
         IF FgtdConfig==31 { Call AgDETP add ( 'FGGG.FgstConfig=', 1.0, 1 );         CONSTRUCT FgtdGeo3; }
         IF FgtdConfig==32 { Call AgDetp add ( 'FGGG.FgstConfig=', 2.0, 1 );         CONSTRUCT FgtdGeo3; }
         IF FgtdConfig==55 {                                               ;         CONSTRUCT FgtdGeoV; }
+        IF FgtdConfig==56 { Call AgDetp add ( 'FGGG.Fgstconfig=', 4.0, 1 );         CONSTRUCT FgtdGeoV; }
      }
 
 
