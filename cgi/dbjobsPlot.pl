@@ -44,7 +44,7 @@ my $nowdate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2012","2013","2014");
+my @prodyear = ("2012","2013","2014","2015");
 
 
 my @arperiod = ( );
@@ -60,7 +60,7 @@ my @jbstime = ();
 my @jbtime = ();
 my @numjobs = ();
 my $mpr;
-my $pryear = "2013";
+my $pryear = "2014";
 
 my @ndate = ();
 my $ndt = 0;
@@ -155,7 +155,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P14ig,
+	                          -default=>P14ii,
       			          -size =>1);
 
 
@@ -211,6 +211,7 @@ END
  if( $qprod =~ /P13ib/ ) {$pryear = "2012"};
  if( $qprod =~ /P14ia/ ) {$pryear = "2013"};
  if( $qprod =~ /P14ig/ ) {$pryear = "2013"};
+ if( $qprod =~ /P14ii/ ) {$pryear = "2014"};
 
     $JobStatusT = "JobStatus".$pryear;
 
