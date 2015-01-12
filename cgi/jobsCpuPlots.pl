@@ -85,7 +85,7 @@ my @arht = ();
 my @aratomcules = ();
 my @arupc = ();
 my @armonitor = ();
-my @arpmdftp = ();
+my @arhltgood = ();
 my @arcentralpro = ();
 my @arwb = ();
 
@@ -105,7 +105,7 @@ my @cpht = ();
 my @cpatomcules = ();
 my @cpupc = ();
 my @cpmonitor = ();
-my @cppmdftp = ();
+my @cphltgood = ();
 my @cpcentralpro  = (); 
 my @cpwb  = (); 
 
@@ -119,7 +119,7 @@ my @jbht = ();
 my @jbatomcules = ();
 my @jbupc = ();
 my @jbmonitor = ();
-my @jbpmdftp = ();
+my @jbhltgood = ();
 my @jbcentralpro  = ();
 my @jbwb = ();
 
@@ -310,7 +310,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P14ig,
+	                          -default=>P14ii,
       			          -size =>1);
 
   
@@ -432,7 +432,7 @@ END
  @aratomcules = ();
  @arupc = ();
  @armonitor = ();
- @arpmdftp = ();
+ @arhltgood = ();
  @arcentralpro = ();
  @arwb = ();
 
@@ -446,7 +446,7 @@ END
  @cpatomcules = ();
  @cpupc = ();
  @cpmonitor = ();
- @cppmdftp = (); 
+ @cphltgood = (); 
  @cpcentralpro  = ();
  @cpwb = (); 
 
@@ -460,7 +460,7 @@ END
  @jbatomcules = ();
  @jbupc = ();
  @jbmonitor = ();
- @jbpmdftp = ();
+ @jbhltgood = ();
  @jbcentralpro  = ();
  @jbwb = ();
 
@@ -534,8 +534,8 @@ END
                $jbatomcules[$ndt]++; 
            }elsif( $pstream eq "monitor" ) {
                $jbmonitor[$ndt]++;  
-           }elsif( $pstream eq "pmdftp" ) {
-               $jbpmdftp[$ndt]++;   
+           }elsif( $pstream eq "hltgood" ) {
+               $jbhltgood[$ndt]++;   
            }elsif( $pstream eq "upc" ) {
                $jbupc[$ndt]++;
            }elsif( $pstream eq "W" or $pstream eq "WE" or $pstream eq "WB" ) {
@@ -621,8 +621,8 @@ END
                $cpatomcules[$ndt]++; 
               }elsif( $pstream eq "monitor" ) {
                $cpmonitor[$ndt]++;  
-              }elsif( $pstream eq "pmdftp" ) {
-               $cppmdftp[$ndt]++;   
+              }elsif( $pstream eq "hltgood" ) {
+               $cphltgood[$ndt]++;   
               }elsif( $pstream eq "upc" ) {
                $cpupc[$ndt]++;
               }elsif( $pstream eq "W" or $pstream eq "WE" or $pstream eq "WB" ) {
@@ -682,8 +682,8 @@ END
                $aratomcules[$ndt]++ ;
               }elsif( $pstream eq "monitor" ) {
                $armonitor[$ndt]++ ;
-              }elsif( $pstream eq "pmdftp" ) {
-               $arpmdftp[$ndt]++ ;   
+              }elsif( $pstream eq "hltgood" ) {
+               $arhltgood[$ndt]++ ;   
               }elsif( $pstream eq "upc" ) {
                $arupc[$ndt]++;
               }elsif( $pstream eq "W" or $pstream eq "WE" or $pstream eq "WB"  ) {
@@ -716,7 +716,7 @@ my $gtitle;
        $legend[2] = "st_hlt      ";
        $legend[3] = "st_ht       ";
        $legend[4] = "st_monitor  ";
-       $legend[5] = "st_pmdftp   ";
+       $legend[5] = "st_hltgood   ";
        $legend[6] = "st_upc      ";
        $legend[7] = "st_W        ";
        $legend[8] = "st_mtd       ";
@@ -732,7 +732,7 @@ my $gtitle;
         $ylabel = "Number of jobs";
 	$gtitle = "CPU in sec/evt for different stream jobs for $qday day";
 
-    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cpfmsfast ) ; 
+    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cphltgood, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cpfmsfast ) ; 
 
       }elsif( $srate eq "rtime/cpu"){
 
@@ -743,7 +743,7 @@ my $gtitle;
 	$gtitle = "Ratios RealTime/CPU for different stream jobs for $qday day";
 
   
-    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfmsfast ) ;
+    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arhltgood, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfmsfast ) ;
 
      }elsif( $srate eq "jobtottime"){
 
@@ -754,7 +754,7 @@ my $gtitle;
 	$gtitle = "Total time on the farm for different stream jobs for $qday day";
 
   
-    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfmsfast ) ;
+    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfmsfast ) ;
 
 
      }
