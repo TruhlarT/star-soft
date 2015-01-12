@@ -44,7 +44,7 @@ my $nowdate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2013","2014");
+my @prodyear = ("2013","2014","2015");
 
 my $pryear = "2014";
 
@@ -71,7 +71,7 @@ my @data = ();
 
  my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months");
 
-my $JobStatusT = "JobStatus2013";
+my $JobStatusT = "JobStatus2014";
 my $ProdSizeT = "ProductionSize";
 
  &StDbProdConnect();
@@ -145,7 +145,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
                                   -values=>\@arrprod,
-                                  -default=>P14ig,
+                                  -default=>P14ii,
                                   -size =>1);
 
     print "<p>";
@@ -205,10 +205,11 @@ my $qtrig =   $qqr->param('ptrig');
 # Tables
 
  if( $qprod =~ /P14ia/ or $qprod =~ /P14ig/ ) {$pryear = "2013"};
+ if( $qprod =~ /P14ii/ ) {$pryear = "2014"};
 
-# $JobStatusT = "JobStatus".$pryear;
+ $JobStatusT = "JobStatus".$pryear;
 
- $JobStatusT = "JobStatus2013";
+# $JobStatusT = "JobStatus2013";
 
 
  $day_diff = 0;
