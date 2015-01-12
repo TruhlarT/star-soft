@@ -91,7 +91,7 @@ my @arht = ();
 my @aratomcules = ();
 my @arupc = ();
 my @armonitor = ();
-my @arpmdftp = ();
+my @arhltgood = ();
 my @arcentralpro = ();
 my @arwb = ();
 
@@ -110,7 +110,7 @@ my @nstht = ();
 my @nstatomcules = ();
 my @nstupc = ();
 my @nstmonitor = ();
-my @nstpmdftp = ();
+my @nsthltgood = ();
 my @nstupsilon = ();
 my @nstcentralpro  = ();
 my @numstream  = ();
@@ -124,7 +124,7 @@ my @rtht = ();
 my @rtatomcules = ();
 my @rtupc = ();
 my @rtmonitor = ();
-my @rtpmdftp = ();
+my @rthltgood = ();
 my @rtupsilon = ();
 my @rtphysics = ();
 my @rtcentralpro  = ();
@@ -140,7 +140,7 @@ my @cpht = ();
 my @cpatomcules = ();
 my @cpupc = ();
 my @cpmonitor = ();
-my @cppmdftp = ();
+my @cphltgood = ();
 my @cpcentralpro  = ();
 my @cpwb = ();
 
@@ -154,7 +154,7 @@ my @trht = ();
 my @tratomcules = ();
 my @trupc = ();
 my @trmonitor = ();
-my @trpmdftp = ();
+my @trhltgood = ();
 my @trcentralpro  = ();
 my @trwb  = ();
 
@@ -168,7 +168,7 @@ my @jbht = ();
 my @jbatomcules = ();
 my @jbupc = ();
 my @jbmonitor = ();
-my @jbpmdftp = ();
+my @jbhltgood = ();
 my @jbcentralpro  = ();
 my @jbwb = ();
 
@@ -491,7 +491,7 @@ END
  @jbatomcules = ();
  @jbupc = ();
  @jbmonitor = ();
- @jbpmdftp = ();
+ @jbhltgood = ();
  @jbcentralpro  = ();
  @jbwb = ();
 
@@ -569,8 +569,8 @@ END
                $jbatomcules[$ndt] = $arjbtime{$mfile,$ndt};
             }elsif( $mfile eq "monitor" ) {
                $jbmonitor[$ndt] = $arjbtime{$mfile,$ndt};
-#            }elsif( $mfile eq "pmdftp" ) {
-#               $jbpmdftp[$ndt] = $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "hltgood" ) {
+               $jbhltgood[$ndt] = $arjbtime{$mfile,$ndt};
             }elsif( $mfile eq "upc" ) {
                $jbupc[$ndt] =  $arjbtime{$mfile,$ndt};
             }elsif( $mfile eq "W" or $mfile eq "WB" or $mfile eq "WE") {
@@ -604,7 +604,7 @@ END
  @aratomcules = ();
  @arupc = ();
  @armonitor = ();
- @arpmdftp = ();
+ @arhltgood = ();
  @arcentralpro = ();
  @arwb = ();
 
@@ -617,7 +617,7 @@ END
  @rtatomcules = ();
  @rtupc = ();
  @rtmonitor = ();
- @rtpmdftp = ();
+ @rthltgood = ();
  @rtupsilon = ();
  @rtcentralpro = ();
  @rtwb = ();
@@ -632,7 +632,7 @@ END
  @cpatomcules = ();
  @cpupc = ();
  @cpmonitor = ();
- @cppmdftp = ();
+ @cphltgood = ();
  @cpcentralpro = ();
  @cpwb = ();
 
@@ -726,9 +726,9 @@ END
               }elsif( $mfile eq "monitor" ) {
                $armonitor[$ndt] = $rte{$mfile,$ndt};
                $cpmonitor[$ndt] = $arcpu{$mfile,$ndt};
-#              }elsif( $mfile eq "pmdftp" ) {
-#               $arpmdftp[$ndt] = $rte{$mfile,$ndt};
-#               $cppmdftp[$ndt] = $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "hltgood" ) {
+               $arhltgood[$ndt] = $rte{$mfile,$ndt};
+               $cphltgood[$ndt] = $arcpu{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $arupc[$ndt] =  $rte{$mfile,$ndt};
                $cpupc[$ndt] =  $arcpu{$mfile,$ndt};
@@ -761,7 +761,7 @@ END
  @tratomcules = ();
  @trupc = ();
  @trmonitor = ();
- @trpmdftp = ();
+ @trhltgood = ();
  @trcentralpro = ();
  @trwb = ();
  @ndate = ();
@@ -836,8 +836,8 @@ END
                $tratomcules[$ndt] = $artrk{$mfile,$ndt};
               }elsif( $mfile eq "monitor" ) {
                $trmonitor[$ndt] = $artrk{$mfile,$ndt};
-#              }elsif( $mfile eq "pmdftp" ) {
-#               $trpmdftp[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "hltgood" ) {
+               $trhltgood[$ndt] = $artrk{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $trupc[$ndt] =  $artrk{$mfile,$ndt};
              }elsif( $mfile eq "W" or $mfile eq "WB" or $mfile eq "WE" ) {
@@ -870,7 +870,7 @@ END
  @nstatomcules = ();
  @nstupc = ();
  @nstmonitor = ();
- @nstpmdftp = ();
+ @nsthltgood = ();
  @nstupsilon = ();
  @nstcentralpro = ();
  @nstwb = ();
@@ -886,7 +886,7 @@ END
  @rtatomcules = ();
  @rtupc = ();
  @rtmonitor = ();
- @rtpmdftp = ();
+ @rthltgood = ();
  @rtupsilon = ();
  @rtcentralpro = ();
  @rtwb = ();
@@ -952,8 +952,8 @@ END
                $nstatomcules[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "monitor" ) {
                $nstmonitor[$ndt] = $nstr{$mfile,$ndt};
-#              }elsif( $mfile eq "pmdftp" ) {
-#               $nstpmdftp[$ndt] = $nstr{$mfile,$ndt};
+              }elsif( $mfile eq "hltgood" ) {
+               $nsthltgood[$ndt] = $nstr{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $nstupc[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "W" or $mfile eq "WB" or $mfile eq "WE" ) {
@@ -975,7 +975,7 @@ END
       $rthlt[$ii] = $nsthlt[$ii]/$numstream[$ii];
       $rtht[$ii] = $nstht[$ii]/$numstream[$ii];
       $rtmonitor[$ii] = $nstmonitor[$ii]/$numstream[$ii];
-#      $rtpmdftp[$ii] = $nstpmdftp[$ii]/$numstream[$ii];
+      $rthltgood[$ii] = $nsthltgood[$ii]/$numstream[$ii];
       $rtupc[$ii] = $nstupc[$ii]/$numstream[$ii];
       $rtupsilon[$ii] = $nstupsilon[$ii]/$numstream[$ii];
       $rtgamma[$ii] = $nstgamma[$ii]/$numstream[$ii];
@@ -1007,13 +1007,14 @@ END
        $legend[1] = "st_gamma     ";
        $legend[2] = "st_hlt       ";
        $legend[3] = "st_ht        ";
-       $legend[4] = "st_monitor   ";
-       $legend[5] = "st_W    ";
-       $legend[6] = "st_upc       ";
-       $legend[7] = "st_atomcules ";
-       $legend[8] = "st_mtd       ";
-       $legend[9] = "st_centralpro";
-       $legend[10] = "st_fms";
+#       $legend[4] = "st_monitor   ";
+       $legend[4] = "st_W    ";
+       $legend[5] = "st_upc       ";
+       $legend[6] = "st_atomcules ";
+       $legend[7] = "st_mtd       ";
+       $legend[8] = "st_centralpro";
+       $legend[9] = "st_fms";
+       $legend[10] = "st_hltgood";
 
        if ( $srate eq "rtime/cpu" ) {
 
@@ -1022,7 +1023,10 @@ END
 
     @data = ();
 
-  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arwb, \@arupc, \@aratomcules, \@armtd, \@arcentralpro, \@arfmsfast ) ;
+#  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arwb, \@arupc, \@aratomcules, \@armtd, \@arcentralpro, \@arfmsfast ) ;
+
+
+  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@arwb, \@arupc, \@aratomcules, \@armtd, \@arcentralpro, \@arfmsfast, \@arhltgood ) ;
 
   	$max_y = $maxval + 0.2*$maxval; 
 #        $max_y = int($max_y);
@@ -1034,7 +1038,9 @@ END
 
     @data = ();
 
-  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cpwb, \@cpupc, \@cpatomcules, \@cpmtd, \@cpcentralpro, \@cpfmsfast ) ;
+#  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cpwb, \@cpupc, \@cpatomcules, \@cpmtd, \@cpcentralpro, \@cpfmsfast ) ;
+
+ @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpwb, \@cpupc, \@cpatomcules, \@cpmtd, \@cpcentralpro, \@cpfmsfast, \@cphltgood ) ;
 
     	$max_y = $maxcpu + 0.2*$maxcpu; 
         $max_y = int($max_y);
@@ -1046,7 +1052,9 @@ END
    $ylabel = "Average total time jobs stay on the farm in hours";
    $gtitle = "Average total time jobs stay on the farm  for $qday ";
 
-@data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbwb, \@jbupc, \@jbatomcules, \@jbmtd, \@jbcentralpro, \@jbfmsfast ) ;
+#@data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbwb, \@jbupc, \@jbatomcules, \@jbmtd, \@jbcentralpro, \@jbfmsfast ) ;
+
+@data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbwb, \@jbupc, \@jbatomcules, \@jbmtd, \@jbcentralpro, \@jbfmsfast, \@jbhltgood ) ;
 
   $max_y = $maxjbtime + 0.2*$maxjbtime;
   $max_y = int($max_y);
@@ -1059,7 +1067,10 @@ END
 
    @data = ();
 
- @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trht, \@trmonitor, \@trwb, \@trupc, \@tratomcules, \@trmtd, \@trcentralpro, \@trfmsfast ) ;
+# @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trht, \@trmonitor, \@trwb, \@trupc, \@tratomcules, \@trmtd, \@trcentralpro, \@trfmsfast ) ;
+
+
+ @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trht, \@trwb, \@trupc, \@tratomcules, \@trmtd, \@trcentralpro, \@trfmsfast, \@trhltgood ) ;
   
       $max_y = $maxtrk + 0.2*$maxtrk;
       $max_y = int($max_y);
@@ -1071,7 +1082,10 @@ END
 
     @data = ();
 
- @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstht, \@nstmonitor, \@nstwb, \@nstupc, \@nstatomcules, \@nstmtd, \@nstcentralpro, \@nstfmsfast ) ;
+# @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstht, \@nstmonitor, \@nstwb, \@nstupc, \@nstatomcules, \@nstmtd, \@nstcentralpro, \@nstfmsfast ) ;
+
+ @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstht, \@nstwb, \@nstupc, \@nstatomcules, \@nstmtd, \@nstcentralpro, \@nstfmsfast, \@nsthltgood ) ;
+
 
   }elsif(  $srate eq "stream_rate" ) {
 
@@ -1080,7 +1094,9 @@ END
 
  @data = ();
 
- @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtwb, \@rtupc, \@rtatomcules, \@rtmtd, \@rtcentralpro, \@rtfmsfast ) ;
+# @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtwb, \@rtupc, \@rtatomcules, \@rtmtd, \@rtcentralpro, \@rtfmsfast ) ;
+
+ @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtwb, \@rtupc, \@rtatomcules, \@rtmtd, \@rtcentralpro, \@rtfmsfast, \@rthltgood ) ;
 
         $max_y = 1.2;
     }
