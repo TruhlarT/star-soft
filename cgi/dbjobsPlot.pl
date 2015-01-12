@@ -452,8 +452,11 @@ $ndt = 0;
 
         $min_y = 0;
 
-        if (scalar(@ndate) >= 60 ) {
-            $skipnum = int(scalar(@ndate)/40);
+       if (scalar(@ndate) >= 40 ) {
+            $skipnum = int(scalar(@ndate)/20);
+
+      }elsif (scalar(@ndate) >= 60 ) {
+            $skipnum = int(scalar(@ndate)/30);
         }
 
         $xLabelSkip = $skipnum;
