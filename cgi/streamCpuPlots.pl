@@ -52,7 +52,7 @@ my $nowdate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2010","2011","2012","2013","2014");
+my @prodyear = ("2010","2011","2012","2013","2014","2015");
 
 
 my @arperiod = ( );
@@ -300,7 +300,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P14ig,
+	                          -default=>P14ii,
       			          -size =>1);
 
 
@@ -358,6 +358,7 @@ END
  if( $qprod =~ /P13ib/ ) {$pryear = "2012"};
  if( $qprod =~ /P14ia/ ) {$pryear = "2013"};
  if( $qprod =~ /P14ig/ ) {$pryear = "2013"};
+ if( $qprod =~ /P14ii/ ) {$pryear = "2014"};
       
     $JobStatusT = "JobStatus".$pryear;
 
@@ -1263,12 +1264,12 @@ END
 #       $legend[5] = "st_pmdftp    ";
        $legend[3] = "st_fms ";
        $legend[4] = "st_fgt ";
-       $legend[5] = "st_daqtenk ";
-       $legend[6] = "st_upc       ";       
-       $legend[7] = "st_W ";
-       $legend[8] = "st_mtd       ";
-       $legend[9] = "st_centralpro ";
-       $legend[10] = "st_atomcules ";        
+#       $legend[5] = "st_daqtenk ";
+       $legend[5] = "st_upc       ";       
+       $legend[6] = "st_W ";
+       $legend[7] = "st_mtd       ";
+       $legend[8] = "st_centralpro ";
+       $legend[9] = "st_atomcules ";        
 
        if ( $srate eq "rtime/cpu" ) {
 
