@@ -782,7 +782,7 @@ my $gtitle;
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple orange lred lpink lblack lyellow brown marine lgray lred) ],
+                    dclrs => [ qw(lblue lgreen lpurple orange lred brown lblack lyellow lpink marine lgray lred) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
