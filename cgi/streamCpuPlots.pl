@@ -1400,7 +1400,7 @@ END
 
 # @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstht, \@nstmonitor, \@nstpmdftp, \@nstupc, \@nstatomcules, \@nstmtd, \@nstcentralpro ) ;
 
- @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstfms, \@nstfgt, \@nstupc, \@nstwb, \@nstmtd, \@nstcentralpro, \@nstatomcules, \@@nsthltgood ) ;
+ @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstfms, \@nstfgt, \@nstupc, \@nstwb, \@nstmtd, \@nstcentralpro, \@nstatomcules, \@nsthltgood ) ;
 
 
      }
