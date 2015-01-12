@@ -715,14 +715,14 @@ my $gtitle;
        $legend[1] = "st_gamma    ";
        $legend[2] = "st_hlt      ";
        $legend[3] = "st_ht       ";
-       $legend[4] = "st_monitor  ";
-       $legend[5] = "st_hltgood   ";
-       $legend[6] = "st_upc      ";
-       $legend[7] = "st_W        ";
-       $legend[8] = "st_mtd       ";
-       $legend[9] = "st_centralpro ";
-       $legend[10] = "st_atomcules ";
-       $legend[11] = "st_fms";
+#       $legend[4] = "st_monitor  ";
+       $legend[4] = "st_hltgood   ";
+       $legend[5] = "st_upc      ";
+       $legend[6] = "st_W        ";
+       $legend[7] = "st_mtd       ";
+       $legend[8] = "st_centralpro ";
+       $legend[9] = "st_atomcules ";
+       $legend[10] = "st_fms";
     
        if( $srate eq "cpu" )  {
 
@@ -732,7 +732,10 @@ my $gtitle;
         $ylabel = "Number of jobs";
 	$gtitle = "CPU in sec/evt for different stream jobs for $qday day";
 
-    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cphltgood, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cpfmsfast ) ; 
+#    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cphltgood, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cpfmsfast ) ; 
+
+    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cphltgood, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cpfmsfast ) ; 
+
 
       }elsif( $srate eq "rtime/cpu"){
 
@@ -743,7 +746,9 @@ my $gtitle;
 	$gtitle = "Ratios RealTime/CPU for different stream jobs for $qday day";
 
   
-    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arhltgood, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfmsfast ) ;
+#    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arhltgood, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfmsfast ) ;
+
+    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@arhltgood, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfmsfast ) ;
 
      }elsif( $srate eq "jobtottime"){
 
@@ -754,7 +759,9 @@ my $gtitle;
 	$gtitle = "Total time on the farm for different stream jobs for $qday day";
 
   
-    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfmsfast ) ;
+#    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfmsfast ) ;
+
+    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfmsfast ) ;
 
 
      }
