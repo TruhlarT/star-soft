@@ -54,7 +54,7 @@ my $nowdate = $todate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2009","2010","2011","2012","2013","2014");
+my @prodyear = ("2009","2010","2011","2012","2013","2014","2015");
 
 
 my @arperiod = ( );
@@ -74,7 +74,7 @@ my $pcpu;
 my $prtime;
 my $pstream;
 my $jbTottime;
-my $pryear = "2013";
+my $pryear = "2014";
 
 my %rte = {};
 my %nstr = {};
@@ -89,7 +89,7 @@ my @arht = ();
 my @aratomcules = ();
 my @arupc = ();
 my @armonitor = ();
-my @arpmdftp = ();
+my @arhltgood = ();
 my @arcentralpro  = ();
 my @arwb = ();
 
@@ -109,7 +109,7 @@ my @cpht = ();
 my @cpatomcules = ();
 my @cpupc = ();
 my @cpmonitor = ();
-my @cppmdftp = (); 
+my @cphltgood = (); 
 my @cpcentralpro  = ();
 my @cpwb = ();
 
@@ -123,7 +123,7 @@ my @jbht = ();
 my @jbatomcules = ();
 my @jbupc = ();
 my @jbmonitor = ();
-my @jbpmdftp = ();
+my @jbhltgood = ();
 my @jbcentralpro  = ();
 my @jbwb = (); 
 
@@ -251,33 +251,33 @@ my @jbwb = ();
        }
     $cursor->finish();
 
-# $JobStatusT = "JobStatus2014";
+ $JobStatusT = "JobStatus2014";
 
 
-#    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
 
-#      $cursor =$dbh->prepare($sql)
-#          || die "Cannot prepare statement: $DBI::errstr\n";
-#       $cursor->execute();
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
 
-#       while( $mpr = $cursor->fetchrow() ) {
-#          $arrprod[$npr] = $mpr;
-#          $npr++;
-#       }
-#    $cursor->finish();
+       while( $mpr = $cursor->fetchrow() ) {
+          $arrprod[$npr] = $mpr;
+          $npr++;
+       }
+    $cursor->finish();
 
 
-#    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2014-02-20' order by runDay" ;
+    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2015-01-09' order by runDay" ;
 
-#      $cursor =$dbh->prepare($sql)
-#          || die "Cannot prepare statement: $DBI::errstr\n";
-#       $cursor->execute();
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
 
-#       while( $dy = $cursor->fetchrow() ) {
-#          $rdays[$ndy] = $dy;
-#          $ndy++;
-#       }
-#    $cursor->finish();
+       while( $dy = $cursor->fetchrow() ) {
+          $rdays[$ndy] = $dy;
+          $ndy++;
+       }
+    $cursor->finish();
 
 
 @rvdays = reverse @rdays ;
@@ -321,7 +321,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P14ig,
+	                          -default=>P14ii,
       			          -size =>1);
 
   
@@ -377,7 +377,8 @@ END
    if( $qprod =~ /P12/ ) {$pryear = "2012"};
    if( $qprod =~ /P13ib/ ) {$pryear = "2012"};
    if( $qprod =~ /P14ia/ ) {$pryear = "2013"};
-   if( $qprod =~ /P14ig/ ) {$pryear = "2013"};  
+   if( $qprod =~ /P14ig/ ) {$pryear = "2013"};
+   if( $qprod =~ /P14ii/ ) {$pryear = "2014"};  
 
     $JobStatusT = "JobStatus".$pryear;
 
@@ -439,7 +440,7 @@ END
  @aratomcules = ();
  @arupc = ();
  @armonitor = ();
- @arpmdftp = ();
+ @arhltgood = ();
  @arcentralpro  = ();
  @arwb = ();
 
@@ -453,7 +454,7 @@ END
  @cpatomcules = ();
  @cpupc = ();
  @cpmonitor = ();
- @cppmdftp = (); 
+ @cphltgood = (); 
  @cpcentralpro  = ();
  @cpwb = ();
 
@@ -467,7 +468,7 @@ END
  @jbatomcules = ();
  @jbupc = ();
  @jbmonitor = ();
- @jbpmdftp = ();
+ @jbhltgood = ();
  @jbcentralpro  = ();
  @jbwb = ();
 
@@ -539,8 +540,8 @@ END
                $jbatomcules[$ndt] = $jbTottime; 
            }elsif( $pstream eq "monitor" ) {
                $jbmonitor[$ndt] = $jbTottime;  
-#           }elsif( $pstream eq "pmdftp" ) {
-#               $jbpmdftp[$ndt] = $jbTottime;   
+           }elsif( $pstream eq "hltgood" ) {
+               $jbhltgood[$ndt] = $jbTottime;   
            }elsif( $pstream eq "upc" ) {
                $jbupc[$ndt] =  $jbTottime;
           }elsif( $pstream eq "W" or $pstream eq "WB" or $pstream eq "WE" ) {
@@ -641,9 +642,9 @@ END
               }elsif( $pstream eq "monitor" ) {
                $armonitor[$ndt] =  $rte{$pstream,$ndt};
                $cpmonitor[$ndt] = $pcpu;  
-#              }elsif( $pstream eq "pmdftp" ) {
-#               $arpmdftp[$ndt] =  $rte{$pstream,$ndt};
-#               $cppmdftp[$ndt] = $pcpu;   
+              }elsif( $pstream eq "hltgood" ) {
+               $arhltgood[$ndt] =  $rte{$pstream,$ndt};
+               $cphltgood[$ndt] = $pcpu;   
               }elsif( $pstream eq "upc" ) {
                $arupc[$ndt] =  $rte{$pstream,$ndt};
                $cpupc[$ndt] =  $pcpu;
@@ -674,14 +675,14 @@ my $gtitle;
        $legend[1] = "st_gamma    ";
        $legend[2] = "st_hlt      ";
        $legend[3] = "st_ht       ";
-       $legend[4] = "st_monitor  ";
-       $legend[5] = "st_pmdftp   ";
-       $legend[6] = "st_upc      ";
-       $legend[7] = "st_W        ";
-       $legend[8] = "st_mtd      ";
-       $legend[9] = "st_centralpro ";
-       $legend[10] = "st_atomcules ";
-       $legend[11] = "st_fms ";
+#       $legend[4] = "st_monitor  ";
+       $legend[4] = "st_hltgood   ";
+       $legend[5] = "st_upc      ";
+       $legend[6] = "st_W        ";
+       $legend[7] = "st_mtd      ";
+       $legend[8] = "st_centralpro ";
+       $legend[9] = "st_atomcules ";
+       $legend[10] = "st_fms ";
 
 #       $legend[3] = "st_upsilon   ";
     
@@ -695,7 +696,10 @@ my $gtitle;
       $max_y = $maxcpu + 0.2*$maxcpu; 
       $max_y = int($max_y);
 
-    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cpfmsfast ) ; 
+#    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cphltgood, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cpfmsfast ) ; 
+
+    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cphltgood, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cpfmsfast ) ; 
+
 
       }elsif( $srate eq "rtime/cpu"){
 
@@ -707,7 +711,11 @@ my $gtitle;
        $max_y = $maxval + 0.2*$maxval; 
 #      $max_y = int($max_y);
   
-    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfmsfast ) ;
+#    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arhltgood, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfmsfast ) ;
+\
+    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@arhltgood, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfmsfast ) ;
+
+
 
      }elsif( $srate eq "jobtottime"){
 
@@ -719,7 +727,9 @@ my $gtitle;
        $max_y = $maxjbtime + 0.2*$maxjbtime; 
       $max_y = int($max_y);
   
-    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfmsfast ) ;
+#    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfmsfast ) ;
+
+    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfmsfast ) ;
 
 
      }
@@ -747,7 +757,7 @@ my $gtitle;
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple lorange lred lblack marine lpink lbrown lyellow lgray lred) ],
+                    dclrs => [ qw(lblue lgreen lpurple lorange lred lyellow lblack lbrown lyellow lpink marine lgray lred) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
