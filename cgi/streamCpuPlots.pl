@@ -587,9 +587,9 @@ END
               }elsif( $mfile eq "W" or $mfile eq "WB" or $mfile eq "WE") {
                $cpwb[$ndt] =  $arcpu{$mfile,$ndt};
               }elsif( $mfile eq "fgt" ) {
-               $cpfgt[$ndt] =  $arfgt{$mfile,$ndt};
+               $cpfgt[$ndt] =  $arcpu{$mfile,$ndt};
               }elsif( $mfile eq "hltgood" ) {
-               $cphltgood[$ndt] =  $arhltgood{$mfile,$ndt};
+               $cphltgood[$ndt] =  $arcpu{$mfile,$ndt};
 
            }else{
              next;
