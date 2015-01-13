@@ -70,7 +70,7 @@ my $npr = 0;
 my $pcpu;
 my $prtime;
 my $pstream;
-my $pryear = "2013";
+my $pryear = "2014";
 my $dy;
 my $mpr;
 
@@ -88,7 +88,7 @@ my @arht = ();
 my @aratomcules = ();
 my @arupc = ();
 my @armonitor = ();
-my @arpmdftp = ();
+my @arhltgood = ();
 my @arcentralpro = ();
 my @arwb  = ();
 
@@ -108,7 +108,7 @@ my @nstht = ();
 my @nstatomcules = ();
 my @nstupc = ();
 my @nstmonitor = ();
-my @nstpmdftp = ();
+my @nsthltgood = ();
 my @nstupsilon = ();
 my @nstcentralpro = ();
 my @nstwb = (); 
@@ -123,7 +123,7 @@ my @rtht = ();
 my @rtatomcules = ();
 my @rtupc = ();
 my @rtmonitor = ();
-my @rtpmdftp = ();
+my @rthltgood = ();
 my @rtupsilon = ();
 my @rtphysics = ();
 my @rtcentralpro = ();
@@ -139,7 +139,7 @@ my @cpht = ();
 my @cpatomcules = ();
 my @cpupc = ();
 my @cpmonitor = ();
-my @cppmdftp = ();
+my @cphltgood = ();
 my @cpcentralpro = ();
 my @cpwb = ();
 
@@ -273,7 +273,7 @@ my @cpwb = ();
     $cursor->finish();
 
 
-    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2015-01-10' order by runDay" ;
+    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2015-01-09' order by runDay" ;
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -329,7 +329,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P14ig,
+	                          -default=>P14ii,
       			          -size =>1);
  
     
@@ -429,7 +429,7 @@ my $qnode   = $qqr->param('pnode');
  @aratomcules = ();
  @arupc = ();
  @armonitor = ();
- @arpmdftp = ();
+ @arhltgood = ();
  @arcentralpro = ();
  @arwb = ();
  @arfeval = ();
@@ -443,7 +443,7 @@ my $qnode   = $qqr->param('pnode');
  @rtatomcules = ();
  @rtupc = ();
  @rtmonitor = ();
- @rtpmdftp = ();
+ @rthltgood = ();
  @rtupsilon = ();
  @rtcentralpro = ();
  @rtwb = ();
@@ -458,7 +458,7 @@ my $qnode   = $qqr->param('pnode');
  @cpatomcules = ();
  @cpupc = ();
  @cpmonitor = ();
- @cppmdftp = ();
+ @cphltgood = ();
  @cpcentralpro = ();
  @cpwb = ();
 
@@ -610,9 +610,9 @@ my $qnode   = $qqr->param('pnode');
               }elsif( $mfile eq "monitor" ) {
                $armonitor[$ndt] = $rte{$mfile,$ndt};
                $cpmonitor[$ndt] = $arcpu{$mfile,$ndt};
-#              }elsif( $mfile eq "pmdftp" ) {
-#               $arpmdftp[$ndt] = $rte{$mfile,$ndt};
-#               $cppmdftp[$ndt] = $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "hltgood" ) {
+               $arhltgood[$ndt] = $rte{$mfile,$ndt};
+               $cphltgood[$ndt] = $arcpu{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $arupc[$ndt] =  $rte{$mfile,$ndt};
                $cpupc[$ndt] =  $arcpu{$mfile,$ndt};
@@ -651,14 +651,14 @@ my $qnode   = $qqr->param('pnode');
        $legend[1] = "st_gamma     ";
        $legend[2] = "st_hlt       ";
        $legend[3] = "st_ht        ";
-       $legend[4] = "st_monitor   ";
-       $legend[5] = "st_pmdftp    ";
-       $legend[6] = "st_upc       ";
-       $legend[7] = "st_W         ";
-       $legend[8] = "st_mtd       ";
-       $legend[9] = "st_centralpro ";
-       $legend[10] = "st_atomcules ";
-       $legend[11] = "st_fms ";
+#       $legend[4] = "st_monitor   ";
+       $legend[4] = "st_hltgood    ";
+       $legend[5] = "st_upc       ";
+       $legend[6] = "st_W         ";
+       $legend[7] = "st_mtd       ";
+       $legend[8] = "st_centralpro ";
+       $legend[9] = "st_atomcules ";
+       $legend[10] = "st_fms ";
 
 
        if ( $qvalue eq "rtime/cpu" ) {
@@ -668,7 +668,7 @@ my $qnode   = $qqr->param('pnode');
 
     @data = ();
 
-  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfmsfast ) ;
+  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@arhltgood, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfmsfast ) ;
 
   	$max_y = 1.2*$maxval; 
 
@@ -679,7 +679,7 @@ my $qnode   = $qqr->param('pnode');
 
     @data = ();
 
-  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cpfmsfast ) ;
+  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cphltgood, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cpfmsfast ) ;
 
     	$max_y = 1.2*$maxcpu; 
         $max_y = int($max_y);
