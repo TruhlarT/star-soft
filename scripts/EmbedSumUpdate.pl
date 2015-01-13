@@ -14,7 +14,6 @@ use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use FileCatalog;
 
 use DBI;
-use Mysql;
 use File::Basename;
 use Time::Local;
 
@@ -82,6 +81,7 @@ my @sumsize = ();
 my @datasize = ();
 my @filelst = ();
 my @embpath = ();
+my @embpatt = ();
 my @partcl = ();
 my @reqst = ();
 my @nfset = ();
@@ -104,7 +104,7 @@ my $eflag = 0;
 
   }else{
 
-# $fileC->set_context("trgsetupname=$trigname","path~Lambda_1","filetype=daq_embedding_MuDst","storage=hpss","limit=0");
+# $fileC->set_context("trgsetupname=$trigname","path~UU_production_2012/Proton_1","filetype=daq_embedding_MuDst","storage=hpss","limit=0");
   $fileC->set_context("trgsetupname=$trigname","filetype=daq_embedding_MuDst","storage=hpss","limit=0");
 
  }
@@ -124,7 +124,7 @@ my $eflag = 0;
     $prod[$nlist] = $prt[1];  
     $libtg[$nlist] = $prt[2];  
 
-#   print $trig[$nlist],"  %  ",$prod[$nlist],"  %  ",$libtg[$nlist], "\n";
+   print $trig[$nlist],"  %  ",$prod[$nlist],"  %  ",$libtg[$nlist], "\n";
 
 
    $sql="SELECT distinct collision, yearData FROM $ProddataT  WHERE trgsetName = '$trig[$nlist]' ";
@@ -156,18 +156,19 @@ my $eflag = 0;
     $fileC->clear_context();
     $nset = 0;
     $nn = 1;
-    $embpath = "none"; 
+    $embpatt = "none"; 
     @sumevt  = 0;
     @numfiles = 0;
     @sumsize  = 0;
     @embsubd = ();
+    @embpatt = ();
     @embpath = ();
     $eflag = 0;
    $embsubd[0] = "none";
 
    foreach my $mpath (@pathname){
 
-#        print $mpath, "\n";
+#       print $mpath, "\n";
 
     @prt = (); 
     @prt = split("/",$mpath); 
@@ -196,15 +197,16 @@ my $eflag = 0;
 
     if($eflag == 1) {
 
-    $embpath[$nset] = $prt[5];
-    print "Embedding unique subdir:  ",$nset,"  %  ",$embpath[$nset], "\n";
+    $embpatt[$nset] = $prt[5];
+    print "Embedding unique subdir:  ",$nset,"  %  ",$embpatt[$nset], "\n";
     @prt = (); 
-    @prt = split("_",$embpath[$nset]); 
+    @prt = split("_",$embpatt[$nset]); 
     $partcl[$nset] = $prt[0];
     $reqst[$nset] = $prt[2];
     $nfset[$nset] = $prt[1];
 
-    print "Embedding parameters:  ",$embpath[$nset],"  %  ", $partcl[$nset],"  %  ",$nfset[$nset],"  %  ",$reqst[$nset],"\n";
+    
+    print "Embedding parameters:  ",$embpatt[$nset],"  %  ", $partcl[$nset],"  %  ",$nfset[$nset],"  %  ",$reqst[$nset],"\n";
  
      @runevents = ();
      $runevents[0] = 0;  
@@ -212,17 +214,19 @@ my $eflag = 0;
      $datasize[0] = 0; 
      @filelst = ();
 
-    $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","path~$embpath[$nset]","filetype=daq_embedding_MuDst","storage=hpss","sanity=1","limit=0");
+    $embpath[$nset] = $trig[$nlist]."/".$embpatt[$nset];
+
+    $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","path~$embpath[$nset]","filetype=daq_embedding_MuDst","storage=hpss","limit=0");
  
       @runevents = $fileC->run_query("sum(events)");
-      @filelst = $fileC->run_query(filename);
+      @filelst = $fileC->run_query("path","filename");
 
       $sumevt[$nset] = $runevents[0];
       $numfiles[$nset] = scalar(@filelst);
 
       $fileC->clear_context();
 
-    $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","path~$embpath[$nset]","filetype~daq_embedding","storage=hpss","sanity=1");
+    $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","path~$embpath[$nset]","filetype~daq_embedding","storage=hpss");
 
       @datasize = $fileC->run_query("sum(size)"); 
       $sumsize[$nset] = $datasize[0];
@@ -232,7 +236,7 @@ my $eflag = 0;
 #######################
     
 
-    print "Sum events = ",$sumevt[$nset],"  %  ","Total size = ",$sumsize[$nset],"  %  ","Number of MuDst = ",$numfiles[$nset], "\n";
+    print "Path = ",$embpath[$nset], "  sum events = ",$sumevt[$nset],"  %  ","Total size = ",$sumsize[$nset],"  %  ","Number of MuDst = ",$numfiles[$nset], "\n";
 
 #######################   
 
