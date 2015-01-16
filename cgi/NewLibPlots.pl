@@ -34,6 +34,7 @@ my @legend = ();
 my @prod_set = (
                 "daq_ittf/year_2014/AuAu200_production_mid_2014",
                 "daq_ittf/year_2014/AuAu200_production_low_2014",
+                "daq_ittf/year_2014/AuAu200_production_low.nohft_2014",
                 "daq_ittf/year_2014/AuAu200_production_2014",
                 "daq_ittf/year_2014/production_15GeV_2014",
                 "daq_ittf/year_2014/AuHe3_production_2014",
@@ -86,6 +87,7 @@ my @prod_set = (
                 "daq_ittf/year_2001/ppMinBias",
                 "daq_ittf/year_2000/minbias",
                 "daq_ittf/year_2000/central",
+                "trs_ittf/year_2014/auau200_minbias",
                 "trs_ittf/year_2012/pp500_minbias",
                 "trs_ittf/year_2012/pp200_minbias",
                 "trs_ittf/year_2012/CuAu200_minbias",
