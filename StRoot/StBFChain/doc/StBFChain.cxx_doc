@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.132 2014/10/09 21:54:44 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.133 2015/02/06 13:01:12 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -1146,7 +1146,7 @@ Bfc_st BFC[] = {
   {"eemcDb" ,"eeDb" ,"","db,EEmcUtil", "StEEmcDbMaker","StEEmcDbMaker","Load EEmcDbMaker",kFALSE},
   {"fmsDb" ,"fmsDb","","db", "StFmsDbMaker","StFmsDbMaker","Load FmsDbMaker",kFALSE},
   {"fgtDb" ,"fgtDb","","db,fgtutil", "StFgtDbMaker","StFgtDbMaker","Load FgtDbMaker",kFALSE},
-  {"pxlDb" ,"pxlDb","","tpcDb", "StPxlDbMaker","StPxlDbMaker","Load PxlDbMaker",kFALSE},
+  {"pxlDb" ,"pxlDb","","tpcDb PxlUtil", "StPxlDbMaker","StPxlDbMaker","Load PxlDbMaker",kFALSE},
   {"istDb" ,"istDb","","tpcDb", "StIstDbMaker","StIstDbMaker","Load IstDbMaker",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"MAKERS      ","-----------","-----------","------------------------------------------","","","",kFALSE},
@@ -1260,9 +1260,12 @@ Bfc_st BFC[] = {
   {"Event" , "","","MakeEvent", "","","Request to initialize event",kFALSE},
   {"pxlFastSim" ,"","","StMcEvent,StEvent"
    , "StPxlSimMaker","StPxlSimMaker","FastPixelSimulator",kFALSE},
-  {"pxlRaw" ,"","","pxlUtil,pxlDb", "StPxlRawHitMaker","StPxlRawHitMaker","Pxl Raw Hit Maker",kFALSE},
-  {"pxlCluster" ,"","","pxlUtil", "StPxlClusterMaker","StPxlClusterMaker","Pxl Cluster Maker",kFALSE},
-  {"pxlHit" ,"","","pxlUtil,event,pxlDb", "StPxlHitMaker","StPxlHitMaker","Pxl Hit Maker",kFALSE},
+  {"pxlRaw" ,"","","pxlDb", "StPxlRawHitMaker", "StPxlRawHitMaker", "Run PXL raw hit maker",kFALSE},
+  {"pxlCluster" ,"","","pxlRaw", "StPxlClusterMaker", "StPxlClusterMaker", "Run PXL cluster maker",kFALSE},
+  {"pxlHit" ,"","","event pxlCluster", "StPxlHitMaker", "StPxlHitMaker", "Run PXL hit maker",kFALSE},
+  {"istRaw", "", "", "istUtil istDb", "StIstRawHitMaker", "StIstRawHitMaker", "Run IST raw hit maker", kFALSE},
+  {"istCluster", "", "", "istRaw", "StIstClusterMaker", "StIstClusterMaker", "Run IST cluster maker", kFALSE},
+  {"istHit", "", "", "event istCluster", "StIstHitMaker", "StIstHitMaker", "Run IST hit Maker", kFALSE},
   {"ssddat" ,"","","ssd_daq" ,"","","SSD full chain for Real Data",kFALSE},
   {"ssd_daq","","","ssdCalDb,svt_T,-sls,-spa,ssdUtil","StSsdDaqMaker","StSsdDaqMaker","... SSD Daq",kFALSE},
   {"ssdfast" ,"","","ssdDb,StMcEvent,StEvent","StSsdFastSimMaker","StSsdFastSimMaker",
@@ -1337,7 +1340,7 @@ Bfc_st BFC[] = {
   {"bbcSim" ,"","","db","StBbcSimulationMaker" ,"StBbcSimulationMaker","BBC Simulator",kFALSE},
   {"fmsSim","" ,"","StEvent,fmsDb",
    "StFmsFastSimulatorMaker","StFmsFastSimulatorMaker","FMS Fast Simulator", kFALSE},
-  {"fmsDat" ,"","", "StEvent,fmsdb",
+  {"fmsDat" ,"","", "StEvent,fmsDb",
    "StFmsHitMaker","StFmsHitMaker","Fill FMS struct and zero TRG", kFALSE},
   {"fpd" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"fgt" ,"FgtChain","","fgtDat,fgtClu,fgtAtoC" ,"StMaker","StChain","Fgt data Chain",kFALSE},
@@ -2655,7 +2658,7 @@ Bfc_st BFC[] = {
   {"eemcDb" ,"eeDb" ,"","db,EEmcUtil", "StEEmcDbMaker","StEEmcDbMaker","Load EEmcDbMaker",kFALSE},
   {"fmsDb" ,"fmsDb","","db", "StFmsDbMaker","StFmsDbMaker","Load FmsDbMaker",kFALSE},
   {"fgtDb" ,"fgtDb","","db,fgtutil", "StFgtDbMaker","StFgtDbMaker","Load FgtDbMaker",kFALSE},
-  {"pxlDb" ,"pxlDb","","tpcDb", "StPxlDbMaker","StPxlDbMaker","Load PxlDbMaker",kFALSE},
+  {"pxlDb" ,"pxlDb","","tpcDb PxlUtil", "StPxlDbMaker","StPxlDbMaker","Load PxlDbMaker",kFALSE},
   {"istDb" ,"istDb","","tpcDb", "StIstDbMaker","StIstDbMaker","Load IstDbMaker",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"MAKERS      ","-----------","-----------","------------------------------------------","","","",kFALSE},
@@ -2769,9 +2772,12 @@ Bfc_st BFC[] = {
   {"Event" , "","","MakeEvent", "","","Request to initialize event",kFALSE},
   {"pxlFastSim" ,"","","StMcEvent,StEvent"
    , "StPxlSimMaker","StPxlSimMaker","FastPixelSimulator",kFALSE},
-  {"pxlRaw" ,"","","pxlUtil,pxlDb", "StPxlRawHitMaker","StPxlRawHitMaker","Pxl Raw Hit Maker",kFALSE},
-  {"pxlCluster" ,"","","pxlUtil", "StPxlClusterMaker","StPxlClusterMaker","Pxl Cluster Maker",kFALSE},
-  {"pxlHit" ,"","","pxlUtil,event,pxlDb", "StPxlHitMaker","StPxlHitMaker","Pxl Hit Maker",kFALSE},
+  {"pxlRaw" ,"","","pxlDb", "StPxlRawHitMaker", "StPxlRawHitMaker", "Run PXL raw hit maker",kFALSE},
+  {"pxlCluster" ,"","","pxlRaw", "StPxlClusterMaker", "StPxlClusterMaker", "Run PXL cluster maker",kFALSE},
+  {"pxlHit" ,"","","event pxlCluster", "StPxlHitMaker", "StPxlHitMaker", "Run PXL hit maker",kFALSE},
+  {"istRaw", "", "", "istUtil istDb", "StIstRawHitMaker", "StIstRawHitMaker", "Run IST raw hit maker", kFALSE},
+  {"istCluster", "", "", "istRaw", "StIstClusterMaker", "StIstClusterMaker", "Run IST cluster maker", kFALSE},
+  {"istHit", "", "", "event istCluster", "StIstHitMaker", "StIstHitMaker", "Run IST hit Maker", kFALSE},
   {"ssddat" ,"","","ssd_daq" ,"","","SSD full chain for Real Data",kFALSE},
   {"ssd_daq","","","ssdCalDb,svt_T,-sls,-spa,ssdUtil","StSsdDaqMaker","StSsdDaqMaker","... SSD Daq",kFALSE},
   {"ssdfast" ,"","","ssdDb,StMcEvent,StEvent","StSsdFastSimMaker","StSsdFastSimMaker",
@@ -2846,7 +2852,7 @@ Bfc_st BFC[] = {
   {"bbcSim" ,"","","db","StBbcSimulationMaker" ,"StBbcSimulationMaker","BBC Simulator",kFALSE},
   {"fmsSim","" ,"","StEvent,fmsDb",
    "StFmsFastSimulatorMaker","StFmsFastSimulatorMaker","FMS Fast Simulator", kFALSE},
-  {"fmsDat" ,"","", "StEvent,fmsdb",
+  {"fmsDat" ,"","", "StEvent,fmsDb",
    "StFmsHitMaker","StFmsHitMaker","Fill FMS struct and zero TRG", kFALSE},
   {"fpd" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"fgt" ,"FgtChain","","fgtDat,fgtClu,fgtAtoC" ,"StMaker","StChain","Fgt data Chain",kFALSE},

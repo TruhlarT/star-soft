@@ -692,7 +692,7 @@
 <tr><td><A NAME="EEMCDB0">eemcDb</A></td><td>eeDb</td><td>&nbsp;</td><td><A HREF="#DB0">db</A> <A HREF="#EEMCUTIL0">EEmcUtil</A> </td><td>StEEmcDbMaker</td><td>StEEmcDbMaker</td><td>Load EEmcDbMaker</td></tr>
 <tr><td><A NAME="FMSDB0">fmsDb</A></td><td>fmsDb</td><td>&nbsp;</td><td><A HREF="#DB0">db</A> </td><td>StFmsDbMaker</td><td>StFmsDbMaker</td><td>Load FmsDbMaker</td></tr>
 <tr><td><A NAME="FGTDB0">fgtDb</A></td><td>fgtDb</td><td>&nbsp;</td><td><A HREF="#DB0">db</A> <A HREF="#FGTUTIL0">fgtutil</A> </td><td>StFgtDbMaker</td><td>StFgtDbMaker</td><td>Load FgtDbMaker</td></tr>
-<tr><td><A NAME="PXLDB0">pxlDb</A></td><td>pxlDb</td><td>&nbsp;</td><td><A HREF="#TPCDB0">tpcDb</A> </td><td>StPxlDbMaker</td><td>StPxlDbMaker</td><td>Load PxlDbMaker</td></tr>
+<tr><td><A NAME="PXLDB0">pxlDb</A></td><td>pxlDb</td><td>&nbsp;</td><td><A HREF="#TPCDB0">tpcDb</A> <A HREF="#PXLUTIL0">PxlUtil</A> </td><td>StPxlDbMaker</td><td>StPxlDbMaker</td><td>Load PxlDbMaker</td></tr>
 <tr><td><A NAME="ISTDB0">istDb</A></td><td>istDb</td><td>&nbsp;</td><td><A HREF="#TPCDB0">tpcDb</A> </td><td>StIstDbMaker</td><td>StIstDbMaker</td><td>Load IstDbMaker</td></tr>
 <tr BGCOLOR="cornsilk"><td colspan="7"><A NAME="MAKERS0">MAKERS</A></td></tr>
 <tr><td><A NAME="NTIN0">ntin</A></td><td>geant</td><td>&nbsp;</td><td><A HREF="#PAW0">paw</A> -fzin -geant -gstar <A HREF="#SIMU0">Simu</A> <A HREF="#GEANTL0">geantL</A> <A HREF="#GSTARLIB0">gstarLib</A> </td><td>St_geant_Maker</td><td>&nbsp;</td><td>read event generated Hbook nt-file</td></tr>
@@ -783,9 +783,12 @@
 <tr><td><A NAME="SVTDEDX0">svtdEdx</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>&nbsp;</td><td>WARNING *** Option is OBSOLETE ***</td></tr>
 <tr><td><A NAME="EVENT0">Event</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#MAKEEVENT0">MakeEvent</A> </td><td>&nbsp;</td><td>&nbsp;</td><td>Request to initialize event</td></tr>
 <tr><td><A NAME="PXLFASTSIM0">pxlFastSim</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#STMCEVENT0">StMcEvent</A> <A HREF="#STEVENT0">StEvent</A> </td><td>StPxlSimMaker</td><td>StPxlSimMaker</td><td>FastPixelSimulator</td></tr>
-<tr><td><A NAME="PXLRAW0">pxlRaw</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#PXLUTIL0">pxlUtil</A> <A HREF="#PXLDB0">pxlDb</A> </td><td>StPxlRawHitMaker</td><td>StPxlRawHitMaker</td><td>Pxl Raw Hit Maker</td></tr>
-<tr><td><A NAME="PXLCLUSTER0">pxlCluster</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#PXLUTIL0">pxlUtil</A> </td><td>StPxlClusterMaker</td><td>StPxlClusterMaker</td><td>Pxl Cluster Maker</td></tr>
-<tr><td><A NAME="PXLHIT0">pxlHit</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#PXLUTIL0">pxlUtil</A> <A HREF="#EVENT0">event</A> <A HREF="#PXLDB0">pxlDb</A> </td><td>StPxlHitMaker</td><td>StPxlHitMaker</td><td>Pxl Hit Maker</td></tr>
+<tr><td><A NAME="PXLRAW0">pxlRaw</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#PXLDB0">pxlDb</A> </td><td>StPxlRawHitMaker</td><td>StPxlRawHitMaker</td><td>Run PXL raw hit maker</td></tr>
+<tr><td><A NAME="PXLCLUSTER0">pxlCluster</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#PXLRAW0">pxlRaw</A> </td><td>StPxlClusterMaker</td><td>StPxlClusterMaker</td><td>Run PXL cluster maker</td></tr>
+<tr><td><A NAME="PXLHIT0">pxlHit</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#EVENT0">event</A> <A HREF="#PXLCLUSTER0">pxlCluster</A> </td><td>StPxlHitMaker</td><td>StPxlHitMaker</td><td>Run PXL hit maker</td></tr>
+<tr><td><A NAME="ISTRAW0">istRaw</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#ISTUTIL0">istUtil</A> <A HREF="#ISTDB0">istDb</A> </td><td>StIstRawHitMaker</td><td>StIstRawHitMaker</td><td>Run IST raw hit maker</td></tr>
+<tr><td><A NAME="ISTCLUSTER0">istCluster</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#ISTRAW0">istRaw</A> </td><td>StIstClusterMaker</td><td>StIstClusterMaker</td><td>Run IST cluster maker</td></tr>
+<tr><td><A NAME="ISTHIT0">istHit</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#EVENT0">event</A> <A HREF="#ISTCLUSTER0">istCluster</A> </td><td>StIstHitMaker</td><td>StIstHitMaker</td><td>Run IST hit Maker</td></tr>
 <tr><td><A NAME="SSDDAT0">ssddat</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#SSD_DAQ0">ssd_daq</A> </td><td>&nbsp;</td><td>&nbsp;</td><td>SSD full chain for Real Data</td></tr>
 <tr><td><A NAME="SSD_DAQ0">ssd_daq</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#SSDCALDB0">ssdCalDb</A> <A HREF="#SVT_T0">svt_T</A> -sls -spa <A HREF="#SSDUTIL0">ssdUtil</A> </td><td>StSsdDaqMaker</td><td>StSsdDaqMaker</td><td>... SSD Daq</td></tr>
 <tr><td><A NAME="SSDFAST0">ssdfast</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#SSDDB0">ssdDb</A> <A HREF="#STMCEVENT0">StMcEvent</A> <A HREF="#STEVENT0">StEvent</A> </td><td>StSsdFastSimMaker</td><td>StSsdFastSimMaker</td><td>... SSD fast simulator</td></tr>
@@ -839,7 +842,7 @@
 <tr><td><A NAME="L3COUNT0">l3count</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>Stl3CounterMaker</td><td>Stl3RawReaderMaker</td><td>&nbsp;</td></tr>
 <tr><td><A NAME="BBCSIM0">bbcSim</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#DB0">db</A> </td><td>StBbcSimulationMaker</td><td>StBbcSimulationMaker</td><td>BBC Simulator</td></tr>
 <tr><td><A NAME="FMSSIM0">fmsSim</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#STEVENT0">StEvent</A> <A HREF="#FMSDB0">fmsDb</A> </td><td>StFmsFastSimulatorMaker</td><td>StFmsFastSimulatorMaker</td><td>FMS Fast Simulator</td></tr>
-<tr><td><A NAME="FMSDAT0">fmsDat</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#STEVENT0">StEvent</A> <A HREF="#FMSDB0">fmsdb</A> </td><td>StFmsHitMaker</td><td>StFmsHitMaker</td><td>Fill FMS struct and zero TRG</td></tr>
+<tr><td><A NAME="FMSDAT0">fmsDat</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#STEVENT0">StEvent</A> <A HREF="#FMSDB0">fmsDb</A> </td><td>StFmsHitMaker</td><td>StFmsHitMaker</td><td>Fill FMS struct and zero TRG</td></tr>
 <tr><td><A NAME="FPD0">fpd</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>&nbsp;</td><td>WARNING *** Option is OBSOLETE ***</td></tr>
 <tr><td><A NAME="FGT0">fgt</A></td><td>FgtChain</td><td>&nbsp;</td><td><A HREF="#FGTDAT0">fgtDat</A> <A HREF="#FGTCLU0">fgtClu</A> <A HREF="#FGTATOC0">fgtAtoC</A> </td><td>StMaker</td><td>StChain</td><td>Fgt data Chain</td></tr>
 <tr><td><A NAME="FGTDAT0">fgtDat</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#EVENT0">event</A> <A HREF="#FGTDB0">fgtdb</A> </td><td>StFgtRawMaker</td><td>StFgtRawMaker</td><td>FGT Data reader</td></tr>
@@ -1650,7 +1653,7 @@
 <tr><td><A NAME="EEMCDB1">eemcDb</A></td><td>eeDb</td><td>&nbsp;</td><td><A HREF="#DB1">db</A> <A HREF="#EEMCUTIL1">EEmcUtil</A> </td><td>StEEmcDbMaker</td><td>StEEmcDbMaker</td><td>Load EEmcDbMaker</td></tr>
 <tr><td><A NAME="FMSDB1">fmsDb</A></td><td>fmsDb</td><td>&nbsp;</td><td><A HREF="#DB1">db</A> </td><td>StFmsDbMaker</td><td>StFmsDbMaker</td><td>Load FmsDbMaker</td></tr>
 <tr><td><A NAME="FGTDB1">fgtDb</A></td><td>fgtDb</td><td>&nbsp;</td><td><A HREF="#DB1">db</A> <A HREF="#FGTUTIL1">fgtutil</A> </td><td>StFgtDbMaker</td><td>StFgtDbMaker</td><td>Load FgtDbMaker</td></tr>
-<tr><td><A NAME="PXLDB1">pxlDb</A></td><td>pxlDb</td><td>&nbsp;</td><td><A HREF="#TPCDB1">tpcDb</A> </td><td>StPxlDbMaker</td><td>StPxlDbMaker</td><td>Load PxlDbMaker</td></tr>
+<tr><td><A NAME="PXLDB1">pxlDb</A></td><td>pxlDb</td><td>&nbsp;</td><td><A HREF="#TPCDB1">tpcDb</A> <A HREF="#PXLUTIL1">PxlUtil</A> </td><td>StPxlDbMaker</td><td>StPxlDbMaker</td><td>Load PxlDbMaker</td></tr>
 <tr><td><A NAME="ISTDB1">istDb</A></td><td>istDb</td><td>&nbsp;</td><td><A HREF="#TPCDB1">tpcDb</A> </td><td>StIstDbMaker</td><td>StIstDbMaker</td><td>Load IstDbMaker</td></tr>
 <tr BGCOLOR="cornsilk"><td colspan="7"><A NAME="MAKERS1">MAKERS</A></td></tr>
 <tr><td><A NAME="NTIN1">ntin</A></td><td>geant</td><td>&nbsp;</td><td><A HREF="#PAW1">paw</A> -fzin -geant -gstar <A HREF="#SIMU1">Simu</A> <A HREF="#GEANTL1">geantL</A> <A HREF="#GSTARLIB1">gstarLib</A> </td><td>St_geant_Maker</td><td>&nbsp;</td><td>read event generated Hbook nt-file</td></tr>
@@ -1741,9 +1744,12 @@
 <tr><td><A NAME="SVTDEDX1">svtdEdx</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>&nbsp;</td><td>WARNING *** Option is OBSOLETE ***</td></tr>
 <tr><td><A NAME="EVENT1">Event</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#MAKEEVENT1">MakeEvent</A> </td><td>&nbsp;</td><td>&nbsp;</td><td>Request to initialize event</td></tr>
 <tr><td><A NAME="PXLFASTSIM1">pxlFastSim</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#STMCEVENT1">StMcEvent</A> <A HREF="#STEVENT1">StEvent</A> </td><td>StPxlSimMaker</td><td>StPxlSimMaker</td><td>FastPixelSimulator</td></tr>
-<tr><td><A NAME="PXLRAW1">pxlRaw</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#PXLUTIL1">pxlUtil</A> <A HREF="#PXLDB1">pxlDb</A> </td><td>StPxlRawHitMaker</td><td>StPxlRawHitMaker</td><td>Pxl Raw Hit Maker</td></tr>
-<tr><td><A NAME="PXLCLUSTER1">pxlCluster</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#PXLUTIL1">pxlUtil</A> </td><td>StPxlClusterMaker</td><td>StPxlClusterMaker</td><td>Pxl Cluster Maker</td></tr>
-<tr><td><A NAME="PXLHIT1">pxlHit</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#PXLUTIL1">pxlUtil</A> <A HREF="#EVENT1">event</A> <A HREF="#PXLDB1">pxlDb</A> </td><td>StPxlHitMaker</td><td>StPxlHitMaker</td><td>Pxl Hit Maker</td></tr>
+<tr><td><A NAME="PXLRAW1">pxlRaw</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#PXLDB1">pxlDb</A> </td><td>StPxlRawHitMaker</td><td>StPxlRawHitMaker</td><td>Run PXL raw hit maker</td></tr>
+<tr><td><A NAME="PXLCLUSTER1">pxlCluster</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#PXLRAW1">pxlRaw</A> </td><td>StPxlClusterMaker</td><td>StPxlClusterMaker</td><td>Run PXL cluster maker</td></tr>
+<tr><td><A NAME="PXLHIT1">pxlHit</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#EVENT1">event</A> <A HREF="#PXLCLUSTER1">pxlCluster</A> </td><td>StPxlHitMaker</td><td>StPxlHitMaker</td><td>Run PXL hit maker</td></tr>
+<tr><td><A NAME="ISTRAW1">istRaw</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#ISTUTIL1">istUtil</A> <A HREF="#ISTDB1">istDb</A> </td><td>StIstRawHitMaker</td><td>StIstRawHitMaker</td><td>Run IST raw hit maker</td></tr>
+<tr><td><A NAME="ISTCLUSTER1">istCluster</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#ISTRAW1">istRaw</A> </td><td>StIstClusterMaker</td><td>StIstClusterMaker</td><td>Run IST cluster maker</td></tr>
+<tr><td><A NAME="ISTHIT1">istHit</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#EVENT1">event</A> <A HREF="#ISTCLUSTER1">istCluster</A> </td><td>StIstHitMaker</td><td>StIstHitMaker</td><td>Run IST hit Maker</td></tr>
 <tr><td><A NAME="SSDDAT1">ssddat</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#SSD_DAQ1">ssd_daq</A> </td><td>&nbsp;</td><td>&nbsp;</td><td>SSD full chain for Real Data</td></tr>
 <tr><td><A NAME="SSD_DAQ1">ssd_daq</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#SSDCALDB1">ssdCalDb</A> <A HREF="#SVT_T1">svt_T</A> -sls -spa <A HREF="#SSDUTIL1">ssdUtil</A> </td><td>StSsdDaqMaker</td><td>StSsdDaqMaker</td><td>... SSD Daq</td></tr>
 <tr><td><A NAME="SSDFAST1">ssdfast</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#SSDDB1">ssdDb</A> <A HREF="#STMCEVENT1">StMcEvent</A> <A HREF="#STEVENT1">StEvent</A> </td><td>StSsdFastSimMaker</td><td>StSsdFastSimMaker</td><td>... SSD fast simulator</td></tr>
@@ -1797,7 +1803,7 @@
 <tr><td><A NAME="L3COUNT1">l3count</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>Stl3CounterMaker</td><td>Stl3RawReaderMaker</td><td>&nbsp;</td></tr>
 <tr><td><A NAME="BBCSIM1">bbcSim</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#DB1">db</A> </td><td>StBbcSimulationMaker</td><td>StBbcSimulationMaker</td><td>BBC Simulator</td></tr>
 <tr><td><A NAME="FMSSIM1">fmsSim</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#STEVENT1">StEvent</A> <A HREF="#FMSDB1">fmsDb</A> </td><td>StFmsFastSimulatorMaker</td><td>StFmsFastSimulatorMaker</td><td>FMS Fast Simulator</td></tr>
-<tr><td><A NAME="FMSDAT1">fmsDat</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#STEVENT1">StEvent</A> <A HREF="#FMSDB1">fmsdb</A> </td><td>StFmsHitMaker</td><td>StFmsHitMaker</td><td>Fill FMS struct and zero TRG</td></tr>
+<tr><td><A NAME="FMSDAT1">fmsDat</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#STEVENT1">StEvent</A> <A HREF="#FMSDB1">fmsDb</A> </td><td>StFmsHitMaker</td><td>StFmsHitMaker</td><td>Fill FMS struct and zero TRG</td></tr>
 <tr><td><A NAME="FPD1">fpd</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>&nbsp;</td><td>WARNING *** Option is OBSOLETE ***</td></tr>
 <tr><td><A NAME="FGT1">fgt</A></td><td>FgtChain</td><td>&nbsp;</td><td><A HREF="#FGTDAT1">fgtDat</A> <A HREF="#FGTCLU1">fgtClu</A> <A HREF="#FGTATOC1">fgtAtoC</A> </td><td>StMaker</td><td>StChain</td><td>Fgt data Chain</td></tr>
 <tr><td><A NAME="FGTDAT1">fgtDat</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#EVENT1">event</A> <A HREF="#FGTDB1">fgtdb</A> </td><td>StFgtRawMaker</td><td>StFgtRawMaker</td><td>FGT Data reader</td></tr>
@@ -1952,6 +1958,6 @@
 <tr><td><A NAME="NEWTPCALIGNMENT1">NewTpcAlignment</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>&nbsp;</td><td>Switch on new Tpc Alignment schema</td></tr>
 <tr><td><A NAME="ALIASED1">Aliased</A></td><td>time stamps</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
 </table>
-<h5>Created by BFCOpt2Html.pl on Thu Oct  9 17:53:55 2014 - J. Lauret</h5>
+<h5>Created by BFCOpt2Html.pl on Fri Feb  6 07:59:37 2015 - J. Lauret</h5>
 </body>
 </html>
