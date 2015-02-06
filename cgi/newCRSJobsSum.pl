@@ -359,6 +359,7 @@ print <<END;
 
    <body BGCOLOR=\"cornsilk\">
  <h2 ALIGN=CENTER> <B>Jobs currently processing on the CRS farm</B></h2>
+ <h3 ALIGN=CENTER> Generated at $nowdate</h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=4 CELLSPACING=1 CELLPADDING=1 bgcolor=\"#ffdc9f\">
 <TR>
