@@ -77,10 +77,11 @@
 
 use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use RunDAQ;
-use CRSQueues;
+#use CRSQueues;
+use lib "/star/u/didenko/dev/scripts/CRSUtils/CRSQueues" ;
 
 
-$ThisYear = 2013;                 # Block to consider. Completely artificial
+$ThisYear = 2015;                 # Block to consider. Completely artificial
                                   # and used to preserve older options in if
                                   # block along with current option.
 $HPSS     = 1;                    # turn to 0 for UNIX staging only
@@ -135,6 +136,15 @@ $SKIPMC = "abcde";                # a fake MC tag - if stream match any, skip MC
 # Default values Year9 data
 # Removed 2002->2004 on 2009/02 J.Lauret (see cvs revisions for history)
 #
+
+my $MAXSLOTS = 200;
+my $NSLOT = 0;
+my $njobs = 0;
+$TOT = 0;
+
+my @STATES = ("RUNNING","QUEUED","SUBMITTED","STAGING","CREATED");
+
+
 if ( $ThisYear == 2005 ){
     $TREEMODE= 1;
     $LIB     = "dev";
@@ -469,7 +479,9 @@ if ( $ThisYear == 2005 ){
     # group years that were alike
 } elsif ( $ThisYear == 2011 || 
 	  $ThisYear == 2012 || 
-	  $ThisYear == 2013 ) {
+	  $ThisYear == 2013 || 
+	  $ThisYear == 2014 ||
+          $ThisYear == 2015 ) {
     $TREEMODE= 1;
     $LIB     = "dev";
 
@@ -558,12 +570,27 @@ if ( $ThisYear == 2005 ){
 	$DCHAIN{"PPPP"} = "pp2012a,AgML,mtdDat,btof,fmsDat,VFPPVnoCTB,beamline,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
 	$DCHAIN{"UU"}   = $DCHAIN{"AuAu"};
 	$DCHAIN{"CuAu"} = $DCHAIN{"AuAu"};
-    } else {
+    } elsif ($ThisYear == 2013) {
 	# 2013
 	$DCHAIN{"PPPP"} = 
 	    "pp2013a,mtd,btof,fmsDat,fgt,fgtPoint,VFPPVnoCTB,beamline,BEmcChkStat,".
 	    "Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
+    } elsif ($ThisYear == 2014) {
+
+        $DCHAIN{"He3Au"} =
+            "P2014a,mtd,btof,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
+        $DCHAIN{"AuAu"} = "P2014a,mtd,btof,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
+   } elsif ($ThisYear == 2015) {
+
+        $DCHAIN{"PPPP"} = "P2014a,mtd,btof,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
+
+    }else{
+
+        $DCHAIN{"PPPP"} =
+            "P2014a,mtd,btof,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
+        $DCHAIN{"AuAu"} = "P2014a,mtd,btof,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
     }
+
 
     # allow chain switch on condition matching
     # introduced in 2010, syntax is
@@ -637,7 +664,7 @@ if ( -e $QUITF){
 #    rdaq_toggle_debug(1);
 # }
 
-# Global condition wille exclude from accidental processing of junk
+# Global condition will exclude from accidental processing of junk
 # puslers or lasers types. Note that EXPRESS are NOT added as they
 # will be grabbed FIRST (then, if there is room, some other files).
 $COND = "$PHYSTP";
@@ -818,13 +845,25 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 
     # Default mode is submit. Target is a path
     # get the number of possible jobs per queue.
-    $TOT = CRSQ_getcnt($USEQ[0],$SPILL[0],$PAT);
+#    $TOT = CRSQ_getcnt($USEQ[0],$SPILL[0],$PAT);
     $TOT = 1 if ($DEBUG || defined($ENV{FO_FORCE_SUBMIT}) );
 
-    print "$SELF : Mode=direct Queue count Tot=$TOT\n";
+#    print "$SELF : Mode=direct Queue count Tot=$TOT\n";
 
+$njobs = 0;   
+$NSLOT = 0;
 
-    # $TOT = 10;
+    foreach my $jstate (@STATES) {
+    $njobs = `/usr/bin/crs_job -long -s $jstate | grep Stdout | grep dev | wc -l` ;
+    next if( !defined $njobs) ;
+    $NSLOT +=  $njobs;
+    }
+
+    print "Number of jobs 1  ", $NSLOT, "\n";
+
+#   $TOT = 100;
+    $TOT = $MAXSLOTS - $NSLOT;
+    if( $TOT < 0) {$TOT = 0};
 
     $time = localtime();
     if ( $TOT > 0 && ! -e $LOCKF ){
@@ -964,7 +1003,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 				$count++;
 				if ( $count >= $THROTTLE && $THROTTLE != 0){ next;}
 			    }
-
+##### Submit
 			    sleep($SLEEPT) if &Submit(0,$USEQ[0],$SPILL[0],
 						      $file,$CHAIN,"Normal");
 			    $MAXCNT--;
@@ -1037,25 +1076,47 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 
     # alter queue offset to allow for a higher fill
     print "$SELF :: Creating a queue Offset of 80 slots for this mode\n";
-    CRSQ_Offset(80);
+#    CRSQ_Offset(80);
 
     # get number of slots. Work is spill mode.
-    $TOT = 0;
-    if ($DEBUG){
-	$TOT++;
-    } else {
-	my ($DD)=CRSQ_Norm($SPILL[1],0);
-	print "$SELF : $USEQ[1]-$DD to $USEQ[1]\n";
-	for ($i=$USEQ[1]-$DD ; $i <= $USEQ[1] ; $i++){
-	    print "$SELF : Slow mode - Inspecting Queue=$i TotalSlots=$TOT\n";
-	    $Tot{$i} = CRSQ_getcnt($i,0,$PAT);
-	    $TOT += $Tot{$i};
-	}
-    }
-    # if the number of slots is non zero, push higher
-    $TOT   += 50;   # this about the number of nodes we have
-    $MAXCNT = 50 if ($MAXCNT < 50);
+#    $TOT = 0;
+#    if ($DEBUG){
+#	$TOT++;
+#    } else {
+#	my ($DD)=CRSQ_Norm($SPILL[1],0);
+#	print "$SELF : $USEQ[1]-$DD to $USEQ[1]\n";
+#	for ($i=$USEQ[1]-$DD ; $i <= $USEQ[1] ; $i++){
+#	    print "$SELF : Slow mode - Inspecting Queue=$i TotalSlots=$TOT\n";
+#	    $Tot{$i} = CRSQ_getcnt($i,0,$PAT);
+#	    $TOT += $Tot{$i};
+#	}
+#    }
+#    # if the number of slots is non zero, push higher
 
+#    $TOT   += 50;   # this about the number of nodes we have
+
+$njobs = 0;   
+$NSLOT = 0;
+$TOT = 0;
+
+    foreach my $jstate (@STATES) {
+    $njobs = `/usr/bin/crs_job -long -s $jstate | grep Stdout | grep dev | wc -l` ;
+    next if( !defined $njobs) ;
+    $NSLOT +=  $njobs;
+    }
+
+    $TOT = $MAXSLOTS - $NSLOT;
+    if( $TOT < 0) {$TOT = 0};
+
+    print "Number of slots  3  ",$TOT,"   ", $MAXCNT, "\n";
+
+
+     $TOT   += 50; 
+
+#################################   ???? $MAXCNT
+
+     $MAXCNT = 50 if ($MAXCNT < 50);
+######################################
 
     # Ok or not ?
     if( $TOT > 0){
@@ -1189,7 +1250,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 			}
 		    }
 
-
+########   Submit
 		    sleep($SLEEPT/$RATIO) if &Submit(1,$USEQ[1],$SPILL[1],
 						     $file,$cho,"Bypass");
 
@@ -1254,7 +1315,23 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
     # Default mode is submit. Target is a path
     # get the number of possible jobs per queue.
     #print "$SELF : Using $USEQ[2] $SPILL[2]\n";
-    $TOT = CRSQ_getcnt($USEQ[2],$SPILL[2],$PAT,1);
+#    $TOT = CRSQ_getcnt($USEQ[2],$SPILL[2],$PAT,1);
+
+$njobs = 0;
+$NSLOT = 0;
+$TOT = 0;
+
+    foreach my $jstate (@STATES) {
+    $njobs = `/usr/bin/crs_job -long -s $jstate | grep Stdout | grep dev | wc -l` ;
+    next if( !defined $njobs) ;
+    $NSLOT +=  $njobs;
+    }
+    $TOT = $MAXSLOTS - $NSLOT;
+    if( $TOT < 0) {$TOT = 0};
+
+    print "Number of slots to use 2 ", $TOT, "\n";
+
+#    $TOT = 20;
     $TOT = 1 if ($DEBUG);
 
     $time = localtime();
@@ -1291,6 +1368,8 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		undef(@SKIPPED);
 		foreach $file (@files){
 		    #print "$SELF : HW : $file\n";
+###### Submit
+
 		    sleep($SLEEPT) if &Submit(2,$USEQ[2],$SPILL[2],
 					      $file,$CHAIN,"Calibration");
 		    $MAXCNT--;
@@ -1469,6 +1548,8 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		    @items = split(" ",$f);
 		    #print "\t$items[0]\n";
 		    # leverage all logic related to exclusion
+####### Submit
+
 		    &Submit(4,0,0,$f,undef,undef);
 		}
 
@@ -1559,7 +1640,23 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
     # Default mode is submit. Target is a path
     # get the number of possible jobs per queue.
     #print "$SELF : Using $USEQ[1] $SPILL[1]\n";
-    $TOT = CRSQ_getcnt($USEQ[0],$SPILL[0],$PAT,1);
+#    $TOT = CRSQ_getcnt($USEQ[0],$SPILL[0],$PAT,1);
+
+$njobs = 0;
+$NSLOT = 0;
+
+    foreach my $jstate (@STATES) {
+    $njobs = `/usr/bin/crs_job -long -s $jstate | grep Stdout | grep dev | wc -l` ;
+    next if( !defined $njobs) ;
+    $NSLOT +=  $njobs;
+    }
+
+    print "Number of jobs   ", $NSLOT, "\n";
+
+    $TOT = $MAXSLOTS - $NSLOT;
+    if( $TOT < 0) {$TOT = 0};
+
+#    $TOT = 20;
     $TOT = 1 if ($DEBUG);
 
     print "$SELF : ezTree processing, checking $TOT\n";
@@ -1594,6 +1691,8 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		undef(@SKIPPED);
 		foreach $file (@files){
 		    #print "$SELF : HW : $file\n";
+########## Submit
+
 		    sleep($SLEEPT) if &Submit(1,$USEQ[0],$SPILL[0],
 						  $file,$CHAIN,"eZTree");
 		    $MAXCNT--;
@@ -1617,7 +1716,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 
 } elsif ($TARGET == 1) {
     # First argument specified, check job list and results ...
-    CRSQ_check($PAT,"../archive/");
+#    CRSQ_check($PAT,"../archive/");
 
     # clean lock file from default mode. Adds sturdiness
     # the process since the possibility to have a job killed while
@@ -1628,10 +1727,6 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 } else {
     print "$SELF : Unknown mode P3=$TARGET used\n";
 }
-
-
-
-
 
 
 #
@@ -1680,6 +1775,7 @@ sub Submit
 
     if($chain eq "" || $chain eq "none" || $chain eq "default"){
 	$chain = $DCHAIN{$coll};
+
 	if( ! defined($chain) ){
 	    print
 		"$SELF : Warning : ".localtime().
@@ -1873,6 +1969,8 @@ sub Submit
 	$stagedon    = "UNIX";
     }
 
+my $NEVT = $MAXEVT!=0?$MAXEVT:$NUMEVT ;
+
     # Now generate the file and submit
     if( open(FO,">$jfile") ){
 	if($calib ne ""){
@@ -1882,31 +1980,37 @@ sub Submit
 	    print FO <<__EOH__;
 mergefactor=1
 #input
-    inputnumstreams=3
-    inputstreamtype[0]=HPSS
-    inputdir[0]=$items[0]
-    inputfile[0]=$prefix$items[1]
-    inputstreamtype[1]=UNIX
-    inputdir[1]=$TARGET/StarDb
-    inputfile[1]=$calib
-    inputstreamtype[2]=UNIX
-    inputdir[2]=$SPATH/conf
-    inputfile[2]=$DBLBNAME
+
+[main]
+num_inputs = 3
+
+    
+[input-0]
+path = $items[0]
+type = HPSS
+file = $prefix$items[1]
+
+[input-1]
+path = $TARGET/StarDb
+type = UNIX
+file = $calib
+
+[input-2]
+path = $SPATH/conf
+type = UNIX
+file = $DBLBNAME
+
 
 __EOH__
 
         } else {
 	    # THIS IS A REGULAR RECONSTRUCTION PROCESSING
 	    print FO <<__EOH__;
-mergefactor=1
-#input
-    inputnumstreams=2
-    inputstreamtype[0]=HPSS
-    inputdir[0]=$items[0]
-    inputfile[0]=$prefix$items[1]
-    inputstreamtype[1]=UNIX
-    inputdir[1]=$SPATH/conf
-    inputfile[1]=$DBLBNAME
+
+[input-0]
+path = $items[0]
+type = HPSS
+file = $prefix$items[1]
 
 __EOH__
 	}
@@ -1945,90 +2049,84 @@ __EOH__
 	if ( $AllFiles ){
 	    print FO <<__EOF__;
 
-#output
-# $hint
-    outputnumstreams=5
+[output-0]
+path = $SCRATCH
+type = $stagedon
+file = $prefix$mfile.event.root
 
-#output stream
-    outputstreamtype[0]=$stagedon
-    outputdir[0]=$SCRATCH
-    outputfile[0]=$prefix$mfile.event.root
+[output-1]
+path = $SCRATCH
+type = $stagedon
+file = $prefix$mfile.MuDst.root
 
-    outputstreamtype[1]=$stagedon
-    outputdir[1]=$SCRATCH
-    outputfile[1]=$prefix$mfile.MuDst.root
+[output-2]
+path = $SCRATCH
+type = $stagedon
+file = $prefix$mfile.hist.root      
 
-    outputstreamtype[2]=$stagedon
-    outputdir[2]=$SCRATCH
-    outputfile[2]=$prefix$mfile.hist.root
+[output-3]
+path = $SCRATCH
+type = $stagedon
+file = $prefix$mfile.tags.root     
 
-    outputstreamtype[3]=$stagedon
-    outputdir[3]=$SCRATCH
-    outputfile[3]=$prefix$mfile.$tags.root
+[exec-0]
+args = 4  $LIBV $destination $NEVT $chain
+gzip_output = True
+stdout = $DSKLOG/prodlog/$LIB/log/daq/$mfile.log
+stderr = $DSKLOG/prodlog/$LIB/log/daq/$mfile.err 
+exec = $SPATH/bfccb
 
-    outputstreamtype[4]=$stagedon
-    outputdir[4]=$SCRATCH
-    outputfile[4]=$prefix$mfile.runco.root
+[main]
+num_inputs = 1
+num_outputs = 4
+queue = high
 
-#standard out
-    stdoutdir=$DSKLOG/prodlog/$LIB/log/daq
-    stdout=$mfile.log
+[input-0]
+path = $items[0]
+type = HPSS
+file = $prefix$items[1]
 
-#standard error
-    stderrdir=$DSKLOG/prodlog/$LIB/log/daq
-    stderr=$mfile.err
-    notify=starreco\@rcrsuser4.rcf.bnl.gov
-
-#program to run
-    executable=$SPATH/bfccb
 __EOF__
 
 	} else {
 	    print FO <<__EOF__;
 
-#output
-# $hint
-    outputnumstreams=4
+[output-0]
+path = $SCRATCH
+type = $stagedon
+file = $prefix$mfile.MuDst.root
 
-    outputstreamtype[0]=$stagedon
-    outputdir[0]=$SCRATCH
-    outputfile[0]=$prefix$mfile.MuDst.root
+[output-1]
+path = $SCRATCH
+type = $stagedon
+file = $prefix$mfile.hist.root
 
-    outputstreamtype[1]=$stagedon
-    outputdir[1]=$SCRATCH
-    outputfile[1]=$prefix$mfile.hist.root
+[output-2]
+path = $SCRATCH
+type = $stagedon
+file = $prefix$mfile.tags.root      
 
-    outputstreamtype[2]=$stagedon
-    outputdir[2]=$SCRATCH
-    outputfile[2]=$prefix$mfile.$tags.root
+[exec-0]
+args = 4  $LIBV $destination $NEVT $chain
+gzip_output = True
+stdout = $DSKLOG/prodlog/$LIB/log/daq/$mfile.log
+stderr = $DSKLOG/prodlog/$LIB/log/daq/$mfile.err 
+exec = $SPATH/bfccb
 
-    outputstreamtype[3]=$stagedon
-    outputdir[3]=$SCRATCH
-    outputfile[3]=$prefix$mfile.runco.root
+[main]
+num_inputs = 1
+num_outputs = 3
+queue = high
 
-#standard out
-    stdoutdir=$DSKLOG/prodlog/$LIB/log/daq
-    stdout=$mfile.log
+[input-0]
+path = $items[0]
+type = HPSS
+file = $prefix$items[1]
 
-#standard error
-    stderrdir=$DSKLOG/prodlog/$LIB/log/daq
-    stderr=$mfile.err
-    notify=starreco\@rcrsuser4.rcf.bnl.gov
-
-#program to run
-    executable=$SPATH/bfccb
 __EOF__
 
         }
 
-
-
-        # Chain default
-	print FO
-	    "    executableargs=25,",
-	    "$LIBV,$destination,",
-	    ($MAXEVT!=0?$MAXEVT:$NUMEVT),",$chain",
-	    "\n";
 	close(FO);
 
 	# A returned value
@@ -2040,16 +2138,17 @@ __EOF__
 	    return 0;
 	} else {
 	    if ( ! $DEBUG ){
-		if ( CRSQ_submit($jfile,$PRIORITY,$queue,$spill) ){
+#		if ( CRSQ_submit($jfile,$PRIORITY,$queue,$spill) ){
+                `/usr/bin/crs_job -insert $jfile`;
 		    # Mark it so we can set status 1 later
-		    print "$SELF : Successful submission of $file ($queue,$spill) on ".
+#		    print "$SELF : Successful submission of $file ($queue,$spill) on ".
 			localtime()."\n";
 
 		    rdaq_set_execdate($obj,undef,$file);  # set execdate, more or less meaning submit
 		    rdaq_set_message($SSELF,"Submitted",$file);
 		    push(@OKFILES,$file);
 		    return 1;
-		}
+#		}
 	    } else {
 		rdaq_set_message($SSELF,"Notice","DEBUG is ON - There will be no submission");
 		print "$SELF : DEBUG is on, $jfile not submitted\n";
