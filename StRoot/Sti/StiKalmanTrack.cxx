@@ -1,22 +1,13 @@
 //StiKalmanTrack.cxx
 /*
- * $Id: StiKalmanTrack.cxx,v 2.138 2015/02/09 15:47:59 genevb Exp $
- * $Id: StiKalmanTrack.cxx,v 2.138 2015/02/09 15:47:59 genevb Exp $
+ * $Id: StiKalmanTrack.cxx,v 2.134.2.1 2015/02/09 19:29:37 didenko Exp $
+ * $Id: StiKalmanTrack.cxx,v 2.134.2.1 2015/02/09 19:29:37 didenko Exp $
  *
  * /author Claude Pruneau
  *
  * $Log: StiKalmanTrack.cxx,v $
- * Revision 2.138  2015/02/09 15:47:59  genevb
- * Restore inversion of hh because it is used in multiple places
- *
- * Revision 2.137  2015/02/09 04:14:52  perev
- * Remove redundant hit->subTimesUsed() + Cleanup
- *
- * Revision 2.136  2015/02/07 04:21:05  perev
- * More accurate zero field accounting
- *
- * Revision 2.135  2015/02/02 04:37:19  perev
- * replacemens of names *TimesUsed to new versions
+ * Revision 2.134.2.1  2015/02/09 19:29:37  didenko
+ * More accurate zero field and laser tracks accounting from Gene
  *
  * Revision 2.134  2015/01/15 19:10:19  perev
  * Added mthod test() for debug only
@@ -1241,6 +1232,26 @@ static int nCall=0; nCall++;
 	_vChi2= chi2; _dca = d;
       }
 
+#ifdef Sti_DEBUG      
+	int npoints[2] = {0,0};
+	vector<StMeasuredPoint*> hitVec = stHits();
+	for (vector<StMeasuredPoint*>::iterator point = hitVec.begin(); point!=hitVec.end();++point) {
+	  StHit * hit = dynamic_cast<StHit *>(*point);
+	  if (hit) {
+	    StDetectorId detId = hit->detector();
+	    if (detId == kTpcId) ++npoints[0];
+	    if (detId == kSvtId) ++npoints[1];
+	  }
+	}
+	cout << "StiKalmanTrack::extendToVertex: localVertex: " << localVertex << endl;
+	cout << "StiKalmanTrack::extendToVertex: chi2 @ vtx: " << chi2 
+	     << " dx:"<< dx
+	     << " dy:"<< dy
+	     << " dz:"<< dz
+	     << " d: "<< d
+	     << " dca: " << _dca << " npoints tpc/svt: " << npoints[0] << "/" << npoints[1] << endl;
+	cout << "StiKalmanTrack::extendToVertex: TrackBefore:" << *this << endl;
+#endif
 
 //    if (chi2<StiKalmanTrackFinderParameters::instance()->maxChi2Vertex  && d<4.)
 //    if (                             d<4.)
@@ -1253,6 +1264,11 @@ static int nCall=0; nCall++;
 	  tNode->setDetector(0);
           trackExtended = (tNode->updateNode()==0);
           
+#ifdef Sti_DEBUG      
+cout << "StiKalmanTrack::extendToVertex: TrackAfter:" << *this << endl;
+#endif
+if (debug()) cout << "extendToVertex:: " << StiKalmanTrackNode::Comment() << endl;
+
 	  if (trackExtended) return tNode;
           trackNodeFactory->free(tNode);             
 	}
@@ -1508,7 +1524,7 @@ int StiKalmanTrack::refit()
       //		
     StiKalmanTrackNode *worstNode= sTNH.getWorst();
     if (worstNode && worstNode->getChi2()>StiKalmanTrackFitterParameters::instance()->getMaxChi2())     
-    {//worstNode->getHit()->subTimesUsed();
+    {//worstNode->getHit()->setTimesUsed(0);
       worstNode->setHit(0); worstNode->setChi2(3e33); continue;}
     if (rejectByHitSet()) { releaseHits()            ; continue;}
     
@@ -1516,7 +1532,7 @@ int StiKalmanTrack::refit()
     
     StiKalmanTrackNode *flipFlopNode= sTNH.getFlipFlop();
     if (flipFlopNode && flipFlopNode->getFlipFlop()>kMaxIter/3)     
-    {//flipFlopNode->getHit()->subTimesUsed();
+    {//flipFlopNode->getHit()->setTimesUsed(0);
       flipFlopNode->setHit(0); flipFlopNode->setChi2(3e33); 	continue;}
     break;
       //	The last resource
@@ -1548,10 +1564,27 @@ int StiKalmanTrack::refit()
       if (node == vertexNode)				continue;
       StiHit *hit = node->getHit();
       if(!hit) 						continue;
-      if (node->isValid() && node->getChi2()<10000. ) 	continue;
+      hit->setTimesUsed(0);
       node->setHit(0);
+      if (!node->isValid()) 				continue;
+      if (node->getChi2()>10000.)			continue;
+      assert(node->getChi2()<=StiKalmanTrackFitterParameters::instance()->getMaxChi2());
+      hit->setTimesUsed(1);
+      node->setHit(hit);
     }
   }
+  static int VPDEBUG=0;
+  if (VPDEBUG) {
+    if (fail>0) {
+      LOG_DEBUG <<
+        Form("StiKalmanTrack::refit(%d)=%d ***FAILED***   %d>%d",fail,nCall,nNBeg,nNEnd)
+                << endm;
+    } else {
+      LOG_DEBUG <<    
+        Form("StiKalmanTrack::refit(%d)=%d ***EndIters*** %d>%d",fail,nCall,nNBeg,nNEnd)
+                << endm;
+    }
+  } //endif VPDEBUG
 
   if (fail) setFlag(-1);
 #ifdef DO_TPCCATRACKER
@@ -1684,7 +1717,7 @@ double Xi2=0;
     if (targetNode->getChi2()>1000)	continue;
     if (zeroH<0) {//What kind of mag field ?
       double hz = targetNode->getHz();
-      zeroH = fabs(hz)<=kZEROHZ;
+      zeroH = fabs(hz)<=2e-6;
     }
     circ.Add(hit->x_g(),hit->y_g(),hit->z_g());
     hr = targetNode->getGlobalHitErrs(hit);
@@ -1704,7 +1737,12 @@ double Xi2=0;
   
   Xi2 =circ.Fit();
   if (mode==1 && Xi2>BAD_XI2[1]) return 2; //Xi2 too bad, no updates
-  if (zeroH) circ.Set(kZEROCURV);
+  if (zeroH) circ.Set(2e-9);
+#ifdef APPROX_DEBUG
+  H[mode+0]->Fill(log(Xi2)/log(10.));
+  H[mode+2]->Fill(nNode,Xi2);
+#endif // APPROX_DEBUG
+
   circ.MakeErrs();
   
   double s=0,xyz[3]; 
@@ -1736,9 +1774,13 @@ double Xi2=0;
     P.eta()  = atan2(cirl.Dir()[1],cirl.Dir()[0]);
     P.curv() = curv;
     double hh = P.hz();
+
+{
+    //if (P.isZeroH()) 	{ P.ready(); hh =1e-11;} else {hh = 1./hh;}
     assert(hh);
     hh = 1./hh;
     P.ptin() = curv*hh; 
+}
 
     P.tanl() = cirl.GetSin()/cirl.GetCos();
     P._cosCA = cirl.Dir()[0]/cirl.GetCos();
@@ -1756,6 +1798,7 @@ double Xi2=0;
     if ((mode&1)==0 && Xi2>XI2_FACT) E*=Xi2/XI2_FACT;
     E.check("In aprox");
   }   
+//  printf ("UUUUUUUUUU %d %d %d\n",nCall,nNode,nNodeIn);
   if (Xi2>BAD_XI2[mode])return 2;
   if (nNode==nNodeIn) 	return 0;
   if (nNode<2)		return 3;
@@ -1840,6 +1883,7 @@ int StiKalmanTrack::releaseHits(double rMin,double rMax)
     if (hit->x()>rMax)		break;
     sum++;
     node->setHit(0);
+    hit->setTimesUsed(0);
   }
   return sum;
 }
