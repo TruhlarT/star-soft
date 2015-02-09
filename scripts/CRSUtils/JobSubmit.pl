@@ -2074,7 +2074,7 @@ args = 4  $LIBV $destination $NEVT $chain
 gzip_output = True
 stdout = $DSKLOG/prodlog/$LIB/log/daq/$mfile.log
 stderr = $DSKLOG/prodlog/$LIB/log/daq/$mfile.err 
-exec = $SPATH/bfccb
+exec = $SPATH/bfcca
 
 [main]
 num_inputs = 1
@@ -2111,7 +2111,7 @@ args = 4  $LIBV $destination $NEVT $chain
 gzip_output = True
 stdout = $DSKLOG/prodlog/$LIB/log/daq/$mfile.log
 stderr = $DSKLOG/prodlog/$LIB/log/daq/$mfile.err 
-exec = $SPATH/bfccb
+exec = $SPATH/bfcca
 
 [main]
 num_inputs = 1
