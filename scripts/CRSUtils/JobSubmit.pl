@@ -1975,7 +1975,7 @@ my $NEVT = $MAXEVT!=0?$MAXEVT:$NUMEVT ;
     if( open(FO,">$jfile") ){
 	if($calib ne ""){
 
- $chain = "LanaDVtpx,ITTF,CorrX,OSpaceZ2,OGridLeak3D"
+	    $chain = "LanaDVtpx,ITTF,CorrX,OSpaceZ2,OGridLeak3D";
 	    # ------------------------------------------------------------------
 	    # THIS IS A CALIBRATION PRE-PASS -- IT REQUIRES AN ADDITIONAL INPUT
 	    print FO <<__EOH__;
