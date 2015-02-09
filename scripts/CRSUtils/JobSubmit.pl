@@ -2006,14 +2006,14 @@ __EOF__
 
         } else {
 	    # THIS IS A REGULAR RECONSTRUCTION PROCESSING
-	    print FO <<__EOH__;
+#	    print FO <<__EOH__;
 
-[input-0]
-path = $items[0]
-type = HPSS
-file = $prefix$items[1]
+#[input-0]
+#path = $items[0]
+#type = HPSS
+#file = $prefix$items[1]
 
-__EOH__
+#__EOH__
 	}
 	    # ------------------------------------------------------------------
 
