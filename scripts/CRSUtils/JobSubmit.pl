@@ -1975,31 +1975,32 @@ my $NEVT = $MAXEVT!=0?$MAXEVT:$NUMEVT ;
     if( open(FO,">$jfile") ){
 	if($calib ne ""){
 
+ $chain = "LanaDVtpx,ITTF,CorrX,OSpaceZ2,OGridLeak3D"
 	    # ------------------------------------------------------------------
 	    # THIS IS A CALIBRATION PRE-PASS -- IT REQUIRES AN ADDITIONAL INPUT
 	    print FO <<__EOH__;
-mergefactor=1
-#input
+
+[output-0]
+path = $SCRATCH
+type = $stagedon
+file = $prefix$mfile.laser.root
+
+[exec-0]
+args = 4  $LIBV $destination $NEVT $chain
+gzip_output = True
+stdout = $DSKLOG/prodlog/$LIB/log/daq/$mfile.log
+stderr = $DSKLOG/prodlog/$LIB/log/daq/$mfile.err 
+exec = $SPATH/bfcca
 
 [main]
-num_inputs = 3
+num_inputs = 1
+num_outputs = 1
+queue = high
 
-    
 [input-0]
 path = $items[0]
 type = HPSS
 file = $prefix$items[1]
-
-[input-1]
-path = $TARGET/StarDb
-type = UNIX
-file = $calib
-
-[input-2]
-path = $SPATH/conf
-type = UNIX
-file = $DBLBNAME
-
 
 __EOH__
 
