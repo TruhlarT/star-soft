@@ -1978,7 +1978,7 @@ my $NEVT = $MAXEVT!=0?$MAXEVT:$NUMEVT ;
 	    $chain = "LanaDVtpx,ITTF,CorrX,OSpaceZ2,OGridLeak3D";
 	    # ------------------------------------------------------------------
 	    # THIS IS A CALIBRATION PRE-PASS -- IT REQUIRES AN ADDITIONAL INPUT
-	    print FO <<__EOH__;
+	    print FO <<__EOF__;
 
 [output-0]
 path = $SCRATCH
@@ -2002,7 +2002,7 @@ path = $items[0]
 type = HPSS
 file = $prefix$items[1]
 
-__EOH__
+__EOF__
 
         } else {
 	    # THIS IS A REGULAR RECONSTRUCTION PROCESSING
