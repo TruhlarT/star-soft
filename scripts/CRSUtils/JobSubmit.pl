@@ -580,15 +580,16 @@ if ( $ThisYear == 2005 ){
         $DCHAIN{"He3Au"} =
             "P2014a,mtd,btof,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
         $DCHAIN{"AuAu"} = "P2014a,mtd,btof,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
+
    } elsif ($ThisYear == 2015) {
 
-        $DCHAIN{"PPPP"} = "pp2015,btof,BEmcChkStat,CorrX,OSpaceZ2,OGridLeak3D,-hitfilt";
+        $DCHAIN{"PPPP"} = "pp2015,btof,mtd,BEmcChkStat,CorrX,OSpaceZ2,OGridLeak3D,-hitfilt";
 
     }else{
 
         $DCHAIN{"PPPP"} =
-            "P2014a,mtd,btof,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
-        $DCHAIN{"AuAu"} = "P2014a,mtd,btof,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
+            "P2014a,btof,mtd,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
+        $DCHAIN{"AuAu"} = "P2014a,btof,mtd,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
     }
 
 
@@ -2014,7 +2015,8 @@ __EOF__
 #file = $prefix$items[1]
 
 #__EOH__
-	}
+     }
+
 	    # ------------------------------------------------------------------
 
 	# SEVERAL OUTPUT "MAY" BE CREATED, NOTE THAT IN CALIBF MODE, $tags WILL
@@ -2047,6 +2049,7 @@ __EOF__
 	    $hint = "standard file selection";
 	}
 
+     if($calib eq ""){
 	if ( $AllFiles ){
 	    print FO <<__EOF__;
 
@@ -2126,8 +2129,8 @@ file = $prefix$items[1]
 
 __EOF__
 
-        }
-
+      }
+ }
 	close(FO);
 
 	# A returned value
