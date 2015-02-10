@@ -2049,7 +2049,6 @@ __EOF__
 	    $hint = "standard file selection";
 	}
 
-     if($calib eq ""){
 	if ( $AllFiles ){
 	    print FO <<__EOF__;
 
@@ -2130,7 +2129,6 @@ file = $prefix$items[1]
 __EOF__
 
       }
- }
 	close(FO);
 
 	# A returned value
