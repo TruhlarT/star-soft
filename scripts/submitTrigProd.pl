@@ -39,7 +39,7 @@ my $JOB_LOG =  $DISK1 . $prodPeriod . "/log/daq";
 my $jobdir = "/star/u/starreco/" . $prodPeriod ."/requests/daq/jobfiles";
 my $archdir = "/star/u/starreco/" . $prodPeriod ."/requests/daq/archive";
 
-my $email = "starprod_hn\@sun.star.bnl.gov";
+my $email = "starprod-hn\@sun.star.bnl.gov";
 my $message = "Submitted next runnumbers";
 my $subject = "Trigger/subsystem test production submitted";
 my $runlist = " ";
