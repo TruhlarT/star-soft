@@ -39,17 +39,17 @@ my $JOB_LOG =  $DISK1 . $prodPeriod . "/log/daq";
 my $jobdir = "/star/u/starreco/" . $prodPeriod ."/requests/daq/jobfiles";
 my $archdir = "/star/u/starreco/" . $prodPeriod ."/requests/daq/archive";
 
-my $email = "didenko\@bnl.gov";
+my $email = "starprod_hn\@sun.star.bnl.gov";
 my $message = "Submitted next runnumbers";
 my $subject = "Trigger/subsystem test production submitted";
 my $runlist = " ";
 
 
-my $ryear = "2014";
+my $ryear = "2015";
 my @runnum = ();
 my @strname = ();
 my @nevents = ();
-my $chain = "P2014a,mtd,btof,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
+my $chain = "pp2015,btof,mtd,BEmcChkStat,CorrX,OSpaceZ2,OGridLeak3D,-hitfilt";
 
 
 my @trgsetup = ();
@@ -267,7 +267,7 @@ my @pfiles = ();
       my $hpss_reco_file1 = $jbfile.".hist.root";
       my $hpss_reco_file2 = $jbfile.".tags.root";
       my $hpss_reco_file3 = $jbfile.".event.root";
-      my $executable     = "/afs/rhic.bnl.gov/star/packages/scripts/bfccb";
+      my $executable     = "/afs/rhic.bnl.gov/star/packages/scripts/bfcca";
       my $execargs = $exArg;
          $execargs =~ s/\,/ /g;
       my $log_name      = $JOB_LOG."/".$jbfile .".log";
