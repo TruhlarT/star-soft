@@ -37,7 +37,7 @@ my $FlStreamT = "FOFileType";
 my @arevents = ("1000","2000","5000","10000");
 my @arstreams = ();
 my @arruns = ();
-my @prodlibs = ("dev","SL14h","SL14g");
+my @prodlibs = ("dev","SL15b");
 my @prodfiles = ("all","10","20","50","100");
 
 
