@@ -34,7 +34,7 @@ my $TrigRequestT = "TrigProdRequest";
 my $DaqInfoT   = "DAQInfo";
 my $FlStreamT = "FOFileType";
 
-my @arevents = ("1000","2000","5000","10000");
+my @arevents = ("1000","2000","5000","100000");
 my @arstreams = ();
 my @arruns = ();
 my @prodlibs = ("DEV","SL15b");

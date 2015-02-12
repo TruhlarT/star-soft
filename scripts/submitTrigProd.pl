@@ -246,7 +246,7 @@ my @pfiles = ();
  $Jsetr = $ryear."/".$rnday."/".$rnum ;
  $inputfile =  $jbfile . ".daq";
 
-  if($jbevents >= 10000 ) {
+  if($jbevents >= 100000 ) {
 
   $exArg = "4,".$LibTag.",".$datadisk.",-1,".$chain;
 
