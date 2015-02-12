@@ -1974,7 +1974,7 @@ my $NEVT = $MAXEVT!=0?$MAXEVT:$NUMEVT ;
 
     # Now generate the file and submit
     if( open(FO,">$jfile") ){
-	if($calib ne ""){
+	if($calib ne ""){ 
 
 	    $chain = "LanaDVtpx,ITTF,CorrX,OSpaceZ2,OGridLeak3D";
 	    # ------------------------------------------------------------------
@@ -2005,6 +2005,7 @@ file = $prefix$items[1]
 
 __EOF__
 
+
         } else {
 	    # THIS IS A REGULAR RECONSTRUCTION PROCESSING
 #	    print FO <<__EOH__;
@@ -2016,6 +2017,9 @@ __EOF__
 
 #__EOH__
      }
+
+    }
+	close(FO);
 
 	    # ------------------------------------------------------------------
 
@@ -2048,6 +2052,8 @@ __EOF__
 	} else {
 	    $hint = "standard file selection";
 	}
+
+   if( open(FO,">$jfile") ){
 
 	if ( $AllFiles ){
 	    print FO <<__EOF__;
@@ -2092,6 +2098,7 @@ file = $prefix$items[1]
 __EOF__
 
 	} else {
+
 	    print FO <<__EOF__;
 
 [output-0]
@@ -2129,6 +2136,7 @@ file = $prefix$items[1]
 __EOF__
 
       }
+  }
 	close(FO);
 
 	# A returned value
