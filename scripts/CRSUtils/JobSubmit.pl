@@ -2135,8 +2135,8 @@ file = $prefix$items[1]
 
 __EOF__
 
-      }
-  }
+    }
+  
 	close(FO);
 
 	# A returned value
