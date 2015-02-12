@@ -149,7 +149,6 @@ print <<END;
 <td HEIGHT=10>$runId[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qstate=$jbstate[$ii];qdate=$maxdate">$njbfile[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qstate=$jbstate[$ii];qdate=$maxdate">$nstream[$ii]</td>
-<td HEIGHT=10>$rundate[0]</td>
 </TR>
 END
 
@@ -164,7 +163,6 @@ print <<END;
 <td HEIGHT=10>$runId[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qstate=$jbstate[$ii];qdate=$maxdate">$njbfile[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qstate=$jbstate[$ii];qdate=$maxdate">$nstream[$ii]</td>
-<td HEIGHT=10>$rundate[0]</td>
 </TR>
 END
 
@@ -179,7 +177,6 @@ print <<END;
 <td HEIGHT=10>$runId[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qstate=$jbstate[$ii];qdate=$maxdate">$njbfile[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qstate=$jbstate[$ii];qdate=$maxdate">$nstream[$ii]</td>
-<td HEIGHT=10>$rundate[0]</td>
 </TR>
 END
 
@@ -209,7 +206,6 @@ print <<END;
 <td HEIGHT=10>$runId[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qstate=$jbstate[$ii];qdate=$maxdate">$njbfile[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qstate=$jbstate[$ii];qdate=$maxdate">$nstream[$ii]</td>
-<td HEIGHT=10>$rundate[0]</td>
 </TR>
 END
 
@@ -224,7 +220,6 @@ print <<END;
 <td HEIGHT=10>$runId[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qstate=$jbstate[$ii];qdate=$maxdate">$njbfile[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qstate=$jbstate[$ii];qdate=$maxdate">$nstream[$ii]</td>
-<td HEIGHT=10>$rundate[0]</td>
 </TR>
 END
 
@@ -240,7 +235,6 @@ print <<END;
 <td HEIGHT=10>$runId[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qstate=$jbstate[$ii];qdate=$maxdate">$njbfile[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qstate=$jbstate[$ii];qdate=$maxdate">$nstream[$ii]</td>
-<td HEIGHT=10>$rundate[0]</td>
 </TR>
 END
 
@@ -255,7 +249,6 @@ print <<END;
 <td HEIGHT=10>$runId[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qstate=$jbstate[$ii];qdate=$maxdate">$njbfile[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qstate=$jbstate[$ii];qdate=$maxdate">$nstream[$ii]</td>
-<td HEIGHT=10>$rundate[0]</td>
 </TR>
 END
 
@@ -270,7 +263,6 @@ print <<END;
 <td HEIGHT=10>$runId[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qstate=$jbstate[$ii];qdate=$maxdate">$njbfile[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qstate=$jbstate[$ii];qdate=$maxdate">$nstream[$ii]</td>
-<td HEIGHT=10>$rundate[0]</td>
 </TR>
 END
 
@@ -359,17 +351,16 @@ print <<END;
 
    <body BGCOLOR=\"cornsilk\">
  <h2 ALIGN=CENTER> <B>Jobs currently processing on the CRS farm</B></h2>
- <h3 ALIGN=CENTER> Generated at $nowdate</h3>
+ <h3 ALIGN=CENTER> Scan at $maxdate </h3>
 <br>
 <TABLE ALIGN=CENTER BORDER=4 CELLSPACING=1 CELLPADDING=1 bgcolor=\"#ffdc9f\">
 <TR>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Status</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Trigger set name</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Prod Tag</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Runnumber</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Runnumber</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Number of files</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Number of streams</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Date-time of scan</h3></B></TD>
 </TR>
     </body>
 END
