@@ -26,7 +26,7 @@ my $DaqInfoT   = "DAQInfo";
 my $FTrgSetT = "FOTriggerSetup";
 
 
-my $prodPeriod = "dev";
+my $prodPeriod = "DEV";
 my $datadisk = "/star/data+09-12";
 
 
@@ -154,8 +154,8 @@ my @pfiles = ();
     }
 
 
-    if($jblib[$ik] eq "dev" ) {
-	$prtag[$ik] = "dev";
+    if($jblib[$ik] eq "DEV" ) {
+	$prtag[$ik] = "DEV";
     }else{
 	$prtmp = $jblib[$ik];
         $prtmp =~ s/SL/P/g;
