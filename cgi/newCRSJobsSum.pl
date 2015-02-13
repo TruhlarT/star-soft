@@ -378,7 +378,7 @@ print <<END;
 <TABLE ALIGN=CENTER BORDER=4 CELLSPACING=1 CELLPADDING=1 bgcolor=\"#ffdc9f\">
 <br>
 <br>
- <h2 ALIGN=CENTER> <B>Summary of CRS jobs</B></h2>
+ <h2 ALIGN=CENTER> <B>Summary of CRS jobs status</B></h2>
  <h3 ALIGN=CENTER> Scan at $maxdate </h3>
 <TR>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Status</h3></B></TD>
