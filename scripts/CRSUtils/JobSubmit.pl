@@ -2093,7 +2093,8 @@ __EOF__
 
 	} else {
 
-#        if ($calib eq ""){
+    if($calib ne ""){ goto GO_CLOSE; }
+
 	    print FO <<__EOF__;
 
 [output-0]
@@ -2130,8 +2131,10 @@ file = $prefix$items[1]
 
 __EOF__
 
-      }
-#}
+ GO_CLOSE:
+
+    }
+
 	close(FO);
 
 	# A returned value
