@@ -191,7 +191,6 @@ print <<END;
 <td HEIGHT=10>$runId[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qstate=$jbstate[$ii];qdate=$maxdate">$njbfile[$ii]</td>
 <td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qstate=$jbstate[$ii];qdate=$maxdate">$nstream[$ii]</td>
-<td HEIGHT=10>$rundate[0]</td>
 </TR>
 END
 
@@ -402,7 +401,7 @@ print <<END;
       <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
 <!-- Created: April 24 2014 -->
 <!-- hhmts start -->
-Last modified: 2015-02-12
+Last modified: 2015-02-13
 <!-- hhmts end -->
   </body>
 </html>
