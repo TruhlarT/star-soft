@@ -529,7 +529,8 @@ if ( $ThisYear == 2005 ){
                 rdaq_string2ftype("ht"),
                 rdaq_string2ftype("atomcules"),
                 #rdaq_string2ftype("pmdftp"),
-                rdaq_string2ftype("monitor")
+                rdaq_string2ftype("monitor"),
+                rdaq_string2ftype("rp")
 		);
 
     $ZEROBIAS=  rdaq_string2ftype("zerobias");
