@@ -2051,6 +2051,9 @@ __EOF__
 	}
 
 	if ( $AllFiles ){
+
+    if($calib ne ""){ goto GO_CLOSE; }
+
 	    print FO <<__EOF__;
 
 [output-0]
