@@ -31,6 +31,7 @@ $SPDR::NAME    = "SpiderUtil";
 $SPDR::WDIR      = "/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/Spider";
 $SPDR::LOGDIR    = "/gpfs01/star/rcf/prodlog";
 $SPDR::HPSSD     = "/home/starreco";
+$SPDR::SITE      = "BNL";
 $SPDR::THRESHOLD = 0.9;
 $SPDR::CACHELM   = 10;
 $SPDR::TIMEOUT   = 7200;
@@ -363,7 +364,7 @@ sub GetOptions
 
     } elsif ($arg eq "Cleaner" || $arg eq "Clean" || $arg eq "Check"){
 	return ("-check","-doit","-t",$SPDR::TIMEOUT,"-o","%%OUTPUT%%",
-		"-cond","storage=NFS,path~%%DISK%%")
+		"-cond","storage=NFS,site=$SPDR::SITE,path~%%DISK%%")
 
     } else {
 	return undef;
