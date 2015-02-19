@@ -510,7 +510,11 @@ if ( $ThisYear == 2005 ){
         rdaq_string2ftype("upsilon")    ."|".
         rdaq_string2ftype("minbias")    ."|".
 	rdaq_string2ftype("upc")        ."|".  # <-- moved here as data was large in 2011
-        rdaq_string2ftype("minbias_adc");
+        rdaq_string2ftype("minbias_adc")."|".
+	rdaq_string2ftype("mtd")        ."|".  # <-- moved here in 2015
+	rdaq_string2ftype("mtd_adc")    ."|".
+	rdaq_string2ftype("rp")         ."|".  # <-- new in 2015, confirmed as to be considered as physics
+	rdaq_string2ftype("rp_adc");
 
 
     @EXPRESS = (
@@ -520,17 +524,12 @@ if ( $ThisYear == 2005 ){
 		rdaq_string2ftype("WE"),         # <-- added 2013/05
 		rdaq_string2ftype("centralpro"), # <-- was added in U+U, 2012
 		rdaq_string2ftype("gamma"),
-		rdaq_string2ftype("mtd"),
-		#rdaq_string2ftype("cosmic"),     # <-- 2012, U+U /MTD in this stream
 	        rdaq_string2ftype("hlt"),
 		rdaq_string2ftype("muon"),
 		rdaq_string2ftype("upcjpsi"),
-		#rdaq_string2ftype("upc"),       # <--- no longer express
                 rdaq_string2ftype("ht"),
                 rdaq_string2ftype("atomcules"),
-                #rdaq_string2ftype("pmdftp"),
-                rdaq_string2ftype("monitor"),
-                rdaq_string2ftype("rp")
+                rdaq_string2ftype("monitor")
 		);
 
     $ZEROBIAS=  rdaq_string2ftype("zerobias");
