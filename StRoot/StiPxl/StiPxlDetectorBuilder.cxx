@@ -1,4 +1,4 @@
-/* $Id: StiPxlDetectorBuilder.cxx,v 1.110 2015/02/03 10:21:17 smirnovd Exp $ */
+/* $Id: StiPxlDetectorBuilder.cxx,v 1.106.2.1 2015/02/19 01:59:07 smirnovd Exp $ */
 
 #include <assert.h>
 #include <sstream>

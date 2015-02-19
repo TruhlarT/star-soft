@@ -1,7 +1,28 @@
  /*
- * $Id: StiPxlHitLoader.cxx,v 1.16 2015/01/21 23:10:59 smirnovd Exp $
+ * $Id: StiPxlHitLoader.cxx,v 1.15.2.1 2015/02/19 01:59:07 smirnovd Exp $
  *
  * $Log: StiPxlHitLoader.cxx,v $
+ * Revision 1.15.2.1  2015/02/19 01:59:07  smirnovd
+ * Squashed Dmitri Smirnov's commits SL15b..02/16/2015 (a3803b3b)
+ *
+ * Made all info/warn/error messages consistent across StiDetectorBuilder's
+ *
+ * Made all info/warn/error messages consistent across StiDetectorBuilder's
+ *
+ * StiSsdHitLoader: Just to be safe got rid of local variable 'ladder' shadowing the loop's counter having the same name
+ *
+ * StiXxxDetectorBuilder: Added a check for valid global object of TGeoManager. The detector builder is required one and cannot proceed if one does not exist
+ *
+ * Check for valid gGeoManager in buildDetectors instead of constructor
+ *
+ * This is a fixup of the change committed on 2015-01-30 16:33:59 (8b14dfaf)
+ * The detector builder requires a valid TGeoManager object to build detector
+ * geometries. However in the current StiMaker gGeoManager is not available when
+ * detector builder is created. It becomes available just before the
+ * ::buildDetectors() is called in StiMasterDetectorBuilder::build()
+ *
+ * StiSstDetectorBuilder: Switched to StiPlacement constructor when positioning active IST sensors
+ *
  * Revision 1.16  2015/01/21 23:10:59  smirnovd
  * Made all info/warn/error messages consistent across StiDetectorBuilder's
  *
