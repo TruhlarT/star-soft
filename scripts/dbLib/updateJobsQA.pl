@@ -276,10 +276,10 @@ my @avgRatio_Primn15 = ();
 
      if( defined $avgRatio_Trck[$ii] and defined $avgRatio_Trckn15[$ii] and defined $avgRatio_Prim[$ii] and defined $avgRatio_Primn15[$ii] ) {
 
-#  $sql= "update $JobQAT set avg_ratio_tracks = '$avgRatio_Trck[$ii]', avg_ratio_tracksnfit15 = '$avgRatio_Trckn15[$ii]', avg_ratio_primaryT = '$avgRatio_Prim[$ii]', avg_ratio_primaryTnfit15 = '$avgRatio_Primn15[$ii]' where path = '$hftpath[$ii]' and jobID = '$hfjobID[$ii]' and avail = 'Y' and jobStatus = 'Done' ";
+  $sql= "update $JobQAT set avg_ratio_tracks = '$avgRatio_Trck[$ii]', avg_ratio_tracksnfit15 = '$avgRatio_Trckn15[$ii]', avg_ratio_primaryT = '$avgRatio_Prim[$ii]', avg_ratio_primaryTnfit15 = '$avgRatio_Primn15[$ii]' where path = '$hftpath[$ii]' and jobID = '$hfjobID[$ii]' and avail = 'Y' and jobStatus = 'Done' ";
 
     
-#     $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
+     $rv = $dbh->do($sql) || die $rv." ".$dbh->errstr;
 
      }
    }
