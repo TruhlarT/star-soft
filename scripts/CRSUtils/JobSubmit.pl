@@ -960,8 +960,10 @@ $NSLOT = 0;
 
 	    print "$SELF : Xfiles=$#Xfiles Files=$#Files $TARGET\n";
 
-	    print "\tDEBUG Xfiles [".join(",",@Xfiles)."]\n" if ($#Xfiles != -1);
-	    print "\tDEBUG Files  [".join(",",@Files)."]\n"  if ($#Files  != -1);
+	    if ( $DEBUG ){
+		print "\tDEBUG Xfiles [".join(",",@Xfiles)."]\n" if ($#Xfiles != -1);
+		print "\tDEBUG Files  [".join(",",@Files)."]\n"  if ($#Files  != -1);
+	    }
 
 	    if ( $#Xfiles == -1 && $#Files == -1){
 		print "$SELF : We have no records to work with\n";
