@@ -582,7 +582,7 @@ if ( $ThisYear == 2005 ){
 
    } elsif ($ThisYear == 2015) {
 
-        $DCHAIN{"PPPP"} = "pp2015,btof,mtd,BEmcChkStat,CorrX,OSpaceZ2,OGridLeak3D,-hitfilt";
+        $DCHAIN{"PPPP"} = "pp2015,btof,mtd,pp2pp,BEmcChkStat,CorrX,OSpaceZ2,OGridLeak3D,-hitfilt";
 
     }else{
 
