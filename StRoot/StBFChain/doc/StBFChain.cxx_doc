@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.133 2015/02/06 13:01:12 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.134 2015/02/23 20:08:20 genevb Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -926,6 +926,11 @@ Bfc_st BFC[] = {
   {"P2014a","" ,"",
    "B2014a,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis,"
    , "","","Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+  {"B2015" ,"","","ry2015,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
+   , "Base chain for 2015 ITTF (tpc)",kFALSE},
+  {"pp2015","" ,"",
+   "B2015,ITTF,UseXgeom,BAna,hitfilt,VFPPVnoCTB,beamline,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
+   , "","","Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","",""
    , "Laser Calibration Chain (tcl)",kFALSE},
   {"LaserCal","" ,"","db,detDb,tpc_daq,tpcDb,fcf,globT,laser,LaserTest","",""
@@ -1266,6 +1271,8 @@ Bfc_st BFC[] = {
   {"istRaw", "", "", "istUtil istDb", "StIstRawHitMaker", "StIstRawHitMaker", "Run IST raw hit maker", kFALSE},
   {"istCluster", "", "", "istRaw", "StIstClusterMaker", "StIstClusterMaker", "Run IST cluster maker", kFALSE},
   {"istHit", "", "", "event istCluster", "StIstHitMaker", "StIstHitMaker", "Run IST hit Maker", kFALSE},
+  {"istFastSim", "", "", "StMcEvent,StEvent", "StIstFastSimMaker",
+        "StIstSimMaker", "Load StIstSimMaker, invoke StIstFastSimMaker to fill StIstHitCollection", kFALSE},
   {"ssddat" ,"","","ssd_daq" ,"","","SSD full chain for Real Data",kFALSE},
   {"ssd_daq","","","ssdCalDb,svt_T,-sls,-spa,ssdUtil","StSsdDaqMaker","StSsdDaqMaker","... SSD Daq",kFALSE},
   {"ssdfast" ,"","","ssdDb,StMcEvent,StEvent","StSsdFastSimMaker","StSsdFastSimMaker",
@@ -1409,6 +1416,9 @@ Bfc_st BFC[] = {
   {"BTofIT" ,"" ,"","ITTF","" ,"Sti,StiBTof","Sti tracking: BTof geom",kFALSE},
   {"NoSvtIT" ,"" ,"","-SvtIT","" ,"","ITTF: track with switch off SVT geom",kFALSE},
   {"NoSsdIT" ,"" ,"","-SsdIT","" ,"","ITTF: track with switch off SSD geom",kFALSE},
+  {"NoSstIT" ,"" ,"","-SstIT","" ,"","ITTF: track with switch off SST geom",kFALSE},
+  {"NoPxlIT" ,"" ,"","-PxlIT","" ,"","ITTF: track with switch off PXL geom",kFALSE},
+  {"NoIstIT" ,"" ,"","-IstIT","" ,"","ITTF: track with switch off IST geom",kFALSE},
   {"skip1row" ,"" ,"","","" ,"","ITTF: skip the first pad row in TPC",kFALSE},
   {"StiRnD" ,"","","", "","StiRnD", "Load StiRnD shared library",kFALSE},
   {"Alignment" ,"","","", "","", "Sti Tpc Alignment, reconstruction per sector",kFALSE},
@@ -2438,6 +2448,11 @@ Bfc_st BFC[] = {
   {"P2014a","" ,"",
    "B2014a,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis,"
    , "","","Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+  {"B2015" ,"","","ry2015,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
+   , "Base chain for 2015 ITTF (tpc)",kFALSE},
+  {"pp2015","" ,"",
+   "B2015,ITTF,UseXgeom,BAna,hitfilt,VFPPVnoCTB,beamline,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
+   , "","","Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","",""
    , "Laser Calibration Chain (tcl)",kFALSE},
   {"LaserCal","" ,"","db,detDb,tpc_daq,tpcDb,fcf,globT,laser,LaserTest","",""
@@ -2778,6 +2793,8 @@ Bfc_st BFC[] = {
   {"istRaw", "", "", "istUtil istDb", "StIstRawHitMaker", "StIstRawHitMaker", "Run IST raw hit maker", kFALSE},
   {"istCluster", "", "", "istRaw", "StIstClusterMaker", "StIstClusterMaker", "Run IST cluster maker", kFALSE},
   {"istHit", "", "", "event istCluster", "StIstHitMaker", "StIstHitMaker", "Run IST hit Maker", kFALSE},
+  {"istFastSim", "", "", "StMcEvent,StEvent", "StIstFastSimMaker",
+        "StIstSimMaker", "Load StIstSimMaker, invoke StIstFastSimMaker to fill StIstHitCollection", kFALSE},
   {"ssddat" ,"","","ssd_daq" ,"","","SSD full chain for Real Data",kFALSE},
   {"ssd_daq","","","ssdCalDb,svt_T,-sls,-spa,ssdUtil","StSsdDaqMaker","StSsdDaqMaker","... SSD Daq",kFALSE},
   {"ssdfast" ,"","","ssdDb,StMcEvent,StEvent","StSsdFastSimMaker","StSsdFastSimMaker",
@@ -2921,6 +2938,9 @@ Bfc_st BFC[] = {
   {"BTofIT" ,"" ,"","ITTF","" ,"Sti,StiBTof","Sti tracking: BTof geom",kFALSE},
   {"NoSvtIT" ,"" ,"","-SvtIT","" ,"","ITTF: track with switch off SVT geom",kFALSE},
   {"NoSsdIT" ,"" ,"","-SsdIT","" ,"","ITTF: track with switch off SSD geom",kFALSE},
+  {"NoSstIT" ,"" ,"","-SstIT","" ,"","ITTF: track with switch off SST geom",kFALSE},
+  {"NoPxlIT" ,"" ,"","-PxlIT","" ,"","ITTF: track with switch off PXL geom",kFALSE},
+  {"NoIstIT" ,"" ,"","-IstIT","" ,"","ITTF: track with switch off IST geom",kFALSE},
   {"skip1row" ,"" ,"","","" ,"","ITTF: skip the first pad row in TPC",kFALSE},
   {"StiRnD" ,"","","", "","StiRnD", "Load StiRnD shared library",kFALSE},
   {"Alignment" ,"","","", "","", "Sti Tpc Alignment, reconstruction per sector",kFALSE},
@@ -3468,17 +3488,29 @@ Int_t StBFChain::Instantiate()
       }
 
       // back to the HFT sub-system
-      if (GetOption("PixelIT") || GetOption("PxlIT") ){
+      if (GetOption("NoPxlIT")) {
 	mk->SetAttr("usePixel"	 ,kTRUE);
-	mk->SetAttr("activePixel",kTRUE);
+      } else {
+        if (GetOption("PixelIT") || GetOption("PxlIT") ){
+	  mk->SetAttr("usePixel"	 ,kTRUE);
+	  mk->SetAttr("activePixel",kTRUE);
+        }
       }
-      if (GetOption("IstIT")){
-	mk->SetAttr("useIst"     ,kTRUE);
-	mk->SetAttr("activeIst"  ,kTRUE);
+      if (GetOption("NoIstIT")) {
+	mk->SetAttr("useIst"	 ,kTRUE);
+      } else {
+        if (GetOption("IstIT")){
+	  mk->SetAttr("useIst"     ,kTRUE);
+	  mk->SetAttr("activeIst"  ,kTRUE);
+        }
       }
-      if (GetOption("SstIT")){
-	mk->SetAttr("useSst"	 ,kTRUE);
-	mk->SetAttr("activeSst"  ,kTRUE);
+      if (GetOption("NoSstIT")) {
+        mk->SetAttr("useSst"	 ,kTRUE);
+      } else {
+        if (GetOption("SstIT")){
+	  mk->SetAttr("useSst"	 ,kTRUE);
+	  mk->SetAttr("activeSst"  ,kTRUE);
+        }
       }
 
       // other sub-systems
