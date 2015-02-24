@@ -1004,13 +1004,6 @@ Bfc_st BFC[] = { // standard chains
    "B2014a,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis,"
    ,                      "","","Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
 
-  // Year 15 chains
-  {"B2015"  ,"","","ry2015,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
-   ,                                                               "Base chain for 2015 ITTF (tpc)",kFALSE},
-
-  {"pp2015","" ,"",
-   "B2015,ITTF,UseXgeom,BAna,hitfilt,VFPPVnoCTB,beamline,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
-   ,                      "","","Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
 
 
   // TEST
@@ -1197,7 +1190,6 @@ Bfc_st BFC[] = { // standard chains
   {"SsdUtil"     ,""  ,"","StarMagField,StEvent",""               ,"Geom,StSsdUtil","Load SSD Util",kFALSE},
   {"EmcUtil"     ,""  ,"","emc_T,geomT,StDbT",""                      ,"StEmcUtil","Load StEmcUtil",kFALSE},
   {"EEmcUtil"    ,""  ,"","",""                                     ,"StEEmcUtil","Load StEEmcUtil",kFALSE},
-  //{"FmsUtil"     ,""  ,"","",""                                       ,"StFmsUtil","Load StFmsUtil",kFALSE},
   {"FgtUtil"     ,""  ,"","",""                                       ,"StFgtUtil","Load StFgtUtil",kFALSE},
   {"GmtUtil"     ,""  ,"","",""                                       ,"StGmtUtil","Load StGmtUtil",kFALSE},
   {"l3Util"      ,"","","",                              "","","WARNING *** Option is OBSOLETE ***",kFALSE},
@@ -1254,8 +1246,7 @@ Bfc_st BFC[] = { // standard chains
   {"svtCalDb"    ,""     ,"","svtDb"         ,"","","Declare Calibrations/svt as while list member",kFALSE},
   {"ssdCalDb"    ,""     ,"","ssdDb"         ,"","","Declare Calibrations/ssd as while list member",kFALSE},
   {"eemcDb"      ,"eeDb" ,"","db,EEmcUtil",      "StEEmcDbMaker","StEEmcDbMaker","Load EEmcDbMaker",kFALSE},
-  {"fmsDb"       ,"fmsDb","","db",          "StFmsDbMaker","StFmsDbMaker","Load FmsDbMaker",kFALSE},
-  //{"fmsDb"       ,"fmsDb","","db,fmsutil",          "StFmsDbMaker","StFmsDbMaker","Load FmsDbMaker",kFALSE},
+  {"fmsDb"       ,"fmsDb","","db",                  "StFmsDbMaker","StFmsDbMaker","Load FmsDbMaker",kFALSE},
   {"fgtDb"       ,"fgtDb","","db,fgtutil",          "StFgtDbMaker","StFgtDbMaker","Load FgtDbMaker",kFALSE},
   {"pxlDb"       ,"pxlDb","","tpcDb PxlUtil",       "StPxlDbMaker","StPxlDbMaker","Load PxlDbMaker",kFALSE},
   {"istDb"       ,"istDb","","tpcDb",               "StIstDbMaker","StIstDbMaker","Load IstDbMaker",kFALSE},
@@ -1386,9 +1377,6 @@ Bfc_st BFC[] = { // standard chains
   {"istCluster", "", "", "istRaw",           "StIstClusterMaker", "StIstClusterMaker", "Run IST cluster maker", kFALSE},
   {"istHit",     "", "", "event istCluster", "StIstHitMaker",     "StIstHitMaker",     "Run IST hit Maker",     kFALSE},
 
-  {"istFastSim", "", "", "StMcEvent,StEvent", "StIstFastSimMaker",
-        "StIstSimMaker", "Load StIstSimMaker, invoke StIstFastSimMaker to fill StIstHitCollection", kFALSE},
-
   {"ssddat"      ,"","","ssd_daq"                             ,"","","SSD full chain for Real Data",kFALSE},
   {"ssd_daq","","","ssdCalDb,svt_T,-sls,-spa,ssdUtil","StSsdDaqMaker","StSsdDaqMaker","... SSD Daq",kFALSE},
   {"ssdfast"     ,"","","ssdDb,StMcEvent,StEvent","StSsdFastSimMaker","StSsdFastSimMaker",
@@ -1475,10 +1463,8 @@ Bfc_st BFC[] = { // standard chains
   // FMS
   {"fmsSim",""    ,"","StEvent,fmsDb",
    "StFmsFastSimulatorMaker","StFmsFastSimulatorMaker","FMS Fast Simulator",                        kFALSE},
-  {"fmsDat"     ,"","", "StEvent,fmsDb",
+  {"fmsDat"     ,"","", "StEvent,fmsdb",
    "StFmsHitMaker","StFmsHitMaker","Fill FMS struct and zero TRG",                                  kFALSE},
-  //{"fmsPoint"     ,"","", "event,fmsDb","StFmsPointMaker","StFmsPointMaker",
-  // "Fill FMS clusters",                                                                             kFALSE},
 #if 0
   {"fpd"         ,"fpd","","",                  "StFpdMaker","StFpdMaker","FPD/BBC Data base chain",kFALSE},
 #else
