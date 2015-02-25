@@ -132,6 +132,7 @@ if( $sec < 10) { $sec = '0'.$sec };
  }
 
   $sql= "insert into $crsJobStatusT set runDate = '$thisdate', flag = 'Start' ";
+
       $dbh->do($sql) || die $dbh->errstr; 
 
 
@@ -256,6 +257,29 @@ if( $sec < 10) { $sec = '0'.$sec };
 
      $njob++;
  } 
+
+
+########### jobs DONE
+
+ @joblist = ();
+
+ @joblist = `crs_job -stat | grep DONE` ;
+
+    foreach my $jline (@joblist) {
+     chop $jline ;
+#     print $jline, "\n";
+     @wrd = ();
+     @wrd = split (" ", $jline);
+#     print $wrd[0],"   ",$wrd[1], "\n";
+
+     $jbId[$njob] = $wrd[0];
+     $jbId[$njob] = substr($wrd[0],0,-1) + 0;
+     $jbstate[$njob] = "DONE";  
+     $jberror[$njob] = 0;
+     $jbnode[$njob] = "none";   
+     $njob++;
+ }
+
 
 ########### jobs in EXPORTING
 
