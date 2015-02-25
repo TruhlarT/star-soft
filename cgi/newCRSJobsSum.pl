@@ -237,6 +237,21 @@ print <<END;
 </TR>
 END
 
+ }elsif($jbstate[$ii] eq "DONE" )  {
+
+print <<END;
+
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
+<td HEIGHT=10>$jbstate[$ii]</td>
+<td HEIGHT=10>$jbtrigs[$ii]</td>
+<td HEIGHT=10>$prodtags[$ii]</td>
+<td HEIGHT=10>$runId[$ii]</td>
+<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fname;qstate=$jbstate[$ii];qdate=$maxdate">$njbfile[$ii]</td>
+<td HEIGHT=10><a href="http://www.star.bnl.gov/devcgi/RetriveCRSjobs.pl?qrun=$runId[$ii];qprod=$prodtags[$ii];qname=fstream;qstate=$jbstate[$ii];qdate=$maxdate">$nstream[$ii]</td>
+</TR>
+END
+
+
   }elsif($jbstate[$ii] eq "ERROR" or $jbstate[$ii] eq "HELD" ) {
 
 print <<END;
