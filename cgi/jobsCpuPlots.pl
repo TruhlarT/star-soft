@@ -253,7 +253,7 @@ my @jbwb = ();
     $cursor->finish();
 
 
-    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2015-01-10' order by runDay" ;
+    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2015-01-09' order by runDay" ;
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -310,7 +310,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P14ii,
+	                          -default=>P15ib,
       			          -size =>1);
 
   
