@@ -321,7 +321,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P14ii,
+	                          -default=>P15ib,
       			          -size =>1);
 
   
@@ -331,7 +331,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
                                   -values=>\@arrate,
-                                  -default=>cpu,
+                                  -default=>rtime/cpu,
                                   -size =>1);
 
 
@@ -379,6 +379,7 @@ END
    if( $qprod =~ /P14ia/ ) {$pryear = "2013"};
    if( $qprod =~ /P14ig/ ) {$pryear = "2013"};
    if( $qprod =~ /P14ii/ ) {$pryear = "2014"};  
+   if( $qprod =~ /P15ib/ ) {$pryear = "2014"};  
 
     $JobStatusT = "JobStatus".$pryear;
 
@@ -481,6 +482,7 @@ END
 
     foreach  $tdate (@arhr) {
  
+
   $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, jobtotalTime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND jobtotalTime > 0.1  AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 order by  createTime "; 
 
 	    $cursor =$dbh->prepare($sql)
