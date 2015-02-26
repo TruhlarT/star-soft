@@ -331,7 +331,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
                                   -values=>\@arrate,
-                                  -default=>rtime/cpu,
+                                  -default=>cpu,
                                   -size =>1);
 
 
