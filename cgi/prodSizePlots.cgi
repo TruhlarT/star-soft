@@ -459,7 +459,7 @@ $ndt = 0;
 
     @data = ();
 
-    $max_y = 30000;
+    $max_y = 40000;
 
        $ylabel = "Size of raw data in GB restored from HPSS per day";
        $gtitle = "Size of raw data in GB restored from HPSS for $qperiod period";
@@ -470,7 +470,7 @@ $ndt = 0;
 
    @data = ();
 
-    $max_y = 30000;
+    $max_y = 40000;
 
        $ylabel = "Size of data in GB transferred  from/to HPSS per day";
        $gtitle = "Size of data in GB transferred  from/to HPSS for $qperiod period";
