@@ -1997,7 +1997,7 @@ exec = $SPATH/bfcca
 [main]
 num_inputs = 1
 num_outputs = 1
-queue = high
+queue = highest
 
 [input-0]
 path = $items[0]
@@ -2086,7 +2086,7 @@ exec = $SPATH/bfcca
 [main]
 num_inputs = 1
 num_outputs = 4
-queue = high
+queue = highest
 
 [input-0]
 path = $items[0]
@@ -2126,7 +2126,7 @@ exec = $SPATH/bfcca
 [main]
 num_inputs = 1
 num_outputs = 3
-queue = high
+queue = highest
 
 [input-0]
 path = $items[0]
