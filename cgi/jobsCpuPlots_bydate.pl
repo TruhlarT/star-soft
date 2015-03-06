@@ -321,7 +321,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P15ib,
+	                          -default=>P15ic,
       			          -size =>1);
 
   
@@ -379,7 +379,7 @@ END
    if( $qprod =~ /P14ia/ ) {$pryear = "2013"};
    if( $qprod =~ /P14ig/ ) {$pryear = "2013"};
    if( $qprod =~ /P14ii/ ) {$pryear = "2014"};  
-   if( $qprod =~ /P15ib/ ) {$pryear = "2014"};  
+   if( $qprod =~ /P15ib/ or  $qprod =~ /P15ic/ ) {$pryear = "2014"};  
 
     $JobStatusT = "JobStatus".$pryear;
 
