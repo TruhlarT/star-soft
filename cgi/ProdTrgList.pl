@@ -534,11 +534,13 @@ my $query = new CGI;
     $daydif = $nowdate - $crtime;
     $mondif = $mon - $prt[1];
 
-    if($pyear eq $nowyear ) { 
+    if($pyear eq $nowyear and $mondif == 0 ) { 
 
-    if($mondif == 1 and ($daydiff == 70 or $daydiff == 71 )) {
-    $daydif = $nowdate - $crtime - $daydiff;
-    };
+#    if($mondif == 1 and ($daydiff == 70 or $daydiff == 71 )) {
+#    $daydif = $nowdate - $crtime - $daydiff;
+	$daydif = $nowdate - $crtime ;
+
+#    };
     }else{
      $daydif = 100; 
     
