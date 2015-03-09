@@ -57,6 +57,7 @@ my @jbfiles = ();
 my @jbstreams = ();
 my @jberror = ();
 my @jbnode = ();
+my @jbstart = ();
 my $nn = 0;
 my $nm = 0;
 
@@ -77,7 +78,7 @@ my %ErrHash = (
 
   $nn = 0;
 
-    $sql="SELECT jobId, filename, nodeID, error  FROM $JobsInfoT where runnumber = ? and prodtag = ? and status = ? and runDate = ? ";
+    $sql="SELECT jobId, filename, nodeID, startTime, error  FROM $JobsInfoT where runnumber = ? and prodtag = ? and status = ? and runDate = ? ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -88,7 +89,8 @@ my %ErrHash = (
 	   $jbId[$nn]    = $fields[0];
            $jbfiles[$nn] = $fields[1];
            $jbnode[$nn]  = $fields[2];
-           $jberror[$nn] = $fields[3];
+           $jbstart[$nn]  = $fields[3];
+           $jberror[$nn] = $fields[4];
            $nn++;
        }
     $cursor->finish();
@@ -141,6 +143,7 @@ END
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
 <td HEIGHT=10>$jbId[$ii]</td>
 <td HEIGHT=10>$jbfiles[$ii]</td>
+<td HEIGHT=10>$jbstart[$ii]</td>
 </TR>
 END
   }
@@ -194,7 +197,8 @@ print <<END;
 <TABLE ALIGN=CENTER BORDER=4 CELLSPACING=1 CELLPADDING=1 bgcolor=\"#ffdc9f\">
 <TR>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>JobID</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Filename</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Filename</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Start time</h3></B></TD>
 </TR>
     </body>
 END
