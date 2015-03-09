@@ -38,8 +38,12 @@ $crsJobStatusT = "CRSJobsInfo";
  my @jobnode = ();
  my @strflag = ();
  my $Tperror = 0;
+ my @jobstart = ();
+ my @jbstart = ();
+ my $jdate = "0000-00-00";
+ my $jtime = "0000-00-00 00:00:00";
 
- 
+
  my $year;
  my $mon = 0;
  my $mday = 0;
@@ -130,6 +134,7 @@ if( $sec < 10) { $sec = '0'.$sec };
   for ($ii=0;$ii<$nn;$ii++) {
    print  $prevdate[$ii], "\n";
  }
+
 
   $sql= "insert into $crsJobStatusT set runDate = '$thisdate', flag = 'Start' ";
 
@@ -278,6 +283,26 @@ if( $sec < 10) { $sec = '0'.$sec };
 #    @jobnode = ();
 #    @jobnode = `crs_job -long $jbId[$njob] | grep Machine`;
 
+    @jobstart = ();
+    @jobstart = `crs_job -long $jbId[$njob] | grep Start`;
+
+
+   foreach my $jstart (@jobstart) {
+     chop $jstart ;
+#     print $jstart, "\n";
+
+       @prt = ();
+       @prt = split(/\(/, $jstart) ;
+       $jdate =  $prt[1];
+
+       @prt = ();
+       @prt = split(/\)/, $jdate) ;      
+       $jtime =  $prt[0];
+
+      $jbstart[$njob] = $jtime;
+  }
+
+################
      $njob++;
  } 
 
@@ -494,6 +519,7 @@ exit;
  $sql.="stream='$jbstreams[$ii]',";
  $sql.="error='$jberror[$ii]',";
  $sql.="nodeID='$jbnode[$ii]',";
+ $sql.="startTime='$jbstart[$ii]',";
  $sql.="runDate='$thisdate' "; 
    print "$sql\n" if $debugOn;
 #   $rv = $dbh->do($sql) || die $dbh->errstr;
