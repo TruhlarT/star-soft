@@ -539,7 +539,10 @@ my $query = new CGI;
     if($mondif == 1 and ($daydiff == 70 or $daydiff == 71 )) {
     $daydif = $nowdate - $crtime - $daydiff;
     };
-  }
+    }else{
+     $daydif = 100; 
+    
+    }
 
 #        if( $prod[$nlist] eq "P12id" and $trig[$nlist] eq "UU_production_2012" ) {
 
