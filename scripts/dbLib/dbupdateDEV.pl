@@ -1590,7 +1590,7 @@ $jrun = "Run not completed";
       $totSsdHits += $nSsdHits;
 
      }
-#      print "MTD, PXL, IST hits  ", "MTD hits = ", $nMtdHits,"   ","PXL hits = ",$nPxlHits,"  ", "Ist hits = ", $nIstHits, "\n";
+#      print "MTD, PXL, IST hits  ", "MTD hits = ", $nMtdHits,"   ","PXL hits = ",$nPxlHits,"  ","  Ist hits = ", $nIstHits, "\n";
      if ( $line =~ /mtd hit matched with track successfully/ ) {
 	 $nmatchMtdHits[$no_event]++;
 #     print "Number of matched MTD hits  ", $nmatchMtdHits[$no_event], "  ", "in the event #",$no_event, "\n";
@@ -1914,7 +1914,7 @@ $jrun = "Run not completed";
      $avgSsdHits = $totSsdHits/$EvDone;
 
      }
-  print "Avg #MtdHits = ",  $avgMtdHits, "  ", "Avg #PxlHits = ", $avgPxlHits, "Avg #IstHits = ", $avgIstHits, "\n";
+  print "Avg #MtdHits = ",  $avgMtdHits,"   ", "Avg #PxlHits = ", $avgPxlHits,"   ", "Avg #IstHits = ", $avgIstHits,"   ", "Avg #SsdHits = ", $avgSsdHits,"\n";
 
      for ($jj = 0; $jj < $no_event; $jj++ ) {
 	 if ( $nmatchMtdHits[$jj] >= 1 ) {
