@@ -27,7 +27,7 @@ $JobQAT = "newJobsQA";
 
 my $TOP_DIRD = "/star/rcf/test/dev/";
 
-my @dir_year = ("year_2000", "year_2001", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008","year_2009", "year_2010", "year_2011", "year_2012", "year_2013", "year_2014");
+my @dir_year = ("year_2000", "year_2001", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008","year_2009", "year_2010", "year_2011", "year_2012", "year_2013", "year_2014", "year2015");
 my @node_dir = ("daq_sl302.ittf", "daq_sl302.ittf_opt" ,"trs_sl302.ittf", "trs_sl302.ittf_opt","simu");
 
 
@@ -359,6 +359,12 @@ struct JFileAttr => {
  my $totPxlHits = 0;
  my $avgMtdHits = 0;
  my $avgPxlHits = 0;
+ my $nIstHits = 0;
+ my $totIstHits = 0;
+ my $avgIstHits = 0;
+ my $nSsdHits = 0;
+ my $totSsdHits = 0;
+ my $avgSsdHits = 0;
 
  my @nmatchMtdHits = ();
  my $totmatchMtdHits = 0;
@@ -512,6 +518,12 @@ my $pyear = 0;
  @nmatchMtdHits = ();
  $avgmatchMtdHits = 0;
  $NevtMtdHits = 0;
+ $nIstHits = 0;
+ $nSsdHits = 0;
+ $totIstHits = 0;
+ $totSSdHits = 0;
+ $avgIstHits = 0;
+ $avgSSdHits = 0;
 
  @prt = ();
  
@@ -1365,6 +1377,7 @@ sub fillQATable {
     $sql.="jobStatus='$jrun',";
     $sql.="NoEventDone='$EvDone',";
     $sql.="PxlHits='$avgPxlHits',";
+    $sql.="IstHits='$avgIstHits',";
     $sql.="MtdMatchHits='$avgmatchMtdHits',";
     $sql.="MtdHits='$avgMtdHits',";
     $sql.="avail='$mavail'";  
@@ -1454,6 +1467,13 @@ sub  updateQATable {
  $totPxlHits = 0;
  $avgMtdHits = 0;
  $avgPxlHits = 0;
+ $nIstHits = 0;
+ $totIstHits = 0;
+ $avgIstHits = 0;
+ $nSsdHits = 0;
+ $totSsdHits = 0;
+ $avgSsdHits = 0;
+
  @nmatchMtdHits = ();
  $totmatchMtdHits = 0;
  $avgmatchMtdHits = 0;
@@ -1464,10 +1484,6 @@ sub  updateQATable {
 #  print $fl_log, "\n";
 
  $nevent_vtx = 0;
-
-# if($fl_log eq "/star/rcf/test/dev/daq_sl302.ittf/Mon/year_2011/AuAu200_embed/st_physics_adc_12127010_raw_2500002.log" ) {
-
-# print $fl_log, "\n";
 
 # $nevent_vtx = `grep '#V\[  0\]' $fl_log | wc -l` ;
 
@@ -1497,15 +1513,10 @@ $jrun = "Run not completed";
    foreach my $line (@logfile) {
        chop $line ;
         $num_line++; 
-#   get ROOT_LEVEL and node
 
        if($line =~ /Processing bfc.C/) {
           $runflag++;
 	}
-#   if ($line =~ /StMessageManager message summary/) {
-#      $Anflag = 1;
-#    }
-
   
        if ($line =~ /QAInfo:You are using STAR_LEVEL/) {
          @part = split (" ", $line);
@@ -1554,19 +1565,32 @@ $jrun = "Run not completed";
 
 #       print "Check path   ",$fl_log,"\n";
 
-      @prt = ();
       if ( $line =~ /StMtdHitMaker:INFO/ and  $line =~ /MTD hits in event/) {
+      @prt = ();
       @prt = split( " ", $line) ;
       $nMtdHits = $prt[2];
       $totMtdHits += $nMtdHits;
       }
+      if ( $line =~ /PixelHitLoader loaded/) {
       @prt = ();
-      if ( $line =~ /StiPxlHitLoader:loadHits/) {
       @prt = split( " ", $line) ;
-      $nPxlHits = $prt[3];
+      $nPxlHits = $prt[6];
       $totPxlHits += $nPxlHits;
+     }elsif($line =~ /IstHitLoader loaded/) {
+      @prt = ();
+      @prt = split( " ", $line) ;
+      $nIstHits = $prt[6];
+      $totIstHits += $nIstHits;
+
+     }elsif($line =~ /SsdHitLoader loaded/) {
+
+      @prt = ();
+      @prt = split( " ", $line) ;
+      $nSsdHits = $prt[6];
+      $totSsdHits += $nSsdHits;
+
      }
-#      print "MTD and PXL hits  ", "MTD hits = ", $nMtdHits,"   ","PXL hits = ",$nPxlHits, "\n";
+#      print "MTD, PXL, IST hits  ", "MTD hits = ", $nMtdHits,"   ","PXL hits = ",$nPxlHits,"  ", "Ist hits = ", $nIstHits, "\n";
      if ( $line =~ /mtd hit matched with track successfully/ ) {
 	 $nmatchMtdHits[$no_event]++;
 #     print "Number of matched MTD hits  ", $nmatchMtdHits[$no_event], "  ", "in the event #",$no_event, "\n";
@@ -1687,11 +1711,6 @@ $jrun = "Run not completed";
               @nmb =  split /</,$word_tr[2];
               $no_xivertices = $nmb[0];
               $tot_xivertices += $no_xivertices;
-#            } elsif( $string =~ /Kink vertices/) {
-#              @word_tr = split /:/,$string;
-#              @nmb =  split /</,$word_tr[2];
-#              $no_knvertices = $nmb[0];
-#              $tot_knvertices += $no_knvertices;
         } 
        }
 
@@ -1891,8 +1910,11 @@ $jrun = "Run not completed";
      if($EvDone >= 1) {
      $avgMtdHits = $totMtdHits/$EvDone;
      $avgPxlHits = $totPxlHits/$EvDone;
+     $avgIstHits = $totIstHits/$EvDone;
+     $avgSsdHits = $totSsdHits/$EvDone;
+
      }
-  print "Avg #MtdHits = ",  $avgMtdHits, "  ", "Avg #PxlHits = ", $avgPxlHits,"\n";
+  print "Avg #MtdHits = ",  $avgMtdHits, "  ", "Avg #PxlHits = ", $avgPxlHits, "Avg #IstHits = ", $avgIstHits, "\n";
 
      for ($jj = 0; $jj < $no_event; $jj++ ) {
 	 if ( $nmatchMtdHits[$jj] >= 1 ) {
