@@ -19,6 +19,27 @@ $dbname="operation";
 # Tables
 $crsJobStatusT = "CRSJobsInfo";
 
+
+my %monthHash = (
+                  Jan => "1",
+                  Feb => "2",
+                  Mar => "3",
+                  Apr => "4",
+                  May => "5",
+                  Jun => "6",
+                  Jul => "7",
+                  Aug => "8",
+                  Sep => "9",
+                  Oct => "10",
+                  Nov => "11",
+                  Dec => "12",
+                  );
+
+
+ my $mmon;
+ my $nmonth;
+ my $jstime;
+
  my @jbstate  = ();
  my @prodtags = ();
  my @jbtrigs = ();
@@ -224,8 +245,41 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbstate[$njob] = "SUBMITTED";  
      $jberror[$njob] = 0;
      $jbnode[$njob] = "none";     
+
+####    find start time
+
+    @jobstart = ();
+    @jobstart = `crs_job -long $jbId[$njob] | grep 'Status: SUBMITTED'` ;
+
+   foreach my $jstart (@jobstart) {
+     chop $jstart ;
+#     print $jstart, "\n";
+
+       @prt = ();
+       @prt = split(/\(/, $jstart) ;
+       $jdate =  $prt[1];
+###
+       @prt = ();
+       @prt = split(/\)/, $jdate) ;
+       $jstime =  $prt[0];
+###
+       @prt = ();
+       @prt = split(" ", $jstime) ;
+       $mmon = $prt[0];
+       $nmonth = $monthHash{$mmon};
+
+     if( $nmonth < 10) { $nmonth = '0'.$nmonth };
+
+      $jtime = $prt[2]."-".$nmonth."-".$prt[1]." ".$prt[3];
+#     print "Start time  ",$jtime, "\n";
+
+      $jbstart[$njob] = $jtime;
+   }
+
+######
      $njob++;
  } 
+
 
 ########### jobs in IMPORTING
 
@@ -283,18 +337,21 @@ if( $sec < 10) { $sec = '0'.$sec };
 #    @jobnode = ();
 #    @jobnode = `crs_job -long $jbId[$njob] | grep Machine`;
 
+####### find start time
+
     @jobstart = ();
     @jobstart = `crs_job -long $jbId[$njob] | grep Start`;
 
 
    foreach my $jstart (@jobstart) {
      chop $jstart ;
-#     print $jstart, "\n";
+####     print $jstart, "\n";
 
        @prt = ();
        @prt = split(/\(/, $jstart) ;
        $jdate =  $prt[1];
 
+#####
        @prt = ();
        @prt = split(/\)/, $jdate) ;      
        $jtime =  $prt[0];
