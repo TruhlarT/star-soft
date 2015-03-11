@@ -146,7 +146,9 @@ my @avgRatio_Primn15 = ();
        $avgPrimn15[$ii]   = $fields[3];
        $hfjobID[$ii]      = $fields[4];
 
+
     }
+#       print "Check filling   ", $hftpath[$ii],"  ", $avgTracksn15[$ii], "\n";
 }
 
 #############
@@ -169,6 +171,7 @@ my @avgRatio_Primn15 = ();
        $avgPrimn15_nohft[$ii]   = $fields[3];
 
     }
+#      print "Check filling  nohft ", $nohftpath[$ii],"  ", $avgTracksn15[$ii], "\n";
 
  }
 
@@ -231,8 +234,9 @@ my @avgRatio_Primn15 = ();
 	  $avgRatio_Trck[$ii] = 0;
       }
       }else{
-#     $avgRatio_Trck[$ii] = 0;
+     $avgRatio_Trck[$ii] = 0;
       }      
+
       print "Ratio for number of tracks  ",$hftpath[$ii],"   ",$avgRatio_Trck[$ii], "\n";
 
     
@@ -245,7 +249,7 @@ my @avgRatio_Primn15 = ();
       }
 
       }else{
-#          $avgRatio_Trckn15[$ii] = 0;
+          $avgRatio_Trckn15[$ii] = 0;
       } 
 
 #      print "Ratio for number of tracks nfit >=15 ",$avgRatio_Trckn15[$ii], "\n";
@@ -257,7 +261,7 @@ my @avgRatio_Primn15 = ();
 	  $avgRatio_Prim[$ii] = 0;
       }
      }else{
-#         $avgRatio_Prim[$ii] = 0;
+         $avgRatio_Prim[$ii] = 0;
     }
 
 #      print "Ratio for number of primary tracks  ",$avgRatio_Prim[$ii], "\n";
@@ -270,7 +274,7 @@ my @avgRatio_Primn15 = ();
 	  $avgRatio_Primn15[$ii] = 0;
       }
      }else{
-#          $avgRatio_Primn15[$ii] = 0;
+          $avgRatio_Primn15[$ii] = 0;
      }
 #      print "Ratio for number of primary tracks nfit >=15  ",$avgRatio_Primn15[$ii], "\n";
 
