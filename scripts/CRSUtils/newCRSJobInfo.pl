@@ -203,6 +203,36 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbstate[$njob] = "QUEUED";  
      $jberror[$njob] = 0;
      $jbnode[$njob] = "none";   
+
+####    find start time
+
+    @jobstart = ();
+    @jobstart = `crs_job -long $jbId[$njob] | grep 'Status: QUEUED'` ;
+
+   foreach my $jstart (@jobstart) {
+     chop $jstart ;
+#     print $jstart, "\n";
+
+       @prt = ();
+       @prt = split(/\(/, $jstart) ;
+       $jdate =  $prt[1];
+###
+       @prt = ();
+       @prt = split(/\)/, $jdate) ;
+       $jstime =  $prt[0];
+###
+       @prt = ();
+       @prt = split(" ", $jstime) ;
+       $mmon = $prt[0];
+       $nmonth = $monthHash{$mmon};
+
+     if( $nmonth < 10) { $nmonth = '0'.$nmonth };
+
+       $jtime = $prt[2]."-".$nmonth."-".$prt[1]." ".$prt[3];
+       $jbstart[$njob] = $jtime;
+
+  }
+################
      $njob++;
  }
 
@@ -251,7 +281,7 @@ if( $sec < 10) { $sec = '0'.$sec };
     @jobstart = ();
     @jobstart = `crs_job -long $jbId[$njob] | grep 'Status: SUBMITTED'` ;
 
-   foreach my $jstart (@jobstart) {
+    foreach my $jstart (@jobstart) {
      chop $jstart ;
 #     print $jstart, "\n";
 
