@@ -153,7 +153,7 @@ if( $sec < 10) { $sec = '0'.$sec };
        }
     $cursor->finish();
 
-  print "Previous dates ", "\n";
+  print "Previous datetime ", "\n";
   for ($ii=0;$ii<$nn;$ii++) {
    print  $prevdate[$ii], "\n";
  }
@@ -650,7 +650,7 @@ for($ii = 0; $ii<$njob; $ii++) {
      $sql= "delete from $crsJobStatusT where runDate = '$prevdate[$ii]' ";
         $dbh->do($sql) || die $dbh->errstr;
 
-	print "Data deleted for runData = ", $prevdate[$ii], "\n";
+	print "Data deleted for datetime = ", $prevdate[$ii], "\n";
 
     }
 
