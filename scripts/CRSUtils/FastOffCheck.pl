@@ -39,8 +39,8 @@ $UPDATE  = shift(@ARGV) if ( @ARGV );   # 0, scan and delete if old,
 exit if ( ! -d $TARGET);                # do not lose time, leave
 
 # You can debug a specific run #
-$DEBUGR = ""; # 12058024; # 8348080;
-$RMEVROOT  = 1==1;                      # could be a parameter later, delete event.root files
+$DEBUGR    = $ENV{FastOffCheck_DEBUGR}||""; # 12058024; # 8348080;
+$RMEVROOT  = 1==1;                          # could be a parameter later, delete event.root files
 
 # Assume standard tree structure
 $JOBDIR    = "/star/u/starreco/$LIB/requests/daq/archive/";
@@ -51,6 +51,10 @@ $SPACEPRGM = (defined($ENV{STAR_SCRIPTS})?$ENV{STAR_SCRIPTS}:"/afs/rhic.bnl.gov/
 # create scratch if not there
 if ( ! -d $SCRATCH){  mkdir($SCRATCH);}
 
+$startT = "".localtime();
+if ( $DEBUG ){
+    print &Pid."Begin with ".($DEBUGR eq ""?"all runs":$DEBUG)."\n";
+}
 
 $lockf = $TARGET;
 $lockf =~ s/\//_/g;
@@ -66,16 +70,16 @@ if ( -e $lockf ){
 	if ( $PPid ne "" && $tmp ne ""){
 	    # parsing is OK
 	    kill 9,$PPid;
-	    print "$PID Killed previous $PPid and removing lock file $lockf ".localtime()."\n";
+	    print &Pid."Killed previous $PPid and removing lock file $lockf ".localtime()."\n";
 	} else {
-	    print "$PID Removing lock file $lockf (could not get previous PID) ".localtime()."\n";
+	    print &Pid."Removing lock file $lockf (could not get previous PID) ".localtime()."\n";
 	}
 
 	rdaq_set_message($SSELF,"A lock file exist",
 			 "Age reached ".(int($DLIMIT/6/6)/100)." hours - will remove and proceed");
 	unlink($lockf);
     } else {
-	print "$PID Skipping - $lockf is present\n";
+	print &Pid."Skipping - $lockf is present\n";
 	rdaq_set_message($SSELF,"A lock file exist","Its age is ".
 			 (int($delta/6/6)/100)." hours old (<$DLIMIT seconds) - leaving for now");
 	exit;
@@ -91,22 +95,24 @@ close(FLCK);
 
 # Fault tolerant. No info if fails.
 if( ! opendir(DIR,"$JOBDIR") ){
-    print "$PID $JOBDIR does not exists\n";
+    print &Pid."$JOBDIR does not exists\n";
     exit;
 } else {
-    print "$PID DEBUG $JOBDIR is opened\n" if ($DEBUG);
+    print &Pid."DEBUG $JOBDIR can be opened\n" if ($DEBUG);
+    closedir(DIR);
+
 }
 
 
 
 
-print "$PID DEBUG Update=$UPDATE\n" if ($DEBUG);
+print &Pid."DEBUG Update=$UPDATE\n" if ($DEBUG);
 
 if ($UPDATE == 0){
-    print "$PID Scanning $JOBDIR vs $TARGET on ".localtime()."\n";
+    print &Pid."Scanning $JOBDIR vs $TARGET on ".localtime()."\n";
 
     if ( -e $SPACEPRGM ){
-	print "$PID DEBUG Getting space for $TARGET using $SPACEPRGM\n" if ($DEBUG);
+	print &Pid."DEBUG Getting space for $TARGET using $SPACEPRGM\n" if ($DEBUG);
 	chomp($space = `$SPACEPRGM  $TARGET`);
 	$space =~ m/(.* )(\d+)(%.*)/;
 	$space =  $2;
@@ -116,7 +122,7 @@ if ($UPDATE == 0){
 	unlink("$TARGET/FreeSpace") if ( -e "$TARGET/FreeSpace");
 	rename("$TARGET/FreeSpace.new","$TARGET/FreeSpace");
 
-	print "$PID DEBUG FreeSpace is $space\n" if ($DEBUG);
+	print &Pid."DEBUG FreeSpace is $space\n" if ($DEBUG);
     }
 
 
@@ -125,13 +131,12 @@ if ($UPDATE == 0){
     # on later passes. But take it at a slightly large time than
     # what is passed on the cmd line
     my($t)=int($RETENT*1.5);
-    closedir(DIR);
     @all = `$FIND $JOBDIR/ -maxdepth 1 -type f -mtime +$t`;
     foreach $el (@all){
 	chomp($el);
 	$dest =  $el;
 	$dest =~ s/archive\//archive\/old\//;
-	print "$PID $el moved to old\n" if rename($el,$dest);
+	print &Pid."$el moved to old\n" if rename($el,$dest);
     }
     opendir(DIR,"$JOBDIR");
 
@@ -152,16 +157,16 @@ if ($UPDATE == 0){
     # do the cleaning by comparing to the job directory - if un-available, this
     # script may not work.
     while( defined($jfile = readdir(DIR)) ){
-	# print "$PID $jfile\n";
+	# print &Pid."$jfile\n";
 	if( $jfile =~ /(.*_)(st_.*)/){
 	    $tree = $1;
 	    $file = $2;
 
-	    # print "$PID $jfile Tree=$tree file=$file\n";
+	    # print &Pid."$jfile Tree=$tree file=$file\n";
 	    next if ($file =~ /st_laser/);  # some knowledge of our file naming
 
 	    if ($DEBUG){
-		if ($file =~ m/$DEBUGR/){ print "$PID DEBUG **** found it $file ***\n";}
+		if ($file =~ m/$DEBUGR/){ print &Pid."DEBUG **** found it $file ***\n";}
 	    }
 
 
@@ -176,35 +181,37 @@ if ($UPDATE == 0){
 
 		if ( $stat1[10] >= $stat2[10]){
 		    if ($DEBUG){
-			if ($file =~ m/$DEBUGR/){ print "$PID DEBUG **** $jfile.checked exist [skip]\n";}
+			if ($file =~ m/$DEBUGR/){ 
+			    print &Pid."DEBUG **** $jfile.checked exist [skip]\n";
+			}
 		    }
 		    next;
 		} else {
-		    print "$PID $jfile is more recent than last check. Rescan\n";
+		    print &Pid."$jfile is more recent than last check. Rescan\n";
 		    unlink("$JOBDIR/old/$jfile.checked");
 		}
 	    }
 
 	    # double check the conformity of the job file name
 	    if( $tree !~ m/$LIB/){
-		print "$PID WARNING :: Ill-formed $jfile found in $JOBDIR\n";
+		print &Pid."WARNING :: Ill-formed $jfile found in $JOBDIR\n";
 		push(@MOVE,$jfile);
 	    } else {
 		if ( ! -e "$SCRATCH/$file.done"){
 		    if ($DEBUG){
 			if ($file =~ m/$DEBUGR/){
-			    print "$PID DEBUG **** Did NOT find $SCRATCH/$file.done [treat]\n";
+			    print &Pid."DEBUG **** Did NOT find $SCRATCH/$file.done [treat]\n";
 			}
 		    }
 
 		    $COUNT++;
 		    if ($DEBUG){
 			if ( $COUNT%50==0 ){
-			    print "$PID DEBUG Got $TAKEN/$COUNT $file\n";
+			    print &Pid."DEBUG Got $TAKEN/$COUNT $file\n";
 			}
 		    }
 
-		    # print "$PID Searching for $file\n";
+		    # print &Pid."Searching for $file\n";
 		    chomp($lfile = `cd $TARGET ; $FIND -type f -name $file.MuDst.root`);
 		    #if ( ! defined($lfile = $FILES{"$file.MuDst.root"}) ){  $lfile = "";}
 
@@ -216,9 +223,10 @@ if ($UPDATE == 0){
 
 			@info = stat("$TARGET/$lfile");
 			if ( $#info == -1){
-			    print "$PID Could not find $TARGET/$lfile\n";
+			    print &Pid."Could not find $TARGET/$lfile\n";
 			    next;
 			} elsif  ( $info[7] == 0){
+			    print &Pid."DEBUG 0 size file for $lfile (??)\n" if ($DEBUG);
 			    next;
 			}
 
@@ -227,7 +235,7 @@ if ($UPDATE == 0){
 			$tree =~ s/\.\///;
 
 			$TAKEN++;
-			print "$PID DEBUG $el --> $TARGET/$tree\n" if ($DEBUG);
+			print &Pid."DEBUG $el --> $TARGET/$tree\n" if ($DEBUG);
 
 			$LOCATIONS{"$file.daq"} = "$TARGET/$tree";
 			#rdaq_set_message($SSELF,"New file found as done with prod","$file");
@@ -236,11 +244,11 @@ if ($UPDATE == 0){
 		    } else {
 			if ($DEBUG){
 			    if ($file =~ m/$DEBUGR/){
-				print "$PID DEBUG **** Found $SCRATCH/$file.done or lfile is null [skip]\n";
+				print &Pid."DEBUG **** Found $SCRATCH/$file.done or lfile is null [skip]\n";
 			    }
 			}
 
-			# print "$PID DEBUG Could not find $TARGET/$tree/$file.MuDst.root\n" if ($DEBUG);
+			# print &Pid."DEBUG Could not find $TARGET/$tree/$file.MuDst.root\n" if ($DEBUG);
 		    }
 		}
 	    }
@@ -253,7 +261,7 @@ if ($UPDATE == 0){
 
     # Also scan the main tree for obsolete files
     if( -d $TARGET){
-	#print "$PID Searching for f in $LIB from $TARGET\n";
+	#print &Pid."Searching for f in $LIB from $TARGET\n";
 	if ( -e "$TARGET/$LIB"){
 	    chomp(@all = `cd $TARGET ; $FIND $LIB -type f -mtime +$RETENT`);
 	} else {
@@ -264,7 +272,7 @@ if ($UPDATE == 0){
 	    @all = grep(!/StarDb/,@all);
 	}
 	foreach $el (@all){
-	    print "$PID Deleting $TARGET/$el\n";
+	    print &Pid."Deleting $TARGET/$el\n";
 	    unlink("$TARGET/$el");
 	    $el =~ s/.*\///g;
 	    $el =~ s/\..*//;
@@ -273,7 +281,7 @@ if ($UPDATE == 0){
 	    # does not get too large
 	    if (-e "$JOBDIR/$el"){
 		rename("$JOBDIR/$el","$JOBDIR/old/$el");
-		print "$PID Renaming $JOBDIR/$el to the old/ directory\n";
+		print &Pid."Renaming $JOBDIR/$el to the old/ directory\n";
 	    }
 
 	    $el .= ".daq";
@@ -289,12 +297,12 @@ if ($UPDATE == 0){
     if($obj){
 	foreach $el (keys %LOCATIONS){
 	    if( ! rdaq_set_location($obj,$LOCATIONS{$el},$el) ){
-		print "$PID Failed to set location for $el\n";
+		print &Pid."Failed to set location for $el\n";
 	    }
 	}
 
 	if ($#DONE != -1){
-	    print "$PID Setting files with status=2 if status=1 [".join(" ",@DONE)."]\n";
+	    print &Pid."Setting files with status=2 if status=1 [".join(" ",@DONE)."]\n";
 	    rdaq_toggle_debug(1);
 	    @all = rdaq_set_files_where($obj,2,1,@DONE);
 	    rdaq_close_odatabase($obj);
@@ -304,6 +312,14 @@ if ($UPDATE == 0){
 	    # but for which we had previously set status=2 ... or simply failed entries.
 	    foreach $jfile (@all){
 		rdaq_set_message($SSELF,"New file found as done with prod","$jfile");
+		$SUCCESS{$jfile} = 1;
+	    }
+
+	    # rescan the DONE array and see what's missing - added 2015/03
+	    foreach $jfile (@DONE){
+		if ( ! defined($SUCCESS{$jfile}) ){
+		    print &Pid."Error updating $jfile status from 1 to 2 occured\n";
+		}
 	    }
 
 	    # if we have a problem here, not  abig deal (time stamp will
@@ -317,6 +333,7 @@ if ($UPDATE == 0){
 	}
     }
 
+
 } elsif ($UPDATE == 1) {
     # Scan the directory for all files present and mark their
     # path in the database. This is rarely used. And done
@@ -325,7 +342,7 @@ if ($UPDATE == 0){
     $obj = rdaq_open_odatabase();
     if($obj){
 	chomp(@all = `cd $TARGET ; $FIND -type f -name '*.MuDst.root'`);
-	print "$PID We found $#all in the db\n" if ($DEBUG);
+	print &Pid."We found $#all in the db\n" if ($DEBUG);
 	foreach $el (@all){
 	    $el =~ m/(.*\/)(.*)/;
 	    ($tree,$el) = ($1,$2);
@@ -345,7 +362,7 @@ if ($UPDATE == 0){
     }
 
 } else {
-    print "$PID Update is $UPDATE i.e. default\n";
+    print &Pid."Update is $UPDATE i.e. default\n";
     $obj = rdaq_open_odatabase();
 
     #rdaq_toggle_debug(1);
@@ -353,7 +370,7 @@ if ($UPDATE == 0){
 
     foreach $file (@all){
 	if ( $path  = rdaq_get_location($obj,$file) ){
-	    print "$PID Checking $path for $file\n";
+	    print &Pid."Checking $path for $file\n";
 	    $qfile = $ffile = $file;
 	    $ffile =~ s/\.daq/\.MuDst\.root/;
 	    $qfile =~ s/\.daq/\.hist\.root/;
@@ -362,7 +379,7 @@ if ($UPDATE == 0){
 	    if ( ! -e "$path/$ffile"){
 		# file is not found, somehting is not right
 		rdaq_set_location($obj,0,$file);
-		print "$PID $path $ffile not found\n";
+		print &Pid."$path $ffile not found\n";
 	    } else {
 		# delete only if MuDST is found
 		unlink ($efile) if ( -e "$path/$efile" && $RMEVROOT );
@@ -374,12 +391,12 @@ if ($UPDATE == 0){
 			@info = stat($tfile);
 			if ( $info[7] == 0){
 			    # disable those records
-			    print "$PID Bogus zero size file found $tfile\n";
+			    print &Pid."Bogus zero size file found $tfile\n";
 			    rdaq_set_message($SSELF,"Bogus zero file size found","$tfile");
 			    rdaq_set_location($obj,0,$file);
 			} else {
 			    #if ( $file =~ /794028/){
-			    #print "$PID Found $file\n";
+			    #print &Pid."Found $file\n";
 			    #}
 			}
 		    }
@@ -391,6 +408,7 @@ if ($UPDATE == 0){
 }
 
 DONE:
+    if ( $DEBUG ){  print &Pid."and we are ending started @ $startT\n";}
     &end();
 
 
@@ -413,4 +431,7 @@ sub Die
 }
 
 
-
+sub Pid
+{
+    return $PID." ".localtime()." ";
+}
