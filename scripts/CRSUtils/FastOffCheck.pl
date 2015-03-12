@@ -26,7 +26,7 @@ $FIND    = "/usr/bin/find";
 $UPDATE  = 0;
 $RETENT  = 14;
 $SSELF   = "FastOffCheck";
-$PID     = sprintf("%4.4d",$$);
+$PID     = sprintf("%5.5d",$$);
 $DEBUG   = $ENV{FastOffCheck_DEBUG};
 
 $LIB     = shift(@ARGV) if ( @ARGV );
