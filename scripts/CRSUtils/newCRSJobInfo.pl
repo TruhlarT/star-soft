@@ -292,12 +292,12 @@ if( $sec < 10) { $sec = '0'.$sec };
      @jobtri = `crs_job -long $jbId[$njob] | grep Tries: ` ;
 
  foreach my $jtline (@jobtri) {
-     chop $jtline ;
-     print $jtline, "\n";
+      chop $jtline ;
+#     print $jtline, "\n";
       @prt = ();
 
-       @prt = split(" ", $jtline) ;
-       $jbtri[$njob] =  $prt[1];
+      @prt = split(" ", $jtline) ;
+      $jbtri[$njob] =  $prt[1];
 
 #     print  $jbId[$njob], "  ", $jbstart[$njob], "  ", $jbtri[$njob], "\n";
 
@@ -352,8 +352,8 @@ if( $sec < 10) { $sec = '0'.$sec };
 
      if( $nmonth < 10) { $nmonth = '0'.$nmonth };
 
-      $jtime = $prt[2]."-".$nmonth."-".$prt[1]." ".$prt[3];
-      $jbstart[$njob] = $jtime;
+       $jtime = $prt[2]."-".$nmonth."-".$prt[1]." ".$prt[3];
+       $jbstart[$njob] = $jtime;
    }
   }
 
@@ -362,7 +362,7 @@ if( $sec < 10) { $sec = '0'.$sec };
 
  foreach my $jtline (@jobtri) {
       chop $jtline ;
-      print $jtline, "\n";
+#      print $jtline, "\n";
       @prt = ();
 
       @prt = split(" ", $jtline) ;
