@@ -61,6 +61,8 @@ my %monthHash = (
  my $Tperror = 0;
  my @jobstart = ();
  my @jbstart = ();
+ my @jobtri = ();
+ my @jbtri = ();
  my $jdate = "0000-00-00";
  my $jtime = "0000-00-00 00:00:00";
 
@@ -286,6 +288,21 @@ if( $sec < 10) { $sec = '0'.$sec };
     }
   }
 
+     @jobtri = ();
+     @jobtri = `crs_job -long $jbId[$njob] | grep Tries: ` ;
+
+ foreach my $jtline (@jobtri) {
+     chop $jtline ;
+     print $jtline, "\n";
+      @prt = ();
+
+       @prt = split(" ", $jtline) ;
+       $jbtri[$njob] =  $prt[1];
+
+#     print  $jbId[$njob], "  ", $jbstart[$njob], "  ", $jbtri[$njob], "\n";
+
+ }
+
 ###########
      $njob++;
  } 
@@ -314,9 +331,11 @@ if( $sec < 10) { $sec = '0'.$sec };
     @jobstart = ();
     @jobstart = `crs_job -long $jbId[$njob] | grep 'Status: SUBMITTED'` ;
 
-    foreach my $jstart (@jobstart) {
+     foreach my $jstart (@jobstart) {
      chop $jstart ;
 #     print $jstart, "\n";
+
+     if ( $jstart =~ /Created:/ ) {
 
        @prt = ();
        @prt = split(/\(/, $jstart) ;
@@ -334,10 +353,24 @@ if( $sec < 10) { $sec = '0'.$sec };
      if( $nmonth < 10) { $nmonth = '0'.$nmonth };
 
       $jtime = $prt[2]."-".$nmonth."-".$prt[1]." ".$prt[3];
-#     print "Start time  ",$jtime, "\n";
-
       $jbstart[$njob] = $jtime;
    }
+  }
+
+     @jobtri = ();
+     @jobtri = `crs_job -long $jbId[$njob] | grep Tries: ` ;
+
+ foreach my $jtline (@jobtri) {
+      chop $jtline ;
+      print $jtline, "\n";
+      @prt = ();
+
+      @prt = split(" ", $jtline) ;
+      $jbtri[$njob] =  $prt[1];
+
+#     print  $jbId[$njob], "  ", $jbstart[$njob], "  ", $jbtri[$njob], "\n";
+
+ }
 
 ######
      $njob++;
@@ -374,6 +407,7 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbnode[$njob] = $prt[1];
     }
   }
+
 ####
      $njob++;
  } 
@@ -640,6 +674,7 @@ exit;
  $sql.="error='$jberror[$ii]',";
  $sql.="nodeID='$jbnode[$ii]',";
  $sql.="startTime='$jbstart[$ii]',";
+ $sql.="attempt='$jbtri[$ii]',";
  $sql.="runDate='$thisdate' "; 
    print "$sql\n" if $debugOn;
 #   $rv = $dbh->do($sql) || die $dbh->errstr;
