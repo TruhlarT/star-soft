@@ -58,6 +58,8 @@ my @jbstreams = ();
 my @jberror = ();
 my @jbnode = ();
 my @jbstart = ();
+my @jbattemp = ();
+
 my $nn = 0;
 my $nm = 0;
 
@@ -78,7 +80,7 @@ my %ErrHash = (
 
   $nn = 0;
 
-    $sql="SELECT jobId, filename, nodeID, startTime, error  FROM $JobsInfoT where runnumber = ? and prodtag = ? and status = ? and runDate = ? ";
+    $sql="SELECT jobId, filename, nodeID, startTime, error, attempt  FROM $JobsInfoT where runnumber = ? and prodtag = ? and status = ? and runDate = ? ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -91,6 +93,7 @@ my %ErrHash = (
            $jbnode[$nn]  = $fields[2];
            $jbstart[$nn]  = $fields[3];
            $jberror[$nn] = $fields[4];
+           $jbattemp[$nn] = $fields[5];
            $nn++;
        }
     $cursor->finish();
@@ -102,6 +105,11 @@ my %ErrHash = (
  }elsif( $jbstat eq "IMPORTING" or $jbstat eq "EXPORTING" ) {
 
   &beginHtmlFN();
+
+ }elsif( $jbstat eq "STAGING" or $jbstat eq "SUBMITTED" ) {
+
+  &beginHtmlST();
+
 
  }else{
 
@@ -135,6 +143,17 @@ END
 </TR>
 END
 
+ }elsif( $jbstat eq "STAGING" or $jbstat eq "SUBMITTED" ) {
+
+ print <<END;
+
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
+<td HEIGHT=10>$jbId[$ii]</td>
+<td HEIGHT=10>$jbfiles[$ii]</td>
+<td HEIGHT=10>$jbstart[$ii]</td>
+<td HEIGHT=10>$jbattemp[$ii]</td>
+</TR>
+END
 
  }else{ 
 
@@ -199,6 +218,28 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>JobID</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Filename</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Start time</h3></B></TD>
+</TR>
+    </body>
+END
+}
+
+######################
+
+sub beginHtmlST {
+
+print <<END;
+
+  <html>
+
+   <body BGCOLOR=\"cornsilk\"> 
+ <h2 ALIGN=CENTER> <B> Files for runnumber <font color="blue">$jbrun </font> in <font color="blue">$jbprod </font> production scanned at <font color="blue">$scdate </font></B></h2>
+<br>
+<TABLE ALIGN=CENTER BORDER=4 CELLSPACING=1 CELLPADDING=1 bgcolor=\"#ffdc9f\">
+<TR>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>JobID</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Filename</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Start time</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of attempts</h3></B></TD>
 </TR>
     </body>
 END
@@ -294,7 +335,7 @@ print <<END;
       <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
 <!-- Created: April 25 2014 -->
 <!-- hhmts start -->
-Last modified: 2014-04-25
+Last modified: 2015-03-12
 <!-- hhmts end -->
   </body>
 </html>
