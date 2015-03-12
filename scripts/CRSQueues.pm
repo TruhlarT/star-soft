@@ -33,19 +33,30 @@ if ( $BMODE==0 ){
     $CRSQ::OFFSYNC=30;   # queue submission will continue up to this %tage
                          # of off-sync.
 
-} elsif ( $BMODE == 1) {
+#} elsif ( $BMODE == 1) {
     # Condor-based
-    $STATUS="/home/starreco/newcrs/bin/crs_job -show_queues";
-    $JOBINF="/home/starreco/newcrs/bin/crs_job -show_crs_jobs_per_queue";
-    $JOBLST="/home/starreco/newcrs/bin/crs_job -stat_show_machines";
-    $QUEUEJ="/home/starreco/newcrs/bin/crs_job -create";
-    $SUBMIT="/home/starreco/newcrs/bin/crs_job -submit";
+#    $STATUS="/home/starreco/newcrs/bin/crs_job -show_queues";
+#    $JOBINF="/home/starreco/newcrs/bin/crs_job -show_crs_jobs_per_queue";
+#    $JOBLST="/home/starreco/newcrs/bin/crs_job -stat_show_machines";
+#    $QUEUEJ="/home/starreco/newcrs/bin/crs_job -create";
+#    $SUBMIT="/home/starreco/newcrs/bin/crs_job -submit";
+
+#    $CRSQ::MAXQ=6;       # support up to that number of queues
+#    $CRSQ::PFACT=5;      # some number of files arbitrary proportion factor
+#    $CRSQ::OFFSYNC=30;   # queue submission will continue up to this %tage
+                         # of off-sync.
+
+} elsif ( $BMODE == 1)
+
+    $JOBLST="/usr/bin/crs_job -machines";
+    $STATUS="/usr/bin/crs_job -stat";
+    $QUEUEJ="/usr/bin/crs_job -create";
+    $SUBMIT="/usr/bin/crs_job -submit";
 
     $CRSQ::MAXQ=6;       # support up to that number of queues
     $CRSQ::PFACT=5;      # some number of files arbitrary proportion factor
     $CRSQ::OFFSYNC=30;   # queue submission will continue up to this %tage
                          # of off-sync.
-
 
 } else {
     # If don't know, die
@@ -531,9 +542,15 @@ sub CRSQ_submit
 		print "CRSQ :: Do not know status [$rres] for [$SUBMIT $res]\n";
 	    }
 	}
-	$qnum;
-    }
 
+	$qnum;
+
+    } elsif ( $BMODE == 2 ){
+
+      $res = `$QUEUEJ $jfile`
+      $rres = `$SUBMIT -s CREATED`;
+
+    }
 }
 
 
