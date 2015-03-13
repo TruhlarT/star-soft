@@ -183,6 +183,7 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbstate[$njob] = "DONE";  
      $jberror[$njob] = 0;
      $jbnode[$njob] = "none";   
+     $jbtri[$njob] = 0; 
      $njob++;
  }
 
@@ -205,6 +206,7 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbstate[$njob] = "QUEUED";  
      $jberror[$njob] = 0;
      $jbnode[$njob] = "none";   
+     $jbtri[$njob] = 0; 
 
 ####    find start time
 
@@ -394,9 +396,11 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbId[$njob] = substr($wrd[0],0,-1) + 0;
      $jbstate[$njob] = "IMPORTING";  
      $jberror[$njob] = 0;
+#     $jbnode[$njob] = "none";
+     $jbtri[$njob] = 0; 
 
     @jobnode = ();
-    @jobnode = `crs_job -long $jbId[$njob] | grep Machine`;
+    @jobnode = `crs_job -print $jbId[$njob] | grep Machine`;
 
    foreach my $jnode (@jobnode) {
      chop $jnode ;
@@ -430,9 +434,10 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbstate[$njob] = "RUNNING";  
      $jberror[$njob] = 0;
 #     $jbnode[$njob] = "none";  
+     $jbtri[$njob] = 0; 
 
     @jobnode = ();
-    @jobnode = `crs_job -long $jbId[$njob] | grep Machine`;
+    @jobnode = `crs_job -print $jbId[$njob] | grep Machine`;
 
    foreach my $jnode (@jobnode) {
      chop $jnode ;
@@ -447,9 +452,11 @@ if( $sec < 10) { $sec = '0'.$sec };
 ####### find start time
 
     @jobstart = ();
-    @jobstart = `crs_job -long $jbId[$njob] | grep Start`;
+#    @jobstart = `crs_job -long $jbId[$njob] | grep Start`;
 
+    @jobstart = `crs_job -print $jbId[$njob] | grep 'Status: RUNNING'`;
 
+   
    foreach my $jstart (@jobstart) {
      chop $jstart ;
 ####     print $jstart, "\n";
@@ -461,10 +468,21 @@ if( $sec < 10) { $sec = '0'.$sec };
 #####
        @prt = ();
        @prt = split(/\)/, $jdate) ;      
-       $jtime =  $prt[0];
+       $jstime =  $prt[0];
 
-      $jbstart[$njob] = $jtime;
-  }
+############   to come back remove next part
+
+       @prt = ();
+       @prt = split(" ", $jstime) ;
+       $mmon = $prt[0];
+       $nmonth = $monthHash{$mmon};
+
+     if( $nmonth < 10) { $nmonth = '0'.$nmonth };
+
+       $jtime = $prt[2]."-".$nmonth."-".$prt[1]." ".$prt[3];
+       $jbstart[$njob] = $jtime;
+ 
+ }
 
 ################
      $njob++;
@@ -488,9 +506,10 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbId[$njob] = substr($wrd[0],0,-1) + 0;
      $jbstate[$njob] = "EXPORTING";  
      $jberror[$njob] = 0;
+     $jbtri[$njob] = 0; 
 
     @jobnode = ();
-    @jobnode = `crs_job -long $jbId[$njob] | grep Machine`;
+    @jobnode = `crs_job -print $jbId[$njob] | grep Machine`;
 
    foreach my $jnode (@jobnode) {
      chop $jnode ;
@@ -522,6 +541,7 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbId[$njob] = $wrd[0];
      $jbId[$njob] = substr($wrd[0],0,-1) + 0;
      $jbstate[$njob] = "ERROR";  
+     $jbtri[$njob] = 0; 
 
      @errlines = ();
      @errlines = `crs_job -long $jbId[$njob] | grep Error`; 
@@ -578,6 +598,7 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbstate[$njob] = "HELD";  
      $jberror[$njob] = 0;
      $Tperror = 0;
+     $jbtri[$njob] = 0; 
 
      @errlines = ();
      @errlines = `crs_job -long $jbId[$njob] | grep Error`; 
