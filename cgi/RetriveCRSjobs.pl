@@ -110,6 +110,9 @@ my %ErrHash = (
 
   &beginHtmlST();
 
+ }elsif( $jbstat eq "DONE" ) {
+
+  &beginHtmlD();
 
  }else{
 
@@ -154,6 +157,17 @@ END
 <td HEIGHT=10>$jbattemp[$ii]</td>
 </TR>
 END
+
+ }elsif( $jbstat eq "DONE" ) {
+
+ print <<END;
+
+<TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
+<td HEIGHT=10>$jbId[$ii]</td>
+<td HEIGHT=10>$jbfiles[$ii]</td>
+</TR>
+END
+
 
  }else{ 
 
@@ -220,6 +234,26 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Filename</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Start time</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Node name</h3></B></TD>
+</TR>
+    </body>
+END
+}
+
+######################
+
+sub beginHtmlD {
+
+print <<END;
+
+  <html>
+
+   <body BGCOLOR=\"cornsilk\"> 
+ <h2 ALIGN=CENTER> <B> Files for runnumber <font color="blue">$jbrun </font> in <font color="blue">$jbprod </font> production scanned at <font color="blue">$scdate </font></B></h2>
+<br>
+<TABLE ALIGN=CENTER BORDER=4 CELLSPACING=1 CELLPADDING=1 bgcolor=\"#ffdc9f\">
+<TR>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>JobID</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Filename</h3></B></TD>
 </TR>
     </body>
 END
