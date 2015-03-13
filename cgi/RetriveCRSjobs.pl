@@ -230,7 +230,7 @@ print <<END;
 <br>
 <TABLE ALIGN=CENTER BORDER=4 CELLSPACING=1 CELLPADDING=1 bgcolor=\"#ffdc9f\">
 <TR>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>JobID</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>JobID</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Filename</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Start time</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Node name</h3></B></TD>
