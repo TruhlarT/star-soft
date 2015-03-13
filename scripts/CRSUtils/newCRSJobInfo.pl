@@ -429,10 +429,20 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbId[$njob] = substr($wrd[0],0,-1) + 0;
      $jbstate[$njob] = "RUNNING";  
      $jberror[$njob] = 0;
-     $jbnode[$njob] = "none";  
+#     $jbnode[$njob] = "none";  
 
-#    @jobnode = ();
-#    @jobnode = `crs_job -long $jbId[$njob] | grep Machine`;
+    @jobnode = ();
+    @jobnode = `crs_job -long $jbId[$njob] | grep Machine`;
+
+   foreach my $jnode (@jobnode) {
+     chop $jnode ;
+#     print $jnode, "\n";
+    if ( $jnode =~ /Machine/ ) {
+       @prt = ();
+       @prt = split(" ", $jnode) ;
+     $jbnode[$njob] = $prt[1];
+    }
+  }
 
 ####### find start time
 
