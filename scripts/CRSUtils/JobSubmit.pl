@@ -77,7 +77,8 @@
 
 use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use RunDAQ;
-use CRSQueues;
+#use CRSQueues;
+use lib "/star/u/didenko/dev/scripts/CRSUtils/CRSQueues" ;
 
 
 $ThisYear = 2015;                 # Block to consider. Completely artificial
