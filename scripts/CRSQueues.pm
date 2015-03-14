@@ -46,7 +46,7 @@ if ( $BMODE==0 ){
 #    $CRSQ::OFFSYNC=30;   # queue submission will continue up to this %tage
                          # of off-sync.
 
-} elsif ( $BMODE == 1)
+} elsif ( $BMODE == 1) {
 
     $JOBLST="/usr/bin/crs_job -machines";
     $STATUS="/usr/bin/crs_job -stat";
