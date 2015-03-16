@@ -182,7 +182,8 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbId[$njob] = substr($wrd[0],0,-1) + 0;
      $jbstate[$njob] = "DONE";  
      $jberror[$njob] = 0;
-     $jbnode[$njob] = "none";   
+     $jbnode[$njob] = "none";
+     $jbstart[$njob] ="0000-00-00 00:00:00";
      $jbtri[$njob] = 0; 
      $njob++;
  }
@@ -397,6 +398,7 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbstate[$njob] = "IMPORTING";  
      $jberror[$njob] = 0;
 #     $jbnode[$njob] = "none";
+     $jbstart[$njob] ="0000-00-00 00:00:00";
      $jbtri[$njob] = 0; 
 
     @jobnode = ();
@@ -506,7 +508,8 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbId[$njob] = substr($wrd[0],0,-1) + 0;
      $jbstate[$njob] = "EXPORTING";  
      $jberror[$njob] = 0;
-     $jbtri[$njob] = 0; 
+     $jbtri[$njob] = 0;
+     $jbstart[$njob] ="0000-00-00 00:00:00"; 
 
     @jobnode = ();
     @jobnode = `crs_job -print $jbId[$njob] | grep Machine`;
@@ -542,6 +545,7 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jbId[$njob] = substr($wrd[0],0,-1) + 0;
      $jbstate[$njob] = "ERROR";  
      $jbtri[$njob] = 0; 
+     $jbstart[$njob] ="0000-00-00 00:00:00";
 
      @errlines = ();
      @errlines = `crs_job -long $jbId[$njob] | grep Error`; 
@@ -599,6 +603,7 @@ if( $sec < 10) { $sec = '0'.$sec };
      $jberror[$njob] = 0;
      $Tperror = 0;
      $jbtri[$njob] = 0; 
+     $jbstart[$njob] ="0000-00-00 00:00:00";
 
      @errlines = ();
      @errlines = `crs_job -long $jbId[$njob] | grep Error`; 
