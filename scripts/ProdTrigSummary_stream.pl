@@ -28,7 +28,11 @@ my $TrigDataT = "ProdTriggers";
 
 #my $TrigDataT = "ProdTriggerSet";
 
-$dbhosto="dbbak.starp.bnl.gov:3411";
+#$dbhosto="dbbak.starp.bnl.gov:3411";
+$dbhosto="dbbak.starp.bnl.gov:3413";
+#$dbhosto="dbbak.starp.bnl.gov:3501";
+#$dbhosto="dbbak.starp.bnl.gov:3412";
+#$dbhosto="db04.star.bnl.gov:3412";
 $dbusero="starreco";
 $dbpasso="";
 $dbnameo="RunLog";
@@ -102,6 +106,10 @@ my $nn = 0;
     &StDbOprConnect();
 
    $sql="SELECT distinct runNumber, streamName  FROM  $TrigDataT WHERE  trigSetName='$trgname' and prodTag='$prod' and  streamName = '$nmstream' "; 
+
+######## query for filling with streamname if not all streams are processed in production
+
+#   $sql="SELECT distinct runNumber  FROM  $TrigDataT WHERE  trigSetName='$trgname' and prodTag='$prod' "; 
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
