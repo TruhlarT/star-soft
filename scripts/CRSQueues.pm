@@ -47,7 +47,7 @@ if ( $BMODE==0 ){
                          # of off-sync.
 
 } elsif ( $BMODE == 1) {
-
+    # Condor-based
     $JOBLST="/usr/bin/crs_job -machines";
     $STATUS="/usr/bin/crs_job -stat";
     $QUEUEJ="/usr/bin/crs_job -create";
@@ -547,7 +547,7 @@ sub CRSQ_submit
 
     } elsif ( $BMODE == 2 ){
 
-      $res = `$QUEUEJ $jfile`
+	$res = `$QUEUEJ $jfile`;
       $rres = `$SUBMIT -s CREATED`;
 
     }
