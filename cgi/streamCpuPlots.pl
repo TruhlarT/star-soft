@@ -1295,8 +1295,6 @@ END
 
     @data = ();
 
-       $legend[11] = "Average ratio =  $avgratio +- $stdratio " ;        
-
 
        if( $qperiod eq "week") {
 
@@ -1306,7 +1304,7 @@ END
       }else{
 
        $ylabel = "Average ratio RealTime/CPU per day";
-       $gtitle = "Average  RealTime/CPU per day for different streams for $qperiod period, is $avgratio +- $stdratio ";
+       $gtitle = "Average ratio RealTime/CPU per day for $qperiod period, $avgratio +- $stdratio ";
       }     
 
 #  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@aratomcules, \@armtd, \@arcentralpro ) ;
