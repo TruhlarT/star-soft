@@ -182,6 +182,11 @@ my @jbfgt  = ();
 my @jbhltgood  = ();
 my @jbwb = ();
 
+my $avgcpu = 0;
+my $stdcpu = 0;
+my $avgratio = 0;
+my $stdratio = 0;
+
  
  my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months");
 
@@ -442,6 +447,19 @@ END
         $nday++;
     }
 
+         $cursor->finish();
+########
+
+    $sql="SELECT FORMAT(avg(RealTime_per_evt/CPU_per_evt_sec),2), FORMAT(std(RealTime_per_evt/CPU_per_evt_sec),2) FROM $JobStatusT WHERE prodSeries = ?  AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(runDay)) < ?  order by runDay";
+
+    $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+    $cursor->execute($qprod,$day_diff);
+
+    while( @fields = $cursor->fetchrow) {
+        $avgratio = $fields[0];
+        $stdratio = $fields[1];
+    }
          $cursor->finish();
 
    }
@@ -1276,6 +1294,9 @@ END
        if ( $srate eq "rtime/cpu" ) {
 
     @data = ();
+
+       $legend[11] = "Average ratio =  $avgratio +- $stdratio " ;        
+
 
        if( $qperiod eq "week") {
 
