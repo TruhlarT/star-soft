@@ -1304,7 +1304,7 @@ END
       }else{
 
        $ylabel = "Average ratio RealTime/CPU per day";
-       $gtitle = "Average ratio RealTime/CPU per day for $qperiod period, average is $avgratio +- $stdratio ";
+       $gtitle = "Average ratio RealTime/CPU per day for $qperiod period, average is $avgratio+-$stdratio ";
       }     
 
 #  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@aratomcules, \@armtd, \@arcentralpro ) ;
@@ -1326,7 +1326,7 @@ END
          }else{
 
        $ylabel = "Average CPU in sec/evt per day";
-       $gtitle = "Average CPU in sec/evt per day for $qperiod period, average is $avcpu +- $stdcpu";
+       $gtitle = "Average CPU in sec/evt per day for $qperiod period, average is $avgcpu+-$stdcpu";
 
          }   
 
