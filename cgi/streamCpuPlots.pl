@@ -463,7 +463,7 @@ END
          $cursor->finish();
 
 
-    $sql="SELECT FORMAT(avg(CPU_per_evt_sec),2), FORMAT(std(CPU_per_evt_sec),2) FROM $JobStatusT WHERE prodSeries = ?  AND  runDay <> '0000-00-00' AND jobStatus = 'Done' and CPU_per_evt_sec > 0.1 AND jobfileName like '%st_physics%' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(runDay)) < ?  order by runDay";
+    $sql="SELECT FORMAT(avg(CPU_per_evt_sec),2), FORMAT(std(CPU_per_evt_sec),2) FROM $JobStatusT WHERE prodSeries = ?  AND  runDay <> '0000-00-00' AND jobStatus = 'Done' and CPU_per_evt_sec > 0.1 AND (jobfilename like '%st_physics%' or jobfileName like '%st_hlt%' ) AND (TO_DAYS(\"$nowdate\") - TO_DAYS(runDay)) < ?  order by runDay";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
