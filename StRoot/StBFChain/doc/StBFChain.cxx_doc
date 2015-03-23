@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.135 2015/02/25 21:53:14 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.136 2015/03/23 11:44:27 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -1348,6 +1348,8 @@ Bfc_st BFC[] = {
    "StFmsFastSimulatorMaker","StFmsFastSimulatorMaker","FMS Fast Simulator", kFALSE},
   {"fmsDat" ,"","", "StEvent,fmsDb",
    "StFmsHitMaker","StFmsHitMaker","Fill FMS struct and zero TRG", kFALSE},
+  {"fpsDat" ,"","", "StEvent,fmsdb",
+   "StFpsRawHitMaker","StFpsRawHitMaker","Fill FPS struct", kFALSE},
   {"fpd" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"fgt" ,"FgtChain","","fgtDat,fgtClu,fgtAtoC" ,"StMaker","StChain","Fgt data Chain",kFALSE},
   {"fgtDat" ,"","", "event,fgtdb","StFgtRawMaker","StFgtRawMaker", "FGT Data reader",kFALSE},
@@ -2869,6 +2871,8 @@ Bfc_st BFC[] = {
    "StFmsFastSimulatorMaker","StFmsFastSimulatorMaker","FMS Fast Simulator", kFALSE},
   {"fmsDat" ,"","", "StEvent,fmsDb",
    "StFmsHitMaker","StFmsHitMaker","Fill FMS struct and zero TRG", kFALSE},
+  {"fpsDat" ,"","", "StEvent,fmsdb",
+   "StFpsRawHitMaker","StFpsRawHitMaker","Fill FPS struct", kFALSE},
   {"fpd" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"fgt" ,"FgtChain","","fgtDat,fgtClu,fgtAtoC" ,"StMaker","StChain","Fgt data Chain",kFALSE},
   {"fgtDat" ,"","", "event,fgtdb","StFgtRawMaker","StFgtRawMaker", "FGT Data reader",kFALSE},
