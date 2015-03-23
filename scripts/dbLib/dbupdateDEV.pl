@@ -1404,7 +1404,7 @@ sub fillQATable {
     $sql.="jobStatus='$jrun',";
     $sql.="NoEventDone='$EvDone',";
     $sql.="PxlHits='$avgPxlHits',";
-    $sql.="AsstPxlHits'$avgAssPxlHits',";
+    $sql.="AsstPxlHits='$avgAssPxlHits',";
     $sql.="IstHits='$avgIstHits',";
     $sql.="AsstIstHits='$avgAssIstHits',";
     $sql.="MtdMatchHits='$avgmatchMtdHits',";
