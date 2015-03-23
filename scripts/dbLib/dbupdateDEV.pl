@@ -1990,7 +1990,7 @@ $jrun = "Run not completed";
 
 
      }
-#  print "Avg #MtdHits = ",  $avgMtdHits,"   ", "Avg #PxlHits = ", $avgPxlHits,"   ", "Avg #IstHits = ", $avgIstHits,"   ", "Avg #SsdHits = ", $avgSsdHits,"\n";
+  print "Avg #MtdHits = ",  $avgMtdHits,"   ", "Avg #PxlHits = ", $avgPxlHits,"   ", "Avg #IstHits = ", $avgIstHits,"   ", "Avg #SsdHits = ", $avgSsdHits,"\n";
 
   print "Avg #AssPxlHits = ", $avgAssPxlHits,"   ", "Avg #AssIstHits = ", $avgAssIstHits,"   ", "Avg #AssSsdHits = ", $avgAssSsdHits,"\n";
 
