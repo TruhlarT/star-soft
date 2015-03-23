@@ -14,7 +14,7 @@
 use DBI;
 use Class::Struct;
 use Time::Local;
-
+use File::Basename;
 
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
@@ -24,6 +24,8 @@ $dbname="operation";
 
 my $FileCatalogT = "FileCatalog2014";
 my $ProdSizeT = "ProductionSize"; 
+my $JobStatusT = "JobStatus2014";
+
 
 my $trigname = $ARGV[0];
 my $prodTag = $ARGV[1];
@@ -34,17 +36,19 @@ my @daqevents = ();
 my @daqfiles  = ();
 my @daqsizes  = ();
 my @runnum = ();
-my @crptime = ();
+my @crtime = ();
+my @strtime = ();
 my $nj = 0;
 my @dbmufiles = ();
 my @dbmusize = ();
 my $nn = 0;
 my $dqfile;
+my $basefile ;
 
  &StDbConnect();
 
 
-    $sql="SELECT distinct runID, fName, size, Nevents, createtime  FROM $FileCatalogT where trigset = '$trigname' and path like '%$prodTag%' and fName like '%.MuDst.root' order by runID ";
+    $sql="SELECT distinct runID, fName, size, Nevents, createtime FROM $FileCatalogT where trigset = '$trigname' and path like '%$prodTag%' and fName like '%.MuDst.root' order by runID ";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -56,7 +60,7 @@ my $dqfile;
     $mufiles[$nj]  = $fields[1];
     $musizes[$nj]  = $fields[2];
     $muevents[$nj] = $fields[3];
-    $crtime[$nj]   = $fields[4]; 
+    $crtime[$nj]   = $fields[4];
     $nj++;
        }
     $cursor->finish();
@@ -64,8 +68,8 @@ my $dqfile;
   
   for ( my $ik = 0; $ik < $nj; $ik++ ) {
 
-      $dqfile = $mufiles[$ik];
-      $dqfile =~ s/MuDst.root/daq/g;
+      $basefile = basename("$mufiles[$ik]",".MuDst.root");
+      $dqfile = $basefile.".daq" ;
       $daqfiles[$ik] = $dqfile;
 
     $sql="SELECT distinct fName, size, Nevents FROM $FileCatalogT where trigset = '$trigname' and fName = '$dqfile' ";
@@ -81,6 +85,20 @@ my $dqfile;
 
     }
     $cursor->finish();
+
+
+    $sql="SELECT startTime FROM $JobStatusT where jobfileName like '$trigname%$prodTag%$basefile' ";
+
+    $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+    $cursor->execute();
+
+    while( my $mstrm = $cursor->fetchrow() ) {
+ 
+    $strtime[$ik] = $mstrm;
+    }
+    $cursor->finish();
+
 
  $nn = 0;
  @dbmufiles = ();
@@ -105,7 +123,7 @@ my $dqfile;
 
     print "File  ",$mufiles[$ik],"   not found in the table, insert file ","\n"; 
 
-   $sql="insert into $ProdSizeT set Trigset = '$trigname', prodtag = '$prodTag', runnumber = '$runnum[$ik]', filename = '$mufiles[$ik]', mudstsize = '$musizes[$ik]', mudstEvents = '$muevents[$ik]', daqsize = '$daqsizes[$ik]', daqEvents = '$daqevents[$ik]', createtime = '$crtime[$ik]'" ;    
+   $sql="insert into $ProdSizeT set Trigset = '$trigname', prodtag = '$prodTag', runnumber = '$runnum[$ik]', filename = '$mufiles[$ik]', mudstsize = '$musizes[$ik]', mudstEvents = '$muevents[$ik]', daqsize = '$daqsizes[$ik]', daqEvents = '$daqevents[$ik]', createtime = '$crtime[$ik]', starttime = '$strtime[$ik]' " ;    
 
       $dbh->do($sql) || die $dbh->errstr;
 
