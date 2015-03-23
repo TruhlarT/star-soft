@@ -365,6 +365,15 @@ struct JFileAttr => {
  my $nSsdHits = 0;
  my $totSsdHits = 0;
  my $avgSsdHits = 0;
+ my $nAssPxlHits = 0;
+ my $nAssIstHits = 0;
+ my $nAssSsdHits = 0;
+ my $avgAssPxlHits = 0;
+ my $avgAssIstHits = 0;
+ my $avgAssSsdHits = 0;
+ my $totAssPxlHits = 0;
+ my $totAssIstHits = 0;
+ my $totAssSsdHits = 0;
 
  my @nmatchMtdHits = ();
  my $totmatchMtdHits = 0;
@@ -524,6 +533,16 @@ my $pyear = 0;
  $totSSdHits = 0;
  $avgIstHits = 0;
  $avgSSdHits = 0;
+ $nAssPxlHits = 0;
+ $nAssIstHits = 0;
+ $nAssSsdHits = 0;
+ $avgAssPxlHits = 0;
+ $avgAssIstHits = 0;
+ $avgAssSsdHits = 0;
+ $totAssPxlHits = 0;
+ $totAssIstHits = 0;
+ $totAssSsdHits = 0;
+
 
  @prt = ();
  
@@ -558,7 +577,7 @@ my $pyear = 0;
                        $fullyear,$mo,$dy,$hr,$min);    
 
 #           if( $ltime > 2400 && $ltime < 518400 ){         
-          if( $ltime > 2400 ) { 
+          if( $ltime > 1200 ) { 
 #   print "Log time: ", $ltime, "\n";
    print $fullname, "\n";
       
@@ -755,6 +774,14 @@ my $pyear = 0;
 ###########################
 
     &fillJSTable();
+
+#     if($mpath =~ /production_pp200long_2015/) {
+
+#       print "Fillin QA table  ", $mpath, "\n";
+#    next if ($mpath =~ /nohft/);
+
+#    &fillQATable();
+#   }
 
 
         foreach my $nOldJob (@old_jobs) {
@@ -1377,10 +1404,13 @@ sub fillQATable {
     $sql.="jobStatus='$jrun',";
     $sql.="NoEventDone='$EvDone',";
     $sql.="PxlHits='$avgPxlHits',";
+    $sql.="AsstPxlHits'$avgAssPxlHits',";
     $sql.="IstHits='$avgIstHits',";
+    $sql.="AsstIstHits='$avgAssIstHits',";
     $sql.="MtdMatchHits='$avgmatchMtdHits',";
     $sql.="MtdHits='$avgMtdHits',";
     $sql.="avail='$mavail'";  
+#    print "$sql\n";
     print "$sql\n" if $debugOn;
     $rv = $dbh->do($sql) || die $dbh->errstr;
     $new_id = $dbh->{'mysql_insertid'}; 
@@ -1432,6 +1462,7 @@ sub  updateQATable {
  my $i;
  my @part;
  my @prt = ();
+ my @prtt = ();
  my $mixer;
  my @size_line;
  my @memSize;
@@ -1474,11 +1505,23 @@ sub  updateQATable {
  $totSsdHits = 0;
  $avgSsdHits = 0;
 
+ $nAssIstHits = 0;
+ $totAssIstHits = 0;
+ $avgAssIstHits = 0;
+
+ $nAssPxlHits = 0;
+ $totAssPxlHits = 0;
+ $avgAssPxlHits = 0;
+
+ $nAssSsddHits = 0;
+ $totAssSsdHits = 0;
+ $avgAssSsdHits = 0;
+
  @nmatchMtdHits = ();
  $totmatchMtdHits = 0;
  $avgmatchMtdHits = 0;
  $NevtMtdHits = 0;
-
+ 
 #---------------------------------------------------------
 
 #  print $fl_log, "\n";
@@ -1502,6 +1545,8 @@ my @tmm = ();
 my $mixline = "StRoot/macros/embedding";
 my $evtcomp = 0;
 my $Err_messg = "none";
+my $ntemp = 0;
+
 
 $jrun = "Run not completed";
 
@@ -1590,7 +1635,34 @@ $jrun = "Run not completed";
       $totSsdHits += $nSsdHits;
 
      }
+
+     if ( $line =~ /PxlId/ and $line =~ /per track/) {
+      @prt = ();
+      @prt = split( ":", $line) ;
+      $ntemp = $prt[4];
+      @prtt = ();
+      @prtt = split( " ", $ntemp) ;      
+      $nAssPxlHits = $prtt[0];
+      $totAssPxlHits += $nAssPxlHits;
+
+#      print "PXL associate hits  =  ", $nAssPxlHits, "\n";
+
+     }elsif($line =~ /IstId/ and $line =~ /per track/) {
+      @prt = ();
+      @prt = split( ":", $line) ;
+      $ntemp = $prt[4];
+      @prtt = ();
+      @prtt = split( " ", $ntemp) ;  
+
+      $nAssIstHits = $prtt[0];
+      $totAssIstHits += $nAssIstHits;
+
+#      print "IST associate hits  =  ", $nAssIstHits,"\n";
+     }
+
 #      print "MTD, PXL, IST hits  ", "MTD hits = ", $nMtdHits,"   ","PXL hits = ",$nPxlHits,"  ","  Ist hits = ", $nIstHits, "\n";
+
+
      if ( $line =~ /mtd hit matched with track successfully/ ) {
 	 $nmatchMtdHits[$no_event]++;
 #     print "Number of matched MTD hits  ", $nmatchMtdHits[$no_event], "  ", "in the event #",$no_event, "\n";
@@ -1912,9 +1984,16 @@ $jrun = "Run not completed";
      $avgPxlHits = $totPxlHits/$EvDone;
      $avgIstHits = $totIstHits/$EvDone;
      $avgSsdHits = $totSsdHits/$EvDone;
+     $avgAssPxlHits = $totAssPxlHits/$EvDone;
+     $avgAssIstHits = $totAssIstHits/$EvDone;
+     $avgAssSsdHits = $totAssSsdHits/$EvDone;
+
 
      }
-  print "Avg #MtdHits = ",  $avgMtdHits,"   ", "Avg #PxlHits = ", $avgPxlHits,"   ", "Avg #IstHits = ", $avgIstHits,"   ", "Avg #SsdHits = ", $avgSsdHits,"\n";
+#  print "Avg #MtdHits = ",  $avgMtdHits,"   ", "Avg #PxlHits = ", $avgPxlHits,"   ", "Avg #IstHits = ", $avgIstHits,"   ", "Avg #SsdHits = ", $avgSsdHits,"\n";
+
+  print "Avg #AssPxlHits = ", $avgAssPxlHits,"   ", "Avg #AssIstHits = ", $avgAssIstHits,"   ", "Avg #AssSsdHits = ", $avgAssSsdHits,"\n";
+
 
      for ($jj = 0; $jj < $no_event; $jj++ ) {
 	 if ( $nmatchMtdHits[$jj] >= 1 ) {
