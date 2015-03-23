@@ -46,8 +46,11 @@ my @prod_set = (
 
 my @myplot =   (
 		"PxlHits",
+                "AsstPxlHits",
                 "IstHits",
+                "AsstIstHits",
 		"SsdHits", 
+		"AsstSsdHits", 
                 "MtdHits",
 		"MtdMatchHits",
                 "avg_ratio_tracks",
