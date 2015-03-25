@@ -291,11 +291,6 @@ $ndt = 0;
        $ndate[$ndt] = $fields[0];
        $jbsize[$ndt] = $fields[1]/1000000000;
 
-       if( !defind $jbsize[$ndt]) {
-	   $jbsize[$ndt] = 0;
-           $ndate[$ndt] = $tdate;
-        }
-
       $ndt++;
 
      }
@@ -317,12 +312,7 @@ $ndt = 0;
 	$ndate[$ndt] = $fields[0];
         $jbsize[$ndt] = $fields[1]/1000000000;
 
-      if( !defind $jbsize[$ndt]) {
-	  $jbsize[$ndt] = 0;
-          $ndate[$ndt] = $tdate;
-        }
-
-      $ndt++;
+       $ndt++;
 
      }
     }
@@ -336,7 +326,7 @@ $ndt = 0;
 
 @daqsize = ();
 @ndate = ();
-$nst = 0;
+$ndt = 0;
 
  
      if($qtrig eq "all") {  
