@@ -370,8 +370,6 @@ $ndt = 0;
      }
 ##
 
-# }
-
 ############################################################
 
     &StDbProdDisconnect();
@@ -416,7 +414,7 @@ $ndt = 0;
 
    @data = ();
 
-    $max_y = 42000;
+    $max_y = 56000;
 
        $ylabel = "Size of data in GB transferred  from/to HPSS per day";
        $gtitle = "Size of data in GB transferred  from/to HPSS for $qperiod period";
