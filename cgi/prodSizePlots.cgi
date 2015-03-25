@@ -269,7 +269,6 @@ my $qtrig =   $qqr->param('ptrig');
 #############################  size of MuDst
 
  
-  if( $srate eq "mudstsize" ) {
 
 @jbsize = ();
 @ndate = ();
@@ -321,8 +320,6 @@ $ndt = 0;
   
 #################################  size of daq files
 
- 
-  }elsif( $srate eq "daqsize" ) {
 
 @daqsize = ();
 @ndate = ();
@@ -373,7 +370,7 @@ $ndt = 0;
      }
 ##
 
-  }
+# }
 
 ############################################################
 
@@ -396,7 +393,7 @@ $ndt = 0;
 
     @data = ();
 
-   $max_y = 18000;
+   $max_y = 21000;
 
        $ylabel = "Size of MuDst data in GB sinking to HPSS per day";
        $gtitle = "Size of MuDst in GB for $qperiod period";
@@ -408,7 +405,7 @@ $ndt = 0;
 
     @data = ();
 
-    $max_y = 42000;
+    $max_y = 56000;
 
        $ylabel = "Size of raw data in GB restored from HPSS per day";
        $gtitle = "Size of raw data in GB restored from HPSS for $qperiod period";
