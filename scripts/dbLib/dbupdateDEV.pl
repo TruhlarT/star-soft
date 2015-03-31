@@ -577,7 +577,7 @@ my $pyear = 0;
                        $fullyear,$mo,$dy,$hr,$min);    
 
 #           if( $ltime > 2400 && $ltime < 518400 ){         
-          if( $ltime > 1200 ) { 
+          if( $ltime > 1200 and $size > 1000 ) { 
 #   print "Log time: ", $ltime, "\n";
    print $fullname, "\n";
       
@@ -1636,7 +1636,7 @@ $jrun = "Run not completed";
 
      }
 
-     if ( $line =~ /PxlId/ and $line =~ /per track/) {
+     if ( $line =~ /PxlId/ and $line =~ /Number of used hits/) {
       @prt = ();
       @prt = split( ":", $line) ;
       $ntemp = $prt[4];
@@ -1647,7 +1647,7 @@ $jrun = "Run not completed";
 
 #      print "PXL associate hits  =  ", $nAssPxlHits, "\n";
 
-     }elsif($line =~ /IstId/ and $line =~ /per track/) {
+     }elsif($line =~ /IstId/ and $line =~ /Number of used hits/) {
       @prt = ();
       @prt = split( ":", $line) ;
       $ntemp = $prt[4];
