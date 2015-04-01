@@ -88,7 +88,7 @@ my $thistime;
  $beforeDay = $Nday[$iday - 2];
 
   print "Day Name: ",$thisday, " % ", "Index", $iday, "\n";
- 
+
  ##### setup output directories for thisday
  
 
@@ -1522,6 +1522,8 @@ sub  updateQATable {
  $avgmatchMtdHits = 0;
  $NevtMtdHits = 0;
  
+ my $nnline = 0;
+
 #---------------------------------------------------------
 
 #  print $fl_log, "\n";
@@ -1636,7 +1638,8 @@ $jrun = "Run not completed";
 
      }
 
-     if ( $line =~ /PxlId/ and $line =~ /Number of used hits/) {
+     if ( $line =~ /Number of used hits:PxlId/) {
+
       @prt = ();
       @prt = split( ":", $line) ;
       $ntemp = $prt[4];
@@ -1645,9 +1648,12 @@ $jrun = "Run not completed";
       $nAssPxlHits = $prtt[0];
       $totAssPxlHits += $nAssPxlHits;
 
-#      print "PXL associate hits  =  ", $nAssPxlHits, "\n";
+#      $nnline++;
+#      print "PXL associate hits  =  ", $nAssPxlHits,"  ","Sum  = ",$totAssPxlHits,"   ",$nnline,   "\n";
 
-     }elsif($line =~ /IstId/ and $line =~ /Number of used hits/) {
+     }elsif($line =~ /Number of used hits:IstId/) {
+
+
       @prt = ();
       @prt = split( ":", $line) ;
       $ntemp = $prt[4];
@@ -1657,11 +1663,7 @@ $jrun = "Run not completed";
       $nAssIstHits = $prtt[0];
       $totAssIstHits += $nAssIstHits;
 
-#      print "IST associate hits  =  ", $nAssIstHits,"\n";
      }
-
-#      print "MTD, PXL, IST hits  ", "MTD hits = ", $nMtdHits,"   ","PXL hits = ",$nPxlHits,"  ","  Ist hits = ", $nIstHits, "\n";
-
 
      if ( $line =~ /mtd hit matched with track successfully/ ) {
 	 $nmatchMtdHits[$no_event]++;
@@ -1992,7 +1994,7 @@ $jrun = "Run not completed";
      }
   print "Avg #MtdHits = ",  $avgMtdHits,"   ", "Avg #PxlHits = ", $avgPxlHits,"   ", "Avg #IstHits = ", $avgIstHits,"   ", "Avg #SsdHits = ", $avgSsdHits,"\n";
 
-  print "Avg #AssPxlHits = ", $avgAssPxlHits,"   ", "Avg #AssIstHits = ", $avgAssIstHits,"   ", "Avg #AssSsdHits = ", $avgAssSsdHits,"\n";
+  print " Events = ", $EvDone, "  Avg #AssPxlHits = ", $avgAssPxlHits,"   ", "Avg #AssIstHits = ", $avgAssIstHits,"   ", "Avg #AssSsdHits = ", $avgAssSsdHits,"\n";
 
 
      for ($jj = 0; $jj < $no_event; $jj++ ) {
