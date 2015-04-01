@@ -59,9 +59,9 @@ my $maxtime ;
       $cursor->finish;
 
    $maxtime = $crHTime;
+$maxtime = "2015-03-31";
 
-
-    $sql="SELECT distinct runID, fName, size, Nevents, createtime FROM $FileCatalogT where trigset = '$trigname' and path like '%$prodTag%' and fName like '%.MuDst.root' where createTime >= ' $maxtime'  order by runID ";
+    $sql="SELECT distinct runID, fName, size, Nevents, createtime FROM $FileCatalogT where trigset = '$trigname' and path like '%$prodTag%' and fName like '%.MuDst.root' and createTime >= ' $maxtime'  order by runID ";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
