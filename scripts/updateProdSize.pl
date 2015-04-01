@@ -44,11 +44,24 @@ my @dbmusize = ();
 my $nn = 0;
 my $dqfile;
 my $basefile ;
+my $maxtime ;
 
  &StDbConnect();
 
 
-    $sql="SELECT distinct runID, fName, size, Nevents, createtime FROM $FileCatalogT where trigset = '$trigname' and path like '%$prodTag%' and fName like '%.MuDst.root' order by runID ";
+   $sql="SELECT date_format(max(createtime), '%Y-%m-%d') FROM $ProdSizeT WHERE Trigset = '$trigname' and prodtag = 'prodTag' and filename like '%.MuDst.root' ";
+
+    $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+     $cursor->execute;
+
+     my $crHTime = $cursor->fetchrow ;
+      $cursor->finish;
+
+   $maxtime = $crHTime;
+
+
+    $sql="SELECT distinct runID, fName, size, Nevents, createtime FROM $FileCatalogT where trigset = '$trigname' and path like '%$prodTag%' and fName like '%.MuDst.root' where createTime >= ' $maxtime'  order by runID ";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
