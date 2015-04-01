@@ -441,7 +441,7 @@ my  $min_y = 0;
 
   $xLabelSkip = $skipnum;
 
-       $graph->set(x_label => "Datetime of job's completion",
+       $graph->set(x_label => "Datetime of files transferring from/to HPSS",
                     y_label => $ylabel,
                     title   => $gtitle,
                     y_tick_number => 14,
