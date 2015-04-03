@@ -502,7 +502,7 @@ END
  $jobtotbin = 2.0;
   $ndate[0] = 0;
 
- for ($i = 0; $i < 60; $i++) {
+ for ($i = 0; $i < 90; $i++) {
    $ndate[$i] = $jobtotbin*$i; 
  }
 
@@ -510,7 +510,7 @@ END
             $jbTottime = ($$jset)->jbtot;
 	    $pstream   = ($$jset)->strv;
 
-	    if($jbTottime <= 120 )  {
+	    if($jbTottime <= 180 )  {
 	   $ndt = int($jbTottime/$jobtotbin);
            $ndate[$ndt] = $jobtotbin*$ndt;  
 
@@ -588,7 +588,7 @@ END
  $cpubin = 2.0; 
   $ndt = 0;
 
- for ($i = 0; $i < 50; $i++) {
+ for ($i = 0; $i < 100; $i++) {
    $ndate[$i] = $cpubin*$i; 
  }
 
@@ -596,7 +596,7 @@ END
 	    $pcpu     = ($$jset)->cpuv;
 	    $pstream  = ($$jset)->strv;
 
-#            if($pcpu <= 100.0 )     {
+            if($pcpu <= 200.0 )     {
 
 	    $ndt = int($pcpu/$cpubin);
             $ndate[$ndt] = $cpubin*$ndt;  
@@ -628,7 +628,7 @@ END
               }elsif( $pstream eq "W" or $pstream eq "WE" or $pstream eq "WB" ) {
                $cpwb[$ndt]++;
 	       }
-#	    }
+	    }
 	}
 
 ##################################################
