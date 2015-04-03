@@ -499,10 +499,10 @@ END
 
 ###########
 
- $jobtotbin = 3.0;
+ $jobtotbin = 2.0;
   $ndate[0] = 0;
 
- for ($i = 0; $i < 80; $i++) {
+ for ($i = 0; $i < 100; $i++) {
    $ndate[$i] = $jobtotbin*$i; 
  }
 
@@ -510,7 +510,7 @@ END
             $jbTottime = ($$jset)->jbtot;
 	    $pstream   = ($$jset)->strv;
 
-	    if($jbTottime <= 240 )  {
+	    if($jbTottime <= 200 )  {
 	   $ndt = int($jbTottime/$jobtotbin);
            $ndate[$ndt] = $jobtotbin*$ndt;  
 
