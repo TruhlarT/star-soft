@@ -596,7 +596,7 @@ END
 	    $pcpu     = ($$jset)->cpuv;
 	    $pstream  = ($$jset)->strv;
 
-            if($pcpu <= 100.0 )     {
+#            if($pcpu <= 100.0 )     {
 
 	    $ndt = int($pcpu/$cpubin);
             $ndate[$ndt] = $cpubin*$ndt;  
@@ -628,7 +628,7 @@ END
               }elsif( $pstream eq "W" or $pstream eq "WE" or $pstream eq "WB" ) {
                $cpwb[$ndt]++;
 	       }
-	    }
+#	    }
 	}
 
 ##################################################
