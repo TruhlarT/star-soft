@@ -181,7 +181,7 @@ my $maxvalue = 0;
 
   $qupath = "%$path%";
 
-            $sql="SELECT path, $plotVal, date_format(createTime, '%Y-%m-%d') as CDATE FROM $JobQAT WHERE path LIKE ? AND jobStatus= 'Done' AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? ORDER by createTime  ";
+            $sql="SELECT path, $plotVal, date_format(createTime, '%Y-%m-%d') as CDATE FROM $JobQAT WHERE path LIKE ? AND jobStatus= 'Done' AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? AND $plotVal > 0 ORDER by createTime  ";
 
         $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
         $cursor->execute($qupath,$day_diff);
@@ -198,7 +198,7 @@ my $maxvalue = 0;
 
       for (my $ik = 0; $ik < $ndt; $ik++) {  
 
-            $sql="SELECT path, $plotVal FROM $JobQAT WHERE path LIKE ? AND jobStatus= 'Done' AND createTime like '$Ndate[$ik]%'  ";
+            $sql="SELECT path, $plotVal FROM $JobQAT WHERE path LIKE ? AND jobStatus= 'Done' AND createTime like '$Ndate[$ik]%'  AND $plotVal > 0 ";
 
         $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
         $cursor->execute($qupath);
