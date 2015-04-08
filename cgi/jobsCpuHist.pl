@@ -254,7 +254,7 @@ END
   
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Stream values: CPU, ratio rtime/CPU <br> or total jobs time on the farm </h3>";
+    print "<h3 align=center> Stream values: CPU, ratio rtime/CPU <br> and time of job's execution </h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
                                   -values=>\@arrate,
@@ -588,10 +588,10 @@ END
  $rcpubin = 0.005; 
  $ndt = 0;
 
- for ($i = 0; $i < 200; $i++) {
+ for ($i = 0; $i < 100; $i++) {
 #   $ndate[$i] = 1 + $rcpubin*$i; 
 #   $ndate[$i] = $rcpubin*$i; 
- $ndate[$i] = 0.5 + $rcpubin*$i; 
+ $ndate[$i] = 0.8 + $rcpubin*$i; 
  }
 
      foreach $jset (@jbstat) {
@@ -605,9 +605,9 @@ END
 
 	   if($rte >= 0.8 and $rte <= 1.3 )     {
 #	   if( $rte <= 2.0 )     {
-          $ndt = int(($rte - 0.5)/$rcpubin + 0.00001);
+          $ndt = int(($rte - 0.8)/$rcpubin + 0.00001);
 #           $ndt = int($rte/$rcpubin + 0.00001);
-           $ndate[$ndt] = 0.5 + $rcpubin*$ndt;  
+           $ndate[$ndt] = 0.8 + $rcpubin*$ndt;  
 #            $ndate[$ndt] = $rcpubin*$ndt;  
 #
 	       if ( $pstream eq "physics" ) {
