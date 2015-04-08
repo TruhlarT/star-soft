@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.137 2015/04/07 14:16:38 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.138 2015/04/08 18:53:32 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -1200,6 +1200,10 @@ Bfc_st BFC[] = {
   {"tcl","","","TpxRaw,TpxClu,MakeEvent","",""
   , "WARNING *** Option is OBSOLETE *** use option TpxRaw,TpxClu,MakeEvent instead",kFALSE},
   {"fcf" ,"","","-tcl,tpcX", "","","WARNING *** Option is OBSOLETE *** use tpcX instead",kFALSE},
+  {"mtd" ,"MtdChain","","mtdDat,mtdMatch","StMaker", "StChain","MTD Chain",kFALSE},
+  {"mtdDat" ,"mtd_raw","MtdChain","db","StMtdHitMaker","StEvent,StMtdHitMaker"
+   , "MTD hit maker",kFALSE},
+  {"mtdTrkMask","","","db","StMtdTrackingMaskMaker","StMtdEvtFilterMaker","MTD track masking",kFALSE},
   {"tpx" ,"tpc_hits","tpcChain","MakeEvent,tpc_T,StEvent,rts,detDb"
    , "StTpcHitMaker","StTpcHitMaker","TPC hit reader for tpc + tpx via EVP_READER",kFALSE},
   {"gmt" ,"GmtChain","","gmtDat,gmtClu" ,"StMaker","StChain","Gmt data Chain",kFALSE},
@@ -1313,9 +1317,6 @@ Bfc_st BFC[] = {
   {"vpdCalib","","BTofChain","db,BTofUtil","StVpdCalibMaker" ,"StVpdCalibMaker","VPD calibration",kFALSE},
   {"btofSim" ,"","BTofChain","BTofUtil","StBTofSimMaker","StEvent,StBTofHitMaker,StBTofSimMaker"
    , "BTOF Simulator",kFALSE},
-  {"mtd" ,"MtdChain","","mtdDat,mtdMatch","StMaker", "StChain","MTD Chain",kFALSE},
-  {"mtdDat" ,"mtd_raw","MtdChain","db","StMtdHitMaker","StEvent,StMtdHitMaker"
-   , "MTD hit maker",kFALSE},
   {"mtdSim" ,"","MtdChain","","StMtdSimMaker", "StEvent,StMtdSimMaker","MTD Simulator",kFALSE},
   {"ToF" ,"TofChain","","tofDat,tofrMatch,tofpMatch,tofCalib","StMaker","StChain","ToF Chain",kFALSE},
   {"ToFx" ,"TofChain","","tofXDat,tofrMatch,tofCalib" ,"StMaker","StChain","ToFx Chain",kFALSE},
@@ -1431,7 +1432,6 @@ Bfc_st BFC[] = {
   {"btofMatch" ,"","","db,BTofUtil,vpdCalib,btofCalib","StBTofMatchMaker","StBTofMatchMaker"
    , "TPC-BTOF track matching",kFALSE},
   {"btofCalib","","","db,BTofUtil", "StBTofCalibMaker","StBTofCalibMaker","BTOF calibration",kFALSE},
-  {"mtdTrkMask" ,"","","db", "StMtdTrackingMaskMaker","StMtdEvtFilterMaker","MTD track masking",kFALSE},
   {"mtdMatch" ,"","","db,MtdUtil", "StMtdMatchMaker","StMtdMatchMaker","TPC-MTD track matching",kFALSE},
   {"mtdCalib" ,"","","db", "StMtdCalibMaker","StMtdCalibMaker","MTD calibration",kFALSE},
   {"mtdEvtFilt" ,"","","db", "StMtdEvtFilterMaker","StMtdEvtFilterMaker","MTD event filter" ,kFALSE},
@@ -2725,6 +2725,10 @@ Bfc_st BFC[] = {
   {"tcl","","","TpxRaw,TpxClu,MakeEvent","",""
   , "WARNING *** Option is OBSOLETE *** use option TpxRaw,TpxClu,MakeEvent instead",kFALSE},
   {"fcf" ,"","","-tcl,tpcX", "","","WARNING *** Option is OBSOLETE *** use tpcX instead",kFALSE},
+  {"mtd" ,"MtdChain","","mtdDat,mtdMatch","StMaker", "StChain","MTD Chain",kFALSE},
+  {"mtdDat" ,"mtd_raw","MtdChain","db","StMtdHitMaker","StEvent,StMtdHitMaker"
+   , "MTD hit maker",kFALSE},
+  {"mtdTrkMask","","","db","StMtdTrackingMaskMaker","StMtdEvtFilterMaker","MTD track masking",kFALSE},
   {"tpx" ,"tpc_hits","tpcChain","MakeEvent,tpc_T,StEvent,rts,detDb"
    , "StTpcHitMaker","StTpcHitMaker","TPC hit reader for tpc + tpx via EVP_READER",kFALSE},
   {"gmt" ,"GmtChain","","gmtDat,gmtClu" ,"StMaker","StChain","Gmt data Chain",kFALSE},
@@ -2838,9 +2842,6 @@ Bfc_st BFC[] = {
   {"vpdCalib","","BTofChain","db,BTofUtil","StVpdCalibMaker" ,"StVpdCalibMaker","VPD calibration",kFALSE},
   {"btofSim" ,"","BTofChain","BTofUtil","StBTofSimMaker","StEvent,StBTofHitMaker,StBTofSimMaker"
    , "BTOF Simulator",kFALSE},
-  {"mtd" ,"MtdChain","","mtdDat,mtdMatch","StMaker", "StChain","MTD Chain",kFALSE},
-  {"mtdDat" ,"mtd_raw","MtdChain","db","StMtdHitMaker","StEvent,StMtdHitMaker"
-   , "MTD hit maker",kFALSE},
   {"mtdSim" ,"","MtdChain","","StMtdSimMaker", "StEvent,StMtdSimMaker","MTD Simulator",kFALSE},
   {"ToF" ,"TofChain","","tofDat,tofrMatch,tofpMatch,tofCalib","StMaker","StChain","ToF Chain",kFALSE},
   {"ToFx" ,"TofChain","","tofXDat,tofrMatch,tofCalib" ,"StMaker","StChain","ToFx Chain",kFALSE},
@@ -2956,7 +2957,6 @@ Bfc_st BFC[] = {
   {"btofMatch" ,"","","db,BTofUtil,vpdCalib,btofCalib","StBTofMatchMaker","StBTofMatchMaker"
    , "TPC-BTOF track matching",kFALSE},
   {"btofCalib","","","db,BTofUtil", "StBTofCalibMaker","StBTofCalibMaker","BTOF calibration",kFALSE},
-  {"mtdTrkMask" ,"","","db", "StMtdTrackingMaskMaker","StMtdEvtFilterMaker","MTD track masking",kFALSE},
   {"mtdMatch" ,"","","db,MtdUtil", "StMtdMatchMaker","StMtdMatchMaker","TPC-MTD track matching",kFALSE},
   {"mtdCalib" ,"","","db", "StMtdCalibMaker","StMtdCalibMaker","MTD calibration",kFALSE},
   {"mtdEvtFilt" ,"","","db", "StMtdEvtFilterMaker","StMtdEvtFilterMaker","MTD event filter" ,kFALSE},
