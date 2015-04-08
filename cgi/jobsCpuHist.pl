@@ -122,53 +122,8 @@ my @jbhltgood = ();
 my @jbcentralpro  = ();
 my @jbwb = ();
 
- $JobStatusT = "JobStatus2010";  
 
   &StDbProdConnect();
-
-    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
-
-       while( $mpr = $cursor->fetchrow() ) {
-          $arrprod[$npr] = $mpr;
-          $npr++;
-       }
-    $cursor->finish();
-
-
- $JobStatusT = "JobStatus2011";
-
-
-    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
-
-       while( $mpr = $cursor->fetchrow() ) {
-          $arrprod[$npr] = $mpr;
-          $npr++;
-       }
-    $cursor->finish();
-
-
- $JobStatusT = "JobStatus2012";
-
-
-    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
-
-       while( $mpr = $cursor->fetchrow() ) {
-          $arrprod[$npr] = $mpr;
-          $npr++;
-       }
-    $cursor->finish();
 
 
  $JobStatusT = "JobStatus2013";
@@ -205,7 +160,6 @@ my @jbwb = ();
 
 my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months");
 
-#@rvdays = reverse @rdays ;
 
 &StDbProdDisconnect();
 
@@ -254,7 +208,7 @@ END
   
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Stream values: CPU, ratio rtime/CPU <br> and time of job's execution </h3>";
+    print "<h3 align=center> Stream values: CPU, ratio rtime/CPU <br> and total time of job's execution </h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
                                   -values=>\@arrate,
@@ -449,7 +403,7 @@ END
  $jobtotbin = 2.0;
   $ndate[0] = 0;
 
- for ($i = 0; $i < 100; $i++) {
+ for ($i = 0; $i < 110; $i++) {
    $ndate[$i] = $jobtotbin*$i; 
  }
 
@@ -457,7 +411,7 @@ END
             $exctime = ($$jset)->jbtot;
 	    $pstream   = ($$jset)->strv;
 
-	    if($exctime <= 200 )  {
+	    if($exctime <= 220 )  {
 	   $ndt = int($exctime/$jobtotbin);
            $ndate[$ndt] = $jobtotbin*$ndt;  
 
@@ -536,7 +490,7 @@ END
  $cpubin = 2.0; 
   $ndt = 0;
 
- for ($i = 0; $i < 100; $i++) {
+ for ($i = 0; $i < 110; $i++) {
    $ndate[$i] = $cpubin*$i; 
  }
 
@@ -544,7 +498,7 @@ END
 	    $pcpu     = ($$jset)->cpuv;
 	    $pstream  = ($$jset)->strv;
 
-            if($pcpu <= 200.0 )     {
+            if($pcpu <= 220.0 )     {
 
 	    $ndt = int($pcpu/$cpubin);
             $ndate[$ndt] = $cpubin*$ndt;  
@@ -585,13 +539,13 @@ END
 
  $ndate[0] = 0;
 # $rcpubin = 0.01; 
- $rcpubin = 0.005; 
+ $rcpubin = 0.004; 
  $ndt = 0;
 
  for ($i = 0; $i < 100; $i++) {
 #   $ndate[$i] = 1 + $rcpubin*$i; 
 #   $ndate[$i] = $rcpubin*$i; 
- $ndate[$i] = 0.8 + $rcpubin*$i; 
+ $ndate[$i] = 0.9 + $rcpubin*$i; 
  }
 
      foreach $jset (@jbstat) {
@@ -603,11 +557,11 @@ END
 
            $rte = $prtime/$pcpu; 
 
-	   if($rte >= 0.8 and $rte <= 1.3 )     {
+	   if($rte >= 0.9 and $rte <= 1.3 )     {
 #	   if( $rte <= 2.0 )     {
-          $ndt = int(($rte - 0.8)/$rcpubin + 0.00001);
+          $ndt = int(($rte - 0.9)/$rcpubin + 0.00001);
 #           $ndt = int($rte/$rcpubin + 0.00001);
-           $ndate[$ndt] = 0.8 + $rcpubin*$ndt;  
+           $ndate[$ndt] = 0.9 + $rcpubin*$ndt;  
 #            $ndate[$ndt] = $rcpubin*$ndt;  
 #
 	       if ( $pstream eq "physics" ) {
