@@ -602,7 +602,7 @@ END
 
            $rte = $prtime/$pcpu; 
 
-	   if($rte >= 0.8 and $rte <= 1.2 )     {
+	   if($rte >= 0.8 and $rte <= 1.3 )     {
 #	   if( $rte <= 2.0 )     {
           $ndt = int(($rte - 0.5)/$rcpubin + 0.00001);
 #           $ndt = int($rte/$rcpubin + 0.00001);
@@ -697,7 +697,7 @@ my $gtitle;
 
     @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@arhltgood, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfmsfast ) ;
 
-     }elsif( $srate eq "jobtottime"){
+     }elsif( $srate eq "exectime"){
 
  @data = ();
 
