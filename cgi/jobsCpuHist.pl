@@ -658,7 +658,7 @@ my $gtitle;
 
         $xlabel = "Job's execution time on the farm in hours";
         $ylabel = "Number of jobs";         
-	$gtitle = "Execution time on the farm for different stream jobs for the period $qperiod ";
+	$gtitle = "Execution time for different stream jobs for the period $qperiod ";
 
   
 #    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfmsfast ) ;
