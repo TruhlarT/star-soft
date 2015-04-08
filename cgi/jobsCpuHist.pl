@@ -500,7 +500,7 @@ END
  @jbstat = ();
  $nstat = 0;
 
-    foreach  $tdate (@arhr) {
+    foreach  $tdate (@ardays) {
 
   $sql="SELECT CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 order by createTime "; 
 
@@ -531,6 +531,7 @@ END
 
        if( $srate eq "cpu" ) {
 
+ @ndate = ();
  $ndate[0] = 0;
  $cpubin = 2.0; 
   $ndt = 0;
