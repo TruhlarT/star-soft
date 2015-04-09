@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.138 2015/04/08 18:53:32 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.139 2015/04/09 19:52:00 genevb Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -1181,6 +1181,10 @@ Bfc_st BFC[] = {
   {"mwc" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"ppMCTrig" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"pp2pp" ,"","","", "St_pp2pp_Maker","St_pp2pp_Maker","pp->pp",kFALSE},
+  {"mtd" ,"MtdChain","","mtdDat,mtdMatch","StMaker", "StChain","MTD Chain",kFALSE},
+  {"mtdDat" ,"mtd_raw","MtdChain","db,MuDst","StMtdHitMaker","StEvent,StMtdHitMaker"
+   , "MTD hit maker",kFALSE},
+  {"mtdTrkMask","","","db","StMtdTrackingMaskMaker","StMtdEvtFilterMaker","MTD track masking",kFALSE},
   {"tpc" ,"","","TpxRaw,TpxClu,tpcI" ,"","","WARNING *** Option is OBSOLETE *** use TpxClu instead",kFALSE},
   {"tpcI" ,"tpcChain","","db,tpcDB,TpcHitMover", "StMaker","StChain","tpc with ITTF",kFALSE},
   {"tpcX" ,"tpcChain","","-tpcI,tpx,MakeEvent" ,"StMaker","StChain","tpc+tpcx with ITTF",kFALSE},
@@ -1200,10 +1204,6 @@ Bfc_st BFC[] = {
   {"tcl","","","TpxRaw,TpxClu,MakeEvent","",""
   , "WARNING *** Option is OBSOLETE *** use option TpxRaw,TpxClu,MakeEvent instead",kFALSE},
   {"fcf" ,"","","-tcl,tpcX", "","","WARNING *** Option is OBSOLETE *** use tpcX instead",kFALSE},
-  {"mtd" ,"MtdChain","","mtdDat,mtdMatch","StMaker", "StChain","MTD Chain",kFALSE},
-  {"mtdDat" ,"mtd_raw","MtdChain","db","StMtdHitMaker","StEvent,StMtdHitMaker"
-   , "MTD hit maker",kFALSE},
-  {"mtdTrkMask","","","db","StMtdTrackingMaskMaker","StMtdEvtFilterMaker","MTD track masking",kFALSE},
   {"tpx" ,"tpc_hits","tpcChain","MakeEvent,tpc_T,StEvent,rts,detDb"
    , "StTpcHitMaker","StTpcHitMaker","TPC hit reader for tpc + tpx via EVP_READER",kFALSE},
   {"gmt" ,"GmtChain","","gmtDat,gmtClu" ,"StMaker","StChain","Gmt data Chain",kFALSE},
@@ -2706,6 +2706,10 @@ Bfc_st BFC[] = {
   {"mwc" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"ppMCTrig" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"pp2pp" ,"","","", "St_pp2pp_Maker","St_pp2pp_Maker","pp->pp",kFALSE},
+  {"mtd" ,"MtdChain","","mtdDat,mtdMatch","StMaker", "StChain","MTD Chain",kFALSE},
+  {"mtdDat" ,"mtd_raw","MtdChain","db,MuDst","StMtdHitMaker","StEvent,StMtdHitMaker"
+   , "MTD hit maker",kFALSE},
+  {"mtdTrkMask","","","db","StMtdTrackingMaskMaker","StMtdEvtFilterMaker","MTD track masking",kFALSE},
   {"tpc" ,"","","TpxRaw,TpxClu,tpcI" ,"","","WARNING *** Option is OBSOLETE *** use TpxClu instead",kFALSE},
   {"tpcI" ,"tpcChain","","db,tpcDB,TpcHitMover", "StMaker","StChain","tpc with ITTF",kFALSE},
   {"tpcX" ,"tpcChain","","-tpcI,tpx,MakeEvent" ,"StMaker","StChain","tpc+tpcx with ITTF",kFALSE},
@@ -2725,10 +2729,6 @@ Bfc_st BFC[] = {
   {"tcl","","","TpxRaw,TpxClu,MakeEvent","",""
   , "WARNING *** Option is OBSOLETE *** use option TpxRaw,TpxClu,MakeEvent instead",kFALSE},
   {"fcf" ,"","","-tcl,tpcX", "","","WARNING *** Option is OBSOLETE *** use tpcX instead",kFALSE},
-  {"mtd" ,"MtdChain","","mtdDat,mtdMatch","StMaker", "StChain","MTD Chain",kFALSE},
-  {"mtdDat" ,"mtd_raw","MtdChain","db","StMtdHitMaker","StEvent,StMtdHitMaker"
-   , "MTD hit maker",kFALSE},
-  {"mtdTrkMask","","","db","StMtdTrackingMaskMaker","StMtdEvtFilterMaker","MTD track masking",kFALSE},
   {"tpx" ,"tpc_hits","tpcChain","MakeEvent,tpc_T,StEvent,rts,detDb"
    , "StTpcHitMaker","StTpcHitMaker","TPC hit reader for tpc + tpx via EVP_READER",kFALSE},
   {"gmt" ,"GmtChain","","gmtDat,gmtClu" ,"StMaker","StChain","Gmt data Chain",kFALSE},
