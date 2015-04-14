@@ -4,7 +4,7 @@
 # $Id:
 #
 # L. Didenko 
-# jobsCpuPlots.pl to get distribution of CPU, realtime/cpu, total time of stream jobs by production date
+# jobsCpuHist.pl to get distribution of CPU, realtime/cpu, total stream jobs execution time
 #
 #########################################################################################################
 
@@ -31,6 +31,7 @@ struct JobAttr => {
       cpuv      => '$',
       rtmv      => '$',
       jbtot     => '$',
+      nevt      => '$',
       strv      => '$'
 };
 
@@ -57,7 +58,7 @@ my @prodyear = ("2010","2011","2012","2013","2014","2015");
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("cpu","rtime/cpu","exectime");
+my @arrate = ("cpu","rtime/cpu","exectime","events");
 
 my @arrprod = ();
 my @arstream = ();
@@ -70,6 +71,8 @@ my $pcpu;
 my $prtime;
 my $pstream;
 my $exctime;
+my $nevents;
+
 my $pryear = "2014";
 
 my $rte = 0;
@@ -121,6 +124,22 @@ my @jbmonitor = ();
 my @jbhltgood = ();
 my @jbcentralpro  = ();
 my @jbwb = ();
+
+my @evupsilon = ();
+my @evmtd = ();
+my @evphysics = ();
+my @evgamma = ();
+my @evhlt = ();
+my @evfmsfast = ();
+my @evht = ();
+my @evatomcules = ();
+my @evupc = ();
+my @evmonitor = ();
+my @evhltgood = ();
+my @evcentralpro  = ();
+my @evwb = ();
+
+
 
 
   &StDbProdConnect();
@@ -276,7 +295,9 @@ END
   my $jset;
   my $cpubin = 0;
   my $rcpubin = 0;
-  my $obtotbin = 0;
+  my $jobtotbin = 0;
+  my $evtbin = 0;
+
  
     @arstream = ();
 
@@ -365,6 +386,22 @@ END
  @jbcentralpro  = ();
  @jbwb = ();
 
+ @evupsilon = ();
+ @evmtd = ();
+ @evphysics = ();
+ @evgamma = ();
+ @evhlt = ();
+ @evfmsfast = ();
+ @evht = ();
+ @evatomcules = ();
+ @evupc = ();
+ @evmonitor = ();
+ @evhltgood = ();
+ @evcentralpro  = ();
+ @evwb = ();
+
+
+
    if( $srate eq "exectime" ) {
 
  $ndt = 0;
@@ -444,6 +481,90 @@ END
 	       }
  	    }
         }
+
+
+
+ }elsif( $srate eq "events" ) {
+
+ $ndt = 0;
+ @ndate = ();
+ @jbstat = ();
+ $nstat = 0;
+
+    foreach  $tdate (@ardays) {
+ 
+  $sql="SELECT NoEvents, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND exectime > 0.1  AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 order by createTime "; 
+
+	    $cursor =$dbh->prepare($sql)
+	      || die "Cannot prepare statement: $DBI::errstr\n";
+	    $cursor->execute($qprod);
+
+	while(@fields = $cursor->fetchrow) {
+	    my $cols=$cursor->{NUM_OF_FIELDS};
+	    $fObjAdr = \(JobAttr->new());
+
+	    for($i=0;$i<$cols;$i++) {
+		my $fvalue=$fields[$i];
+		my $fname=$cursor->{NAME}->[$i];
+                # print "$fname = $fvalue\n" ;
+
+                ($$fObjAdr)->nevt($fvalue)    if( $fname eq 'NoEvents');
+		($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
+
+	    }
+	    $jbstat[$nstat] = $fObjAdr;
+	    $nstat++;
+         }
+    }
+
+###########
+
+ $evtbin = 2.0;
+ $ndate[0] = 0;
+
+ for ($i = 0; $i < 200; $i++) {
+   $ndate[$i] = $evtbin*$i; 
+ }
+
+     foreach $jset (@jbstat) {
+            $nevents   = ($$jset)->nevt;
+	    $pstream   = ($$jset)->strv;
+
+	    if($nevents <= 40000000 )  {
+	   $ndt = int($nevents/$evtbin);
+           $ndate[$ndt] = $evtbin*$ndt;  
+
+	   if ( $pstream eq "physics" ) {
+	       $evphysics[$ndt]++;
+           }elsif( $pstream eq "centralpro" ) {
+               $evcentral[$ndt]++; 
+	   }elsif( $pstream eq "mtd" ) {
+               $evmtd[$ndt]++;
+           }elsif( $pstream eq "upsilon" ) {
+               $evupsilon[$ndt]++; 
+           }elsif( $pstream eq "gamma" ) {
+               $evgamma[$ndt]++; 
+           }elsif( $pstream eq "hlt" ) {
+               $evhlt[$ndt]++;  
+           }elsif( $pstream eq "fms" ) {
+               $evfmsfast[$ndt]++; 
+           }elsif( $pstream eq "ht" ) {
+               $evht[$ndt]++;  
+           }elsif( $pstream eq "atomcules" ) {
+               $evatomcules[$ndt]++; 
+           }elsif( $pstream eq "monitor" ) {
+               $evmonitor[$ndt]++;  
+           }elsif( $pstream eq "hltgood" ) {
+               $evhltgood[$ndt]++;   
+           }elsif( $pstream eq "upc" ) {
+               $evupc[$ndt]++;
+           }elsif( $pstream eq "W" or $pstream eq "WE" or $pstream eq "WB" ) {
+               $evwb[$ndt]++;
+	       }
+ 	    }
+        }
+
+
 ###################
 
    }else{
@@ -664,6 +785,18 @@ my $gtitle;
 #    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfmsfast ) ;
 
     @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfmsfast ) ;
+
+     }elsif( $srate eq "events"){
+
+ @data = ();
+
+        $xlabel = "Number of events";
+        $ylabel = "Number of jobs";         
+	$gtitle = "Number of events for different stream jobs for the period $qperiod ";
+
+  
+
+    @data = (\@ndate, \@evphysics, \@evgamma, \@evhlt, \@evht, \@evhltgood, \@evupc, \@evwb, \@evmtd, \@evcentralpro, \@evatomcules, \@evfmsfast ) ;
 
 
      }
