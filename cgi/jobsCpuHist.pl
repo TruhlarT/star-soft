@@ -187,7 +187,7 @@ END
     print $query->startform(-action=>"$scriptname");
 
     print "<body bgcolor=\"cornsilk\">\n";
-    print "<h1 align=center><u>Distribution of CPU, RealTime/CPU and total time of jobs execution for stream jobs </u></h1>\n";
+    print "<h1 align=center><u>Distribution of CPU, RealTime/CPU and total time of jobs execution for different stream data </u></h1>\n";
     print "<br>";
     print "<br>";
     print <<END;
@@ -668,7 +668,7 @@ my $gtitle;
         $ylabel = "Number of jobs";
 	$gtitle = "CPU in sec/evt for different stream jobs for the period $qperiod";
 
-#    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cphltgood, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cpfmsfast ) ; 
+
 
     @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cphltgood, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cpfmsfast ) ; 
 
@@ -682,7 +682,6 @@ my $gtitle;
 	$gtitle = "Ratios RealTime/CPU for different stream jobs for the period $qperiod ";
 
   
-#    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arhltgood, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfmsfast ) ;
 
     @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@arhltgood, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfmsfast ) ;
 
@@ -695,11 +694,12 @@ my $gtitle;
 	$gtitle = "Execution time for different stream jobs for the period $qperiod ";
 
   
-#    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfmsfast ) ;
 
     @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfmsfast ) ;
 
      }elsif( $srate eq "events"){
+
+ $legend[0] = "all stream data ";
 
  @data = ();
 
