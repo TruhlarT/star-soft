@@ -187,7 +187,7 @@ END
     print $query->startform(-action=>"$scriptname");
 
     print "<body bgcolor=\"cornsilk\">\n";
-    print "<h1 align=center><u>Production CPU&RealTime distributions of stream jobs </u></h1>\n";
+    print "<h1 align=center><u>Distribution of CPU, RealTime/CPU and total time of jobs execution for stream jobs </u></h1>\n";
     print "<br>";
     print "<br>";
     print <<END;
@@ -209,7 +209,7 @@ END
   
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Stream values: CPU, ratio rtime/CPU <br> and total time of job's execution </h3>";
+    print "<h3 align=center> CPU, ratio rtime/CPU, <br> total time of job's execution <br> and number of events processed per day</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
                                   -values=>\@arrate,
@@ -469,7 +469,7 @@ END
  
        while( my $sumev = $cursor->fetchrow() ) {
 
-          $nevents[$ndt] = $sumev;
+          $nevents[$ndt] = int($sumev + 0.01);
           }
 
          $ndt++;
@@ -707,7 +707,7 @@ my $gtitle;
         $ylabel = "Number of events";         
 	$gtitle = "Number of events processed per day for the period $qperiod ";
 
-  
+ $max_y = 40000000 ; 
 
     @data = (\@ndate, \@nevents ) ;
 
