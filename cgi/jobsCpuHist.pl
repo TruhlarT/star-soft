@@ -707,7 +707,7 @@ my $gtitle;
         $ylabel = "Number of events";         
 	$gtitle = "Number of events processed per day for the period $qperiod ";
 
- $max_y = 40000000 ; 
+ $max_y = int(42000000) ; 
 
     @data = (\@ndate, \@nevents ) ;
 
