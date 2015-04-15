@@ -71,7 +71,7 @@ my $pcpu;
 my $prtime;
 my $pstream;
 my $exctime;
-my $nevents;
+my @nevents = ();
 
 my $pryear = "2014";
 
@@ -95,7 +95,6 @@ my @ndate = ();
 my $ndt = 0;
 my @ardays = ();
 my $ndy = 0;
-#my @rvdays = ();
 
 my @cpupsilon = ();
 my @cpmtd = ();
@@ -124,23 +123,6 @@ my @jbmonitor = ();
 my @jbhltgood = ();
 my @jbcentralpro  = ();
 my @jbwb = ();
-
-my @evupsilon = ();
-my @evmtd = ();
-my @evphysics = ();
-my @evgamma = ();
-my @evhlt = ();
-my @evfmsfast = ();
-my @evht = ();
-my @evatomcules = ();
-my @evupc = ();
-my @evmonitor = ();
-my @evhltgood = ();
-my @evcentralpro  = ();
-my @evwb = ();
-
-
-
 
   &StDbProdConnect();
 
@@ -296,7 +278,6 @@ END
   my $cpubin = 0;
   my $rcpubin = 0;
   my $jobtotbin = 0;
-  my $evtbin = 0;
 
  
     @arstream = ();
@@ -385,21 +366,6 @@ END
  @jbhltgood = ();
  @jbcentralpro  = ();
  @jbwb = ();
-
- @evupsilon = ();
- @evmtd = ();
- @evphysics = ();
- @evgamma = ();
- @evhlt = ();
- @evfmsfast = ();
- @evht = ();
- @evatomcules = ();
- @evupc = ();
- @evmonitor = ();
- @evhltgood = ();
- @evcentralpro  = ();
- @evwb = ();
-
 
 
    if( $srate eq "exectime" ) {
@@ -493,76 +459,23 @@ END
 
     foreach  $tdate (@ardays) {
  
-  $sql="SELECT NoEvents, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND exectime > 0.1  AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 order by createTime "; 
+	$ndate[$ndt] = $tdate;
+
+  $sql="SELECT  sum(NoEvents) FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND jobStatus = 'Done'  "; 
 
 	    $cursor =$dbh->prepare($sql)
 	      || die "Cannot prepare statement: $DBI::errstr\n";
 	    $cursor->execute($qprod);
+ 
+       while( my $sumev = $cursor->fetchrow() ) {
 
-	while(@fields = $cursor->fetchrow) {
-	    my $cols=$cursor->{NUM_OF_FIELDS};
-	    $fObjAdr = \(JobAttr->new());
+          $nevents[$ndt] = $sumev;
+          }
 
-	    for($i=0;$i<$cols;$i++) {
-		my $fvalue=$fields[$i];
-		my $fname=$cursor->{NAME}->[$i];
-                # print "$fname = $fvalue\n" ;
-
-                ($$fObjAdr)->nevt($fvalue)    if( $fname eq 'NoEvents');
-		($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
-
-	    }
-	    $jbstat[$nstat] = $fObjAdr;
-	    $nstat++;
-         }
+         $ndt++;
+         $cursor->finish();
+      
     }
-
-###########
-
- $evtbin = 2.0;
- $ndate[0] = 0;
-
- for ($i = 0; $i < 200; $i++) {
-   $ndate[$i] = $evtbin*$i; 
- }
-
-     foreach $jset (@jbstat) {
-            $nevents   = ($$jset)->nevt;
-	    $pstream   = ($$jset)->strv;
-
-	    if($nevents <= 40000000 )  {
-	   $ndt = int($nevents/$evtbin);
-           $ndate[$ndt] = $evtbin*$ndt;  
-
-	   if ( $pstream eq "physics" ) {
-	       $evphysics[$ndt]++;
-           }elsif( $pstream eq "centralpro" ) {
-               $evcentral[$ndt]++; 
-	   }elsif( $pstream eq "mtd" ) {
-               $evmtd[$ndt]++;
-           }elsif( $pstream eq "upsilon" ) {
-               $evupsilon[$ndt]++; 
-           }elsif( $pstream eq "gamma" ) {
-               $evgamma[$ndt]++; 
-           }elsif( $pstream eq "hlt" ) {
-               $evhlt[$ndt]++;  
-           }elsif( $pstream eq "fms" ) {
-               $evfmsfast[$ndt]++; 
-           }elsif( $pstream eq "ht" ) {
-               $evht[$ndt]++;  
-           }elsif( $pstream eq "atomcules" ) {
-               $evatomcules[$ndt]++; 
-           }elsif( $pstream eq "monitor" ) {
-               $evmonitor[$ndt]++;  
-           }elsif( $pstream eq "hltgood" ) {
-               $evhltgood[$ndt]++;   
-           }elsif( $pstream eq "upc" ) {
-               $evupc[$ndt]++;
-           }elsif( $pstream eq "W" or $pstream eq "WE" or $pstream eq "WB" ) {
-               $evwb[$ndt]++;
-	       }
- 	    }
-        }
 
 
 ###################
@@ -790,13 +703,13 @@ my $gtitle;
 
  @data = ();
 
-        $xlabel = "Number of events";
-        $ylabel = "Number of jobs";         
-	$gtitle = "Number of events for different stream jobs for the period $qperiod ";
+        $xlabel = "Datetime of jobs completion";
+        $ylabel = "Number of events";         
+	$gtitle = "Number of events processed per day for the period $qperiod ";
 
   
 
-    @data = (\@ndate, \@evphysics, \@evgamma, \@evhlt, \@evht, \@evhltgood, \@evupc, \@evwb, \@evmtd, \@evcentralpro, \@evatomcules, \@evfmsfast ) ;
+    @data = (\@ndate, \@nevents ) ;
 
 
      }
