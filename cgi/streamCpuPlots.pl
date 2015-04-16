@@ -1370,7 +1370,7 @@ END
 
 # @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc, \@rtatomcules, \@rtmtd, \@rtcentralpro ) ;
 
- @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtfms, \@rtfgt, \@rtupc, \@rtwb, \@rtmtd, \@rtcentralpro, \@rtatomcules, \@rthltgood, ) ;
+ @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtfms, \@rtupc, \@rtwb, \@rtmtd, \@rtcentralpro, \@rtatomcules, \@rthltgood, ) ;
 
         $max_y = 1.2;
 
