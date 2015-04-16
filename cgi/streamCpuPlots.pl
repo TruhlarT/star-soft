@@ -1313,12 +1313,12 @@ END
 
        if( $qperiod eq "week") {
 
-       $ylabel = "Average ratio RealTime/CPU per hour";
-       $gtitle = "Average ratio RealTime/CPU per hour for different streams for $qperiod period";
+       $ylabel = "Average RealTime/CPU ratio for stream jobs finished per hour";
+       $gtitle = "Average ratio RealTime/CPU for different stream jobs for $qperiod period";
 
       }else{
 
-       $ylabel = "Average ratio RealTime/CPU per day";
+       $ylabel = "Average RealTime/CPU ratio for stream jobs finished per day";
        $gtitle = "Average ratio RealTime/CPU per day for $qperiod period, average is $avgratio+-$stdratio ";
       }     
 
@@ -1357,13 +1357,13 @@ END
 
        if( $qperiod eq "week") {
 
-        $ylabel = "Ratio of different stream jobs finishing per hour ";
-        $gtitle = "Ratio of different stream jobs finishing per hour for $qperiod period";
+        $ylabel = "Average ratio of different stream jobs finishing per hour ";
+        $gtitle = "Average ratio of different stream jobs finishing per hour for $qperiod period";
 
       }else{
 
-        $ylabel = "Ratio of different stream jobs finishing per day ";
-        $gtitle = "Ratio of different stream jobs finishing per day for $qperiod period";
+        $ylabel = "Average ratio of different stream jobs finishing per day ";
+        $gtitle = "Average ratio of different stream jobs finishing per day for $qperiod period";
      }
 
 
@@ -1377,13 +1377,13 @@ END
 
        if( $qperiod eq "week") {
 
-	$ylabel = "Average time of jobs execution in hours finished per hours";
-	$gtitle = "Average time of jobs execution finishing per hour for $qperiod period ";
+	$ylabel = "Average time of jobs execution per hours in hours ";
+	$gtitle = "Average time of jobs execution per hour for $qperiod period ";
 
       }else{
 
-	$ylabel = "Average time of jobs execution in hours finished per day ";
-	$gtitle = "Average time of jobs execution finishing per day for $qperiod period ";
+	$ylabel = "Average time of jobs execution per day in hours ";
+	$gtitle = "Average time of jobs execution per day for $qperiod period ";
      }
 
 
@@ -1398,13 +1398,13 @@ END
 
        if( $qperiod eq "week") {
 
-	$ylabel = "Average number of tracks in different streams per hour";
-	$gtitle = "Average number of tracks in different streams per hour for $qperiod period ";
+	$ylabel = "Average number of tracks per hour in different stream jobs ";
+	$gtitle = "Average number of tracks in different stream data for $qperiod period ";
 
       }else{
 
-	$ylabel = "Average number of tracks in different streams per day";
-	$gtitle = "Average number of tracks in different streams per day for $qperiod period ";
+	$ylabel = "Average number of tracks per day in different stream jobs ";
+	$gtitle = "Average number of tracks in different stream data  for $qperiod period ";
      }
 
 
@@ -1420,13 +1420,13 @@ END
 
        if( $qperiod eq "week") {
 
-        $ylabel = "Number of stream jobs finishing per hour ";
-        $gtitle = "Number of stream jobs finishing per hour for $qperiod period";
+        $ylabel = "Number of stream jobs finished per hour ";
+        $gtitle = "Number of stream jobs finished per hour for $qperiod period";
 
       }else{
 
-        $ylabel = "Number of stream jobs finishing per day ";
-        $gtitle = "Number of stream jobs finishing per day for $qperiod period";
+        $ylabel = "Number of stream jobs finished per day ";
+        $gtitle = "Number of stream jobs finished per day for $qperiod period";
      }
 
 
