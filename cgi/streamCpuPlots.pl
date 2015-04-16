@@ -1380,12 +1380,12 @@ END
 
        if( $qperiod eq "week") {
 
-	$ylabel = "Average time of jobs execution finished per hours";
+	$ylabel = "Average time of jobs execution in hours finished per hours";
 	$gtitle = "Average time of jobs execution finishing per hour for $qperiod period ";
 
       }else{
 
-	$ylabel = "Average time of jobs execution finished per day ";
+	$ylabel = "Average time of jobs execution in hours finished per day ";
 	$gtitle = "Average time of jobs execution finishing per day for $qperiod period ";
      }
 
