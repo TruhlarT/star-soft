@@ -1298,13 +1298,13 @@ END
 #       $legend[4] = "st_monitor   ";
 #       $legend[5] = "st_pmdftp    ";
        $legend[3] = "st_fms ";
-       $legend[4] = "st_fgt ";
-       $legend[5] = "st_upc       ";       
-       $legend[6] = "st_W ";
-       $legend[7] = "st_mtd       ";
-       $legend[8] = "st_centralpro ";
-       $legend[9] = "st_atomcules ";
-       $legend[10] = "st_hltgood ";        
+#       $legend[4] = "st_fgt ";
+       $legend[4] = "st_upc       ";       
+       $legend[5] = "st_W ";
+       $legend[6] = "st_mtd       ";
+       $legend[7] = "st_centralpro ";
+       $legend[8] = "st_atomcules ";
+       $legend[9] = "st_hltgood ";        
 
        if ( $srate eq "rtime/cpu" ) {
 
@@ -1322,9 +1322,8 @@ END
        $gtitle = "Average ratio RealTime/CPU per day for $qperiod period, average is $avgratio+-$stdratio ";
       }     
 
-#  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arpmdftp, \@arupc, \@aratomcules, \@armtd, \@arcentralpro ) ;
 
-  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt,  \@arfms,  \@arfgt, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arhltgood ) ;
+  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt,  \@arfms,  \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arhltgood ) ;
 
       $max_y = $maxval + 0.2*$maxval;
 #     $max_y = int($max_y);
@@ -1345,9 +1344,8 @@ END
 
          }   
 
-#  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cppmdftp, \@cpupc, \@cpatomcules, \@cpmtd, \@cpcentralpro ) ;
 
-  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpfms, \@cpfgt, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cphltgood ) ;
+  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpfms, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cphltgood ) ;
 
 
        $max_y = $maxcpu + 0.2*$maxcpu;
@@ -1368,7 +1366,6 @@ END
         $gtitle = "Ratio of different stream jobs finishing per day for $qperiod period";
      }
 
-# @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtpmdftp, \@rtupc, \@rtatomcules, \@rtmtd, \@rtcentralpro ) ;
 
  @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtfms, \@rtupc, \@rtwb, \@rtmtd, \@rtcentralpro, \@rtatomcules, \@rthltgood, ) ;
 
@@ -1389,9 +1386,8 @@ END
 	$gtitle = "Average time of jobs execution finishing per day for $qperiod period ";
      }
 
-# @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbpmdftp, \@jbupc, \@jbatomcules, \@jbmtd, \@jbcentralpro ) ;
 
- @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbfms, \@jbfgt, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbhltgood,) ;
+ @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbfms, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbhltgood,) ;
 
     $max_y = $maxjbtime + 0.2*$maxjbtime;    
     $max_y = int($max_y);
@@ -1411,9 +1407,8 @@ END
 	$gtitle = "Average number of tracks in different streams per day for $qperiod period ";
      }
 
-# @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trht, \@trmonitor, \@trpmdftp, \@trupc, \@tratomcules, \@trmtd, \@trcentralpro, \@trfms ) ;
 
- @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trfms, \@trfgt, \@trupc, \@trwb, \@trmtd, \@trcentralpro, \@tratomcules, \@trhltgood ) ;
+ @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trfms, \@trupc, \@trwb, \@trmtd, \@trcentralpro, \@tratomcules, \@trhltgood ) ;
     
       $max_y = $maxtrk + 0.2*$maxtrk;
       $max_y = int($max_y); 
@@ -1434,9 +1429,8 @@ END
         $gtitle = "Number of stream jobs finishing per day for $qperiod period";
      }
 
-# @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstht, \@nstmonitor, \@nstpmdftp, \@nstupc, \@nstatomcules, \@nstmtd, \@nstcentralpro ) ;
 
- @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstfms, \@nstfgt, \@nstupc, \@nstwb, \@nstmtd, \@nstcentralpro, \@nstatomcules, \@nsthltgood ) ;
+ @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstfms, \@nstupc, \@nstwb, \@nstmtd, \@nstcentralpro, \@nstatomcules, \@nsthltgood ) ;
 
 
      }
