@@ -663,6 +663,7 @@ my $gtitle;
        if( $srate eq "cpu" )  {
 
  @data = ();
+ $max_y = 21000 ;
 
 	$xlabel = "CPU in sec/evt";
         $ylabel = "Number of jobs";
@@ -676,6 +677,7 @@ my $gtitle;
       }elsif( $srate eq "rtime/cpu"){
 
  @data = ();
+ $max_y = 28000 ;
 
         $xlabel = "Ratio RealTime/CPU";
         $ylabel = "Number of jobs";
