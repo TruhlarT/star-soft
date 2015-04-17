@@ -1,5 +1,8 @@
-* $Id: geometry.g,v 1.283 2015/01/06 19:45:16 jwebb Exp $
+* $Id: geometry.g,v 1.284 2015/04/17 14:54:59 jwebb Exp $
 * $Log: geometry.g,v $
+* Revision 1.284  2015/04/17 14:54:59  jwebb
+* Corrected configuration error in VPD in y2015/agml/agstar geometry.
+*
 * Revision 1.283  2015/01/06 19:45:16  jwebb
 * Correct version of VPD in 2015
 *
@@ -1495,7 +1498,7 @@ replace [exe VPDD02;] with  [;"pseudo Vertex Position Detector";VPDD=on;VpddConf
 replace [exe VPDD03;] with  [;"pseudo Vertex Position Detector";VPDD=on;VpddConfig=3;]
 replace [exe VPDD04;] with  [;"pseudo Vertex Position Detector";VPDD=on;VpddConfig=4;]
 replace [exe VPDD07;] with  [;"pseudo Vertex Position Detector";VPDD=on;VpddConfig=7;]
-replace [exe VPDD08;] with  [;"pseudo Vertex Position Detector";VPDD=on;VpddConfig=8;]
+replace [exe VPDD08;] with  [;"pseudo Vertex Position Detector";VPDD=on;VpddConfig=7;]
 
 
 replace [exe FGTDof;] with  [;FGTD=off;FgtdConfig=0; "FGT off";]
