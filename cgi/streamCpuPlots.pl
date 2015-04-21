@@ -57,7 +57,7 @@ my @prodyear = ("2010","2011","2012","2013","2014","2015");
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("cpu","rtime/cpu","exectime","ntracks","stream_rate","njobs" );
+my @arrate = ("cpu","rtime/cpu","exectime","ntracks","stream_rate");
 
 my @arrprod = ();
 my @arstream = ();
@@ -188,7 +188,7 @@ my $avgratio = 0;
 my $stdratio = 0;
 
  
- my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months");
+ my @arperiod = ("week","1_month","2_months","3_months","4_months","5_months","6_months");
 
 #my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months");
 
@@ -289,7 +289,7 @@ END
     print $query->startform(-action=>"$scriptname");
 
     print "<body bgcolor=\"cornsilk\">\n";
-    print "<h1 align=center><u>Production CPU&RealTime usage </u></h1>\n";
+    print "<h1 align=center><u>Average CPU&RealTime usage in data production </u></h1>\n";
     print "<br>";
     print "<br>";
     print <<END;
@@ -311,7 +311,7 @@ END
 
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Average CPU, Realtime/CPU, <br> average time of jobs execution ,<br> average number of tracks per event,<br> stream job ratios <br>number of stream jobs</h3>";
+    print "<h3 align=center> Average CPU, Realtime/CPU, <br> average time of jobs execution ,<br> average number of tracks per event,<br> stream job ratios </h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
                                   -values=>\@arrate,
@@ -325,6 +325,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'period',
                                   -values=>\@arperiod,
+                                  -default=>1_month, 
                                   -size =>1); 
 
     
@@ -954,7 +955,7 @@ END
 
 #############################  stream ratios
 
-          }elsif( $srate eq "stream_rate" or $srate eq "njobs" ) { 
+          }elsif( $srate eq "stream_rate") { 
  
  %nstr = {};
  @numstream = 0;
@@ -1101,7 +1102,6 @@ END
     } # foreach tdate
  
       for($ii = 0; $ii < $ndt; $ii++) {
-#      $numstream[$ii] = $nstphysics[$ii]+$nstcentralpro[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+$nstht[$ii]+$nstmonitor[$ii]+$nstpmdftp[$ii]+ $nstupc[$ii]+ $nstgamma[$ii]+  $nstatomcules[$ii]+ $nstupsilon[$ii];
  
      $numstream[$ii] = $nstphysics[$ii]+$nstcentralpro[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+ $nstfms[$ndt] + $nstfgt[$ndt] + $nsthltgood[$ndt] + $nstupc[$ii]+ $nstgamma[$ii]+ $nstwb[$ii] +  $nstatomcules[$ii]+ $nstupsilon[$ii];
 
@@ -1412,25 +1412,6 @@ END
     
       $max_y = $maxtrk + 0.2*$maxtrk;
       $max_y = int($max_y); 
-
-
- }elsif(  $srate eq "njobs" ) {
-
-  @data = ();
-
-       if( $qperiod eq "week") {
-
-        $ylabel = "Number of stream jobs finished per hour ";
-        $gtitle = "Number of stream jobs finished per hour for $qperiod period";
-
-      }else{
-
-        $ylabel = "Number of stream jobs finished per day ";
-        $gtitle = "Number of stream jobs finished per day for $qperiod period";
-     }
-
-
- @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstfms, \@nstupc, \@nstwb, \@nstmtd, \@nstcentralpro, \@nstatomcules, \@nsthltgood ) ;
 
 
      }
