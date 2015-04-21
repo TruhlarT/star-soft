@@ -211,7 +211,7 @@ END
   
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> CPU, Realtime/CPU, <br> total time of job's execution <br> and number of events processed per day</h3>";
+    print "<h3 align=center> CPU, Realtime/CPU, <br> total time of job's execution, <br> number of events and jobs processed per day</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
                                   -values=>\@arrate,
