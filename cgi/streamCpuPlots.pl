@@ -289,7 +289,7 @@ END
     print $query->startform(-action=>"$scriptname");
 
     print "<body bgcolor=\"cornsilk\">\n";
-    print "<h1 align=center><u>Average per day CPU&RealTime usage in data production </u></h1>\n";
+    print "<h1 align=center><u>Average per day CPU/event & RealTime/event usage in data production </u></h1>\n";
     print "<br>";
     print "<br>";
     print <<END;
@@ -311,7 +311,7 @@ END
 
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Average CPU, Realtime/CPU, <br> average time of jobs execution ,<br> average number of tracks per event,<br> stream job ratios </h3>";
+    print "<h3 align=center> Average CPU/eventt, Realtime/CPU, <br> average time of jobs execution ,<br> average number of tracks per event,<br>average stream job ratios </h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
                                   -values=>\@arrate,
