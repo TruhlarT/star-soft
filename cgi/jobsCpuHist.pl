@@ -58,7 +58,7 @@ my @prodyear = ("2010","2011","2012","2013","2014","2015");
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("cpu","rtime/cpu","exectime","events");
+my @arrate = ("cpu","rtime/cpu","exectime","events","njobs");
 
 my @arrprod = ();
 my @arstream = ();
@@ -72,6 +72,8 @@ my $prtime;
 my $pstream;
 my $exctime;
 my @nevents = ();
+my @numjobs = ();
+
 
 my $pryear = "2014";
 
@@ -367,6 +369,9 @@ END
  @jbcentralpro  = ();
  @jbwb = ();
 
+ @nevents = ();
+ @numjobs = ();
+
 
    if( $srate eq "exectime" ) {
 
@@ -454,8 +459,6 @@ END
 
  $ndt = 0;
  @ndate = ();
- @jbstat = ();
- $nstat = 0;
 
     foreach  $tdate (@ardays) {
  
@@ -477,6 +480,32 @@ END
       
     }
 
+###########
+
+ }elsif( $srate eq "njobs" ) {
+
+ $ndt = 0;
+ @ndate = ();
+
+    foreach  $tdate (@ardays) {
+ 
+	$ndate[$ndt] = $tdate;
+
+  $sql="SELECT  count(jobfileName) FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND jobStatus = 'Done'  "; 
+
+	    $cursor =$dbh->prepare($sql)
+	      || die "Cannot prepare statement: $DBI::errstr\n";
+	    $cursor->execute($qprod);
+ 
+       while( my $njb = $cursor->fetchrow() ) {
+
+          $numjobs[$ndt] = int($njb + 0.01);
+          }
+
+         $ndt++;
+         $cursor->finish();
+      
+    }
 
 ###################
 
@@ -712,6 +741,21 @@ my $gtitle;
  $max_y = int(42000000) ; 
 
     @data = (\@ndate, \@nevents ) ;
+
+
+     }elsif( $srate eq "njobs"){
+
+ $legend[0] = "all stream data ";
+
+ @data = ();
+
+        $xlabel = "Datetime of jobs completion";
+        $ylabel = "Number of jobs";         
+	$gtitle = "Number of jobs processed per day for the period $qperiod ";
+
+ $max_y = int(8400) ; 
+
+    @data = (\@ndate, \@numjobs ) ;
 
 
      }
