@@ -44,11 +44,7 @@ my $nowdate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2013","2014","2015");
-
 my $pryear = "2014";
-
-my @arperiod = ( );
 
 my @arrate = ("mudstsize","daqsize","all" );
 
@@ -63,16 +59,11 @@ my $ntr = 0;
 my @jbsize = ();
 my $psize = 0;
 my @daqsize = ();
-my $day_diff = 0;
-my $nmonth = 0;
 my @prt = ();
 my @ardays = ();
 my @data = ();
 
 
- my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months");
-
-my $JobStatusT = "JobStatus2014";
 my $ProdSizeT = "ProductionSize";
 
  &StDbProdConnect();
@@ -114,11 +105,10 @@ my $query = new CGI;
 my $scriptname = $query->url(-relative=>1);
 
 my $qprod   = $query->param('prod');
-my $qperiod = $query->param('period');
 my $srate   = $query->param('prate');
 my $qtrig   = $query->param('ptrig');
 
-if( $qperiod eq "" and $qprod eq "" and $srate eq "" and  $qtrig eq "" ) {
+if( $qprod eq "" and $srate eq "" and  $qtrig eq "" ) {
 
     print $query->header();
     print $query->start_html('Production size distribution');
@@ -190,23 +180,11 @@ END
   my $qqr = new CGI;
 
 my $qprod =   $qqr->param('prod');
-my $qperiod = $qqr->param('period');
 my $srate =   $qqr->param('prate');
 my $qtrig =   $qqr->param('ptrig');
 
 # Tables
 
- if( $qprod =~ /P14ia/ or $qprod =~ /P14ig/ ) {$pryear = "2013"};
- if( $qprod =~ /P14ii/ ) {$pryear = "2014"};
- if( $qprod =~ /P15ib/ or  $qprod =~ /P15ic/ ) {$pryear = "2014"};
-
- $JobStatusT = "JobStatus".$pryear;
-
-# $JobStatusT = "JobStatus2013";
-
-
- $day_diff = 0;
- $nmonth = 0;
  @prt = ();
  @ardays = ();
 
@@ -217,13 +195,6 @@ my $qtrig =   $qqr->param('ptrig');
  &StDbProdConnect();
 
  $nowdate = $todate;
-
- @prt = split("_", $qperiod);
- $nmonth = $prt[0];
- $day_diff = 30*$nmonth + 1;
-
- $day_diff = int($day_diff);
-
 
   if($qtrig eq "all") {
 
@@ -385,7 +356,7 @@ $ndt = 0;
    $max_y = 21000;
 
        $ylabel = "Size of MuDst data in GB sinking to HPSS per day";
-       $gtitle = "Size of MuDst in GB for $qperiod period";
+       $gtitle = "Size of MuDst data in GB sinking to HPSS in $qprod production ";
 
   @data = (\@ndate, \@jbsize);
 
@@ -397,7 +368,7 @@ $ndt = 0;
     $max_y = 56000;
 
        $ylabel = "Size of raw data in GB restored from HPSS per day";
-       $gtitle = "Size of raw data in GB restored from HPSS for $qperiod period";
+       $gtitle = "Size of raw data in GB restored from HPSS in $qprod production";
 
   @data = (\@ndate, \@daqsize);
 
@@ -408,7 +379,7 @@ $ndt = 0;
     $max_y = 56000;
 
        $ylabel = "Size of data in GB transferred  from/to HPSS per day";
-       $gtitle = "Size of data in GB transferred  from/to HPSS for $qperiod period";
+       $gtitle = "Size of data in GB transferred  from/to HPSS in $qprod production";
 
   @data = (\@ndate, \@daqsize, \@jbsize  );
 
@@ -432,7 +403,7 @@ my  $min_y = 0;
 
   $xLabelSkip = $skipnum;
 
-       $graph->set(x_label => "Datetime of files transferring from/to HPSS",
+       $graph->set(x_label => "Date of files transferring from/to HPSS",
                     y_label => $ylabel,
                     title   => $gtitle,
                     y_tick_number => 14,
@@ -506,7 +477,7 @@ print <<END;
           <title>Production size distrubution</title>
    </head>
    <body BGCOLOR=\"#ccffff\">
-     <h1 align=center>No Data for $qprod production and $qperiod period </h1>
+     <h1 align=center>No Data for $qprod production </h1>
 
 
     </body>
