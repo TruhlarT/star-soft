@@ -171,15 +171,6 @@ END
 
     print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Period of monitoring <br> </h3>";
-    print "<h4 align=center>";
-    print  $query->scrolling_list(-name=>'period',
-                                  -values=>\@arperiod,
-                                  -size =>1);
-
-
-    print "<p>";
-    print "</td><td>";
     print "</td> </tr> </table><hr><center>";
 
     print "</h4>";
@@ -236,11 +227,11 @@ my $qtrig =   $qqr->param('ptrig');
 
   if($qtrig eq "all") {
 
-   $sql="SELECT DISTINCT date_format(startTime, '%Y-%m-%d') as SDATE FROM $JobStatusT WHERE prodSeries = ?  and date_format(startTime, '%Y-%m-%d') <> '0000-00-00'  and (TO_DAYS(\"$nowdate\") - TO_DAYS(startTime)) < ?  order by SDATE";
+   $sql="SELECT DISTINCT date_format(starttime, '%Y-%m-%d') as SDATE FROM $ProdSizeT WHERE prodtag = ?  and date_format(starttime, '%Y-%m-%d') <> '0000-00-00'  order by SDATE";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
-    $cursor->execute($qprod,$day_diff);
+    $cursor->execute($qprod);
 
     while($myday = $cursor->fetchrow) {
         $ardays[$nday] = $myday;
@@ -252,11 +243,11 @@ my $qtrig =   $qqr->param('ptrig');
   }else{
 
 
-   $sql="SELECT DISTINCT date_format(startTime, '%Y-%m-%d') as SDATE  FROM $JobStatusT WHERE prodSeries = ? and trigsetName = ? and  date_format(startTime, '%Y-%m-%d') <> '0000-00-00'  and (TO_DAYS(\"$nowdate\") - TO_DAYS(startTime)) < ?  order by SDATE";
+   $sql="SELECT DISTINCT date_format(starttime, '%Y-%m-%d') as SDATE  FROM $ProdSizeT WHERE prodtag = ? and Trigset = ? and  date_format(starttime, '%Y-%m-%d') <> '0000-00-00' order by SDATE";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
-    $cursor->execute($qprod,$qtrig,$day_diff);
+    $cursor->execute($qprod,$qtrig);
 
     while($myday = $cursor->fetchrow) {
         $ardays[$nday] = $myday;
