@@ -52,7 +52,7 @@ my $nowdate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2010","2011","2012","2013","2014","2015");
+my @prodyear = ("2013","2014","2015");
 
 
 my @arperiod = ( );
@@ -194,48 +194,6 @@ my $stdratio = 0;
 
   &StDbProdConnect();
 
-
- $JobStatusT = "JobStatus2010";  
-
-    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
-
-       while( $mpr = $cursor->fetchrow() ) {
-          $arrprod[$npr] = $mpr;
-          $npr++;
-       }
-    $cursor->finish();
-
-$JobStatusT = "JobStatus2011";  
-
-    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
-
-       while( $mpr = $cursor->fetchrow() ) {
-          $arrprod[$npr] = $mpr;
-          $npr++;
-       }
-    $cursor->finish();
-  
-$JobStatusT = "JobStatus2012";  
-
-    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
-
-       while( $mpr = $cursor->fetchrow() ) {
-          $arrprod[$npr] = $mpr;
-          $npr++;
-       }
-    $cursor->finish();
 
 $JobStatusT = "JobStatus2013";  
 
@@ -399,11 +357,11 @@ END
     $cursor->finish();
 
 
-#    if($pryear eq "2009") {
-#	$nowdate = "2009-12-31";
-#    } else {
+    if($pryear eq "2013") {
+	$nowdate = "2013-12-31";
+    } else {
 	$nowdate = $todate;
-#    }
+    }
 
      if( $qperiod eq "week") {
 	$day_diff = 8;
