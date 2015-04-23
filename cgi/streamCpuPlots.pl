@@ -51,6 +51,7 @@ my $todate = ($year+1900)."-".$mon."-".$mday;
 my $nowdate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
+my $lastdate ;
 
 my @prodyear = ("2013","2014","2015");
 
@@ -357,10 +358,25 @@ END
     $cursor->finish();
 
 
-    if($pryear eq "2013") {
-	$nowdate = "2013-12-31";
+###########   max createTime
+
+      $sql="SELECT max(date_format(createTime, '%Y-%m-%d' ))  FROM $JobStatusT where prodSeries = ? ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute($qprod);
+
+    my $mxtime = $cursor->fetchrow ;
+
+       $cursor->finish();
+
+       $lastdate = $mxtime;
+
+
+    if($pryear eq "2013" or $pryear eq "2014") {
+        $nowdate = $lastdate;
     } else {
-	$nowdate = $todate;
+        $nowdate = $todate;
     }
 
      if( $qperiod eq "week") {
