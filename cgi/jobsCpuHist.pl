@@ -458,17 +458,17 @@ END
 
 ###########
 
-  if($maxexectm > 201 ) {
-      $maxexectm = 201.00;
+  if($maxexectm > 220 ) {
+      $maxexectm = 221.00;
   }
 
  $maxvalue =  int($maxexectm/10.)*10 ; 
- $jobtotbin = int( $maxvalue/100.); 
+ $jobtotbin = int( $maxvalue/110.); 
  
 # $jobtotbin = 2.0;
   $ndate[0] = 0;
 
- for ($i = 0; $i < 100; $i++) {
+ for ($i = 0; $i < 110; $i++) {
    $ndate[$i] = $jobtotbin*$i; 
  }
 
