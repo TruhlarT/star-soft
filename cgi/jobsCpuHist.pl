@@ -53,7 +53,9 @@ my $nowdate = $todate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2010","2011","2012","2013","2014","2015");
+my $lastdate;
+
+my @prodyear = ("2013","2014","2015");
 
 
 my @arperiod = ( );
@@ -132,7 +134,7 @@ my @jbwb = ();
  $JobStatusT = "JobStatus2013";
 
 
-    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT  where runDay >= '2014-02-20' order by runDay ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -148,7 +150,7 @@ my @jbwb = ();
  $JobStatusT = "JobStatus2014";
 
 
-    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT where runDay >= '2015-01-02' order by runDay ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -161,7 +163,7 @@ my @jbwb = ();
     $cursor->finish();
 
 
-my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months");
+my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months","7_months","8_months","9_months","10_months","11_months","12_months");
 
 
 &StDbProdDisconnect();
@@ -211,7 +213,7 @@ END
   
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> CPU, Realtime/CPU, <br> total time of job's execution, <br> number of events and jobs processed per day</h3>";
+    print "<h3 align=center> CPU/evt, Realtime/CPU/evt, <br> total time of job's execution, <br> number of events and jobs processed per day</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
                                   -values=>\@arrate,
@@ -298,6 +300,31 @@ END
           $nst++;
        }
     $cursor->finish();
+
+###########   max createTime
+
+      $sql="SELECT max(date_format(createTime, '%Y-%m-%d' ))  FROM $JobStatusT where prodSeries = ? ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute($qprod);
+
+    my $mxtime = $cursor->fetchrow ;
+
+       $cursor->finish();
+
+       $lastdate = $mxtime;
+
+
+    if($pryear eq "2013" or $pryear eq "2014") {
+        $nowdate = $lastdate;
+    } else {
+        $nowdate = $todate;
+    }
+
+    
+   
+
 
 
    if ( $qperiod =~ /month/) {
@@ -696,7 +723,7 @@ my $gtitle;
 
 	$xlabel = "CPU in sec/evt";
         $ylabel = "Number of jobs";
-	$gtitle = "CPU in sec/evt for different stream jobs for the period $qperiod";
+	$gtitle = "CPU in sec/evt for different stream jobs in $qprod production ";
 
 
 
@@ -710,7 +737,7 @@ my $gtitle;
 
         $xlabel = "Ratio RealTime/CPU";
         $ylabel = "Number of jobs";
-	$gtitle = "Ratios RealTime/CPU for different stream jobs for the period $qperiod ";
+	$gtitle = "Ratios RealTime/CPU for different stream jobs in $qprod production ";
 
   
 
@@ -722,7 +749,7 @@ my $gtitle;
 
         $xlabel = "Job's execution time on the farm in hours";
         $ylabel = "Number of jobs";         
-	$gtitle = "Execution time for different stream jobs for the period $qperiod ";
+	$gtitle = "Execution time for different stream jobs in $qprod production ";
 
   
 
@@ -736,7 +763,7 @@ my $gtitle;
 
         $xlabel = "Datetime of jobs completion";
         $ylabel = "Number of events";         
-	$gtitle = "Number of events processed per day for the period $qperiod ";
+	$gtitle = "Number of events processed per day in $qprod production ";
 
  $max_y = int(42000000) ; 
 
@@ -751,7 +778,7 @@ my $gtitle;
 
         $xlabel = "Datetime of jobs completion";
         $ylabel = "Number of jobs";         
-	$gtitle = "Number of jobs processed per day for the period $qperiod ";
+	$gtitle = "Number of jobs processed per day in $qprod production ";
 
  $max_y = int(9800) ; 
 
@@ -850,7 +877,7 @@ print <<END;
           <title>CPU and RealTime production usage</title>
    </head>
    <body BGCOLOR=\"#ccffff\">
-     <h1 align=center>No Data for $qprod production and $qday day </h1>
+     <h1 align=center>No Data for $qprod production  </h1>
      
 
     </body>
