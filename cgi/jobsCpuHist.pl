@@ -458,6 +458,10 @@ END
 
 ###########
 
+  if($maxexectm > 201 ) {
+      $maxexectm = 201.00;
+  }
+
  $maxvalue =  int($maxexectm/10.)*10 ; 
  $jobtotbin = int( $maxvalue/100.); 
  
