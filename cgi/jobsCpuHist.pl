@@ -75,7 +75,8 @@ my $pstream;
 my $exctime;
 my @nevents = ();
 my @numjobs = ();
-
+my $maxcpu = 0;
+my $maxexectm = 0 ;
 
 my $pryear = "2014";
 
@@ -321,11 +322,7 @@ END
     } else {
         $nowdate = $todate;
     }
-
-    
-   
-
-
+      
 
    if ( $qperiod =~ /month/) {
         @prt = split("_", $qperiod);
@@ -334,6 +331,31 @@ END
     }
 
     $day_diff = int($day_diff);
+
+###########   max CPU
+
+      $sql="SELECT max(CPU_per_evt_sec)  FROM $JobStatusT where prodSeries = ? ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute($qprod);
+
+        $maxcpu = $cursor->fetchrow ;
+
+       $cursor->finish();
+
+        
+###########   max exectime
+
+      $sql="SELECT max(exectime)  FROM $JobStatusT where prodSeries = ? ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute($qprod);
+
+        $maxexectm = $cursor->fetchrow ;
+
+       $cursor->finish();
 
 
     $sql="SELECT DISTINCT date_format(createTime, '%Y-%m-%d' ) as PDATE  FROM $JobStatusT WHERE prodSeries = ?  AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) < ?  order by createTime";
@@ -435,10 +457,13 @@ END
 
 ###########
 
- $jobtotbin = 2.0;
+ $maxvalue =  int($maxexectm/10.)*10 ; 
+ $jobtotbin = int( $maxvalue/100); 
+ 
+# $jobtotbin = 2.0;
   $ndate[0] = 0;
 
- for ($i = 0; $i < 110; $i++) {
+ for ($i = 0; $i < 100; $i++) {
    $ndate[$i] = $jobtotbin*$i; 
  }
 
@@ -446,7 +471,7 @@ END
             $exctime = ($$jset)->jbtot;
 	    $pstream   = ($$jset)->strv;
 
-	    if($exctime <= 220 )  {
+	    if($exctime <=  $maxvalue )  {
 	   $ndt = int($exctime/$jobtotbin);
            $ndate[$ndt] = $jobtotbin*$ndt;  
 
