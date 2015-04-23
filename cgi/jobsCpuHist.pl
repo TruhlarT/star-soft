@@ -54,6 +54,7 @@ my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
 my $lastdate;
+my $maxvalue;
 
 my @prodyear = ("2013","2014","2015");
 
@@ -214,7 +215,7 @@ END
   
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> CPU/evt, Realtime/CPU/evt, <br> total time of job's execution, <br> number of events and jobs processed per day</h3>";
+    print "<h3 align=center> CPU/evt, Realtime/CPU, <br> total time of job's execution, <br> number of events and jobs processed per day</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
                                   -values=>\@arrate,
@@ -458,7 +459,7 @@ END
 ###########
 
  $maxvalue =  int($maxexectm/10.)*10 ; 
- $jobtotbin = int( $maxvalue/100); 
+ $jobtotbin = int( $maxvalue/100.); 
  
 # $jobtotbin = 2.0;
   $ndate[0] = 0;
