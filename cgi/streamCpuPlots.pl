@@ -188,7 +188,7 @@ my $avgratio = 0;
 my $stdratio = 0;
 
  
- my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months");
+ my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months","7_month","8_months","9_months","10_month","11_months","12_months",);
 
 #my @arperiod = ("week","1_month","2_months","3_months","4_months","5_months","6_months");
 
@@ -212,7 +212,7 @@ $JobStatusT = "JobStatus2013";
 
 $JobStatusT = "JobStatus2014";  
 
-    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT where runDay >= '2014-12-01' order by runDay ";
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT where runDay >= '2015-01-02' order by runDay ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
