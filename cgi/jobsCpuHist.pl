@@ -215,7 +215,7 @@ END
   
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> CPU/evt, Realtime/CPU, <br> total time of job's execution, <br> number of events and jobs processed per day</h3>";
+    print "<h3 align=center> CPU/evt, Realtime/CPU, <br> total time of job's execution, <br> number of events and <br>jobs processed per day</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prate',
                                   -values=>\@arrate,
@@ -607,11 +607,11 @@ END
 
  @ndate = ();
  $ndate[0] = 0;
- $cpubin = 2.0; 
+# $cpubin = 2.0; 
   $ndt = 0;
 
  $maxvalue = int($maxcpu/10.)*10;
- $cpubin   = int( $maxvalue/110.);
+ $cpubin   = int( $maxvalue/110);
 
  for ($i = 0; $i < 110; $i++) {
    $ndate[$i] = $cpubin*$i; 
