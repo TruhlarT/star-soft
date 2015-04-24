@@ -814,13 +814,13 @@ my $gtitle;
 
 
  if($qprod eq "P14ia" or $qprod eq "P14ig"  ) {
-     $max_y = 28000 ;
+     $max_y = 8400 ;
  }elsif($qprod eq "P14ii" ) {
-     $max_y = 42000 ;
+     $max_y = 7000 ;
  }elsif($qprod eq "P15ib" ){
-     $max_y = 28000 ;
+     $max_y = 7000 ;
  }elsif($qprod eq "P15ic" ){
-     $max_y = 42000 ;
+     $max_y = 14000 ;
  }
 
         $xlabel = "Job's execution time on the farm in hours";
