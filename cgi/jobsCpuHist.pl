@@ -610,6 +610,9 @@ END
  $cpubin = 2.0; 
   $ndt = 0;
 
+ $maxvalue = int($maxcpu/10.)*10;
+ $cpubin   = int( $maxvalue/110.);
+
  for ($i = 0; $i < 110; $i++) {
    $ndate[$i] = $cpubin*$i; 
  }
@@ -618,7 +621,7 @@ END
 	    $pcpu     = ($$jset)->cpuv;
 	    $pstream  = ($$jset)->strv;
 
-            if($pcpu <= 220.0 )     {
+            if($pcpu <= $maxvalue )     {
 
 	    $ndt = int($pcpu/$cpubin);
             $ndate[$ndt] = $cpubin*$ndt;  
@@ -776,6 +779,8 @@ my $gtitle;
      }elsif( $srate eq "exectime"){
 
  @data = ();
+
+  $max_y = 42000 ;
 
         $xlabel = "Job's execution time on the farm in hours";
         $ylabel = "Number of jobs";         
