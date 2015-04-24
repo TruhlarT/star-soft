@@ -752,7 +752,7 @@ my $gtitle;
        if( $srate eq "cpu" )  {
 
  @data = ();
- $max_y = 21000 ;
+# $max_y = 21000 ;
 
 	$xlabel = "CPU in sec/evt";
         $ylabel = "Number of jobs";
@@ -766,7 +766,7 @@ my $gtitle;
       }elsif( $srate eq "rtime/cpu"){
 
  @data = ();
- $max_y = 28000 ;
+# $max_y = 28000 ;
 
         $xlabel = "Ratio RealTime/CPU";
         $ylabel = "Number of jobs";
@@ -780,7 +780,7 @@ my $gtitle;
 
  @data = ();
 
-  $max_y = 42000 ;
+#  $max_y = 42000 ;
 
         $xlabel = "Job's execution time on the farm in hours";
         $ylabel = "Number of jobs";         
@@ -800,7 +800,7 @@ my $gtitle;
         $ylabel = "Number of events";         
 	$gtitle = "Number of events processed per day in $qprod production ";
 
- $max_y = int(42000000) ; 
+# $max_y = int(42000000) ; 
 
     @data = (\@ndate, \@nevents ) ;
 
