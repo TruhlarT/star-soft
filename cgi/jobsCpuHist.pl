@@ -827,6 +827,8 @@ if($qprod eq "P14ia" ) {
      $max_y = 7000 ;
  }elsif($qprod eq "P15ic" ){
      $max_y = 8400 ;
+ }else{
+     $max_y = 14000 ;
  }
 
         $xlabel = "Job's execution time on the farm in hours";
@@ -843,11 +845,17 @@ if($qprod eq "P14ia" ) {
 
  @data = ();
 
-        $xlabel = "Datetime of jobs completion";
+ if($qprod eq "P14ii" ) {
+     $max_y = 84000000 ;
+ }else{ 
+     $max_y = 42000000 ;
+ } 
+
+        $xlabel = "Date of jobs completion";
         $ylabel = "Number of events";         
 	$gtitle = "Number of events processed per day in $qprod production ";
 
- $max_y = int(42000000) ; 
+# $max_y = int(42000000) ; 
 
     @data = (\@ndate, \@nevents ) ;
 
@@ -858,11 +866,21 @@ if($qprod eq "P14ia" ) {
 
  @data = ();
 
-        $xlabel = "Datetime of jobs completion";
+
+ if($qprod eq "P14ia" ) {
+     $max_y = 11200 ;
+ }elsif($qprod eq "P14ig" ) {
+     $max_y = 9800 ;
+ }elsif($qprod eq "P14ii" ) {
+     $max_y = 11200 ;
+ }else{ 
+     $max_y = 9800 ;
+ } 
+
+        $xlabel = "Date of jobs completion";
         $ylabel = "Number of jobs";         
 	$gtitle = "Number of jobs processed per day in $qprod production ";
 
- $max_y = int(9800) ; 
 
     @data = (\@ndate, \@numjobs ) ;
 
