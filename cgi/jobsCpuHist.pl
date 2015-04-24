@@ -798,7 +798,19 @@ my $gtitle;
       }elsif( $srate eq "rtime/cpu"){
 
  @data = ();
- $max_y = 28000 ;
+
+if($qprod eq "P14ia" ) {
+     $max_y = 42000 ;
+ }elsif($qprod eq "P14ig" ) {
+     $max_y = 42000 ;
+ }elsif($qprod eq "P14ii" ) {
+     $max_y = 8400 ;
+ }elsif($qprod eq "P15ib" ){
+     $max_y = 14000 ;
+ }elsif($qprod eq "P15ic" ){
+     $max_y = 28000 ;
+ }
+
 
         $xlabel = "Ratio RealTime/CPU";
         $ylabel = "Number of jobs";
