@@ -54,7 +54,6 @@ my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
 my $lastdate;
-my $maxvalue;
 
 my @prodyear = ("2013","2014","2015");
 
@@ -78,6 +77,8 @@ my @nevents = ();
 my @numjobs = ();
 my $maxcpu = 0;
 my $maxexectm = 0 ;
+my $maxcpuval = 0;
+my $maxvalue = 0;
 
 my $pryear = "2014";
 
@@ -462,13 +463,22 @@ END
       $maxexectm = 221.00;
   }
 
- $maxvalue =  int($maxexectm/10.)*10 ; 
- $jobtotbin = int( $maxvalue/110.); 
+# $maxvalue =  int($maxexectm/10.)*10 ; 
+# $jobtotbin = int( $maxvalue/120.); 
  
-# $jobtotbin = 2.0;
-  $ndate[0] = 0;
+ if($qprod eq "P14ia" or $qprod eq "P14ig") {
+     $maxvalue = 120;
+ }elsif($qprod eq "P14ii" ) {
+     $maxvalue = 150 ;
+ }elsif($qprod eq "P15ib" or $qprod eq "P15ic" ) {
+     $maxvalue = 240;
+ }
 
- for ($i = 0; $i < 110; $i++) {
+ $jobtotbin = int($maxvalue/120. + 0.01);
+
+ $ndate[0] = 0;
+
+ for ($i = 0; $i < 120; $i++) {
    $ndate[$i] = $jobtotbin*$i; 
  }
 
@@ -609,10 +619,21 @@ END
  $ndate[0] = 0;
   $ndt = 0;
 
- $maxvalue = int($maxcpu/10.)*10 + 10;
- $cpubin   = int($maxvalue/110.);
+# $maxvalue = int($maxcpu/10.)*10 + 10;
+# $cpubin   = int($maxvalue/110.);
 
-#$cpubin = 2.0; 
+
+ if($qprod eq "P14ia" ) {
+     $maxcpuval = 110;
+ }elsif($qprod eq "P14ig" ) {
+     $maxcpuval = 132;
+ }elsif($qprod eq "P14ii" ) {
+     $maxcpuval = 132;
+ }elsif($qprod eq "P15ib" or $qprod eq "P15ic" ) {
+     $maxcpuval = 220;
+ }
+
+ $cpubin   = int($maxcpuval/110. + 0.01);
 
  for ($i = 0; $i < 110; $i++) {
    $ndate[$i] = $cpubin*$i; 
@@ -622,8 +643,8 @@ END
 	    $pcpu     = ($$jset)->cpuv;
 	    $pstream  = ($$jset)->strv;
 
-#            if($pcpu < $maxvalue )     {
-            if($pcpu <= 220 )     {
+            if($pcpu < $maxcpuval )     {
+#            if($pcpu <= 220 )     {
 
 	    $ndt = int($pcpu/$cpubin);
             $ndate[$ndt] = $cpubin*$ndt;  
@@ -754,7 +775,16 @@ my $gtitle;
        if( $srate eq "cpu" )  {
 
  @data = ();
-# $max_y = 21000 ;
+
+ if($qprod eq "P14ia" or $qprod eq "P14ig"  ) {
+     $max_y = 14000 ;
+ }elsif($qprod eq "P14ii" ) {
+     $max_y = 28000 ;
+ }elsif($qprod eq "P15ib" ){
+     $max_y = 7000 ;
+ }elsif($qprod eq "P15ic" ){
+     $max_y = 28000 ;
+ }
 
 	$xlabel = "CPU in sec/evt";
         $ylabel = "Number of jobs";
@@ -768,7 +798,7 @@ my $gtitle;
       }elsif( $srate eq "rtime/cpu"){
 
  @data = ();
-# $max_y = 28000 ;
+ $max_y = 28000 ;
 
         $xlabel = "Ratio RealTime/CPU";
         $ylabel = "Number of jobs";
@@ -782,7 +812,16 @@ my $gtitle;
 
  @data = ();
 
-#  $max_y = 42000 ;
+
+ if($qprod eq "P14ia" or $qprod eq "P14ig"  ) {
+     $max_y = 28000 ;
+ }elsif($qprod eq "P14ii" ) {
+     $max_y = 42000 ;
+ }elsif($qprod eq "P15ib" ){
+     $max_y = 28000 ;
+ }elsif($qprod eq "P15ic" ){
+     $max_y = 42000 ;
+ }
 
         $xlabel = "Job's execution time on the farm in hours";
         $ylabel = "Number of jobs";         
@@ -802,7 +841,7 @@ my $gtitle;
         $ylabel = "Number of events";         
 	$gtitle = "Number of events processed per day in $qprod production ";
 
-# $max_y = int(42000000) ; 
+ $max_y = int(42000000) ; 
 
     @data = (\@ndate, \@nevents ) ;
 
