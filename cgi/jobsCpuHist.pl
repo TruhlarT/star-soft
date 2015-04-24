@@ -607,13 +607,12 @@ END
 
  @ndate = ();
  $ndate[0] = 0;
-# $cpubin = 2.0; 
   $ndt = 0;
 
  $maxvalue = int($maxcpu/10.)*10;
- $cpubin   = int( $maxvalue/110);
+ $cpubin   = int($maxvalue/110.);
 
-$cpubin = 2.0; 
+#$cpubin = 2.0; 
 
  for ($i = 0; $i < 110; $i++) {
    $ndate[$i] = $cpubin*$i; 
@@ -623,8 +622,8 @@ $cpubin = 2.0;
 	    $pcpu     = ($$jset)->cpuv;
 	    $pstream  = ($$jset)->strv;
 
-#            if($pcpu <= $maxvalue )     {
-            if($pcpu <= 220 )     {
+            if($pcpu < $maxvalue )     {
+#            if($pcpu <= 220 )     {
 
 	    $ndt = int($pcpu/$cpubin);
             $ndate[$ndt] = $cpubin*$ndt;  
