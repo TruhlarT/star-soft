@@ -800,9 +800,9 @@ my $gtitle;
  @data = ();
 
 if($qprod eq "P14ia" ) {
-     $max_y = 42000 ;
+     $max_y = 49000 ;
  }elsif($qprod eq "P14ig" ) {
-     $max_y = 42000 ;
+     $max_y = 49000 ;
  }elsif($qprod eq "P14ii" ) {
      $max_y = 8400 ;
  }elsif($qprod eq "P15ib" ){
