@@ -628,7 +628,7 @@ END
  }elsif($qprod eq "P14ig" ) {
      $maxcpuval = 132;
  }elsif($qprod eq "P14ii" ) {
-     $maxcpuval = 132;
+     $maxcpuval = 110;
  }elsif($qprod eq "P15ib" or $qprod eq "P15ic" ) {
      $maxcpuval = 220;
  }
@@ -776,14 +776,14 @@ my $gtitle;
 
  @data = ();
 
- if($qprod eq "P14ia" or $qprod eq "P14ig"  ) {
+ if($qprod eq "P14ia" or $qprod eq "P14ig") {
      $max_y = 14000 ;
  }elsif($qprod eq "P14ii" ) {
-     $max_y = 28000 ;
+     $max_y = 7000 ;
  }elsif($qprod eq "P15ib" ){
      $max_y = 7000 ;
  }elsif($qprod eq "P15ic" ){
-     $max_y = 28000 ;
+     $max_y = 21000 ;
  }
 
 	$xlabel = "CPU in sec/evt";
