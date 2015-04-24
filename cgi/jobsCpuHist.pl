@@ -609,7 +609,7 @@ END
  $ndate[0] = 0;
   $ndt = 0;
 
- $maxvalue = int($maxcpu/10.)*10;
+ $maxvalue = int($maxcpu/10.)*10 + 10;
  $cpubin   = int($maxvalue/110.);
 
 #$cpubin = 2.0; 
@@ -622,8 +622,8 @@ END
 	    $pcpu     = ($$jset)->cpuv;
 	    $pstream  = ($$jset)->strv;
 
-            if($pcpu < $maxvalue )     {
-#            if($pcpu <= 220 )     {
+#            if($pcpu < $maxvalue )     {
+            if($pcpu <= 220 )     {
 
 	    $ndt = int($pcpu/$cpubin);
             $ndate[$ndt] = $cpubin*$ndt;  
