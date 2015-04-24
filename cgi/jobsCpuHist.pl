@@ -792,11 +792,11 @@ my $gtitle;
  @data = ();
 
 if($qprod eq "P14ia" ) {
-     $max_y = 49000 ;
+     $max_y = 42000 ;
  }elsif($qprod eq "P14ig" ) {
-     $max_y = 49000 ;
+     $max_y = 42000 ;
  }elsif($qprod eq "P14ii" ) {
-     $max_y = 8400 ;
+     $max_y = 7000 ;
  }elsif($qprod eq "P15ib" ){
      $max_y = 14000 ;
  }elsif($qprod eq "P15ic" ){
