@@ -459,10 +459,6 @@ END
 
 ###########
 
-  if($maxexectm > 220 ) {
-      $maxexectm = 221.00;
-  }
-
 # $maxvalue =  int($maxexectm/10.)*10 ; 
 # $jobtotbin = int( $maxvalue/120.); 
  
@@ -619,9 +615,6 @@ END
  $ndate[0] = 0;
   $ndt = 0;
 
-# $maxvalue = int($maxcpu/10.)*10 + 10;
-# $cpubin   = int($maxvalue/110.);
-
 
  if($qprod eq "P14ia" ) {
      $maxcpuval = 110;
@@ -685,13 +678,12 @@ END
 
  $ndate[0] = 0;
 # $rcpubin = 0.01; 
- $rcpubin = 0.004; 
+ $rcpubin = 0.0025; 
  $ndt = 0;
 
- for ($i = 0; $i < 100; $i++) {
-#   $ndate[$i] = 1 + $rcpubin*$i; 
-#   $ndate[$i] = $rcpubin*$i; 
- $ndate[$i] = 0.9 + $rcpubin*$i; 
+ for ($i = 0; $i < 120; $i++) {
+
+ $ndate[$i] = 0.95 + $rcpubin*$i; 
  }
 
      foreach $jset (@jbstat) {
@@ -703,11 +695,11 @@ END
 
            $rte = $prtime/$pcpu; 
 
-	   if($rte >= 0.9 and $rte <= 1.3 )     {
+	   if($rte >= 0.95 and $rte <= 1.25 )     {
 #	   if( $rte <= 2.0 )     {
-          $ndt = int(($rte - 0.9)/$rcpubin + 0.00001);
+          $ndt = int(($rte - 0.95)/$rcpubin + 0.00001);
 #           $ndt = int($rte/$rcpubin + 0.00001);
-           $ndate[$ndt] = 0.9 + $rcpubin*$ndt;  
+           $ndate[$ndt] = 0.95 + $rcpubin*$ndt;  
 #            $ndate[$ndt] = $rcpubin*$ndt;  
 #
 	       if ( $pstream eq "physics" ) {
