@@ -469,7 +469,7 @@ END
  if($qprod eq "P14ia" or $qprod eq "P14ig") {
      $maxvalue = 120;
  }elsif($qprod eq "P14ii" ) {
-     $maxvalue = 150 ;
+     $maxvalue = 120 ;
  }elsif($qprod eq "P15ib" or $qprod eq "P15ic" ) {
      $maxvalue = 240;
  }
@@ -813,14 +813,16 @@ my $gtitle;
  @data = ();
 
 
- if($qprod eq "P14ia" or $qprod eq "P14ig"  ) {
-     $max_y = 8400 ;
+ if($qprod eq "P14ia" ) {
+     $max_y = 2800 ;
+ }elsif($qprod eq "P14ig" ) {
+     $max_y = 14000 ;
  }elsif($qprod eq "P14ii" ) {
-     $max_y = 7000 ;
+     $max_y = 2800 ;
  }elsif($qprod eq "P15ib" ){
      $max_y = 7000 ;
  }elsif($qprod eq "P15ic" ){
-     $max_y = 14000 ;
+     $max_y = 8400 ;
  }
 
         $xlabel = "Job's execution time on the farm in hours";
