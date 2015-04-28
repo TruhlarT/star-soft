@@ -51,14 +51,14 @@ my $nowdate = $todate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2010","2011","2012","2013","2014","2015");
+my @prodyear = ("2013","2014","2015");
 
 
 my @arperiod = ( );
 my $mstr;
 #my @arrate = ("cpu","rtime/cpu","jobtotalTime","ntracks","stream_rate","njobs");
 
-my @arrate = ("cpu","rtime/cpu","ntracks","stream_rate","njobs");
+my @arrate = ("cpu","rtime/cpu","ntracks","stream_rate");
 
 my @arrprod = ();
 my @arstream = ();
@@ -178,60 +178,6 @@ my $nhr = 0;
 
   &StDbProdConnect();
 
- $JobStatusT = "JobStatus2010";  
-
-    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
-
-       while( $mpr = $cursor->fetchrow() ) {
-          $arrprod[$npr] = $mpr;
-          $npr++;
-       }
-    $cursor->finish();
-
-  $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2010-07-20' order by runDay" ;
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
-
-       while( $dy = $cursor->fetchrow() ) {
-          $rdays[$ndy] = $dy;
-          $ndy++;
-       }
-    $cursor->finish();
-
-
- $JobStatusT = "JobStatus2011";
-
-
-    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
-
-       while( $mpr = $cursor->fetchrow() ) {
-          $arrprod[$npr] = $mpr;
-          $npr++;
-       }
-    $cursor->finish();
- 
-   $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2011-06-01' order by runDay" ;
-
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
-
-       while( $dy = $cursor->fetchrow() ) {
-          $rdays[$ndy] = $dy;
-          $ndy++;
-       }
-    $cursor->finish();
 
  $JobStatusT = "JobStatus2012";
 
@@ -347,7 +293,7 @@ END
     print $query->startform(-action=>"$scriptname");
 
     print "<body bgcolor=\"cornsilk\">\n";
-    print "<h1 align=center><u>Production CPU&RealTime usage for stream data</u></h1>\n";
+    print "<h1 align=center><u>Average per day CPU/event & RealTime/CPU usage in data production</u></h1>\n";
     print "<br>";
     print "<br>";
     print <<END;
@@ -368,8 +314,8 @@ END
  
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Stream values: <br> CPU, rtime/CPU,<br>avg number of tracks, <br>stream jobs ratios by finish time,<br>number of finished jobs</h3>";
-    print "<h4 align=center>";
+    print "<h3 align=center> </h3>";
+    print "<h4 align=center>Average CPU/event, Realtime/CPU, <br> average number of tracks per event,<br>average stream job ratios ";
     print  $query->scrolling_list(-name=>'prate',
 	                          -values=>\@arrate,
 	                          -default=>cpu,
@@ -1019,11 +965,9 @@ END
        if ( $srate eq "rtime/cpu" ) {
 
        $ylabel = "Average ratio RealTime/CPU per hour";
-       $gtitle = "Average ratio RealTime/CPU for different streams for day $qday";
+       $gtitle = "Average ratio RealTime/CPU for different streams in $qprod production ";
 
     @data = ();
-
-#  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@armonitor, \@arwb, \@arupc, \@aratomcules, \@armtd, \@arcentralpro, \@arfmsfast ) ;
 
 
   @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@arwb, \@arupc, \@aratomcules, \@armtd, \@arcentralpro, \@arfmsfast, \@arhltgood ) ;
@@ -1034,11 +978,10 @@ END
   }elsif(  $srate eq "cpu" ) {
 
        $ylabel = "Average CPU in sec/evt per hour";
-       $gtitle = "Average CPU in sec/evt for different streams for day $qday";
+       $gtitle = "Average CPU in sec/evt for different streams in $qprod production";
 
     @data = ();
 
-#  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpmonitor, \@cpwb, \@cpupc, \@cpatomcules, \@cpmtd, \@cpcentralpro, \@cpfmsfast ) ;
 
  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpwb, \@cpupc, \@cpatomcules, \@cpmtd, \@cpcentralpro, \@cpfmsfast, \@cphltgood ) ;
 
@@ -1050,9 +993,8 @@ END
     @data = ();
 
    $ylabel = "Average total time jobs stay on the farm in hours";
-   $gtitle = "Average total time jobs stay on the farm  for $qday ";
+   $gtitle = "Average total time jobs stay on the farm in $qprod production ";
 
-#@data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbmonitor, \@jbwb, \@jbupc, \@jbatomcules, \@jbmtd, \@jbcentralpro, \@jbfmsfast ) ;
 
 @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbwb, \@jbupc, \@jbatomcules, \@jbmtd, \@jbcentralpro, \@jbfmsfast, \@jbhltgood ) ;
 
@@ -1063,11 +1005,9 @@ END
  }elsif(  $srate eq "ntracks" ) {
 
 	$ylabel = "Average number of tracks in different streams";
-	$gtitle = "Average number of tracks in different streams for day $qday ";
+	$gtitle = "Average number of tracks in different streams in $qprod production  ";
 
    @data = ();
-
-# @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trht, \@trmonitor, \@trwb, \@trupc, \@tratomcules, \@trmtd, \@trcentralpro, \@trfmsfast ) ;
 
 
  @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trht, \@trwb, \@trupc, \@tratomcules, \@trmtd, \@trcentralpro, \@trfmsfast, \@trhltgood ) ;
@@ -1078,11 +1018,10 @@ END
   }elsif(  $srate eq "njobs" ) {
 
         $ylabel = "Number of stream jobs finished per hour ";
-        $gtitle = "Number of stream jobs finished per hour for day $qday ";
+        $gtitle = "Number of stream jobs finished per hour in $qprod production ";
 
     @data = ();
 
-# @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstht, \@nstmonitor, \@nstwb, \@nstupc, \@nstatomcules, \@nstmtd, \@nstcentralpro, \@nstfmsfast ) ;
 
  @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstht, \@nstwb, \@nstupc, \@nstatomcules, \@nstmtd, \@nstcentralpro, \@nstfmsfast, \@nsthltgood ) ;
 
@@ -1090,11 +1029,10 @@ END
   }elsif(  $srate eq "stream_rate" ) {
 
         $ylabel = "Ratio of different stream jobs finishing per hour ";
-        $gtitle = "Ratio of different stream jobs finishing per hour for day $qday ";
+        $gtitle = "Ratio of different stream jobs finishing per hour in $qprod production ";
 
  @data = ();
 
-# @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtwb, \@rtupc, \@rtatomcules, \@rtmtd, \@rtcentralpro, \@rtfmsfast ) ;
 
  @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtwb, \@rtupc, \@rtatomcules, \@rtmtd, \@rtcentralpro, \@rtfmsfast, \@rthltgood ) ;
 
