@@ -255,7 +255,7 @@ my $srate = $query->param('prate');
 
 if( $qday eq "" and $qprod eq "" and $srate eq "" ) {
     print $query->header();
-    print $query->start_html('Production CPU usage');
+    print $query->start_html('Production CPU & RealTime usage');
     print <<END;
 <META HTTP-EQUIV="Expires" CONTENT="0">
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
@@ -285,7 +285,7 @@ END
  
    print "<p>";
     print "</td><td>";
-    print "<h3 align=center>Average CPU/event, Realtime/CPU, <br> average number of tracks per event,<br>average stream job ratios </h3>";
+    print "<h3 align=center>Average CPU/event, Realtime/CPU, <br> number of tracks per event,<br>average stream jobs ratios </h3>";
     print "<h4 align=center> ";
     print  $query->scrolling_list(-name=>'prate',
 	                          -values=>\@arrate,
