@@ -178,40 +178,11 @@ my $nhr = 0;
 
   &StDbProdConnect();
 
-
- $JobStatusT = "JobStatus2012";
-
-
-    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
-
-       while( $mpr = $cursor->fetchrow() ) {
-          $arrprod[$npr] = $mpr;
-          $npr++;
-       }
-    $cursor->finish();
-
-    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2012-05-20' order by runDay" ;
-
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
-
-       while( $dy = $cursor->fetchrow() ) {
-          $rdays[$ndy] = $dy;
-          $ndy++;
-       }
-    $cursor->finish();
-
-
+ 
 $JobStatusT = "JobStatus2013";
 
 
-    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT  where runDay >= '2014-02-20' order by runDay ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -241,7 +212,7 @@ $JobStatusT = "JobStatus2013";
 $JobStatusT = "JobStatus2014";
 
 
-    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT where runDay >= '2015-01-02' order by runDay";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -254,7 +225,7 @@ $JobStatusT = "JobStatus2014";
     $cursor->finish();
 
 
-    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2015-01-09' order by runDay" ;
+    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2015-01-02' order by runDay" ;
 
 
       $cursor =$dbh->prepare($sql)
