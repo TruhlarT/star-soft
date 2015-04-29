@@ -194,7 +194,7 @@ END
     print $query->startform(-action=>"$scriptname");
 
     print "<body bgcolor=\"cornsilk\">\n";
-    print "<h1 align=center><u>Distributions of CPU, RealTime/CPU, total time of jobs execution, number of events and jobs processed per day </u></h1>\n";
+    print "<h1 align=center><u>Distributions of CPU/evt, RealTime/CPU, total time of jobs execution, number of events and jobs processed per day </u></h1>\n";
     print "<br>";
     print "<br>";
     print <<END;
