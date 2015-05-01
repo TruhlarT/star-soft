@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.139 2015/04/09 19:52:00 genevb Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.140 2015/05/01 14:54:53 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -1181,6 +1181,7 @@ Bfc_st BFC[] = {
   {"mwc" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"ppMCTrig" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"pp2pp" ,"","","", "St_pp2pp_Maker","St_pp2pp_Maker","pp->pp",kFALSE},
+  {"mtdFilt" ,"","","", "StMtdEvtFilterApplyMaker","StDataFilterMaker","MTD-based event filtering",kFALSE},
   {"mtd" ,"MtdChain","","mtdDat,mtdMatch","StMaker", "StChain","MTD Chain",kFALSE},
   {"mtdDat" ,"mtd_raw","MtdChain","db,MuDst","StMtdHitMaker","StEvent,StMtdHitMaker"
    , "MTD hit maker",kFALSE},
@@ -2706,6 +2707,7 @@ Bfc_st BFC[] = {
   {"mwc" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"ppMCTrig" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"pp2pp" ,"","","", "St_pp2pp_Maker","St_pp2pp_Maker","pp->pp",kFALSE},
+  {"mtdFilt" ,"","","", "StMtdEvtFilterApplyMaker","StDataFilterMaker","MTD-based event filtering",kFALSE},
   {"mtd" ,"MtdChain","","mtdDat,mtdMatch","StMaker", "StChain","MTD Chain",kFALSE},
   {"mtdDat" ,"mtd_raw","MtdChain","db,MuDst","StMtdHitMaker","StEvent,StMtdHitMaker"
    , "MTD hit maker",kFALSE},
