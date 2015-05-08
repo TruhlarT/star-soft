@@ -136,6 +136,7 @@ my @numjobs4 = ();
 my @numjobs5 = ();
 my @numjobs6 = ();
 my @numjobs7 = ();
+my @numjobs8 = ();
 my @jobsdone = ();
 my @jobrate1 = ();
 my @jobrate2 = ();
@@ -144,6 +145,7 @@ my @jobrate4 = ();
 my @jobrate5 = ();
 my @jobrate6 = ();
 my @jobrate7 = ();
+my @jobrate8 = ();
 my @Npoint = ();
 my @maxvalue = ();
 
@@ -196,6 +198,7 @@ $day_diff = int($day_diff);
  @numjobs5 = ();
  @numjobs6 = ();
  @numjobs7 = ();
+ @numjobs8 = ();
  @jobsdone = ();
  @jobrate1 = ();
  @jobrate2 = ();
@@ -204,11 +207,12 @@ $day_diff = int($day_diff);
  @jobrate5 = ();
  @jobrate6 = ();
  @jobrate7 = ();
+ @jobrate8 = ();
   @Npoint = ();
  @maxvalue = ();
 
  
-             $sql="SELECT max(condor_failed), max(prestaging_failed), max(hpss_import_failed), max(hpss_export_failed), max(hpss_retry_failed), max(job_exec_failed), max(io_error) FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? ";
+             $sql="SELECT max(condor_failed), max(prestaging_failed), max(hpss_import_failed), max(hpss_export_failed), max(hpss_retry_failed), max(job_exec_failed), max(io_error), max(held) FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? ";
  
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($day_diff);
@@ -220,12 +224,13 @@ $day_diff = int($day_diff);
 		$maxvalue[3] = $fields[3];
  		$maxvalue[4] = $fields[4];
 		$maxvalue[5] = $fields[5];
-		$maxvalue[6] = $fields[6];  
+		$maxvalue[6] = $fields[6];
+		$maxvalue[7] = $fields[7];  
 	    }
 
  my $ii = 0;
 
-            $sql="SELECT condor_failed, prestaging_failed, hpss_import_failed, hpss_export_failed, hpss_retry_failed, job_exec_failed, io_error, done, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? and sdate <= '$nowdatetime' ORDER by sdate ";
+            $sql="SELECT condor_failed, prestaging_failed, hpss_import_failed, hpss_export_failed, hpss_retry_failed, job_exec_failed, io_error, held, done, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? and sdate <= '$nowdatetime' ORDER by sdate ";
 
 #           $sql="SELECT condor_failed, prestaging_failed, hpss_import_failed, hpss_export_failed, hpss_retry_failed, job_exec_failed, io_error, done, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? and sdate <= '2014-11-23' ORDER by sdate ";
 
@@ -240,8 +245,9 @@ $day_diff = int($day_diff);
                 $numjobs5[$ii] = $fields[4];
 		$numjobs6[$ii] = $fields[5];
                 $numjobs7[$ii] = $fields[6];
-                $jobsdone[$ii] = $fields[7];
-                $Npoint[$ii] =  $fields[8]; 
+                $numjobs8[$ii] = $fields[7];
+                $jobsdone[$ii] = $fields[8];
+                $Npoint[$ii] =  $fields[9]; 
                	$ii++;
  
  }
@@ -268,6 +274,7 @@ my $rtmax = 1;
     $legend[4] = "Jobs failed due to 'hpss_retry_failed'";
     $legend[5] = "Jobs failed due to 'job_execution_failed'";
     $legend[6] = "Jobs failed due to 'io_error'";
+    $legend[7] = "Jobs HELD";
 
  my $ylabel;
  my $gtitle; 
@@ -303,7 +310,7 @@ $ymax = 1;
 
   if( $plview eq "numbers") {
  
-    @data = (\@Npoint, \@numjobs1, \@numjobs2, \@numjobs3, \@numjobs4, \@numjobs5, \@numjobs6, \@numjobs7 );
+    @data = (\@Npoint, \@numjobs1, \@numjobs2, \@numjobs3, \@numjobs4, \@numjobs5, \@numjobs6, \@numjobs7, \@numjobs8 );
 
   $min_y = 0;
   $max_y = $ymax + 50 ;  
@@ -324,6 +331,7 @@ $ymax = 1;
   $jobrate5[$i] = $numjobs5[$i]*100/($numjobs5[$i] + $jobsdone[$i]);
   $jobrate6[$i] = $numjobs6[$i]*100/($numjobs6[$i] + $jobsdone[$i]);
   $jobrate7[$i] = $numjobs7[$i]*100/($numjobs7[$i] + $jobsdone[$i]);
+  $jobrate8[$i] = $numjobs8[$i]*100/($numjobs8[$i] + $jobsdone[$i]);
 
 	if( $hmax <= $jobrate1[$i]) {
      $hmax = $jobrate1[$i];        
@@ -346,11 +354,14 @@ $ymax = 1;
 	if( $hmax <= $jobrate7[$i]) {
      $hmax = $jobrate7[$i];        
        }
+	if( $hmax <= $jobrate8[$i]) {
+     $hmax = $jobrate8[$i];        
+       }
     $rtmax =  $hmax;
 
  }
 
-    @data = (\@Npoint, \@jobrate1, \@jobrate2, \@jobrate3, \@jobrate4, \@jobrate5, \@jobrate6, \@jobrate7 );
+    @data = (\@Npoint, \@jobrate1, \@jobrate2, \@jobrate3, \@jobrate4, \@jobrate5, \@jobrate6, \@jobrate7, \@jobrate8 );
 
   $min_y = 0;  
   $max_y = int($rtmax) + 20 ;
