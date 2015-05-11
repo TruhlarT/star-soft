@@ -466,7 +466,7 @@ END
      $maxvalue = 120;
  }elsif($qprod eq "P14ii" ) {
      $maxvalue = 120 ;
- }elsif($qprod eq "P15ib" or $qprod eq "P15ic" ) {
+ }elsif($qprod eq "P15ib" or $qprod eq "P15ic" or $qprod eq "P15ie" ) {
      $maxvalue = 240;
  }
 
@@ -622,7 +622,7 @@ END
      $maxcpuval = 132;
  }elsif($qprod eq "P14ii" ) {
      $maxcpuval = 110;
- }elsif($qprod eq "P15ib" or $qprod eq "P15ic" ) {
+ }elsif($qprod eq "P15ib" or $qprod eq "P15ic" or $qprod eq "P15ie") {
      $maxcpuval = 220;
  }
 
