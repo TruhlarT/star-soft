@@ -467,11 +467,11 @@ END
      $maxvalue = 240;
  }
 
- $jobtotbin = int($maxvalue/60. + 0.01);
+ $jobtotbin = int($maxvalue/120. + 0.01);
 
  $ndate[0] = 0;
 
- for ($i = 0; $i < 60; $i++) {
+ for ($i = 0; $i < 120; $i++) {
    $ndate[$i] = $jobtotbin*$i; 
  }
 
@@ -614,22 +614,19 @@ END
 
 
  if($qprod eq "P14ia" ) {
-     $maxcpuval = 120;
+     $maxcpuval = 110;
  }elsif($qprod eq "P14ig" ) {
-     $maxcpuval = 120;
+     $maxcpuval = 110;
  }elsif($qprod eq "P14ii" ) {
-     $maxcpuval = 120;
+     $maxcpuval = 110;
  }elsif($qprod eq "P15ib" or $qprod eq "P15ic" or $qprod eq "P15ie") {
-     $maxcpuval = 240;
+     $maxcpuval = 220;
  }
 
-# $cpubin   = int($maxcpuval/110. + 0.01);
+ $cpubin   = int($maxcpuval/110. + 0.01);
 
-$cpubin   = int($maxcpuval/60. + 0.01);
+ for ($i = 0; $i < 110; $i++) {
 
-# for ($i = 0; $i < 110; $i++) {
-
-   for ($i = 0; $i < 60; $i++) {
    $ndate[$i] = $cpubin*$i; 
  }
 
@@ -677,12 +674,10 @@ $cpubin   = int($maxcpuval/60. + 0.01);
      }elsif( $srate eq "rtime/cpu" ) {
 
  $ndate[0] = 0;
- $rcpubin = 0.005; 
+ $rcpubin = 0.002; 
  $ndt = 0;
 
-# for ($i = 0; $i < 120; $i++) {
-
- for ($i = 0; $i < 60; $i++) {
+ for ($i = 0; $i < 120; $i++) {
 
  $ndate[$i] = 0.98 + $rcpubin*$i; 
  }
@@ -696,7 +691,7 @@ $cpubin   = int($maxcpuval/60. + 0.01);
 
            $rte = $prtime/$pcpu; 
 
-	   if($rte >= 0.98 and $rte <= 1.28 )     {
+	   if($rte >= 0.98 and $rte <= 1.22 )     {
           $ndt = int(($rte - 0.98)/$rcpubin + 0.00001);
            $ndate[$ndt] = 0.98 + $rcpubin*$ndt;  
 
