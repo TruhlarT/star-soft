@@ -459,9 +459,6 @@ END
 
 ###########
 
-# $maxvalue =  int($maxexectm/10.)*10 ; 
-# $jobtotbin = int( $maxvalue/120.); 
- 
  if($qprod eq "P14ia" or $qprod eq "P14ig") {
      $maxvalue = 120;
  }elsif($qprod eq "P14ii" ) {
@@ -470,11 +467,11 @@ END
      $maxvalue = 240;
  }
 
- $jobtotbin = int($maxvalue/120. + 0.01);
+ $jobtotbin = int($maxvalue/60. + 0.01);
 
  $ndate[0] = 0;
 
- for ($i = 0; $i < 120; $i++) {
+ for ($i = 0; $i < 60; $i++) {
    $ndate[$i] = $jobtotbin*$i; 
  }
 
@@ -492,8 +489,8 @@ END
 #               $jbcentral[$ndt]++; 
 	   }elsif( $pstream eq "mtd" ) {
                $jbmtd[$ndt]++;
-           }elsif( $pstream eq "upsilon" ) {
-               $jbupsilon[$ndt]++; 
+#           }elsif( $pstream eq "upsilon" ) {
+#               $jbupsilon[$ndt]++; 
 #           }elsif( $pstream eq "gamma" ) {
 #               $jbgamma[$ndt]++; 
            }elsif( $pstream eq "hlt" ) {
@@ -617,18 +614,22 @@ END
 
 
  if($qprod eq "P14ia" ) {
-     $maxcpuval = 110;
+     $maxcpuval = 120;
  }elsif($qprod eq "P14ig" ) {
-     $maxcpuval = 132;
+     $maxcpuval = 120;
  }elsif($qprod eq "P14ii" ) {
-     $maxcpuval = 110;
+     $maxcpuval = 120;
  }elsif($qprod eq "P15ib" or $qprod eq "P15ic" or $qprod eq "P15ie") {
-     $maxcpuval = 220;
+     $maxcpuval = 240;
  }
 
- $cpubin   = int($maxcpuval/110. + 0.01);
+# $cpubin   = int($maxcpuval/110. + 0.01);
 
- for ($i = 0; $i < 110; $i++) {
+$cpubin   = int($maxcpuval/60. + 0.01);
+
+# for ($i = 0; $i < 110; $i++) {
+
+   for ($i = 0; $i < 60; $i++) {
    $ndate[$i] = $cpubin*$i; 
  }
 
@@ -637,7 +638,6 @@ END
 	    $pstream  = ($$jset)->strv;
 
             if($pcpu < $maxcpuval )     {
-#            if($pcpu <= 220 )     {
 
 	    $ndt = int($pcpu/$cpubin);
             $ndate[$ndt] = $cpubin*$ndt;  
@@ -677,10 +677,12 @@ END
      }elsif( $srate eq "rtime/cpu" ) {
 
  $ndate[0] = 0;
- $rcpubin = 0.002; 
+ $rcpubin = 0.005; 
  $ndt = 0;
 
- for ($i = 0; $i < 120; $i++) {
+# for ($i = 0; $i < 120; $i++) {
+
+ for ($i = 0; $i < 60; $i++) {
 
  $ndate[$i] = 0.98 + $rcpubin*$i; 
  }
@@ -694,7 +696,7 @@ END
 
            $rte = $prtime/$pcpu; 
 
-	   if($rte >= 0.98 and $rte <= 1.22 )     {
+	   if($rte >= 0.98 and $rte <= 1.28 )     {
           $ndt = int(($rte - 0.98)/$rcpubin + 0.00001);
            $ndate[$ndt] = 0.98 + $rcpubin*$ndt;  
 
@@ -749,12 +751,12 @@ my $gtitle;
 	 
        $legend[0] = "st_physics  ";
        $legend[1] = "st_hlt      ";
-#       $legend[3] = "st_ht       ";
-#       $legend[4] = "st_monitor  ";
-       $legend[2] = "st_hltgood   ";
-       $legend[3] = "st_upc      ";
-       $legend[4] = "st_W        ";
-       $legend[5] = "st_mtd       ";
+#       $legend[3] = "st_ht      ";
+#       $legend[4] = "st_monitor ";
+       $legend[2] = "st_hltgood  ";
+       $legend[3] = "st_mtd      ";
+       $legend[4] = "st_upc      ";
+       $legend[5] = "st_W        ";
 #       $legend[1] = "st_gamma    ";
 #       $legend[8] = "st_centralpro ";
 #       $legend[9] = "st_atomcules ";
@@ -782,7 +784,7 @@ my $gtitle;
 
 #    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cphltgood, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cpfmsfast ) ; 
 
-   @data = (\@ndate, \@cpphysics, \@cphlt, \@cphltgood, \@cpupc, \@cpwb, \@cpmtd, \@cpfmsfast ) ; 
+   @data = (\@ndate, \@cpphysics, \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfmsfast ) ; 
 
 
       }elsif( $srate eq "rtime/cpu"){
@@ -811,7 +813,7 @@ if($qprod eq "P14ia" ) {
 #    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@arhltgood, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfmsfast ) ;
 
 
-    @data = (\@ndate, \@arphysics, \@arhlt, \@arhltgood, \@arupc, \@arwb, \@armtd, \@arfmsfast ) ;
+    @data = (\@ndate, \@arphysics, \@arhlt, \@arhltgood, \@armtd, \@arupc, \@arwb, \@arfmsfast ) ;
 
 
      }elsif( $srate eq "exectime"){
@@ -841,7 +843,7 @@ if($qprod eq "P14ia" ) {
 
 #    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfmsfast ) ;
 
-    @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbfmsfast ) ;
+    @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbhltgood, \@jbmtd, \@jbupc, \@jbwb, \@jbfmsfast ) ;
 
      }elsif( $srate eq "events"){
 
