@@ -267,7 +267,7 @@ END
   if( $qprod =~ /P14ia/ ) {$pryear = "2013"};
   if( $qprod =~ /P14ig/ ) {$pryear = "2013"};
   if( $qprod =~ /P14ii/ ) {$pryear = "2014"};
-  if( $qprod =~ /P15ib/ or $qprod =~ /P15ic/ ) {$pryear = "2014"};
+  if( $qprod =~ /P15ib/ or $qprod =~ /P15ic/ or $qprod =~ /P15ie/) {$pryear = "2014"};
 
     $JobStatusT = "JobStatus".$pryear;
 
@@ -433,7 +433,7 @@ END
 
     foreach  $tdate (@ardays) {
  
-  $sql="SELECT exectime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND exectime > 0.1  AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 order by createTime "; 
+  $sql="SELECT exectime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND exectime > 0.1  AND jobStatus = 'Done' AND NoEvents >= 10 order by createTime "; 
 
 	    $cursor =$dbh->prepare($sql)
 	      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -488,24 +488,24 @@ END
 
 	   if ( $pstream eq "physics" ) {
 	       $jbphysics[$ndt]++;
-           }elsif( $pstream eq "centralpro" ) {
-               $jbcentral[$ndt]++; 
+#           }elsif( $pstream eq "centralpro" ) {
+#               $jbcentral[$ndt]++; 
 	   }elsif( $pstream eq "mtd" ) {
                $jbmtd[$ndt]++;
            }elsif( $pstream eq "upsilon" ) {
                $jbupsilon[$ndt]++; 
-           }elsif( $pstream eq "gamma" ) {
-               $jbgamma[$ndt]++; 
+#           }elsif( $pstream eq "gamma" ) {
+#               $jbgamma[$ndt]++; 
            }elsif( $pstream eq "hlt" ) {
                $jbhlt[$ndt]++;  
            }elsif( $pstream eq "fms" ) {
                $jbfmsfast[$ndt]++; 
-           }elsif( $pstream eq "ht" ) {
-               $jbht[$ndt]++;  
-           }elsif( $pstream eq "atomcules" ) {
-               $jbatomcules[$ndt]++; 
-           }elsif( $pstream eq "monitor" ) {
-               $jbmonitor[$ndt]++;  
+#           }elsif( $pstream eq "ht" ) {
+#               $jbht[$ndt]++;  
+#           }elsif( $pstream eq "atomcules" ) {
+#               $jbatomcules[$ndt]++; 
+#           }elsif( $pstream eq "monitor" ) {
+#               $jbmonitor[$ndt]++;  
            }elsif( $pstream eq "hltgood" ) {
                $jbhltgood[$ndt]++;   
            }elsif( $pstream eq "upc" ) {
@@ -644,24 +644,24 @@ END
 
 	       if ( $pstream eq "physics" ) {
 	       $cpphysics[$ndt]++;
-              }elsif( $pstream eq "centralpro" ) {
-               $cpcentralpro[$ndt]++; 
+#              }elsif( $pstream eq "centralpro" ) {
+#               $cpcentralpro[$ndt]++; 
 	      }elsif( $pstream eq "mtd" ) {
                $cpmtd[$ndt]++;
-              }elsif( $pstream eq "upsilon" ) {
-               $cpupsilon[$ndt]++; 
-              }elsif( $pstream eq "gamma" ) {
-               $cpgamma[$ndt]++; 
+#              }elsif( $pstream eq "upsilon" ) {
+#               $cpupsilon[$ndt]++; 
+#              }elsif( $pstream eq "gamma" ) {
+#               $cpgamma[$ndt]++; 
               }elsif( $pstream eq "hlt" ) {
                $cphlt[$ndt]++;  
               }elsif( $pstream eq "fms" ) {
                $cpfmsfast[$ndt]++; 
-              }elsif( $pstream eq "ht" ) {
-               $cpht[$ndt]++;  
-              }elsif( $pstream eq "atomcules" ) {
-               $cpatomcules[$ndt]++; 
-              }elsif( $pstream eq "monitor" ) {
-               $cpmonitor[$ndt]++;  
+#              }elsif( $pstream eq "ht" ) {
+#               $cpht[$ndt]++;  
+#              }elsif( $pstream eq "atomcules" ) {
+#               $cpatomcules[$ndt]++; 
+#              }elsif( $pstream eq "monitor" ) {
+#               $cpmonitor[$ndt]++;  
               }elsif( $pstream eq "hltgood" ) {
                $cphltgood[$ndt]++;   
               }elsif( $pstream eq "upc" ) {
@@ -677,8 +677,6 @@ END
      }elsif( $srate eq "rtime/cpu" ) {
 
  $ndate[0] = 0;
-# $rcpubin = 0.01; 
-# $rcpubin = 0.0025; 
  $rcpubin = 0.002; 
  $ndt = 0;
 
@@ -697,32 +695,29 @@ END
            $rte = $prtime/$pcpu; 
 
 	   if($rte >= 0.98 and $rte <= 1.22 )     {
-#	   if( $rte <= 2.0 )     {
           $ndt = int(($rte - 0.98)/$rcpubin + 0.00001);
-#           $ndt = int($rte/$rcpubin + 0.00001);
            $ndate[$ndt] = 0.98 + $rcpubin*$ndt;  
-#            $ndate[$ndt] = $rcpubin*$ndt;  
-#
+
 	       if ( $pstream eq "physics" ) {
 	       $arphysics[$ndt]++ ;
-              }elsif( $pstream eq "centralpro" ) {
-               $arcentralpro[$ndt]++ ;
+#              }elsif( $pstream eq "centralpro" ) {
+#               $arcentralpro[$ndt]++ ;
 	      }elsif( $pstream eq "mtd" ) {
                $armtd[$ndt]++;
-              }elsif( $pstream eq "upsilon" ) {
-               $arupsilon[$ndt]++ ;
-              }elsif( $pstream eq "gamma" ) {
-               $argamma[$ndt]++ ;
+#              }elsif( $pstream eq "upsilon" ) {
+#               $arupsilon[$ndt]++ ;
+#              }elsif( $pstream eq "gamma" ) {
+#               $argamma[$ndt]++ ;
               }elsif( $pstream eq "hlt" ) {
                $arhlt[$ndt]++;
               }elsif( $pstream eq "fms" ) {
                $arfmsfast[$ndt]++ ;
-              }elsif( $pstream eq "ht" ) {
-               $arht[$ndt]++ ;
-              }elsif( $pstream eq "atomcules" ) {
-               $aratomcules[$ndt]++ ;
-              }elsif( $pstream eq "monitor" ) {
-               $armonitor[$ndt]++ ;
+#              }elsif( $pstream eq "ht" ) {
+#               $arht[$ndt]++ ;
+#              }elsif( $pstream eq "atomcules" ) {
+#               $aratomcules[$ndt]++ ;
+#              }elsif( $pstream eq "monitor" ) {
+#               $armonitor[$ndt]++ ;
               }elsif( $pstream eq "hltgood" ) {
                $arhltgood[$ndt]++ ;   
               }elsif( $pstream eq "upc" ) {
@@ -753,17 +748,17 @@ my $gtitle;
     } else {
 	 
        $legend[0] = "st_physics  ";
-       $legend[1] = "st_gamma    ";
-       $legend[2] = "st_hlt      ";
-       $legend[3] = "st_ht       ";
+       $legend[1] = "st_hlt      ";
+#       $legend[3] = "st_ht       ";
 #       $legend[4] = "st_monitor  ";
-       $legend[4] = "st_hltgood   ";
-       $legend[5] = "st_upc      ";
-       $legend[6] = "st_W        ";
-       $legend[7] = "st_mtd       ";
-       $legend[8] = "st_centralpro ";
-       $legend[9] = "st_atomcules ";
-       $legend[10] = "st_fms";
+       $legend[2] = "st_hltgood   ";
+       $legend[3] = "st_upc      ";
+       $legend[4] = "st_W        ";
+       $legend[5] = "st_mtd       ";
+#       $legend[1] = "st_gamma    ";
+#       $legend[8] = "st_centralpro ";
+#       $legend[9] = "st_atomcules ";
+       $legend[6] = "st_fms";
     
        if( $srate eq "cpu" )  {
 
@@ -775,7 +770,7 @@ my $gtitle;
      $max_y = 7000 ;
  }elsif($qprod eq "P15ib" ){
      $max_y = 7000 ;
- }elsif($qprod eq "P15ic" ){
+ }elsif($qprod eq "P15ic" or $qprod eq "P15ie" ){
      $max_y = 21000 ;
  }
 
@@ -785,7 +780,9 @@ my $gtitle;
 
 
 
-    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cphltgood, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cpfmsfast ) ; 
+#    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cphltgood, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cpfmsfast ) ; 
+
+   @data = (\@ndate, \@cpphysics, \@cphlt, \@cphltgood, \@cpupc, \@cpwb, \@cpmtd, \@cpfmsfast ) ; 
 
 
       }elsif( $srate eq "rtime/cpu"){
@@ -800,7 +797,7 @@ if($qprod eq "P14ia" ) {
      $max_y = 5600 ;
  }elsif($qprod eq "P15ib" ){
      $max_y = 14000 ;
- }elsif($qprod eq "P15ic" ){
+ }elsif($qprod eq "P15ic" or $qprod eq "P15ie" ){
      $max_y = 28000 ;
  }
 
@@ -811,7 +808,11 @@ if($qprod eq "P14ia" ) {
 
   
 
-    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@arhltgood, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfmsfast ) ;
+#    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@arhltgood, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfmsfast ) ;
+
+
+    @data = (\@ndate, \@arphysics, \@arhlt, \@arhltgood, \@arupc, \@arwb, \@armtd, \@arfmsfast ) ;
+
 
      }elsif( $srate eq "exectime"){
 
@@ -826,7 +827,7 @@ if($qprod eq "P14ia" ) {
      $max_y = 2800 ;
  }elsif($qprod eq "P15ib" ){
      $max_y = 7000 ;
- }elsif($qprod eq "P15ic" ){
+ }elsif($qprod eq "P15ic" $qprod eq "P15ie"){
      $max_y = 8400 ;
  }else{
      $max_y = 14000 ;
@@ -838,7 +839,9 @@ if($qprod eq "P14ia" ) {
 
   
 
-    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfmsfast ) ;
+#    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfmsfast ) ;
+
+    @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbfmsfast ) ;
 
      }elsif( $srate eq "events"){
 
