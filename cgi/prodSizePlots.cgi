@@ -3,7 +3,7 @@
 #
 # $Id:
 #
-# $Log:  TrigRequest.cgi
+# $Log:  prodSizePlots.cgi
 #
 # L. Didenko
 # script to make plots for Mudst and raw data production size distribution sunk to and restored from HPSS  
@@ -136,7 +136,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
                                   -values=>\@arrprod,
-                                  -default=>P15ic,
+                                  -default=>P15ie,
                                   -size =>1);
 
     print "<p>";
