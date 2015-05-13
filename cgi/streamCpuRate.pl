@@ -689,7 +689,7 @@ END
 	@jbstat = ();  
 	$nstat = 0;
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, avg_no_tracks, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? and avg_no_tracks >= 1 AND jobStatus = 'Done' AND NoEvents >= 10 order by createTime ";
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, avg_no_tracks, streamName FROM $JobStatusT WHERE (createTime BETWEEN '$tdate:00:00' AND '$tdate:59:59') AND prodSeries = ? and avg_no_tracks >= 1 AND jobStatus = 'Done' AND NoEvents >= 10 order by createTime ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -812,7 +812,7 @@ END
 	@jbstat = ();  
 	$nstat = 0;
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND  jobStatus = 'Done' AND NoEvents >= 10 order by createTime "; 
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, streamName FROM $JobStatusT WHERE (createTime BETWEEN '$tdate:00:00' AND '$tdate:59:59') AND prodSeries = ? AND  jobStatus = 'Done' AND NoEvents >= 10 order by createTime "; 
 
 	    $cursor =$dbh->prepare($sql)
 	      || die "Cannot prepare statement: $DBI::errstr\n";
