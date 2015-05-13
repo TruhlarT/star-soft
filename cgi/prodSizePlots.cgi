@@ -231,6 +231,7 @@ my $qtrig =   $qqr->param('ptrig');
 
          $cursor->finish();
 
+  }
 
   }else{
 
@@ -299,6 +300,7 @@ $ndt = 0;
       $ndt++;
 
      }
+    }
   }
 
   }else{
@@ -375,7 +377,7 @@ $ndt = 0;
 
        }
       }
-
+    }
      }else{
 
   foreach my $tdate (@ardays) {
