@@ -82,6 +82,7 @@ my $ProdSizeT = "ProductionSize";
         }
     $cursor->finish();
 
+   $arrprod[$npr] = "all2014";
 
    $sql="SELECT DISTINCT Trigset  FROM $ProdSizeT ";
 
@@ -136,7 +137,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
                                   -values=>\@arrprod,
-                                  -default=>P15ie,
+                                  -default=>all2014,
                                   -size =>1);
 
     print "<p>";
@@ -198,6 +199,25 @@ my $qtrig =   $qqr->param('ptrig');
 
   if($qtrig eq "all") {
 
+  if($qprod eq "all2014"){
+
+
+   $sql="SELECT DISTINCT date_format(starttime, '%Y-%m-%d') as SDATE FROM $ProdSizeT WHERE (prodtag = 'P15ic' or prodtag = 'P15ie')  and date_format(starttime, '%Y-%m-%d') <> '0000-00-00'  order by SDATE";
+
+    $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+    $cursor->execute();
+
+    while($myday = $cursor->fetchrow) {
+        $ardays[$nday] = $myday;
+        $nday++;
+    }
+
+         $cursor->finish();
+
+  }else{
+
+
    $sql="SELECT DISTINCT date_format(starttime, '%Y-%m-%d') as SDATE FROM $ProdSizeT WHERE prodtag = ?  and date_format(starttime, '%Y-%m-%d') <> '0000-00-00'  order by SDATE";
 
     $cursor =$dbh->prepare($sql)
@@ -210,6 +230,7 @@ my $qtrig =   $qqr->param('ptrig');
     }
 
          $cursor->finish();
+
 
   }else{
 
@@ -238,9 +259,32 @@ $ndt = 0;
 
      if($qtrig eq "all") {  
 
+  if($qprod eq "all2014"){
+
   foreach my $tdate (@ardays) {
 
-  $sql="SELECT date_format(createtime, '%Y-%m-%d') as PDATE, sum(mudstsize) FROM $ProdSizeT WHERE  createtime like '$tdate%' and prodtag = ? AND filename like '%MuDst.root' group by PDATE  ";
+  $sql="SELECT date_format(createtime, '%Y-%m-%d') as PDATE, sum(mudstsize) FROM $ProdSizeT WHERE (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and (prodtag = 'P15ic' or prodtag = 'P15ie') group by PDATE  ";
+
+            $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n";
+            $cursor->execute();
+
+
+       while(@fields = $cursor->fetchrow) {
+
+       $ndate[$ndt] = $fields[0];
+       $jbsize[$ndt] = $fields[1]/1000000000;
+
+      $ndt++;
+
+     }
+  }
+
+  }else{
+
+  foreach my $tdate (@ardays) {
+
+  $sql="SELECT date_format(createtime, '%Y-%m-%d') as PDATE, sum(mudstsize) FROM $ProdSizeT WHERE (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and prodtag = ? group by PDATE  ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -261,7 +305,7 @@ $ndt = 0;
 
   foreach my $tdate (@ardays) {
 
-  $sql="SELECT date_format(createtime, '%Y-%m-%d') as PDATE, sum(mudstsize) FROM $ProdSizeT WHERE  createtime like '$tdate%' and prodtag = ? and Trigset = ? and filename like '%MuDst.root' group by PDATE  ";
+  $sql="SELECT date_format(createtime, '%Y-%m-%d') as PDATE, sum(mudstsize) FROM $ProdSizeT WHERE (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and prodtag = ? and Trigset = ? and filename like '%MuDst.root' group by PDATE  ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -290,9 +334,32 @@ $ndt = 0;
  
      if($qtrig eq "all") {  
 
+   if($qprod eq "all2014"){
+
   foreach my $tdate (@ardays) {
 
-  $sql="SELECT date_format(starttime, '%Y-%m-%d') as PDATE, sum(daqsize) FROM $ProdSizeT WHERE  starttime like '$tdate%' and prodtag = ? AND filename like '%MuDst.root' group by PDATE  ";
+  $sql="SELECT date_format(starttime, '%Y-%m-%d') as PDATE, sum(daqsize) FROM $ProdSizeT WHERE  (starttime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and (prodtag = 'P15ic' or prodtag = 'P15ie')  group by PDATE  ";
+
+            $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n";
+            $cursor->execute();
+
+
+       while(@fields = $cursor->fetchrow) {
+
+       $ndate[$ndt] = $fields[0];
+       $daqsize[$ndt] = $fields[1]/1000000000;
+
+       $ndt++;
+
+       }
+      }
+
+   }else{
+
+  foreach my $tdate (@ardays) {
+
+  $sql="SELECT date_format(starttime, '%Y-%m-%d') as PDATE, sum(daqsize) FROM $ProdSizeT WHERE  (starttime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and prodtag = ?  group by PDATE  ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -313,7 +380,7 @@ $ndt = 0;
 
   foreach my $tdate (@ardays) {
 
-  $sql="SELECT date_format(starttime, '%Y-%m-%d') as PDATE, sum(daqsize) FROM $ProdSizeT WHERE  starttime like '$tdate%' and  prodtag = ? and Trigset = ? and filename like '%MuDst.root' group by PDATE  ";
+  $sql="SELECT date_format(starttime, '%Y-%m-%d') as PDATE, sum(daqsize) FROM $ProdSizeT WHERE (starttime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and  prodtag = ? and Trigset = ? group by PDATE  ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
