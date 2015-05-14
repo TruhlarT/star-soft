@@ -271,6 +271,7 @@ END
   if( $qprod =~ /P14ig/ ) {$pryear = "2013"};
   if( $qprod =~ /P14ii/ ) {$pryear = "2014"};
   if( $qprod =~ /P15ib/ or $qprod =~ /P15ic/ or $qprod =~ /P15ie/) {$pryear = "2014"};
+  if( $qprod eq "all2014") {$pryear = "2014"};
 
     $JobStatusT = "JobStatus".$pryear;
 
@@ -936,7 +937,9 @@ my $gtitle;
      $max_y = 7000 ;
  }elsif($qprod eq "P15ic" or $qprod eq "P15ie" ){
      $max_y = 21000 ;
- }
+ }else{
+     $max_y = 21000 ;
+}
 
 	$xlabel = "CPU in sec/evt";
         $ylabel = "Number of jobs";
@@ -963,7 +966,9 @@ if($qprod eq "P14ia" ) {
      $max_y = 14000 ;
  }elsif($qprod eq "P15ic" or $qprod eq "P15ie" ){
      $max_y = 35000 ;
- }
+ }else{
+     $max_y = 35000 ;
+}
 
 
         $xlabel = "Ratio RealTime/CPU";
@@ -994,7 +999,7 @@ if($qprod eq "P14ia" ) {
  }elsif($qprod eq "P15ic" or $qprod eq "P15ie"){
      $max_y = 8400 ;
  }else{
-     $max_y = 14000 ;
+     $max_y = 8400 ;
  }
 
         $xlabel = "Job's execution time on the farm in hours";
