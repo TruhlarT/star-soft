@@ -166,10 +166,13 @@ my @jbwb = ();
     $cursor->finish();
 
 
+$arrprod[$npr] = "all2014";
+
 my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months","7_months","8_months","9_months","10_months","11_months","12_months");
 
 
 &StDbProdDisconnect();
+
 
 my $query = new CGI;
 
@@ -210,7 +213,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P15ic,
+	                          -default=>all2014,
       			          -size =>1);
 
   
@@ -287,10 +290,90 @@ END
   my $jobtotbin = 0;
 
  
+  if ( $qperiod =~ /month/) {
+        @prt = split("_", $qperiod);
+        $nmonth = $prt[0];
+        $day_diff = 30*$nmonth + 1;
+    }
+
+    $day_diff = int($day_diff);
+
+
     @arstream = ();
 
 
  &StDbProdConnect();
+
+  if($qprod eq "all2014" ) {
+
+    $sql="SELECT DISTINCT streamName  FROM $JobStatusT where (prodSeries = 'P15ic' or prodSeries = 'P15ie') ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $str = $cursor->fetchrow() ) {
+          $arstream[$nst] = $str;
+          $nst++;
+       }
+    $cursor->finish();
+
+
+###########   max createTime
+
+      $sql="SELECT max(date_format(createTime, '%Y-%m-%d' ))  FROM $JobStatusT where (prodSeries = 'P15ic' or prodSeries = 'P15ie') ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+    my $mxtime = $cursor->fetchrow ;
+
+       $cursor->finish();
+
+       $lastdate = $mxtime;
+       $nowdate = $lastdate;
+
+#######    max CPU
+
+     $sql="SELECT max(CPU_per_evt_sec)  FROM $JobStatusT where ( prodSeries = 'P15ic' or prodSeries = 'P15ie') ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+        $maxcpu = $cursor->fetchrow ;
+
+       $cursor->finish();
+
+        
+###########   max exectime
+
+      $sql="SELECT max(exectime)  FROM $JobStatusT where ( prodSeries = 'P15ic' or prodSeries = 'P15ie') ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+        $maxexectm = $cursor->fetchrow ;
+
+       $cursor->finish();
+
+
+    $sql="SELECT DISTINCT date_format(createTime, '%Y-%m-%d' ) as PDATE  FROM $JobStatusT WHERE (prodSeries = 'P15ic' or prodSeries = 'P15ie') AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) < ?  order by createTime";
+
+    $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+    $cursor->execute($day_diff);
+
+    while($myday = $cursor->fetchrow) {
+        $ardays[$ndy] = $myday;
+        $ndy++;
+    }
+
+         $cursor->finish();
+
+  }else{
 
       $sql="SELECT DISTINCT streamName  FROM $JobStatusT where prodSeries = ? ";
 
@@ -304,7 +387,10 @@ END
        }
     $cursor->finish();
 
+  }
+
 ###########   max createTime
+
 
       $sql="SELECT max(date_format(createTime, '%Y-%m-%d' ))  FROM $JobStatusT where prodSeries = ? ";
 
@@ -325,14 +411,6 @@ END
         $nowdate = $todate;
     }
       
-
-   if ( $qperiod =~ /month/) {
-        @prt = split("_", $qperiod);
-        $nmonth = $prt[0];
-        $day_diff = 30*$nmonth + 1;
-    }
-
-    $day_diff = int($day_diff);
 
 ###########   max CPU
 
@@ -372,6 +450,8 @@ END
     }
 
          $cursor->finish();
+
+  }
 
 
   #####################
@@ -433,6 +513,34 @@ END
 
     foreach  $tdate (@ardays) {
  
+	if($qprod eq "all2014") {
+
+ 
+ $sql="SELECT exectime, streamName FROM $JobStatusT WHERE (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59' )  AND (prodSeries = 'P15ic' or prodSeries = 'P15ie') AND exectime > 0.1  AND jobStatus = 'Done' AND NoEvents >= 10  "; 
+
+	    $cursor =$dbh->prepare($sql)
+	      || die "Cannot prepare statement: $DBI::errstr\n";
+	    $cursor->execute();
+
+	while(@fields = $cursor->fetchrow) {
+	    my $cols=$cursor->{NUM_OF_FIELDS};
+	    $fObjAdr = \(JobAttr->new());
+
+	    for($i=0;$i<$cols;$i++) {
+		my $fvalue=$fields[$i];
+		my $fname=$cursor->{NAME}->[$i];
+                # print "$fname = $fvalue\n" ;
+
+                ($$fObjAdr)->jbtot($fvalue)   if( $fname eq 'exectime');
+		($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
+
+	    }
+	    $jbstat[$nstat] = $fObjAdr;
+	    $nstat++;
+         }
+
+    }else{
+
   $sql="SELECT exectime, streamName FROM $JobStatusT WHERE (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59' )  AND prodSeries = ? AND exectime > 0.1  AND jobStatus = 'Done' AND NoEvents >= 10  "; 
 
 	    $cursor =$dbh->prepare($sql)
@@ -455,15 +563,14 @@ END
 	    $jbstat[$nstat] = $fObjAdr;
 	    $nstat++;
          }
+      }
     }
 
 ###########
 
- if($qprod eq "P14ia" or $qprod eq "P14ig") {
+ if($qprod eq "P14ia" or $qprod eq "P14ig" or $qprod eq "P14ii") {
      $maxvalue = 120;
- }elsif($qprod eq "P14ii" ) {
-     $maxvalue = 120 ;
- }elsif($qprod eq "P15ib" or $qprod eq "P15ic" or $qprod eq "P15ie" ) {
+ }else{
      $maxvalue = 240;
  }
 
@@ -524,6 +631,24 @@ END
  
 	$ndate[$ndt] = $tdate;
 
+	if($qprod eq "all2014") {
+
+ $sql="SELECT  sum(NoEvents) FROM $JobStatusT WHERE  (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') AND ( prodSeries = 'P15ic' or prodSeries = 'P15ie') AND jobStatus = 'Done'  "; 
+
+	    $cursor =$dbh->prepare($sql)
+	      || die "Cannot prepare statement: $DBI::errstr\n";
+	    $cursor->execute();
+ 
+       while( my $sumev = $cursor->fetchrow() ) {
+
+          $nevents[$ndt] = int($sumev + 0.01);
+          }
+
+         $ndt++;
+         $cursor->finish();
+
+  }else{
+
   $sql="SELECT  sum(NoEvents) FROM $JobStatusT WHERE  (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') AND prodSeries = ? AND jobStatus = 'Done'  "; 
 
 	    $cursor =$dbh->prepare($sql)
@@ -537,9 +662,9 @@ END
 
          $ndt++;
          $cursor->finish();
-      
+     
     }
-
+ }
 ###########
 
  }elsif( $srate eq "njobs" ) {
@@ -550,6 +675,24 @@ END
     foreach  $tdate (@ardays) {
  
 	$ndate[$ndt] = $tdate;
+
+      if($qprod eq "all2014") { 
+
+ $sql="SELECT  count(jobfileName) FROM $JobStatusT WHERE  (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59')  AND ( prodSeries = 'P15ic' or prodSeries = 'P15ie') AND jobStatus = 'Done'  "; 
+
+	    $cursor =$dbh->prepare($sql)
+	      || die "Cannot prepare statement: $DBI::errstr\n";
+	    $cursor->execute();
+ 
+       while( my $njb = $cursor->fetchrow() ) {
+
+          $numjobs[$ndt] = int($njb + 0.01);
+          }
+
+         $ndt++;
+         $cursor->finish();
+
+   }else{
 
   $sql="SELECT  count(jobfileName) FROM $JobStatusT WHERE  (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59')  AND prodSeries = ? AND jobStatus = 'Done'  "; 
 
@@ -566,7 +709,7 @@ END
          $cursor->finish();
       
     }
-
+   }
 ###################
 
    }else{
@@ -579,7 +722,35 @@ END
 
     foreach  $tdate (@ardays) {
 
-  $sql="SELECT CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59')  AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10  "; 
+    if($qprod eq "all2014") {
+
+  $sql="SELECT CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59')  AND ( prodSeries = 'P15ic' or prodSeries = 'P15ie') AND CPU_per_evt_sec > 0.01 and jobStatus = 'Done' AND NoEvents >= 10  "; 
+
+	    $cursor =$dbh->prepare($sql)
+	      || die "Cannot prepare statement: $DBI::errstr\n";
+	    $cursor->execute();
+
+	while(@fields = $cursor->fetchrow) {
+	    my $cols=$cursor->{NUM_OF_FIELDS};
+	    $fObjAdr = \(JobAttr->new());
+
+	    for($i=0;$i<$cols;$i++) {
+		my $fvalue=$fields[$i];
+		my $fname=$cursor->{NAME}->[$i];
+                # print "$fname = $fvalue\n" ;
+
+		($$fObjAdr)->cpuv($fvalue)    if( $fname eq 'CPU_per_evt_sec');
+		($$fObjAdr)->rtmv($fvalue)    if( $fname eq 'RealTime_per_evt');
+		($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
+
+	     }
+	    $jbstat[$nstat] = $fObjAdr;
+	    $nstat++;
+      }
+
+    }else{
+
+  $sql="SELECT CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59')  AND prodSeries = ? AND CPU_per_evt_sec > 0.01 and jobStatus = 'Done' AND NoEvents >= 10  "; 
 
 	    $cursor =$dbh->prepare($sql)
 	      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -602,6 +773,7 @@ END
 	    $jbstat[$nstat] = $fObjAdr;
 	    $nstat++;
          }
+      }
     }
 
 ###########
@@ -613,13 +785,9 @@ END
   $ndt = 0;
 
 
- if($qprod eq "P14ia" ) {
+ if($qprod eq "P14ia" or $qprod eq "P14ig" or $qprod eq "P14ii" ) {
      $maxcpuval = 110;
- }elsif($qprod eq "P14ig" ) {
-     $maxcpuval = 110;
- }elsif($qprod eq "P14ii" ) {
-     $maxcpuval = 110;
- }elsif($qprod eq "P15ib" or $qprod eq "P15ic" or $qprod eq "P15ie") {
+ }else{
      $maxcpuval = 220;
  }
 
@@ -795,7 +963,7 @@ if($qprod eq "P14ia" ) {
  }elsif($qprod eq "P15ib" ){
      $max_y = 14000 ;
  }elsif($qprod eq "P15ic" or $qprod eq "P15ie" ){
-     $max_y = 28000 ;
+     $max_y = 35000 ;
  }
 
 
