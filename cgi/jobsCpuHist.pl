@@ -335,31 +335,6 @@ END
        $lastdate = $mxtime;
        $nowdate = $lastdate;
 
-#######    max CPU
-
-     $sql="SELECT max(CPU_per_evt_sec)  FROM $JobStatusT where ( prodSeries = 'P15ic' or prodSeries = 'P15ie') ";
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
-
-        $maxcpu = $cursor->fetchrow ;
-
-       $cursor->finish();
-
-        
-###########   max exectime
-
-      $sql="SELECT max(exectime)  FROM $JobStatusT where ( prodSeries = 'P15ic' or prodSeries = 'P15ie') ";
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
-
-        $maxexectm = $cursor->fetchrow ;
-
-       $cursor->finish();
-
 
     $sql="SELECT DISTINCT date_format(createTime, '%Y-%m-%d' ) as PDATE  FROM $JobStatusT WHERE (prodSeries = 'P15ic' or prodSeries = 'P15ie') AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) < ?  order by createTime";
 
@@ -411,32 +386,6 @@ END
         $nowdate = $todate;
     }
       
-
-###########   max CPU
-
-      $sql="SELECT max(CPU_per_evt_sec)  FROM $JobStatusT where prodSeries = ? ";
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute($qprod);
-
-        $maxcpu = $cursor->fetchrow ;
-
-       $cursor->finish();
-
-        
-###########   max exectime
-
-      $sql="SELECT max(exectime)  FROM $JobStatusT where prodSeries = ? ";
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute($qprod);
-
-        $maxexectm = $cursor->fetchrow ;
-
-       $cursor->finish();
-
 
     $sql="SELECT DISTINCT date_format(createTime, '%Y-%m-%d' ) as PDATE  FROM $JobStatusT WHERE prodSeries = ?  AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) < ?  order by createTime";
 
