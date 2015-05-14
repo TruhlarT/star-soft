@@ -307,7 +307,7 @@ $ndt = 0;
 
   foreach my $tdate (@ardays) {
 
-  $sql="SELECT date_format(createtime, '%Y-%m-%d') as PDATE, sum(mudstsize) FROM $ProdSizeT WHERE (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and prodtag = ? and Trigset = ? and filename like '%MuDst.root' group by PDATE  ";
+  $sql="SELECT date_format(createtime, '%Y-%m-%d') as PDATE, sum(mudstsize) FROM $ProdSizeT WHERE (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and prodtag = ? and Trigset = ?  group by PDATE  ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
