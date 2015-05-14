@@ -136,7 +136,7 @@ $SKIPMC = "abcde";                # a fake MC tag - if stream match any, skip MC
 # Removed 2002->2004 on 2009/02 J.Lauret (see cvs revisions for history)
 #
 
-my $MAXSLOTS = 300;
+my $MAXSLOTS = 200;
 my $NSLOT = 0;
 my $njobs = 0;
 $TOT = 0;
