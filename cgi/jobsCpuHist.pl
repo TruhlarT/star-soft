@@ -387,7 +387,6 @@ END
        }
     $cursor->finish();
 
-  }
 
 ###########   max createTime
 
@@ -618,7 +617,7 @@ END
                $jbwb[$ndt]++;
 	       }
  	    }
-        }
+    }
 
 
 
