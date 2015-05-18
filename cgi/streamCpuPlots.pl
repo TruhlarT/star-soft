@@ -1370,7 +1370,7 @@ END
 
 #  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpfms, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cphltgood ) ;
 
-  @data = (\@ndate, \@cpphysics, \@cpmtd, \@cphlt,  \@cpupc, \@cpwb, \@cpfms, \@cphltgood ) ;
+  @data = (\@ndate, \@cpphysics,  \@cphlt, \@cpmtd, \@cpupc, \@cpwb, \@cpfms, \@cphltgood ) ;
 
 
        $max_y = $maxcpu + 0.2*$maxcpu;
@@ -1387,7 +1387,7 @@ END
 
 # @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtfms, \@rtupc, \@rtwb, \@rtmtd, \@rtcentralpro, \@rtatomcules, \@rthltgood, ) ;
 
- @data = (\@ndate, \@rtphysics, \@rtmtd, \@rthlt, \@rtupc, \@rtwb, \@rtfms, \@rthltgood ) ;
+ @data = (\@ndate, \@rtphysics,  \@rthlt, \@rtmtd, \@rtupc, \@rtwb, \@rtfms, \@rthltgood ) ;
 
         $max_y = 1.2;
 
