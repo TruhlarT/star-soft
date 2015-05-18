@@ -346,6 +346,15 @@ END
      @arstream = ();
 
 
+   if ( $qperiod =~ /month/) {
+	@prt = split("_", $qperiod);
+	$nmonth = $prt[0];
+	$day_diff = 30*$nmonth + 1; 
+    }
+
+    $day_diff = int($day_diff);
+
+
  &StDbProdConnect();
 
   if($qprod eq "all2014" ) {
@@ -408,22 +417,14 @@ END
 
        $lastdate = $mxtime;
 
-  }
 
     if($pryear eq "2013" or $pryear eq "2014") {
         $nowdate = $lastdate;
     } else {
         $nowdate = $todate;
     }
-  
-    if ( $qperiod =~ /month/) {
-	@prt = split("_", $qperiod);
-	$nmonth = $prt[0];
-	$day_diff = 30*$nmonth + 1; 
-    }
 
-    $day_diff = int($day_diff);
-
+  }
 
    if($qprod eq "all2014" ) {
 
@@ -1368,11 +1369,11 @@ END
  $maxjbtime = 0.1;
 
 
-   foreach my $tdate (@ardays) {
+     if($qprod eq "all2014" ) {
+
+  foreach my $tdate (@ardays) {
         @jbstat = ();
         $nstat = 0;
-
-     if($qprod eq "all2014" ) {
 
    $sql="SELECT runDay, exectime, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND ( prodSeries = 'P15ic' or prodSeries = 'P15ie') AND  exectime > 0.1 AND jobStatus = 'Done' AND NoEvents >= 10 ";
 
@@ -1398,7 +1399,74 @@ END
             $nstat++;
         }
 
+    foreach $jset (@jbstat) {
+            $pday      = ($$jset)->vday;
+            $pstream   = ($$jset)->strv;
+            $jbTottime = ($$jset)->jbtot; 
+
+	    $arjbtime{$pstream,$ndt} = $arjbtime{$pstream,$ndt} + $jbTottime;
+            $nstr{$pstream,$ndt}++;
+
+            $ndate[$ndt] = $pday;
+
+          }
+
+      foreach my $mfile (@arstream) {
+          if ($nstr{$mfile,$ndt} >= 3 ) {
+           $arjbtime{$mfile,$ndt} = $arjbtime{$mfile,$ndt}/$nstr{$mfile,$ndt};
+
+                if ( $arjbtime{$mfile,$ndt} > $maxjbtime ) {
+                    $maxjbtime = $arjbtime{$mfile,$ndt} ;
+                }
+
+            if ( $mfile eq "physics" ) {
+               $jbphysics[$ndt] =  $arjbtime{$mfile,$ndt};
+#            }elsif( $mfile eq "centralpro" ) {
+#               $jbcentralpro[$ndt] = $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "mtd" ) {
+               $jbmtd[$ndt] =  $arjbtime{$mfile,$ndt};
+#            }elsif( $mfile eq "upsilon" ) {
+#               $jbupsilon[$ndt] = $arjbtime{$mfile,$ndt};
+#            }elsif( $mfile eq "gamma" ) {
+#               $jbgamma[$ndt] = $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "hlt" ) {
+               $jbhlt[$ndt] =  $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "fms" ) {
+               $jbfms[$ndt] =  $arjbtime{$mfile,$ndt};
+#            }elsif( $mfile eq "ht" ) {
+#               $jbht[$ndt] =  $arjbtime{$mfile,$ndt};
+#            }elsif( $mfile eq "atomcules" ) {
+#               $jbatomcules[$ndt] = $arjbtime{$mfile,$ndt};
+#            }elsif( $mfile eq "monitor" ) {
+#               $jbmonitor[$ndt] = $arjbtime{$mfile,$ndt};
+#            }elsif( $mfile eq "pmdftp" ) {
+#               $jbpmdftp[$ndt] = $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "upc" ) {
+               $jbupc[$ndt] =  $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "W" or $mfile eq "WB" or $mfile eq "WE" ) {
+               $jbwb[$ndt] =  $arjbtime{$mfile,$ndt};
+#            }elsif( $mfile eq "fgt" ) {
+#               $jbfgt[$ndt] =  $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "hltgood" ) {
+               $jbhltgood[$ndt] =  $arjbtime{$mfile,$ndt};
+
+           }else{
+             next;
+           }
+            }
+        }
+
+        $ndt++;
+
+    } # foreach tdate
+
+
      }else{
+
+ foreach my $tdate (@ardays) {
+        @jbstat = ();
+        $nstat = 0;
+
 
    $sql="SELECT runDay, exectime, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND  exectime > 0.1 AND jobStatus = 'Done' AND NoEvents >= 10 ";
 
@@ -1423,7 +1491,6 @@ END
             $jbstat[$nstat] = $fObjAdr;
             $nstat++;
         }
-     }
 
     foreach $jset (@jbstat) {
             $pday      = ($$jset)->vday;
@@ -1486,6 +1553,7 @@ END
 
     } # foreach tdate
 
+   }
   }
 
 #############################
