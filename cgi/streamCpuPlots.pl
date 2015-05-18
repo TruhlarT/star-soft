@@ -1329,11 +1329,11 @@ END
 	 
        $legend[0] = "st_physics   ";
        $legend[1] = "st_hlt       ";
-       $legend[2] = "st_mtd       ";
-       $legend[3] = "st_upc       "; 
-       $legend[4] = "st_W         ";
-       $legend[5] = "st_fms       ";
-       $legend[6] = "st_hltgood   "; 
+       $legend[2] = "st_hltgood   "; 
+       $legend[3] = "st_mtd       ";
+       $legend[4] = "st_upc       "; 
+       $legend[5] = "st_W         ";
+       $legend[6] = "st_fms       ";
 #       $legend[1] = "st_gamma     ";
 #       $legend[3] = "st_ht        ";
 #       $legend[4] = "st_monitor   ";
@@ -1353,7 +1353,7 @@ END
 
 #  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt,  \@arfms,  \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arhltgood ) ;
 
-  @data = (\@ndate, \@arphysics, \@arhlt, \@armtd, \@arupc, \@arwb, \@arfms, \@arhltgood  ) ;
+  @data = (\@ndate, \@arphysics, \@arhlt, \@arhltgood, \@armtd, \@arupc, \@arwb, \@arfms ) ;
 
 
       $max_y = $maxval + 0.2*$maxval;
@@ -1370,7 +1370,7 @@ END
 
 #  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpfms, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cphltgood ) ;
 
-  @data = (\@ndate, \@cpphysics,  \@cphlt, \@cpmtd, \@cpupc, \@cpwb, \@cpfms, \@cphltgood ) ;
+  @data = (\@ndate, \@cpphysics,  \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfms ) ;
 
 
        $max_y = $maxcpu + 0.2*$maxcpu;
@@ -1387,7 +1387,7 @@ END
 
 # @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtfms, \@rtupc, \@rtwb, \@rtmtd, \@rtcentralpro, \@rtatomcules, \@rthltgood, ) ;
 
- @data = (\@ndate, \@rtphysics,  \@rthlt, \@rtmtd, \@rtupc, \@rtwb, \@rtfms, \@rthltgood ) ;
+ @data = (\@ndate, \@rtphysics,  \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtfms ) ;
 
         $max_y = 1.2;
 
@@ -1401,7 +1401,7 @@ END
 
 # @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbfms, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbhltgood,) ;
 
- @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbmtd, \@jbupc, \@jbwb, \@jbfms, \@jbhltgood,) ;
+ @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbhltgood, \@jbmtd, \@jbupc, \@jbwb, \@jbfms ) ;
 
 
     $max_y = $maxjbtime + 0.2*$maxjbtime;    
@@ -1418,7 +1418,7 @@ END
 
 # @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trfms, \@trupc, \@trwb, \@trmtd, \@trcentralpro, \@tratomcules, \@trhltgood ) ;
 
- @data = (\@ndate, \@trphysics, \@trhlt, @trmtd, \@trupc, \@trwb, \@trfms, \@trhltgood ) ;
+ @data = (\@ndate, \@trphysics, \@trhlt, \@trhltgood, @trmtd, \@trupc, \@trwb, \@trfms ) ;
 
     
       $max_y = $maxtrk + 0.2*$maxtrk;
@@ -1450,7 +1450,7 @@ END
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple lorange marine lred lblack lbrown lyellow lgray lpurple) ],
+                    dclrs => [ qw(lblue lgreen lpurple orange lred lyellow lblack brown lyellow lpink marine lgray lred) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
