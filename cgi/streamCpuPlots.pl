@@ -410,8 +410,6 @@ END
 
   }
 
-
-
     if($pryear eq "2013" or $pryear eq "2014") {
         $nowdate = $lastdate;
     } else {
@@ -444,7 +442,7 @@ END
          $cursor->finish();
 ########
 
-    $sql="SELECT FORMAT(avg(RealTime_per_evt/CPU_per_evt_sec),2), FORMAT(std(RealTime_per_evt/CPU_per_evt_sec),2) FROM $JobStatusT WHERE ( prodSeries = 'P15ic' or prodSeries = 'P15ie')  AND  runDay <> '0000-00-00' AND jobStatus = 'Done' and CPU_per_evt_sec > 0.1 AND (TO_DAYS(\"$nowdate\") - TO_DAYS(runDay)) < ?  order by runDay";
+    $sql="SELECT FORMAT(avg(RealTime_per_evt/CPU_per_evt_sec),2), FORMAT(std(RealTime_per_evt/CPU_per_evt_sec),2) FROM $JobStatusT WHERE ( prodSeries = 'P15ic' or prodSeries = 'P15ie')  AND  runDay <> '0000-00-00' AND jobStatus = 'Done' and CPU_per_evt_sec > 0.1 AND (TO_DAYS(\"$nowdate\") - TO_DAYS(runDay)) < ? ";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -457,7 +455,7 @@ END
          $cursor->finish();
 
 
-    $sql="SELECT FORMAT(avg(CPU_per_evt_sec),2), FORMAT(std(CPU_per_evt_sec),2) FROM $JobStatusT WHERE (prodSeries = 'P15ic' or prodSeries = 'P15ie')  AND  runDay <> '0000-00-00' AND jobStatus = 'Done' and CPU_per_evt_sec > 0.1 AND (jobfilename like '%st_physics%' or jobfileName like '%st_hlt%' ) AND (TO_DAYS(\"$nowdate\") - TO_DAYS(runDay)) < ?  order by runDay";
+    $sql="SELECT FORMAT(avg(CPU_per_evt_sec),2), FORMAT(std(CPU_per_evt_sec),2) FROM $JobStatusT WHERE (prodSeries = 'P15ic' or prodSeries = 'P15ie')  AND  runDay <> '0000-00-00' AND jobStatus = 'Done' and CPU_per_evt_sec > 0.1 AND (TO_DAYS(\"$nowdate\") - TO_DAYS(runDay)) < ?  order by runDay";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -500,7 +498,7 @@ END
          $cursor->finish();
 
 
-    $sql="SELECT FORMAT(avg(CPU_per_evt_sec),2), FORMAT(std(CPU_per_evt_sec),2) FROM $JobStatusT WHERE prodSeries = ?  AND  runDay <> '0000-00-00' AND jobStatus = 'Done' and CPU_per_evt_sec > 0.1 AND (jobfilename like '%st_physics%' or jobfileName like '%st_hlt%' ) AND (TO_DAYS(\"$nowdate\") - TO_DAYS(runDay)) < ?  order by runDay";
+    $sql="SELECT FORMAT(avg(CPU_per_evt_sec),2), FORMAT(std(CPU_per_evt_sec),2) FROM $JobStatusT WHERE prodSeries = ?  AND  runDay <> '0000-00-00' AND jobStatus = 'Done' and CPU_per_evt_sec > 0.1  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(runDay)) < ?  order by runDay";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -550,11 +548,11 @@ END
  $ndt = 0;
  $maxcpu = 1.0;
 
-   foreach my $tdate (@ardays) {
+   if($qprod eq "all2014" ) {
+
+  foreach my $tdate (@ardays) {
         @jbstat = ();
         $nstat = 0;
-
-   if($qprod eq "all2014" ) {
 
 
   $sql="SELECT runDay, CPU_per_evt_sec, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND ( prodSeries = 'P15ic' or prodSeries = 'P15ie') AND CPU_per_evt_sec > 0.01 AND jobStatus = 'Done' AND NoEvents >= 10 ";
@@ -581,7 +579,61 @@ END
             $nstat++;
         }
 
+    foreach $jset (@jbstat) {
+            $pday     = ($$jset)->vday;
+            $pcpu     = ($$jset)->cpuv;
+            $pstream  = ($$jset)->strv;
+
+    if( $pcpu >= 0.01) {
+
+        $arcpu{$pstream,$ndt} = $arcpu{$pstream,$ndt} + $pcpu;
+        $nstr{$pstream,$ndt}++;
+
+            $ndate[$ndt] = $pday;
+
+            }
+     }
+ 
+########################
+ 
+          foreach my $mfile (@arstream) {
+            if ($nstr{$mfile,$ndt} >= 3 ) {
+              $arcpu{$mfile,$ndt} = $arcpu{$mfile,$ndt}/$nstr{$mfile,$ndt};
+                if ( $arcpu{$mfile,$ndt} > $maxcpu ) {
+                    $maxcpu = $arcpu{$mfile,$ndt} ;
+                }
+
+              if ( $mfile eq "physics" ) {
+               $cpphysics[$ndt] = $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "mtd" ) {
+               $cpmtd[$ndt] = $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "hlt" ) {
+               $cphlt[$ndt] = $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "fms" ) {
+               $cpfms[$ndt] =  $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "upc" ) {
+               $cpupc[$ndt] =  $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "W" or $mfile eq "WB" or $mfile eq "WE") {
+               $cpwb[$ndt] =  $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "hltgood" ) {
+               $cphltgood[$ndt] =  $arcpu{$mfile,$ndt};
+
+           }else{
+             next;
+           }
+              }
+          }
+
+        $ndt++;
+
+     }# foreach tdate
+
+
    }else{
+
+ foreach my $tdate (@ardays) {
+        @jbstat = ();
+        $nstat = 0;
 
   $sql="SELECT runDay, CPU_per_evt_sec, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND jobStatus = 'Done' AND NoEvents >= 10 ";
 
@@ -607,7 +659,6 @@ END
             $nstat++;
         }
 
-   }
      foreach $jset (@jbstat) {
             $pday     = ($$jset)->vday;
             $pcpu     = ($$jset)->cpuv;
@@ -621,8 +672,8 @@ END
             $ndate[$ndt] = $pday;
 
             }
-          }
-
+     }
+ 
 ########################
  
           foreach my $mfile (@arstream) {
@@ -672,7 +723,7 @@ END
         $ndt++;
 
      }# foreach tdate
-
+  }
 
 ###################################### ratio realTime/CPU
 
@@ -719,11 +770,11 @@ END
  $maxval = 1.0;
 
 
-   foreach my $tdate (@ardays) {
+    if($qprod eq "all2014" ) {
+
+  foreach my $tdate (@ardays) {
         @jbstat = ();
         $nstat = 0;
-
-     if($qprod eq "all2014" ) {
 
 
   $sql="SELECT runDay, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND (prodSeries = 'P15ic' or prodSeries = 'P15ie') AND CPU_per_evt_sec > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 ";
@@ -752,7 +803,60 @@ END
             $nstat++;
         }
 
+    foreach $jset (@jbstat) {
+            $pday     = ($$jset)->vday;
+            $pcpu     = ($$jset)->cpuv;
+            $prtime   = ($$jset)->rtmv;
+            $pstream  = ($$jset)->strv;
+
+    if( $pcpu >= 0.01) {
+
+        $rte{$pstream,$ndt} = $rte{$pstream,$ndt} + $prtime/$pcpu;
+        $nstr{$pstream,$ndt}++;
+
+            $ndate[$ndt] = $pday;
+
+            }
+          }
+
+          foreach my $mfile (@arstream) {
+              if ($nstr{$mfile,$ndt} >= 3 ) {
+                   $rte{$mfile,$ndt} = $rte{$mfile,$ndt}/$nstr{$mfile,$ndt};
+
+                  if ( $rte{$mfile,$ndt} > $maxval ) {
+                $maxval =  $rte{$mfile,$ndt}
+                }
+                  if ( $mfile eq "physics" ) {
+               $arphysics[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "mtd" ) {
+               $armtd[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "hlt" ) {
+               $arhlt[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "fms" ) {
+               $arfms[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "upc" ) {
+               $arupc[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "W"  or $mfile eq "WB" or $mfile eq "WE" ) {
+               $arwb[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "hltgood" ) {
+               $arhltgood[$ndt] =  $rte{$mfile,$ndt};
+
+            }else{
+             next;
+           }
+	  }
+      }
+
+        $ndt++;
+###
+     }
+
      }else{
+
+  foreach my $tdate (@ardays) {
+        @jbstat = ();
+        $nstat = 0;
+
 
    $sql="SELECT runDay, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND jobStatus = 'Done' AND NoEvents >= 10 ";
 
@@ -779,7 +883,6 @@ END
             $jbstat[$nstat] = $fObjAdr;
             $nstat++;
         }
-     }
 
      foreach $jset (@jbstat) {
             $pday     = ($$jset)->vday;
@@ -838,13 +941,11 @@ END
           }else{
              next;
            }
-              }
           }
-
+       }
         $ndt++;
-
     } # foreach tdate
-
+   }
 
 ########################################## average number of tracks
 
@@ -873,11 +974,12 @@ END
  $ndt = 0;
  $maxtrk = 1.0;
 
+
+ if($qprod eq "all2014" ) {
+
    foreach my $tdate (@ardays) {
         @jbstat = ();
         $nstat = 0;
-
-  if($qprod eq "all2014" ) {
 
    $sql="SELECT runDay, avg_no_tracks, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND ( prodSeries = 'P15ic' or prodSeries = 'P15ie') AND jobStatus = 'Done' AND avg_no_tracks >= 1 AND NoEvents >= 10 ";
 
@@ -902,6 +1004,38 @@ END
             $jbstat[$nstat] = $fObjAdr;
             $nstat++;
        }
+
+          foreach my $mfile (@arstream) {
+              if ($nstr{$mfile,$ndt} >= 3 ) {
+                  $artrk{$mfile,$ndt} = $artrk{$mfile,$ndt}/$nstr{$mfile,$ndt};
+
+                 if ( $artrk{$mfile,$ndt} > $maxtrk ) {
+                $maxtrk =  $artrk{$mfile,$ndt}
+               }
+                  if ( $mfile eq "physics" ) {
+               $trphysics[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "mtd" ) {
+               $trmtd[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "hlt" ) {
+               $trhlt[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "fms" ) {
+               $trfms[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "upc" ) {
+               $trupc[$ndt] =  $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "W" or $mfile eq "WB" or $mfile eq "WE" ) {
+               $trwb[$ndt] =  $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "hltgood" ) {
+               $trhltgood[$ndt] =  $artrk{$mfile,$ndt};
+
+           }else{
+             next;
+           }
+              }
+          }
+
+        $ndt++;
+
+    } # foreach tdate
 
      }else{
 
@@ -928,7 +1062,6 @@ END
             $jbstat[$nstat] = $fObjAdr;
             $nstat++;
         }
-     }
 
     foreach $jset (@jbstat) {
             $pday     = ($$jset)->vday;
@@ -964,7 +1097,7 @@ END
               }elsif( $mfile eq "fms" ) {
                $trfms[$ndt] = $artrk{$mfile,$ndt};
 #              }elsif( $mfile eq "ht" ) {
-               $trht[$ndt] = $artrk{$mfile,$ndt};
+#               $trht[$ndt] = $artrk{$mfile,$ndt};
 #              }elsif( $mfile eq "atomcules" ) {
 #               $tratomcules[$ndt] = $artrk{$mfile,$ndt};
 #              }elsif( $mfile eq "monitor" ) {
@@ -989,6 +1122,7 @@ END
         $ndt++;
 
     } # foreach tdate
+  }
 
 #############################  stream ratios
 
