@@ -1023,7 +1023,7 @@ END
                   $artrk{$mfile,$ndt} = $artrk{$mfile,$ndt}/$nstr{$mfile,$ndt};
 
                  if ( $artrk{$mfile,$ndt} > $maxtrk ) {
-                $maxtrk =  $artrk{$mfile,$ndt}
+		     $maxtrk =  $artrk{$mfile,$ndt};
                }
                   if ( $mfile eq "physics" ) {
                $trphysics[$ndt] = $artrk{$mfile,$ndt};
@@ -1097,7 +1097,7 @@ END
                   $artrk{$mfile,$ndt} = $artrk{$mfile,$ndt}/$nstr{$mfile,$ndt};
 
                  if ( $artrk{$mfile,$ndt} > $maxtrk ) {
-                $maxtrk =  $artrk{$mfile,$ndt}
+		     $maxtrk =  $artrk{$mfile,$ndt} ;
                }
                   if ( $mfile eq "physics" ) {
                $trphysics[$ndt] = $artrk{$mfile,$ndt};
