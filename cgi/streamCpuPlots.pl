@@ -949,7 +949,7 @@ END
 
 ########################################## average number of tracks
 
-        }elsif( $srate eq "ntracks" ) { 
+      }elsif( $srate eq "ntracks" ) { 
 
  %artrk = {};
  %nstr = {};
@@ -1004,6 +1004,18 @@ END
             $jbstat[$nstat] = $fObjAdr;
             $nstat++;
        }
+
+
+    foreach $jset (@jbstat) {
+            $pday     = ($$jset)->vday;
+            $pstream  = ($$jset)->strv;
+            $ptrack   = ($$jset)->strk;
+
+        $artrk{$pstream,$ndt} = $artrk{$pstream,$ndt} + $ptrack;
+        $nstr{$pstream,$ndt}++;
+
+            $ndate[$ndt] = $pday;
+         }
 
           foreach my $mfile (@arstream) {
               if ($nstr{$mfile,$ndt} >= 3 ) {
@@ -1170,11 +1182,11 @@ END
  @rthltgood= ();
  @rtwb = ();
 
+      if($qprod eq "all2014" ) {
+
     foreach my $tdate (@ardays) {
         @jbstat = ();
         $nstat = 0;
-
-      if($qprod eq "all2014" ) {
 
    $sql="SELECT runDay, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND ( prodSeries = 'P15ic' or prodSeries = 'P15ie') AND jobStatus = 'Done' AND NoEvents >= 10 ";
 
@@ -1198,32 +1210,6 @@ END
             $jbstat[$nstat] = $fObjAdr;
             $nstat++;
         }
-
-     }else{
-
-   $sql="SELECT runDay, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND jobStatus = 'Done' AND NoEvents >= 10 ";
-
-            $cursor =$dbh->prepare($sql)
-              || die "Cannot prepare statement: $DBI::errstr\n";
-            $cursor->execute($qprod);
-
-        while(@fields = $cursor->fetchrow) {
-            my $cols=$cursor->{NUM_OF_FIELDS};
-            $fObjAdr = \(JobAttr->new());
-
-            for($i=0;$i<$cols;$i++) {
-                my $fvalue=$fields[$i];
-                my $fname=$cursor->{NAME}->[$i];
-                # print "$fname = $fvalue\n" ;
-
-                ($$fObjAdr)->vday($fvalue)    if( $fname eq 'runDay');
-                ($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
-
-            }
-            $jbstat[$nstat] = $fObjAdr;
-            $nstat++;
-        }
-     }
 
     foreach $jset (@jbstat) {
             $pday     = ($$jset)->vday;
@@ -1270,15 +1256,85 @@ END
              next;
            }
               }
-#          }
+          }
 
         $ndt++;
 
     } # foreach tdate
  
+
+     }else{
+
+   foreach my $tdate (@ardays) {
+        @jbstat = ();
+        $nstat = 0;
+
+
+   $sql="SELECT runDay, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND jobStatus = 'Done' AND NoEvents >= 10 ";
+
+            $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n";
+            $cursor->execute($qprod);
+
+        while(@fields = $cursor->fetchrow) {
+            my $cols=$cursor->{NUM_OF_FIELDS};
+            $fObjAdr = \(JobAttr->new());
+
+            for($i=0;$i<$cols;$i++) {
+                my $fvalue=$fields[$i];
+                my $fname=$cursor->{NAME}->[$i];
+                # print "$fname = $fvalue\n" ;
+
+                ($$fObjAdr)->vday($fvalue)    if( $fname eq 'runDay');
+                ($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
+
+            }
+            $jbstat[$nstat] = $fObjAdr;
+            $nstat++;
+        }
+
+    foreach $jset (@jbstat) {
+            $pday     = ($$jset)->vday;
+            $pstream  = ($$jset)->strv;
+
+          $nstr{$pstream,$ndt}++;
+          $ndate[$ndt] = $pday;
+          }
+
+         foreach my $mfile (@arstream) {
+ 
+           if ( $mfile eq "physics" ) {
+               $nstphysics[$ndt] =  $nstr{$mfile,$ndt};
+              }elsif( $mfile eq "mtd" ) {
+               $nstmtd[$ndt] =  $nstr{$mfile,$ndt};
+	      }elsif( $mfile eq "hlt" ) {
+               $nsthlt[$ndt] =  $nstr{$mfile,$ndt};
+              }elsif( $mfile eq "fms" ) {
+               $nstfms[$ndt] =  $nstr{$mfile,$ndt};
+              }elsif( $mfile eq "upc" ) {
+               $nstupc[$ndt] =  $nstr{$mfile,$ndt};
+              }elsif( $mfile eq "W" or $mfile eq "WB" or $mfile eq "WE" ) {
+               $nstwb[$ndt] =  $nstr{$mfile,$ndt};
+              }elsif( $mfile eq "hltgood" ) {
+               $nsthltgood[$ndt] =  $nstr{$mfile,$ndt};
+
+           }else{
+             next;
+           }
+              }
+         }
+
+        $ndt++;
+
+    } # foreach tdate
+
+  } 
       for($ii = 0; $ii < $ndt; $ii++) {
  
-     $numstream[$ii] = $nstphysics[$ii]+$nstcentralpro[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+ $nstfms[$ndt] + $nstfgt[$ndt] + $nsthltgood[$ndt] + $nstupc[$ii]+ $nstgamma[$ii]+ $nstwb[$ii] +  $nstatomcules[$ii]+ $nstupsilon[$ii];
+#     $numstream[$ii] = $nstphysics[$ii]+$nstcentralpro[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+ $nstfms[$ndt] + $nstfgt[$ndt] + $nsthltgood[$ndt] + $nstupc[$ii]+ $nstgamma[$ii]+ $nstwb[$ii] +  $nstatomcules[$ii]+ $nstupsilon[$ii];
+
+     $numstream[$ii] = $nstphysics[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+ $nstfms[$ndt] + $nsthltgood[$ndt] + $nstupc[$ii] + $nstwb[$ii] ;
+
 
      if ($numstream[$ii] >= 1) {
       $rtphysics[$ii] = $nstphysics[$ii]/$numstream[$ii];
