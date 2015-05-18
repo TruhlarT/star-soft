@@ -1223,32 +1223,16 @@ END
  
            if ( $mfile eq "physics" ) {
                $nstphysics[$ndt] =  $nstr{$mfile,$ndt};
-#              }elsif( $mfile eq "centralpro" ) {
-#               $nstcentralpro[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "mtd" ) {
                $nstmtd[$ndt] =  $nstr{$mfile,$ndt};
-#              }elsif( $mfile eq "upsilon" ) {
-#               $nstupsilon[$ndt] =  $nstr{$mfile,$ndt};
-#              }elsif( $mfile eq "gamma" ) {
-#               $nstgamma[$ndt] =  $nstr{$mfile,$ndt};
 	      }elsif( $mfile eq "hlt" ) {
                $nsthlt[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "fms" ) {
                $nstfms[$ndt] =  $nstr{$mfile,$ndt};
-#              }elsif( $mfile eq "ht" ) {
-#               $nstht[$ndt] =  $nstr{$mfile,$ndt};
-#              }elsif( $mfile eq "atomcules" ) {
-#               $nstatomcules[$ndt] =  $nstr{$mfile,$ndt};
-#              }elsif( $mfile eq "monitor" ) {
-#               $nstmonitor[$ndt] =  $nstr{$mfile,$ndt};
-#              }elsif( $mfile eq "pmdftp" ) {
-#               $nstpmdftp[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $nstupc[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "W" or $mfile eq "WB" or $mfile eq "WE" ) {
                $nstwb[$ndt] =  $nstr{$mfile,$ndt};
-#              }elsif( $mfile eq "fgt" ) {
-#               $nstfgt[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "hltgood" ) {
                $nsthltgood[$ndt] =  $nstr{$mfile,$ndt};
 
@@ -1329,6 +1313,7 @@ END
     } # foreach tdate
 
   } 
+
       for($ii = 0; $ii < $ndt; $ii++) {
  
 #     $numstream[$ii] = $nstphysics[$ii]+$nstcentralpro[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+ $nstfms[$ndt] + $nstfgt[$ndt] + $nsthltgood[$ndt] + $nstupc[$ii]+ $nstgamma[$ii]+ $nstwb[$ii] +  $nstatomcules[$ii]+ $nstupsilon[$ii];
@@ -1355,7 +1340,6 @@ END
       $rthltgood[$ii] = $nsthltgood[$ii]/$numstream[$ii];
 
        }
-  }
 
 #########################################  jobs total time on the farm
 
