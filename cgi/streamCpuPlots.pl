@@ -417,10 +417,6 @@ END
     } else {
         $nowdate = $todate;
     }
-
-
-  }
-
   
     if ( $qperiod =~ /month/) {
 	@prt = split("_", $qperiod);
