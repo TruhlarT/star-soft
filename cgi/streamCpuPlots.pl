@@ -468,7 +468,7 @@ END
          $cursor->finish();
 
 
-}else{
+   }else{
 
 
     $sql="SELECT DISTINCT runDay  FROM $JobStatusT WHERE prodSeries = ?  AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(runDay)) < ?  order by runDay";
@@ -510,7 +510,7 @@ END
     }
          $cursor->finish();
 
- }
+   }
 
 
  %nstr = {};
@@ -723,7 +723,7 @@ END
         $ndt++;
 
      }# foreach tdate
-  }
+ }
 
 ###################################### ratio realTime/CPU
 
@@ -851,7 +851,7 @@ END
 ###
      }
 
-     }else{
+   }else{
 
   foreach my $tdate (@ardays) {
         @jbstat = ();
@@ -1039,6 +1039,10 @@ END
 
      }else{
 
+  foreach my $tdate (@ardays) {
+        @jbstat = ();
+        $nstat = 0;
+
    $sql="SELECT runDay, avg_no_tracks, streamName FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries= ? AND jobStatus = 'Done' AND avg_no_tracks >= 1 AND NoEvents >= 10 ";
 
             $cursor =$dbh->prepare($sql)
@@ -1116,8 +1120,8 @@ END
            }else{
              next;
            }
-              }
           }
+        }
 
         $ndt++;
 
@@ -1126,7 +1130,7 @@ END
 
 #############################  stream ratios
 
-          }elsif( $srate eq "stream_rate") { 
+   }elsif( $srate eq "stream_rate") { 
  
  %nstr = {};
  @numstream = 0;
