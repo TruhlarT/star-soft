@@ -1239,8 +1239,7 @@ END
            }else{
              next;
            }
-              }
-          }
+     }
 
         $ndt++;
 
@@ -1305,8 +1304,7 @@ END
            }else{
              next;
            }
-              }
-         }
+	 }
 
         $ndt++;
 
@@ -1340,6 +1338,7 @@ END
       $rthltgood[$ii] = $nsthltgood[$ii]/$numstream[$ii];
 
        }
+}
 
 #########################################  jobs total time on the farm
 
