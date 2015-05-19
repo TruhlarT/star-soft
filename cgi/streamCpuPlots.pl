@@ -1657,7 +1657,7 @@ END
     @data = ();
 
 
-	$ylabel = "Average number of tracks in different stream jobs finishing per hour ";
+	$ylabel = "Average number of tracks in different stream ";
 	$gtitle = "Average number of tracks in different stream data in $qprod production ";
 
 
