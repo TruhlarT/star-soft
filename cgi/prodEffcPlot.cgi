@@ -117,7 +117,7 @@ my $qprod    = $query->param('prod');
 my $qperiod  = $query->param('period');
 #my $qtrig    = $query->param('ptrig');
 
-if( $qprod eq "" and $qperiod eq "" and  $qtrig eq "" ) {
+if( $qprod eq "" and $qperiod eq "" ) {
 
     print $query->header();
     print $query->start_html('Production efficiency');
@@ -147,15 +147,6 @@ END
                                   -values=>\@arrprod,
                                   -default=>all2014,
                                   -size =>1);
-
-#    print "<p>";
-#    print "</td><td>";
-#    print "<h3 align=center> Period of monitoring<br></h3>";
-#    print "<h4 align=center>";
-#    print  $query->scrolling_list(-name=>'ptrig',
-#                                  -values=>\@trigs,
-#                                  -default=>all,
-#                                  -size =>1); 
 
     print "<p>";
     print "</td><td>";
@@ -189,7 +180,7 @@ my $qqr = new CGI;
 
 my $qprod   =   $qqr->param('prod');
 my $qperiod =   $qqr->param('period');
-my $qtrig   =   $qqr->param('ptrig');
+#my $qtrig   =   $qqr->param('ptrig');
 
 # Tables
 
@@ -660,8 +651,8 @@ $ndt = 0;
             print STDOUT $graph->plot(\@data)->$format();
         }
 #
-     }
-  }
+    }
+}
 
 ############################
 
