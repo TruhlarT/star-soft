@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.140 2015/05/01 14:54:53 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.141 2015/05/21 13:39:42 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -929,7 +929,10 @@ Bfc_st BFC[] = {
   {"B2015" ,"","","ry2015,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
    , "Base chain for 2015 ITTF (tpc)",kFALSE},
   {"pp2015","" ,"",
-   "B2015,ITTF,UseXgeom,BAna,hitfilt,VFPPVnoCTB,beamline,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
+   "B2015,ITTF,UseXgeom,BAna,hitfilt,ppOpt,VFPPVnoCTB,beamline,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
+   , "","","Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+  {"P2015","" ,"",
+   "B2015,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
    , "","","Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","",""
    , "Laser Calibration Chain (tcl)",kFALSE},
@@ -1077,7 +1080,8 @@ Bfc_st BFC[] = {
   {"minicern" ,"" ,"","geant3","" ,"","STAR addition to minicern OBSOLETE",kFALSE},
   {"mysql" ,"" ,"","","" ,"libmysqlclient","MySQL",kFALSE},
   {"libPhysics" ,"" ,"","","" ,"libPhysics","TVector",kFALSE},
-  {"geant3" ,"" ,"","","" ,"Geom,EG,Pythia6,EGPythia6,VMC,geant3","TGeo version of geant321",kFALSE},
+  {"geant3vmc" ,"" ,"","-usexgeom,-xgeometry","", "libGeom,libVMC,libgeant3", "VMC geant3",kFALSE},
+  {"geant3" ,"" ,"","geant3vmc","" ,"EG,Pythia6,EGPythia6","VMC geant3 plus ROOT EG,pythia6",kFALSE},
   {"geometry" ,"" ,"","","" ,"geometry","geometry+Mag.Field",kFALSE},
   {"StarMagField","", "","magF" ,"","VMC,StarMagField","Load StarMagField",kFALSE},
   {"geomNoField" ,"" ,"","-geometry,StarMagField" ,"","geometryNoField","geometry-Mag.Field",kFALSE},
@@ -1400,8 +1404,8 @@ Bfc_st BFC[] = {
   {"HLTCA" ,"" ,"Sti","", "StHLTCAMaker","StHLTCAMaker", "HLT reconstruction",kFALSE},
   {"KFVertex" ,"" ,"Sti","-genvtx,-VFMinuit,-VFFV,-VFMCE,-VFppLMV,-VFPPVnoCTB,-VFPPV,-Kink2,-V02,-Xi2"
    ,"StKFVertexMaker", "MathMore,Spectrum", "...KFParticle based multi vertex reconstruction",kFALSE},
-  {"Stv" ,"Stv","","-TpcIT,-SvtIT,-SsdIT,gen_T,sim_T","StvMaker"
-   ,"libHist,libHistPainter,libVMC,StarMiniCern,geant3,GeoTestMaker,StvUtil,Stv,StvMaker"
+  {"Stv" ,"Stv","","geant3vmc,-TpcIT,-SvtIT,-SsdIT,gen_T,sim_T", "StvMaker",
+   "libHist,libHistPainter,GeoTestMaker,StvUtil,Stv,StvMaker"
    , "Stv",kFALSE},
   {"StvCA" ,"StvCA","","Stv","","" ,"StvCA",kFALSE},
   {"StiVMC" ,"StiVMC","","-Sti,SCL,StEvent,StDbT,TpcDb,compend","StiVMCMaker"
@@ -2455,7 +2459,10 @@ Bfc_st BFC[] = {
   {"B2015" ,"","","ry2015,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
    , "Base chain for 2015 ITTF (tpc)",kFALSE},
   {"pp2015","" ,"",
-   "B2015,ITTF,UseXgeom,BAna,hitfilt,VFPPVnoCTB,beamline,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
+   "B2015,ITTF,UseXgeom,BAna,hitfilt,ppOpt,VFPPVnoCTB,beamline,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
+   , "","","Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+  {"P2015","" ,"",
+   "B2015,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
    , "","","Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","",""
    , "Laser Calibration Chain (tcl)",kFALSE},
@@ -2603,7 +2610,8 @@ Bfc_st BFC[] = {
   {"minicern" ,"" ,"","geant3","" ,"","STAR addition to minicern OBSOLETE",kFALSE},
   {"mysql" ,"" ,"","","" ,"libmysqlclient","MySQL",kFALSE},
   {"libPhysics" ,"" ,"","","" ,"libPhysics","TVector",kFALSE},
-  {"geant3" ,"" ,"","","" ,"Geom,EG,Pythia6,EGPythia6,VMC,geant3","TGeo version of geant321",kFALSE},
+  {"geant3vmc" ,"" ,"","-usexgeom,-xgeometry","", "libGeom,libVMC,libgeant3", "VMC geant3",kFALSE},
+  {"geant3" ,"" ,"","geant3vmc","" ,"EG,Pythia6,EGPythia6","VMC geant3 plus ROOT EG,pythia6",kFALSE},
   {"geometry" ,"" ,"","","" ,"geometry","geometry+Mag.Field",kFALSE},
   {"StarMagField","", "","magF" ,"","VMC,StarMagField","Load StarMagField",kFALSE},
   {"geomNoField" ,"" ,"","-geometry,StarMagField" ,"","geometryNoField","geometry-Mag.Field",kFALSE},
@@ -2926,8 +2934,8 @@ Bfc_st BFC[] = {
   {"HLTCA" ,"" ,"Sti","", "StHLTCAMaker","StHLTCAMaker", "HLT reconstruction",kFALSE},
   {"KFVertex" ,"" ,"Sti","-genvtx,-VFMinuit,-VFFV,-VFMCE,-VFppLMV,-VFPPVnoCTB,-VFPPV,-Kink2,-V02,-Xi2"
    ,"StKFVertexMaker", "MathMore,Spectrum", "...KFParticle based multi vertex reconstruction",kFALSE},
-  {"Stv" ,"Stv","","-TpcIT,-SvtIT,-SsdIT,gen_T,sim_T","StvMaker"
-   ,"libHist,libHistPainter,libVMC,StarMiniCern,geant3,GeoTestMaker,StvUtil,Stv,StvMaker"
+  {"Stv" ,"Stv","","geant3vmc,-TpcIT,-SvtIT,-SsdIT,gen_T,sim_T", "StvMaker",
+   "libHist,libHistPainter,GeoTestMaker,StvUtil,Stv,StvMaker"
    , "Stv",kFALSE},
   {"StvCA" ,"StvCA","","Stv","","" ,"StvCA",kFALSE},
   {"StiVMC" ,"StiVMC","","-Sti,SCL,StEvent,StDbT,TpcDb,compend","StiVMCMaker"
@@ -3436,7 +3444,7 @@ Int_t StBFChain::Instantiate()
 	}
       }
       else mk->SetActive(kFALSE);
-      if (! mk) goto Error;
+      //if (! mk) goto Error;
       SetGeantOptions(mk);
     }
 
@@ -4541,6 +4549,8 @@ void StBFChain::SetOutputFile (const Char_t *outfile){
       TString TagsName = fFileOut;
       if( GetOption("lana") ){
 	TagsName.ReplaceAll(".root",".laser.root");
+      } else if ( GetOption("mtdEvtFilt") ){
+	TagsName.ReplaceAll(".root",".pretags.root");
       } else {
 	TagsName.ReplaceAll(".root",".tags.root");
       }
