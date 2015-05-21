@@ -271,90 +271,10 @@ $ndt = 0;
 ############################################################
 
     &StDbProdDisconnect();
-
- @data = ();
- my $ylabel;
- my $gtitle;
- my $max_y;
- my $min_y = 0;
-
-    my $graph = new GD::Graph::linespoints(750,650);
-
-    if ( ! $graph){
-        print STDOUT $qqr->header(-type => 'text/plain');
-        print STDOUT "Failed\n";
-
-    } else {
-
- $legend[0] = "jobs submitted    ";
- $legend[1] = "jobs done         ";
- $legend[2] = "HPSS import failed";
- $legend[3] = "HPSS export failed";
- $legend[4] = "CRS errors        ";
- $legend[5] = "jobs held         ";
- $legend[6] = "jobs crashed      ";
-
- @data = ();
-
-# $max_y = 5000;
-
-       $ylabel = "Number of jobs";
-       $gtitle = "Distribution of number of submitted, done and failed jobs ";
-
-  @data = (\@ndate, \@jbsubmit, \@jbdone, \@jbinfail, \@jboutfail, \@jbcrsfail, \@jbheld, \@jbcrash,);
-
-
-  my $xLabelsVertical = 1;
-  my $xLabelPosition = 0;
-  my $xLabelSkip = 1;
-  my $skipnum = 1;
-
-
-  if (scalar(@ndate) >= 40 ) {
-    $skipnum = int(scalar(@ndate)/20);
-        }
-
-  $xLabelSkip = $skipnum;
-
-       $graph->set(x_label => "Date of files transferring from/to HPSS",
-                    y_label => $ylabel,
-                    title   => $gtitle,
-                    y_tick_number => 14,
-                    x_label_position => 0.5,
-                    y_min_value => $min_y,
-#                    y_max_value => $max_y,
-                    y_number_format => \&y_format,
-                    #labelclr => "lblack",
-                    titleclr => "lblack",
-                    dclrs => [ qw(lblack lblue lgreen lred lpurple lgray lorange marine lbrown lyellow) ],
-                    line_width => 4,
-                    markers => [ 2,3,4,5,6,7,8,9],
-                    marker_size => 3,
-                    x_label_skip => $xLabelSkip,
-                    x_labels_vertical =>$xLabelsVertical,
-                    );
-
-        $graph->set_legend(@legend);
-        $graph->set_legend_font(gdMediumBoldFont);
-        $graph->set_title_font(gdGiantFont);
-        $graph->set_x_label_font(gdGiantFont);
-        $graph->set_y_label_font(gdGiantFont);
-        $graph->set_x_axis_font(gdMediumBoldFont);
-        $graph->set_y_axis_font(gdMediumBoldFont);
-
-        if ( scalar(@ndate) <= 1 ) {
-            print $qqr->header(-type => 'text/html')."\n";
-            &beginHtml();
-        } else {
-            my $format = $graph->export_format;
-            print header("image/$format");
-            binmode STDOUT;
-
-            print STDOUT $graph->plot(\@data)->$format();
-        }
+     
 #
-    }
- }
+}
+
 
 ############################
 
