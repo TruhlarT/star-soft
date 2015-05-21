@@ -206,39 +206,6 @@ my $qperiod =   $qqr->param('period');
 
  $nowdate = $todate;
 
-  if($qprod eq "all2014"){
-
-   $sql="SELECT DISTINCT date_format(submitTime, '%Y-%m-%d') as SDATE FROM $JobStatusT WHERE (prodSeries = 'P15ic' or prodSeries = 'P15ie')  and date_format(submitTime, '%Y-%m-%d') <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(submitTime)) < ?  order by SDATE";
-
-    $cursor =$dbh->prepare($sql)
-      || die "Cannot prepare statement: $DBI::errstr\n";
-    $cursor->execute($day_diff);
-
-    while($myday = $cursor->fetchrow) {
-        $ardays[$nday] = $myday;
-        $nday++;
-    }
-
-         $cursor->finish();
-
-  }else{
-
-
-   $sql="SELECT DISTINCT date_format(submitTime, '%Y-%m-%d') as SDATE FROM $JobStatusT WHERE prodSeries = ?  and date_format(submitTime, '%Y-%m-%d') <> '0000-00-00' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(submitTime)) < ? order by SDATE";
-
-    $cursor =$dbh->prepare($sql)
-      || die "Cannot prepare statement: $DBI::errstr\n";
-    $cursor->execute($qprod,$day_diff);
-
-    while($myday = $cursor->fetchrow) {
-        $ardays[$nday] = $myday;
-        $nday++;
-    }
-
-         $cursor->finish();
-  }
-
-
  my $day_diff = 0;
  my $nmonth = 0;
  my @prt = ();
