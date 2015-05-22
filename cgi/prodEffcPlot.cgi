@@ -109,7 +109,7 @@ my $JobStatusT = "JobStatus2014";
 
 my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months","12_months");
 
-my @arrate = ("cpu","rtime/cpu","exectime","events","njobs")
+my @arrate = ("cpu","rtime/cpu","exectime","events","njobs");
 
 &StDbProdDisconnect();
 
