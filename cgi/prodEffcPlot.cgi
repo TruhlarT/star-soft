@@ -25,14 +25,6 @@ $dbuser="starreco";
 $dbpass="";
 $dbname="operation";
 
-struct JobAttr => {
-      cpuv      => '$',
-      rtmv      => '$',
-      jbtot     => '$',
-      nevt      => '$',
-      strv      => '$'
-};
-
 
 ($sec,$min,$hour,$mday,$mon,$year) = localtime();
 
@@ -56,76 +48,20 @@ my $lastdate;
 
 my @arperiod = ( );
 my $mstr;
-my @arrate = ("cpu","rtime/cpu","exectime","events","njobs");
 
 my @arrprod = ();
-my @arstream = ();
 my $nst = 0;
 my $str;
 my $npr = 0;
 my $mpr;
-my $phr;
-my $pcpu;
-my $prtime;
-my $pstream;
-my $exctime;
-my @nevents = ();
-my @numjobs = ();
-my $maxcpu = 0;
-my $maxexectm = 0 ;
-my $maxcpuval = 0;
-my $maxvalue = 0;
 
 my $pryear = "2014";
-
-my $rte = 0;
-
-my @arupsilon = ();
-my @armtd = ();
-my @arphysics = ();
-my @argamma = ();
-my @arhlt = ();
-my @arfmsfast = ();
-my @arht = ();
-my @aratomcules = ();
-my @arupc = ();
-my @armonitor = ();
-my @arhltgood = ();
-my @arcentralpro = ();
-my @arwb = ();
 
 my @ndate = ();
 my $ndt = 0;
 my @ardays = ();
 my $ndy = 0;
 
-my @cpupsilon = ();
-my @cpmtd = ();
-my @cpphysics = ();
-my @cpgamma = ();
-my @cphlt = ();
-my @cpfmsfast = ();
-my @cpht = ();
-my @cpatomcules = ();
-my @cpupc = ();
-my @cpmonitor = ();
-my @cphltgood = ();
-my @cpcentralpro  = (); 
-my @cpwb  = (); 
-
-my @jbupsilon = ();
-my @jbmtd = ();
-my @jbphysics = ();
-my @jbgamma = ();
-my @jbhlt = ();
-my @jbfmsfast = ();
-my @jbht = ();
-my @jbatomcules = ();
-my @jbupc = ();
-my @jbmonitor = ();
-my @jbhltgood = ();
-my @jbcentralpro  = ();
-my @jbwb = ();
 
   &StDbProdConnect();
 
@@ -148,7 +84,7 @@ my @jbwb = ();
 
 $arrprod[$npr] = "all2014";
 
-my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months","7_months","8_months","9_months","10_months","11_months","12_months");
+my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months","12_months");
 
 
 &StDbProdDisconnect();
@@ -166,7 +102,7 @@ my $qprod   = $query->param('prod');
 if( $qprod eq "" and $qperiod eq ""  ) {
 
     print $query->header();
-    print $query->start_html('Production CPU usage');
+    print $query->start_html('Production efficiency');
     print <<END;
 <META HTTP-EQUIV="Expires" CONTENT="0">
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
@@ -175,7 +111,7 @@ END
     print $query->startform(-action=>"$scriptname");
 
     print "<body bgcolor=\"cornsilk\">\n";
-    print "<h1 align=center><u>Distributions of CPU/evt, RealTime/CPU, total time of jobs execution, number of events and jobs processed per day </u></h1>\n";
+    print "<h1 align=center><u>Production Efficiency </u></h1>\n";
     print "<br>";
     print "<br>";
     print <<END;
