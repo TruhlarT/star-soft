@@ -582,13 +582,12 @@ $ndt = 0;
 
     } else {
 
- $legend[0] = "jobs submitted    ";
- $legend[1] = "jobs done         ";
- $legend[2] = "HPSS import failed";
- $legend[3] = "HPSS export failed";
- $legend[4] = "CRS errors        ";
- $legend[5] = "jobs held         ";
- $legend[6] = "jobs crashed      ";
+ $legend[0] = "jobs done         ";
+ $legend[1] = "HPSS import failed";
+ $legend[2] = "HPSS export failed";
+ $legend[3] = "CRS errors        ";
+ $legend[4] = "jobs held         ";
+ $legend[5] = "jobs crashed      ";
 
  @data = ();
 
@@ -618,7 +617,7 @@ $ndt = 0;
        $graph->set(x_label => "Date of jobs submission",
                     y_label => $ylabel,
                     title   => $gtitle,
-                    y_tick_number => 14,
+                    y_tick_number => 12,
                     x_label_position => 0.5,
                     y_min_value => $min_y,
                     y_max_value => $max_y,
