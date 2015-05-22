@@ -3,10 +3,10 @@
 #
 # $Id:
 #
-# $Log:  prodEffcPlot.cgi
+# $Log:
 #
 # L. Didenko
-# Production efficiency plot  
+#  prodEffcPlot.cgi - production efficiency plot  
 # 
 #########################################################################################################
 
@@ -17,6 +17,8 @@ BEGIN {
 
 use DBI;
 use CGI qw(:standard);
+use GD;
+use GD::Graph::linespoints;
 use Class::Struct;
 
 
