@@ -3,10 +3,10 @@
 #
 # $Id:
 #
-# $Log:  prodSizePlots.cgi
+# $Log:  prodEffcPlot.cgi
 #
 # L. Didenko
-# script to make plots for Mudst and raw data production size distribution sunk to and restored from HPSS  
+# Production efficiency plot  
 # 
 #########################################################################################################
 
@@ -46,30 +46,36 @@ my $dyear = $thisyear - 2000;
 
 my $pryear = "2014";
 
-my @arrate = ("mudstsize","daqsize","all" );
+ $nowdate = $todate;
+
 
 my @arrprod = ();
 my @trigs = ();
 my @ndate = ();
 my $ndt = 0;
-my $nst = 0;
 my $npr = 0;
 my $ntr = 0;
 
-my @jbsize = ();
-my $psize = 0;
-my @daqsize = ();
 my @prt = ();
 my @ardays = ();
 my @data = ();
 
 
-my $ProdSizeT = "ProductionSize";
+my @jbsubmit = ();
+my @jbdone  = ();
+my @jbinfail = ();
+my @jboutfail = ();
+my @jbcrsfail = ();
+my @jbheld = ();
+my @jbcrash = ();
+
+
+my $JobStatusT = "JobStatus2014";
 
  &StDbProdConnect();
 
 
-   $sql="SELECT DISTINCT prodtag  FROM $ProdSizeT ";
+   $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT where runDay >= '2015-03-15' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -84,7 +90,7 @@ my $ProdSizeT = "ProductionSize";
 
    $arrprod[$npr] = "all2014";
 
-   $sql="SELECT DISTINCT Trigset  FROM $ProdSizeT ";
+   $sql="SELECT DISTINCT trigsetName  FROM $JobStatusT where runDay >= '2015-03-15'";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -99,20 +105,23 @@ my $ProdSizeT = "ProductionSize";
    $trigs[$ntr] = "all";
 
 
+my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months","12_months");
+
+
 &StDbProdDisconnect();
 
 my $query = new CGI;
 
 my $scriptname = $query->url(-relative=>1);
 
-my $qprod   = $query->param('prod');
-my $srate   = $query->param('prate');
-my $qtrig   = $query->param('ptrig');
+my $qprod    = $query->param('prod');
+my $qperiod  = $query->param('period');
+#my $qtrig    = $query->param('ptrig');
 
-if( $qprod eq "" and $srate eq "" and  $qtrig eq "" ) {
+if( $qprod eq "" and $qperiod eq "" ) {
 
     print $query->header();
-    print $query->start_html('Production size distribution');
+    print $query->start_html('Production efficiency');
     print <<END;
 <META HTTP-EQUIV="Expires" CONTENT="0">
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
@@ -121,7 +130,7 @@ END
     print $query->startform(-action=>"$scriptname");
 
     print "<body bgcolor=\"cornsilk\">\n";
-    print "<h1 align=center><u>Production size distribution </u></h1>\n";
+    print "<h1 align=center><u>Production efficiency</u></h1>\n";
     print "<br>";
     print "<br>";
     print <<END;
@@ -142,21 +151,11 @@ END
 
     print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Dataset name <br></h3>";
+    print "<h3 align=center> Period of monitoring</h3>";
     print "<h4 align=center>";
-    print  $query->scrolling_list(-name=>'ptrig',
-                                  -values=>\@trigs,
-                                  -default=>all,
-                                  -size =>1);
-
-
-    print "<p>";
-    print "</td><td>";
-    print "<h3 align=center> Size of raw/MuDst data<br></h3>";
-    print "<h4 align=center>";
-    print  $query->scrolling_list(-name=>'prate',
-                                  -values=>\@arrate,
-                                  -default=>all,
+    print  $query->scrolling_list(-name=>'period',
+                                  -values=>\@arperiod,
+                                  -default=>1_month,
                                   -size =>1);
 
 
@@ -178,35 +177,46 @@ END
 
  } else{
 
-  my $qqr = new CGI;
+my $qqr = new CGI;
 
-my $qprod =   $qqr->param('prod');
-my $srate =   $qqr->param('prate');
-my $qtrig =   $qqr->param('ptrig');
+my $qprod   =   $qqr->param('prod');
+my $qperiod =   $qqr->param('period');
+#my $qtrig   =   $qqr->param('ptrig');
 
 # Tables
+
+ $JobStatusT = "JobStatus2014";
 
  @prt = ();
  @ardays = ();
 
- my $myday;
  my $nday = 0;
  my $tdate;
+
+ my $day_diff = 0;
+ my $nmonth = 0;
+
+
+ if ( $qperiod =~ /month/) {
+     @prt = split("_", $qperiod);
+     $nmonth = $prt[0];
+     $day_diff = 30*$nmonth + 1;
+  }
+
+  $day_diff = int($day_diff);
+
 
  &StDbProdConnect();
 
  $nowdate = $todate;
 
-  if($qtrig eq "all") {
-
   if($qprod eq "all2014"){
 
-
-   $sql="SELECT DISTINCT date_format(starttime, '%Y-%m-%d') as SDATE FROM $ProdSizeT WHERE (prodtag = 'P15ic' or prodtag = 'P15ie')  and date_format(starttime, '%Y-%m-%d') <> '0000-00-00'  order by SDATE";
+   $sql="SELECT DISTINCT date_format(submitTime, '%Y-%m-%d') as SDATE FROM $JobStatusT WHERE (prodSeries = 'P15ic' or prodSeries = 'P15ie')  and date_format(submitTime, '%Y-%m-%d') <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(submitTime)) < ?  order by SDATE";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
-    $cursor->execute();
+    $cursor->execute($day_diff);
 
     while($myday = $cursor->fetchrow) {
         $ardays[$nday] = $myday;
@@ -218,29 +228,11 @@ my $qtrig =   $qqr->param('ptrig');
   }else{
 
 
-   $sql="SELECT DISTINCT date_format(starttime, '%Y-%m-%d') as SDATE FROM $ProdSizeT WHERE prodtag = ?  and date_format(starttime, '%Y-%m-%d') <> '0000-00-00'  order by SDATE";
+   $sql="SELECT DISTINCT date_format(submitTime, '%Y-%m-%d') as SDATE FROM $JobStatusT WHERE prodSeries = ?  and date_format(submitTime, '%Y-%m-%d') <> '0000-00-00' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(submitTime)) < ? order by SDATE";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
-    $cursor->execute($qprod);
-
-    while($myday = $cursor->fetchrow) {
-        $ardays[$nday] = $myday;
-        $nday++;
-    }
-
-         $cursor->finish();
-
-  }
-
-  }else{
-
-
-   $sql="SELECT DISTINCT date_format(starttime, '%Y-%m-%d') as SDATE  FROM $ProdSizeT WHERE prodtag = ? and Trigset = ? and  date_format(starttime, '%Y-%m-%d') <> '0000-00-00' order by SDATE";
-
-    $cursor =$dbh->prepare($sql)
-      || die "Cannot prepare statement: $DBI::errstr\n";
-    $cursor->execute($qprod,$qtrig);
+    $cursor->execute($qprod,$day_diff);
 
     while($myday = $cursor->fetchrow) {
         $ardays[$nday] = $myday;
@@ -250,165 +242,341 @@ my $qtrig =   $qqr->param('ptrig');
          $cursor->finish();
   }
 
-#############################  size of MuDst
+#  }else{
 
- 
 
-@jbsize = ();
+#   $sql="SELECT DISTINCT date_format(submitTime, '%Y-%m-%d') as SDATE  FROM $JobStatusT WHERE prodSeries = ? and trigsetName = ? and  date_format(submitTime, '%Y-%m-%d') <> '0000-00-00' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(submitTime)) < ? order by SDATE";
+
+#    $cursor =$dbh->prepare($sql)
+#      || die "Cannot prepare statement: $DBI::errstr\n";
+#    $cursor->execute($qprod,$qtrig,$day_diff);
+
+#    while($myday = $cursor->fetchrow) {
+#        $ardays[$nday] = $myday;
+#        $nday++;
+#    }
+
+         $cursor->finish();
+#}
+
+
+
+ my $day_diff = 0;
+ my $nmonth = 0;
+ my @prt = ();
+
+
+   if ( $qperiod =~ /month/) {
+        @prt = split("_", $qperiod);
+        $nmonth = $prt[0];
+        $day_diff = 30*$nmonth + 1;
+    }
+
+    $day_diff = int($day_diff);
+
+
+#############################
+
+
 @ndate = ();
 $ndt = 0;
 
-     if($qtrig eq "all") {  
+@jbsubmit = ();
+@jbdone  = ();
+@jbinfail = ();
+@jboutfail = ();
+@jbcrsfail = ();
+@jbheld = ();
+@jbcrash = ();
+
 
   if($qprod eq "all2014"){
 
   foreach my $tdate (@ardays) {
 
-  $sql="SELECT date_format(createtime, '%Y-%m-%d') as PDATE, sum(mudstsize) FROM $ProdSizeT WHERE (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and (prodtag = 'P15ic' or prodtag = 'P15ie') group by PDATE  ";
+     $ndate[$ndt] = $tdate;    
 
-            $cursor =$dbh->prepare($sql)
-              || die "Cannot prepare statement: $DBI::errstr\n";
-            $cursor->execute();
+  $sql="SELECT count(jobfileName) FROM $JobStatusT WHERE (submitTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and (prodSeries = 'P15ic' or prodSeries = 'P15ie') ";
 
 
-       while(@fields = $cursor->fetchrow) {
+     $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+     $cursor->execute();
 
-       $ndate[$ndt] = $fields[0];
-       $jbsize[$ndt] = $fields[1]/1000000000;
+   my $njobs = $cursor->fetchrow ;
 
-      $ndt++;
+     $cursor->finish();
 
-     }
-  }
+     $jbsubmit[$ndt] = $njobs;
+
+#########
+
+   $sql="SELECT count(jobfileName) FROM $JobStatusT WHERE (submitTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and (prodSeries = 'P15ic' or prodSeries = 'P15ie') AND jobStatus = 'Done' ";
+
+     $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+     $cursor->execute();
+
+    my $njobs = $cursor->fetchrow ;
+
+     $cursor->finish();
+
+    if( defined $njobs) {
+
+     $jbdone[$ndt] = $njobs;  
+    }else{
+     $jbdone[$ndt] = 0;  
+    }
+
+##########
+
+    $sql="SELECT count(jobfileName) FROM $JobStatusT WHERE (submitTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and (prodSeries = 'P15ic' or prodSeries = 'P15ie') AND inputHpssStatus like 'error%' ";
+
+     $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+     $cursor->execute();
+
+    my $njobs = $cursor->fetchrow ;
+
+     $cursor->finish();
+
+    if( defined $njobs) {
+
+     $jbinfail[$ndt] = $njobs;  
+    }else{
+     $jbinfail[$ndt] = 0;  
+    }
+
+##########
+
+    $sql="SELECT count(jobfileName) FROM $JobStatusT WHERE (submitTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and (prodSeries = 'P15ic' or prodSeries = 'P15ie') AND crsError = 'error_60' ";
+
+     $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+     $cursor->execute();
+
+    my $njobs = $cursor->fetchrow ;
+
+     $cursor->finish();
+
+    if( defined $njobs) {
+
+     $jboutfail[$ndt] = $njobs;  
+    }else{
+     $jboutfail[$ndt] = 0;  
+    }
+
+##########
+
+    $sql="SELECT count(jobfileName) FROM $JobStatusT WHERE (submitTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and (prodSeries = 'P15ic' or prodSeries = 'P15ie') AND (crsError = 'error_10' or crsError = 'error_50') ";
+
+     $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+     $cursor->execute();
+
+    my $njobs = $cursor->fetchrow ;
+
+     $cursor->finish();
+
+    if( defined $njobs) {
+
+     $jbcrsfail[$ndt] = $njobs;  
+    }else{
+     $jbcrsfail[$ndt] = 0;  
+    }
+
+#########
+
+
+    $sql="SELECT count(jobfileName) FROM $JobStatusT WHERE (submitTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and (prodSeries = 'P15ic' or prodSeries = 'P15ie') AND crsError = 'error_held'  ";
+
+     $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+     $cursor->execute();
+
+    my $njobs = $cursor->fetchrow ;
+
+     $cursor->finish();
+
+    if( defined $njobs) {
+
+     $jbheld[$ndt] = $njobs;  
+    }else{
+     $jbheld[$ndt] = 0;  
+    }
+
+#########
+
+    $sql="SELECT count(jobfileName) FROM $JobStatusT WHERE (submitTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and (prodSeries = 'P15ic' or prodSeries = 'P15ie') AND jobStatus <> 'Done' and jobStatus <> 'n/a' ";
+
+     $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+     $cursor->execute();
+
+    my $njobs = $cursor->fetchrow ;
+
+     $cursor->finish();
+
+    if( defined $njobs) {
+
+     $jbcrash[$ndt] = $njobs;  
+    }else{
+     $jbcrash[$ndt] = 0;  
+    }
+
+##########
+
+     $ndt++;
+   }
 
   }else{
 
   foreach my $tdate (@ardays) {
 
-  $sql="SELECT date_format(createtime, '%Y-%m-%d') as PDATE, sum(mudstsize) FROM $ProdSizeT WHERE (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and prodtag = ? group by PDATE  ";
+     $ndate[$ndt] = $tdate;    
 
-            $cursor =$dbh->prepare($sql)
-              || die "Cannot prepare statement: $DBI::errstr\n";
-            $cursor->execute($qprod);
+  $sql="SELECT count(jobfileName) FROM $JobStatusT WHERE (submitTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and prodSeries = ? ";
+
+     $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+     $cursor->execute($qprod);
+
+   my $njobs = $cursor->fetchrow ;
+
+     $cursor->finish();
+
+     $jbsubmit[$ndt] = $njobs;
+
+#########
+
+   $sql="SELECT count(jobfileName) FROM $JobStatusT WHERE (submitTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and prodSeries = ? AND jobStatus = 'Done' ";
+
+     $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+     $cursor->execute($qprod);
+
+    my $njobs = $cursor->fetchrow ;
+
+     $cursor->finish();
+
+    if( defined $njobs) {
+
+     $jbdone[$ndt] = $njobs;  
+    }else{
+     $jbdone[$ndt] = 0;  
+    }
+
+##########
+
+    $sql="SELECT count(jobfileName) FROM $JobStatusT WHERE (submitTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and prodSeries = ? AND inputHpssStatus like 'error%' ";
+
+     $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+     $cursor->execute($qprod);
+
+    my $njobs = $cursor->fetchrow ;
+
+     $cursor->finish();
+
+    if( defined $njobs) {
+
+     $jbinfail[$ndt] = $njobs;  
+    }else{
+     $jbinfail[$ndt] = 0;  
+    }
+
+##########
+
+    $sql="SELECT count(jobfileName) FROM $JobStatusT WHERE (submitTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and prodSeries = ? AND crsError = 'error_60' ";
+
+     $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+     $cursor->execute($qprod);
+
+    my $njobs = $cursor->fetchrow ;
+
+     $cursor->finish();
+
+    if( defined $njobs) {
+
+     $jboutfail[$ndt] = $njobs;  
+    }else{
+     $jboutfail[$ndt] = 0;  
+    }
+
+##########
+
+    $sql="SELECT count(jobfileName) FROM $JobStatusT WHERE (submitTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and prodSeries = ? AND (crsError = 'error_10' or crsError = 'error_50') ";
+
+     $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+     $cursor->execute($qprod);
+
+    my $njobs = $cursor->fetchrow ;
+
+     $cursor->finish();
+
+    if( defined $njobs) {
+
+     $jbcrsfail[$ndt] = $njobs;  
+    }else{
+     $jbcrsfail[$ndt] = 0;  
+    }
+
+#########
 
 
-       while(@fields = $cursor->fetchrow) {
+    $sql="SELECT count(jobfileName) FROM $JobStatusT WHERE (submitTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and prodSeries = ? AND crsError = 'error_held'  ";
 
-       $ndate[$ndt] = $fields[0];
-       $jbsize[$ndt] = $fields[1]/1000000000;
+     $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+     $cursor->execute($qprod);
 
+    my $njobs = $cursor->fetchrow ;
+
+     $cursor->finish();
+
+    if( defined $njobs) {
+
+     $jbheld[$ndt] = $njobs;  
+    }else{
+     $jbheld[$ndt] = 0;  
+    }
+
+#########
+
+    $sql="SELECT count(jobfileName) FROM $JobStatusT WHERE (submitTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and  prodSeries = ? AND jobStatus <> 'Done' and jobStatus <> 'n/a' ";
+
+     $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+     $cursor->execute($qprod);
+
+    my $njobs = $cursor->fetchrow ;
+
+     $cursor->finish();
+
+    if( defined $njobs) {
+
+     $jbcrash[$ndt] = $njobs;  
+    }else{
+     $jbcrash[$ndt] = 0;  
+    }
+
+##########
       $ndt++;
 
-     }
     }
   }
 
-  }else{
-
-  foreach my $tdate (@ardays) {
-
-  $sql="SELECT date_format(createtime, '%Y-%m-%d') as PDATE, sum(mudstsize) FROM $ProdSizeT WHERE (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and prodtag = ? and Trigset = ?  group by PDATE  ";
-
-            $cursor =$dbh->prepare($sql)
-              || die "Cannot prepare statement: $DBI::errstr\n";
-            $cursor->execute($qprod,$qtrig);
-
-
-       while(@fields = $cursor->fetchrow) {
-
-	$ndate[$ndt] = $fields[0];
-        $jbsize[$ndt] = $fields[1]/1000000000;
-
-       $ndt++;
-
-     }
-    }
-#
-  }
-  
-#################################  size of daq files
-
-
-@daqsize = ();
-@ndate = ();
-$ndt = 0;
-
- 
-     if($qtrig eq "all") {  
-
-   if($qprod eq "all2014"){
-
-  foreach my $tdate (@ardays) {
-
-  $sql="SELECT date_format(starttime, '%Y-%m-%d') as PDATE, sum(daqsize) FROM $ProdSizeT WHERE  (starttime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and (prodtag = 'P15ic' or prodtag = 'P15ie')  group by PDATE  ";
-
-            $cursor =$dbh->prepare($sql)
-              || die "Cannot prepare statement: $DBI::errstr\n";
-            $cursor->execute();
-
-
-       while(@fields = $cursor->fetchrow) {
-
-       $ndate[$ndt] = $fields[0];
-       $daqsize[$ndt] = $fields[1]/1000000000;
-
-       $ndt++;
-
-       }
-      }
-
-   }else{
-
-  foreach my $tdate (@ardays) {
-
-  $sql="SELECT date_format(starttime, '%Y-%m-%d') as PDATE, sum(daqsize) FROM $ProdSizeT WHERE  (starttime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and prodtag = ?  group by PDATE  ";
-
-            $cursor =$dbh->prepare($sql)
-              || die "Cannot prepare statement: $DBI::errstr\n";
-            $cursor->execute($qprod);
-
-
-       while(@fields = $cursor->fetchrow) {
-
-       $ndate[$ndt] = $fields[0];
-       $daqsize[$ndt] = $fields[1]/1000000000;
-
-       $ndt++;
-
-       }
-      }
-    }
-     }else{
-
-  foreach my $tdate (@ardays) {
-
-  $sql="SELECT date_format(starttime, '%Y-%m-%d') as PDATE, sum(daqsize) FROM $ProdSizeT WHERE (starttime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and  prodtag = ? and Trigset = ? group by PDATE  ";
-
-            $cursor =$dbh->prepare($sql)
-              || die "Cannot prepare statement: $DBI::errstr\n";
-            $cursor->execute($qprod,$qtrig);
-
-
-       while(@fields = $cursor->fetchrow) {
-
-       $ndate[$ndt] = $fields[0];
-       $daqsize[$ndt] = $fields[1]/1000000000;
-
-       $ndt++;
-
-       }
-      }
-     }
-##
 
 ############################################################
 
     &StDbProdDisconnect();
 
- @data = ();
  my $ylabel;
  my $gtitle;
-  my $max_y;
+ my $max_y;
+ my $min_y = 0;
 
     my $graph = new GD::Graph::linespoints(750,650);
 
@@ -418,53 +586,29 @@ $ndt = 0;
 
     } else {
 
-    if( $srate eq "mudstsize" ) {
+ $legend[0] = "jobs submitted    ";
+ $legend[1] = "jobs done         ";
+ $legend[2] = "HPSS import failed";
+ $legend[3] = "HPSS export failed";
+ $legend[4] = "CRS errors        ";
+ $legend[5] = "jobs held         ";
+ $legend[6] = "jobs crashed      ";
 
-    @data = ();
+ @data = ();
 
-   $max_y = 21000;
+ $max_y = 5000;
 
-       $ylabel = "Size of MuDst data in GB sinking to HPSS per day";
-       $gtitle = "Size of MuDst data in GB sinking to HPSS in $qprod production ";
+       $ylabel = "Number of jobs";
+       $gtitle = "Distribution of number of submitted, done and failed jobs ";
 
-  @data = (\@ndate, \@jbsize);
+  @data = (\@ndate, \@jbsubmit, \@jbdone, \@jbinfail, \@jboutfail, \@jbcrsfail, \@jbheld, \@jbcrash );
 
-
- }elsif( $srate eq "daqsize" ) {
-
-    @data = ();
-
-    $max_y = 56000;
-
-       $ylabel = "Size of raw data in GB restored from HPSS per day";
-       $gtitle = "Size of raw data in GB restored from HPSS in $qprod production";
-
-  @data = (\@ndate, \@daqsize);
-
- }else{
-
-   @data = ();
-
-    $max_y = 56000;
-
-       $ylabel = "Size of data in GB transferred  from/to HPSS per day";
-       $gtitle = "Size of data in GB transferred  from/to HPSS in $qprod production";
-
-  @data = (\@ndate, \@daqsize, \@jbsize  );
-
-
-   $legend[0] = "raw data size";
-   $legend[1] = "mudst size";
-
-
- }
 
   my $xLabelsVertical = 1;
   my $xLabelPosition = 0;
   my $xLabelSkip = 1;
   my $skipnum = 1;
 
-my  $min_y = 0;
 
   if (scalar(@ndate) >= 40 ) {
     $skipnum = int(scalar(@ndate)/20);
@@ -482,7 +626,7 @@ my  $min_y = 0;
                     y_number_format => \&y_format,
                     #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblack lred lblue lgreen lpurple lorange marine lbrown lyellow lgray) ],
+                    dclrs => [ qw(lblack lblue lgreen lred lpurple lgray lorange marine lbrown lyellow) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
@@ -509,9 +653,8 @@ my  $min_y = 0;
             print STDOUT $graph->plot(\@data)->$format();
         }
 #
-     }
-  }
-
+    }
+ }
 
 ############################
 
