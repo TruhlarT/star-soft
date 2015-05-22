@@ -69,6 +69,13 @@ my @jbheld = ();
 my @jbcrash = ();
 
 
+my @rtdone = ();
+my @rtinfail = ();
+my @rtoutfail = ();
+my @rtcrsfail = ();
+my @rtheld = ();
+my @rtcrash = ();
+
 
   &StDbProdConnect();
 
@@ -118,7 +125,7 @@ END
     print $query->startform(-action=>"$scriptname");
 
     print "<body bgcolor=\"cornsilk\">\n";
-    print "<h1 align=center><u>Production Efficiency </u></h1>\n";
+    print "<h1 align=center><u>Efficiency of jobs processing </u></h1>\n";
     print "<br>";
     print "<br>";
     print <<END;
@@ -237,6 +244,14 @@ $ndt = 0;
 @jbcrsfail = ();
 @jbheld = ();
 @jbcrash = ();
+
+@rtdone = ();
+@rtinfail = ();
+@rtoutfail = ();
+@rtcrsfail = ();
+@rtheld = ();
+@rtcrash = ();
+
 
   if($qprod eq "all2014"){
 
@@ -372,7 +387,21 @@ $ndt = 0;
     }
 
 ##########
+     if($jbsubmit[$ndt] >= 1 ) {
 
+     $rtdone[$ndt]    = ($jbdone[$ndt]/$jbsubmit[$ndt])*100;
+     $rtinfail[$ndt]  = ($jbinfail[$ndt]/$jbsubmit[$ndt])*100;
+     $rtoutfail[$ndt] = ($jboutfail[$ndt]/$jbsubmit[$ndt])*100;
+     $rtcrsfail[$ndt] = ($jbcrsfail[$ndt]/$jbsubmit[$ndt])*100;
+     $rtcrash[$ndt]   = ($jbcrash[$ndt]/$jbsubmit[$ndt])*100;
+
+     }else{
+     $rtdone[$ndt]    = 0;
+     $rtinfail[$ndt]  = 0;
+     $rtoutfail[$ndt] = 0;
+     $rtcrsfail[$ndt] = 0;
+     $rtcrash[$ndt]   = 0;
+     }
      $ndt++;
    }
 
@@ -508,6 +537,22 @@ $ndt = 0;
     }else{
      $jbcrash[$ndt] = 0;
     }
+############
+      if($jbsubmit[$ndt] >= 1 ) {
+
+     $rtdone[$ndt]    = ($jbdone[$ndt]/$jbsubmit[$ndt])*100;
+     $rtinfail[$ndt]  = ($jbinfail[$ndt]/$jbsubmit[$ndt])*100;
+     $rtoutfail[$ndt] = ($jboutfail[$ndt]/$jbsubmit[$ndt])*100;
+     $rtcrsfail[$ndt] = ($jbcrsfail[$ndt]/$jbsubmit[$ndt])*100;
+     $rtcrash[$ndt]   = ($jbcrash[$ndt]/$jbsubmit[$ndt])*100;
+
+     }else{
+     $rtdone[$ndt]    = 0;
+     $rtinfail[$ndt]  = 0;
+     $rtoutfail[$ndt] = 0;
+     $rtcrsfail[$ndt] = 0;
+     $rtcrash[$ndt]   = 0;
+     }
 
 ##########
       $ndt++;
@@ -547,13 +592,15 @@ $ndt = 0;
 
  @data = ();
 
- $max_y = 6000;
+ $max_y = 120;
 
-      $ylabel = "Number of jobs";
-      $gtitle = "Distribution of number of submitted, done and failed jobs ";
+      $ylabel = "Percent of jobs";
+      $gtitle = "Percentage of submitted, done and failed jobs ";
 
 
-  @data = (\@ndate, \@jbsubmit, \@jbdone, \@jbinfail, \@jboutfail, \@jbcrsfail, \@jbheld, \@jbcrash );
+#  @data = (\@ndate, \@jbsubmit, \@jbdone, \@jbinfail, \@jboutfail, \@jbcrsfail, \@jbheld, \@jbcrash );
+
+  @data = (\@ndate, \@rtdone, \@rtinfail, \@rtoutfail, \@rtcrsfail, \@rtheld, \@rtcrash );
 
 
   my $xLabelsVertical = 1;
@@ -568,7 +615,7 @@ $ndt = 0;
 
   $xLabelSkip = $skipnum;
 
-       $graph->set(x_label => "Date of files transferring from/to HPSS",
+       $graph->set(x_label => "Date of jobs submission",
                     y_label => $ylabel,
                     title   => $gtitle,
                     y_tick_number => 14,
