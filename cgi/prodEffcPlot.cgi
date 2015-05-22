@@ -47,11 +47,8 @@ my $lastdate;
 
 
 my @arperiod = ( );
-my $mstr;
 
 my @arrprod = ();
-my $nst = 0;
-my $str;
 my $npr = 0;
 my $mpr;
 
