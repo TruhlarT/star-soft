@@ -582,19 +582,19 @@ $ndt = 0;
 
     } else {
 
- $legend[0] = "jobs done         ";
+ $legend[0] = "jobs done ";
  $legend[1] = "HPSS import failed";
  $legend[2] = "HPSS export failed";
- $legend[3] = "CRS errors        ";
- $legend[4] = "jobs held         ";
- $legend[5] = "jobs crashed      ";
+ $legend[3] = "CRS errors ";
+ $legend[4] = "jobs held  ";
+ $legend[5] = "jobs crashed ";
 
  @data = ();
 
  $max_y = 120;
 
       $ylabel = "Percent of jobs";
-      $gtitle = "Percentage of submitted, done and failed jobs ";
+      $gtitle = "Percentage of submitted, done and failed jobs for $qprod";
 
 
 #  @data = (\@ndate, \@jbsubmit, \@jbdone, \@jbinfail, \@jboutfail, \@jbcrsfail, \@jbheld, \@jbcrash );
