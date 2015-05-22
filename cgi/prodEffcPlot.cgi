@@ -158,14 +158,12 @@ my $query = new CGI;
 
 my $scriptname = $query->url(-relative=>1);
 
-#my $pryear = $query->param('pyear');
 
 my $qperiod = $query->param('period');
 my $qprod   = $query->param('prod');
-my $srate   = $query->param('prate');
 
 
-if( $qprod eq "" and $qperiod eq ""  and $srate eq "" ) {
+if( $qprod eq "" and $qperiod eq ""  ) {
 
     print $query->header();
     print $query->start_html('Production CPU usage');
@@ -195,16 +193,6 @@ END
 	                          -values=>\@arrprod,
 	                          -default=>all2014,
       			          -size =>1);
-
-  
-   print "<p>";
-    print "</td><td>";
-    print "<h3 align=center> CPU/evt, Realtime/CPU, <br> total time of job's execution, <br> number of events and <br>jobs processed per day</h3>";
-    print "<h4 align=center>";
-    print  $query->scrolling_list(-name=>'prate',
-                                  -values=>\@arrate,
-                                  -default=>cpu,
-                                  -size =>1);
 
 
     print "<p>";
@@ -239,7 +227,6 @@ END
 
     my $qprod   = $qqr->param('prod');
     my $qperiod = $qqr->param('period');    
-    my $srate   = $qqr->param('prate');
     
  # Tables
 
