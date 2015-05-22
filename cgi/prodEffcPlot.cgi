@@ -376,6 +376,145 @@ $ndt = 0;
      $ndt++;
    }
 
+  }else{
+
+  foreach my $tdate (@ardays) {
+
+     $ndate[$ndt] = $tdate;
+
+  $sql="SELECT count(jobfileName) FROM $JobStatusT WHERE (submitTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and prodSeries = ? ";
+
+     $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+     $cursor->execute($qprod);
+
+   my $njobs = $cursor->fetchrow ;
+
+     $cursor->finish();
+
+     $jbsubmit[$ndt] = $njobs;
+
+#########
+
+   $sql="SELECT count(jobfileName) FROM $JobStatusT WHERE (submitTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and prodSeries = ? AND jobStatus = 'Done' ";
+
+     $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+     $cursor->execute($qprod);
+
+    my $njobs = $cursor->fetchrow ;
+
+     $cursor->finish();
+
+    if( defined $njobs) {
+
+     $jbdone[$ndt] = $njobs;
+    }else{
+     $jbdone[$ndt] = 0;
+    }
+
+##########
+
+    $sql="SELECT count(jobfileName) FROM $JobStatusT WHERE (submitTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and prodSeries = ? AND inputHpssStatus like 'error%' ";
+
+     $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+     $cursor->execute($qprod);
+
+    my $njobs = $cursor->fetchrow ;
+
+     $cursor->finish();
+
+    if( defined $njobs) {
+
+     $jbinfail[$ndt] = $njobs;
+    }else{
+     $jbinfail[$ndt] = 0;
+    }
+
+##########
+
+    $sql="SELECT count(jobfileName) FROM $JobStatusT WHERE (submitTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and prodSeries = ? AND crsError = 'error_60' ";
+
+     $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+     $cursor->execute($qprod);
+
+    my $njobs = $cursor->fetchrow ;
+
+     $cursor->finish();
+
+    if( defined $njobs) {
+
+     $jboutfail[$ndt] = $njobs;
+    }else{
+     $jboutfail[$ndt] = 0;
+    }
+
+##########
+
+    $sql="SELECT count(jobfileName) FROM $JobStatusT WHERE (submitTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and prodSeries = ? AND (crsError = 'error_10' or crsError = 'error_50') ";
+
+     $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+     $cursor->execute($qprod);
+
+    my $njobs = $cursor->fetchrow ;
+
+     $cursor->finish();
+
+    if( defined $njobs) {
+
+     $jbcrsfail[$ndt] = $njobs;
+    }else{
+     $jbcrsfail[$ndt] = 0;
+    }
+
+#########
+
+
+    $sql="SELECT count(jobfileName) FROM $JobStatusT WHERE (submitTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and prodSeries = ? AND crsError = 'error_held'  ";
+
+     $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+     $cursor->execute($qprod);
+
+    my $njobs = $cursor->fetchrow ;
+
+     $cursor->finish();
+
+    if( defined $njobs) {
+
+     $jbheld[$ndt] = $njobs;
+    }else{
+     $jbheld[$ndt] = 0;
+    }
+
+#########
+
+    $sql="SELECT count(jobfileName) FROM $JobStatusT WHERE (submitTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and  prodSeries = ? AND jobStatus <> 'Done' and jobStatus <> 'n/a' ";
+
+     $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+     $cursor->execute($qprod);
+
+    my $njobs = $cursor->fetchrow ;
+
+     $cursor->finish();
+
+    if( defined $njobs) {
+
+     $jbcrash[$ndt] = $njobs;
+    }else{
+     $jbcrash[$ndt] = 0;
+    }
+
+##########
+      $ndt++;
+
+    }
+
+######## $qprod all2014
   }
 
 ############
