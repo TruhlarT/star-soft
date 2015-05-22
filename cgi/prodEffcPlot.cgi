@@ -4,7 +4,7 @@
 # $Id:
 #
 # L. Didenko 
-# prodEffcPlot.cgi - scripts for production efficiency plot
+# jobsCpuHist.pl to get distribution of CPU, realtime/cpu, total stream jobs execution time
 #
 #########################################################################################################
 
@@ -22,6 +22,7 @@ use Class::Struct;
 
 $dbhost="duvall.star.bnl.gov";
 
+#$dbhost="fc2.star.bnl.gov:3386";
 $dbuser="starreco";
 $dbpass="";
 $dbname="operation";
