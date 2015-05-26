@@ -393,6 +393,7 @@ $ndt = 0;
      $rtinfail[$ndt]  = ($jbinfail[$ndt]/$jbsubmit[$ndt])*100;
      $rtoutfail[$ndt] = ($jboutfail[$ndt]/$jbsubmit[$ndt])*100;
      $rtcrsfail[$ndt] = ($jbcrsfail[$ndt]/$jbsubmit[$ndt])*100;
+     $rtheld[$ndt]    = ($jbheld[$ndt]/$jbsubmit[$ndt])*100;
      $rtcrash[$ndt]   = ($jbcrash[$ndt]/$jbsubmit[$ndt])*100;
 
      }else{
@@ -400,6 +401,7 @@ $ndt = 0;
      $rtinfail[$ndt]  = 0;
      $rtoutfail[$ndt] = 0;
      $rtcrsfail[$ndt] = 0;
+     $rtheld[$ndt]    = 0;
      $rtcrash[$ndt]   = 0;
      }
      $ndt++;
@@ -544,6 +546,7 @@ $ndt = 0;
      $rtinfail[$ndt]  = ($jbinfail[$ndt]/$jbsubmit[$ndt])*100;
      $rtoutfail[$ndt] = ($jboutfail[$ndt]/$jbsubmit[$ndt])*100;
      $rtcrsfail[$ndt] = ($jbcrsfail[$ndt]/$jbsubmit[$ndt])*100;
+     $rtheld[$ndt]    = ($jbheld[$ndt]/$jbsubmit[$ndt])*100;
      $rtcrash[$ndt]   = ($jbcrash[$ndt]/$jbsubmit[$ndt])*100;
 
      }else{
@@ -551,6 +554,7 @@ $ndt = 0;
      $rtinfail[$ndt]  = 0;
      $rtoutfail[$ndt] = 0;
      $rtcrsfail[$ndt] = 0;
+     $rtheld[$ndt]    = 0;
      $rtcrash[$ndt]   = 0;
      }
 
