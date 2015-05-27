@@ -32,6 +32,8 @@ my @data = ();
 my @legend = ();
 
 my @prod_set = (
+                "daq_ittf/year_2015/production_pp200long_2015",
+                "daq_ittf/year_2015/production_pp200long.nohft_2015",
                 "daq_ittf/year_2014/AuAu200_production_mid_2014",
                 "daq_ittf/year_2014/AuAu200_production_low_2014",
                 "daq_ittf/year_2014/AuAu200_production_low.nohft_2014",
@@ -87,6 +89,7 @@ my @prod_set = (
                 "daq_ittf/year_2001/ppMinBias",
                 "daq_ittf/year_2000/minbias",
                 "daq_ittf/year_2000/central",
+                "trs_ittf/year_2015/pp200_minbias",
                 "trs_ittf/year_2014/auau200_minbias",
                 "trs_ittf/year_2012/pp500_minbias",
                 "trs_ittf/year_2012/pp200_minbias",
@@ -118,24 +121,18 @@ my @prod_set = (
 
 
 my @myplot =   (
-		"MemUsage",
-                "CPU_per_Event",
-		"RealTime_per_Event",
                 "Average_NoTracks",
 		"Average_NoPrimaryT",
                 "Average_NoTracksNfit15",
 		"Average_NoPrimaryTNfit15",
                 "Average_NoPrimVertex",
                 "NoEvent_vertex",                 
-                "Average_NoV0Vrt",
-		"Average_NoXiVrt",
                 "Percent_of_usableEvents",
                 "Average_NoTracks_per_usableEvent",
-		"Average_NoPrimTrack_per_usableEvent",
                 "Average_NoTracksNfit15_per_usableEvent",
-		"Average_NoPrimTrackNfit15_per_usableEvent",                 
-                "Average_NoV0_per_usableEvent",
-		"Average_NoXi_uper_sableEvent",
+		"MemUsage",
+                "CPU_per_Event",
+		"RealTime_per_Event",
                   );   
 
 
@@ -149,15 +146,9 @@ my %plotHash = (
                 Average_NoPrimaryTNfit15  => 'avg_no_primaryTnfit15',
                 Average_NoPrimVertex => 'avgNoVtx_evt',
                 NoEvent_vertex => 'NoEventVtx',
-                Average_NoV0Vrt => 'avg_no_V0Vrt',
-                Average_NoXiVrt => 'avg_no_XiVrt',
                 Percent_of_usableEvents => 'percent_of_usable_evt',
                 Average_NoTracks_per_usableEvent => 'avgNoTrack_usbevt',
-#                Average_NoPrimTrack_per_usableEvent => 'avgNoPrTrack_1vtx_usbevt',
                 Average_NoTracksNfit15_per_usableEvent => 'avgNoTrackNfit15_usbevt',
-#                Average_NoPrimTrackNfit15_per_usableEvent => 'avgNoPrTrackNfit15_1vtx_usbevt',
-#                Average_NoV0_per_usableEvent => 'avgNoV0_usbevt',
-#                Average_NoXi_per_sableEvent => 'avgNoXi_usbevt',
                );
 
 
