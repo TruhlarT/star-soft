@@ -138,7 +138,6 @@ my @myplot =   (
                 "MemUsage",
                 "CPU_per_Event",
                 "RealTime_per_Event",
-                "RealTime_per_CPU",
                   );   
 
 
@@ -154,8 +153,7 @@ my %plotHash = (
                 Average_NoTracksNfit15_per_usableEvent => 'avgNoTrackNfit15_usbevt',
                 MemUsage => 'memUsageF, memUsageL',
                 CPU_per_Event => 'CPU_per_evt_sec',
-                RealTime_per_Event  => 'RealTime_per_evt',         
-                RealTime_per_CPU => 'RealTime_per_evt, CPU_per_evt_sec',
+                RealTime_per_Event  => 'RealTime_per_evt'         
     );
 
 my $min_y = 0;
