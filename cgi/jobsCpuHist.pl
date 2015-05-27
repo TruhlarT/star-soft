@@ -946,7 +946,7 @@ if($qprod eq "P14ia" ) {
  }elsif($qprod eq "P15ib" ){
      $max_y = 7000 ;
  }elsif($qprod eq "P15ic" or $qprod eq "P15ie"){
-     $max_y = 8400 ;
+     $max_y = 11200 ;
  }else{
      $max_y = 8400 ;
  }
