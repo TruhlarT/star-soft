@@ -429,7 +429,6 @@ END
         $nowdate = $todate;
     }
       
-
     $sql="SELECT DISTINCT date_format(createTime, '%Y-%m-%d' ) as PDATE  FROM $JobStatusT WHERE prodSeries = ?  AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) < ?  order by createTime";
 
     $cursor =$dbh->prepare($sql)
@@ -476,7 +475,6 @@ END
           }elsif( $arstream[$ik] eq "W" or $arstream[$ik] eq "WE" or $arstream[$ik] eq "WB"  ) {
 	      $nwb = $narray[$ik];
          } 
-
     }
   }
 
@@ -851,18 +849,22 @@ END
 
 	       if ( $pstream eq "physics" ) {
 	       $cpphysics[$ndt]++;
+               $rtphysics[$ndt] = $cpphysics[$ndt]*100/$nphysics;
 #              }elsif( $pstream eq "centralpro" ) {
 #               $cpcentralpro[$ndt]++; 
 	      }elsif( $pstream eq "mtd" ) {
                $cpmtd[$ndt]++;
+               $rtmtd[$ndt] = $cpmtd[$ndt]*100/$nmtd;
 #              }elsif( $pstream eq "upsilon" ) {
 #               $cpupsilon[$ndt]++; 
 #              }elsif( $pstream eq "gamma" ) {
 #               $cpgamma[$ndt]++; 
               }elsif( $pstream eq "hlt" ) {
-               $cphlt[$ndt]++;  
+               $cphlt[$ndt]++; 
+               $rthlt[$ndt] = $cphlt[$ndt]*100/$nhlt; 
               }elsif( $pstream eq "fms" ) {
                $cpfmsfast[$ndt]++; 
+               $rtfms[$ndt] =  $cpfmsfast[$ndt]*100/$nfms;
 #              }elsif( $pstream eq "ht" ) {
 #               $cpht[$ndt]++;  
 #              }elsif( $pstream eq "atomcules" ) {
@@ -870,11 +872,14 @@ END
 #              }elsif( $pstream eq "monitor" ) {
 #               $cpmonitor[$ndt]++;  
               }elsif( $pstream eq "hltgood" ) {
-               $cphltgood[$ndt]++;   
+               $cphltgood[$ndt]++;
+               $rthltgood[$ndt] = $cphltgood[$ndt]*100/$nhltgood;   
               }elsif( $pstream eq "upc" ) {
                $cpupc[$ndt]++;
+               $rtupc[$ndt] = $rpupc[$ndt]*100/$nupc ;
               }elsif( $pstream eq "W" or $pstream eq "WE" or $pstream eq "WB" ) {
                $cpwb[$ndt]++;
+               $rtwb[$ndt] = $cpwb[$ndt]*100/$nwb ;
 	       }
 	    }
 	}
@@ -972,17 +977,17 @@ my $ynum = 14;
 
  @data = ();
 
- if($qprod eq "P14ia" or $qprod eq "P14ig") {
-     $max_y = 14000 ;
- }elsif($qprod eq "P14ii" ) {
-     $max_y = 7000 ;
- }elsif($qprod eq "P15ib" ){
-     $max_y = 7000 ;
- }elsif($qprod eq "P15ic" or $qprod eq "P15ie" ){
-     $max_y = 21000 ;
- }else{
-     $max_y = 21000 ;
-}
+# if($qprod eq "P14ia" or $qprod eq "P14ig") {
+#     $max_y = 14000 ;
+# }elsif($qprod eq "P14ii" ) {
+#     $max_y = 7000 ;
+# }elsif($qprod eq "P15ib" ){
+#     $max_y = 7000 ;
+# }elsif($qprod eq "P15ic" or $qprod eq "P15ie" ){
+#     $max_y = 21000 ;
+# }else{
+#     $max_y = 21000 ;
+#}
 
  $ynum = 14;
 
@@ -994,8 +999,9 @@ my $ynum = 14;
 
 #    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cphltgood, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cpfmsfast ) ; 
 
-   @data = (\@ndate, \@cpphysics, \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfmsfast ) ; 
+#   @data = (\@ndate, \@cpphysics, \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfmsfast ) ; 
 
+   @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtfms ) ; 
 
       }elsif( $srate eq "rtime/cpu"){
 
