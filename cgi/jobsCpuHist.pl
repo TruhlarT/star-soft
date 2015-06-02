@@ -1036,23 +1036,24 @@ if($qprod eq "P14ia" ) {
  @data = ();
 
 
-# if($qprod eq "P14ia" ) {
-#     $max_y = 2800 ;
-# }elsif($qprod eq "P14ig" ) {
-#     $max_y = 14000 ;
-# }elsif($qprod eq "P14ii" ) {
-#     $max_y = 2800 ;
-# }elsif($qprod eq "P15ib" ){
-#     $max_y = 7000 ;
-# }elsif($qprod eq "P15ic" or $qprod eq "P15ie"){
-#     $max_y = 11200 ;
-# }else{
-#     $max_y = 11200 ;
-# }
+ if($qprod eq "P14ia" ) {
+     $max_y = 2800 ;
+ }elsif($qprod eq "P14ig" ) {
+     $max_y = 14000 ;
+ }elsif($qprod eq "P14ii" ) {
+     $max_y = 2800 ;
+ }elsif($qprod eq "P15ib" ){
+     $max_y = 7000 ;
+ }elsif($qprod eq "P15ic" or $qprod eq "P15ie"){
+     $max_y = 11200 ;
+ }else{
+     $max_y = 11200 ;
+ }
 
- $max_y = 100 ;
- $ynum = 20;
+# $max_y = 100 ;
+# $ynum = 20;
 
+ $ynum = 14;
         $xlabel = "Job's execution time on the farm in hours";
         $ylabel = "Percentage of jobs";         
 	$gtitle = "Execution time for different stream jobs in $qprod production ";
@@ -1063,7 +1064,10 @@ if($qprod eq "P14ia" ) {
 
 #    @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbhltgood, \@jbmtd, \@jbupc, \@jbwb, \@jbfmsfast ) ;
 
-    @data = (\@ndate, \@rtphysics, \@rthlt, \@rtmtd, \@rtupc ) ;
+#    @data = (\@ndate, \@rtphysics, \@rthlt, \@rtmtd, \@rtupc ) ;
+
+    @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbmtd, \@jbupc ) ;
+
 
      }elsif( $srate eq "events"){
 
