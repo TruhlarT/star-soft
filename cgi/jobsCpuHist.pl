@@ -614,16 +614,21 @@ END
 
 	   if ( $pstream eq "physics" ) {
 	       $jbphysics[$ndt]++;
+               $rtphysics[$ndt] = $jbphysics[$ndt]*100/$nphysics;
+
 #           }elsif( $pstream eq "centralpro" ) {
 #               $jbcentral[$ndt]++; 
 	   }elsif( $pstream eq "mtd" ) {
                $jbmtd[$ndt]++;
+               $rtmtd[$ndt] = $jbmtd[$ndt]*100/$nmtd;
+
 #           }elsif( $pstream eq "upsilon" ) {
 #               $jbupsilon[$ndt]++; 
 #           }elsif( $pstream eq "gamma" ) {
 #               $jbgamma[$ndt]++; 
            }elsif( $pstream eq "hlt" ) {
                $jbhlt[$ndt]++;  
+               $rthlt[$ndt] = $jbhlt[$ndt]*100/$nhlt;
            }elsif( $pstream eq "fms" ) {
                $jbfmsfast[$ndt]++; 
 #           }elsif( $pstream eq "ht" ) {
@@ -636,34 +641,12 @@ END
                $jbhltgood[$ndt]++;   
            }elsif( $pstream eq "upc" ) {
                $jbupc[$ndt]++;
+               $rtupc[$ndt] = $jbupc[$ndt]*100/$nupc ;
            }elsif( $pstream eq "W" or $pstream eq "WE" or $pstream eq "WB" ) {
                $jbwb[$ndt]++;
 	       }
  	    }
     }
-     if($nphysics > 1 ) {
-
- for ($j = 0; $j < scalar(@jbphysics); $j++) {
-     $rtphysics[$j] = int($jbphysics[$j]*100/$nphysics) ;
-     }
-  }
-     if($nmtd > 1 ) {
- for ($j = 0; $j < scalar(@jbmtd); $j++) {
-
-     $rtmtd[$j] = int($jbmtd[$j]*100/$nmtd);
-     }
-}
-     if($nhlt > 1 ) {
- for ($j = 0; $j < scalar(@jbhlt); $j++) {
-     $rthlt[$j] = int($jbhlt[$j]*100/$nhlt);
-     }
-}
-     if($nupc > 1 ) {
- for ($j = 0; $j < scalar(@jbupc); $j++) {
-     $rtupc[$j] = int($jbupc[$j]*100/$nupc);
-     }
- }
-
 
 
  }elsif( $srate eq "events" ) {
@@ -1036,24 +1019,25 @@ if($qprod eq "P14ia" ) {
  @data = ();
 
 
- if($qprod eq "P14ia" ) {
-     $max_y = 2800 ;
- }elsif($qprod eq "P14ig" ) {
-     $max_y = 14000 ;
- }elsif($qprod eq "P14ii" ) {
-     $max_y = 2800 ;
- }elsif($qprod eq "P15ib" ){
-     $max_y = 7000 ;
- }elsif($qprod eq "P15ic" or $qprod eq "P15ie"){
-     $max_y = 11200 ;
- }else{
-     $max_y = 11200 ;
- }
+# if($qprod eq "P14ia" ) {
+#     $max_y = 2800 ;
+# }elsif($qprod eq "P14ig" ) {
+#     $max_y = 14000 ;
+# }elsif($qprod eq "P14ii" ) {
+#     $max_y = 2800 ;
+# }elsif($qprod eq "P15ib" ){
+#     $max_y = 7000 ;
+# }elsif($qprod eq "P15ic" or $qprod eq "P15ie"){
+#     $max_y = 11200 ;
+# }else{
+#     $max_y = 11200 ;
+# }
 
 # $max_y = 100 ;
-# $ynum = 20;
 
- $ynum = 14;
+ $ynum = 20;
+
+# $ynum = 14;
         $xlabel = "Job's execution time on the farm in hours";
         $ylabel = "Percentage of jobs";         
 	$gtitle = "Execution time for different stream jobs in $qprod production ";
@@ -1064,9 +1048,9 @@ if($qprod eq "P14ia" ) {
 
 #    @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbhltgood, \@jbmtd, \@jbupc, \@jbwb, \@jbfmsfast ) ;
 
-#    @data = (\@ndate, \@rtphysics, \@rthlt, \@rtmtd, \@rtupc ) ;
+    @data = (\@ndate, \@rtphysics, \@rthlt, \@rtmtd, \@rtupc ) ;
 
-    @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbmtd, \@jbupc ) ;
+#    @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbmtd, \@jbupc ) ;
 
 
      }elsif( $srate eq "events"){
