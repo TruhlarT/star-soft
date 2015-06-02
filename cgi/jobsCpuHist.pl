@@ -142,6 +142,8 @@ my $nhlt = 0;
 my $nupc = 0;
 my $nstrsum = 0;
 
+my @narray = ();
+
   &StDbProdConnect();
 
 
@@ -302,12 +304,15 @@ END
   my $jobtotbin = 0;
   my $strname ;
 
+  @narray = ();
+  @arstream = ();
+
  $nphysics = 0;
  $nmtd = 0;
  $nhlt = 0;
  $nupc = 0;
  $nstrsum = 0;
-
+ $nst = 0;
  
   if ( $qperiod =~ /month/) {
         @prt = split("_", $qperiod);
@@ -325,19 +330,7 @@ END
 
   if($qprod eq "all2014" ) {
 
-    $sql="SELECT DISTINCT streamName  FROM $JobStatusT where (prodSeries = 'P15ic' or prodSeries = 'P15ie') ";
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
-
-       while( $str = $cursor->fetchrow() ) {
-          $arstream[$nst] = $str;
-          $nst++;
-       }
-    $cursor->finish();
-
-
+ 
 ###########   max createTime
 
       $sql="SELECT max(date_format(createTime, '%Y-%m-%d' ))  FROM $JobStatusT where (prodSeries = 'P15ic' or prodSeries = 'P15ie') ";
@@ -376,36 +369,28 @@ END
 
     while( @fields = $cursor->fetchrow) {
        
-    $strname = $fields[1];
-    if( $strname eq "physics" ) {
-      $nphysics =  $fields[0];
-   }elsif( $strname eq "mtd" ) {
-      $nmtd =  $fields[0]; 
-   }elsif( $strname eq "hlt" ) {
-      $nhlt =  $fields[0]; 
-   }elsif( $strname eq "upc" ) {
-      $nupc =  $fields[0]; 
-   }else{
-      $nstrsum = $fields[0];
-   }
+      $narray[$nst] = $fields[0];
+      $arstream[$nst] = $fields[1];
+      $nst++;
 
     }
-         $cursor->finish();
+ 
+        $cursor->finish();
+
+      for ($ik = 0; $ik<scalar(@arstream); $ik++){
+	  if( $arstream[$ik] eq "physics" ) {
+	      $nphysics = $narray[$ik];
+	  }elsif( $arstream[$ik] eq "mtd" ) {
+	      $nmtd = $narray[$ik];
+	  }elsif( $arstream[$ik] eq "hlt" ) {
+	      $nhlt = $narray[$ik];
+	  }elsif( $arstream[$ik] eq "upc" ) {
+	      $nupc = $narray[$ik];
+          }
+      } 
+
 
   }else{
-
-      $sql="SELECT DISTINCT streamName  FROM $JobStatusT where prodSeries = ? ";
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute($qprod);
-
-       while( $str = $cursor->fetchrow() ) {
-          $arstream[$nst] = $str;
-          $nst++;
-       }
-    $cursor->finish();
-
 
 ###########   max createTime
 
@@ -443,7 +428,6 @@ END
 
          $cursor->finish();
 
-  }
 
     $sql="SELECT sum(NoEvents), streamName  FROM $JobStatusT WHERE prodSeries = ? AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) < ?  group by streamName ";
 
@@ -452,23 +436,28 @@ END
     $cursor->execute($qprod,$day_diff);
 
     while( @fields = $cursor->fetchrow) {
+
        
-    $strname = $fields[1];
-    if( $strname eq "physics" ) {
-      $nphysics =  $fields[0];
-   }elsif( $strname eq "mtd" ) {
-      $nmtd =  $fields[0]; 
-   }elsif( $strname eq "hlt" ) {
-      $nhlt =  $fields[0]; 
-   }elsif( $strname eq "upc" ) {
-      $nupc =  $fields[0]; 
-   }else{
-      $nstrsum = $fields[0];
-   }
-    }
+      $narray[$nst] = $fields[0];
+      $arstream[$nst] = $fields[1];
+      $nst++;
+    }      
+
          $cursor->finish();
 
+      for ($ik = 0; $ik<scalar(@arstream); $ik++){
+	  if( $arstream[$ik] eq "physics" ) {
+	      $nphysics = $narray[$ik];
+	  }elsif( $arstream[$ik] eq "mtd" ) {
+	      $nmtd = $narray[$ik];
+	  }elsif( $arstream[$ik] eq "hlt" ) {
+	      $nhlt = $narray[$ik];
+	  }elsif( $arstream[$ik] eq "upc" ) {
+	      $nupc = $narray[$ik];
+          }
+      } 
 
+  }
 
   #####################
 
