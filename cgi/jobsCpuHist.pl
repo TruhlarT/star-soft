@@ -131,6 +131,11 @@ my @jbhltgood = ();
 my @jbcentralpro  = ();
 my @jbwb = ();
 
+my @rtphysics = ();
+my @rtmtd = ();
+my @rthlt = ();
+my @rtups = ();
+
 my $nphysics = 0;
 my $nmtd = 0;
 my $nhlt = 0;
@@ -511,6 +516,12 @@ END
  @jbcentralpro  = ();
  @jbwb = ();
 
+ @rtphysics = ();
+ @rtmtd = ();
+ @rthlt = ();
+ @rtups = ();
+ 
+
  @nevents = ();
  @numjobs = ();
 
@@ -630,19 +641,26 @@ END
 	       }
  	    }
     }
-
- for ($j = 0; $j < 120; $j++) {
      if($nphysics > 1 ) {
-     $jbphysics[$j] = int($jbphysics[$j]*100/$nphysics) ;
+
+ for ($j = 0; $j < scalar(@jbphysics); $j++) {
+     $rtphysics[$j] = int($jbphysics[$j]*100/$nphysics) ;
      }
+  }
      if($nmtd > 1 ) {
-     $jbmtd[$j] = int($jbmtd[$j]*100/$nmtd);
+ for ($j = 0; $j < scalar(@jbmtd); $j++) {
+
+     $rtmtd[$j] = int($jbmtd[$j]*100/$nmtd);
      }
+}
      if($nhlt > 1 ) {
-     $jbhlt[$j] = int($jbhlt[$j]*100/$nhlt);
+ for ($j = 0; $j < scalar(@jbhlt); $j++) {
+     $rthlt[$j] = int($jbhlt[$j]*100/$nhlt);
      }
+}
      if($nupc > 1 ) {
-     $jbupc[$j] = int($jbupc[$j]*100/$nupc);
+ for ($j = 0; $j < scalar(@jbupc); $j++) {
+     $rtupc[$j] = int($jbupc[$j]*100/$nupc);
      }
  }
 
@@ -1043,9 +1061,9 @@ if($qprod eq "P14ia" ) {
 
 #    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfmsfast ) ;
 
-    @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbhltgood, \@jbmtd, \@jbupc, \@jbwb, \@jbfmsfast ) ;
+#    @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbhltgood, \@jbmtd, \@jbupc, \@jbwb, \@jbfmsfast ) ;
 
-
+    @data = (\@ndate, \@rtphysics, \@rthlt, \@rtmtd, \@rtupc ) ;
 
      }elsif( $srate eq "events"){
 
