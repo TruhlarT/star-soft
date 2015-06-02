@@ -302,7 +302,6 @@ END
   my $cpubin = 0;
   my $rcpubin = 0;
   my $jobtotbin = 0;
-  my $strname ;
 
   @narray = ();
   @arstream = ();
@@ -361,7 +360,7 @@ END
          $cursor->finish();
 
 
-    $sql="SELECT sum(NoEvents), streamName  FROM $JobStatusT WHERE (prodSeries = 'P15ic' or prodSeries = 'P15ie') AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) < ?  group by streamName ";
+    $sql="SELECT count(jobfileName), streamName  FROM $JobStatusT WHERE (prodSeries = 'P15ic' or prodSeries = 'P15ie') AND  runDay <> '0000-00-00' AND jobStatus = 'Done' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) < ?  group by streamName ";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
