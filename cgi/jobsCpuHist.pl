@@ -1002,8 +1002,8 @@ my $ynum = 14;
 
  @data = ();
 
- $max_y = 60;
- $ynum = 14;
+ $max_y = 40;
+ $ynum = 20;
 
         $xlabel = "Ratio RealTime/CPU";
         $ylabel = "Percentage of jobs";
