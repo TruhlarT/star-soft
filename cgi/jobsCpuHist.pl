@@ -989,7 +989,7 @@ my $ynum = 14;
  $ynum = 14;
 
 	$xlabel = "CPU in sec/evt";
-        $ylabel = "Percentage of jobs";
+        $ylabel = "Percentage of jobs (%)";
 	$gtitle = "CPU in sec/evt for different stream jobs in $qprod production ";
 
 
@@ -1006,7 +1006,7 @@ my $ynum = 14;
  $ynum = 20;
 
         $xlabel = "Ratio RealTime/CPU";
-        $ylabel = "Percentage of jobs";
+        $ylabel = "Percentage of jobs (%)";
 	$gtitle = "Ratios RealTime/CPU for different stream jobs in $qprod production ";
 
   
@@ -1026,7 +1026,7 @@ my $ynum = 14;
 
 
         $xlabel = "Job's execution time on the farm in hours";
-        $ylabel = "Percentage of jobs";         
+        $ylabel = "Percentage  of jobs (%)";         
 	$gtitle = "Execution time for different stream jobs in $qprod production ";
   
 
