@@ -633,16 +633,16 @@ END
 
  for ($j = 0; $j < 120; $j++) {
      if($nphysics > 1 ) {
-     $jbphysics[$j] = ($jbphysics[$j]/$nphysics)*100. ;
+     $jbphysics[$j] = int($jbphysics[$j]*100/$nphysics) ;
      }
      if($nmtd > 1 ) {
-     $jbmtd[$j] = ($jbmtd[$j]/$nmtd)*100.;
+     $jbmtd[$j] = int($jbmtd[$j]*100/$nmtd);
      }
      if($nhlt > 1 ) {
-     $jbhlt[$j] = ($jbhlt[$j]/$nhlt)*100.;
+     $jbhlt[$j] = int($jbhlt[$j]*100/$nhlt);
      }
      if($nupc > 1 ) {
-     $jbupc[$j] = ($jbupc[$j]/$nupc)*100.;
+     $jbupc[$j] = int($jbupc[$j]*100/$nupc);
      }
  }
 
@@ -1032,8 +1032,8 @@ if($qprod eq "P14ia" ) {
 #     $max_y = 11200 ;
 # }
 
- $max_y = 120 ;
- $ynum = 12;
+ $max_y = 100 ;
+ $ynum = 20;
 
         $xlabel = "Job's execution time on the farm in hours";
         $ylabel = "Percentage of jobs";         
@@ -1044,6 +1044,8 @@ if($qprod eq "P14ia" ) {
 #    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfmsfast ) ;
 
     @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbhltgood, \@jbmtd, \@jbupc, \@jbwb, \@jbfmsfast ) ;
+
+
 
      }elsif( $srate eq "events"){
 
