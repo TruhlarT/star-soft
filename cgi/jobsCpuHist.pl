@@ -909,21 +909,26 @@ END
 	   if($rte >= 0.98 and $rte <= 1.22 )     {
           $ndt = int(($rte - 0.98)/$rcpubin + 0.00001);
            $ndate[$ndt] = 0.98 + $rcpubin*$ndt;  
-
+           
 	       if ( $pstream eq "physics" ) {
 	       $arphysics[$ndt]++ ;
+               $rtphysics[$ndt] = $arphysics[$ndt]*100/$nphysics;
 #              }elsif( $pstream eq "centralpro" ) {
 #               $arcentralpro[$ndt]++ ;
 	      }elsif( $pstream eq "mtd" ) {
                $armtd[$ndt]++;
+               $rtmtd[$ndt] = $armtd[$ndt]*100/$nmtd;
+
 #              }elsif( $pstream eq "upsilon" ) {
 #               $arupsilon[$ndt]++ ;
 #              }elsif( $pstream eq "gamma" ) {
 #               $argamma[$ndt]++ ;
               }elsif( $pstream eq "hlt" ) {
                $arhlt[$ndt]++;
+               $rthlt[$ndt] = $arhlt[$ndt]*100/$nhlt;
               }elsif( $pstream eq "fms" ) {
                $arfmsfast[$ndt]++ ;
+               $rtfms[$ndt] =  $arfmsfast[$ndt]*100/$nfms;
 #              }elsif( $pstream eq "ht" ) {
 #               $arht[$ndt]++ ;
 #              }elsif( $pstream eq "atomcules" ) {
@@ -932,10 +937,13 @@ END
 #               $armonitor[$ndt]++ ;
               }elsif( $pstream eq "hltgood" ) {
                $arhltgood[$ndt]++ ;   
+               $rthltgood[$ndt] = $arhltgood[$ndt]*100/$nhltgood;
               }elsif( $pstream eq "upc" ) {
                $arupc[$ndt]++;
+               $rtupc[$ndt] = $arupc[$ndt]*100/$nupc ;
               }elsif( $pstream eq "W" or $pstream eq "WE" or $pstream eq "WB"  ) {
                $arwb[$ndt]++;
+               $rtwb[$ndt] = $arwb[$ndt]*100/$nwb ;
 	       }
 	    } 
 	   }
@@ -977,29 +985,16 @@ my $ynum = 14;
 
  @data = ();
 
-# if($qprod eq "P14ia" or $qprod eq "P14ig") {
-#     $max_y = 14000 ;
-# }elsif($qprod eq "P14ii" ) {
-#     $max_y = 7000 ;
-# }elsif($qprod eq "P15ib" ){
-#     $max_y = 7000 ;
-# }elsif($qprod eq "P15ic" or $qprod eq "P15ie" ){
-#     $max_y = 21000 ;
-# }else{
-#     $max_y = 21000 ;
-#}
-
+ $max_y = 28;
  $ynum = 14;
 
 	$xlabel = "CPU in sec/evt";
-        $ylabel = "Number of jobs";
+        $ylabel = "Percentage of jobs";
 	$gtitle = "CPU in sec/evt for different stream jobs in $qprod production ";
-
 
 
 #    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cphltgood, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cpfmsfast ) ; 
 
-#   @data = (\@ndate, \@cpphysics, \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfmsfast ) ; 
 
    @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtfms ) ; 
 
@@ -1007,24 +1002,11 @@ my $ynum = 14;
 
  @data = ();
 
-if($qprod eq "P14ia" ) {
-     $max_y = 42000 ;
- }elsif($qprod eq "P14ig" ) {
-     $max_y = 42000 ;
- }elsif($qprod eq "P14ii" ) {
-     $max_y = 5600 ;
- }elsif($qprod eq "P15ib" ){
-     $max_y = 14000 ;
- }elsif($qprod eq "P15ic" or $qprod eq "P15ie" ){
-     $max_y = 35000 ;
- }else{
-     $max_y = 35000 ;
-}
-
-    $ynum = 14;
+ $max_y = 60;
+ $ynum = 14;
 
         $xlabel = "Ratio RealTime/CPU";
-        $ylabel = "Number of jobs";
+        $ylabel = "Percentage of jobs";
 	$gtitle = "Ratios RealTime/CPU for different stream jobs in $qprod production ";
 
   
@@ -1032,37 +1014,20 @@ if($qprod eq "P14ia" ) {
 #    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@arhltgood, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfmsfast ) ;
 
 
-    @data = (\@ndate, \@arphysics, \@arhlt, \@arhltgood, \@armtd, \@arupc, \@arwb, \@arfmsfast ) ;
+    @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtfms ) ;
 
 
      }elsif( $srate eq "exectime"){
 
  @data = ();
 
-
-# if($qprod eq "P14ia" ) {
-#     $max_y = 2800 ;
-# }elsif($qprod eq "P14ig" ) {
-#     $max_y = 14000 ;
-# }elsif($qprod eq "P14ii" ) {
-#     $max_y = 2800 ;
-# }elsif($qprod eq "P15ib" ){
-#     $max_y = 7000 ;
-# }elsif($qprod eq "P15ic" or $qprod eq "P15ie"){
-#     $max_y = 11200 ;
-# }else{
-#     $max_y = 11200 ;
-# }
-
-
  $max_y = 20 ;
  $ynum = 20;
 
-# $ynum = 14;
+
         $xlabel = "Job's execution time on the farm in hours";
         $ylabel = "Percentage of jobs";         
 	$gtitle = "Execution time for different stream jobs in $qprod production ";
-
   
 
 #    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfmsfast ) ;
