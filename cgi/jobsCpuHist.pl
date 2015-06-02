@@ -384,6 +384,7 @@ END
       $nstrsum = $fields[0];
    }
 
+    }
          $cursor->finish();
 
   }else{
@@ -459,7 +460,7 @@ END
    }else{
       $nstrsum = $fields[0];
    }
-
+    }
          $cursor->finish();
 
 
