@@ -131,6 +131,12 @@ my @jbhltgood = ();
 my @jbcentralpro  = ();
 my @jbwb = ();
 
+my $nphysics = 0;
+my $nmtd = 0;
+my $nhlt = 0;
+my $nupc = 0;
+my $nstrsum = 0;
+
   &StDbProdConnect();
 
 
@@ -289,6 +295,13 @@ END
   my $cpubin = 0;
   my $rcpubin = 0;
   my $jobtotbin = 0;
+  my $strname ;
+
+ $nphysics = 0;
+ $nmtd = 0;
+ $nhlt = 0;
+ $nupc = 0;
+ $nstrsum = 0;
 
  
   if ( $qperiod =~ /month/) {
@@ -349,6 +362,30 @@ END
 
          $cursor->finish();
 
+
+    $sql="SELECT sum(NoEvents), streamName  FROM $JobStatusT WHERE (prodSeries = 'P15ic' or prodSeries = 'P15ie') AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) < ?  group by streamName ";
+
+    $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+    $cursor->execute($day_diff);
+
+    while( @fields = $cursor->fetchrow) {
+       
+    $strname = $fields[1];
+    if( $strname eq "physics" ) {
+      $nphysics =  $fields[0];
+   }elsif( $strname eq "mtd" ) {
+      $nmtd =  $fields[0]; 
+   }elsif( $strname eq "hlt" ) {
+      $nhlt =  $fields[0]; 
+   }elsif( $strname eq "upc" ) {
+      $nupc =  $fields[0]; 
+   }else{
+      $nstrsum = $fields[0];
+   }
+
+         $cursor->finish();
+
   }else{
 
       $sql="SELECT DISTINCT streamName  FROM $JobStatusT where prodSeries = ? ";
@@ -401,6 +438,30 @@ END
          $cursor->finish();
 
   }
+
+    $sql="SELECT sum(NoEvents), streamName  FROM $JobStatusT WHERE prodSeries = ? AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) < ?  group by streamName ";
+
+    $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+    $cursor->execute($qprod,$day_diff);
+
+    while( @fields = $cursor->fetchrow) {
+       
+    $strname = $fields[1];
+    if( $strname eq "physics" ) {
+      $nphysics =  $fields[0];
+   }elsif( $strname eq "mtd" ) {
+      $nmtd =  $fields[0]; 
+   }elsif( $strname eq "hlt" ) {
+      $nhlt =  $fields[0]; 
+   }elsif( $strname eq "upc" ) {
+      $nupc =  $fields[0]; 
+   }else{
+      $nstrsum = $fields[0];
+   }
+
+         $cursor->finish();
+
 
 
   #####################
@@ -568,6 +629,21 @@ END
 	       }
  	    }
     }
+
+ for ($j = 0; $j < 120; $j++) {
+     if($nphysics > 1 ) {
+     $jbphysics[$j] = ($jbphysics[$j]/$nphysics)*100. ;
+     }
+     if($nmtd > 1 ) {
+     $jbmtd[$j] = ($jbmtd[$j]/$nmtd)*100.;
+     }
+     if($nhlt > 1 ) {
+     $jbhlt[$j] = ($jbhlt[$j]/$nhlt)*100.;
+     }
+     if($nupc > 1 ) {
+     $jbupc[$j] = ($jbupc[$j]/$nupc)*100.;
+     }
+ }
 
 
 
@@ -852,6 +928,7 @@ END
 my @data = ();
 my $ylabel;
 my $gtitle; 
+my $ynum = 14;
 
     my $graph = new GD::Graph::linespoints(750,650);
 
@@ -890,6 +967,8 @@ my $gtitle;
      $max_y = 21000 ;
 }
 
+ $ynum = 14;
+
 	$xlabel = "CPU in sec/evt";
         $ylabel = "Number of jobs";
 	$gtitle = "CPU in sec/evt for different stream jobs in $qprod production ";
@@ -919,6 +998,7 @@ if($qprod eq "P14ia" ) {
      $max_y = 35000 ;
 }
 
+    $ynum = 14;
 
         $xlabel = "Ratio RealTime/CPU";
         $ylabel = "Number of jobs";
@@ -937,22 +1017,25 @@ if($qprod eq "P14ia" ) {
  @data = ();
 
 
- if($qprod eq "P14ia" ) {
-     $max_y = 2800 ;
- }elsif($qprod eq "P14ig" ) {
-     $max_y = 14000 ;
- }elsif($qprod eq "P14ii" ) {
-     $max_y = 2800 ;
- }elsif($qprod eq "P15ib" ){
-     $max_y = 7000 ;
- }elsif($qprod eq "P15ic" or $qprod eq "P15ie"){
-     $max_y = 11200 ;
- }else{
-     $max_y = 11200 ;
- }
+# if($qprod eq "P14ia" ) {
+#     $max_y = 2800 ;
+# }elsif($qprod eq "P14ig" ) {
+#     $max_y = 14000 ;
+# }elsif($qprod eq "P14ii" ) {
+#     $max_y = 2800 ;
+# }elsif($qprod eq "P15ib" ){
+#     $max_y = 7000 ;
+# }elsif($qprod eq "P15ic" or $qprod eq "P15ie"){
+#     $max_y = 11200 ;
+# }else{
+#     $max_y = 11200 ;
+# }
+
+ $max_y = 120 ;
+ $ynum = 12;
 
         $xlabel = "Job's execution time on the farm in hours";
-        $ylabel = "Number of jobs";         
+        $ylabel = "Percentage of jobs";         
 	$gtitle = "Execution time for different stream jobs in $qprod production ";
 
   
@@ -972,6 +1055,8 @@ if($qprod eq "P14ia" ) {
  }else{ 
      $max_y = 42000000 ;
  } 
+
+  $ynum = 14;
 
         $xlabel = "Date of jobs completion";
         $ylabel = "Number of events";         
@@ -998,6 +1083,8 @@ if($qprod eq "P14ia" ) {
  }else{ 
      $max_y = 9800 ;
  } 
+  $ynum = 14;
+
 
         $xlabel = "Date of jobs completion";
         $ylabel = "Number of jobs";         
@@ -1025,7 +1112,7 @@ if($qprod eq "P14ia" ) {
 	$graph->set(x_label => $xlabel,
 	            y_label => $ylabel,
                     title   => $gtitle,
-                    y_tick_number => 14,
+                    y_tick_number => $ynum,
                     x_label_position => 0.5,
                     y_min_value => $min_y,
                     y_max_value => $max_y,
