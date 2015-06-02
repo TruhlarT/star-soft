@@ -135,12 +135,19 @@ my @rtphysics = ();
 my @rtmtd = ();
 my @rthlt = ();
 my @rtups = ();
+my @rthltgood = ();
+my @rtfms = ();
+my @rtwb = ();
+
 
 my $nphysics = 0;
 my $nmtd = 0;
 my $nhlt = 0;
 my $nupc = 0;
 my $nstrsum = 0;
+my $nhltgood = 0;
+my $nfms = 0;
+my $nwb = 0;
 
 my @narray = ();
 
@@ -311,6 +318,9 @@ END
  $nhlt = 0;
  $nupc = 0;
  $nstrsum = 0;
+ $nhltgood = 0;
+ $nfms = 0;
+ $nwb = 0;
  $nst = 0;
  
   if ( $qperiod =~ /month/) {
@@ -385,6 +395,12 @@ END
 	      $nhlt = $narray[$ik];
 	  }elsif( $arstream[$ik] eq "upc" ) {
 	      $nupc = $narray[$ik];
+	  }elsif( $arstream[$ik] eq "hltgood" ) {
+	      $nhltgood = $narray[$ik];
+	  }elsif( $arstream[$ik] eq "fms" ) {
+	      $nfms = $narray[$ik];
+          }elsif( $arstream[$ik] eq "W" or $arstream[$ik] eq "WE" or $arstream[$ik] eq "WB"  ) {
+	      $nwb = $narray[$ik];
           }
       } 
 
@@ -453,8 +469,13 @@ END
 	      $nhlt = $narray[$ik];
 	  }elsif( $arstream[$ik] eq "upc" ) {
 	      $nupc = $narray[$ik];
-          }
-      } 
+	  }elsif( $arstream[$ik] eq "hltgood" ) {
+	      $nhltgood = $narray[$ik];
+	  }elsif( $arstream[$ik] eq "fms" ) {
+	      $nfms = $narray[$ik];
+          }elsif( $arstream[$ik] eq "W" or $arstream[$ik] eq "WE" or $arstream[$ik] eq "WB"  ) {
+	      $nwb = $narray[$ik];
+         } 
 
   }
 
@@ -508,7 +529,9 @@ END
  @rtmtd = ();
  @rthlt = ();
  @rtups = ();
- 
+ @rthltgood = ();
+ @rtfms = ();
+ @rtwb = (); 
 
  @nevents = ();
  @numjobs = ();
@@ -619,6 +642,7 @@ END
                $rthlt[$ndt] = $jbhlt[$ndt]*100/$nhlt;
            }elsif( $pstream eq "fms" ) {
                $jbfmsfast[$ndt]++; 
+               $rtfms[$ndt] =  $jbfmsfast[$ndt]*100/$nfms; 
 #           }elsif( $pstream eq "ht" ) {
 #               $jbht[$ndt]++;  
 #           }elsif( $pstream eq "atomcules" ) {
@@ -626,12 +650,14 @@ END
 #           }elsif( $pstream eq "monitor" ) {
 #               $jbmonitor[$ndt]++;  
            }elsif( $pstream eq "hltgood" ) {
-               $jbhltgood[$ndt]++;   
+               $jbhltgood[$ndt]++;
+               $rthltgood[$ndt] = $jbhltgood[$ndt]*100/$nhltgood;    
            }elsif( $pstream eq "upc" ) {
                $jbupc[$ndt]++;
                $rtupc[$ndt] = $jbupc[$ndt]*100/$nupc ;
            }elsif( $pstream eq "W" or $pstream eq "WE" or $pstream eq "WB" ) {
                $jbwb[$ndt]++;
+               $rtwb[$ndt] = $jbwb[$ndt]*100/$nwb ;
 	       }
  	    }
     }
@@ -1021,8 +1047,8 @@ if($qprod eq "P14ia" ) {
 #     $max_y = 11200 ;
 # }
 
-# $max_y = 100 ;
 
+ $max_y = 20 ;
  $ynum = 20;
 
 # $ynum = 14;
@@ -1034,11 +1060,8 @@ if($qprod eq "P14ia" ) {
 
 #    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfmsfast ) ;
 
-#    @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbhltgood, \@jbmtd, \@jbupc, \@jbwb, \@jbfmsfast ) ;
 
-    @data = (\@ndate, \@rtphysics, \@rthlt, \@rtmtd, \@rtupc ) ;
-
-#    @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbmtd, \@jbupc ) ;
+    @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc,  \@rtwb, \@rtfms ) ;
 
 
      }elsif( $srate eq "events"){
