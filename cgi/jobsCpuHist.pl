@@ -444,7 +444,7 @@ END
          $cursor->finish();
 
 
-    $sql="SELECT sum(NoEvents), streamName  FROM $JobStatusT WHERE prodSeries = ? AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) < ?  group by streamName ";
+    $sql="SELECT count(jobfileName), streamName  FROM $JobStatusT WHERE prodSeries = ? AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) < ? AND jobStatus = 'Done' group by streamName ";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -477,6 +477,7 @@ END
 	      $nwb = $narray[$ik];
          } 
 
+    }
   }
 
   #####################
@@ -823,7 +824,7 @@ END
 
  @ndate = ();
  $ndate[0] = 0;
-  $ndt = 0;
+ $ndt = 0;
 
 
  if($qprod eq "P14ia" or $qprod eq "P14ig" or $qprod eq "P14ii" ) {
