@@ -1595,7 +1595,7 @@ END
        $legend[4] = "st_upc       "; 
        $legend[5] = "st_W         ";
        $legend[6] = "st_fms       ";
-       $legend[7] = "prepassCPU,st_mtd ";
+       $legend[7] = "st_mtd,prepassCPU ";
 #       $legend[1] = "st_gamma     ";
 #       $legend[3] = "st_ht        ";
 #       $legend[4] = "st_monitor   ";
@@ -1712,7 +1712,7 @@ END
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple orange lred lyellow lblack brown lyellow lpink marine lgray lred) ],
+                    dclrs => [ qw(lblue lgreen lpurple orange lred lyellow brown lblack lpink marine lgray lred) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
