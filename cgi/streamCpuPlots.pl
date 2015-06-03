@@ -648,7 +648,7 @@ END
         @jbstat = ();
         $nstat = 0;
 
-  $sql="SELECT runDay, CPU_per_evt_sec, streamName, prepassCPU FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND jobStatus = 'Done' AND NoEvents >= 10 ";
+  $sql="SELECT runDay, CPU_per_evt_sec, streamName  FROM $JobStatusT WHERE runDay = '$tdate' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND jobStatus = 'Done' AND NoEvents >= 10 ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -666,7 +666,6 @@ END
                 ($$fObjAdr)->vday($fvalue)    if( $fname eq 'runDay');
                 ($$fObjAdr)->cpuv($fvalue)    if( $fname eq 'CPU_per_evt_sec');
                 ($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
-                ($$fObjAdr)->cpupr($fvalue)   if( $fname eq 'prepassCPU');
 
             }
             $jbstat[$nstat] = $fObjAdr;
@@ -677,12 +676,10 @@ END
             $pday     = ($$jset)->vday;
             $pcpu     = ($$jset)->cpuv;
             $pstream  = ($$jset)->strv;
-            $precpu   = ($$jset)->cpupr;
 
     if( $pcpu >= 0.01) {
 
         $arcpu{$pstream,$ndt}   = $arcpu{$pstream,$ndt} + $pcpu;
-        $arprcpu{$pstream,$ndt} = $arprcpu{$pstream,$ndt} + $precpu;
         $nstr{$pstream,$ndt}++;
 
             $ndate[$ndt] = $pday;
@@ -695,7 +692,6 @@ END
           foreach my $mfile (@arstream) {
             if ($nstr{$mfile,$ndt} >= 3 ) {
               $arcpu{$mfile,$ndt}   = $arcpu{$mfile,$ndt}/$nstr{$mfile,$ndt};
-              $arprcpu{$mfile,$ndt} = $arprcpu{$mfile,$ndt}/$nstr{$mfile,$ndt};
                 if ( $arcpu{$mfile,$ndt} > $maxcpu ) {
                     $maxcpu = $arcpu{$mfile,$ndt} ;
                 }
@@ -706,7 +702,6 @@ END
 #               $cpcentralpro[$ndt] = $arcpu{$mfile,$ndt};
              }elsif( $mfile eq "mtd" ) {
                $cpmtd[$ndt]   = $arcpu{$mfile,$ndt};
-               $prcpmtd[$ndt] = $arprcpu{$mfile,$ndt};
 #              }elsif( $mfile eq "gamma" ) {
 #               $cpgamma[$ndt] = $arcpu{$mfile,$ndt};
 #              }elsif( $mfile eq "upsilon" ) {
@@ -1596,7 +1591,7 @@ END
        $legend[4] = "st_upc       "; 
        $legend[5] = "st_W         ";
        $legend[6] = "st_fms       ";
-       $legend[7] = "st_mtd,prepassCPU ";
+#       $legend[7] = "st_mtd,prepassCPU ";
 #       $legend[1] = "st_gamma     ";
 #       $legend[3] = "st_ht        ";
 #       $legend[4] = "st_monitor   ";
@@ -1630,11 +1625,20 @@ END
        $ylabel = "Average CPU in sec/evt per day";
        $gtitle = "Average CPU in sec/evt per day in $qprod production, average is $avgcpu+-$stdcpu";
 
+        if($qprod eq "all2014" ) {
+
+       $legend[7] = "st_mtd,prepassCPU ";
+
 
 #  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpfms, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cphltgood ) ;
 
-#  @data = (\@ndate, \@cpphysics,  \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfms, \@prcpmtd ) ;
+  @data = (\@ndate, \@cpphysics,  \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfms, \@prcpmtd ) ;
+
+	}else{
+
   @data = (\@ndate, \@cpphysics,  \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfms ) ;
+
+	}
 
        $max_y = $maxcpu + 0.2*$maxcpu;
        $max_y = int($max_y);
