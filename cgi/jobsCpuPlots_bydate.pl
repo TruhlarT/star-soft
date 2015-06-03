@@ -141,7 +141,7 @@ my @jbwb = ();
  $JobStatusT = "JobStatus2013";
 
 
-    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT runDay >= '2014-02-20' order by runDay";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -169,7 +169,7 @@ my @jbwb = ();
  $JobStatusT = "JobStatus2014";
 
 
-    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT runDay >= '2015-01-09' order by runDay";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
