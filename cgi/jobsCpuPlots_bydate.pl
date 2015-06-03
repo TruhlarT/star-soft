@@ -287,10 +287,6 @@ END
     
  # Tables
 
-   if( $qprod =~ /P10/ ) {$pryear = "2010"};
-   if( $qprod =~ /P11/ ) {$pryear = "2011"};
-   if( $qprod =~ /P12/ ) {$pryear = "2012"};
-   if( $qprod =~ /P13ib/ ) {$pryear = "2012"};
    if( $qprod =~ /P14ia/ ) {$pryear = "2013"};
    if( $qprod =~ /P14ig/ ) {$pryear = "2013"};
    if( $qprod =~ /P14ii/ ) {$pryear = "2014"};  
@@ -421,8 +417,7 @@ END
 	    $jbstat[$nstat] = $fObjAdr;
 	    $nstat++;
          }
-  
-  }
+    }
 
 ###########
 
@@ -503,8 +498,7 @@ END
 	    $jbstat[$nstat] = $fObjAdr;
 	    $nstat++;
          }
-  
-  }
+    }
 
 ###########
 
