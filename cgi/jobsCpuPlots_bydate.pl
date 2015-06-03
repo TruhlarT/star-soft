@@ -134,94 +134,9 @@ my @jbwb = ();
 
 #my @arperiod = ("day","week");
 
- $JobStatusT = "JobStatus2010";  
-
 
   &StDbProdConnect();
 
-    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
-
-       while( $mpr = $cursor->fetchrow() ) {
-          $arrprod[$npr] = $mpr;
-          $npr++;
-       }
-    $cursor->finish();
-
-
-  $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2010-07-20' order by runDay" ;
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
-
-       while( $dy = $cursor->fetchrow() ) {
-          $rdays[$ndy] = $dy;
-          $ndy++;
-       }
-    $cursor->finish();
-
-
-
- $JobStatusT = "JobStatus2011";
-
-
-    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
-
-       while( $mpr = $cursor->fetchrow() ) {
-          $arrprod[$npr] = $mpr;
-          $npr++;
-       }
-    $cursor->finish();
-
-
-    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2011-06-01' order by runDay" ;
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
-
-       while( $dy = $cursor->fetchrow() ) {
-          $rdays[$ndy] = $dy;
-          $ndy++;
-       }
-    $cursor->finish();
-
-
- $JobStatusT = "JobStatus2012";
-
-
-    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
-
-       while( $mpr = $cursor->fetchrow() ) {
-          $arrprod[$npr] = $mpr;
-          $npr++;
-       }
-    $cursor->finish();
-
-
-    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2012-05-10' order by runDay" ;
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
-
-       while( $dy = $cursor->fetchrow() ) {
-          $rdays[$ndy] = $dy;
-          $ndy++;
-       }
-    $cursor->finish();
 
  $JobStatusT = "JobStatus2013";
 
@@ -321,7 +236,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P15ic,
+	                          -default=>P15ie,
       			          -size =>1);
 
   
@@ -483,7 +398,7 @@ END
     foreach  $tdate (@arhr) {
  
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, jobtotalTime, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND jobtotalTime > 0.1  AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 order by  createTime "; 
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, jobtotalTime, streamName FROM $JobStatusT WHERE (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59' ) AND prodSeries = ? AND jobtotalTime > 0.1  AND submitAttempt = 1 AND jobStatus = 'Done' AND NoEvents >= 10 order by  createTime "; 
 
 	    $cursor =$dbh->prepare($sql)
 	      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -564,7 +479,7 @@ END
 
     foreach  $tdate (@arhr) {
 
-  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  createTime like '$tdate%' AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 order by createTime "; 
+  $sql="SELECT date_format(createTime, '%Y-%m-%d %H') as PDATE, CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59' ) AND prodSeries = ? AND CPU_per_evt_sec > 0.01 and jobStatus = 'Done' AND NoEvents >= 10 order by createTime "; 
 
 	    $cursor =$dbh->prepare($sql)
 	      || die "Cannot prepare statement: $DBI::errstr\n";
