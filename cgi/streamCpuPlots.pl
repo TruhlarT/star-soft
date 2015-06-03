@@ -694,7 +694,8 @@ END
  
           foreach my $mfile (@arstream) {
             if ($nstr{$mfile,$ndt} >= 3 ) {
-              $arcpu{$mfile,$ndt} = $arcpu{$mfile,$ndt}/$nstr{$mfile,$ndt};
+              $arcpu{$mfile,$ndt}   = $arcpu{$mfile,$ndt}/$nstr{$mfile,$ndt};
+              $arprcpu{$mfile,$ndt} = $arprcpu{$mfile,$ndt}/$nstr{$mfile,$ndt};
                 if ( $arcpu{$mfile,$ndt} > $maxcpu ) {
                     $maxcpu = $arcpu{$mfile,$ndt} ;
                 }
