@@ -390,7 +390,7 @@ my $qnode   = $qqr->param('pnode');
 
      if($qnode eq "rcrs" ) {
 
-   $sql="SELECT DISTINCT nodeID  FROM $JobStatusT where ( nodeID like ' rcrs6%' ) and runDay = ? order by nodeID" ;
+   $sql="SELECT DISTINCT nodeID  FROM $JobStatusT where nodeID like ' rcrs6%' and runDay = ? order by nodeID" ;
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -430,7 +430,7 @@ my $qnode   = $qqr->param('pnode');
  @jbstat = ();
  $nstat = 0;
 
-  $sql="SELECT  CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  runDay = ? AND prodSeries = ? AND CPU_per_evt_sec > 0.01 AND RealTime_per_evt > 0.01 and nodeID = '$mnode' and jobStatus = 'Done' AND NoEvents >= 10 ";
+  $sql="SELECT  CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE  runDay = ? AND prodSeries = ? AND CPU_per_evt_sec > 0.01 and nodeID = '$mnode' and jobStatus = 'Done' AND NoEvents >= 10 ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
