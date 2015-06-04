@@ -32,7 +32,8 @@ struct JobAttr => {
       rtmv      => '$',
       jbtot     => '$',
       nevt      => '$',
-      strv      => '$'
+      strv      => '$',
+      cpupr     => '$',
 };
 
 
@@ -116,6 +117,10 @@ my @cpmonitor = ();
 my @cphltgood = ();
 my @cpcentralpro  = (); 
 my @cpwb  = (); 
+
+my $precpu;
+my @prcpmtd = ();
+my @rtprcpmtd = ();
 
 my @jbupsilon = ();
 my @jbmtd = ();
@@ -283,10 +288,6 @@ END
     
  # Tables
 
-  if( $qprod =~ /P10/ ) {$pryear = "2010"};
-  if( $qprod =~ /P11/ ) {$pryear = "2011"};
-  if( $qprod =~ /P12/ ) {$pryear = "2012"};
-  if( $qprod =~ /P13ib/ ) {$pryear = "2012"};
   if( $qprod =~ /P14ia/ ) {$pryear = "2013"};
   if( $qprod =~ /P14ig/ ) {$pryear = "2013"};
   if( $qprod =~ /P14ii/ ) {$pryear = "2014"};
@@ -509,6 +510,10 @@ END
  @cphltgood = (); 
  @cpcentralpro  = ();
  @cpwb = (); 
+
+ $precpu;
+ @prcpmtd = ();
+ @rtprcpmtd = ();
 
  @jbupsilon = ();
  @jbmtd = ();
@@ -764,7 +769,7 @@ END
 
     if($qprod eq "all2014") {
 
-  $sql="SELECT CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59')  AND ( prodSeries = 'P15ic' or prodSeries = 'P15ie') AND CPU_per_evt_sec > 0.01 and jobStatus = 'Done' AND NoEvents >= 10  "; 
+  $sql="SELECT CPU_per_evt_sec, RealTime_per_evt, streamName, prepassCPU FROM $JobStatusT WHERE (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59')  AND ( prodSeries = 'P15ic' or prodSeries = 'P15ie') AND CPU_per_evt_sec > 0.01 and jobStatus = 'Done' AND NoEvents >= 10  "; 
 
 	    $cursor =$dbh->prepare($sql)
 	      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -782,6 +787,7 @@ END
 		($$fObjAdr)->cpuv($fvalue)    if( $fname eq 'CPU_per_evt_sec');
 		($$fObjAdr)->rtmv($fvalue)    if( $fname eq 'RealTime_per_evt');
 		($$fObjAdr)->strv($fvalue)    if( $fname eq 'streamName');
+                ($$fObjAdr)->cpupr($fvalue)   if( $fname eq 'prepassCPU');
 
 	     }
 	    $jbstat[$nstat] = $fObjAdr;
@@ -841,6 +847,7 @@ END
      foreach $jset (@jbstat) {
 	    $pcpu     = ($$jset)->cpuv;
 	    $pstream  = ($$jset)->strv;
+            $precpu   = ($$jset)->cpupr;
 
             if($pcpu < $maxcpuval )     {
 
@@ -855,6 +862,13 @@ END
 	      }elsif( $pstream eq "mtd" ) {
                $cpmtd[$ndt]++;
                $rtmtd[$ndt] = $cpmtd[$ndt]*100/$nmtd;
+               if($qprod eq "all2014") {
+               $prcpmtd[$ndt]++;
+               $rtprmtd[$ndt] = $prcpmtd[$ndt]*100/$nmtd;
+	       }else{
+	       $prcpmtd[$ndt] = 0;
+               $rtprmtd[$ndt] = 0;
+               }               
 #              }elsif( $pstream eq "upsilon" ) {
 #               $cpupsilon[$ndt]++; 
 #              }elsif( $pstream eq "gamma" ) {
@@ -994,9 +1008,19 @@ my $ynum = 14;
 
 
 #    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cphltgood, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cpfmsfast ) ; 
+   
+    if($qprod eq "all2014" ) {
 
+  $legend[7] = "st_mtd,prepassCPU";
+
+
+  @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtfms, \@rtprmtd ) ; 
+
+  }else{ 
 
    @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtfms ) ; 
+
+ }
 
       }elsif( $srate eq "rtime/cpu"){
 
@@ -1054,7 +1078,6 @@ my $ynum = 14;
         $ylabel = "Number of events";         
 	$gtitle = "Number of events processed per day in $qprod production ";
 
-# $max_y = int(42000000) ; 
 
     @data = (\@ndate, \@nevents ) ;
 
