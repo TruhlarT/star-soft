@@ -1032,8 +1032,8 @@ my $ynum = 14;
 
   }elsif($qprod eq "P14ig" or $qprod eq "P14ia" ) {
 
- $max_y = 12000;
- $ynum = 12;
+ $max_y = 10000;
+ $ynum = 20;
 
 	$xlabel = "CPU in sec/evt";
         $ylabel = "Number of of jobs ";
