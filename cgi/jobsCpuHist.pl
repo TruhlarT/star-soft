@@ -147,6 +147,16 @@ my @rtfms = ();
 my @rtwb = ();
 
 
+my @rxphysics = ();
+my @rxmtd = ();
+my @rxhlt = ();
+my @rxups = ();
+my @rxhltgood = ();
+my @rxfms = ();
+my @rxwb = ();
+
+
+
 my $nphysics = 0;
 my $nmtd = 0;
 my $nhlt = 0;
@@ -539,6 +549,14 @@ END
  @rtfms = ();
  @rtwb = (); 
 
+ @rxphysics = ();
+ @rxmtd = ();
+ @rxhlt = ();
+ @rxups = ();
+ @rxhltgood = ();
+ @rxfms = ();
+ @rxwb = ();
+
  @nevents = ();
  @numjobs = ();
 
@@ -631,13 +649,13 @@ END
 
 	   if ( $pstream eq "physics" ) {
 	       $jbphysics[$ndt]++;
-               $rtphysics[$ndt] = $jbphysics[$ndt]*100/$nphysics;
+               $rxphysics[$ndt] = $jbphysics[$ndt]*100/$nphysics;
 
 #           }elsif( $pstream eq "centralpro" ) {
 #               $jbcentral[$ndt]++; 
 	   }elsif( $pstream eq "mtd" ) {
                $jbmtd[$ndt]++;
-               $rtmtd[$ndt] = $jbmtd[$ndt]*100/$nmtd;
+               $rxmtd[$ndt] = $jbmtd[$ndt]*100/$nmtd;
 
 #           }elsif( $pstream eq "upsilon" ) {
 #               $jbupsilon[$ndt]++; 
@@ -645,10 +663,10 @@ END
 #               $jbgamma[$ndt]++; 
            }elsif( $pstream eq "hlt" ) {
                $jbhlt[$ndt]++;  
-               $rthlt[$ndt] = $jbhlt[$ndt]*100/$nhlt;
+               $rxhlt[$ndt] = $jbhlt[$ndt]*100/$nhlt;
            }elsif( $pstream eq "fms" ) {
                $jbfmsfast[$ndt]++; 
-               $rtfms[$ndt] =  $jbfmsfast[$ndt]*100/$nfms; 
+               $rxfms[$ndt] =  $jbfmsfast[$ndt]*100/$nfms; 
 #           }elsif( $pstream eq "ht" ) {
 #               $jbht[$ndt]++;  
 #           }elsif( $pstream eq "atomcules" ) {
@@ -657,13 +675,13 @@ END
 #               $jbmonitor[$ndt]++;  
            }elsif( $pstream eq "hltgood" ) {
                $jbhltgood[$ndt]++;
-               $rthltgood[$ndt] = $jbhltgood[$ndt]*100/$nhltgood;    
+               $rxhltgood[$ndt] = $jbhltgood[$ndt]*100/$nhltgood;    
            }elsif( $pstream eq "upc" ) {
                $jbupc[$ndt]++;
-               $rtupc[$ndt] = $jbupc[$ndt]*100/$nupc ;
+               $rxupc[$ndt] = $jbupc[$ndt]*100/$nupc ;
            }elsif( $pstream eq "W" or $pstream eq "WE" or $pstream eq "WB" ) {
                $jbwb[$ndt]++;
-               $rtwb[$ndt] = $jbwb[$ndt]*100/$nwb ;
+               $rxwb[$ndt] = $jbwb[$ndt]*100/$nwb ;
 	       }
  	    }
     }
@@ -1086,7 +1104,7 @@ my $ynum = 14;
 #    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfms ) ;
 
 
-    @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc,  \@rtwb, \@rtfms ) ;
+    @data = (\@ndate, \@rxphysics, \@rxhlt, \@rxhltgood, \@rxmtd, \@rxupc,  \@rxwb, \@rxfms ) ;
 
 
      }elsif( $srate eq "events"){
