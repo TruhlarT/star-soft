@@ -121,6 +121,8 @@ my @cpwb  = ();
 my $precpu;
 my @prcpmtd = ();
 my @rtprcpmtd = ();
+my $ndt2 = 0;
+
 
 my @jbupsilon = ();
 my @jbmtd = ();
@@ -829,7 +831,7 @@ END
  @ndate = ();
  $ndate[0] = 0;
  $ndt = 0;
-
+ $ndt2 = 0;
 
  if($qprod eq "P14ia" or $qprod eq "P14ig" or $qprod eq "P14ii" ) {
      $maxcpuval = 110;
@@ -863,11 +865,12 @@ END
                $cpmtd[$ndt]++;
                $rtmtd[$ndt] = $cpmtd[$ndt]*100/$nmtd;
                if($qprod eq "all2014") {
-               $prcpmtd[$ndt]++;
-               $rtprmtd[$ndt] = $prcpmtd[$ndt]*100/$nmtd;
+	       $ndt2 = int($precpu/$cpubin);
+               $prcpmtd[$ndt2]++;
+               $rtprmtd[$ndt2] = $prcpmtd[$ndt2]*100/$nmtd;
 	       }else{
-	       $prcpmtd[$ndt] = 0;
-               $rtprmtd[$ndt] = 0;
+	       $prcpmtd[$ndt2] = 0;
+               $rtprmtd[$ndt2] = 0;
                }               
 #              }elsif( $pstream eq "upsilon" ) {
 #               $cpupsilon[$ndt]++; 
@@ -1014,11 +1017,11 @@ my $ynum = 14;
   $legend[7] = "st_mtd,prepassCPU";
 
 
-  @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtfms, \@rtprmtd ) ; 
+  @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtprmtd ) ; 
 
   }else{ 
 
-   @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtfms ) ; 
+   @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb ) ; 
 
  }
 
