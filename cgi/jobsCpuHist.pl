@@ -1023,25 +1023,16 @@ my $ynum = 14;
 
   }else{ 
 
-    if($qprod eq "P15ie" or $qprod eq "P14ii") {
+    if($qprod eq "P15ie" ) {
 
  $max_y = 28;
  $ynum = 14;
 
- }elsif($qprod eq "P15ic" or $qprod eq "P14ig" or $qprod eq "P14ia") {
+  }else{
 
  $max_y = 24;
  $ynum = 12;
- 
- }elsif($qprod eq "P15ic" ) {
- $max_y = 24;
- $ynum = 12; 
-
- }else{
- $max_y = 24;
- $ynum = 12; 
-
- }
+  }
 
    @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb ) ; 
 
@@ -1159,7 +1150,7 @@ my $ynum = 14;
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple orange lred lyellow lblack  brown lyellow lpink marine lgray lred) ],
+                    dclrs => [ qw(lblue lgreen lpurple orange lred lpink lblack  brown lyellow lpink marine lgray lred) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
