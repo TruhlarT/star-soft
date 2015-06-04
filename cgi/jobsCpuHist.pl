@@ -1021,22 +1021,35 @@ my $ynum = 14;
 
   @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtprmtd ) ; 
 
-  }else{ 
-
-    if($qprod eq "P15ie" ) {
+  }elsif{$qprod eq "P15ie" ) {
 
  $max_y = 28;
  $ynum = 14;
 
-  }else{
+
+  @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtprmtd ) ; 
+
+
+  }elsif($qprod eq "P14ig" or $qprod eq "P14ia" ) {
+
+ $max_y = 1400;
+ $ynum = 14;
+
+	$xlabel = "CPU in sec/evt";
+        $ylabel = "Number of of jobs ";
+	$gtitle = "CPU in sec/evt for different stream jobs in $qprod production ";
+
+   @data = (\@ndate, \@cpphysics, \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpmtd, \@cpfms ) 
+
+
+  }else{ 
 
  $max_y = 24;
  $ynum = 12;
+
+   @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtfms) ; 
+
   }
-
-   @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb ) ; 
-
- }
 
       }elsif( $srate eq "rtime/cpu"){
 
@@ -1051,7 +1064,7 @@ my $ynum = 14;
 
   
 
-#    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@arhltgood, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfmsfast ) ;
+#    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@arhltgood, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfms ) ;
 
 
     @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtfms ) ;
@@ -1070,7 +1083,7 @@ my $ynum = 14;
 	$gtitle = "Execution time for different stream jobs in $qprod production ";
   
 
-#    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfmsfast ) ;
+#    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfms ) ;
 
 
     @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc,  \@rtwb, \@rtfms ) ;
@@ -1150,7 +1163,7 @@ my $ynum = 14;
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple orange lred lpink lblack  brown lyellow lpink marine lgray lred) ],
+                    dclrs => [ qw(lblue lgreen lpurple orange lred lblack lgray lpink brown lyellow marine lgray lred) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
