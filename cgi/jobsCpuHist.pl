@@ -1032,7 +1032,7 @@ my $ynum = 14;
 
   }elsif($qprod eq "P14ig" or $qprod eq "P14ia" ) {
 
- $max_y = 1400;
+ $max_y = 14000;
  $ynum = 14;
 
 	$xlabel = "CPU in sec/evt";
@@ -1163,7 +1163,7 @@ my $ynum = 14;
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple orange lred lblack lgray lpink brown lyellow marine lgray lred) ],
+                    dclrs => [ qw(lblue lgreen lpurple orange lred lgray lblack lpink brown lyellow marine lgray lred) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
