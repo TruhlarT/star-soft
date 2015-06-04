@@ -1092,7 +1092,20 @@ my $ynum = 14;
 
  @data = ();
 
- $max_y = 20 ;
+   if($qprod eq "P14ig" or $qprod eq "P14ia" ) {
+
+  $max_y = 2800 ;
+  $ynum = 14;
+
+       $xlabel = "Job's execution time on the farm in hours";
+        $ylabel = "Number  of jobs ";         
+	$gtitle = "Execution time for different stream jobs in $qprod production ";
+
+   @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbhltgood, \@jbmtd, \@jbupc, \@jbwb, \@jbfms ) ;
+
+ }else{
+ 
+$max_y = 20 ;
  $ynum = 20;
 
 
@@ -1105,6 +1118,13 @@ my $ynum = 14;
 
 
     @data = (\@ndate, \@rxphysics, \@rxhlt, \@rxhltgood, \@rxmtd, \@rxupc,  \@rxwb, \@rxfms ) ;
+
+ }
+
+   }elsif($qprod eq "P14ig" or $qprod eq "P14ia" ) {
+
+ $max_y = 10000;
+ $ynum = 20;
 
 
      }elsif( $srate eq "events"){
