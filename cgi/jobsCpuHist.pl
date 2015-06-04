@@ -1021,7 +1021,7 @@ my $ynum = 14;
 
   @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtprmtd ) ; 
 
-  }elsif{$qprod eq "P15ie" ) {
+  }elsif($qprod eq "P15ie" ) {
 
  $max_y = 28;
  $ynum = 14;
