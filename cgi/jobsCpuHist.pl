@@ -1014,7 +1014,7 @@ my $ynum = 14;
    
     if($qprod eq "all2014" ) {
 
-  $legend[7] = "st_mtd,prepassCPU";
+  $legend[6] = "st_mtd,prepassCPU";
 
  $max_y = 36;
  $ynum = 12;
