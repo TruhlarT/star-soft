@@ -1027,19 +1027,19 @@ my $ynum = 14;
  $ynum = 14;
 
 
-  @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtprmtd ) ; 
+  @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtfms ) ; 
 
 
   }elsif($qprod eq "P14ig" or $qprod eq "P14ia" ) {
 
- $max_y = 14000;
- $ynum = 14;
+ $max_y = 12000;
+ $ynum = 12;
 
 	$xlabel = "CPU in sec/evt";
         $ylabel = "Number of of jobs ";
 	$gtitle = "CPU in sec/evt for different stream jobs in $qprod production ";
 
-   @data = (\@ndate, \@cpphysics, \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpmtd, \@cpfms ) 
+   @data = (\@ndate, \@cpphysics, \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfms ) 
 
 
   }else{ 
