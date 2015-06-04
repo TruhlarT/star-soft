@@ -1028,11 +1028,12 @@ my $ynum = 14;
  $max_y = 28;
  $ynum = 14;
 
- }else($qprod eq "P15ic" or $qprod eq "P14ig" or $qprod eq "P14ia") {
+ }elsif($qprod eq "P15ic" or $qprod eq "P14ig" or $qprod eq "P14ia") {
+
  $max_y = 24;
  $ynum = 12;
  
- }else($qprod eq "P15ic" ) {
+ }elsif($qprod eq "P15ic" ) {
  $max_y = 24;
  $ynum = 12; 
 
