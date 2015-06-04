@@ -1016,10 +1016,31 @@ my $ynum = 14;
 
   $legend[7] = "st_mtd,prepassCPU";
 
+ $max_y = 36;
+ $ynum = 12;
 
   @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtprmtd ) ; 
 
   }else{ 
+
+    if($qprod eq "P15ie" or $qprod eq "P14ii") {
+
+ $max_y = 28;
+ $ynum = 14;
+
+ }else{$qprod eq "P15ic" or $qprod eq "P14ig" or $qprod eq "P14ia") {
+ $max_y = 24;
+ $ynum = 12;
+ 
+ }else{$qprod eq "P15ic" ) {
+ $max_y = 24;
+ $ynum = 12; 
+
+ }else{
+ $max_y = 24;
+ $ynum = 12; 
+
+ }
 
    @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb ) ; 
 
