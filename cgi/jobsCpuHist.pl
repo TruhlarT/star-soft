@@ -896,7 +896,7 @@ END
                $rthlt[$ndt] = $cphlt[$ndt]*100/$nhlt;
               }elsif( $pstream eq "fms" ) {
                $cpfms[$ndt]++; 
-               $rtfms[$ndt] =  $cpfmsfast[$ndt]*100/$nfms;
+               $rtfms[$ndt] =  $cpfms[$ndt]*100/$nfms;
 #              }elsif( $pstream eq "ht" ) {
 #               $cpht[$ndt]++;  
 #              }elsif( $pstream eq "atomcules" ) {
@@ -908,7 +908,7 @@ END
                $rthltgood[$ndt] = $cphltgood[$ndt]*100/$nhltgood;  
               }elsif( $pstream eq "upc" ) {
                $cpupc[$ndt]++;
-               $rtupc[$ndt] = $rpupc[$ndt]*100/$nupc ;
+               $rtupc[$ndt] = $cpupc[$ndt]*100/$nupc ;
               }elsif( $pstream eq "W" or $pstream eq "WE" or $pstream eq "WB" ) {
                $cpwb[$ndt]++;
                $rtwb[$ndt] = $cpwb[$ndt]*100/$nwb ;
@@ -959,7 +959,7 @@ END
                $rchlt[$ndt] = $arhlt[$ndt]*100/$nhlt;
               }elsif( $pstream eq "fms" ) {
                $arfms[$ndt]++ ;
-               $rcfms[$ndt] =  $arfmsfast[$ndt]*100/$nfms;
+               $rcfms[$ndt] =  $arfms[$ndt]*100/$nfms;
 #              }elsif( $pstream eq "ht" ) {
 #               $arht[$ndt]++ ;
 #              }elsif( $pstream eq "atomcules" ) {
