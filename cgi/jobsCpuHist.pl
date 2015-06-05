@@ -328,8 +328,7 @@ END
   my $rcpubin = 0;
   my $jobtotbin = 0;
 
- 
-  if ( $qperiod =~ /month/) {
+   if ( $qperiod =~ /month/) {
         @prt = split("_", $qperiod);
         $nmonth = $prt[0];
         $day_diff = 30*$nmonth + 1;
@@ -337,14 +336,11 @@ END
 
     $day_diff = int($day_diff);
 
-
     @arstream = ();
-
 
  &StDbProdConnect();
 
   if($qprod eq "all2014" ) {
-
 
 ###########   max createTime
 
@@ -390,9 +386,7 @@ END
       $nst++;
 
     }
-
         $cursor->finish();
-
 
      for ($ik = 0; $ik<scalar(@arstream); $ik++){
           if( $arstream[$ik] eq "physics" ) {
@@ -416,9 +410,7 @@ END
 
   }else{
 
-
 ###########   max createTime
-
 
       $sql="SELECT max(date_format(createTime, '%Y-%m-%d' ))  FROM $JobStatusT where prodSeries = ? ";
 
@@ -691,8 +683,6 @@ END
 	       }
  	    }
     }
-
-
 
  }elsif( $srate eq "events" ) {
 
@@ -1144,7 +1134,6 @@ my $ynum = 14;
         $ylabel = "Number of events";         
 	$gtitle = "Number of events processed per day in $qprod production ";
 
-# $max_y = int(42000000) ; 
 
     @data = (\@ndate, \@nevents ) ;
 
