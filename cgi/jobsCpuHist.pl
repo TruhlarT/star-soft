@@ -144,7 +144,6 @@ my @rthltgood = ();
 my @rtfms = ();
 my @rtwb = ();
 
-
 my @rphysics = ();
 my @rmtd = ();
 my @rhlt = ();
@@ -152,6 +151,14 @@ my @rups = ();
 my @rhltgood = ();
 my @rfms = ();
 my @rwb = ();
+
+my @rcphysics = ();
+my @rcmtd = ();
+my @rchlt = ();
+my @rcups = ();
+my @rchltgood = ();
+my @rcfms = ();
+my @rcwb = ();
 
 my $nphysics = 0;
 my $nmtd = 0;
@@ -550,6 +557,13 @@ END
  @rfms = ();
  @rwb = ();
 
+ @rcphysics = ();
+ @rcmtd = ();
+ @rchlt = ();
+ @rcups = ();
+ @rchltgood = ();
+ @rcfms = ();
+ @rcwb = ();
 
 
  @nevents = ();
@@ -931,18 +945,22 @@ END
 
 	       if ( $pstream eq "physics" ) {
 	       $arphysics[$ndt]++ ;
+               $rcphysics[$ndt] = $arphysics[$ndt]*100/$nphysics;
 #              }elsif( $pstream eq "centralpro" ) {
 #               $arcentralpro[$ndt]++ ;
 	      }elsif( $pstream eq "mtd" ) {
                $armtd[$ndt]++;
+               $rcmtd[$ndt] = $armtd[$ndt]*100/$nmtd;
 #              }elsif( $pstream eq "upsilon" ) {
 #               $arupsilon[$ndt]++ ;
 #              }elsif( $pstream eq "gamma" ) {
 #               $argamma[$ndt]++ ;
               }elsif( $pstream eq "hlt" ) {
                $arhlt[$ndt]++;
+               $rchlt[$ndt] = $arhlt[$ndt]*100/$nhlt;
               }elsif( $pstream eq "fms" ) {
                $arfms[$ndt]++ ;
+               $rcfms[$ndt] =  $arfmsfast[$ndt]*100/$nfms;
 #              }elsif( $pstream eq "ht" ) {
 #               $arht[$ndt]++ ;
 #              }elsif( $pstream eq "atomcules" ) {
@@ -951,10 +969,13 @@ END
 #               $armonitor[$ndt]++ ;
               }elsif( $pstream eq "hltgood" ) {
                $arhltgood[$ndt]++ ;   
+               $rchltgood[$ndt] = $arhltgood[$ndt]*100/$nhltgood;
               }elsif( $pstream eq "upc" ) {
                $arupc[$ndt]++;
+               $rcupc[$ndt] = $arupc[$ndt]*100/$nupc ;
               }elsif( $pstream eq "W" or $pstream eq "WE" or $pstream eq "WB"  ) {
                $arwb[$ndt]++;
+               $rcwb[$ndt] = $arwb[$ndt]*100/$nwb ;
 	       }
 	    } 
 	   }
@@ -1031,37 +1052,36 @@ my $ynum = 14;
 
     }
 
-
       }elsif( $srate eq "rtime/cpu"){
 
  @data = ();
 
-if($qprod eq "P14ia" ) {
-     $max_y = 42000 ;
- }elsif($qprod eq "P14ig" ) {
-     $max_y = 42000 ;
- }elsif($qprod eq "P14ii" ) {
-     $max_y = 5600 ;
- }elsif($qprod eq "P15ib" ){
-     $max_y = 14000 ;
- }elsif($qprod eq "P15ic" or $qprod eq "P15ie" ){
-     $max_y = 35000 ;
- }else{
-     $max_y = 35000 ;
-}
-
+if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
+     $max_y = 36000 ;
+     $ynum = 12;
 
         $xlabel = "Ratio RealTime/CPU";
         $ylabel = "Number of jobs";
 	$gtitle = "Ratios RealTime/CPU for different stream jobs in $qprod production ";
 
   
-
 #    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@arhltgood, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfms ) ;
 
 
     @data = (\@ndate, \@arphysics, \@arhlt, \@arhltgood, \@armtd, \@arupc, \@arwb, \@arfms ) ;
 
+   }else{
+
+     $max_y = 28 ;
+     $ynum = 14;
+
+        $xlabel = "Ratio RealTime/CPU";
+        $ylabel = "Percentage of jobs (%)";
+	$gtitle = "Ratios RealTime/CPU for different stream jobs in $qprod production ";
+
+    @data = (\@ndate, \@rcphysics, \@rchlt, \@rchltgood, \@rcmtd, \@rcupc, \@rcwb, \@rcfms ) ;
+
+  }
 
      }elsif( $srate eq "exectime"){
 
