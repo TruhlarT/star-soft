@@ -1072,8 +1072,19 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 
    }else{
 
+  if( $qprod eq "P14ii") {
+    
+     $max_y = 24 ;
+     $ynum = 12;
+
+  }elsif($qprod eq "P15ie" or $qprod eq "all2014") {
+     $max_y = 36 ;
+     $ynum = 12; 
+ }else{
      $max_y = 28 ;
      $ynum = 14;
+
+   }
 
         $xlabel = "Ratio RealTime/CPU";
         $ylabel = "Percentage of jobs (%)";
