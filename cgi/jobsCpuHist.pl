@@ -1053,15 +1053,8 @@ my $ynum = 14;
      $max_y = 21000 ;
  }elsif($qprod eq "P14ig" ) {
      $max_y = 14000 ;
-# }elsif($qprod eq "P14ii" ) {
-#     $max_y = 2800 ;
-# }elsif($qprod eq "P15ib" ){
-#     $max_y = 7000 ;
-# }elsif($qprod eq "P15ic" or $qprod eq "P15ie" ){
-#     $max_y = 14000 ;
  }else{
  }
-
 
   if($qprod eq "P14ia" or $qprod eq "P14ig" ) { 
 
@@ -1077,7 +1070,16 @@ my $ynum = 14;
 
   }else{
 
-    $max_y = 28 ;
+ if($qprod eq "P14ii" or $qprod eq "P15ic") {
+     $max_y = 18 ;
+     $ynum = 18;
+ }elsif($qprod eq "P15ic" or $qprod eq "all2014" ) {
+     $max_y = 24 ;
+     $ynum = 12;
+ }else{
+     $max_y = 28 ;
+     $ynum = 14;
+ }
 
        $xlabel = "Job's execution time on the farm in hours";
         $ylabel = "Percentage of jobs (%)";         
