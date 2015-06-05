@@ -139,7 +139,7 @@ my $ndt2 = 0;
 my @rtphysics = ();
 my @rtmtd = ();
 my @rthlt = ();
-my @rtups = ();
+my @rtupc = ();
 my @rthltgood = ();
 my @rtfms = ();
 my @rtwb = ();
@@ -147,7 +147,7 @@ my @rtwb = ();
 my @rphysics = ();
 my @rmtd = ();
 my @rhlt = ();
-my @rups = ();
+my @rupc = ();
 my @rhltgood = ();
 my @rfms = ();
 my @rwb = ();
@@ -155,7 +155,7 @@ my @rwb = ();
 my @rcphysics = ();
 my @rcmtd = ();
 my @rchlt = ();
-my @rcups = ();
+my @rcupc = ();
 my @rchltgood = ();
 my @rcfms = ();
 my @rcwb = ();
@@ -526,7 +526,6 @@ END
  @prcpmtd = ();
  @rtprcpmtd = ();
 
-
  @jbupsilon = ();
  @jbmtd = ();
  @jbphysics = ();
@@ -544,7 +543,7 @@ END
  @rtphysics = ();
  @rtmtd = ();
  @rthlt = ();
- @rtups = ();
+ @rtupc = ();
  @rthltgood = ();
  @rtfms = ();
  @rtwb = ();
@@ -552,7 +551,7 @@ END
  @rphysics = ();
  @rmtd = ();
  @rhlt = ();
- @rups = ();
+ @rupc = ();
  @rhltgood = ();
  @rfms = ();
  @rwb = ();
@@ -560,7 +559,7 @@ END
  @rcphysics = ();
  @rcmtd = ();
  @rchlt = ();
- @rcups = ();
+ @rcupc = ();
  @rchltgood = ();
  @rcfms = ();
  @rcwb = ();
@@ -1019,8 +1018,6 @@ my $ynum = 14;
 
  if($qprod eq "P14ia" or $qprod eq "P14ig") {
      $max_y = 12000 ;
-# }elsif($qprod eq "P14ii" ) {
-#     $max_y = 7000 ;
      $ynum = 12; 
 
 	$xlabel = "CPU in sec/evt";
@@ -1037,9 +1034,7 @@ my $ynum = 14;
  if( $qprod eq "P15ic" ) { 
      $max_y = 24 ;
      $ynum = 12;
- 
- }else{
-
+  }else{
      $max_y = 28 ;
      $ynum = 14;
  }
@@ -1064,26 +1059,21 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
         $ylabel = "Number of jobs";
 	$gtitle = "Ratios RealTime/CPU for different stream jobs in $qprod production ";
 
-  
-#    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@arhltgood, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfms ) ;
-
+  #    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@arhltgood, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfms ) ;
 
     @data = (\@ndate, \@arphysics, \@arhlt, \@arhltgood, \@armtd, \@arupc, \@arwb, \@arfms ) ;
 
    }else{
 
   if( $qprod eq "P14ii") {
-    
      $max_y = 24 ;
      $ynum = 12;
-
   }elsif($qprod eq "P15ie" or $qprod eq "all2014") {
      $max_y = 36 ;
      $ynum = 12; 
  }else{
      $max_y = 28 ;
      $ynum = 14;
-
    }
 
         $xlabel = "Ratio RealTime/CPU";
@@ -1109,12 +1099,10 @@ my $ynum = 14;
 
   if($qprod eq "P14ia" or $qprod eq "P14ig" ) { 
 
-
         $xlabel = "Job's execution time on the farm in hours";
         $ylabel = "Number of jobs";         
 	$gtitle = "Execution time for different stream jobs in $qprod production ";
   
-
 #    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfms ) ;
 
     @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbhltgood, \@jbmtd, \@jbupc, \@jbwb, \@jbfms ) ;
@@ -1132,18 +1120,17 @@ my $ynum = 14;
      $ynum = 14;
  }
 
-       $xlabel = "Job's execution time on the farm in hours";
+        $xlabel = "Job's execution time on the farm in hours";
         $ylabel = "Percentage of jobs (%)";         
 	$gtitle = "Execution time for different stream jobs in $qprod production ";
   
    @data = (\@ndate, \@rphysics, \@rhlt, \@rhltgood, \@rmtd, \@rupc, \@rwb, \@rfms ) ;
 
-}
-
+  }
 
      }elsif( $srate eq "events"){
 
- $legend[0] = "all stream data ";
+ $legend[0] = "all streams data ";
 
  @data = ();
 
@@ -1161,13 +1148,11 @@ my $ynum = 14;
 
     @data = (\@ndate, \@nevents ) ;
 
-
      }elsif( $srate eq "njobs"){
 
- $legend[0] = "all stream data ";
+ $legend[0] = "all streams data ";
 
  @data = ();
-
 
  if($qprod eq "P14ia" ) {
      $max_y = 11200 ;
@@ -1183,9 +1168,7 @@ my $ynum = 14;
         $ylabel = "Number of jobs";         
 	$gtitle = "Number of jobs processed per day in $qprod production ";
 
-
     @data = (\@ndate, \@numjobs ) ;
-
 
      }
 
