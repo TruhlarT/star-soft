@@ -997,10 +997,10 @@ my $ynum = 14;
  @data = ();
 
  if($qprod eq "P14ia" or $qprod eq "P14ig") {
-     $max_y = 14000 ;
+     $max_y = 12000 ;
 # }elsif($qprod eq "P14ii" ) {
 #     $max_y = 7000 ;
-     $ynum = 14; 
+     $ynum = 12; 
 
 	$xlabel = "CPU in sec/evt";
         $ylabel = "Number of jobs";
@@ -1012,9 +1012,16 @@ my $ynum = 14;
 
 
  }else{
+
+ if( $qprod eq "P15ic" ) { 
+     $max_y = 24 ;
+     $ynum = 12;
+ 
+ }else{
+
      $max_y = 28 ;
      $ynum = 14;
- 
+ }
 	$xlabel = "CPU in sec/evt";
         $ylabel = "Percentage of jobs (%)";
 	$gtitle = "CPU in sec/evt for different stream jobs in $qprod production ";
