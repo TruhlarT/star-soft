@@ -89,7 +89,7 @@ my @armtd = ();
 my @arphysics = ();
 my @argamma = ();
 my @arhlt = ();
-my @arfmsfast = ();
+my @arfms = ();
 my @arht = ();
 my @aratomcules = ();
 my @arupc = ();
@@ -108,7 +108,7 @@ my @cpmtd = ();
 my @cpphysics = ();
 my @cpgamma = ();
 my @cphlt = ();
-my @cpfmsfast = ();
+my @cpfms = ();
 my @cpht = ();
 my @cpatomcules = ();
 my @cpupc = ();
@@ -122,7 +122,7 @@ my @jbmtd = ();
 my @jbphysics = ();
 my @jbgamma = ();
 my @jbhlt = ();
-my @jbfmsfast = ();
+my @jbfms = ();
 my @jbht = ();
 my @jbatomcules = ();
 my @jbupc = ();
@@ -130,6 +130,40 @@ my @jbmonitor = ();
 my @jbhltgood = ();
 my @jbcentralpro  = ();
 my @jbwb = ();
+
+my $precpu;
+my @prcpmtd = ();
+my @rtprcpmtd = ();
+my $ndt2 = 0;
+
+my @rtphysics = ();
+my @rtmtd = ();
+my @rthlt = ();
+my @rtups = ();
+my @rthltgood = ();
+my @rtfms = ();
+my @rtwb = ();
+
+
+my @rphysics = ();
+my @rmtd = ();
+my @rhlt = ();
+my @rups = ();
+my @rhltgood = ();
+my @rfms = ();
+my @rwb = ();
+
+my $nphysics = 0;
+my $nmtd = 0;
+my $nhlt = 0;
+my $nupc = 0;
+my $nstrsum = 0;
+my $nhltgood = 0;
+my $nfms = 0;
+my $nwb = 0;
+
+my @narray = ();
+
 
   &StDbProdConnect();
 
@@ -263,9 +297,6 @@ END
     
  # Tables
 
-  if( $qprod =~ /P10/ ) {$pryear = "2010"};
-  if( $qprod =~ /P11/ ) {$pryear = "2011"};
-  if( $qprod =~ /P12/ ) {$pryear = "2012"};
   if( $qprod =~ /P13ib/ ) {$pryear = "2012"};
   if( $qprod =~ /P14ia/ ) {$pryear = "2013"};
   if( $qprod =~ /P14ig/ ) {$pryear = "2013"};
@@ -307,18 +338,6 @@ END
 
   if($qprod eq "all2014" ) {
 
-    $sql="SELECT DISTINCT streamName  FROM $JobStatusT where (prodSeries = 'P15ic' or prodSeries = 'P15ie') ";
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
-
-       while( $str = $cursor->fetchrow() ) {
-          $arstream[$nst] = $str;
-          $nst++;
-       }
-    $cursor->finish();
-
 
 ###########   max createTime
 
@@ -349,19 +368,46 @@ END
 
          $cursor->finish();
 
+
+
+    $sql="SELECT count(jobfileName), streamName  FROM $JobStatusT WHERE (prodSeries = 'P15ic' or prodSeries = 'P15ie') AND  runDay <> '0000-00-00' AND jobStatus = 'Done' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) < ?  group by streamName ";
+
+    $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+    $cursor->execute($day_diff);
+
+    while( @fields = $cursor->fetchrow) {
+
+      $narray[$nst] = $fields[0];
+      $arstream[$nst] = $fields[1];
+      $nst++;
+
+    }
+
+        $cursor->finish();
+
+
+     for ($ik = 0; $ik<scalar(@arstream); $ik++){
+          if( $arstream[$ik] eq "physics" ) {
+              $nphysics = $narray[$ik];
+          }elsif( $arstream[$ik] eq "mtd" ) {
+              $nmtd = $narray[$ik];
+          }elsif( $arstream[$ik] eq "hlt" ) {
+              $nhlt = $narray[$ik];
+          }elsif( $arstream[$ik] eq "upc" ) {
+              $nupc = $narray[$ik];
+          }elsif( $arstream[$ik] eq "hltgood" ) {
+              $nhltgood = $narray[$ik];
+          }elsif( $arstream[$ik] eq "fms" ) {
+              $nfms = $narray[$ik];
+          }elsif( $arstream[$ik] eq "W" or $arstream[$ik] eq "WE" or $arstream[$ik] eq "WB"  ) {
+              $nwb = $narray[$ik];
+          }
+      }
+
+############
+
   }else{
-
-      $sql="SELECT DISTINCT streamName  FROM $JobStatusT where prodSeries = ? ";
-
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute($qprod);
-
-       while( $str = $cursor->fetchrow() ) {
-          $arstream[$nst] = $str;
-          $nst++;
-       }
-    $cursor->finish();
 
 
 ###########   max createTime
@@ -400,8 +446,42 @@ END
 
          $cursor->finish();
 
-  }
+#######
 
+    $sql="SELECT count(jobfileName), streamName  FROM $JobStatusT WHERE prodSeries = ? AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) < ? AND jobStatus = 'Done' group by streamName ";
+
+    $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+    $cursor->execute($qprod,$day_diff);
+
+    while( @fields = $cursor->fetchrow) {
+
+
+      $narray[$nst] = $fields[0];
+      $arstream[$nst] = $fields[1];
+      $nst++;
+    }
+
+         $cursor->finish();
+
+      for ($ik = 0; $ik<scalar(@arstream); $ik++){
+          if( $arstream[$ik] eq "physics" ) {
+              $nphysics = $narray[$ik];
+          }elsif( $arstream[$ik] eq "mtd" ) {
+              $nmtd = $narray[$ik];
+          }elsif( $arstream[$ik] eq "hlt" ) {
+              $nhlt = $narray[$ik];
+          }elsif( $arstream[$ik] eq "upc" ) {
+              $nupc = $narray[$ik];
+          }elsif( $arstream[$ik] eq "hltgood" ) {
+              $nhltgood = $narray[$ik];
+          }elsif( $arstream[$ik] eq "fms" ) {
+              $nfms = $narray[$ik];
+          }elsif( $arstream[$ik] eq "W" or $arstream[$ik] eq "WE" or $arstream[$ik] eq "WB"  ) {
+              $nwb = $narray[$ik];
+         }
+    }
+  }
 
   #####################
 
@@ -412,7 +492,7 @@ END
  @arphysics = ();
  @argamma = ();
  @arhlt = ();
- @arfmsfast = ();
+ @arfms = ();
  @arht = ();
  @aratomcules = ();
  @arupc = ();
@@ -426,7 +506,7 @@ END
  @cpphysics = ();
  @cpgamma = ();
  @cphlt = ();
- @cpfmsfast = ();
+ @cpfms = ();
  @cpht = ();
  @cpatomcules = ();
  @cpupc = ();
@@ -435,12 +515,17 @@ END
  @cpcentralpro  = ();
  @cpwb = (); 
 
+ $precpu;
+ @prcpmtd = ();
+ @rtprcpmtd = ();
+
+
  @jbupsilon = ();
  @jbmtd = ();
  @jbphysics = ();
  @jbgamma = ();
  @jbhlt = ();
- @jbfmsfast = ();
+ @jbfms = ();
  @jbht = ();
  @jbatomcules = ();
  @jbupc = ();
@@ -448,6 +533,24 @@ END
  @jbhltgood = ();
  @jbcentralpro  = ();
  @jbwb = ();
+
+ @rtphysics = ();
+ @rtmtd = ();
+ @rthlt = ();
+ @rtups = ();
+ @rthltgood = ();
+ @rtfms = ();
+ @rtwb = ();
+
+ @rphysics = ();
+ @rmtd = ();
+ @rhlt = ();
+ @rups = ();
+ @rhltgood = ();
+ @rfms = ();
+ @rwb = ();
+
+
 
  @nevents = ();
  @numjobs = ();
@@ -541,18 +644,22 @@ END
 
 	   if ( $pstream eq "physics" ) {
 	       $jbphysics[$ndt]++;
+               $rphysics[$ndt] = $jbphysics[$ndt]*100/$nphysics;
 #           }elsif( $pstream eq "centralpro" ) {
 #               $jbcentral[$ndt]++; 
 	   }elsif( $pstream eq "mtd" ) {
                $jbmtd[$ndt]++;
+               $rmtd[$ndt] = $jbmtd[$ndt]*100/$nmtd;
 #           }elsif( $pstream eq "upsilon" ) {
 #               $jbupsilon[$ndt]++; 
 #           }elsif( $pstream eq "gamma" ) {
 #               $jbgamma[$ndt]++; 
            }elsif( $pstream eq "hlt" ) {
-               $jbhlt[$ndt]++;  
+               $jbhlt[$ndt]++; 
+               $rhlt[$ndt] = $jbhlt[$ndt]*100/$nhlt;
            }elsif( $pstream eq "fms" ) {
-               $jbfmsfast[$ndt]++; 
+               $jbfms[$ndt]++; 
+               $rfms[$ndt] =  $jbfms[$ndt]*100/$nfms;
 #           }elsif( $pstream eq "ht" ) {
 #               $jbht[$ndt]++;  
 #           }elsif( $pstream eq "atomcules" ) {
@@ -560,11 +667,14 @@ END
 #           }elsif( $pstream eq "monitor" ) {
 #               $jbmonitor[$ndt]++;  
            }elsif( $pstream eq "hltgood" ) {
-               $jbhltgood[$ndt]++;   
+               $jbhltgood[$ndt]++; 
+               $rhltgood[$ndt] = $jbhltgood[$ndt]*100/$nhltgood;  
            }elsif( $pstream eq "upc" ) {
                $jbupc[$ndt]++;
+               $rupc[$ndt] = $jbupc[$ndt]*100/$nupc ;
            }elsif( $pstream eq "W" or $pstream eq "WE" or $pstream eq "WB" ) {
                $jbwb[$ndt]++;
+               $rwb[$ndt] = $jbwb[$ndt]*100/$nwb ;
 	       }
  	    }
     }
@@ -769,7 +879,7 @@ END
               }elsif( $pstream eq "hlt" ) {
                $cphlt[$ndt]++;  
               }elsif( $pstream eq "fms" ) {
-               $cpfmsfast[$ndt]++; 
+               $cpfms[$ndt]++; 
 #              }elsif( $pstream eq "ht" ) {
 #               $cpht[$ndt]++;  
 #              }elsif( $pstream eq "atomcules" ) {
@@ -825,7 +935,7 @@ END
               }elsif( $pstream eq "hlt" ) {
                $arhlt[$ndt]++;
               }elsif( $pstream eq "fms" ) {
-               $arfmsfast[$ndt]++ ;
+               $arfms[$ndt]++ ;
 #              }elsif( $pstream eq "ht" ) {
 #               $arht[$ndt]++ ;
 #              }elsif( $pstream eq "atomcules" ) {
@@ -852,6 +962,7 @@ END
 my @data = ();
 my $ylabel;
 my $gtitle; 
+my $ynum = 14;
 
     my $graph = new GD::Graph::linespoints(750,650);
 
@@ -896,9 +1007,9 @@ my $gtitle;
 
 
 
-#    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cphltgood, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cpfmsfast ) ; 
+#    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cphltgood, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cpfms ) ; 
 
-   @data = (\@ndate, \@cpphysics, \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfmsfast ) ; 
+   @data = (\@ndate, \@cpphysics, \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfms ) ; 
 
 
       }elsif( $srate eq "rtime/cpu"){
@@ -926,40 +1037,56 @@ if($qprod eq "P14ia" ) {
 
   
 
-#    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@arhltgood, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfmsfast ) ;
+#    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@arhltgood, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfms ) ;
 
 
-    @data = (\@ndate, \@arphysics, \@arhlt, \@arhltgood, \@armtd, \@arupc, \@arwb, \@arfmsfast ) ;
+    @data = (\@ndate, \@arphysics, \@arhlt, \@arhltgood, \@armtd, \@arupc, \@arwb, \@arfms ) ;
 
 
      }elsif( $srate eq "exectime"){
 
  @data = ();
 
+my $ynum = 14;
 
  if($qprod eq "P14ia" ) {
      $max_y = 21000 ;
  }elsif($qprod eq "P14ig" ) {
      $max_y = 14000 ;
- }elsif($qprod eq "P14ii" ) {
-     $max_y = 2800 ;
- }elsif($qprod eq "P15ib" ){
-     $max_y = 7000 ;
- }elsif($qprod eq "P15ic" or $qprod eq "P15ie" ){
-     $max_y = 14000 ;
+# }elsif($qprod eq "P14ii" ) {
+#     $max_y = 2800 ;
+# }elsif($qprod eq "P15ib" ){
+#     $max_y = 7000 ;
+# }elsif($qprod eq "P15ic" or $qprod eq "P15ie" ){
+#     $max_y = 14000 ;
  }else{
-     $max_y = 14000 ;
  }
+
+
+  if($qprod eq "P14ia" or $qprod eq "P14ig" ) { 
+
 
         $xlabel = "Job's execution time on the farm in hours";
         $ylabel = "Number of jobs";         
 	$gtitle = "Execution time for different stream jobs in $qprod production ";
-
   
 
-#    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfmsfast ) ;
+#    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfms ) ;
 
-    @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbhltgood, \@jbmtd, \@jbupc, \@jbwb, \@jbfmsfast ) ;
+    @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbhltgood, \@jbmtd, \@jbupc, \@jbwb, \@jbfms ) ;
+
+  }else{
+
+    $max_y = 28 ;
+
+       $xlabel = "Job's execution time on the farm in hours";
+        $ylabel = "Percentage of jobs (%)";         
+	$gtitle = "Execution time for different stream jobs in $qprod production ";
+  
+   @data = (\@ndate, \@rphysics, \@rhlt, \@rhltgood, \@rmtd, \@rupc, \@rwb, \@rfms ) ;
+
+}
+
 
      }elsif( $srate eq "events"){
 
@@ -1025,7 +1152,7 @@ if($qprod eq "P14ia" ) {
 	$graph->set(x_label => $xlabel,
 	            y_label => $ylabel,
                     title   => $gtitle,
-                    y_tick_number => 14,
+                    y_tick_number => $ynum,
                     x_label_position => 0.5,
                     y_min_value => $min_y,
                     y_max_value => $max_y,
