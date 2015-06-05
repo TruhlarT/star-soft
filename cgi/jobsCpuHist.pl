@@ -1078,16 +1078,16 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 
  @data = ();
 
-my $ynum = 14;
+
+  if($qprod eq "P14ia" or $qprod eq "P14ig" ) { 
 
  if($qprod eq "P14ia" ) {
      $max_y = 21000 ;
+     $ynum = 14;
  }elsif($qprod eq "P14ig" ) {
      $max_y = 14000 ;
- }else{
+     $ynum = 14;
  }
-
-  if($qprod eq "P14ia" or $qprod eq "P14ig" ) { 
 
         $xlabel = "Job's execution time on the farm in hours";
         $ylabel = "Number of jobs";         
