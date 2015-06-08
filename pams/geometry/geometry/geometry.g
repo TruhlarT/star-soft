@@ -1,5 +1,8 @@
-* $Id: geometry.g,v 1.286 2015/05/19 19:29:20 jwebb Exp $
+* $Id: geometry.g,v 1.287 2015/06/08 18:10:38 jwebb Exp $
 * $Log: geometry.g,v $
+* Revision 1.287  2015/06/08 18:10:38  jwebb
+* Enable secondary tracking (hit association) for pixel (and FGT) -- AgSFlag('SIMU',2).
+*
 * Revision 1.286  2015/05/19 19:29:20  jwebb
 * Associate hits on 2ndary tracks to the track, not the primary track which initiates decay/shower.  https://www.star.bnl.gov/rt3/Ticket/Display.html?id=3092
 *
@@ -5063,14 +5066,15 @@ c          write(*,*) '************** Creating the 2007-     version of the Barr
      IF IstdConfig==2 { CONSTRUCT istdgeo1; }
    }
 
-  Call AgSFlag('SIMU',1) ! Return to association of 2ndary hits on primary tracks 
 
    IF  PXST {
      IF PxstConfig==0 { CONSTRUCT pxstgeo1; }
    }
 
 
-   IF MUTD {
+  Call AgSFlag('SIMU',1) ! Return to association of 2ndary hits on primary tracks 
+
+   IF MUTD { 
      Call AgDetp NEW ('MUTD')
      IF MutdConfig=1 { CONSTRUCT mutdgeo; }
      IF MutdConfig=2 { CONSTRUCT mutdgeo2;}
@@ -5086,6 +5090,8 @@ c          write(*,*) '************** Creating the 2007-     version of the Barr
      }
 
    }
+
+   Call AgSFlag('SIMU',2) ! Save hits from all secondaries in SSD, PXL, IST 
 
    IF PIXL {
      IF PixlConfig==-1 { CONSTRUCT pixlgeo00; }
@@ -5167,6 +5173,7 @@ IF (PSUP){ CONSTRUCT PsupGeo;}    """ Insertion structures """
 
    ENDIF
 
+   Call AgSFlag('SIMU',1) ! Return to association of 2ndary hits on primary tracks 
 
    """The Foward Spaghetti Calorimeter"""    
    IF FSCE {  CONSTRUCT fscegeo;  }
