@@ -373,7 +373,7 @@ END
 
 
 
-    $sql="SELECT count(jobfileName), streamName  FROM $JobStatusT WHERE (prodSeries = 'P15ic' or prodSeries = 'P15ie') AND  runDay <> '0000-00-00' AND jobStatus = 'Done' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) < ?  group by streamName ";
+    $sql="SELECT count(jobfileName), streamName  FROM $JobStatusT WHERE (prodSeries = 'P15ic' or prodSeries = 'P15ie') AND  runDay <> '0000-00-00' AND jobStatus = 'Done' AND NoEvents >= 10 AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) < ?  group by streamName ";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -447,7 +447,7 @@ END
 
 #######
 
-    $sql="SELECT count(jobfileName), streamName  FROM $JobStatusT WHERE prodSeries = ? AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) < ? AND jobStatus = 'Done' group by streamName ";
+    $sql="SELECT count(jobfileName), streamName  FROM $JobStatusT WHERE prodSeries = ? AND  runDay <> '0000-00-00' AND jobStatus = 'Done' AND NoEvents >= 10 AND (TO_DAYS(\"$nowdate\") - TO_DAYS(createTime)) < ?  group by streamName ";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
