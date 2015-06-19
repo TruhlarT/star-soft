@@ -1,5 +1,8 @@
-* $Id: geometry.g,v 1.287 2015/06/08 18:10:38 jwebb Exp $
+* $Id: geometry.g,v 1.288 2015/06/19 13:48:25 jwebb Exp $
 * $Log: geometry.g,v $
+* Revision 1.288  2015/06/19 13:48:25  jwebb
+* Added HCAL test configuration (hctest)
+*
 * Revision 1.287  2015/06/08 18:10:38  jwebb
 * Enable secondary tracking (hit association) for pixel (and FGT) -- AgSFlag('SIMU',2).
 *
@@ -1288,6 +1291,7 @@ replace [exe FPDM04;] with [; "forward pion detector "; FPDM=on; FpdmConfig  = 4
 replace [exe HCALof;] with [; "HCAL off"; HCAL=off; HcalConfig=0; ]
 replace [exe HCALv0;] with [; "HCAL on "; HCAL=on;  HcalConfig=0; ]
 replace [exe HCALv1;] with [; "HCAL on "; HCAL=on;  HcalConfig=1; ]
+replace [exe HCALvF;] with [; "HCAL on "; HCAL=on;  HcalConfig=15;]
 
 *                                                                                          Forward TPC 
 
@@ -2628,6 +2632,7 @@ replace [exe UPGR22;] with ["upgr16a + fhcm01"
               DUMM,SCON,IDSM,FSCE,EIDD,ISTD,
               PXST,PSUP,HCAL
 
+
 * Qualifiers:  TPC        TOF         etc
    Logical    emsEdit,svtWater,
               on/.true./,off/.false./
@@ -3356,6 +3361,21 @@ If LL>0
   Case eStar2  { eStar2 : eStar development geometry;     Geom = 'eStar2  ';  exe eStar2; }
 
 
+  Case hctest  {
+
+  "Switch off all detectors" 
+  {PIPE,SVTT,SISD,TPCE,FTPC,BTOF,VPDD,MAGP,CALB,ECAL,UPST,
+   RICH,ZCAL,MFLD,BBCM,FPDM,PHMD,PIXL,ISTB,GEMB,FSTD,FTRO,FGTD,
+   SHLD,QUAD,MUTD,IGTD,HPDT,ITSP,DUMM,SCON,IDSM,FSCE,EIDD,ISTD, 
+   PXST,PSUP,HCAL}=off;
+
+   MFLD = on;
+   exe CAVE04
+   exe HCALvF
+
+
+
+  }
 ****************************************************************************************
 ****************************************************************************************
 ****************************************************************************************
@@ -5006,8 +5026,9 @@ c          write(*,*) '************** Creating the 2007-     version of the Barr
    }
 
    IF (HCAL)   {
-      IF HcalConfig==0 { CONSTRUCT HcalGeo; }
-      IF HcalConfig==1 { CONSTRUCT HcalGeo1; }
+      IF HcalConfig==0  { CONSTRUCT HcalGeo; }
+      IF HcalConfig==1  { CONSTRUCT HcalGeo1; }
+      IF HcalConfig==15 { CONSTRUCT HcalGeoF; }
    }
 
 
