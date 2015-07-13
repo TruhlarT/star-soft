@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: StBTofSimMaker.cxx,v 1.8 2015/06/30 18:00:38 genevb Exp $
+ * $Id: StBTofSimMaker.cxx,v 1.5.2.1 2015/07/13 16:47:28 didenko Exp $
  *
  * Author: Frank Geurts
  ***************************************************************************
@@ -10,14 +10,8 @@
  ***************************************************************************
  *
  * $Log: StBTofSimMaker.cxx,v $
- * Revision 1.8  2015/06/30 18:00:38  genevb
- * Enable MC hits in embedding (RT ticket 3116, Geurts approval)
- *
- * Revision 1.7  2013/06/13 14:00:51  geurts
- * improve log message for inefficiency cuts
- *
- * Revision 1.6  2012/05/07 14:16:40  fisyak
- * Write hit to StEvent, set kBTofId for hit
+ * Revision 1.5.2.1  2015/07/13 16:47:28  didenko
+ * updated StBTofSimMaker for embedding
  *
  * Revision 1.5  2011/02/03 19:01:01  geurts
  * Introduce option to switch writing simulated hits to StEvent. Default behavior is OFF.
@@ -650,7 +644,6 @@ Int_t StBTofSimMaker::fillEvent()
 
 	    Float_t mcTof=aMcBTofHit->tof()/1000.;//from picoseconds to nanoseconds
 
-	    aBTofHit.setHardwarePosition(kBTofId);
 	    aBTofHit.setTray((Int_t)aMcBTofHit->tray());
 	    aBTofHit.setModule((unsigned char)aMcBTofHit->module());
 	    aBTofHit.setCell((Int_t)aMcBTofHit->cell());
