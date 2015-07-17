@@ -41,6 +41,7 @@ my @prod_set = (
                 "year_2014/AuAu200_production_low_2014",
                 "year_2014/AuAu200_production_mid_2014",
                 "year_2015/production_pp200long_2015",
+                "year_2015/production_pAu200_2015",
 		);
 
 
