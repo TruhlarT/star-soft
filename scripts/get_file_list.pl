@@ -260,13 +260,13 @@ sub Usage
   print "che              Do not use disk caching \n -sqlcache        ";
   print "     attempt to use server side cache (expert mode, the \n   ";
   print "                    module should deternine if it can automat";
-  print "ically)\n\n -help --help          print this help\n\n -o <out";
-  print "put filename>  redirects results to an ouput file (use STDOUT";
-  print ")\n\n -V                    print version and exits\n -as <sc";
-  print "ope>           connects as specified, scopes={Admin|User}\n -";
-  print "as <site>::<scope>   connects to site as specified\n\n Fields";
-  print " appearing in -keys and/or -cond may be amongst the following";
-  print "\n\n";
+  print "ically)\n\n -o <output filename>  redirects results to an oup";
+  print "ut file (default uses \n                       STDOUT)\n\n -a";
+  print "s <scope>           connects as specified, scopes={Admin|User";
+  print "}\n -as <site>::<scope>   connects to site as specified\n\n -";
+  print "V                    print version and exits\n -help --help  ";
+  print "        print this help\n\n Fields appearing in -keys and/or ";
+  print "-cond may be amongst the following\n\n";
   print join(" ",$fileC->get_keyword_list())."\n\n";
 
 }
