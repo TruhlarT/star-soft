@@ -362,18 +362,18 @@ struct JFileAttr => {
  my $nIstHits = 0;
  my $totIstHits = 0;
  my $avgIstHits = 0;
- my $nSsdHits = 0;
- my $totSsdHits = 0;
- my $avgSsdHits = 0;
+ my $nSstHits = 0;
+ my $totSstHits = 0;
+ my $avgSstHits = 0;
  my $nAssPxlHits = 0;
  my $nAssIstHits = 0;
- my $nAssSsdHits = 0;
+ my $nAssSstHits = 0;
  my $avgAssPxlHits = 0;
  my $avgAssIstHits = 0;
- my $avgAssSsdHits = 0;
+ my $avgAssSstHits = 0;
  my $totAssPxlHits = 0;
  my $totAssIstHits = 0;
- my $totAssSsdHits = 0;
+ my $totAssSstHits = 0;
 
  my @nmatchMtdHits = ();
  my $totmatchMtdHits = 0;
@@ -528,21 +528,21 @@ my $pyear = 0;
  $avgmatchMtdHits = 0;
  $NevtMtdHits = 0;
  $nIstHits = 0;
- $nSsdHits = 0;
  $totIstHits = 0;
- $totSSdHits = 0;
  $avgIstHits = 0;
- $avgSSdHits = 0;
  $nAssPxlHits = 0;
  $nAssIstHits = 0;
- $nAssSsdHits = 0;
  $avgAssPxlHits = 0;
  $avgAssIstHits = 0;
- $avgAssSsdHits = 0;
  $totAssPxlHits = 0;
  $totAssIstHits = 0;
- $totAssSsdHits = 0;
 
+ $nSstHits = 0;
+ $totSstHits = 0;
+ $avgSstHits = 0;
+ $nAssSstHits = 0;
+ $avgAssSstHits = 0;
+ $totAssSstHits = 0;
 
  @prt = ();
  
@@ -657,7 +657,7 @@ my $pyear = 0;
     &fillJSTable();
 ##############
 
-   if($mpath =~ /AuAu200_production_low_2014/ or $mpath =~ /AuAu200_production_mid_2014/ or $mpath =~ /production_pp200long_2015/) {
+   if($mpath =~ /AuAu200_production_low_2014/ or $mpath =~ /AuAu200_production_mid_2014/ or $mpath =~ /production_pp200long_2015/ or $mpath =~ /production_pAu200_2015/ ) {
 
        print "Fillin QA table  ", $mpath, "\n";
     next if ($mpath =~ /nohft/);
@@ -775,13 +775,13 @@ my $pyear = 0;
 
     &fillJSTable();
 
-#     if($mpath =~ /production_pp200long_2015/) {
+     if($mpath =~ /production_pAu200_2015/) {
 
-#       print "Fillin QA table  ", $mpath, "\n";
-#    next if ($mpath =~ /nohft/);
+       print "Fillin QA table  ", $mpath, "\n";
+    next if ($mpath =~ /nohft/);
 
-#    &fillQATable();
-#   }
+    &fillQATable();
+   }
 
 
         foreach my $nOldJob (@old_jobs) {
@@ -1407,6 +1407,8 @@ sub fillQATable {
     $sql.="AsstPxlHits='$avgAssPxlHits',";
     $sql.="IstHits='$avgIstHits',";
     $sql.="AsstIstHits='$avgAssIstHits',";
+    $sql.="SstHits='$avgSstHits',";
+    $sql.="AsstSstHits='$avgAssSstHits',";
     $sql.="MtdMatchHits='$avgmatchMtdHits',";
     $sql.="MtdHits='$avgMtdHits',";
     $sql.="avail='$mavail'";  
@@ -1501,9 +1503,9 @@ sub  updateQATable {
  $nIstHits = 0;
  $totIstHits = 0;
  $avgIstHits = 0;
- $nSsdHits = 0;
- $totSsdHits = 0;
- $avgSsdHits = 0;
+ $nSstHits = 0;
+ $totSstHits = 0;
+ $avgSstHits = 0;
 
  $nAssIstHits = 0;
  $totAssIstHits = 0;
@@ -1513,9 +1515,9 @@ sub  updateQATable {
  $totAssPxlHits = 0;
  $avgAssPxlHits = 0;
 
- $nAssSsddHits = 0;
- $totAssSsdHits = 0;
- $avgAssSsdHits = 0;
+ $nAssSstHits = 0;
+ $totAssSstHits = 0;
+ $avgAssSstHits = 0;
 
  @nmatchMtdHits = ();
  $totmatchMtdHits = 0;
@@ -1608,7 +1610,7 @@ $jrun = "Run not completed";
 
          }
       
-   if($fl_log =~ /AuAu200_production_low_2014/  or $fl_log =~ /AuAu200_production_mid_2014/ or $fl_log =~ /production_pp200long_2015/) {
+   if($fl_log =~ /AuAu200_production_low_2014/  or $fl_log =~ /AuAu200_production_mid_2014/ or $fl_log =~ /production_pp200long_2015/ or $fl_log =~ /production_pAu200_2015/ ) {
 
 #       print "Check path   ",$fl_log,"\n";
 
@@ -1629,12 +1631,12 @@ $jrun = "Run not completed";
       $nIstHits = $prt[6];
       $totIstHits += $nIstHits;
 
-     }elsif($line =~ /SsdHitLoader loaded/) {
+     }elsif($line =~ /SstHitLoader loaded/) {
 
       @prt = ();
       @prt = split( " ", $line) ;
-      $nSsdHits = $prt[6];
-      $totSsdHits += $nSsdHits;
+      $nSstHits = $prt[6];
+      $totSstHits += $nSstHits;
 
      }
 
@@ -1662,6 +1664,18 @@ $jrun = "Run not completed";
 
       $nAssIstHits = $prtt[0];
       $totAssIstHits += $nAssIstHits;
+
+     }elsif($line =~ /Number of used hits:SsdId/) {
+
+
+      @prt = ();
+      @prt = split( ":", $line) ;
+      $ntemp = $prt[4];
+      @prtt = ();
+      @prtt = split( " ", $ntemp) ;  
+
+      $nAssSsttHits = $prtt[0];
+      $totAssSstHits += $nAssSstHits;
 
      }
 
@@ -1844,6 +1858,9 @@ $jrun = "Run not completed";
    }elsif ($line =~ /Abort/)  {
              $Err_messg = "Abort";
 
+   }elsif ($line =~ /StFATAL/)  {
+             $Err_messg = "StFATAL";
+
 #   }elsif ($line =~ /glibc detected/)  {
 #             $Err_messg = "glibc detected";
 
@@ -1979,22 +1996,22 @@ $jrun = "Run not completed";
 
 #  print "Number of vertices = ", $no_prvertx,"   ", "Number of events ", $no_event,"  ",$EvCom,"  ",$nevent_vtx,"  ",$numevt_vtx, "  Average No vtx = ", $avr_prvertx,"   ","Avg no primary tracks   ", $avr_prtracks,"   ",$avr_prtrck_nfit15, "\n"; 
 
-  if($fl_log =~ /AuAu200_production_low_2014/ or $fl_log =~ /AuAu200_production_mid_2014/ or $fl_log =~ /production_pp200long_2015/) {
+  if($fl_log =~ /AuAu200_production_low_2014/ or $fl_log =~ /AuAu200_production_mid_2014/ or $fl_log =~ /production_pp200long_2015/ or $fl_log =~ /production_pAu200_2015/ ) {
 
      if($EvDone >= 1) {
      $avgMtdHits = $totMtdHits/$EvDone;
      $avgPxlHits = $totPxlHits/$EvDone;
      $avgIstHits = $totIstHits/$EvDone;
-     $avgSsdHits = $totSsdHits/$EvDone;
+     $avgSstHits = $totSstHits/$EvDone;
      $avgAssPxlHits = $totAssPxlHits/$EvDone;
      $avgAssIstHits = $totAssIstHits/$EvDone;
-     $avgAssSsdHits = $totAssSsdHits/$EvDone;
+     $avgAssSstHits = $totAssSstHits/$EvDone;
 
 
      }
-  print "Avg #MtdHits = ",  $avgMtdHits,"   ", "Avg #PxlHits = ", $avgPxlHits,"   ", "Avg #IstHits = ", $avgIstHits,"   ", "Avg #SsdHits = ", $avgSsdHits,"\n";
+  print "Avg #MtdHits = ",  $avgMtdHits,"   ", "Avg #PxlHits = ", $avgPxlHits,"   ", "Avg #IstHits = ", $avgIstHits,"   ", "Avg #SsdHits = ", $avgSstHits,"\n";
 
-  print " Events = ", $EvDone, "  Avg #AssPxlHits = ", $avgAssPxlHits,"   ", "Avg #AssIstHits = ", $avgAssIstHits,"   ", "Avg #AssSsdHits = ", $avgAssSsdHits,"\n";
+  print " Events = ", $EvDone, "  Avg #AssPxlHits = ", $avgAssPxlHits,"   ", "Avg #AssIstHits = ", $avgAssIstHits,"   ", "Avg #AssSstHits = ", $avgAssSstHits,"\n";
 
 
      for ($jj = 0; $jj < $no_event; $jj++ ) {
