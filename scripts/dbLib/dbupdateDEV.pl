@@ -1674,7 +1674,7 @@ $jrun = "Run not completed";
       @prtt = ();
       @prtt = split( " ", $ntemp) ;  
 
-      $nAssSsttHits = $prtt[0];
+      $nAssSstHits = $prtt[0];
       $totAssSstHits += $nAssSstHits;
 
      }
