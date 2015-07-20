@@ -508,6 +508,7 @@ if ( $ThisYear == 2005 ){
         rdaq_string2ftype("pxl_adc")    ."|".  # <-- appeared in 2013 run
         rdaq_string2ftype("upsilon")    ."|".
         rdaq_string2ftype("minbias")    ."|".
+        rdaq_string2ftype("himult")     ."|".
 	rdaq_string2ftype("upc")        ."|".  # <-- moved here as data was large in 2011
         rdaq_string2ftype("minbias_adc")."|".
 	rdaq_string2ftype("mtd")        ."|".  # <-- moved here in 2015
@@ -585,8 +586,7 @@ if ( $ThisYear == 2005 ){
         $DCHAIN{"PPAu"} = "P2015,btof,mtd,pp2pp,BEmcChkStat,CorrX,OSpaceZ2,OGridLeak3D,-hitfilt";
         $DCHAIN{"PPAl"} = "P2015,btof,mtd,pp2pp,BEmcChkStat,CorrX,OSpaceZ2,OGridLeak3D,-hitfilt";
 
-    }else{
-
+   } else {
         $DCHAIN{"PPPP"} =
             "P2014a,btof,mtd,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
         $DCHAIN{"AuAu"} = "P2014a,btof,mtd,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
