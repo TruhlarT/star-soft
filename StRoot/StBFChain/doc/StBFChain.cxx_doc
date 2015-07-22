@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.142 2015/07/21 18:24:27 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.143 2015/07/22 17:38:26 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -1112,9 +1112,10 @@ Bfc_st BFC[] = {
   {"PmdUtil" ,"" ,"","","", "StPmdUtil","Load StPmdUtil",kFALSE},
   {"QUtils" ,"" ,"","PmdUtil,EmcUtil","", "","Load QA Libs dependencies",kFALSE},
   {"Stu" ,"" ,"","","", "StEventUtilities","Load StEventUtilities",kFALSE},
-  {"MuDSTDeps" ,"" ,"","StEvent,Stu,StBichsel", "","Tree","Load MuDST misc. dependencies (all)",kFALSE},
+  {"MuDSTDeps" ,"","","StEvent,Stu,StBichsel",""
+   , "StStrangeMuDstMaker,Tree","Load MuDST misc. dependencies",kFALSE},
   {"MuDST" ,"" ,"","MuDSTDeps,EmcUtil,TofUtil,BTofUtil,PmdUtil",""
-   , "StMuDSTMakerNoStrange","Load MuDST library",kFALSE},
+   , "StMuDSTMaker","Load MuDST library",kFALSE},
   {"geantL","","","geomT,gen_T,sim_T,StarMagField","","geometry,Geom,St_db_Maker,St_g2t,St_geant_Maker"
    , "Load GeantLibs",kFALSE},
   {"gstarLib","","","" ,"","gstar","Load gstar lib",kFALSE},
@@ -2644,9 +2645,10 @@ Bfc_st BFC[] = {
   {"PmdUtil" ,"" ,"","","", "StPmdUtil","Load StPmdUtil",kFALSE},
   {"QUtils" ,"" ,"","PmdUtil,EmcUtil","", "","Load QA Libs dependencies",kFALSE},
   {"Stu" ,"" ,"","","", "StEventUtilities","Load StEventUtilities",kFALSE},
-  {"MuDSTDeps" ,"" ,"","StEvent,Stu,StBichsel", "","Tree","Load MuDST misc. dependencies (all)",kFALSE},
+  {"MuDSTDeps" ,"","","StEvent,Stu,StBichsel",""
+   , "StStrangeMuDstMaker,Tree","Load MuDST misc. dependencies",kFALSE},
   {"MuDST" ,"" ,"","MuDSTDeps,EmcUtil,TofUtil,BTofUtil,PmdUtil",""
-   , "StMuDSTMakerNoStrange","Load MuDST library",kFALSE},
+   , "StMuDSTMaker","Load MuDST library",kFALSE},
   {"geantL","","","geomT,gen_T,sim_T,StarMagField","","geometry,Geom,St_db_Maker,St_g2t,St_geant_Maker"
    , "Load GeantLibs",kFALSE},
   {"gstarLib","","","" ,"","gstar","Load gstar lib",kFALSE},
