@@ -38,7 +38,7 @@ my $dsite;
 
  }elsif($SITE eq "rcf_embed" ) {
 
-  $dsite = "rcf_embed";
+  $dsite = "rcf";
  $TOP_DIRD = "/star/rcf/test/new_embed/";
  @node_dir = ("daq_sl302.ittf", "trs_sl302.ittf", "simu", "daq_sl302.ittf_opt", "trs_sl302.ittf_opt"); 
 
@@ -1077,8 +1077,8 @@ $jrun = "Run not completed";
   }elsif ($line =~ /FATAL/ and $line =~ /floating point exception/) {
          $Err_messg = "Floating point exception";
 
-   }elsif ($line =~ /glibc detected/)  {
-             $Err_messg = "glibc detected";
+#   }elsif ($line =~ /glibc detected/)  {
+#             $Err_messg = "glibc detected";
 
      }elsif ($line =~ /Catch exception FATAL/) {
 
