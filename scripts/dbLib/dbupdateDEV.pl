@@ -1524,6 +1524,8 @@ sub  updateQATable {
  $avgmatchMtdHits = 0;
  $NevtMtdHits = 0;
  
+ $nmatchMtdHits[0] = 0; 
+
  my $nnline = 0;
 
 #---------------------------------------------------------
@@ -1680,6 +1682,7 @@ $jrun = "Run not completed";
      }
 
      if ( $line =~ /mtd hit matched with track successfully/ ) {
+
 	 $nmatchMtdHits[$no_event]++;
 #     print "Number of matched MTD hits  ", $nmatchMtdHits[$no_event], "  ", "in the event #",$no_event, "\n";
 
@@ -1690,6 +1693,7 @@ $jrun = "Run not completed";
 #     if ( $line =~ /QAInfo: Done with Event/ ) {
       if ( $line =~ /Done with Event/ ) {
         $no_event++;
+        $nmatchMtdHits[$no_event] = 0;  
      } 
 
        if ( $line =~ /Reading Event:/ ) {
