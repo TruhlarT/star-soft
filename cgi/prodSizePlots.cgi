@@ -63,6 +63,7 @@ my @prt = ();
 my @ardays = ();
 my @data = ();
 
+my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months","12_months");
 
 my $ProdSizeT = "ProductionSize";
 
@@ -108,6 +109,8 @@ my $scriptname = $query->url(-relative=>1);
 my $qprod   = $query->param('prod');
 my $srate   = $query->param('prate');
 my $qtrig   = $query->param('ptrig');
+my $qperiod = $query->param('period');
+
 
 if( $qprod eq "" and $srate eq "" and  $qtrig eq "" ) {
 
@@ -159,6 +162,14 @@ END
                                   -default=>all,
                                   -size =>1);
 
+
+    print "<p>";
+    print "</td><td>";
+    print "<h3 align=center>Period of monitoring</h3>";
+    print "<h4 align=center>";
+    print  $query->scrolling_list(-name=>'period',
+                                  -values=>\@arperiod,
+                                  -size =>1);
 
     print "<p>";
     print "</td><td>";
