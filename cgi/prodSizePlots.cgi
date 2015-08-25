@@ -40,7 +40,7 @@ if( $sec < 10) { $sec = '0'.$sec };
 
 my $todate = ($year+1900)."-".$mon."-".$mday;
 
-my $nowdate;
+my $nowdate = $todate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
@@ -194,6 +194,8 @@ END
 my $qprod =   $qqr->param('prod');
 my $srate =   $qqr->param('prate');
 my $qtrig =   $qqr->param('ptrig');
+my $qperiod = $qqr->param('period');
+
 
 # Tables
 
@@ -204,6 +206,18 @@ my $qtrig =   $qqr->param('ptrig');
  my $nday = 0;
  my $tdate;
 
+my $day_diff = 0;
+my $nmonth = 0;
+
+if ( $qperiod =~ /month/) {
+     @prt = split("_", $qperiod);
+     $nmonth = $prt[0];
+     $day_diff = 30*$nmonth + 1;
+  }
+
+  $day_diff = int($day_diff);
+
+
  &StDbProdConnect();
 
  $nowdate = $todate;
@@ -213,11 +227,11 @@ my $qtrig =   $qqr->param('ptrig');
   if($qprod eq "all2014"){
 
 
-   $sql="SELECT DISTINCT date_format(starttime, '%Y-%m-%d') as SDATE FROM $ProdSizeT WHERE (prodtag = 'P15ic' or prodtag = 'P15ie')  and date_format(starttime, '%Y-%m-%d') <> '0000-00-00'  order by SDATE";
+   $sql="SELECT DISTINCT date_format(starttime, '%Y-%m-%d') as SDATE FROM $ProdSizeT WHERE (prodtag = 'P15ic' or prodtag = 'P15ie')  and date_format(starttime, '%Y-%m-%d') <> '0000-00-00' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(starttime)) < ?  order by SDATE";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
-    $cursor->execute();
+    $cursor->execute($day_diff);
 
     while($myday = $cursor->fetchrow) {
         $ardays[$nday] = $myday;
@@ -229,11 +243,11 @@ my $qtrig =   $qqr->param('ptrig');
   }else{
 
 
-   $sql="SELECT DISTINCT date_format(starttime, '%Y-%m-%d') as SDATE FROM $ProdSizeT WHERE prodtag = ?  and date_format(starttime, '%Y-%m-%d') <> '0000-00-00'  order by SDATE";
+   $sql="SELECT DISTINCT date_format(starttime, '%Y-%m-%d') as SDATE FROM $ProdSizeT WHERE prodtag = ?  and date_format(starttime, '%Y-%m-%d') <> '0000-00-00' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(starttime)) < ? order by SDATE";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
-    $cursor->execute($qprod);
+    $cursor->execute($qprod,$day_diff);
 
     while($myday = $cursor->fetchrow) {
         $ardays[$nday] = $myday;
@@ -247,11 +261,11 @@ my $qtrig =   $qqr->param('ptrig');
   }else{
 
 
-   $sql="SELECT DISTINCT date_format(starttime, '%Y-%m-%d') as SDATE  FROM $ProdSizeT WHERE prodtag = ? and Trigset = ? and  date_format(starttime, '%Y-%m-%d') <> '0000-00-00' order by SDATE";
+   $sql="SELECT DISTINCT date_format(starttime, '%Y-%m-%d') as SDATE  FROM $ProdSizeT WHERE prodtag = ? and Trigset = ? and  date_format(starttime, '%Y-%m-%d') <> '0000-00-00' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(starttime)) < ? order by SDATE";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
-    $cursor->execute($qprod,$qtrig);
+    $cursor->execute($qprod,$qtrig,$day_diff);
 
     while($myday = $cursor->fetchrow) {
         $ardays[$nday] = $myday;
