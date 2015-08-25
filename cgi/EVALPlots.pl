@@ -258,7 +258,7 @@ $path_opt =~ s/ittf/sl53.ittf_opt/g ;
   $qupath = "%$path%";
 
 
-            $sql="SELECT path, $mplotVal, date_format(createTime, '%Y-%m-%d') as CDATE FROM $EvalStatusT WHERE path LIKE ? AND jobStatus = 'Done' AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ?  ORDER by createTime  ";
+            $sql="SELECT path, $mplotVal, date_format(createTime, '%Y-%m-%d') as CDATE FROM $EvalStatusT WHERE path LIKE ? AND jobStatus = 'Done' AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? AND '$mplotVal' > 0 ORDER by createTime  ";
 
         $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
         $cursor->execute($qupath,$day_diff);
@@ -283,7 +283,7 @@ $path_opt =~ s/ittf/sl53.ittf_opt/g ;
 
       for (my $ik = 0; $ik < $ndt; $ik++) {  
 
-            $sql="SELECT path, $mplotVal FROM $EvalStatusT WHERE path LIKE ? AND jobStatus= 'Done' AND createTime like '$Ndate[$ik]%' ";
+            $sql="SELECT path, $mplotVal FROM $EvalStatusT WHERE path LIKE ? AND jobStatus= 'Done' AND createTime like '$Ndate[$ik]%' AND '$mplotVal' > 0 ";
 
         $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
         $cursor->execute($qupath);
