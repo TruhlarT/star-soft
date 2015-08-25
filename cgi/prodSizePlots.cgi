@@ -63,7 +63,7 @@ my @prt = ();
 my @ardays = ();
 my @data = ();
 
-my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months","12_months");
+my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months","8_months","10_months","12_months");
 
 my $ProdSizeT = "ProductionSize";
 
