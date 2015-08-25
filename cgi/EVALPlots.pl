@@ -36,6 +36,8 @@ my @Ndate = ();
 my $ndt = 0;
 
 my @prod_set = (
+                "daq_ittf/year_2015/production_pp200long_2015",
+                "daq_ittf/year_2015/production_pAu200_2015",
                 "daq_ittf/year_2014/AuAu200_production_low.nohft_2014",
                 "daq_ittf/year_2014/AuAu200_production_low_2014",
                 "daq_ittf/year_2014/AuAu200_production_mid_2014",
@@ -72,6 +74,7 @@ my @prod_set = (
                 "daq_ittf/year_2001/minbias",
                 "daq_ittf/year_2001/ppMinBias",
                 "daq_ittf/year_2000/minbias",
+                "trs_ittf/year_2015/pp200_minbias",
                 "trs_ittf/year_2014/auau200_minbias",
                 "trs_ittf/year_2012/pp200_minbias",
                 "trs_ittf/year_2012/pp500_minbias",
@@ -349,7 +352,7 @@ my $graph = new GD::Graph::linespoints(650,500);
 
     $legend[0] = "MemUsageFirst(nonoptimized)";
 #    $legend[1] = "MemUsageFirst(optimized)";
-    $legend[2] = "MemUsageLast(nonoptimized)";
+    $legend[1] = "MemUsageLast(nonoptimized)";
 #    $legend[3] = "MemUsageLast(optimized)";
 
     $plotVal="MemUsageFirstEvent,MemUsageLastEvent";
