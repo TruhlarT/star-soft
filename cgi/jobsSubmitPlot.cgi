@@ -324,12 +324,12 @@ $ndt = 0;
  @data = ();
 
       $ylabel = "Number of jobs";
-      $gtitle = "Number of submitted jobs for $qprod production";
+      $gtitle = "Number of submitted jobs per day for $qprod production";
 
 
    if($qprod eq "all2014"){
 
- $legend[0] = "summary of all 2014 production ";
+ $legend[0] = "all run 2014 productions ";
  $legend[1] = "P15ic production";
  $legend[2] = "P15ie production";
  
@@ -366,7 +366,7 @@ $ndt = 0;
                     y_number_format => \&y_format,
                     #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblack lblue lgreen lred lpurple lgray lorange marine lbrown lyellow) ],
+                    dclrs => [ qw(lblue lgreen lpurple lred lblack lgray lorange marine lbrown lyellow) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
