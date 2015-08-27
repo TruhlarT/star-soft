@@ -84,6 +84,10 @@ my $maxexectm = 0 ;
 my $maxcpuval = 0;
 my $maxvalue = 0;
 
+my @submjobs = ();
+my @submjob1 = ();
+my @submjob2 = ();
+
 my $pryear = "2014";
 
 my $rte = 0;
@@ -1206,7 +1210,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
    if($qprod eq "all2014") {
 
 
- $legend[0] = "summary for year 2014 production";
+ $legend[0] = "summary for run 2014 production";
  $legend[1] = "P15ic production";
  $legend[2] = "P15ie production";
 
@@ -1244,7 +1248,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 
    if($qprod eq "all2014") {
 
- $legend[0] = "summary for year 2014 production";
+ $legend[0] = "summary for run 2014 production";
  $legend[1] = "P15ic production";
  $legend[2] = "P15ie production";
 
