@@ -329,6 +329,8 @@ $ndt = 0;
 
    if($qprod eq "all2014"){
 
+ $max_y = 8000 ;
+
  $legend[0] = "all run 2014 productions ";
  $legend[1] = "P15ic production";
  $legend[2] = "P15ie production";
@@ -359,7 +361,7 @@ $ndt = 0;
        $graph->set(x_label => "Date of jobs submission",
                     y_label => $ylabel,
                     title   => $gtitle,
-                    y_tick_number => 12,
+                    y_tick_number => 16,
                     x_label_position => 0.5,
                     y_min_value => $min_y,
                     y_max_value => $max_y,
