@@ -1172,6 +1172,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
    if($qprod eq "all2014") {
 
 
+<hr>
 <table>
 <tr ALIGN=center>
 <td>
@@ -1181,9 +1182,11 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
  $legend[2] = "P15ie production";
 
 
-</td>
-</tr>
-</table>
+
+
+print "</td>";
+print "</tr>";
+print "</table>";
 
 
     @data = (\@ndate, \@nevents, \@nevent1, \@nevent2 ) ;
