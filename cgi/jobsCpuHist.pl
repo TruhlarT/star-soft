@@ -77,6 +77,8 @@ my @nevents = ();
 my @nevent1 = ();
 my @nevent2 = ();
 my @numjobs = ();
+my @numjob1 = ();
+my @numjob2 = ();
 my $maxcpu = 0;
 my $maxexectm = 0 ;
 my $maxcpuval = 0;
@@ -563,7 +565,8 @@ END
  @nevent1 = ();
  @nevent2 = ();
  @numjobs = ();
-
+ @numjob1 = ();
+ @numjob2 = ();
 
    if( $srate eq "exectime" ) {
 
@@ -786,8 +789,39 @@ END
           $numjobs[$ndt] = int($njb + 0.01);
           }
 
-         $ndt++;
          $cursor->finish();
+
+########
+
+ $sql="SELECT  count(jobfileName) FROM $JobStatusT WHERE  (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59')  AND prodSeries = 'P15ic' AND jobStatus = 'Done'  "; 
+
+	    $cursor =$dbh->prepare($sql)
+	      || die "Cannot prepare statement: $DBI::errstr\n";
+	    $cursor->execute();
+ 
+       while( my $njb = $cursor->fetchrow() ) {
+
+          $numjob1[$ndt] = int($njb + 0.01);
+          }
+
+         $cursor->finish();
+
+#########
+
+ $sql="SELECT  count(jobfileName) FROM $JobStatusT WHERE  (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59')  AND prodSeries = 'P15ie' AND jobStatus = 'Done'  "; 
+
+	    $cursor =$dbh->prepare($sql)
+	      || die "Cannot prepare statement: $DBI::errstr\n";
+	    $cursor->execute();
+ 
+       while( my $njb = $cursor->fetchrow() ) {
+
+          $numjob2[$ndt] = int($njb + 0.01);
+          }
+
+         $cursor->finish();
+
+         $ndt++;
 
    }else{
 
@@ -1208,7 +1242,21 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
         $ylabel = "Number of jobs";         
 	$gtitle = "Number of jobs processed per day in $qprod production ";
 
+   if($qprod eq "all2014") {
+
+ $legend[0] = "summary for year 2014 production";
+ $legend[1] = "P15ic production";
+ $legend[2] = "P15ie production";
+
+    @data = (\@ndate, \@numjobs, \@numjob1, \@numjob2 ) ;
+
+}else{
+
+ $legend[0] = "all streams data ";
+
     @data = (\@ndate, \@numjobs ) ;
+
+}
 
      }
 
