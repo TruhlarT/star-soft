@@ -74,6 +74,8 @@ my $prtime;
 my $pstream;
 my $exctime;
 my @nevents = ();
+my @nevent1 = ();
+my @nevent2 = ();
 my @numjobs = ();
 my $maxcpu = 0;
 my $maxexectm = 0 ;
@@ -558,6 +560,8 @@ END
 
 
  @nevents = ();
+ @nevent1 = ();
+ @nevent2 = ();
  @numjobs = ();
 
 
@@ -706,10 +710,41 @@ END
           $nevents[$ndt] = int($sumev + 0.01);
           }
 
-         $ndt++;
          $cursor->finish();
 
-  }else{
+##########
+
+ $sql="SELECT  sum(NoEvents) FROM $JobStatusT WHERE  (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') AND  prodSeries = 'P15ic'  AND jobStatus = 'Done'  "; 
+
+	    $cursor =$dbh->prepare($sql)
+	      || die "Cannot prepare statement: $DBI::errstr\n";
+	    $cursor->execute();
+ 
+       while( my $sumev = $cursor->fetchrow() ) {
+
+          $nevent1[$ndt] = int($sumev + 0.01);
+          }
+
+         $cursor->finish();
+
+###########
+
+ $sql="SELECT  sum(NoEvents) FROM $JobStatusT WHERE  (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') AND  prodSeries = 'P15ie'  AND jobStatus = 'Done'  "; 
+
+	    $cursor =$dbh->prepare($sql)
+	      || die "Cannot prepare statement: $DBI::errstr\n";
+	    $cursor->execute();
+ 
+       while( my $sumev = $cursor->fetchrow() ) {
+
+          $nevent2[$ndt] = int($sumev + 0.01);
+          }
+
+         $cursor->finish();
+       
+       $ndt++;
+
+ }else{
 
   $sql="SELECT  sum(NoEvents) FROM $JobStatusT WHERE  (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') AND prodSeries = ? AND jobStatus = 'Done'  "; 
 
@@ -1134,8 +1169,23 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
         $ylabel = "Number of events";         
 	$gtitle = "Number of events processed per day in $qprod production ";
 
+   if($qprod eq "all2014") {
+
+ $legend[0] = "summary for year 2014 production";
+ $legend[1] = "P15ic production";
+ $legend[2] = "P15ie production";
+
+
+    @data = (\@ndate, \@nevents, \@nevent1, \@nevent2 ) ;
+
+
+}else{
+
+ $legend[0] = "all streams data for $qprod production";
 
     @data = (\@ndate, \@nevents ) ;
+
+}
 
      }elsif( $srate eq "njobs"){
 
