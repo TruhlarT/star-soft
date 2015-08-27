@@ -19,7 +19,6 @@ use GD;
 use GD::Graph::linespoints;
 use Class::Struct;
 
-
 $dbhost="duvall.star.bnl.gov";
 
 #$dbhost="fc2.star.bnl.gov:3386";
@@ -258,7 +257,7 @@ END
 
     print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Production series</h3>";
+    print "<h3 align=center> Production tag</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
