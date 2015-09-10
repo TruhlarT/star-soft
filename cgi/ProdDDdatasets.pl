@@ -42,6 +42,18 @@ my $mondif;
 my $pyear;
 
 my %collHash = (
+                 production_pp200trans_2015 => 'pp200',
+                 production_pp200long_2015 => 'pp200',
+                 production_pp200long2_2015 => 'pp200',
+                 production_pp200long2_2015 => 'pp200',
+                 production_fms_pp200trans_2015 => 'pp200',
+                 production_fms_pp200long2_2015 => 'pp200',
+                 production_pAu200_2015 => 'pAu200',
+                 production_pAu200_fms_2015 => 'pAu200',
+                 production_pAl200_2015 => 'pAl200',
+                 production_pAl200_fms_2015 => 'pAl200',
+                 production_pAl200_2015_lowlumi => 'pAl200',
+                 fixedTarget2015 => 'pAu19',
                  AuAu_200_production_2014 => 'auau200',
                  AuAu_200_production_high_2014 => 'auau200',
                  AuAu_200_production_mid_2014 => 'auau200',
@@ -205,6 +217,18 @@ my %collHash = (
 	      );
              
 my %yrHash = (
+                 production_pp200trans_2015 => 'year2015',
+                 production_pp200long_2015 => 'year2015',
+                 production_pp200long2_2015 => 'year2015',
+                 production_pp200long2_2015 => 'year2015',
+                 production_fms_pp200trans_2015 => 'year2015',
+                 production_fms_pp200long2_2015 => 'year2015',
+                 production_pAu200_2015 => 'year2015',
+                 production_pAu200_fms_2015 => 'year2015',
+                 production_pAl200_2015 => 'year2015',
+                 production_pAl200_fms_2015 => 'year2015',
+                 production_pAl200_2015_lowlumi => 'year2015',
+                 fixedTarget2015 => 'year2015',
                  AuAu_200_production_2014 => 'year2014',
                  AuAu_200_production_high_2014 => 'year2014',
                  AuAu_200_production_mid_2014 => 'year2014',

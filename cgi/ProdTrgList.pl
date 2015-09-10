@@ -217,7 +217,6 @@ my %collHash = (
 	      );
              
 my %yrHash = (
-
                  production_pp200trans_2015 => 'year2015',
                  production_pp200long_2015 => 'year2015',
                  production_pp200long2_2015 => 'year2015',
