@@ -329,7 +329,7 @@ $ndt = 0;
 
    if($qprod eq "all2014"){
 
- $max_y = 10000 ;
+ $max_y = 12000 ;
 
  $legend[0] = "summary for run 2014 productions ";
  $legend[1] = "P15ic production";
