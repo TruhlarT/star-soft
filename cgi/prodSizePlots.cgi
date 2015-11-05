@@ -224,7 +224,7 @@ if ( $qperiod =~ /month/) {
 
   if($qtrig eq "all") {
 
-  if($qprod eq "all20154-2015"){
+  if($qprod eq "all2014-2015"){
 
 
    $sql="SELECT DISTINCT date_format(starttime, '%Y-%m-%d') as SDATE FROM $ProdSizeT WHERE (prodtag = 'P15ic' or prodtag = 'P15ie' or prodtag = 'P15ik')  and date_format(starttime, '%Y-%m-%d') <> '0000-00-00' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(starttime)) < ?  order by SDATE";
