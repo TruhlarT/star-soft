@@ -83,7 +83,7 @@ my $ProdSizeT = "ProductionSize";
         }
     $cursor->finish();
 
-   $arrprod[$npr] = "all2014-2015";
+   $arrprod[$npr] = "all2015";
 
    $sql="SELECT DISTINCT Trigset  FROM $ProdSizeT ";
 
@@ -140,7 +140,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
                                   -values=>\@arrprod,
-                                  -default=>all2014-2015,
+                                  -default=>all2015,
                                   -size =>1);
 
     print "<p>";
@@ -224,7 +224,7 @@ if ( $qperiod =~ /month/) {
 
   if($qtrig eq "all") {
 
-  if($qprod eq "all2014-2015"){
+  if($qprod eq "all2015"){
 
 
    $sql="SELECT DISTINCT date_format(starttime, '%Y-%m-%d') as SDATE FROM $ProdSizeT WHERE (prodtag = 'P15ic' or prodtag = 'P15ie' or prodtag = 'P15ik')  and date_format(starttime, '%Y-%m-%d') <> '0000-00-00' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(starttime)) < ?  order by SDATE";
@@ -285,7 +285,7 @@ $ndt = 0;
 
      if($qtrig eq "all") {  
 
-  if($qprod eq "all2014-2015"){
+  if($qprod eq "all2015"){
 
   foreach my $tdate (@ardays) {
 
@@ -361,7 +361,7 @@ $ndt = 0;
  
      if($qtrig eq "all") {  
 
-   if($qprod eq "all2014-2015"){
+   if($qprod eq "all2015"){
 
   foreach my $tdate (@ardays) {
 
