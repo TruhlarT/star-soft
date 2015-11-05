@@ -81,6 +81,22 @@ my @jbsubm2 = ();
     $cursor->finish();
 
 
+ $JobStatusT = "JobStatus2015";
+
+
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT where runDay >= '2015-11-06' order by runDay ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $arrprod[$npr] = $mpr;
+          $npr++;
+       }
+    $cursor->finish();
+
+
 $arrprod[$npr] = "all2014";
 
 my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months","8_months","10_months","12_months");
@@ -165,6 +181,10 @@ END
  # Tables
  $JobStatusT = "JobStatus2014";
 
+  if($qprod eq "P15ik")  {
+   $JobStatusT = "JobStatus2015";
+  }
+
 
 my @ardays = ();
 my @prt = ();
@@ -200,6 +220,11 @@ if ( $qperiod =~ /month/) {
 
   }else{
 
+ if($qprod eq "P15ik")  {
+   $JobStatusT = "JobStatus2015";
+  }
+
+ @ardays = ();
 
    $sql="SELECT DISTINCT date_format(submitTime, '%Y-%m-%d') as SDATE FROM $JobStatusT WHERE prodSeries = ?  and date_format(submitTime, '%Y-%m-%d') <> '0000-00-00' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(submitTime)) < ? order by SDATE";
 
@@ -276,6 +301,10 @@ $ndt = 0;
    }
 
   }else{
+
+  if($qprod eq "P15ik")  {
+   $JobStatusT = "JobStatus2015";
+  }
 
   foreach my $tdate (@ardays) {
 
