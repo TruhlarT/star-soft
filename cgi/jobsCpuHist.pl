@@ -1247,7 +1247,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 
  if($qprod eq "P14ii" ) {
      $max_y = 84000000 ;
- elsif($qprod eq "P15ik" ) {
+ }elsif($qprod eq "P15ik" ) {
      $max_y = 128000000 ;
  }else{ 
      $max_y = 42000000 ;
