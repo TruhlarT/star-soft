@@ -1141,10 +1141,14 @@ my $ynum = 14;
  if( $qprod eq "P15ic" ) { 
      $max_y = 24 ;
      $ynum = 12;
+  }elsif{$qprod eq "P15ik" ) { 
+     $max_y = 70 ;
+     $ynum = 14;
   }else{
      $max_y = 28 ;
      $ynum = 14;
  }
+
 	$xlabel = "CPU in sec/evt";
         $ylabel = "Percentage of jobs (%)";
 	$gtitle = "CPU in sec/evt for different stream jobs in $qprod production ";
@@ -1331,7 +1335,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple orange lred lyellow lblack marine brown lpink marine lgray ) ],
+                    dclrs => [ qw(lblue lgreen lpurple orange lred lyellow lblack marine lpink brown marine lgray ) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
