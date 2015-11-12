@@ -669,7 +669,7 @@ END
 
 ###########
 
- if($qprod eq "P14ia" or $qprod eq "P14ig" or $qprod eq "P14ii") {
+ if($qprod eq "P14ia" or $qprod eq "P14ig" or $qprod eq "P14ii" or $qprod eq "P15ik") {
      $maxvalue = 120;
  }else{
      $maxvalue = 240;
@@ -956,7 +956,9 @@ END
   $ndt = 0;
 
 
- if($qprod eq "P14ia" or $qprod eq "P14ig" or $qprod eq "P14ii" or $qprod eq "P15ik" ) {
+ if($qprod eq "P14ia" or $qprod eq "P14ig" or $qprod eq "P14ii" ) {
+     $maxcpuval = 110;
+ }elsif($qprod eq "P15ik") {
      $maxcpuval = 110;
  }else{
      $maxcpuval = 220;
