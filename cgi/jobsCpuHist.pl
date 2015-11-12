@@ -959,7 +959,7 @@ END
  if($qprod eq "P14ia" or $qprod eq "P14ig" or $qprod eq "P14ii" ) {
      $maxcpuval = 110;
  }elsif($qprod eq "P15ik") {
-     $maxcpuval = 110;
+     $maxcpuval = 55;
  }else{
      $maxcpuval = 220;
  }
