@@ -1141,7 +1141,7 @@ my $ynum = 14;
  if( $qprod eq "P15ic" ) { 
      $max_y = 24 ;
      $ynum = 12;
-  }elsif{$qprod eq "P15ik" ) { 
+  }elsif($qprod eq "P15ik" ) { 
      $max_y = 70 ;
      $ynum = 14;
   }else{
