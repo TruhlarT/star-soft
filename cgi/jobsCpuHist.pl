@@ -1142,7 +1142,7 @@ my $ynum = 14;
      $max_y = 24 ;
      $ynum = 12;
   }elsif($qprod eq "P15ik" ) { 
-     $max_y = 70 ;
+     $max_y = 98 ;
      $ynum = 14;
   }else{
      $max_y = 28 ;
@@ -1247,6 +1247,8 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 
  if($qprod eq "P14ii" ) {
      $max_y = 84000000 ;
+ elsif($qprod eq "P15ik" ) {
+     $max_y = 128000000 ;
  }else{ 
      $max_y = 42000000 ;
  } 
