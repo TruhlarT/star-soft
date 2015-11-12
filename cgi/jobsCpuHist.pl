@@ -956,7 +956,7 @@ END
   $ndt = 0;
 
 
- if($qprod eq "P14ia" or $qprod eq "P14ig" or $qprod eq "P14ii" ) {
+ if($qprod eq "P14ia" or $qprod eq "P14ig" or $qprod eq "P14ii" or $qprod eq "P15ik" ) {
      $maxcpuval = 110;
  }else{
      $maxcpuval = 220;
@@ -1247,10 +1247,13 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 
  if($qprod eq "P14ii" ) {
      $max_y = 84000000 ;
+     $ynum = 14;
  }elsif($qprod eq "P15ik" ) {
-     $max_y = 128000000 ;
+     $max_y = 100000000 ;
+     $ynum = 20;
  }else{ 
      $max_y = 42000000 ;
+     $ynum = 14;
  } 
 
         $xlabel = "Date of jobs completion";
