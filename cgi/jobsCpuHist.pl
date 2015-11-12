@@ -104,6 +104,7 @@ my @armonitor = ();
 my @arhltgood = ();
 my @arcentralpro = ();
 my @arwb = ();
+my @arrp = ();
 
 my @ndate = ();
 my $ndt = 0;
@@ -123,6 +124,7 @@ my @cpmonitor = ();
 my @cphltgood = ();
 my @cpcentralpro  = (); 
 my @cpwb  = (); 
+my @cprp  = (); 
 
 my @jbupsilon = ();
 my @jbmtd = ();
@@ -137,8 +139,8 @@ my @jbmonitor = ();
 my @jbhltgood = ();
 my @jbcentralpro  = ();
 my @jbwb = ();
+my @jbrp = ();
 
-my $precpu;
 my @prcpmtd = ();
 my @rtprcpmtd = ();
 my $ndt2 = 0;
@@ -150,6 +152,7 @@ my @rtupc = ();
 my @rthltgood = ();
 my @rtfms = ();
 my @rtwb = ();
+my @rtrp = ();
 
 my @rphysics = ();
 my @rmtd = ();
@@ -158,6 +161,8 @@ my @rupc = ();
 my @rhltgood = ();
 my @rfms = ();
 my @rwb = ();
+my @rrp = ();
+
 
 my @rcphysics = ();
 my @rcmtd = ();
@@ -166,6 +171,8 @@ my @rcupc = ();
 my @rchltgood = ();
 my @rcfms = ();
 my @rcwb = ();
+my @rcrp = ();
+
 
 my $nphysics = 0;
 my $nmtd = 0;
@@ -175,6 +182,7 @@ my $nstrsum = 0;
 my $nhltgood = 0;
 my $nfms = 0;
 my $nwb = 0;
+my $nrp = 0;
 
 my @narray = ();
 
@@ -202,6 +210,22 @@ my @narray = ();
 
 
     $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT where runDay >= '2015-01-02' order by runDay ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $arrprod[$npr] = $mpr;
+          $npr++;
+       }
+    $cursor->finish();
+
+
+ $JobStatusT = "JobStatus2015";
+
+
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT where runDay >= '2015-11-06' order by runDay ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -316,6 +340,7 @@ END
   if( $qprod =~ /P14ig/ ) {$pryear = "2013"};
   if( $qprod =~ /P14ii/ ) {$pryear = "2014"};
   if( $qprod =~ /P15ib/ or $qprod =~ /P15ic/ or $qprod =~ /P15ie/) {$pryear = "2014"};
+  if( $qprod =~ /P15ik/ ) {$pryear = "2015"};
   if( $qprod eq "all2014") {$pryear = "2014"};
 
     $JobStatusT = "JobStatus".$pryear;
@@ -408,6 +433,9 @@ END
               $nhltgood = $narray[$ik];
           }elsif( $arstream[$ik] eq "fms" ) {
               $nfms = $narray[$ik];
+          }elsif( $arstream[$ik] eq "rp" ) {
+              $nrp = $narray[$ik];
+
           }elsif( $arstream[$ik] eq "W" or $arstream[$ik] eq "WE" or $arstream[$ik] eq "WB"  ) {
               $nwb = $narray[$ik];
           }
@@ -483,6 +511,8 @@ END
               $nhltgood = $narray[$ik];
           }elsif( $arstream[$ik] eq "fms" ) {
               $nfms = $narray[$ik];
+          }elsif( $arstream[$ik] eq "rp" ) {
+              $nrp = $narray[$ik];
           }elsif( $arstream[$ik] eq "W" or $arstream[$ik] eq "WE" or $arstream[$ik] eq "WB"  ) {
               $nwb = $narray[$ik];
          }
@@ -506,6 +536,7 @@ END
  @arhltgood = ();
  @arcentralpro = ();
  @arwb = ();
+ @arrp = ();
 
  @cpupsilon = ();
  @cpmtd = ();
@@ -520,8 +551,8 @@ END
  @cphltgood = (); 
  @cpcentralpro  = ();
  @cpwb = (); 
+ @cprp = (); 
 
- $precpu;
  @prcpmtd = ();
  @rtprcpmtd = ();
 
@@ -538,6 +569,7 @@ END
  @jbhltgood = ();
  @jbcentralpro  = ();
  @jbwb = ();
+ @jbrp = ();
 
  @rtphysics = ();
  @rtmtd = ();
@@ -546,6 +578,7 @@ END
  @rthltgood = ();
  @rtfms = ();
  @rtwb = ();
+ @rtrp = ();
 
  @rphysics = ();
  @rmtd = ();
@@ -554,6 +587,7 @@ END
  @rhltgood = ();
  @rfms = ();
  @rwb = ();
+ @rrp = ();
 
  @rcphysics = ();
  @rcmtd = ();
@@ -562,7 +596,7 @@ END
  @rchltgood = ();
  @rcfms = ();
  @rcwb = ();
-
+ @rcrp = ();
 
  @nevents = ();
  @nevent1 = ();
@@ -675,6 +709,9 @@ END
            }elsif( $pstream eq "fms" ) {
                $jbfms[$ndt]++; 
                $rfms[$ndt] =  $jbfms[$ndt]*100/$nfms;
+           }elsif( $pstream eq "rp" ) {
+               $jbrp[$ndt]++; 
+               $rrp[$ndt] =  $jbrp[$ndt]*100/$nrp;
 #           }elsif( $pstream eq "ht" ) {
 #               $jbht[$ndt]++;  
 #           }elsif( $pstream eq "atomcules" ) {
@@ -959,6 +996,9 @@ END
               }elsif( $pstream eq "fms" ) {
                $cpfms[$ndt]++; 
                $rtfms[$ndt] =  $cpfms[$ndt]*100/$nfms;
+              }elsif( $pstream eq "rp" ) {
+               $cprp[$ndt]++; 
+               $rtrp[$ndt] =  $cprp[$ndt]*100/$nrp;
 #              }elsif( $pstream eq "ht" ) {
 #               $cpht[$ndt]++;  
 #              }elsif( $pstream eq "atomcules" ) {
@@ -1022,6 +1062,9 @@ END
               }elsif( $pstream eq "fms" ) {
                $arfms[$ndt]++ ;
                $rcfms[$ndt] =  $arfms[$ndt]*100/$nfms;
+              }elsif( $pstream eq "rp" ) {
+               $arrp[$ndt]++ ;
+               $rcrp[$ndt] =  $arrp[$ndt]*100/$nrp;
 #              }elsif( $pstream eq "ht" ) {
 #               $arht[$ndt]++ ;
 #              }elsif( $pstream eq "atomcules" ) {
@@ -1073,6 +1116,7 @@ my $ynum = 14;
 #       $legend[8] = "st_centralpro ";
 #       $legend[9] = "st_atomcules ";
        $legend[6] = "st_fms";
+       $legend[7] = "st_rp";
     
        if( $srate eq "cpu" )  {
 
@@ -1082,13 +1126,14 @@ my $ynum = 14;
      $max_y = 12000 ;
      $ynum = 12; 
 
+ 
 	$xlabel = "CPU in sec/evt";
         $ylabel = "Number of jobs";
 	$gtitle = "CPU in sec/evt for different stream jobs in $qprod production ";
 
 #    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cphltgood, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cpfms ) ; 
 
-   @data = (\@ndate, \@cpphysics, \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfms ) ; 
+   @data = (\@ndate, \@cpphysics, \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfms, \@cprp ) ; 
 
 
  }else{
@@ -1105,7 +1150,7 @@ my $ynum = 14;
 	$gtitle = "CPU in sec/evt for different stream jobs in $qprod production ";
 
 
-  @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtfms ) ; 
+  @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtfms, \@rtrp ) ; 
 
     }
 
@@ -1123,7 +1168,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 
   #    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@arhltgood, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfms ) ;
 
-    @data = (\@ndate, \@arphysics, \@arhlt, \@arhltgood, \@armtd, \@arupc, \@arwb, \@arfms ) ;
+    @data = (\@ndate, \@arphysics, \@arhlt, \@arhltgood, \@armtd, \@arupc, \@arwb, \@arfms, \@arrp ) ;
 
    }else{
 
@@ -1142,7 +1187,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
         $ylabel = "Percentage of jobs (%)";
 	$gtitle = "Ratios RealTime/CPU for different stream jobs in $qprod production ";
 
-    @data = (\@ndate, \@rcphysics, \@rchlt, \@rchltgood, \@rcmtd, \@rcupc, \@rcwb, \@rcfms ) ;
+    @data = (\@ndate, \@rcphysics, \@rchlt, \@rchltgood, \@rcmtd, \@rcupc, \@rcwb, \@rcfms, \@rcrp ) ;
 
   }
 
@@ -1167,7 +1212,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
   
 #    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfms ) ;
 
-    @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbhltgood, \@jbmtd, \@jbupc, \@jbwb, \@jbfms ) ;
+    @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbhltgood, \@jbmtd, \@jbupc, \@jbwb, \@jbfms, \@jbrp ) ;
 
   }else{
 
@@ -1186,7 +1231,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
         $ylabel = "Percentage of jobs (%)";         
 	$gtitle = "Execution time for different stream jobs in $qprod production ";
   
-   @data = (\@ndate, \@rphysics, \@rhlt, \@rhltgood, \@rmtd, \@rupc, \@rwb, \@rfms ) ;
+   @data = (\@ndate, \@rphysics, \@rhlt, \@rhltgood, \@rmtd, \@rupc, \@rwb, \@rfms, \@rrp ) ;
 
   }
 
