@@ -1324,6 +1324,10 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
  my $xLabelSkip = 1;
  my $skipnum = 2;
  
+ if($qperiod eq "1_month" ) {
+ $skipnum = 1;
+ }
+
  $min_y = 0;
 
   if (scalar(@ndate) > 60 ) {
