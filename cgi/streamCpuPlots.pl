@@ -1374,7 +1374,7 @@ END
  
 #     $numstream[$ii] = $nstphysics[$ii]+$nstcentralpro[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+ $nstfms[$ndt] + $nstfgt[$ndt] + $nsthltgood[$ndt] + $nstupc[$ii]+ $nstgamma[$ii]+ $nstwb[$ii] +  $nstatomcules[$ii]+ $nstupsilon[$ii];
 
-     $numstream[$ii] = $nstphysics[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+ $nstfms[$ndt] + $nsthltgood[$ndt] + $nstupc[$ii] + $nstwb[$ii] + $nstrp[$ii] ;
+     $numstream[$ii] = $nstphysics[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+ $nstfms[$ii] + $nsthltgood[$ii] + $nstupc[$ii] + $nstwb[$ii] + $nstrp[$ii] ;
 
 
      if ($numstream[$ii] >= 1) {
