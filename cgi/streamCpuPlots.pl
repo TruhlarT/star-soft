@@ -100,6 +100,7 @@ my @arcentralpro = ();
 my @arfgt  = ();
 my @arhltgood  = ();
 my @arwb  = ();
+my @arrp  = ();
 
 my @ndate = ();
 my $ndt = 0;
@@ -120,6 +121,7 @@ my @nstcentralpro  = ();
 my @nstfgt  = ();
 my @nsthltgood  = ();
 my @nstwb = ();
+my @nstrp = ();
 
 my @rtgamma = ();
 my @rtmtd = ();
@@ -136,6 +138,7 @@ my @rtcentralpro  = ();
 my @rtfgt  = ();
 my @rthltgood  = ();
 my @rtwb = ();
+my @rtrp = ();
 
 my @cpupsilon = ();
 my @cpmtd = ();
@@ -152,6 +155,7 @@ my @cpcentralpro  = ();
 my @cpfgt  = ();
 my @cphltgood  = ();
 my @cpwb = ();
+my @cprp = ();
 
 my @prcpmtd = ();
 
@@ -171,6 +175,7 @@ my @trcentralpro  = ();
 my @trfgt  = ();
 my @trhltgood  = ();
 my @trwb = ();
+my @trrp = ();
 
 my @jbupsilon = ();
 my @jbmtd = ();
@@ -187,6 +192,7 @@ my @jbcentralpro  = ();
 my @jbfgt  = ();
 my @jbhltgood  = ();
 my @jbwb = ();
+my @jbrp = ();
 
 my $avgcpu = 0;
 my $stdcpu = 0;
@@ -219,6 +225,21 @@ $JobStatusT = "JobStatus2013";
 $JobStatusT = "JobStatus2014";  
 
     $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT where runDay >= '2015-01-02' order by runDay ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $arrprod[$npr] = $mpr;
+          $npr++;
+       }
+    $cursor->finish();
+
+
+$JobStatusT = "JobStatus2015";  
+
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT where runDay >= '2015-11-02' order by runDay ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -331,6 +352,7 @@ END
  if( $qprod =~ /P14ig/ ) {$pryear = "2013"};
  if( $qprod =~ /P14ii/ ) {$pryear = "2014"};
  if( $qprod =~ /P15ib/ or $qprod =~ /P15ic/ or $qprod =~ /P15ie/) {$pryear = "2014"}; 
+ if( $qprod =~ /P15ik/ ) {$pryear = "2015"};
  if( $qprod =~ /all2014/ ) {$pryear = "2014"};
 
      
@@ -550,6 +572,7 @@ END
  @cphltgood= ();
  @cpwb = ();
  @prcpmtd = ();
+ @cprp = ();
 
 
  @ndate = ();
@@ -624,6 +647,8 @@ END
                $cphlt[$ndt] = $arcpu{$mfile,$ndt};
               }elsif( $mfile eq "fms" ) {
                $cpfms[$ndt] =  $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "rp" ) {
+               $cprp[$ndt] =  $arcpu{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $cpupc[$ndt] =  $arcpu{$mfile,$ndt};
               }elsif( $mfile eq "W" or $mfile eq "WB" or $mfile eq "WE") {
@@ -710,6 +735,8 @@ END
                $cphlt[$ndt] = $arcpu{$mfile,$ndt};
               }elsif( $mfile eq "fms" ) {
                $cpfms[$ndt] =  $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "rp" ) {
+               $cprp[$ndt] =  $arrp{$mfile,$ndt};
 #              }elsif( $mfile eq "ht" ) {
 #               $cpht[$ndt] = $arcpu{$mfile,$ndt};
 #              }elsif( $mfile eq "atomcules" ) {
@@ -761,6 +788,7 @@ END
  @arfgt= ();
  @arhltgood= ();
  @arwb = ();
+ @arrp = ();
 
  @cpupsilon = ();
  @cpmtd = ();
@@ -777,6 +805,7 @@ END
  @cpfgt= ();
  @cphltgood= ();
  @cpwb = ();
+ @cprp = ();
 
  @ndate = ();
  $ndt = 0;
@@ -847,6 +876,8 @@ END
                $arhlt[$ndt] =  $rte{$mfile,$ndt};
               }elsif( $mfile eq "fms" ) {
                $arfms[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "rp" ) {
+               $arrp[$ndt] =  $rte{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $arupc[$ndt] =  $rte{$mfile,$ndt};
               }elsif( $mfile eq "W"  or $mfile eq "WB" or $mfile eq "WE" ) {
@@ -934,6 +965,8 @@ END
                $arhlt[$ndt] =  $rte{$mfile,$ndt};
               }elsif( $mfile eq "fms" ) {
                $arfms[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "rp" ) {
+               $arrp[$ndt] =  $rte{$mfile,$ndt};
 #              }elsif( $mfile eq "ht" ) {
 #               $arht[$ndt] =  $rte{$mfile,$ndt};
 #               }elsif( $mfile eq "atomcules" ) {
@@ -982,6 +1015,8 @@ END
  @trfgt= ();
  @trhltgood= ();
  @trwb = ();
+ @trrp = ();
+
 
  @ndate = ();
  $ndt = 0;
@@ -1045,6 +1080,8 @@ END
                $trhlt[$ndt] = $artrk{$mfile,$ndt};
               }elsif( $mfile eq "fms" ) {
                $trfms[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "rp" ) {
+               $trrp[$ndt] = $artrk{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $trupc[$ndt] =  $artrk{$mfile,$ndt};
               }elsif( $mfile eq "W" or $mfile eq "WB" or $mfile eq "WE" ) {
@@ -1125,6 +1162,8 @@ END
                $trhlt[$ndt] = $artrk{$mfile,$ndt};
               }elsif( $mfile eq "fms" ) {
                $trfms[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "rp" ) {
+               $trrp[$ndt] = $artrk{$mfile,$ndt};
 #              }elsif( $mfile eq "ht" ) {
 #               $trht[$ndt] = $artrk{$mfile,$ndt};
 #              }elsif( $mfile eq "atomcules" ) {
@@ -1175,6 +1214,7 @@ END
  @nstfgt= ();
  @nsthltgood= ();
  @nstwb = ();
+ @nstrp = ();
 
  @ndate = ();
  $ndt = 0;  
@@ -1194,6 +1234,7 @@ END
  @rtfgt= ();
  @rthltgood= ();
  @rtwb = ();
+ @rtrp = ();
 
       if($qprod eq "all2014" ) {
 
@@ -1242,6 +1283,8 @@ END
                $nsthlt[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "fms" ) {
                $nstfms[$ndt] =  $nstr{$mfile,$ndt};
+              }elsif( $mfile eq "rp" ) {
+               $nstrp[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $nstupc[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "W" or $mfile eq "WB" or $mfile eq "WE" ) {
@@ -1307,6 +1350,8 @@ END
                $nsthlt[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "fms" ) {
                $nstfms[$ndt] =  $nstr{$mfile,$ndt};
+              }elsif( $mfile eq "rp" ) {
+               $nstrp[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "upc" ) {
                $nstupc[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "W" or $mfile eq "WB" or $mfile eq "WE" ) {
@@ -1346,6 +1391,7 @@ END
 #      $rtupsilon[$ii] = $nstupsilon[$ii]/$numstream[$ii];
 #      $rtgamma[$ii] = $nstgamma[$ii]/$numstream[$ii];
       $rtfms[$ii] = $nstfms[$ii]/$numstream[$ii];
+      $rtrp[$ii] = $nstrp[$ii]/$numstream[$ii];
 #      $rtatomcules[$ii] = $nstatomcules[$ii]/$numstream[$ii];
 #      $rtfgt[$ii] = $nstfgt[$ii]/$numstream[$ii];
       $rthltgood[$ii] = $nsthltgood[$ii]/$numstream[$ii];
@@ -1375,6 +1421,7 @@ END
  @jbfgt= ();
  @jbhltgood= ();
  @jbwb = ();
+ @jbrp = ();
 
  @ndate = ();
  $ndt = 0;  
@@ -1445,6 +1492,8 @@ END
                $jbhlt[$ndt] =  $arjbtime{$mfile,$ndt};
             }elsif( $mfile eq "fms" ) {
                $jbfms[$ndt] =  $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "rp" ) {
+               $jbrp[$ndt] =  $arjbtime{$mfile,$ndt};
 #            }elsif( $mfile eq "ht" ) {
 #               $jbht[$ndt] =  $arjbtime{$mfile,$ndt};
 #            }elsif( $mfile eq "atomcules" ) {
@@ -1538,6 +1587,8 @@ END
                $jbhlt[$ndt] =  $arjbtime{$mfile,$ndt};
             }elsif( $mfile eq "fms" ) {
                $jbfms[$ndt] =  $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "rp" ) {
+               $jbrp[$ndt] =  $arjbtime{$mfile,$ndt};
 #            }elsif( $mfile eq "ht" ) {
 #               $jbht[$ndt] =  $arjbtime{$mfile,$ndt};
 #            }elsif( $mfile eq "atomcules" ) {
@@ -1591,6 +1642,7 @@ END
        $legend[4] = "st_upc       "; 
        $legend[5] = "st_W         ";
        $legend[6] = "st_fms       ";
+       $legend[7] = "st_rp       ";
 #       $legend[7] = "st_mtd,prepassCPU ";
 #       $legend[1] = "st_gamma     ";
 #       $legend[3] = "st_ht        ";
@@ -1611,7 +1663,7 @@ END
 
 #  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt,  \@arfms,  \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arhltgood ) ;
 
-  @data = (\@ndate, \@arphysics, \@arhlt, \@arhltgood, \@armtd, \@arupc, \@arwb, \@arfms ) ;
+  @data = (\@ndate, \@arphysics, \@arhlt, \@arhltgood, \@armtd, \@arupc, \@arwb, \@arfms, \@arrp ) ;
 
 
       $max_y = $maxval + 0.2*$maxval;
@@ -1636,7 +1688,7 @@ END
 
 	}else{
 
-  @data = (\@ndate, \@cpphysics,  \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfms ) ;
+  @data = (\@ndate, \@cpphysics,  \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfms, \@cprp ) ;
 
 	}
 
@@ -1654,7 +1706,7 @@ END
 
 # @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtfms, \@rtupc, \@rtwb, \@rtmtd, \@rtcentralpro, \@rtatomcules, \@rthltgood, ) ;
 
- @data = (\@ndate, \@rtphysics,  \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtfms ) ;
+ @data = (\@ndate, \@rtphysics,  \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtfms, \@rtrp ) ;
 
         $max_y = 1.2;
 
@@ -1668,7 +1720,7 @@ END
 
 # @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbfms, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbhltgood,) ;
 
- @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbhltgood, \@jbmtd, \@jbupc, \@jbwb, \@jbfms ) ;
+ @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbhltgood, \@jbmtd, \@jbupc, \@jbwb, \@jbfms, \@jbrp ) ;
 
 
     $max_y = $maxjbtime + 0.2*$maxjbtime;    
@@ -1685,12 +1737,11 @@ END
 
 # @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trfms, \@trupc, \@trwb, \@trmtd, \@trcentralpro, \@tratomcules, \@trhltgood ) ;
 
- @data = (\@ndate, \@trphysics, \@trhlt, \@trhltgood, \@trmtd, \@trupc, \@trwb, \@trfms ) ;
+ @data = (\@ndate, \@trphysics, \@trhlt, \@trhltgood, \@trmtd, \@trupc, \@trwb, \@trfms, \@trrp ) ;
 
     
       $max_y = $maxtrk + 0.2*$maxtrk;
       $max_y = int($max_y); 
-
 
      }
   
@@ -1717,7 +1768,7 @@ END
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple orange lred lblack lyellow  lgray brown lgray lpink marine lred) ],
+                    dclrs => [ qw(lblue lgreen lpurple orange lred lblack lyellow lgray lpink brown lpink marine lred) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
