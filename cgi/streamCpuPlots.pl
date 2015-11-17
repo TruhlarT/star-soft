@@ -736,7 +736,7 @@ END
               }elsif( $mfile eq "fms" ) {
                $cpfms[$ndt] =  $arcpu{$mfile,$ndt};
               }elsif( $mfile eq "rp" ) {
-               $cprp[$ndt] =  $arrp{$mfile,$ndt};
+               $cprp[$ndt] =  $arcpu{$mfile,$ndt};
 #              }elsif( $mfile eq "ht" ) {
 #               $cpht[$ndt] = $arcpu{$mfile,$ndt};
 #              }elsif( $mfile eq "atomcules" ) {
@@ -1374,7 +1374,7 @@ END
  
 #     $numstream[$ii] = $nstphysics[$ii]+$nstcentralpro[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+ $nstfms[$ndt] + $nstfgt[$ndt] + $nsthltgood[$ndt] + $nstupc[$ii]+ $nstgamma[$ii]+ $nstwb[$ii] +  $nstatomcules[$ii]+ $nstupsilon[$ii];
 
-     $numstream[$ii] = $nstphysics[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+ $nstfms[$ndt] + $nsthltgood[$ndt] + $nstupc[$ii] + $nstwb[$ii] ;
+     $numstream[$ii] = $nstphysics[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+ $nstfms[$ndt] + $nsthltgood[$ndt] + $nstupc[$ii] + $nstwb[$ii] + $nstrp[$ndt] ;
 
 
      if ($numstream[$ii] >= 1) {
