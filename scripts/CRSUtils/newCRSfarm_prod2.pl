@@ -36,7 +36,7 @@ if( defined($ARGV[1]) ) {
 
  my @prt = ();
 
-if($prodtag[0] eq "P15ie" or $prodtag[0] eq "P15ic" or $prodtag[1] eq "P15ic" or $prodtag[1] eq "P15ie" ) {
+if($prodtag[0] eq "P15ie" or $prodtag[0] eq "P15ic" ) {
 
  $JobStatusT = "JobStatus2014";
 
@@ -232,11 +232,11 @@ if( $sec < 10) { $sec = '0'.$sec };
 
        $conderr = "error_held";
 
-if( $jbptag[$mjob] eq "P15ie" ) {
+if( $jbptag[$mjob] eq $prodtag[0] ) {
 
  $JobStatusT = "JobStatus2014";
 
-}elsif($jbptag[$mjob] eq "P15ik" ) {
+}elsif($jbptag[$mjob] eq $prodtag[1] ) {
 
   $JobStatusT = "JobStatus2015";
 
@@ -389,15 +389,13 @@ $njob = 0;
 
     $conderr = "error_".$Tperror;
 
-
-if( $jbptag[$njob] eq "P15ie" ) {
+if( $jbptag[$njob] eq $prodtag[0] ) {
 
  $JobStatusT = "JobStatus2014";
 
-}elsif($jbptag[$njob] eq "P15ik" ) {
+}elsif($jbptag[$njob] eq $prodtag[1] ) {
 
   $JobStatusT = "JobStatus2015";
-
 }else{
   $JobStatusT = "JobStatus2015";
 }
