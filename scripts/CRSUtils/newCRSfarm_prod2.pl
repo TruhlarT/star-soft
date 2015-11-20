@@ -43,6 +43,9 @@ if($prodtag[0] eq "P15ie" or $prodtag[0] eq "P15ic" ) {
 }elsif($prodtag[1] eq "P15ik" ) {
 
   $JobStatusT = "JobStatus2015";
+}else{
+
+ $JobStatusT = "JobStatus2014";
 }
 
  my @statlist = ();
@@ -160,7 +163,6 @@ if( $sec < 10) { $sec = '0'.$sec };
       }
    }
 
-
    `crs_job -destroy -f -s DONE`; 
 
 
@@ -241,7 +243,7 @@ if( $jbptag[$mjob] eq $prodtag[0] ) {
   $JobStatusT = "JobStatus2015";
 
 }else{
-  $JobStatusT = "JobStatus2015";
+  $JobStatusT = "JobStatus2014";
 }
 
 
@@ -397,7 +399,7 @@ if( $jbptag[$njob] eq $prodtag[0] ) {
 
   $JobStatusT = "JobStatus2015";
 }else{
-  $JobStatusT = "JobStatus2015";
+  $JobStatusT = "JobStatus2014";
 }
 
 
