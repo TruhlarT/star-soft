@@ -4,7 +4,7 @@
 # 
 # L. Didenko
 # $Log: script for production jobs autosubmission to CRS farm with new crs software
-# using different JobStatus20XX tabel from different years data taken
+# using different JobStatus20XX table from different years data taken
 #
 ###############################################################################
 
