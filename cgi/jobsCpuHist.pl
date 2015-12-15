@@ -340,7 +340,8 @@ END
   if( $qprod =~ /P14ig/ ) {$pryear = "2013"};
   if( $qprod =~ /P14ii/ ) {$pryear = "2014"};
   if( $qprod =~ /P15ib/ or $qprod =~ /P15ic/ or $qprod =~ /P15ie/) {$pryear = "2014"};
-  if( $qprod =~ /P15ik/ ) {$pryear = "2015"};
+  if( $qprod =~ /P15ik/ or $qprod =~ /P15il/) {$pryear = "2015"};
+
   if( $qprod eq "all2014") {$pryear = "2014"};
 
     $JobStatusT = "JobStatus".$pryear;
@@ -669,7 +670,7 @@ END
 
 ###########
 
- if($qprod eq "P14ia" or $qprod eq "P14ig" or $qprod eq "P14ii" or $qprod eq "P15ik") {
+ if($qprod eq "P14ia" or $qprod eq "P14ig" or $qprod eq "P14ii" or $qprod eq "P15ik" or $qprod eq "P15il") {
      $maxvalue = 120;
  }else{
      $maxvalue = 240;
@@ -958,7 +959,7 @@ END
 
  if($qprod eq "P14ia" or $qprod eq "P14ig" or $qprod eq "P14ii" ) {
      $maxcpuval = 110;
- }elsif($qprod eq "P15ik") {
+ }elsif($qprod eq "P15ik" or $qprod eq "P15il") {
      $maxcpuval = 110;
  }else{
      $maxcpuval = 220;
@@ -1143,7 +1144,7 @@ my $ynum = 14;
  if( $qprod eq "P15ic" ) { 
      $max_y = 24 ;
      $ynum = 12;
-  }elsif($qprod eq "P15ik" ) { 
+  }elsif($qprod eq "P15ik" or $qprod eq "P15il") { 
      $max_y = 98 ;
      $ynum = 14;
   }else{
