@@ -353,6 +353,7 @@ END
  if( $qprod =~ /P14ii/ ) {$pryear = "2014"};
  if( $qprod =~ /P15ib/ or $qprod =~ /P15ic/ or $qprod =~ /P15ie/) {$pryear = "2014"}; 
  if( $qprod =~ /P15ik/ ) {$pryear = "2015"};
+ if( $qprod =~ /P15il/ ) {$pryear = "2015"};
  if( $qprod =~ /all2014/ ) {$pryear = "2014"};
 
      
