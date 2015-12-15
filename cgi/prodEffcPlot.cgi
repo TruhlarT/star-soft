@@ -238,7 +238,7 @@ if ( $qperiod =~ /month/) {
 
   }else{
 
-  if($qprod eq "P15ik") {
+  if($qprod eq "P15ik" or $qprod eq "P15il" ) {
  $JobStatusT = "JobStatus2015";
   }
 
@@ -434,7 +434,7 @@ $ndt = 0;
 
   }else{
 
- if($qprod eq "P15ik") {
+ if($qprod eq "P15ik" or $qprod eq "P15il") {
  $JobStatusT = "JobStatus2015";
   }
 
