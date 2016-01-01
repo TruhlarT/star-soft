@@ -61,6 +61,8 @@ my $dyear = $thisyear - 2000;
 my @prodyear = ("2006","2007","2008","2009","2010","2011","2012","2013","2014","2015","2016");
 
 # Tables
+
+
 $JobStatusT = "JobStatus_16";
 
 my @arsites = ( );
@@ -231,6 +233,9 @@ if($dyear < 10) { $dyear = "0".$dyear };
 # Tables
 $JobStatusT = "JobStatus"."_".$dyear;
 
+if($pryear eq "2015" ) {
+    $JobStatusT = "JobStatus_15";
+}
 
 my $day_diff = 0;
 my $nmonth = 0;
