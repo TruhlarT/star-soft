@@ -91,7 +91,7 @@ print "<h3 align=center> Select year of production</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'ryear',
                              -values=>\@prodyear,
-                             -default=>2015,
+                             -default=>2016,
                              -size =>1); 
 
 print "</td><td>";
