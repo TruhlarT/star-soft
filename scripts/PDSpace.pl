@@ -40,6 +40,7 @@ $MAIN  = "/star/data";                                   # default base path
 # Format will be disk => group it belongs to. Tis logic is not
 # done/complete or implemented. 
 %DGRP = (
+          "/gpfs01/star/pwg"       => 1,
           "/gpfs01/star/pwg_tasks" => 1
          );
 
@@ -57,6 +58,8 @@ $MAIN  = "/star/data";                                   # default base path
 
           "/star/data06" => "/gpfs01/star/subsysg",
           "/star/data07" => "/star/data06",             # merged 
+
+          "/star/data18" => "/gpfs01/star/data18",      # merged several disks together 2016/01
 
           "/star/rcf"    => "/gpfs01/star/rcf",
           "/star/xrootd" => "/gpfs01/star/XROOTD",
