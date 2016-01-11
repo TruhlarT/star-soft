@@ -40,9 +40,42 @@ $MAIN  = "/star/data";                                   # default base path
 # Format will be disk => group it belongs to. Tis logic is not
 # done/complete or implemented. 
 %DGRP = (
+          "/star/u"                => 1,
           "/gpfs01/star/pwg"       => 1,
-          "/gpfs01/star/pwg_tasks" => 1
+          "/gpfs01/star/daq"       => 1,
+          "/gpfs01/star/simu"      => 1,
+          "/gpfs01/star/scratch"   => 1,
+
+          "/gpfs01/star/pwg_tasks" => 2,
+          "/star/subsys/*"         => 2,
+          "/gpfs01/star/subsys"    => 2,
+          "/star/data08"           => 2,
+          "/star/data09-12"        => 2,   # ranges will be allowed
+          "/star/data13"           => 2,
+          "/star/data14-17"        => 2,
+          "/gpfs01/star/data18"    => 2,   # embedding - appears before a wildcard is OK
+
+          "/star/institutions/*"   => 3,
+
+          "/gpfs01/star/data*"     => 4, # a link reading will be done, duplicate removed
+          "/star/data*"            => 4, # so order matters 
+
+  	  "/star/simu"             => 5,
+	  "/star/grid"             => 5,
+	  "/star/scratch"          => 5,
+	  "/star/rcf"              => 5,
+	  "/star/xrootd"           => 5,
+	  "/star/starlib"          => 5
          );
+
+%TITLES = ( 
+            1 => "General space for users",
+	    2 => "Project reserved spaces",
+	    3 => "Institution disk space",
+            4 => "Production",
+	    5 => "Miscellaneous space"
+          );
+
 
 
 # Associative array if aliases - aliases can be used for sorting
@@ -50,16 +83,28 @@ $MAIN  = "/star/data";                                   # default base path
 # wih A.
 %ALIAS = (                                               
           "/star/data01" => "/gpfs01/star/pwg",
-          "/star/data02" => "/star/data01",	        # merged
+          "/star/data02" => "/star/data01   SKIP",      # merged
 
           "/star/data03" => "/gpfs01/star/daq",
-          "/star/data04" => "/gpfs01/star/usim",
+          "/star/data04" => "/gpfs01/star/simu",
           "/star/data05" => "/gpfs01/star/scratch",
 
           "/star/data06" => "/gpfs01/star/subsysg",
-          "/star/data07" => "/star/data06",             # merged 
+          "/star/data07" => "/star/data06 SKIP",        # merged 
 
-          "/star/data18" => "/gpfs01/star/data18",      # merged several disks together 2016/01
+          "/star/data18" => "/gpfs01/star/data18",      # merged several disks together 2016/01/14
+          "/star/data25" => "/gpfs01/star/data19",      # merged 2016/01/11
+          "/star/data26" => "SKIP",
+          "/star/data31" => "SKIP",
+          "/star/data36" => "SKIP",
+          "/star/data40" => "/gpfs01/star/data20",      # merged 2016/01/11
+          "/star/data41" => "SKIP",      
+          "/star/data51" => "SKIP",
+          "/star/data52" => "SKIP",
+          "/star/data43" => "/gpfs01/star/data21", 
+          "/star/data46" => "SKIP",
+          "/star/data47" => "SKIP",
+          "/star/data48" => "SKIP",
 
           "/star/rcf"    => "/gpfs01/star/rcf",
           "/star/xrootd" => "/gpfs01/star/XROOTD",
@@ -169,6 +214,7 @@ foreach $disk (@DISKS){
     # treat aliases
     if ( defined($ALIAS{$disk}) ){
 	$disk = $ALIAS{$disk};
+	next if ( $ disk =~ m/SKIP/);
 
     } elsif ( $disk =~ /(\/star\/institutions\/)(.*)/ ){
 	# In principle, hard-coding Business Logic is not the greatest idea
