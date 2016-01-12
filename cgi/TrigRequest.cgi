@@ -77,7 +77,7 @@ $maxrun = $arruns[0];
 	   next if($mpr =~ /laser/); 
 	   next if($mpr =~ /pulser/);
 	   next if($mpr =~ /cosmic/);
-           next if($mpr =~ /_adc_/);                      
+           next if($mpr =~ /adc/);                      
           $arstreams[$nk] = $mpr;
           $nk++;
    }
