@@ -37,7 +37,7 @@ my $FlStreamT = "FOFileType";
 my @arevents = ("1000","2000","5000","100000");
 my @arstreams = ();
 my @arruns = ();
-my @prodlibs = ("DEV","SL15b");
+my @prodlibs = ("DEV","SL15l");
 my @prodfiles = ("all","10","20","50","100");
 
 
@@ -48,7 +48,7 @@ my $nk = 0;
 
  &StdbConnect();
 
-    $sql="SELECT DISTINCT runNumber  FROM $DaqInfoT order by runNumber";
+    $sql="SELECT DISTINCT runNumber  FROM $DaqInfoT where runNumber > 17012006 order by runNumber";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -72,6 +72,9 @@ $maxrun = $arruns[0];
        $cursor->execute();
 
        while( $mpr = $cursor->fetchrow() ) {
+
+	   next if($mpr =~ /pedestal/);
+	   next if($mpr =~ /laser/);           
           $arstreams[$nk] = $mpr;
           $nk++;
    }
