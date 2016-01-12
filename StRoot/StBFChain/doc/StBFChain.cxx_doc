@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.145 2015/12/26 19:56:19 fisyak Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.146 2016/01/12 20:53:37 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -928,12 +928,33 @@ Bfc_st BFC[] = {
    , "","","Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"B2015" ,"","","ry2015,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
    , "Base chain for 2015 ITTF (tpc)",kFALSE},
+  {"B2015a" ,"","","ry2015a,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
+   , "Base chain for run 2015a data",kFALSE},
+  {"B2015b" ,"","","ry2015b,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
+   , "Base chain for run 2015 with y2015b geometry",kFALSE},
   {"pp2015","" ,"",
    "B2015,ITTF,UseXgeom,BAna,hitfilt,ppOpt,VFPPVnoCTB,beamline,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
-   , "","","Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+   , "","","Production chain for 2015 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+  {"pp2015a","" ,"",
+   "B2015a,ITTF,UseXgeom,BAna,hitfilt,ppOpt,VFPPVnoCTB,beamline,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
+   , "","","Production chain for year 2015a data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+  {"pp2015b","" ,"",
+   "B2015b,ITTF,UseXgeom,BAna,hitfilt,ppOpt,VFPPVnoCTB,beamline,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
+   , "","","Production chain for year 2015b data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"P2015","" ,"",
    "B2015,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
-   , "","","Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+   , "","","Production chain for 2015 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+  {"P2015a","" ,"",
+   "B2015a,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
+   , "","","Production chain for year 2015a data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+  {"P2015b","" ,"",
+   "B2015b,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
+   , "","","Production chain for year 2015b data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+  {"B2016" ,"","","ry2016,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
+   , "Base chain for 2016 ITTF (tpc)",kFALSE},
+  {"P2016","" ,"",
+   "B2014,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
+   , "","","Production chain for 2016 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","",""
    , "Laser Calibration Chain (tcl)",kFALSE},
   {"LaserCal","" ,"","db,detDb,tpc_daq,tpcDb,fcf,globT,laser,LaserTest","",""
@@ -1106,6 +1127,7 @@ Bfc_st BFC[] = {
   {"SstUtil" ,"" ,"","StarMagField,StEvent","" ,"Geom,StSstUtil","Load SST Util",kFALSE},
   {"EmcUtil" ,"" ,"","emc_T,geomT,StDbT","" ,"StEmcUtil","Load StEmcUtil",kFALSE},
   {"EEmcUtil" ,"" ,"","","" ,"StEEmcUtil","Load StEEmcUtil",kFALSE},
+  {"FmsUtil" ,"" ,"","","" ,"StFmsUtil,libMinuit","Load StFmsUtil",kFALSE},
   {"FgtUtil" ,"" ,"","","" ,"StFgtUtil","Load StFgtUtil",kFALSE},
   {"GmtUtil" ,"" ,"","","" ,"StGmtUtil","Load StGmtUtil",kFALSE},
   {"l3Util" ,"","","" ,"","","WARNING *** Option is OBSOLETE ***",kFALSE},
@@ -1155,7 +1177,7 @@ Bfc_st BFC[] = {
   {"ssdCalDb" ,"" ,"","ssdDb" ,"","","Declare Calibrations/ssd as while list member",kFALSE},
   {"sstCalDb" ,"" ,"","sstDb" ,"","","Declare Calibrations/sst as while list member",kFALSE},
   {"eemcDb" ,"eeDb" ,"","db,EEmcUtil", "StEEmcDbMaker","StEEmcDbMaker","Load EEmcDbMaker",kFALSE},
-  {"fmsDb" ,"fmsDb","","db" ,"StFmsDbMaker","StFmsDbMaker","Load FmsDbMaker",kFALSE},
+  {"fmsDb" ,"fmsDb","","db,fmsutil", "StFmsDbMaker","StFmsDbMaker","Load FmsDbMaker",kFALSE},
   {"fgtDb" ,"fgtDb","","db,fgtutil", "StFgtDbMaker","StFgtDbMaker","Load FgtDbMaker",kFALSE},
   {"pxlDb" ,"pxlDb","","tpcDb PxlUtil", "StPxlDbMaker","StPxlDbMaker","Load PxlDbMaker",kFALSE},
   {"istDb" ,"istDb","","tpcDb", "StIstDbMaker","StIstDbMaker","Load IstDbMaker",kFALSE},
@@ -1178,8 +1200,8 @@ Bfc_st BFC[] = {
    , "trigger analysis for Year 2001-2005 data",kFALSE},
   {"TRGDef" ,"" ,"","","" ,"StTriggerDataMaker","Load StTriggerData",kFALSE},
   {"trgd" ,"trgd","","TRGDef" ,"StTriggerDataMaker","StTriggerDataMaker","Get trigger data",kFALSE},
-  {"MakeEvent","0Event","","StEvent,tpcDB,detDb","StEventMaker","StEventMaker"
-   , "<Early StEvent creation>",kFALSE},
+  {"MakeEvent","0Event","","StEvent,detDb","StEventMaker","StTpcDb,StEventMaker"
+     , "<Early StEvent creation>",kFALSE},
   {"LaserAvEv" ,"","","" ,"StLaserAvEventMaker","StLaserAvEventMaker","Hejrad",kFALSE},
   {"LaserAvCl" ,"","","" ,"StLaserAvClusterMaker","StLaserAvClusterMaker","",kFALSE},
   {"l0" ,"l0Chain","","globT,ctf,trg" ,"StMaker","StChain","",kFALSE},
@@ -1363,6 +1385,8 @@ Bfc_st BFC[] = {
    "StFmsHitMaker","StFmsHitMaker","Fill FMS struct and zero TRG", kFALSE},
   {"fpsDat" ,"","", "StEvent,fmsdb",
    "StFpsRawHitMaker","StFpsRawHitMaker","Fill FPS struct", kFALSE},
+  {"fmsPoint" ,"","", "event,fmsDb",
+   "StFmsPointMaker","StFmsPointMaker","Fill FMS clusters", kFALSE},
   {"fpd" ,"","","" ,"","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"fgt" ,"FgtChain","","fgtDat,fgtClu,fgtAtoC" ,"StMaker","StChain","Fgt data Chain",kFALSE},
   {"fgtDat" ,"","", "event,fgtdb","StFgtRawMaker","StFgtRawMaker", "FGT Data reader",kFALSE},
@@ -1472,9 +1496,12 @@ Bfc_st BFC[] = {
    ,"ClusterMaker for PMD" ,kFALSE},
   {"pmdDis" ,"pmdDis","pmdReco","PmdClust","StPmdDiscriminatorMaker"
    , "StPmdDiscriminatorMaker","Discriminator for PMD",kFALSE},
-  {"Kink2" ,"","","" ,"","","WARNING *** Option is OBSOLETE ***",kFALSE},
-  {"V02" ,"","","" ,"","","WARNING *** Option is OBSOLETE ***",kFALSE},
-  {"Xi2" ,"","","" ,"","","WARNING *** Option is OBSOLETE ***",kFALSE},
+  {"Kink2" ,"kink2","","db,MuDST,-kink","StKinkMaker","StSecondaryVertexMaker"
+   , "Find Kinks from StEvent",kFALSE},
+  {"V02" ,"v02","","db,MuDST,-V0","StV0FinderMaker","StSecondaryVertexMaker"
+   , "Find V0s from StEvent",kFALSE},
+  {"Xi2" ,"xi2","","db,MuDST,-V02,-Xi","StXiFinderMaker","StSecondaryVertexMaker"
+   , "Xis AND V0s from StEvent",kFALSE},
   {"V0svt" ,"","","" ,"","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"Xisvt" ,"","","" ,"","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"SCEbyE" ,"scebye","","MuDSTDeps","StSpaceChargeEbyEMaker","StMuDSTMaker,StPass0CalibMaker"
@@ -1500,9 +1527,9 @@ Bfc_st BFC[] = {
    , "StTagsMaker","StTagsMaker","Collect all tags to TTree",kFALSE},
   {"noTags" ,"","","-tags,-HeavyTags,-HighPtTags" ,"","","Turn Off tags",kFALSE},
   {"MuDSTChain","MuDSTChain","EMCmDST,CMuDST","" ,"StMaker","StChain","",kFALSE},
-  {"StrngMuDST","","","" ,"","","WARNING *** Option is OBSOLETE ***",kFALSE},
+  {"StrngMuDST","","MuDSTDeps","", "StStrangeMuDstMaker","","Creates Stangeness MuDST",kFALSE},
   {"EMCmDST" ,"","MuDSTChain","MuDst", "StEmcMicroDstMaker","","Creates EMC MuDST",kFALSE},
-  {"CMuDST" ,"","MuDSTChain","MuDst,Tree", "StMuDstMaker","","Writes Common MuDST",kFALSE},
+  {"CMuDST" ,"","MuDSTChain","MuDst,StrngMuDST,Tree", "StMuDstMaker","","Writes Common MuDST",kFALSE},
   {"RMuDST" ,"","","CMuDST" ,"","","reads Common MuDST, do not disactivate if no output files",kFALSE},
   {"St_geom" ,"" ,"","" , "St_geom_Maker","St_geom_Maker","",kFALSE},
   {"Display" ,"","","", "","","WARNING *** Option is OBSOLETE *** use Ed.C macro instead",kFALSE},
@@ -2461,12 +2488,33 @@ Bfc_st BFC[] = {
    , "","","Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"B2015" ,"","","ry2015,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
    , "Base chain for 2015 ITTF (tpc)",kFALSE},
+  {"B2015a" ,"","","ry2015a,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
+   , "Base chain for run 2015a data",kFALSE},
+  {"B2015b" ,"","","ry2015b,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
+   , "Base chain for run 2015 with y2015b geometry",kFALSE},
   {"pp2015","" ,"",
    "B2015,ITTF,UseXgeom,BAna,hitfilt,ppOpt,VFPPVnoCTB,beamline,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
-   , "","","Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+   , "","","Production chain for 2015 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+  {"pp2015a","" ,"",
+   "B2015a,ITTF,UseXgeom,BAna,hitfilt,ppOpt,VFPPVnoCTB,beamline,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
+   , "","","Production chain for year 2015a data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+  {"pp2015b","" ,"",
+   "B2015b,ITTF,UseXgeom,BAna,hitfilt,ppOpt,VFPPVnoCTB,beamline,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
+   , "","","Production chain for year 2015b data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"P2015","" ,"",
    "B2015,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
-   , "","","Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+   , "","","Production chain for 2015 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+  {"P2015a","" ,"",
+   "B2015a,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
+   , "","","Production chain for year 2015a data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+  {"P2015b","" ,"",
+   "B2015b,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
+   , "","","Production chain for year 2015b data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+  {"B2016" ,"","","ry2016,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
+   , "Base chain for 2016 ITTF (tpc)",kFALSE},
+  {"P2016","" ,"",
+   "B2014,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
+   , "","","Production chain for 2016 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","",""
    , "Laser Calibration Chain (tcl)",kFALSE},
   {"LaserCal","" ,"","db,detDb,tpc_daq,tpcDb,fcf,globT,laser,LaserTest","",""
@@ -2639,6 +2687,7 @@ Bfc_st BFC[] = {
   {"SstUtil" ,"" ,"","StarMagField,StEvent","" ,"Geom,StSstUtil","Load SST Util",kFALSE},
   {"EmcUtil" ,"" ,"","emc_T,geomT,StDbT","" ,"StEmcUtil","Load StEmcUtil",kFALSE},
   {"EEmcUtil" ,"" ,"","","" ,"StEEmcUtil","Load StEEmcUtil",kFALSE},
+  {"FmsUtil" ,"" ,"","","" ,"StFmsUtil,libMinuit","Load StFmsUtil",kFALSE},
   {"FgtUtil" ,"" ,"","","" ,"StFgtUtil","Load StFgtUtil",kFALSE},
   {"GmtUtil" ,"" ,"","","" ,"StGmtUtil","Load StGmtUtil",kFALSE},
   {"l3Util" ,"","","" ,"","","WARNING *** Option is OBSOLETE ***",kFALSE},
@@ -2688,7 +2737,7 @@ Bfc_st BFC[] = {
   {"ssdCalDb" ,"" ,"","ssdDb" ,"","","Declare Calibrations/ssd as while list member",kFALSE},
   {"sstCalDb" ,"" ,"","sstDb" ,"","","Declare Calibrations/sst as while list member",kFALSE},
   {"eemcDb" ,"eeDb" ,"","db,EEmcUtil", "StEEmcDbMaker","StEEmcDbMaker","Load EEmcDbMaker",kFALSE},
-  {"fmsDb" ,"fmsDb","","db" ,"StFmsDbMaker","StFmsDbMaker","Load FmsDbMaker",kFALSE},
+  {"fmsDb" ,"fmsDb","","db,fmsutil", "StFmsDbMaker","StFmsDbMaker","Load FmsDbMaker",kFALSE},
   {"fgtDb" ,"fgtDb","","db,fgtutil", "StFgtDbMaker","StFgtDbMaker","Load FgtDbMaker",kFALSE},
   {"pxlDb" ,"pxlDb","","tpcDb PxlUtil", "StPxlDbMaker","StPxlDbMaker","Load PxlDbMaker",kFALSE},
   {"istDb" ,"istDb","","tpcDb", "StIstDbMaker","StIstDbMaker","Load IstDbMaker",kFALSE},
@@ -2711,8 +2760,8 @@ Bfc_st BFC[] = {
    , "trigger analysis for Year 2001-2005 data",kFALSE},
   {"TRGDef" ,"" ,"","","" ,"StTriggerDataMaker","Load StTriggerData",kFALSE},
   {"trgd" ,"trgd","","TRGDef" ,"StTriggerDataMaker","StTriggerDataMaker","Get trigger data",kFALSE},
-  {"MakeEvent","0Event","","StEvent,tpcDB,detDb","StEventMaker","StEventMaker"
-   , "<Early StEvent creation>",kFALSE},
+  {"MakeEvent","0Event","","StEvent,detDb","StEventMaker","StTpcDb,StEventMaker"
+     , "<Early StEvent creation>",kFALSE},
   {"LaserAvEv" ,"","","" ,"StLaserAvEventMaker","StLaserAvEventMaker","Hejrad",kFALSE},
   {"LaserAvCl" ,"","","" ,"StLaserAvClusterMaker","StLaserAvClusterMaker","",kFALSE},
   {"l0" ,"l0Chain","","globT,ctf,trg" ,"StMaker","StChain","",kFALSE},
@@ -2896,6 +2945,8 @@ Bfc_st BFC[] = {
    "StFmsHitMaker","StFmsHitMaker","Fill FMS struct and zero TRG", kFALSE},
   {"fpsDat" ,"","", "StEvent,fmsdb",
    "StFpsRawHitMaker","StFpsRawHitMaker","Fill FPS struct", kFALSE},
+  {"fmsPoint" ,"","", "event,fmsDb",
+   "StFmsPointMaker","StFmsPointMaker","Fill FMS clusters", kFALSE},
   {"fpd" ,"","","" ,"","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"fgt" ,"FgtChain","","fgtDat,fgtClu,fgtAtoC" ,"StMaker","StChain","Fgt data Chain",kFALSE},
   {"fgtDat" ,"","", "event,fgtdb","StFgtRawMaker","StFgtRawMaker", "FGT Data reader",kFALSE},
@@ -3005,9 +3056,12 @@ Bfc_st BFC[] = {
    ,"ClusterMaker for PMD" ,kFALSE},
   {"pmdDis" ,"pmdDis","pmdReco","PmdClust","StPmdDiscriminatorMaker"
    , "StPmdDiscriminatorMaker","Discriminator for PMD",kFALSE},
-  {"Kink2" ,"","","" ,"","","WARNING *** Option is OBSOLETE ***",kFALSE},
-  {"V02" ,"","","" ,"","","WARNING *** Option is OBSOLETE ***",kFALSE},
-  {"Xi2" ,"","","" ,"","","WARNING *** Option is OBSOLETE ***",kFALSE},
+  {"Kink2" ,"kink2","","db,MuDST,-kink","StKinkMaker","StSecondaryVertexMaker"
+   , "Find Kinks from StEvent",kFALSE},
+  {"V02" ,"v02","","db,MuDST,-V0","StV0FinderMaker","StSecondaryVertexMaker"
+   , "Find V0s from StEvent",kFALSE},
+  {"Xi2" ,"xi2","","db,MuDST,-V02,-Xi","StXiFinderMaker","StSecondaryVertexMaker"
+   , "Xis AND V0s from StEvent",kFALSE},
   {"V0svt" ,"","","" ,"","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"Xisvt" ,"","","" ,"","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"SCEbyE" ,"scebye","","MuDSTDeps","StSpaceChargeEbyEMaker","StMuDSTMaker,StPass0CalibMaker"
@@ -3033,9 +3087,9 @@ Bfc_st BFC[] = {
    , "StTagsMaker","StTagsMaker","Collect all tags to TTree",kFALSE},
   {"noTags" ,"","","-tags,-HeavyTags,-HighPtTags" ,"","","Turn Off tags",kFALSE},
   {"MuDSTChain","MuDSTChain","EMCmDST,CMuDST","" ,"StMaker","StChain","",kFALSE},
-  {"StrngMuDST","","","" ,"","","WARNING *** Option is OBSOLETE ***",kFALSE},
+  {"StrngMuDST","","MuDSTDeps","", "StStrangeMuDstMaker","","Creates Stangeness MuDST",kFALSE},
   {"EMCmDST" ,"","MuDSTChain","MuDst", "StEmcMicroDstMaker","","Creates EMC MuDST",kFALSE},
-  {"CMuDST" ,"","MuDSTChain","MuDst,Tree", "StMuDstMaker","","Writes Common MuDST",kFALSE},
+  {"CMuDST" ,"","MuDSTChain","MuDst,StrngMuDST,Tree", "StMuDstMaker","","Writes Common MuDST",kFALSE},
   {"RMuDST" ,"","","CMuDST" ,"","","reads Common MuDST, do not disactivate if no output files",kFALSE},
   {"St_geom" ,"" ,"","" , "St_geom_Maker","St_geom_Maker","",kFALSE},
   {"Display" ,"","","", "","","WARNING *** Option is OBSOLETE *** use Ed.C macro instead",kFALSE},
