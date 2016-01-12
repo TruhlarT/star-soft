@@ -34,7 +34,7 @@ my $TrigRequestT = "TrigProdRequest";
 my $DaqInfoT   = "DAQInfo";
 my $FlStreamT = "FOFileType";
 
-my @arevents = ("1000","2000","5000","100000");
+my @arevents = ("1000","2000","5000","10000");
 my @arstreams = ();
 my @arruns = ();
 my @prodlibs = ("DEV","SL15l");
@@ -74,7 +74,9 @@ $maxrun = $arruns[0];
        while( $mpr = $cursor->fetchrow() ) {
 
 	   next if($mpr =~ /pedestal/);
-	   next if($mpr =~ /laser/);           
+	   next if($mpr =~ /laser/); 
+	   next if($mpr =~ /pulser/);
+	   next if($mpr =~ /cosmic/);                      
           $arstreams[$nk] = $mpr;
           $nk++;
    }
