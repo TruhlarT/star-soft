@@ -109,6 +109,9 @@ $MAIN  = "/star/data";                                   # default base path
           "/star/data92" => "SKIP",
           "/star/data93" => "SKIP",
           "/star/data94" => "SKIP",
+          "/star/data95" => "/gpfs01/star/data24",     # merged 2016/01/13
+          "/star/data96" => "SKIP",
+  
 
           "/star/rcf"    => "/gpfs01/star/rcf",
           "/star/xrootd" => "/gpfs01/star/XROOTD",
