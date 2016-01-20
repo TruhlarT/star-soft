@@ -168,6 +168,8 @@ my @pfiles = ();
     $prodPeriod = $prtag[$ik];
 
     $JOB_LOG =  $DISK1 . $prodPeriod . "/log/daq"; 
+    $jobdir = "/star/u/starreco/" . $prodPeriod ."/requests/daq/jobfiles";
+   $archdir = "/star/u/starreco/" . $prodPeriod ."/requests/daq/archive";
 
     print "Check runnumber, day, prodtag   ", $runnum[$ik],"   ",  $runday[$ik],"   ",$prtag[$ik] ,"\n";
 
