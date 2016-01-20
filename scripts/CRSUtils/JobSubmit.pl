@@ -585,11 +585,13 @@ if ( $ThisYear == 2005 ){
         $DCHAIN{"PPPP"} = "pp2015,btof,mtd,pp2pp,BEmcChkStat,CorrX,OSpaceZ2,OGridLeak3D,-hitfilt";
         $DCHAIN{"PPAu"} = "P2015,btof,mtd,pp2pp,BEmcChkStat,CorrX,OSpaceZ2,OGridLeak3D,-hitfilt";
         $DCHAIN{"PPAl"} = "P2015,btof,mtd,pp2pp,BEmcChkStat,CorrX,OSpaceZ2,OGridLeak3D,-hitfilt";
+   } elsif ($ThisYear == 2016) {
+        $DCHAIN{"AuAu"} = "P2016,btof,mtd,BEmcChkStat,CorrX,OSpaceZ2,OGridLeak3D,-hitfilt";
 
    } else {
         $DCHAIN{"PPPP"} =
-            "P2014a,btof,mtd,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
-        $DCHAIN{"AuAu"} = "P2014a,btof,mtd,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
+            "P2016,btof,mtd,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
+        $DCHAIN{"AuAu"} = "P2016,btof,mtd,BEmcChkStat,CorrX,OSpaceZ2,OGridLeak3D,-hitfilt";
     }
 
 
@@ -2153,6 +2155,7 @@ __EOF__
 	    if ( ! $DEBUG ){
 #		if ( CRSQ_submit($jfile,$PRIORITY,$queue,$spill) ){
                 `/usr/bin/crs_job -insert $jfile`;
+                `/usr/bin/mv $jfile ../archive`; 
 		    # Mark it so we can set status 1 later
 #		    print "$SELF : Successful submission of $file ($queue,$spill) on ".
 			localtime()."\n";
