@@ -45,11 +45,11 @@ my $subject = "Trigger/subsystem test production submitted";
 my $runlist = " ";
 
 
-my $ryear = "2015";
+my $ryear = "2016";
 my @runnum = ();
 my @strname = ();
 my @nevents = ();
-my $chain = "pp2015,btof,mtd,BEmcChkStat,CorrX,OSpaceZ2,OGridLeak3D,-hitfilt";
+my $chain = "P2016,btof,mtd,BEmcChkStat,CorrX,OSpaceZ2,OGridLeak3D,-evout,-hitfilt";
 
 
 my @trgsetup = ();
@@ -246,7 +246,7 @@ my @pfiles = ();
  $Jsetr = $ryear."/".$rnday."/".$rnum ;
  $inputfile =  $jbfile . ".daq";
 
-  if($jbevents >= 100000 ) {
+  if($jbevents >= 10000 ) {
 
   $exArg = "4,".$LibTag.",".$datadisk.",-1,".$chain;
 
@@ -301,7 +301,7 @@ my @pfiles = ();
        print JOB_FILE "[main]\n";
        print JOB_FILE "num_inputs = 1\n";
        print JOB_FILE "num_outputs = 3\n";
-       print JOB_FILE "queue = high\n";
+       print JOB_FILE "queue = highest\n";
        print JOB_FILE "              \n";
        print JOB_FILE "[input-0]\n";
        print JOB_FILE "path = $hpss_raw_dir\n";
