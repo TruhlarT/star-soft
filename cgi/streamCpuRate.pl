@@ -239,6 +239,37 @@ $JobStatusT = "JobStatus2014";
 #    $cursor->finish();
 
 
+$JobStatusT = "JobStatus2015";
+
+
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT where runDay >= '2015-11-12' order by runDay";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+      while( $mpr = $cursor->fetchrow() ) {
+          $arrprod[$npr] = $mpr;
+          $npr++;
+       }
+    $cursor->finish();
+
+
+    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2015-11-12' order by runDay" ;
+
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $dy = $cursor->fetchrow() ) {
+          next if($dy eq "P15il") ; 
+
+          $rdays[$ndy] = $dy;
+          $ndy++;
+       }
+    $cursor->finish();
+
 
 @rvdays = reverse @rdays ;
 
@@ -334,7 +365,8 @@ END
   if( $qprod =~ /P14ia/ ) {$pryear = "2013"};
   if( $qprod =~ /P14ig/ ) {$pryear = "2013"};
   if( $qprod =~ /P14ii/ ) {$pryear = "2014"};
-  if( $qprod =~ /P15ib/ or $qprod =~ /P15ic/ or $qprod =~ /P15ie/) {$pryear = "2014"};
+  if( $qprod =~ /P15ib/ or $qprod =~ /P15ic/ or $qprod =~ /P15ie/ or $qprod =~ /P15il/) {$pryear = "2014"};
+  if( $qprod =~ /P15ik/ ) {$pryear = "2015"};
    
     $JobStatusT = "JobStatus".$pryear;
 
@@ -927,11 +959,11 @@ END
 #       $legend[4] = "st_monitor   ";
        $legend[4] = "st_W    ";
        $legend[5] = "st_upc       ";
-       $legend[6] = "st_atomcules ";
-       $legend[7] = "st_mtd       ";
-       $legend[8] = "st_centralpro";
-       $legend[9] = "st_fms";
-       $legend[10] = "st_hltgood";
+#       $legend[6] = "st_atomcules ";
+       $legend[6] = "st_mtd       ";
+       $legend[7] = "st_centralpro";
+       $legend[8] = "st_fms";
+       $legend[9] = "st_hltgood";
 
        if ( $srate eq "rtime/cpu" ) {
 
@@ -941,7 +973,7 @@ END
     @data = ();
 
 
-  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@arwb, \@arupc, \@aratomcules, \@armtd, \@arcentralpro, \@arfms, \@arhltgood ) ;
+  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@arwb, \@arupc, \@armtd, \@arcentralpro, \@arfms, \@arhltgood ) ;
 
   	$max_y = $maxval + 0.2*$maxval; 
 #        $max_y = int($max_y);
@@ -954,7 +986,7 @@ END
     @data = ();
 
 
- @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpwb, \@cpupc, \@cpatomcules, \@cpmtd, \@cpcentralpro, \@cpfms, \@cphltgood ) ;
+ @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cpwb, \@cpupc, \@cpmtd, \@cpcentralpro, \@cpfms, \@cphltgood ) ;
 
     	$max_y = $maxcpu + 0.2*$maxcpu; 
         $max_y = int($max_y);
@@ -967,7 +999,7 @@ END
    $gtitle = "Average total time jobs stay on the farm in $qprod production ";
 
 
-@data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbwb, \@jbupc, \@jbatomcules, \@jbmtd, \@jbcentralpro, \@jbfms, \@jbhltgood ) ;
+@data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbwb, \@jbupc, \@jbmtd, \@jbcentralpro, \@jbfms, \@jbhltgood ) ;
 
   $max_y = $maxjbtime + 0.2*$maxjbtime;
   $max_y = int($max_y);
@@ -981,7 +1013,7 @@ END
    @data = ();
 
 
- @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trht, \@trwb, \@trupc, \@tratomcules, \@trmtd, \@trcentralpro, \@trfms, \@trhltgood ) ;
+ @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trht, \@trwb, \@trupc,  \@trmtd, \@trcentralpro, \@trfms, \@trhltgood ) ;
   
       $max_y = $maxtrk + 0.2*$maxtrk;
       $max_y = int($max_y);
@@ -994,7 +1026,7 @@ END
     @data = ();
 
 
- @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstht, \@nstwb, \@nstupc, \@nstatomcules, \@nstmtd, \@nstcentralpro, \@nstfms, \@nsthltgood ) ;
+ @data = (\@ndate, \@nstphysics, \@nstgamma, \@nsthlt, \@nstht, \@nstwb, \@nstupc, \@nstmtd, \@nstcentralpro, \@nstfms, \@nsthltgood ) ;
 
 
   }elsif(  $srate eq "stream_rate" ) {
@@ -1005,7 +1037,7 @@ END
  @data = ();
 
 
- @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtmonitor, \@rtwb, \@rtupc, \@rtatomcules, \@rtmtd, \@rtcentralpro, \@rtfms, \@rthltgood ) ;
+ @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtht, \@rtwb, \@rtupc, \@rtmtd, \@rtcentralpro, \@rtfms, \@rthltgood ) ;
 
         $max_y = 1.2;
     }
