@@ -1748,9 +1748,9 @@ END
 	$gtitle = "Average number of tracks in different stream data in $qprod production ";
 
 
-# @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trfms, \@trupc, \@trwb, \@trmtd, \@trcentralpro, \@trssty, \@trhltgood ) ;
+# @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trfms, \@trupc, \@trwb, \@trmtd, \@trcentralpro, \@trsst, \@trhltgood ) ;
 
- @data = (\@ndate, \@trphysics, \@trhlt, \@trhltgood, \@trmtd, \@trupc, \@trwb, \@trfms, \@trrp, \@trssty ) ;
+ @data = (\@ndate, \@trphysics, \@trhlt, \@trhltgood, \@trmtd, \@trupc, \@trwb, \@trfms, \@trrp, \@trsst ) ;
 
     
       $max_y = $maxtrk + 0.2*$maxtrk;
@@ -1781,7 +1781,7 @@ END
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lpurple orange lred lyellow lblack lgray lpink brown lpink marine lred) ],
+                    dclrs => [ qw(lblue lgreen lpurple orange lred lyellow lgray lblack lpink brown lpink marine lred) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
