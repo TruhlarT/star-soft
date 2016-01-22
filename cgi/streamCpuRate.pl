@@ -258,19 +258,19 @@ $JobStatusT = "JobStatus2015";
     $cursor->finish();
 
 
-    $sql="SELECT DISTINCT runDay  FROM $JobStatusT order by runDay" ;
+#    $sql="SELECT DISTINCT runDay  FROM $JobStatusT order by runDay" ;
 
 
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
+#      $cursor =$dbh->prepare($sql)
+#          || die "Cannot prepare statement: $DBI::errstr\n";
+#       $cursor->execute();
 
-       while( $dy = $cursor->fetchrow() ) {
+#       while( $dy = $cursor->fetchrow() ) {
 
-          $rdays[$ndy] = $dy;
-          $ndy++;
-       }
-    $cursor->finish();
+#          $rdays[$ndy] = $dy;
+#          $ndy++;
+#       }
+#    $cursor->finish();
 
 
 @rvdays = reverse @rdays ;
