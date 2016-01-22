@@ -242,20 +242,22 @@ $JobStatusT = "JobStatus2014";
 $JobStatusT = "JobStatus2015";
 
 
-    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT where runDay >= '2015-11-12' order by runDay";
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT order by runDay";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
        $cursor->execute();
 
       while( $mpr = $cursor->fetchrow() ) {
+
+          next if($mpr eq "P15il") ; 
           $arrprod[$npr] = $mpr;
           $npr++;
        }
     $cursor->finish();
 
 
-    $sql="SELECT DISTINCT runDay  FROM $JobStatusT where runDay >= '2015-11-12' order by runDay" ;
+    $sql="SELECT DISTINCT runDay  FROM $JobStatusT order by runDay" ;
 
 
       $cursor =$dbh->prepare($sql)
@@ -263,7 +265,6 @@ $JobStatusT = "JobStatus2015";
        $cursor->execute();
 
        while( $dy = $cursor->fetchrow() ) {
-          next if($dy eq "P15il") ; 
 
           $rdays[$ndy] = $dy;
           $ndy++;
