@@ -51,7 +51,7 @@ my $nowdate = $todate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2013","2014","2015");
+my @prodyear = ("2013","2014","2015","2016");
 
 
 my @arperiod = ( );
@@ -236,7 +236,8 @@ $JobStatusT = "JobStatus2014";
           $rdays[$ndy] = $dy;
           $ndy++;
        }
-#    $cursor->finish();
+    $cursor->finish();
+
 
 
 $JobStatusT = "JobStatus2015";
