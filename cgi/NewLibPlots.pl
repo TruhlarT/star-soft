@@ -526,12 +526,12 @@ if ($plotVal eq "MemUsage") {
     $legend[3] = "MemUsageLast(nonoptimized,rcf)";
     $legend[4] = "MemUsageFirst(pdsf)";
     $legend[5] = "MemUsageLast(pdsf)";
-    $legend[6] = "MemUsageFirst(optimized.AgML,rcf)";
-    $legend[7] = "MemUsageLast(optimized.AgML,rcf)";
-    $legend[8] = "MemUsageFirst(nonoptimized.AgML,rcf)";
-    $legend[9] = "MemUsageLast(nonoptimized.AgML,rcf)";
-    $legend[10] = "MemUsageFirst(kisti)";
-    $legend[11] = "MemUsageLast(kisti)";
+#    $legend[6] = "MemUsageFirst(optimized.AgML,rcf)";
+#    $legend[7] = "MemUsageLast(optimized.AgML,rcf)";
+#    $legend[8] = "MemUsageFirst(nonoptimized.AgML,rcf)";
+#    $legend[9] = "MemUsageLast(nonoptimized.AgML,rcf)";
+#    $legend[10] = "MemUsageFirst(kisti)";
+#    $legend[11] = "MemUsageLast(kisti)";
 
     $mplotVal="MemUsageFirstEvent,MemUsageLastEvent";
 
@@ -542,9 +542,9 @@ if ($plotVal eq "MemUsage") {
     $legend[0] = "$plotVal"."(optimized,rcf)";
     $legend[1] = "$plotVal"."(nonoptimized,rcf)";
     $legend[2] = "$plotVal"."(pdsf)";
-    $legend[3] = "$plotVal"."(optimized.AgML,rcf)";
-    $legend[4] = "$plotVal"."(nonoptimized.AgML,rcf)";
-    $legend[5] = "$plotVal"."(kisti)";
+#    $legend[3] = "$plotVal"."(optimized.AgML,rcf)";
+#    $legend[4] = "$plotVal"."(nonoptimized.AgML,rcf)";
+#    $legend[5] = "$plotVal"."(kisti)";
 
 }
 
