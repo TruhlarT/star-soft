@@ -518,6 +518,10 @@ my $graph = new GD::Graph::linespoints(650,500);
 
 
 if ($plotVal eq "MemUsage") {
+
+    if($tset =~ /year_2012/) {
+
+
     @data = (\@libtag, \@plotmemfsto, \@plotmemlsto, \@plotmemfstd, \@plotmemlstd, \@plotmemfstpdsf, \@plotmemlstpdsf,\@plotmemvmcfsto, \@plotmemvmclsto, \@plotmemvmcfstd, \@plotmemvmclstd, \@plotmemfstkisti, \@plotmemlstkisti,);
 
     $legend[0] = "MemUsageFirst(optimized,rcf)";
@@ -526,27 +530,55 @@ if ($plotVal eq "MemUsage") {
     $legend[3] = "MemUsageLast(nonoptimized,rcf)";
     $legend[4] = "MemUsageFirst(pdsf)";
     $legend[5] = "MemUsageLast(pdsf)";
-#    $legend[6] = "MemUsageFirst(optimized.AgML,rcf)";
-#    $legend[7] = "MemUsageLast(optimized.AgML,rcf)";
-#    $legend[8] = "MemUsageFirst(nonoptimized.AgML,rcf)";
-#    $legend[9] = "MemUsageLast(nonoptimized.AgML,rcf)";
-#    $legend[10] = "MemUsageFirst(kisti)";
-#    $legend[11] = "MemUsageLast(kisti)";
+    $legend[6] = "MemUsageFirst(optimized.AgML,rcf)";
+    $legend[7] = "MemUsageLast(optimized.AgML,rcf)";
+    $legend[8] = "MemUsageFirst(nonoptimized.AgML,rcf)";
+    $legend[9] = "MemUsageLast(nonoptimized.AgML,rcf)";
+    $legend[10] = "MemUsageFirst(kisti)";
+    $legend[11] = "MemUsageLast(kisti)";
 
     $mplotVal="MemUsageFirstEvent,MemUsageLastEvent";
 
+    }else{
+
+   @data = (\@libtag, \@plotmemfsto, \@plotmemlsto, \@plotmemfstd, \@plotmemlstd, \@plotmemfstpdsf, \@plotmemlstpdsf, \@plotmemfstkisti, \@plotmemlstkisti,);
+
+    $legend[0] = "MemUsageFirst(optimized,rcf)";
+    $legend[1] = "MemUsageLast(optimized,rcf)";
+    $legend[2] = "MemUsageFirst(nonoptimized,rcf)";
+    $legend[3] = "MemUsageLast(nonoptimized,rcf)";
+    $legend[4] = "MemUsageFirst(pdsf)";
+    $legend[5] = "MemUsageLast(pdsf)";
+    $legend[6] = "MemUsageFirst(kisti)";
+    $legend[7] = "MemUsageLast(kisti)";
+
+    $mplotVal="MemUsageFirstEvent,MemUsageLastEvent";
+    }
+
   } else {
+
+    if($tset =~ /year_2012/) {
 
     @data = (\@libtag, \@plotvalop, \@plotvaldg, \@plotvalpdsf, \@plotvalvmcop, \@plotvalvmcdg, \@plotvalkisti, );
 
     $legend[0] = "$plotVal"."(optimized,rcf)";
     $legend[1] = "$plotVal"."(nonoptimized,rcf)";
     $legend[2] = "$plotVal"."(pdsf)";
-#    $legend[3] = "$plotVal"."(optimized.AgML,rcf)";
-#    $legend[4] = "$plotVal"."(nonoptimized.AgML,rcf)";
-#    $legend[5] = "$plotVal"."(kisti)";
+    $legend[3] = "$plotVal"."(optimized.AgML,rcf)";
+    $legend[4] = "$plotVal"."(nonoptimized.AgML,rcf)";
+    $legend[5] = "$plotVal"."(kisti)";
 
-}
+    }else{
+
+    @data = (\@libtag, \@plotvalop, \@plotvaldg, \@plotvalpdsf, \@plotvalkisti, );
+
+    $legend[0] = "$plotVal"."(optimized,rcf)";
+    $legend[1] = "$plotVal"."(nonoptimized,rcf)";
+    $legend[2] = "$plotVal"."(pdsf)";
+    $legend[5] = "$plotVal"."(kisti)";
+
+    }
+ }
 
  my $xLabelsVertical = 1;
  my $xLabelPosition = 0.5;
