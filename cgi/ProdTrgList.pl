@@ -54,7 +54,6 @@ my %collHash = (
                  production_pAl200_2015 => 'pAl200',
                  production_pAl200_fms_2015 => 'pAl200',
                  production_pAl200_2015_lowlumi => 'pAl200',
-                 fixedTarget2015 => 'pAu19',
                  AuAu_200_production_2014 => 'auau200',
                  AuAu_200_production_high_2014 => 'auau200',
                  AuAu_200_production_mid_2014 => 'auau200',
