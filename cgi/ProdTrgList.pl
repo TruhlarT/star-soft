@@ -42,6 +42,7 @@ my $mondif;
 my $pyear;
 
 my %collHash = (
+                 fixedTarget2015  => 'AuAu/AuAl4.5',
                  production_pp200trans_2015 => 'pp200',
                  production_pp200long_2015 => 'pp200',
                  production_pp200long2_2015 => 'pp200',
@@ -218,6 +219,7 @@ my %collHash = (
 	      );
              
 my %yrHash = (
+                 fixedTarget2015 = 'year2015',
                  production_pp200trans_2015 => 'year2015',
                  production_pp200long_2015 => 'year2015',
                  production_pp200long2_2015 => 'year2015',
