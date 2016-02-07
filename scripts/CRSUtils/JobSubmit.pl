@@ -1,5 +1,4 @@
 #!/usr/bin/env perl
-
 #
 # This script will fetch records fron the o-database
 # and create a job file and submit it.
@@ -76,8 +75,9 @@
 #
 
 use lib "/afs/rhic.bnl.gov/star/packages/scripts";
+use lib "/star/u/didenko/dev/scripts/CRSUtils/CRSQueues" ;
 use RunDAQ;
-use CRSQueues;
+#use CRSQueues;
 
 
 $ThisYear = 2016;                 # Block to consider. Completely artificial
@@ -2156,7 +2156,7 @@ __EOF__
 	    if ( ! $DEBUG ){
 #		if ( CRSQ_submit($jfile,$PRIORITY,$queue,$spill) ){
                 `/usr/bin/crs_job -insert $jfile`;
-#                `/usr/bin/mv $jfile ../archive`; 
+                `/usr/bin/mv $jfile ../archive`; 
 		    # Mark it so we can set status 1 later
 #		    print "$SELF : Successful submission of $file ($queue,$spill) on ".
 			localtime()."\n";
