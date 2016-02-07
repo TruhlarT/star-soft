@@ -2156,7 +2156,7 @@ __EOF__
 	    if ( ! $DEBUG ){
 #		if ( CRSQ_submit($jfile,$PRIORITY,$queue,$spill) ){
                 `/usr/bin/crs_job -insert $jfile`;
-                `/usr/bin/mv $jfile ../archive`; 
+#                `/usr/bin/mv $jfile ../archive`; 
 		    # Mark it so we can set status 1 later
 #		    print "$SELF : Successful submission of $file ($queue,$spill) on ".
 			localtime()."\n";
