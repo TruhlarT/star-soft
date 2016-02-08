@@ -516,7 +516,8 @@ if ( $ThisYear == 2005 ){
 	rdaq_string2ftype("mtd_adc");
 
 
-    @EXPRESS = (
+    if ( $ThisYear < 2016){
+	@EXPRESS = (
 	        rdaq_string2ftype("rp"),         # <-- new in 2015, 
 		rdaq_string2ftype("express"),
 		rdaq_string2ftype("jpsi"),
@@ -531,6 +532,12 @@ if ( $ThisYear == 2005 ){
                 rdaq_string2ftype("atomcules"),
                 rdaq_string2ftype("monitor")
 		);
+    } esle {
+	# Express became too numerous - send a note to software coordinators
+	# that we would start WITHOUT express processing files and each should
+	# be well justified. softcoord/267
+	@EXPRESS = ();
+    }
 
     $ZEROBIAS=  rdaq_string2ftype("zerobias");
 
