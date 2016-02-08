@@ -532,7 +532,7 @@ if ( $ThisYear == 2005 ){
                 rdaq_string2ftype("atomcules"),
                 rdaq_string2ftype("monitor")
 		);
-    } esle {
+    } else {
 	# Express became too numerous - send a note to software coordinators
 	# that we would start WITHOUT express processing files and each should
 	# be well justified. softcoord/267
