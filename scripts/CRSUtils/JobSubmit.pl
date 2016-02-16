@@ -526,6 +526,7 @@ if ( $ThisYear == 2005 ){
 		rdaq_string2ftype("gamma"),
 	        rdaq_string2ftype("hlt"),
 		rdaq_string2ftype("muon"),
+		rdaq_string2ftype("upc"),
 		rdaq_string2ftype("upcjpsi"),
                 rdaq_string2ftype("ht"),
                 rdaq_string2ftype("atomcules"),
@@ -593,7 +594,7 @@ if ( $ThisYear == 2005 ){
         $DCHAIN{"PPAu"} = "P2015,btof,mtd,pp2pp,BEmcChkStat,CorrX,OSpaceZ2,OGridLeak3D,-hitfilt";
         $DCHAIN{"PPAl"} = "P2015,btof,mtd,pp2pp,BEmcChkStat,CorrX,OSpaceZ2,OGridLeak3D,-hitfilt";
    } elsif ($ThisYear == 2016) {
-        $DCHAIN{"AuAu"} = "P2016,btof,mtd,BEmcChkStat,CorrX,OSpaceZ2,OGridLeak3D,-hitfilt";
+        $DCHAIN{"AuAu"} = "P2016,btof,mtd,pxlHit,istHit,sstHit,BEmcChkStat,CorrX,OSpaceZ2,OGridLeak3D,-hitfilt";
 
    } else {
         $DCHAIN{"PPPP"} =
