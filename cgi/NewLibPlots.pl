@@ -556,7 +556,7 @@ if ($plotVal eq "MemUsage") {
     }
 
  $min_y = 600;
- $max_y = 1200;
+ $max_y = 1400;
 
 
   } else {
@@ -609,7 +609,7 @@ if ($plotVal eq "MemUsage") {
                 #y_label => "$mplotVal",
                 x_label_position => 0.5,
                 title   => "$tset"." ($mplotVal)",
-                y_tick_number => 15,
+                y_tick_number => 20,
                 y_min_value => $min_y,
                 y_max_value => $max_y,
                 y_number_format => \&y_format,
