@@ -555,10 +555,6 @@ if ($plotVal eq "MemUsage") {
     $mplotVal="MemUsageFirstEvent,MemUsageLastEvent";
     }
 
- $min_y = 600;
- $max_y = 1400;
-
-
   } else {
 
     if($tset =~ /year_2012/) {
@@ -596,14 +592,11 @@ if ($plotVal eq "MemUsage") {
   
     }
 
-#   $max_y = 1.2*$max_y;
+   $max_y = 1.2*$max_y;
 
     if($min_y < 0) {
         $min_y = 0;
     }
-
-
-
 
     $graph->set(#x_label => "$xlabel",
                 #y_label => "$mplotVal",
