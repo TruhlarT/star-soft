@@ -609,7 +609,7 @@ if ($plotVal eq "MemUsage") {
                 #y_label => "$mplotVal",
                 x_label_position => 0.5,
                 title   => "$tset"." ($mplotVal)",
-                y_tick_number => 20,
+                y_tick_number => 10,
                 y_min_value => $min_y,
                 y_max_value => $max_y,
                 y_number_format => \&y_format,
