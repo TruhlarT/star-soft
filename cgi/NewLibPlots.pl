@@ -596,11 +596,14 @@ if ($plotVal eq "MemUsage") {
   
     }
 
-   $max_y = 1.2*$max_y;
+#   $max_y = 1.2*$max_y;
 
     if($min_y < 0) {
         $min_y = 0;
     }
+
+
+
 
     $graph->set(#x_label => "$xlabel",
                 #y_label => "$mplotVal",
