@@ -356,7 +356,7 @@ $ndt = 0;
       $gtitle = "Number of submitted jobs per day for $qprod production";
 
 
-   if($qprod eq "all2014"){
+   if($qprod eq "all2015"){
 
  $max_y = 12000 ;
 
