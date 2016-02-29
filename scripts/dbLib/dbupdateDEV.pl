@@ -27,7 +27,7 @@ $JobQAT = "newJobsQA";
 
 my $TOP_DIRD = "/star/rcf/test/dev/";
 
-my @dir_year = ("year_2000", "year_2001", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008","year_2009", "year_2010", "year_2011", "year_2012", "year_2013", "year_2014", "year2015");
+my @dir_year = ("year_2000", "year_2001", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008","year_2009", "year_2010", "year_2011", "year_2012", "year_2013", "year_2014", "year2015", "2016");
 my @node_dir = ("daq_sl302.ittf", "daq_sl302.ittf_opt" ,"trs_sl302.ittf", "trs_sl302.ittf_opt","simu");
 
 
@@ -1612,7 +1612,7 @@ $jrun = "Run not completed";
 
          }
       
-   if($fl_log =~ /AuAu200_production_low_2014/  or $fl_log =~ /AuAu200_production_mid_2014/ or $fl_log =~ /production_pp200long_2015/ or $fl_log =~ /production_pAu200_2015/ ) {
+   if($fl_log =~ /AuAu200_production_low_2014/  or $fl_log =~ /AuAu200_production_mid_2014/ or $fl_log =~ /production_pp200long_2015/ or $fl_log =~ /production_pAu200_2015/ or $fl_log =~ /AuAu200_production_2016/) {
 
 #       print "Check path   ",$fl_log,"\n";
 
