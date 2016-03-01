@@ -775,13 +775,13 @@ my $pyear = 0;
 
     &fillJSTable();
 
-#     if($mpath =~ /production_pAu200_2015/) {
+     if($mpath =~ /AuAu200_production_2016/) {
 
-#       print "Fillin QA table  ", $mpath, "\n";
+       print "Fillin QA table  ", $mpath, "\n";
 #    next if ($mpath =~ /nohft/);
 
-#    &fillQATable();
-#   }
+    &fillQATable();
+   }
 
 
         foreach my $nOldJob (@old_jobs) {
