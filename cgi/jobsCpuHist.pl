@@ -343,6 +343,7 @@ END
   if( $qprod =~ /P15ik/ or $qprod =~ /P15il/) {$pryear = "2015"};
 
   if( $qprod eq "all2014") {$pryear = "2014"};
+  if( $qprod =~ /P16ic/) {$pryear = "2015"};
 
     $JobStatusT = "JobStatus".$pryear;
 
