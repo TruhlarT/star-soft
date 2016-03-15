@@ -118,7 +118,7 @@ my @nstpmdftp = ();
 my @nstupsilon = ();
 my @numstream  = ();
 my @nstcentralpro  = ();
-my @nstfgt  = ();
+my @nsthimult  = ();
 my @nsthltgood  = ();
 my @nstwb = ();
 my @nstrp = ();
@@ -135,7 +135,7 @@ my @rtpmdftp = ();
 my @rtupsilon = ();
 my @rtphysics = ();
 my @rtcentralpro  = ();
-my @rtfgt  = ();
+my @rthimult  = ();
 my @rthltgood  = ();
 my @rtwb = ();
 my @rtrp = ();
@@ -152,7 +152,7 @@ my @cpupc = ();
 my @cpmonitor = ();
 my @cppmdftp = ();
 my @cpcentralpro  = ();
-my @cpfgt  = ();
+my @cphimult  = ();
 my @cphltgood  = ();
 my @cpwb = ();
 my @cprp = ();
@@ -172,7 +172,7 @@ my @trupc = ();
 my @trmonitor = ();
 my @trpmdftp = ();
 my @trcentralpro  = ();
-my @trfgt  = ();
+my @trhimult  = ();
 my @trhltgood  = ();
 my @trwb = ();
 my @trrp = ();
@@ -189,7 +189,7 @@ my @jbupc = ();
 my @jbmonitor = ();
 my @jbpmdftp = ();
 my @jbcentralpro  = ();
-my @jbfgt  = ();
+my @jbhimult  = ();
 my @jbhltgood  = ();
 my @jbwb = ();
 my @jbrp = ();
@@ -572,7 +572,7 @@ END
  @cpmonitor = ();
  @cppmdftp = (); 
  @cpcentralpro = ();
- @cpfgt= ();
+ @cphimult= ();
  @cphltgood= ();
  @cpwb = ();
  @prcpmtd = ();
@@ -661,6 +661,8 @@ END
                $cpwb[$ndt] =  $arcpu{$mfile,$ndt};
               }elsif( $mfile eq "hltgood" ) {
                $cphltgood[$ndt] =  $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "himilt" ) {
+               $cphimult[$ndt] =  $arcpu{$mfile,$ndt};
 
            }else{
              next;
@@ -755,8 +757,8 @@ END
                $cpupc[$ndt] =  $arcpu{$mfile,$ndt};
               }elsif( $mfile eq "W" or $mfile eq "WB" or $mfile eq "WE") {
                $cpwb[$ndt] =  $arcpu{$mfile,$ndt};
-#              }elsif( $mfile eq "fgt" ) {
-#               $cpfgt[$ndt] =  $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "himult" ) {
+               $cphimult[$ndt] =  $arcpu{$mfile,$ndt};
               }elsif( $mfile eq "hltgood" ) {
                $cphltgood[$ndt] =  $arcpu{$mfile,$ndt};
 
@@ -791,7 +793,7 @@ END
  @armonitor = ();
  @arpmdftp = ();
  @arcentralpro = ();
- @arfgt= ();
+ @arhimult= ();
  @arhltgood= ();
  @arwb = ();
  @arrp = ();
@@ -808,7 +810,7 @@ END
  @cpmonitor = ();
  @cppmdftp = ();
  @cpcentralpro = ();
- @cpfgt= ();
+ @cphimult= ();
  @cphltgood= ();
  @cpwb = ();
  @cprp = ();
@@ -892,6 +894,8 @@ END
                $arwb[$ndt] =  $rte{$mfile,$ndt};
               }elsif( $mfile eq "hltgood" ) {
                $arhltgood[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "himult" ) {
+               $arhimult[$ndt] =  $rte{$mfile,$ndt};
 
             }else{
              next;
@@ -987,8 +991,8 @@ END
                $arupc[$ndt] =  $rte{$mfile,$ndt};
               }elsif( $mfile eq "W"  or $mfile eq "WB" or $mfile eq "WE" ) {
                $arwb[$ndt] =  $rte{$mfile,$ndt};
-#               }elsif( $mfile eq "fgt" ) {
-#                $arfgt[$ndt] =  $rte{$mfile,$ndt};
+               }elsif( $mfile eq "himult" ) {
+                $arhimult[$ndt] =  $rte{$mfile,$ndt};
               }elsif( $mfile eq "hltgood" ) {
                $arhltgood[$ndt] =  $rte{$mfile,$ndt};
 
@@ -1020,7 +1024,7 @@ END
  @trmonitor = ();
  @trpmdftp = ();
  @trcentralpro = ();
- @trfgt= ();
+ @trhimult= ();
  @trhltgood= ();
  @trwb = ();
  @trrp = ();
@@ -1098,6 +1102,9 @@ END
                $trwb[$ndt] =  $artrk{$mfile,$ndt};
               }elsif( $mfile eq "hltgood" ) {
                $trhltgood[$ndt] =  $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "himult" ) {
+               $trhimult[$ndt] =  $artrk{$mfile,$ndt};
+
 
            }else{
              next;
@@ -1186,8 +1193,8 @@ END
                $trupc[$ndt] =  $artrk{$mfile,$ndt};
               }elsif( $mfile eq "W" or $mfile eq "WB" or $mfile eq "WE" ) {
                $trwb[$ndt] =  $artrk{$mfile,$ndt};
-#              }elsif( $mfile eq "fgt" ) {
-#               $trfgt[$ndt] =  $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "himult" ) {
+               $trhimult[$ndt] =  $artrk{$mfile,$ndt};
               }elsif( $mfile eq "hltgood" ) {
                $trhltgood[$ndt] =  $artrk{$mfile,$ndt};
 
@@ -1221,7 +1228,7 @@ END
  @nstpmdftp = ();
  @nstupsilon = ();
  @nstcentralpro = ();
- @nstfgt= ();
+ @nsthimult= ();
  @nsthltgood= ();
  @nstwb = ();
  @nstrp = ();
@@ -1241,7 +1248,7 @@ END
  @rtpmdftp = ();
  @rtupsilon = ();
  @rtcentralpro = ();
- @rtfgt= ();
+ @rthimult= ();
  @rthltgood= ();
  @rtwb = ();
  @rtrp = ();
@@ -1303,6 +1310,8 @@ END
                $nstwb[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "hltgood" ) {
                $nsthltgood[$ndt] =  $nstr{$mfile,$ndt};
+              }elsif( $mfile eq "himult" ) {
+               $nsthimult[$ndt] =  $nstr{$mfile,$ndt};
 
            }else{
              next;
@@ -1372,6 +1381,8 @@ END
                $nstwb[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "hltgood" ) {
                $nsthltgood[$ndt] =  $nstr{$mfile,$ndt};
+              }elsif( $mfile eq "himult" ) {
+               $nsthimult[$ndt] =  $nstr{$mfile,$ndt};
 
            }else{
              next;
@@ -1386,9 +1397,9 @@ END
 
       for($ii = 0; $ii < $ndt; $ii++) {
  
-#     $numstream[$ii] = $nstphysics[$ii]+$nstcentralpro[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+ $nstfms[$ndt] + $nstfgt[$ndt] + $nsthltgood[$ndt] + $nstupc[$ii]+ $nstgamma[$ii]+ $nstwb[$ii] +  $nstsst[$ii]+ $nstupsilon[$ii];
+#     $numstream[$ii] = $nstphysics[$ii]+$nstcentralpro[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+ $nstfms[$ndt] + $nsthimult[$ndt] + $nsthltgood[$ndt] + $nstupc[$ii]+ $nstgamma[$ii]+ $nstwb[$ii] +  $nstsst[$ii]+ $nstupsilon[$ii];
 
-     $numstream[$ii] = $nstphysics[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+ $nstfms[$ii] + $nsthltgood[$ii] + $nstupc[$ii] + $nstwb[$ii] + $nstrp[$ii] + $nstsst[$ii] ;
+     $numstream[$ii] = $nstphysics[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+ $nstfms[$ii] + $nsthltgood[$ii] + $nstupc[$ii] + $nstwb[$ii] + $nstrp[$ii] + $nstsst[$ii] + $nsthimult[$ii];
 
 
      if ($numstream[$ii] >= 1) {
@@ -1407,7 +1418,7 @@ END
       $rtfms[$ii] = $nstfms[$ii]/$numstream[$ii];
       $rtrp[$ii] = $nstrp[$ii]/$numstream[$ii];
       $rtsst[$ii] = $nstsst[$ii]/$numstream[$ii];
-#      $rtfgt[$ii] = $nstfgt[$ii]/$numstream[$ii];
+      $rthimult[$ii] = $nsthimult[$ii]/$numstream[$ii];
       $rthltgood[$ii] = $nsthltgood[$ii]/$numstream[$ii];
 
        }
@@ -1432,7 +1443,7 @@ END
  @jbmonitor = ();
  @jbpmdftp = ();
  @jbcenralpro = ();
- @jbfgt= ();
+ @jbhimult= ();
  @jbhltgood= ();
  @jbwb = ();
  @jbrp = ();
@@ -1520,8 +1531,8 @@ END
                $jbupc[$ndt] =  $arjbtime{$mfile,$ndt};
             }elsif( $mfile eq "W" or $mfile eq "WB" or $mfile eq "WE" ) {
                $jbwb[$ndt] =  $arjbtime{$mfile,$ndt};
-#            }elsif( $mfile eq "fgt" ) {
-#               $jbfgt[$ndt] =  $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "himult" ) {
+               $jbhimult[$ndt] =  $arjbtime{$mfile,$ndt};
             }elsif( $mfile eq "hltgood" ) {
                $jbhltgood[$ndt] =  $arjbtime{$mfile,$ndt};
 
@@ -1615,8 +1626,8 @@ END
                $jbupc[$ndt] =  $arjbtime{$mfile,$ndt};
             }elsif( $mfile eq "W" or $mfile eq "WB" or $mfile eq "WE" ) {
                $jbwb[$ndt] =  $arjbtime{$mfile,$ndt};
-#            }elsif( $mfile eq "fgt" ) {
-#               $jbfgt[$ndt] =  $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "himult" ) {
+               $jbhimult[$ndt] =  $arjbtime{$mfile,$ndt};
             }elsif( $mfile eq "hltgood" ) {
                $jbhltgood[$ndt] =  $arjbtime{$mfile,$ndt};
 
@@ -1656,13 +1667,13 @@ END
        $legend[4] = "st_upc       "; 
        $legend[5] = "st_W         ";
        $legend[6] = "st_fms       ";
-       $legend[7] = "st_rp       ";
+       $legend[7] = "st_rp        ";
+       $legend[9] = "st_himult    ";
 #       $legend[7] = "st_mtd,prepassCPU ";
 #       $legend[1] = "st_gamma     ";
 #       $legend[3] = "st_ht        ";
 #       $legend[4] = "st_monitor   ";
 #       $legend[5] = "st_pmdftp    ";
-#       $legend[4] = "st_fgt ";
 #       $legend[7] = "st_centralpro ";
        $legend[8] = "st_sst ";
 
@@ -1677,7 +1688,7 @@ END
 
 #  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt,  \@arfms,  \@arupc, \@arwb, \@armtd, \@arcentralpro, \@arsst, \@arhltgood ) ;
 
-  @data = (\@ndate, \@arphysics, \@arhlt, \@arhltgood, \@armtd, \@arupc, \@arwb, \@arfms, \@arrp, \@arsst ) ;
+  @data = (\@ndate, \@arphysics, \@arhlt, \@arhltgood, \@armtd, \@arupc, \@arwb, \@arfms, \@arrp, \@arsst, \@arhimult ) ;
 
 
       $max_y = $maxval + 0.2*$maxval;
@@ -1698,11 +1709,11 @@ END
 
 #  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpfms, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpsst, \@cphltgood ) ;
 
-  @data = (\@ndate, \@cpphysics,  \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfms, \@prcpmtd, \@cpsst ) ;
+  @data = (\@ndate, \@cpphysics,  \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfms, \@prcpmtd, \@cpsst, \@cphimult ) ;
 
 	}else{
 
-  @data = (\@ndate, \@cpphysics,  \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfms, \@cprp, \@cpsst ) ;
+  @data = (\@ndate, \@cpphysics,  \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfms, \@cprp, \@cpsst, \@cphimult ) ;
 
 	}
 
@@ -1720,7 +1731,7 @@ END
 
 # @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtfms, \@rtupc, \@rtwb, \@rtmtd, \@rtcentralpro, \@rtsst, \@rthltgood, ) ;
 
- @data = (\@ndate, \@rtphysics,  \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtfms, \@rtrp, \@rtsst ) ;
+ @data = (\@ndate, \@rtphysics,  \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtfms, \@rtrp, \@rtsst, \@rthimult ) ;
 
         $max_y = 1.2;
 
@@ -1734,7 +1745,7 @@ END
 
 # @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbfms, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbsst, \@jbhltgood,) ;
 
- @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbhltgood, \@jbmtd, \@jbupc, \@jbwb, \@jbfms, \@jbrp, \@jbsst ) ;
+ @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbhltgood, \@jbmtd, \@jbupc, \@jbwb, \@jbfms, \@jbrp, \@jbsst, \@jbhimult ) ;
 
 
     $max_y = $maxjbtime + 0.2*$maxjbtime;    
@@ -1751,7 +1762,7 @@ END
 
 # @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trfms, \@trupc, \@trwb, \@trmtd, \@trcentralpro, \@trsst, \@trhltgood ) ;
 
- @data = (\@ndate, \@trphysics, \@trhlt, \@trhltgood, \@trmtd, \@trupc, \@trwb, \@trfms, \@trrp, \@trsst ) ;
+ @data = (\@ndate, \@trphysics, \@trhlt, \@trhltgood, \@trmtd, \@trupc, \@trwb, \@trfms, \@trrp, \@trsst, \@trhimult ) ;
 
     
       $max_y = $maxtrk + 0.2*$maxtrk;
