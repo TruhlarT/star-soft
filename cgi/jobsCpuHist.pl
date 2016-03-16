@@ -1224,12 +1224,16 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 
   }else{
 
- if($qprod eq "P14ii" or $qprod eq "P15ic" or $qprod eq "P16ic") {
+ if($qprod eq "P14ii" or $qprod eq "P15ic" ) {
      $max_y = 18 ;
      $ynum = 18;
  }elsif($qprod eq "P15ie" or $qprod eq "all2014" ) {
      $max_y = 24 ;
      $ynum = 12;
+ }elsif($qprod eq "P16ic" ) {
+     $max_y = 36 ;
+     $ynum = 12;
+
  }else{
      $max_y = 28 ;
      $ynum = 14;
