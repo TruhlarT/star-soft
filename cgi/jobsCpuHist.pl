@@ -1231,8 +1231,8 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
      $max_y = 24 ;
      $ynum = 12;
  }elsif($qprod eq "P16ic" ) {
-     $max_y = 36 ;
-     $ynum = 12;
+     $max_y = 40 ;
+     $ynum = 20;
 
  }else{
      $max_y = 28 ;
