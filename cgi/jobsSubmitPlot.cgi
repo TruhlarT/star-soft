@@ -65,7 +65,8 @@ my @jbsubm2 = ();
   &StDbProdConnect();
 
 
- $JobStatusT = "JobStatus2014";
+my  $JobStatusT = "JobStatus2014";
+my  $JobStatusT2 = "JobStatus2014";
 
 
     $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT where runDay >= '2015-03-12' order by runDay ";
@@ -142,7 +143,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P16ic,
+	                          -default=>P16id,
       			          -size =>1);
 
     print "<p>";
@@ -180,6 +181,7 @@ END
     
  # Tables
  $JobStatusT = "JobStatus2014";
+ $JobStatusT2 = "JobStatus2014";
 
   if($qprod eq "P15ik" or $qprod eq "P15il" or $qprod eq "P16ic" or  $qprod eq "P16id")  {
    $JobStatusT = "JobStatus2015";
