@@ -158,7 +158,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P16ic,
+	                          -default=>P16id,
       			          -size =>1);
 
 
@@ -198,7 +198,7 @@ END
  # Tables
  $JobStatusT = "JobStatus2014";
 
-  if($qprod eq "P15ik" or $qprod eq "P16ic") {
+  if($qprod eq "P15ik" or $qprod eq "P15il" or $qprod eq "P16ic" or $qprod eq "P16id") {
 
  $JobStatusT = "JobStatus2015";
  }
@@ -238,7 +238,7 @@ if ( $qperiod =~ /month/) {
 
   }else{
 
-  if($qprod eq "P15ik" or $qprod eq "P15il" ) {
+  if($qprod eq "P15ik" or $qprod eq "P15il" or $qprod eq "P16ic" or $qprod eq "P16id") {
  $JobStatusT = "JobStatus2015";
   }
 
@@ -434,7 +434,7 @@ $ndt = 0;
 
   }else{
 
- if($qprod eq "P15ik" or $qprod eq "P15il" or $qprod eq "P16ic") {
+ if($qprod eq "P15ik" or $qprod eq "P15il" or $qprod eq "P16ic" or $qprod eq "P16id") {
  $JobStatusT = "JobStatus2015";
   }
 
