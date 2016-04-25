@@ -672,8 +672,10 @@ END
 
 ###########
 
- if($qprod eq "P14ia" or $qprod eq "P14ig" or $qprod eq "P14ii" or $qprod eq "P15ik" or $qprod eq "P15il") {
+ if($qprod eq "P14ia" or $qprod eq "P14ig" or $qprod eq "P14ii" or $qprod eq "P15ik" or $qprod eq "P15il" or $qprod eq "P16id") {
      $maxvalue = 120;
+
+
  }else{
      $maxvalue = 240;
  }
@@ -1240,8 +1242,8 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 
  }elsif($qprod eq "P16id") {
 
-     $max_y = 80 ;
-     $ynum = 20;
+     $max_y = 60 ;
+     $ynum = 15;
 
  }else{
      $max_y = 28 ;
