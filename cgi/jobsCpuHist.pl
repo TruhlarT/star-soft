@@ -1234,7 +1234,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
  }elsif($qprod eq "P15ie" or $qprod eq "all2014" ) {
      $max_y = 24 ;
      $ynum = 12;
- }elsif($qprod eq "P16ic" ) {
+ }elsif($qprod eq "P16ic" or $qprod eq "P16id") {
      $max_y = 40 ;
      $ynum = 20;
 
