@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtRootAction.h,v 1.4 2009/08/03 18:03:09 fine Exp $
+** $Id: TQtRootAction.h,v 1.4.2.1 2016/04/27 16:45:50 jeromel Exp $
 **
 ** Copyright (C) 2003 by Valeri Fine.  All rights reserved.
 **
@@ -12,12 +12,8 @@
 #ifndef ROOT_TQtRootAction
 #define ROOT_TQtRootAction
 
-#include <qglobal.h>
-#if QT_VERSION < 0x40000
-#  include <qaction.h>
-#else
-#  include <QAction>
-#endif
+#include <QtGlobal>
+#include <QAction>
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
 // TQtRootAction                                                        //

@@ -3,7 +3,7 @@
 #define ROOT_TQtEventQueue
 
 /****************************************************************************
-** $Id: TQtEventQueue.h,v 1.4 2010/05/10 22:51:26 fine Exp $
+** $Id: TQtEventQueue.h,v 1.4.2.1 2016/04/27 16:45:02 jeromel Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.

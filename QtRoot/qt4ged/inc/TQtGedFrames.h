@@ -1,4 +1,4 @@
-// @(#)root/ged:$Name:  $:$Id: TQtGedFrames.h,v 1.2 2009/08/03 18:02:58 fine Exp $
+// @(#)root/ged:$Name:  $:$Id: TQtGedFrames.h,v 1.2.2.1 2016/04/27 16:45:39 jeromel Exp $
 // Author: Valeri Fine 25/06/04
 
 /****************************************************************************

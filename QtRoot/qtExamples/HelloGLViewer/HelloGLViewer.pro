@@ -3,9 +3,9 @@
 ######################################################################
 
 TEMPLATE = app
-QT += xml opengl qt3support
+QT += xml opengl 
 
-QMAKE_RPATH=
+QMAKE_LFLAGS_RPATH=
 
 incFile = $(QTROOTSYSDIR)/include/rootcint.pri
 exists ($$incFile) {
@@ -30,8 +30,11 @@ win32 {
   LIBS += $(ROOTSYS)/lib/QGLViewer.lib
   INCLUDEPATH += .  $(ROOTSYS)/qtgl/qglviewer
 }
-unix {
- LIBS += -L$(STAR)/.$(STAR_HOST_SYS)/lib -lQGLViewer
+unix | macx {
+ LIBS +=  -lQGLViewer
+ !macx { 
+     LIBS += -lGLU 
+  }
 }
 # Input
 HEADERS += animation.h histogram.h

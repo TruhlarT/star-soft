@@ -2,7 +2,7 @@
 // Author: Valeri Fine   24/06/04
 
 /****************************************************************************
-** $Id: TQtPadEditor.cxx,v 1.2 2009/08/03 18:03:03 fine Exp $
+** $Id: TQtPadEditor.cxx,v 1.2.2.1 2016/04/27 16:45:44 jeromel Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine.  All rights reserved.
 **

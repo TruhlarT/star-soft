@@ -35,7 +35,7 @@ inline QString RootIconPath() {
 # endif
 #else
    QString line = QString("[%1.ICONS]").arg(gSystem->Getenv("ROOTSYS");
-   icon_path =  gEnv->GetValue("Gui.IconPath",line.toAscii().data());
+   icon_path =  gEnv->GetValue("Gui.IconPath",line.toLatin1().data());
 #endif
    return icon_path;
 }
@@ -105,7 +105,7 @@ const QPixmap &TQtGui::GetPicture(const char *pictureName)
          iconPath = RootIconPath();
       }
       char *picnam = 0;
-      picnam = gSystem->Which(iconPath.toAscii().data(), (const char *)pname, kReadPermission);
+      picnam = gSystem->Which(iconPath.toLatin1().data(), (const char *)pname, kReadPermission);
       if (picnam) {
          p.load(picnam);
          AddPicture(p,pname,kFALSE);

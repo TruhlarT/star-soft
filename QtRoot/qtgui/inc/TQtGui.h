@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtGui.h,v 1.3 2009/08/03 18:03:08 fine Exp $
+** $Id: TQtGui.h,v 1.3.2.1 2016/04/27 16:45:49 jeromel Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **

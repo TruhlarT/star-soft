@@ -1,4 +1,4 @@
-// @(#)root/gui:$Id: TRedirectGuardInterface.h,v 1.1 2010/05/19 22:36:37 fine Exp $
+// @(#)root/gui:$Id: TRedirectGuardInterface.h,v 1.1.2.1 2016/04/27 16:45:50 jeromel Exp $
 // Author: G. Ganis   10/10/2005
 // Adopted for Qt: V. Fine   13/05/2010
 

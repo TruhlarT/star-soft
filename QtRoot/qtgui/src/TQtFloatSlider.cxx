@@ -1,6 +1,6 @@
 // Author: Valeri Fine   3/02/2007
 /****************************************************************************
-** $Id: TQtFloatSlider.cxx,v 1.3 2009/08/03 18:03:10 fine Exp $
+** $Id: TQtFloatSlider.cxx,v 1.3.2.1 2016/04/27 16:45:51 jeromel Exp $
 **
 ** Copyright (C) 2007 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.

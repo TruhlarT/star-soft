@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObjectOpenGLViewFactory.cxx,v 1.8 2009/08/03 18:03:07 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObjectOpenGLViewFactory.cxx,v 1.8.2.1 2016/04/27 16:45:48 jeromel Exp $
 // Author: Valery Fine      24/04/05
 
 /****************************************************************************

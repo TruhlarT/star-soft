@@ -1,4 +1,4 @@
-// $Id: TQtCanvasPainter.h,v 1.1 2010/07/08 04:19:45 fine Exp $
+// $Id: TQtCanvasPainter.h,v 1.1.2.1 2016/04/27 16:45:02 jeromel Exp $
 // Author: Valeri Fine   21/05/2010
 
 #ifndef ROOT_TQTCANVASPAINTER
@@ -15,7 +15,7 @@
 //                                                                         //
 /////////////////////////////////////////////////////////////////////////////
 
-#include <QtCore/QObject>
+#include <QObject>
 
 class TQtCanvasPainter : public QObject 
 {

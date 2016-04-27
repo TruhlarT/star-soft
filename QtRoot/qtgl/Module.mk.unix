@@ -21,7 +21,7 @@ QTGLDIRS     := $(QTGLDIR)/src
 QTGLDIRI     := $(QTGLDIR)/inc
 ifeq ($(ARCH),win32)
 QTGLMAKE   := nmake
-QMAKE      := $(shell cygpath $(QTDIR))/bin/qmake
+QMAKE      := $(shell cygpath $(QTDIR)/bin/qmake)
 else
 QTGLMAKE   := make
 QMAKE      := $(QTDIR)/bin/qmake
@@ -49,7 +49,7 @@ QTGLMOCH    := $(QTGLDIRI)/TQtGLViewerImp.h   $(QTGLDIRI)/TQtGLViewerWidget.h   
 QTGLMOC     := $(subst $(QTGLDIRI)/,$(QTGLDIRS)/moc_,$(patsubst %.h,%.cxx,$(QTGLMOCH)))
 QTGLMOCO    := $(QTGLMOC:.cxx=.o)
 
-COINFLAGS     +=  $(GQTCXXFLAGS)
+COINFLAGS     +=  $(GQTCXXFLAGS) 
 # -I. $(QTINCDIR:%=-I%) -DQT_DLL -DQT_THREAD_SUPPORT
 
 QTGLS          += TQtGLViewerImp.cxx  TQtGLViewerWidget.cxx                                    \
@@ -72,8 +72,10 @@ ALLLIBS     += $(QTGLLIB)
 INCLUDEFILES += $(QTGLDEP)
 
 ##### local rules #####
-$(sort $(QTGLMOCO) $(QTGLO)): CXXFLAGS += $(GQTCXXFLAGS)
-$(QTGLDO): CXXFLAGS += $(GQTCXXFLAGS)
+empty:=
+qt3support=QT3_SUPPORT
+$(sort $(QTGLMOCO) $(QTGLO)): CXXFLAGS +=  $(subst $(qt3support),$(empty),$(GQTCXXFLAGS))
+$(QTGLDO): CXXFLAGS +=  $(subst $(qt3support),$(empty),$(GQTCXXFLAGS))
 
 include/%.h:    $(QTGLDIRI)/%.h
 		cp $< $@
@@ -81,17 +83,17 @@ include/%.h:    $(QTGLDIRI)/%.h
 #  QGLViewer 
 QGLVIEWER    := qglviewer
 QGLVIEWERDIR := qtgl/$(QGLVIEWER)/QGLViewer
-QGLVIEWERDIRBIN : =  $(QGLVIEWERDIR)
+QGLVIEWERDIRBIN := $(QGLVIEWERDIR)
 QGLVIEWERVERSION :=2
 QGLVIEWERNAME := QGLViewer$(QGLVIEWERVERSION)
 ifneq ($(ARCH),win32)
   QGLVIEWERLIB := lib$(QGLVIEWERNAME).$(SOEXT)
 else
   ifeq ($(WINRTDEBUG),yes) 
-    QGLVIEWERDIRBIN += $(QGLVIEWERDIR)/debug
+    QGLVIEWERDIRBIN = $(QGLVIEWERDIR)/debug
 	 BINPREFIX := d
   else  
-    QGLVIEWERDIRBIN += $(QGLVIEWERDIR)/release
+    QGLVIEWERDIRBIN = $(QGLVIEWERDIR)/release
   endif
   QGLVIEWERLIB := $(BINPREFIX)$(QGLVIEWERNAME).lib
 endif
@@ -105,21 +107,24 @@ include/QGLViewer: $(wildcard $(QGLVIEWERDIR)/*.h)
 #		cp $< $@
 
 ifeq ($(ARCH),win32)
-  QTGLLIBEXTRA += lib/QGLViewer.lib  $(WIN32GDKLIBEXTRA)
-  $(QGLVIEWERDIRBIN)/$(BINPREFIX)$(QGLVIEWERNAME).lib:
-  $(QGLVIEWERDIRBIN)/$(BINPREFIX)$(QGLVIEWERNAME).$(SOEXT): $(QGLVIEWERDIR)/Makefile include/QGLViewer 
+
+QTGLLIBEXTRA += lib/QGLViewer.lib  $(WIN32GDKLIBEXTRA)
+
+$(QGLVIEWERDIRBIN)/$(BINPREFIX)$(QGLVIEWERNAME).lib:  $(QGLVIEWERDIRBIN)/$(BINPREFIX)$(QGLVIEWERNAME).$(SOEXT)
+
+$(QGLVIEWERDIRBIN)/$(BINPREFIX)$(QGLVIEWERNAME).$(SOEXT): $(QGLVIEWERDIR)/Makefile include/QGLViewer 
 		cd $(QGLVIEWERDIR); $(QTGLMAKE)
 	
-  bin/$(BINPREFIX)$(QGLVIEWERNAME).$(SOEXT): $(QGLVIEWERDIRBIN)/$(BINPREFIX)$(QGLVIEWERNAME).$(SOEXT)
+bin/$(BINPREFIX)$(QGLVIEWERNAME).$(SOEXT): $(QGLVIEWERDIRBIN)/$(BINPREFIX)$(QGLVIEWERNAME).$(SOEXT)
 		cp $< $@
 
-  $(QGLVIEWERDIR)/Makefile: $(QGLVIEWERDIR)/QGLViewer.pro
+$(QGLVIEWERDIR)/Makefile: $(QGLVIEWERDIR)/QGLViewer.pro
 		cd $(QGLVIEWERDIR);  $(QMAKE) $(QMAKE_CONFIG)
 		
-  lib/QGLViewer.lib: $(QGLVIEWERDIRBIN)/$(BINPREFIX)$(QGLVIEWERNAME).lib
+lib/QGLViewer.lib: $(QGLVIEWERDIRBIN)/$(BINPREFIX)$(QGLVIEWERNAME).lib
 		cp $< $@
 
-  $(QTGLLIB):       $(QTGLO) $(QTGLDO)  $(QTGLMOCO) $(MAINLIBS) $(QTGLLIBDEP) lib/QGLViewer.lib  bin/$(BINPREFIX)$(QGLVIEWERNAME).$(SOEXT)
+$(QTGLLIB):       $(QTGLO) $(QTGLDO)  $(QTGLMOCO) $(MAINLIBS) $(QTGLLIBDEP) lib/QGLViewer.lib  bin/$(BINPREFIX)$(QGLVIEWERNAME).$(SOEXT)
 		@$(MAKELIB) $(PLATFORM) $(LD) "$(LDFLAGS)" \
 		   "$(SOFLAGS)" libRQTGL.$(SOEXT) $@ "$(QTGLO) $(QTGLDO)  $(QTGLMOCO)" \
 		   " $(QTGLLIBEXTRA) $(QTGLVIEWERLIB)"

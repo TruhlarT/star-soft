@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtPadFont.h,v 1.3 2010/05/10 22:51:26 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtPadFont.h,v 1.3.2.1 2016/04/27 16:45:02 jeromel Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -46,6 +46,7 @@ public:
    static const char *SymbolFontFamily();
    static void SetSymbolFontFamily(const char *symbolFnName="Symbol");
 
+   ClassDef(TQtPadFont,0) //< Create Qt QFont object based on ROOT TAttText attributes
 };
 
 #endif

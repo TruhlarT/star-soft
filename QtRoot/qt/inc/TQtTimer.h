@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtTimer.h,v 1.6 2010/05/10 22:51:26 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtTimer.h,v 1.6.2.1 2016/04/27 16:45:02 jeromel Exp $
 // Author: Valeri Fine   09/08/2004
 /****************************************************************************
 **
@@ -21,7 +21,7 @@
 #endif
 
 //
-// TQtTimer is a singleton QTimer to awake the ROOT event loop from Qt event loop
+// TQtTimer is a singelton QTimer to awake the ROOT event loop from Qt event loop
 //
 
 //___________________________________________________________________
@@ -47,5 +47,6 @@ public:
   static TQtTimer *QtTimer();
   ClassDef(TQtTimer,0) // QTimer to awake the ROOT event loop from Qt event loop
 };
+
 
 #endif

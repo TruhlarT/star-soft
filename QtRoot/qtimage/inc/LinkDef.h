@@ -1,4 +1,4 @@
-/* @(#)root/asimage:$Name:  $:$Id: LinkDef.h,v 1.2 2009/08/03 18:03:10 fine Exp $ */
+/* @(#)root/asimage:$Name:  $:$Id: LinkDef.h,v 1.2.2.1 2016/04/27 16:45:52 jeromel Exp $ */
 
 #ifdef __CINT__
 

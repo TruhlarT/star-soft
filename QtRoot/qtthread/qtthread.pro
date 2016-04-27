@@ -4,8 +4,8 @@
 
 QT += qt3support
 
-QMAKE_RPATH=
-
+QMAKE_LFLAGS_RPATH=
+macx: QMAKE_LFLAGS_SONAME = -Wl,-install_name,@rpath/
 
 TEMPLATE = lib 
 CONFIG += thread dll

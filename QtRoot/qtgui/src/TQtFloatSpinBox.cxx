@@ -1,6 +1,6 @@
 // Author: Valeri Fine   30/04/2003
 /****************************************************************************
-** $Id: TQtFloatSpinBox.cxx,v 1.5 2009/08/03 18:03:10 fine Exp $
+** $Id: TQtFloatSpinBox.cxx,v 1.5.2.1 2016/04/27 16:45:51 jeromel Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.

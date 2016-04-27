@@ -1,7 +1,7 @@
 // Author: Eric Dumonteil   26/01/2006
 
 /****************************************************************************
-** $Id: TQtArrowEditor.h,v 1.3 2009/08/03 18:03:03 fine Exp $
+** $Id: TQtArrowEditor.h,v 1.3.2.1 2016/04/27 16:45:43 jeromel Exp $
 **
 ** Copyright (C) 2006 by Valeri Fine.  All rights reserved.
 **

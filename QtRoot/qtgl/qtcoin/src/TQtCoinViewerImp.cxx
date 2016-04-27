@@ -4,7 +4,6 @@
 #include "TQVirtualGL.h"
 #include "TQPadOpenGLView.h"
 #include "TQtCoinWidget.h"
-#include "TQtGui.h"
 
 #define QGLVIEWER
 
@@ -103,7 +102,7 @@ if QT_VERSION < 0x40000
       if (thisPad) {
 
          // Create the default SnapShot file name and type if any
-         const char *fileDir = gSystem-> gROOT->SetInterrupt();Getenv("SnapShotDirectory");
+         const char *fileDir = gSystem->Getenv("SnapShotDirectory");
          if (!(fileDir  && fileDir[0]) && ( gEnv ) ) {
              fileDir  = gEnv->GetValue("Gui.SnapShotDirectory",(const char *)0);
          }
@@ -271,12 +270,6 @@ void TQtCoinViewerImp::AddRootChild(ULong_t id, EObject3DType type)
 void TQtCoinViewerImp::ClearCB()
 {
    if (fCoinWidget) fCoinWidget->ClearCB();
-}
-
-//______________________________________________________________________________
-void TQtCoinViewerImp::InterruptCB()
-{ 
-   gROOT->SetInterrupt();
 }
 
 //______________________________________________________________________________
@@ -904,8 +897,13 @@ void TQtGLViewerImp::MakeCurrent()
 void TQtCoinViewerImp::MakeMenu()
 {
    // Create a "save" action
+#if QT_VERSION < 0x40000
+   QAction *saveAction =  new QAction("Save", "&Save", CTRL+Key_S, this, "save" );
+   connect ( saveAction, SIGNAL( activated() ) , this, SLOT( SaveCB() ) );
+#else 
    QAction *saveAction =  new QAction("&Save",  this);
    connect ( saveAction, SIGNAL( triggered() ) , this, SLOT( SaveCB() ) );
+#endif 
 
    const char * saveText = "<p><img source=\"save\"> "
                 "Click this button to save a <em>3D image</em>to the current image file. <br>"
@@ -914,8 +912,13 @@ void TQtCoinViewerImp::MakeMenu()
    saveAction->setWhatsThis( saveText );
 
    // Create a "save as" action
+#if QT_VERSION < 0x40000
+   QAction *saveAsAction =  new QAction("SaveAs", "Save As", CTRL+Key_A, this, "saveas" );
+   connect ( saveAsAction, SIGNAL( activated() ) , this, SLOT( SaveAsCB() ) );
+#else 
    QAction *saveAsAction =  new QAction("Save &As", this);
    connect ( saveAsAction, SIGNAL(triggered() ) , this, SLOT( SaveAsCB() ) );
+#endif 
 
    const char * saveAsText = "<p><img source=\"save\"> "
                 "Click this button to select file and save a <em>3D image</em>there. <br>"
@@ -924,8 +927,13 @@ void TQtCoinViewerImp::MakeMenu()
    saveAsAction->setWhatsThis( saveAsText );
     
    // Create a "open" action
+#if QT_VERSION < 0x40000
+   QAction *openAction =  new QAction("Open", "Open", CTRL+Key_O, this, "open" );
+   connect ( openAction, SIGNAL( activated() ) , this, SLOT( OpenCB() ) );
+#else 
    QAction *openAction =  new QAction("&Open", this);
    connect ( openAction, SIGNAL( triggered() ) , this, SLOT( OpenCB() ) );
+#endif 
 
    const char * openText = "<p><img source=\"save\"> "
                 "Click this button to select file and open a <em>3D image</em>there. <br>"
@@ -934,8 +942,13 @@ void TQtCoinViewerImp::MakeMenu()
    openAction->setWhatsThis( openText );
  
    // Create a "save as" action
+#if QT_VERSION < 0x40000
+   fSnapShotAction  =  new QAction("snapShot", "Record", CTRL+Key_R, this, "record" );
+   fSnapShotAction->setToggleAction(true);
+#else 
    fSnapShotAction  =  new QAction("&Record", this);
    fSnapShotAction->setCheckable(true);
+#endif 
    connect ( fSnapShotAction, SIGNAL( toggled(bool) ) , this, SLOT( SnapShotSaveCB(bool) ) );
 
    const char * snapShotText = "<p><img source=\"snapshot\"> "
@@ -943,8 +956,13 @@ void TQtCoinViewerImp::MakeMenu()
    fSnapShotAction->setWhatsThis( snapShotText );
 
    // Create a "print" action
+#if QT_VERSION < 0x40000
+   QAction *printAction =  new QAction("Print", "&Print graph to stdout", CTRL+Key_P, this, "print" );
+   connect ( printAction, SIGNAL( activated() ) , this, SLOT( PrintCB() ) );
+#else 
    QAction *printAction =  new QAction("&Print", this);
    connect ( printAction, SIGNAL( triggered() ) , this, SLOT( PrintCB() ) );
+#endif 
 
    const char * printText = "<p><img source=\"print\"> "
                 "Click this button to print a <em>3D image</em>. <br>"
@@ -953,8 +971,13 @@ void TQtCoinViewerImp::MakeMenu()
    printAction->setWhatsThis( printText );
 
    // Create a "clear scene" action
+#if QT_VERSION < 0x40000
+   QAction *clearAction =  new QAction("Print", "&Clear Scene", CTRL+Key_C, this, "clear" );
+   connect ( clearAction, SIGNAL( activated() ) , this, SLOT( ClearCB() ) );
+#else 
    QAction *clearAction =  new QAction("&Clear", this);
    connect ( clearAction, SIGNAL( triggered() ) , this, SLOT( ClearCB() ) );
+#endif 
 
    const char * clearText = "<p><img source=\"print\"> "
                 "Click this button to clear a <em>3D image</em>. <br>"
@@ -963,8 +986,13 @@ void TQtCoinViewerImp::MakeMenu()
    clearAction->setWhatsThis( clearText );
 
    // Create a "copy" action
+#if QT_VERSION < 0x40000
+   QAction *copyAction =  new QAction("Copy", "&Copy", CTRL+Key_C, this, "copy" );
+   connect ( copyAction, SIGNAL( activated() ) , this, SLOT( CopyCB() ) );
+#else 
    QAction *copyAction =  new QAction("&Copy", this);
    connect ( copyAction, SIGNAL( triggered() ) , this, SLOT( CopyCB() ) );
+#endif 
 
    const char * copyText = "<p><img source=\"copy\"> "
                 "Click this button to copy a <em>3D image</em>to the system clipborad. <br>"
@@ -973,8 +1001,13 @@ void TQtCoinViewerImp::MakeMenu()
    copyAction->setWhatsThis( copyText );
  
     // Create a "copy frame" action
+#if QT_VERSION < 0x40000
+   QAction *copyFrameAction =  new QAction("Frame", "Copy &Frame", CTRL+Key_F, this, "frame" );
+   connect ( copyFrameAction, SIGNAL( activated() ) , this, SLOT( CopyFrameCB() ) );
+#else 
    QAction *copyFrameAction =  new QAction("Copy &Frame", this);
    connect ( copyFrameAction, SIGNAL( triggered() ) , this, SLOT( CopyFrameCB() ) );
+#endif 
    const char * copyFrameText = "<p><img source=\"frame\"> "
                 "Click this button to copy <em>the frame of the 3D image</em>to the system clipborad. <br>"
                 "You can also select the <b>Copy Frame</b> command "
@@ -982,14 +1015,25 @@ void TQtCoinViewerImp::MakeMenu()
    copyFrameAction->setWhatsThis( copyFrameText );
 
    // Create "close" action
+#if QT_VERSION < 0x40000
+   QAction *fileCloseAction = new QAction( "Close", "&Close", Qt::ALT+Qt::Key_F4, this,
+      "close" );
+   connect ( fileCloseAction, SIGNAL( activated() ) , this,  SLOT( close() ) );
+#else
    QAction *fileCloseAction = new QAction("Close", this);
    fileCloseAction->setShortcut(Qt::ALT+Qt::Key_F4);    
    connect ( fileCloseAction, SIGNAL( triggered() ) , this,  SLOT( close() ) );
+#endif
 
    // Synchronize TPad rotation 
    
+#if QT_VERSION < 0x40000
+   QAction *synchAction =  new QAction("TPadSynch", "Synchronize with TPad", CTRL+Key_I, this, "synch" );
+   synchAction->setToggleAction(true);
+#else 
    QAction *synchAction =  new QAction("Synchron&ize with TPad", this);
    synchAction->setCheckable(true);
+#endif 
    connect ( synchAction, SIGNAL( toggled(bool) ) , this, SLOT( SynchTPadCB(bool)  ) );
    const char * synchText = "<p><img source=\"frame\"> "
                 "Select this option if your want the OpenGL view follows the <b>TPad</B> rotation";
@@ -997,6 +1041,13 @@ void TQtCoinViewerImp::MakeMenu()
 
    // Show frame axis
    
+#if QT_VERSION < 0x40000
+   QAction *showFrameAxisAction =  new QAction("Frame3DAxis", "Show Frame axes", CTRL+Key_1, this, "frameaxis" );
+   showFrameAxisAction->setToggleAction(true);
+   connect ( showFrameAxisAction, SIGNAL( toggled(bool) ) , this, SLOT( ShowFrameAxisCB(bool)  ) );
+   const char *showFrameAxisText = "Show the ROOT 3D object axes";
+   showFrameAxisAction->setWhatsThis( showFrameAxisText);
+#else 
    QAction *showFrameAxisAction =  fShowFrameAxisAction = new QAction("Show Frame axes", this);
    QMenu *showFrameAxisMenu = new QMenu("Set Axes &Origins", this);
    showFrameAxisAction->setCheckable(true);
@@ -1040,18 +1091,29 @@ void TQtCoinViewerImp::MakeMenu()
           axMenu->addAction(a);
        }
    }
+#endif 
 
    // Show frame axis
    
+#if QT_VERSION < 0x40000
+   QAction *showSmallAxesAction =  new QAction("Small3DAxes", "Show \"small\" axes", CTRL+Key_2, this, "smallaxes" );
+   showSmallAxesAction->setToggleAction(true);
+#else 
    QAction *showSmallAxesAction =  new QAction("Show \"small\" axes", this);
    showSmallAxesAction->setCheckable(true);
    showSmallAxesAction->setShortcut(Qt::CTRL+Qt::Key_3);    
+#endif 
    connect ( showSmallAxesAction, SIGNAL( toggled(bool) ) , this, SLOT( SmallAxesActionCB(bool)  ) );
    const char *showSmallAxesText = "Show the  small 3D axes at the bottom right corner of the screen. Can slow down the rendering !!!";
    showSmallAxesAction->setWhatsThis( showSmallAxesText);
 
+#if QT_VERSION < 0x40000
+   QAction *showLightsAction =  new QAction("GLLights", "Show &light", CTRL+Key_L, this, "gllight" );
+   showLightsAction->setToggleAction(true);
+#else 
    QAction *showLightsAction =  new QAction("Show &light",this);
    showLightsAction->setCheckable(true);
+#endif 
    connect ( showLightsAction, SIGNAL( toggled(bool) ) , this, SLOT( ShowLightsCB(bool)  ) );
    const char * showLightsText = "<p><img source=\"frame\"> "
                 "Show the light source to debug the code";
@@ -1114,34 +1176,138 @@ void TQtCoinViewerImp::MakeMenu()
    viewSelectionHighlightAction->setToggleAction(true);
  */
    // Create a "Context Menu for  the selected object" action
+#if QT_VERSION < 0x40000
+   QAction *viewContextMenuAction =  new QAction("ContextMenu", "Context menu", CTRL+Key_I, this, "contextmenu" );
+   viewContextMenuAction->setToggleAction(true);
+#else 
    QAction *viewContextMenuAction =  new QAction("Context menu",this);
    viewContextMenuAction->setShortcut(Qt::CTRL+Qt::Key_I);    
    viewContextMenuAction->setCheckable(true);
+#endif 
    connect ( viewContextMenuAction, SIGNAL( toggled(bool)  ) , this, SLOT( WantRootContextMenuCB(bool) ) );
    const char * viewContextMenuActionText  = "Show the ROOT context menu for the selected ROOT object";
    viewContextMenuAction->setWhatsThis( viewContextMenuActionText );
 
    // Create a "Context Menu for  the selected object" action
+#if QT_VERSION < 0x40000
+   QAction *clipDecorationMenuAction =  new QAction("ClipDecorationMenu", "Clip &decoration", CTRL+Key_D, this, "clipdecorationmenu" );
+   clipDecorationMenuAction->setToggleAction(true);
+#else 
    QAction *clipDecorationMenuAction =  new QAction("Clip &Decoration",this);
    clipDecorationMenuAction->setShortcut(Qt::CTRL+Qt::Key_D);    
    clipDecorationMenuAction->setCheckable(true);
+#endif 
    connect ( clipDecorationMenuAction, SIGNAL( toggled(bool)  ) , this, SLOT( WantClipFileNodeMenuCB(bool) ) );
    const char * clipDecorationMenuActionText  = "Allow clipping the decoration geometry loaded from the extra IV file";
    viewContextMenuAction->setWhatsThis( clipDecorationMenuActionText );
-   
-   //
-   QAction *interruptMenuAction =  new QAction("Interrupt",this);
-   interruptMenuAction->setShortcut(Qt::ALT+Qt::Key_C);
-   connect (interruptMenuAction, SIGNAL( triggered() ) , this, SLOT( InterruptCB() ) );
-   const char * interruptMenuActionText("Send the interruption signal to the application");
-   interruptMenuAction->setWhatsThis(interruptMenuActionText);
-   const QPixmap &pixmap = TQtGui::GetPicture("interrupt.xpm");
-   interruptMenuAction->setIcon(pixmap);
-   
+
    QMenuBar   *mainMenu = menuBar();
 
    // -- populate the menu bar
-      // -- populate the menu bar
+#if QT_VERSION < 0x40000
+      QPopupMenu *fileMenu      = new QPopupMenu();
+      mainMenu->insertItem("&File",fileMenu);
+ /*
+#if QT_VERSION < 0x40000
+      QPopupMenu *editMenu      = new QPopupMenu();
+#else 
+      Q3PopupMenu *editMenu      = new Q3PopupMenu();
+#endif 
+      mainMenu->insertItem("&Edit",editMenu);
+*/
+
+      QPopupMenu *optionMenu    = new QPopupMenu();
+      mainMenu->insertItem("&Options",optionMenu);
+
+      QPopupMenu *helpMenu   = new QPopupMenu();
+      mainMenu->insertItem("&Help",helpMenu);
+  // -- The menu bar has been completed
+
+ // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ //  fileMenu
+   
+   saveAction     ->addTo(fileMenu);
+   //saveAsAction   ->addTo(fileMenu);
+   fSnapShotAction->addTo(fileMenu);
+   openAction     ->addTo(fileMenu);
+   clearAction     ->addTo(fileMenu);
+                    fileMenu->insertSeparator();
+   printAction    ->addTo(fileMenu);
+                    fileMenu->insertSeparator();
+   fileCloseAction->addTo(fileMenu);
+
+
+ // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ //  editMenu
+    //copyAction     ->addTo(editMenu);
+    //copyFrameAction->addTo(editMenu);
+   
+ // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ //  optionMenu
+    //synchAction->addTo(optionMenu);
+    //synchAction->setOn(true);
+    //synchAction->setEnabled (true);
+#ifdef QGLVIEWER
+
+    //QWidget *c = centralWidget();
+    //TQtGLViewerWidget *glView = (TQtGLViewerWidget *)c;
+
+    showFrameAxisAction->addTo(optionMenu);
+    //showFrameAxisAction->setOn(glView? glView->FrameAxisScale()> 0 : false);
+    showFrameAxisAction->setOn(false);
+    showFrameAxisAction->setEnabled(true);
+    
+    showSmallAxesAction->addTo(optionMenu);
+    showSmallAxesAction->setOn(false);
+    showSmallAxesAction->setEnabled(true);
+    showFrameAxisMenu->addTo(optionMenu);
+    
+/*
+    showLightsAction->addTo(optionMenu);
+    showLightsAction->setOn(false);
+    showLightsAction->setEnabled (true);
+
+    
+    optionMenu->insertSeparator();
+
+    selectEventAction->addTo(optionMenu);
+    selectEventAction->setOn(glView ? glView->IsWiredSelectable() : false );
+    selectEventAction->setEnabled (true);
+
+    selectDetectorAction->addTo(optionMenu);
+    selectDetectorAction->setOn( glView ? glView->IsSolidSelectable() : false );
+    selectDetectorAction->setEnabled (true);
+    
+    optionMenu->insertSeparator();
+    
+    viewSelectionAction->addTo(optionMenu);
+    viewSelectionAction->setOn( false );
+    viewSelectionAction->setEnabled (true);
+    
+    viewSelectionGlobalAction->addTo(optionMenu);
+    viewSelectionGlobalAction->setOn( false );
+    viewSelectionGlobalAction->setEnabled (false);
+
+    viewSelectionHighlightAction->addTo(optionMenu);
+    viewSelectionHighlightAction->setOn( false );
+    viewSelectionHighlightAction->setEnabled (true);
+*/
+    viewContextMenuAction->addTo(optionMenu);
+    viewContextMenuAction->setOn( false );
+    viewContextMenuAction->setEnabled (true);
+    
+    clipDecorationMenuAction->addTo(optionMenu);
+    clipDecorationMenuAction->setOn( false );
+    clipDecorationMenuAction->setEnabled (true);
+    
+#endif
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ //  helpMenu
+    helpMenu->insertItem("&Help",this,SLOT(HelpCB()));
+    helpMenu->insertSeparator();
+    helpMenu->insertItem("&About",this,SLOT(AboutCB()));
+#else
+       // -- populate the menu bar
     QMenu *fileMenu      = mainMenu->addMenu("&File");
 //    QMenu *editMenu      = mainMenu->addMenu("&Edit");
     QMenu *optionMenu    = mainMenu->addMenu("&Options");
@@ -1214,9 +1380,6 @@ void TQtCoinViewerImp::MakeMenu()
     viewContextMenuAction->setOn( false );
     viewContextMenuAction->setEnabled (true);
     
-    interruptMenuAction->addTo(optionMenu);
-    interruptMenuAction->setEnabled (true);
-    
     clipDecorationMenuAction->addTo(optionMenu);
     clipDecorationMenuAction->setOn( false );
     clipDecorationMenuAction->setEnabled (true);
@@ -1228,6 +1391,7 @@ void TQtCoinViewerImp::MakeMenu()
     helpMenu->addAction("&Help",this,SLOT(HelpCB()));
     helpMenu->addSeparator();
     (helpMenu->addAction("&About",this,SLOT(AboutCB())))->setMenuRole(QAction::AboutRole);
+#endif        
 }
 /*
 //______________________________________________________________________________

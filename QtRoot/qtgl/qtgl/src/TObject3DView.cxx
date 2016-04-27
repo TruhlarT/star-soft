@@ -313,7 +313,7 @@ void TObject3DView::MakeVolumeView(Int_t maxlevel)
 #endif       
       } else {
          fprintf(stderr," ** ERROR ** TObject3DView::MakeVolumeView Can not render the  %s class objects yet\n", fObj->ClassName());
-         // assert(0);
+         assert(0);
       }
    }
 }

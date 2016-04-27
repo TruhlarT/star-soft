@@ -1,4 +1,4 @@
-// @(#)root/asimage:$Name:  $:$Id: TQtPaletteEditor.cxx,v 1.4 2009/08/03 18:03:11 fine Exp $
+// @(#)root/asimage:$Name:  $:$Id: TQtPaletteEditor.cxx,v 1.4.2.1 2016/04/27 16:45:52 jeromel Exp $
 // Author: Reiner Rohlfs   24/03/2002
 
 /*************************************************************************

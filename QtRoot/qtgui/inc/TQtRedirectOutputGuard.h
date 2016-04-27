@@ -1,4 +1,4 @@
-// @(#)root/gui:$Id: TQtRedirectOutputGuard.h,v 1.1 2010/05/19 22:36:37 fine Exp $
+// @(#)root/gui:$Id: TQtRedirectOutputGuard.h,v 1.1.2.1 2016/04/27 16:45:50 jeromel Exp $
 // Author: G. Ganis   10/10/2005
 
 /*************************************************************************
@@ -41,8 +41,8 @@
 #include "TRedirectGuardInterface.h"
 #endif
 
-#include <QtGui/QTextEdit>
-#include <QtGui/QPlainTextEdit>
+#include <QTextEdit>
+#include <QPlainTextEdit>
 
 template <class T>
 class TQtRedirectOutputGuard : TRedirectGuardInterface {

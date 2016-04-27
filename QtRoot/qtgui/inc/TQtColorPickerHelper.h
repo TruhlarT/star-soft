@@ -47,9 +47,9 @@
 ** contact the sales department at qt-sales@nokia.com.
 ** 
 ****************************************************************************/
-#include <QtGui/QFrame>
-#include <QtGui/QColor>
-#include <QtCore/QMap>
+#include <QFrame>
+#include <QColor>
+#include <QMap>
 
 class QGridLayout;
 class QEventLoop;

@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtPen.h,v 1.3 2010/05/10 22:51:26 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtPen.h,v 1.3.2.1 2016/04/27 16:45:02 jeromel Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -15,7 +15,7 @@
 #include "TAttLine.h"
 
 #ifndef __CINT__
-#  include <QtGui/QPen>
+#  include <QPen>
 #else
    class  QPen;
 #endif

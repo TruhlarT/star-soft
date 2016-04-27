@@ -13,9 +13,7 @@ void hsum() {
 
 // Create some histograms.
   TColor *t = new TColor(253,0.,0.,1.,"bluet",0.2);
-  // gStyle->SetStatColor(253);
-  gStyle->SetStatStyle(4010);
-  gStyle->SetStatColor(kBlue);
+  gStyle->SetStatColor(253);
   TColor *t = new TColor(254,0.,0.,0.,"grayt",0.2);
   gStyle->SetStatTextColor(254);
   total  = new TH1F("total","This is the total distribution",100,-4,4);

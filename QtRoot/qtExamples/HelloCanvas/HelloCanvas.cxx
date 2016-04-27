@@ -27,7 +27,7 @@ int main( int argc, char **argv )
     //         . . .
 
     // Make the the embedded TCanvas to be the current ROOT TCanvas
-    MyWidget->GetCanvas()->cd();
+    MyWidget->GetCanvas()->SetFillColor(3);    
 
     TDatime datTime (2009,3,4,17,2,0);
     double timeOffset = (double) datTime.Convert();
@@ -40,19 +40,18 @@ int main( int argc, char **argv )
     m_graph->GetXaxis()->SetLabelSize(0.02f);
     m_graph->GetXaxis()->SetTimeDisplay(1);
     m_graph->GetXaxis()->SetTimeOffset(timeOffset, "local");
-    char timeFormat[] = "#splitline{%d\\/%b\\/%Y}{%H:%M:%S}";
+    char timeFormat[] = "#splitline{%d/%b/%Y}{%H:%M:%S}";
     m_graph->GetXaxis()->SetTimeFormat(timeFormat);
     m_graph->GetYaxis()->SetLabelSize(0.04f);
     m_graph->SetTitle("Just a test");
 
     m_graph->SetMarkerStyle(7);
-    m_graph->Draw("AC*");
+    MyWidget->Draw(m_graph,"AC*");
 
 
-    //Add Qt Label in the top the ROOT TCanvas
+    //Add Qt QLabel onto the top of the ROOT TCanvas
     QLabel *label = new QLabel("<b>HelloCanvas</b> Example",MyWidget);
-    label->setBackgroundMode(Qt::NoBackground);
-    label->setStyleSheet("QLabel {border: 2px solid blue; border-radius: 10px; padding: 0 8px;}");
+    label->setStyleSheet("border: 2px solid blue; border-radius: 10px; padding: 0 8px;");
     label->move(40,40);
     label->resize(148,26);
     label->setToolTip("This is a QLabel object");

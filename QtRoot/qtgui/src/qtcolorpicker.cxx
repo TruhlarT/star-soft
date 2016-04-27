@@ -44,24 +44,24 @@
 ** 
 ****************************************************************************/
 
-#include <QtGui/QApplication>
-#include <QtGui/QDesktopWidget>
-#include <QtGui/QPainter>
-#include <QtGui/QPushButton>
-#include <QtGui/QColorDialog>
-#include <QtCore/QMap>
-#include <QtGui/QLayout>
-#include <QtGui/QStyle>
-#include <QtGui/QLabel>
-#include <QtGui/QToolTip>
-#include <QtGui/QPixmap>
-#include <QtGui/QFocusEvent>
-#include <QtGui/QPaintEvent>
-#include <QtGui/QGridLayout>
-#include <QtGui/QHideEvent>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QShowEvent>
-#include <QtGui/QMouseEvent>
+#include <QApplication>
+#include <QDesktopWidget>
+#include <QPainter>
+#include <QPushButton>
+#include <QColorDialog>
+#include <QMap>
+#include <QLayout>
+#include <QStyle>
+#include <QLabel>
+#include <QToolTip>
+#include <QPixmap>
+#include <QFocusEvent>
+#include <QPaintEvent>
+#include <QGridLayout>
+#include <QHideEvent>
+#include <QKeyEvent>
+#include <QShowEvent>
+#include <QMouseEvent>
 #include <math.h>
 
 #include "qtcolorpicker.h"
@@ -475,7 +475,7 @@ void QtColorPicker::insertColor(const QColor &color, const QString &text, int in
 /*! \property QtColorPicker::colorDialog
     \brief Whether the ellipsis "..." (more) button is available.
 
-    If this property is set to TRUE, the color grid popup will include
+    If this property is set to true, the color grid popup will include
     a "More" button (signified by an ellipsis, "...") which pops up a
     QColorDialog when clicked. The user will then be able to select
     any custom color they like.

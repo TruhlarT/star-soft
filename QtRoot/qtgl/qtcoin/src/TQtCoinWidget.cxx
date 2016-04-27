@@ -21,44 +21,41 @@
 #include "TColor.h"
 #include "TObjString.h"
 
-#include <qprinter.h>
-#include <qpixmap.h>
-#include <qapplication.h>
-#include <qclipboard.h>
-#include <qregexp.h> 
-#include <qimage.h>
-#include <qdir.h>
-
-#include <QFileDialog>
-#include <QMenu>
-#include <QWhatsThis> 
-#include <QPushButton> 
-//Added by qt3to4:
-#include <QLabel>
-#include <QAction>
-#include <QCheckBox>
-#include <QInputDialog>
-#include <QDebug>
-#include <QVBoxLayout>
-#include <QRegExp>
+#include <QPrinter>
+#include <QPixmap>
+#include <QApplication>
 #include <QClipboard>
+#include <QImage>
+#include <QDir>
 
-#include <qfile.h>
-#include <qfileinfo.h>
-#include <qmessagebox.h>
-#include <qmenubar.h>
-#include <qimage.h>
+#  include <QFileDialog>
+#  include <QMenu>
+#  include <QWhatsThis> 
+#  include <QPushButton> 
+//Added by qt3to4:
+#  include <QLabel>
+#  include <QAction>
+#  include <QCheckBox>
+#  include <QInputDialog>
+#  include <QDebug>
+#  include <QVBoxLayout>
+#  include <QRegExp>
+
+#include <QFile>
+#include <QFileInfo>
+#include <QMessageBox>
+#include <QMenuBar>
+#include <QImage>
 #include <qgl.h> 
 
-#include <qpainter.h>
-#include <qtextstream.h>
-#include <qstatusbar.h>
-#include <qsplitter.h>
+#include <QPainter>
+#include <QTextStream>
+#include <QStatusBar>
+#include <QSplitter>
 
-#include <qevent.h>
+#include <QEvent>
 
 #include "TObject3DView.h"
-#include "TObjectCoinViewFactory.h"
 
 //=============
 
@@ -99,7 +96,6 @@
 #include <Inventor/nodes/SoLineSet.h>
 #include <Inventor/nodes/SoIndexedLineSet.h>
 #include <Inventor/actions/SoCallbackAction.h>
-#include <Inventor/actions/SoReorganizeAction.h>
 #include <Inventor/SoSceneManager.h>
 //#include <Inventor/VRMLnodes/SoVRMLIndexedLineSet.h>
 //#include <Inventor/VRMLnodes/SoVRMLCoordinate.h>
@@ -107,6 +103,7 @@
 
 #include <Inventor/elements/SoCacheElement.h>
 #include <Inventor/manips/SoClipPlaneManip.h>
+
 #include <Inventor/SoOffscreenRenderer.h>
 
 #include <Inventor/actions/SoSearchAction.h> 
@@ -407,7 +404,7 @@ static void ViewerKeyPressCB(void *userData, SoEventCallback *eventCB)
       TQtCoinWidget *currentViewer = (TQtCoinWidget *)userData;
       {
          const SoKeyboardEvent  *event = (SoKeyboardEvent *)eventCB->getEvent();
-         int axis = -1;
+         int axis = 0;
          switch (event->getKey()) {
             case SoKeyboardEvent::X: 
                axis = 0; break;
@@ -415,9 +412,10 @@ static void ViewerKeyPressCB(void *userData, SoEventCallback *eventCB)
                axis = 1; break;
             case SoKeyboardEvent::Z: 
                axis = 2; break;
-            default: axis = -1; break;
+            default: 
+                         break;
          };
-         if (axis >=0) currentViewer->RotateCamera(axis,(bool)event->wasShiftDown() );
+         currentViewer->RotateCamera(axis,(bool)event->wasShiftDown() );
       }
    }
 }
@@ -565,9 +563,7 @@ h() == 0) {
    }
    path->unref();
 	*/
-  ((TQtCoinWidget*)(viewer))->setToolTip("No volume is selected");
   ((TQtCoinWidget*)(viewer))->Update();
-        
 }
 
 
@@ -576,12 +572,7 @@ static SoPath * PickFilterCB(void * viewer, const SoPickedPoint * pick)
 {
    SoPath *selPath = 0;
    SoPath *p = pick->getPath();
-   const SbVec3f pnt3d = pick->getPoint();
-   QClipboard *clipboard = QApplication::clipboard();
-   clipboard->setText(QString("x=%1;y=%2;z=%3").arg(pnt3d[0]).arg(pnt3d[1]).arg(pnt3d[2])
-             ,clipboard->supportsSelection()?QClipboard::Selection 
-                                            :QClipboard::Clipboard);
-/*
+	/*
    if (p->getTail()->getTypeId() == SoLineSet::getClassTypeId()          ||
        p->getTail()->getTypeId() == SoIndexedLineSet::getClassTypeId()) {
 	// for lines
@@ -606,7 +597,6 @@ static SoPath * PickFilterCB(void * viewer, const SoPickedPoint * pick)
  // printf("static SoPath *PickFilterCB l=%d, i=%d %s : root name = %s \n",p->getLength(),i
  //        ,(const char *)p->getNode(i)->getName(),(const char *)v->GetName());
   TQtCoinWidget *thisViewer = (TQtCoinWidget*)viewer;
-  thisViewer->EmitSelect3DPointSignal(pnt3d[0],pnt3d[1],pnt3d[2]);
   if (v) {
      if (v->IsSolid()) thisViewer->SetLineSelection();
      else              thisViewer->SetBoxSelection();
@@ -614,9 +604,7 @@ static SoPath * PickFilterCB(void * viewer, const SoPickedPoint * pick)
      if (!thisViewer->WasPicked(v) ) {
         TObject3DView  *parent = (TObject3DView  *)v->GetParent();
         TObject *obj = parent ? parent->GetObject() :0 ;
-        if (thisViewer->ObjectPickEnabled() && obj && obj->TestBit(TObject::kNotDeleted)) {
-           thisViewer->EmitSelectSignal(obj);
-        }
+        if (thisViewer->ObjectPickEnabled() && obj && obj->TestBit(TObject::kNotDeleted))  thisViewer->EmitSelectSignal(obj);
      }
      selPath = p->copy(0, i);
   } else {
@@ -628,7 +616,6 @@ static SoPath * PickFilterCB(void * viewer, const SoPickedPoint * pick)
         thisViewer->EmitNodeSelectSignal(p->getTail());
      }
      selPath = p->copy(0);
-     thisViewer->setToolTip("No volume is selected");
   }
   // fprintf(stderr,"static SoPath *PickFilterCB path %p\n", selPath);
   return selPath;
@@ -677,10 +664,8 @@ static void SelectCB(void * viewer, SoPath *p)
       QPoint globalPosition = QCursor::pos();
       QWidget *viewerWidget = thisViewer->GetCoinViewer()->getWidget();
       QPoint cursorPosition = viewerWidget->mapFromGlobal(globalPosition);
-      QString tipText = QString("<b>X=%1; Y=%2; Z=%3</b><br>%4").arg(thisViewer->fLastSelectedPoint[0]).arg(thisViewer->fLastSelectedPoint[1]).arg(thisViewer->fLastSelectedPoint[2])
-                        .arg(selectedObject->GetObjectInfo(cursorPosition.x(),cursorPosition.y()));
+      QString tipText =  selectedObject->GetObjectInfo(cursorPosition.x(),cursorPosition.y());
       QWhatsThis::showText(globalPosition,tipText,viewerWidget );
-      viewerWidget->setToolTip(QString("<p>Last selected:<br>%1<br>").arg(tipText));
    } else if (!selectedObject) {
       QPoint globalPosition = QCursor::pos();
       QWidget *viewerWidget = thisViewer->GetCoinViewer()->getWidget();
@@ -689,10 +674,7 @@ static void SelectCB(void * viewer, SoPath *p)
          SbName name = node->getName();
          if (name.getLength()) {            
             QString tipText =  name.getString();
-            QWhatsThis::showText(globalPosition,tipText,viewerWidget ); 
-            viewerWidget->setToolTip(QString("<p>Last selected:<br>%1<br>").arg(tipText));
-         } else {
-            viewerWidget->setToolTip("No volume is selected");
+            QWhatsThis::showText(globalPosition,tipText,viewerWidget );
          }
       }
    }
@@ -746,85 +728,20 @@ void TQtCoinWidget::SetClipMask(unsigned int mask)
 Option_t   *TQtCoinWidget::GetDrawOption() const
 {
    // can not return the const char * from QString yet 
-   assert(0 && "can not return the const char * from QString yet");
+   assert(0);
    return 0;                
 }
 //______________________________________________________________________________
 void TQtCoinWidget::SetDrawOption(Option_t *option)
 {
    // Set the comma separated list of the draw options
-   // Naive "Style Sheet"
+   // NAive "Style Sheet"
    // TQtCoinWidget { footter:"text";  background-color : color }
    if (option && option[0])  {
-      TQtAutoRedraw redraw(fInventorViewer);
-      QString opt =option;  
-      QRegExp rx("\\s*\\{\\s*(footer|record|save|background-color|screen|view|file)(\\s*:\\s*)(.+\\S+)\\s*\\}");
-      rx.setCaseSensitivity(Qt::CaseInsensitive);
-      int pos = rx.indexIn(option);
-      if (pos >=0) {
-          if (rx.cap(1) == "footer") {
-              SetFooter(rx.cap(3));
-           } else if (rx.cap(1) == "record") {
-              SnapShotSaveCB(rx.cap(3) == "true");
-           } else if (rx.cap(1) == "save" ) { 
-              Save(rx.cap(3));
-           } else if (rx.cap(1) == "screen" ) {
-              SetFullScreenView(rx.cap(3) == "full");
-              QWidget *p = this;
-              QWidget *nextp = 0;
-              while (p && !p->isWindow() && (nextp = p->parentWidget()) )
-              {   p = nextp;                                            }
-              if (p) {
-                 p->move(0,0);
-                 p->showMaximized();
-              }
-           } else if ( (rx.cap(1) == "view") ){
-              if  (rx.cap(3) == "all")  {
-                 ViewAll();
-              } else {
-//                    QRegExp rx("\\s*\\s*:\\s*)(.+\\S+)\\s*\\}");
-                 ViewBox(10,10,10,-200);
-              }
-           } else if (rx.cap(1) == "background-color" ) {
-              // to be done yet
-           } else if (rx.cap(1) == "file" ) {
-              std::string basefn = rx.cap(3).toStdString();
-              const char *cfn = basefn.c_str();
-               TString fullPath = cfn;
-               TString bkShapeDir = gEnv->GetValue("Gui.InventorShapeDir",(const char *)0);  
-               if (bkShapeDir.IsNull()){
-                  gSystem->ExpandPathName(fullPath);
-               } else {
-                   char *fp = gSystem->Which(bkShapeDir.Data(),cfn);
-                   fullPath = fp; delete [] fp;
-               }
-               if (!gSystem->AccessPathName(fullPath)) {
-                    // find fSelNode
-                   int selNodeIndx = fRootNode->findChild(fSelNode);
-                   if (selNodeIndx >=1) {
-                      QString fn = fullPath.Data();
-                      SoNode *topFileNode = TObjectCoinViewFactory::ReadCoinFile(fn);
-                      if (topFileNode) {
-                         // add / replace the new node in front of fSelNode
-                         // reloading the Coin file replaces the previous version
-                         topFileNode->setName(cfn);
-                         SoSearchAction sch;
-                         sch.setName(topFileNode->getName());
-                         sch.apply(fRootNode);
-                         SoPath *p = sch.getPath();
-                         if (p) {
-                            SoNode *old2Replace = p->getTail();
-                            fRootNode->replaceChild(old2Replace,topFileNode);
-                         } else { 
-                            fRootNode->insertChild(topFileNode,selNodeIndx);
-                         }
-                      }
-                   } else {
-                      assert(0 && "Broken Coin3D  structure. Call author please");
-                   }
-               }
-            }
-
+      QString opt =option;
+      QStringList optlist =  opt.split(":");
+      if (optlist.size() > 1) {
+          SetFooter(optlist[1].trimmed().remove('}'));         
       } else {
         fViewerDrawOption = "";
         fViewerDrawOption = option;
@@ -1085,7 +1002,7 @@ void TQtCoinWidget::ViewAll()
                       fullPath = fp; delete [] fp;
                    }
                    if (!gSystem->AccessPathName(fullPath)) {
-                      ReadInputFile((const char*)fullPath,"UNPICKABLE");
+                      ReadInputFile((const char*)fullPath);
                       fAddBackground = false;
                    }
                 }
@@ -1093,21 +1010,6 @@ void TQtCoinWidget::ViewAll()
             }
          }
       }
-   }
-}
-//______________________________________________________________________________
-void TQtCoinWidget::ViewBox(float dx, float dy, float dz, float x0,float y0, float z0,float aspect,float slack)
-{
-   // view the box with the center point x0,y0,zo and 2*dx x 2*dy x 2 dz dimension
-   SoCamera *camera  = GetCamera();
-   if (camera) {
-      camera->viewAll(fRootNode, fInventorViewer->getViewportRegion());
-      class mycamera : public SoCamera {
-         public:
-           void viewBox(const SbBox3f & box, float aspect,float slack)
-           { viewBoundingBox(box,aspect,slack); }
-      };
-      ((mycamera *)camera)->viewBox (SbBox3f(x0-dx,y0-dy,z0-dz,x0+dx,y0+dy,z0+dz),aspect,slack);
    }
 }
 
@@ -1370,27 +1272,18 @@ void TQtCoinWidget::CopyFrameCB()
    // Copy the entire window including the menu and the status bar
    QClipboard *cb = QApplication::clipboard();
    cb->setPixmap(QPixmap::grabWidget(topLevelWidget()));	
-} 
-
+}
 //______________________________________________________________________________
 void TQtCoinWidget::ReadInputFile(const char *fileName)
 {
-   ReadInputFile(fileName,"SHAPE");
-}
-
-//______________________________________________________________________________
-void TQtCoinWidget::ReadInputFile(const char *fileName, const char *pickStyle)
-{
    // Read in the external scene in the "OpenInventor" format
-   // See :http://doc.coin3d.org/Coin-3.1/classSoPickStyle.html 
-   ReadInputFile(QString( fileName),pickStyle);
+   ReadInputFile(QString( fileName));
 }
 
 //______________________________________________________________________________
-void TQtCoinWidget::ReadInputFile(const QString &fileName, const char *pickStyle)
+void TQtCoinWidget::ReadInputFile(const QString &fileName)
 { 	
    // Read in the external scene in the "OpenInventor" format
-   // See :http://doc.coin3d.org/Coin-3.1/classSoPickStyle.html 
     QFileInfo info(fileName);
     SoInput viewDecor;
     if (info.isReadable() ) {
@@ -1404,22 +1297,12 @@ void TQtCoinWidget::ReadInputFile(const QString &fileName, const char *pickStyle
               printf("readings ... %s from %s\n", (const char *)info.fileName(), (const char*)info.dirPath());
               if (!fFileNode) {
                  fFileNode = new SoSeparator();
-                 fFileNode->setName(fileName.toAscii().data());
+                 fFileNode->setName(fileName.toLatin1().data());
                  if (fClipMask) {
                     fClippingShapeNode->addChild(fFileNode);
                  } else {
                     fShapeNode->addChild(fFileNode);
                  }
-              }
-              // it replaces everything with the triangles.
-              // It is faster but wireframe view and hidden line look are ugly.
-//            SoChildList *children =  extraObjects->getChildren();
-//            SoReorganizeAction reorg;
-//            reorg.apply(fFileNode);
-              if (std::string(pickStyle) == "UNPICKABLE") {
-                   SoPickStyle *pickStyle = new SoPickStyle;
-                   pickStyle->style= SoPickStyle::UNPICKABLE;
-                   fFileNode->addChild(pickStyle);
               }
               fFileNode->addChild(extraObjects);
           }
@@ -2068,13 +1951,6 @@ void TQtCoinWidget::CreateViewer( const QString &/*name*/)
     // fInventorViewer
     //      | 
     //  fRootNode ---+
-    //               /
-    //               | fCamera (custom camera if any)
-    //               |----------+
-    //               /
-    //               / optional, defined by "file" StDrawOpt command
-    //               |----------+
-    //               /
     //               | fSelNode
     //               |----------+
     //               |          |  fShapeNode
@@ -2411,15 +2287,6 @@ void TQtCoinWidget::EmitNodeSelectSignal(SoNode *node)
 }
 
 //______________________________________________________________________________
-void TQtCoinWidget::EmitSelect3DPointSignal(float x, float y, float z)
-{
-     fLastSelectedPoint[0] = x;
-     fLastSelectedPoint[1] = y;
-     fLastSelectedPoint[2] = z;
-
-     emit Selected3DPoint(x,y,z);
-}
-//______________________________________________________________________________
 void TQtCoinWidget::EmitSelectSignal(TObject *obj)
 {
    static QPoint mousePosition;
@@ -2430,7 +2297,7 @@ void TQtCoinWidget::EmitSelectSignal(TObject *obj)
       if (obj) {
          // fprintf(stderr,"\tTQtCoinWidget::EmitSelectSignal view = %p, obj = %p; obj name %s \n", view, obj, (const char*)obj->GetName());
          emit ObjectSelected(obj,  mousePosition);
-      }
+      }      
    }
 }
 
@@ -2509,8 +2376,7 @@ void TQtCoinWidget::Update()
 {  
  	fRootNode->touch();
    if (!IsOffScreen()) {
-//      fInventorViewer->render();
-      fInventorViewer->scheduleRedraw();
+      fInventorViewer->render();
    } else {
       SaveSnapShot(); 
    }
@@ -2578,9 +2444,7 @@ void TQtCoinWidget::SetFooter(QString &text)
         SoSeparator *s = new SoSeparator();
         // Add annotation in front of fMovie if any
         int indx = -1;
-//        if (fMovie) indx = fRootNode->findChild(fMovie);
-        if (fSelNode) indx = fRootNode->findChild(fSelNode);
-        
+        if (fMovie) indx = fRootNode->findChild(fMovie);
         if (indx >0)
            fRootNode->insertChild(s,indx-1);
         else 
