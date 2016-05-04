@@ -324,6 +324,21 @@ $ndt = 0;
 
      $jbsubmit[$ndt] = $njobs;
 
+    if ($qprod eq "P16id") {
+
+  $sql="SELECT count(jobfileName) FROM $JobStatusT2 WHERE (submitTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and prodSeries = ? ";
+
+     $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+     $cursor->execute($qprod);
+
+   my $njoba = $cursor->fetchrow ;
+
+     $cursor->finish();
+
+     $jbsubmit[$ndt] = $njobs + $njoba;
+
+    }
       $ndt++;
 
     }
