@@ -254,7 +254,7 @@ $JobStatusT = "JobStatus2015";
     $cursor->finish();
 
 
- $arrprod[$npr] = "P15.2014";
+ $arrprod[$npr] = "P15i.2014";
  $arrprod[$npr+1] = "P16id.2014"; 
 
 
@@ -347,6 +347,7 @@ END
     
  # Tables
 
+  my $qprodt = $qprod;
 
  if( $qprod =~ /P10/ ) {$pryear = "2010"};
  if( $qprod =~ /P11/ ) {$pryear = "2011"};
@@ -358,12 +359,13 @@ END
  if( $qprod =~ /P15ib/ or $qprod =~ /P15ic/ or $qprod =~ /P15ie/) {$pryear = "2014"}; 
  if( $qprod =~ /P15ik/ ) {$pryear = "2015"};
  if( $qprod =~ /P15il/ ) {$pryear = "2014"};
- if( $qprod =~ /P15.2014/ ) {$pryear = "2014"};
+ if( $qprod =~ /P15i.2014/ ) {$pryear = "2014"};
  if( $qprod =~ /P16ic/ ) {$pryear = "2015"};
  if( $qprod =~ /P16id/ ) {$pryear = "2015"};
  if( $qprod =~ /P16id.2014/ ) {
      $pryear = "2014";
      $qprod = "P16id";
+     $qprodt = "P16id.2014");
    };
      
     $JobStatusT = "JobStatus".$pryear;
@@ -394,7 +396,7 @@ END
 
  &StDbProdConnect();
 
-  if($qprod eq "P15.2014" ) {
+  if($qprod eq "P15i.2014" ) {
 
     $sql="SELECT DISTINCT streamName  FROM $JobStatusT where (prodSeries = 'P15ic' or prodSeries = 'P15ie') ";
 
@@ -463,7 +465,7 @@ END
 
   }
 
-   if($qprod eq "P15.2014" ) {
+   if($qprod eq "P15i.2014" ) {
 
 
     $sql="SELECT DISTINCT runDay  FROM $JobStatusT WHERE ( prodSeries = 'P15ic' or prodSeries = 'P15ie')  AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(runDay)) < ?  order by runDay";
@@ -589,7 +591,7 @@ END
  $ndt = 0;
  $maxcpu = 1.0;
 
-   if($qprod eq "P15.2014" ) {
+   if($qprod eq "P15i.2014" ) {
 
   foreach my $tdate (@ardays) {
         @jbstat = ();
@@ -826,7 +828,7 @@ END
  $maxval = 1.0;
 
 
-    if($qprod eq "P15.2014" ) {
+    if($qprod eq "P15i.2014" ) {
 
   foreach my $tdate (@ardays) {
         @jbstat = ();
@@ -1041,7 +1043,7 @@ END
  $maxtrk = 1.0;
 
 
- if($qprod eq "P15.2014" ) {
+ if($qprod eq "P15i.2014" ) {
 
    foreach my $tdate (@ardays) {
         @jbstat = ();
@@ -1259,7 +1261,7 @@ END
  @rtwb = ();
  @rtrp = ();
 
-      if($qprod eq "P15.2014" ) {
+      if($qprod eq "P15i.2014" ) {
 
     foreach my $tdate (@ardays) {
         @jbstat = ();
@@ -1459,7 +1461,7 @@ END
  $maxjbtime = 0.1;
 
 
-     if($qprod eq "P15.2014" ) {
+     if($qprod eq "P15i.2014" ) {
 
   foreach my $tdate (@ardays) {
         @jbstat = ();
@@ -1691,6 +1693,14 @@ END
        $ylabel = "Average RealTime/CPU ratio for stream jobs finished per day";
        $gtitle = "Average ratio RealTime/CPU per day in $qprod production, average is $avgratio+-$stdratio ";
 
+    if($qprodt = "P16id.2014") {
+
+ $gtitle = "Average ratio RealTime/CPU per day in P16id production, run 2014, average is $avgratio+-$stdratio ";
+    }elsif($qprod = "P15i.2014") {
+
+ $gtitle = "Average ratio RealTime/CPU per day in P15ic-P15ie production, average is $avgratio+-$stdratio ";
+
+    }
 
 #  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt,  \@arfms,  \@arupc, \@arwb, \@armtd, \@arcentralpro, \@arsst, \@arhltgood ) ;
 
@@ -1708,10 +1718,11 @@ END
        $ylabel = "Average CPU in sec/evt per day";
        $gtitle = "Average CPU in sec/evt per day in $qprod production, average is $avgcpu+-$stdcpu";
 
-        if($qprod eq "P15.2014" ) {
+        if($qprod eq "P15i.2014" ) {
 
        $legend[7] = "st_mtd,prepassCPU ";
-
+      
+  $gtitle = "Average CPU in sec/evt per day in P15ic-P15ie production, average is $avgcpu+-$stdcpu";
 
 #  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpfms, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpsst, \@cphltgood ) ;
 
@@ -1719,7 +1730,15 @@ END
 
 	}else{
 
+        if($qprod eq "P16id.2014" ) {
+
+ $gtitle = "Average CPU in sec/evt per day in run 2014 P16id production, average is $avgcpu+-$stdcpu";
+
+	}
+
   @data = (\@ndate, \@cpphysics,  \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfms, \@cprp, \@cpsst, \@cphimult ) ;
+
+        }
 
 	}
 
@@ -1749,6 +1768,16 @@ END
 	$ylabel = "Average time of jobs execution per day in hours ";
 	$gtitle = "Average time of jobs execution per day in $qprod production ";
 
+    if($qprod eq "P15i.2014") {
+
+    $gtitle = "Average time of jobs execution per day in P15ic-P15ie production ";
+
+    }elsif($qprodt eq "P16id.2014") {
+
+    $gtitle = "Average time of jobs execution per day in run 2014 P16id production ";
+
+    }
+
 # @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbfms, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbsst, \@jbhltgood,) ;
 
  @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbhltgood, \@jbmtd, \@jbupc, \@jbwb, \@jbfms, \@jbrp, \@jbsst, \@jbhimult ) ;
@@ -1764,6 +1793,17 @@ END
 
 	$ylabel = "Average number of tracks in different stream ";
 	$gtitle = "Average number of tracks in different stream data in $qprod production ";
+
+
+    if($qprod eq "P15i.2014") {
+
+    $gtitle = "Average number of tracks in different streams in P15ic-P15ie production ";
+
+    }elsif($qprodt eq "P16id.2014") {
+
+    $gtitle = "Average number of tracks in different streams in run 2014 P16id production ";
+
+    }
 
 
 # @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trfms, \@trupc, \@trwb, \@trmtd, \@trcentralpro, \@trsst, \@trhltgood ) ;
