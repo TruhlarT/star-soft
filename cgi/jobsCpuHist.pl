@@ -1175,6 +1175,10 @@ if($qprodt eq "P16id.2014" ) {
 
 	$gtitle = "CPU in sec/evt for different stream jobs in run 2014 $qprod production ";
  
+ }elsif($qprod eq "P15i.2014") {
+
+ 	$gtitle = "CPU in sec/evt for different stream jobs in P15ic-e productions ";
+
 }else{
 	$gtitle = "CPU in sec/evt for different stream jobs in $qprod production ";
 
@@ -1209,6 +1213,9 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
   }elsif($qprod eq "P15ie" or $qprod eq "P15ic" or $qprod eq "P15i.2014") {
      $max_y = 45 ;
      $ynum = 15; 
+  if($qprod eq "P15i.2014") {
+	$gtitle = "Ratios RealTime/CPU for different stream jobs in P15ic-e productions ";
+  }
  }elsif( $qprod eq "P16ic" or $qprod eq "P16id") {
      $max_y = 36 ;
      $ynum = 12;
@@ -1273,8 +1280,11 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 
    $gtitle = "Execution time for different stream jobs for run 2014  $qprod production ";  
  
- }
+  }elsif( $qprod eq "P15i.2014"){
 
+  $gtitle = "Execution time for different stream jobs in P15ic-e production "; 
+
+  }
  }else{
      $max_y = 28 ;
      $ynum = 14;
