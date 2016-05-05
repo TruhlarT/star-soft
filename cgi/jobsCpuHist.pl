@@ -1246,6 +1246,8 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 
   }else{
 
+	$gtitle = "Execution time for different stream jobs in $qprod production ";
+
  if($qprod eq "P14ii" or $qprod eq "P15ic" ) {
      $max_y = 18 ;
      $ynum = 18;
@@ -1261,11 +1263,15 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
      $max_y = 40 ;
      $ynum = 20;
 
-  if($qprod eq "P16id.2014") {
+  if($qprodt eq "P16id.2014") {
 
      $max_y = 24 ;
      $ynum = 12;
+
+   $gtitle = "Execution time for different stream jobs for run 2014  $qprod production "; 
+
   }
+
  }else{
      $max_y = 28 ;
      $ynum = 14;
@@ -1273,7 +1279,6 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 
         $xlabel = "Job's execution time on the farm in hours";
         $ylabel = "Percentage of jobs (%)";         
-	$gtitle = "Execution time for different stream jobs in $qprod production ";
   
    @data = (\@ndate, \@rphysics, \@rhlt, \@rhltgood, \@rmtd, \@rupc, \@rwb, \@rfms, \@rrp ) ;
 
@@ -1295,8 +1300,8 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
      $max_y = 64000000 ;
      $ynum = 16;
  if($qprodt eq "P16id.2014" ) {
-     $max_y = 42000000 ;
-     $ynum = 14;
+     $max_y = 36000000 ;
+     $ynum = 12;
    }
  }else{ 
      $max_y = 42000000 ;
@@ -1319,9 +1324,14 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 
 
 }else{
+  if($qprodt eq "P16id.2014" ) {
+
+  $legend[0] = "all streams data for run 2014 $qprod production";  
+}else{
 
  $legend[0] = "all streams data for $qprod production";
 
+}
     @data = (\@ndate, \@nevents ) ;
 
 }
@@ -1355,6 +1365,12 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
     @data = (\@ndate, \@numjobs, \@numjob1, \@numjob2 ) ;
 
 }else{
+
+ if($qprodt eq "P16id.2014" ) {
+     $max_y = 5600 ;
+ $legend[0] = "summary for run 2014 P16id production";
+ 
+  }
 
  $legend[0] = "all streams data ";
 
