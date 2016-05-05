@@ -361,7 +361,10 @@ END
  if( $qprod =~ /P15.2014/ ) {$pryear = "2014"};
  if( $qprod =~ /P16ic/ ) {$pryear = "2015"};
  if( $qprod =~ /P16id/ ) {$pryear = "2015"};
-
+ if( $qprod =~ /P16id.2014/ ) {
+     $pryear = "2014";
+     $qprod = "P16id";
+   };
      
     $JobStatusT = "JobStatus".$pryear;
 
