@@ -254,7 +254,9 @@ $JobStatusT = "JobStatus2015";
     $cursor->finish();
 
 
- $arrprod[$npr] = "all2014";
+ $arrprod[$npr] = "P15.2014";
+ $arrprod[$npr+1] = "P16id.2014"; 
+
 
 &StDbProdDisconnect();
 
@@ -356,7 +358,7 @@ END
  if( $qprod =~ /P15ib/ or $qprod =~ /P15ic/ or $qprod =~ /P15ie/) {$pryear = "2014"}; 
  if( $qprod =~ /P15ik/ ) {$pryear = "2015"};
  if( $qprod =~ /P15il/ ) {$pryear = "2014"};
- if( $qprod =~ /all2014/ ) {$pryear = "2014"};
+ if( $qprod =~ /P15.2014/ ) {$pryear = "2014"};
  if( $qprod =~ /P16ic/ ) {$pryear = "2015"};
  if( $qprod =~ /P16id/ ) {$pryear = "2015"};
 
@@ -389,7 +391,7 @@ END
 
  &StDbProdConnect();
 
-  if($qprod eq "all2014" ) {
+  if($qprod eq "P15.2014" ) {
 
     $sql="SELECT DISTINCT streamName  FROM $JobStatusT where (prodSeries = 'P15ic' or prodSeries = 'P15ie') ";
 
@@ -458,7 +460,7 @@ END
 
   }
 
-   if($qprod eq "all2014" ) {
+   if($qprod eq "P15.2014" ) {
 
 
     $sql="SELECT DISTINCT runDay  FROM $JobStatusT WHERE ( prodSeries = 'P15ic' or prodSeries = 'P15ie')  AND  runDay <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(runDay)) < ?  order by runDay";
@@ -584,7 +586,7 @@ END
  $ndt = 0;
  $maxcpu = 1.0;
 
-   if($qprod eq "all2014" ) {
+   if($qprod eq "P15.2014" ) {
 
   foreach my $tdate (@ardays) {
         @jbstat = ();
@@ -821,7 +823,7 @@ END
  $maxval = 1.0;
 
 
-    if($qprod eq "all2014" ) {
+    if($qprod eq "P15.2014" ) {
 
   foreach my $tdate (@ardays) {
         @jbstat = ();
@@ -1036,7 +1038,7 @@ END
  $maxtrk = 1.0;
 
 
- if($qprod eq "all2014" ) {
+ if($qprod eq "P15.2014" ) {
 
    foreach my $tdate (@ardays) {
         @jbstat = ();
@@ -1254,7 +1256,7 @@ END
  @rtwb = ();
  @rtrp = ();
 
-      if($qprod eq "all2014" ) {
+      if($qprod eq "P15.2014" ) {
 
     foreach my $tdate (@ardays) {
         @jbstat = ();
@@ -1454,7 +1456,7 @@ END
  $maxjbtime = 0.1;
 
 
-     if($qprod eq "all2014" ) {
+     if($qprod eq "P15.2014" ) {
 
   foreach my $tdate (@ardays) {
         @jbstat = ();
@@ -1703,7 +1705,7 @@ END
        $ylabel = "Average CPU in sec/evt per day";
        $gtitle = "Average CPU in sec/evt per day in $qprod production, average is $avgcpu+-$stdcpu";
 
-        if($qprod eq "all2014" ) {
+        if($qprod eq "P15.2014" ) {
 
        $legend[7] = "st_mtd,prepassCPU ";
 
