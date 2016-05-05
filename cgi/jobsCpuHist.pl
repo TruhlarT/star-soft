@@ -1340,6 +1340,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 
      }elsif( $srate eq "njobs"){
 
+$legend[0] = "all streams data for $qprod production";
 
  @data = ();
 
@@ -1354,12 +1355,12 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
  } 
 
         $xlabel = "Date of jobs completion";
-        $ylabel = "Number of jobs";         
+        $ylabel = "Number of jobs processed per day";         
 	$gtitle = "Number of jobs processed per day in $qprod production ";
 
    if($qprod eq "P15i.2014") {
 
- $legend[0] = "summary for run 2014 production";
+ $legend[0] = "all stream data for for run 2014 P15ic-e production";
  $legend[1] = "P15ic production";
  $legend[2] = "P15ie production";
 
@@ -1369,8 +1370,10 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 
  if($qprodt eq "P16id.2014" ) {
      $max_y = 5600 ;
- $legend[0] = "summary for run 2014 P16id production";
- 
+
+ $legend[0] = "all stream data for run 2014 P16id production";
+ $gtitle = "Number of jobs processed per day for run 2014 $qprod production "; 
+
 }
 
     @data = (\@ndate, \@numjobs ) ;
