@@ -1276,8 +1276,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
      $max_y = 24 ;
      $ynum = 12;
 
-   $gtitle = "Execution time for different stream jobs for run 2014  $qprod production "; 
-   $legend[0] = "all streams data for run 2014 $qprod production";  
+   $gtitle = "Execution time for different stream jobs for run 2014  $qprod production ";  
  
  }
 
