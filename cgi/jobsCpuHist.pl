@@ -1315,7 +1315,8 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 	$gtitle = "Number of events processed per day in $qprod production ";
 
    if($qprod eq "P15i.2014") {
-
+	
+  $gtitle = "Number of events processed per day in P15ic-e productions ";
 
  $legend[0] = "summary for run 2014 production";
  $legend[1] = "P15ic production";
