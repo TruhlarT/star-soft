@@ -1746,7 +1746,7 @@ io ";
        $max_y = $maxcpu + 0.2*$maxcpu;
        $max_y = int($max_y);
 
-     elsif(  $srate eq "stream_rate" ) {
+     }elsif(  $srate eq "stream_rate" ) {
 
   @data = ();
 
