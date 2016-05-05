@@ -1269,6 +1269,12 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
  }elsif($qprod eq "P15ie" or $qprod eq "P15i.2014" ) {
      $max_y = 24 ;
      $ynum = 12;
+
+  if($qprod eq "P15i.2014" ) {
+ 
+ $gtitle = "Execution time for different stream jobs in P15ic-P15ie production ";   
+  }
+
  }elsif($qprod eq "P16ic" or $qprod eq "P16id") {
      $max_y = 24 ;
      $ynum = 12;
@@ -1280,11 +1286,6 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 
    $gtitle = "Execution time for different stream jobs for run 2014  $qprod production ";  
  
-  }elsif( $qprod eq "P15i.2014"){
-
-  $gtitle = "Execution time for different stream jobs in P15ic-e production "; 
-
-  }
  }else{
      $max_y = 28 ;
      $ynum = 14;
@@ -1326,7 +1327,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 
    if($qprod eq "P15i.2014") {
 	
-  $gtitle = "Number of events processed per day in P15ic-e productions ";
+  $gtitle = "Number of events processed per day in P15ic-P15ie productions ";
 
  $legend[0] = "summary for run 2014 production";
  $legend[1] = "P15ic production";
@@ -1371,7 +1372,8 @@ $legend[0] = "all streams data for $qprod production";
 
    if($qprod eq "P15i.2014") {
 
- $legend[0] = "all stream data for for run 2014 P15ic-e production";
+ $gtitle = "Number of jobs processed per day in P15ic-P15ie production ";
+ $legend[0] = "summary for P15ic-P15ie production";
  $legend[1] = "P15ic production";
  $legend[2] = "P15ie production";
 
