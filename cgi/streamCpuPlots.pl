@@ -1693,14 +1693,17 @@ END
        $ylabel = "Average RealTime/CPU ratio for stream jobs finished per day";
        $gtitle = "Average ratio RealTime/CPU per day in $qprod production, average is $avgratio+-$stdratio ";
 
-    if($qprodt = "P16id.2014") {
+      if($qprod eq "P15i.2014" ) {
 
- $gtitle = "Average ratio RealTime/CPU per day in P16id production, run 2014, average is $avgratio+-$stdratio ";
-    }elsif($qprod = "P15i.2014") {
+ $gtitle = "Average ratio RealTime/CPU in P15ic-P15ie production, average is $avgratio+-$stdra
+io ";
+     }elsif($qprodt = "P16id.2014") {
 
- $gtitle = "Average ratio RealTime/CPU per day in P15ic-P15ie production, average is $avgratio+-$stdratio ";
+ $gtitle = "Average ratio RealTime/CPU in P16id production, run 2014, average is $avgratio+-$stdratio ";
+     }else{
 
-    }
+       $gtitle = "Average ratio RealTime/CPU in $qprod production, average is $avgratio+-$stdratio ";
+     }
 
 #  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt,  \@arfms,  \@arupc, \@arwb, \@armtd, \@arcentralpro, \@arsst, \@arhltgood ) ;
 
@@ -1722,7 +1725,7 @@ END
 
        $legend[7] = "st_mtd,prepassCPU ";
       
-  $gtitle = "Average CPU in sec/evt per day in P15ic-P15ie production, average is $avgcpu+-$stdcpu";
+  $gtitle = "Average CPU  per day in P15ic-P15ie production, average is $avgcpu+-$stdcpu";
 
 #  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpfms, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpsst, \@cphltgood ) ;
 
@@ -1732,7 +1735,7 @@ END
 
         if($qprod eq "P16id.2014" ) {
 
- $gtitle = "Average CPU in sec/evt per day in run 2014 P16id production, average is $avgcpu+-$stdcpu";
+ $gtitle = "Average CPU per day in run 2014 P16id production, average is $avgcpu+-$stdcpu";
 
 	}
 
@@ -1743,7 +1746,7 @@ END
        $max_y = $maxcpu + 0.2*$maxcpu;
        $max_y = int($max_y);
 
-     }elsif(  $srate eq "stream_rate" ) {
+     elsif(  $srate eq "stream_rate" ) {
 
   @data = ();
 
