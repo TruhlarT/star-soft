@@ -6,6 +6,8 @@
 #include "StDetectorDbMaker/StiHitErrorCalculator.h"
 #include "StMessMgr.h"
 #include "TArrayD.h"
+#include "TRSymMatrix.h"
+#include "TRVector.h"
 #if ROOT_VERSION_CODE < 331013
 #include "TCL.h"
 #else
@@ -229,7 +231,7 @@ int StiTrackNodeHelper::propagateError()
 {
 static int nCall = 0; nCall++; StiDebug::Break(nCall);
   mPredErrs = mFitdParentErrs;
-  StiTrackNode::errPropag6(mPredErrs.G(),mMtx.A,kNPars);
+  StiTrackNode::errPropag6(mPredErrs.A,mMtx.A,kNPars);
   int force = fabs(dl)> StiNodeErrs::kBigLen;
   mPredErrs.recov(force);
   mPredErrs._cEE+=mMcs._cEE;		//add err to <eta*eta> eta crossing angle//add err to <eta*eta> eta crossing angle
@@ -399,9 +401,9 @@ if (!oldJoinPrim) {
 
         mTargetNode->mPE().recov();
         mFitdErrs.recov();
-	chi2 = joinTwo(kNPars,mTargetNode->mPP().P,mTargetNode->mPE().G()
-                      ,kNPars,mFitdPars.P         ,mFitdErrs.G()
-                             ,mJoinPars.P         ,mJoinErrs.G());
+	chi2 = joinTwo(kNPars,mTargetNode->mPP().P,mTargetNode->mPE().A
+                      ,kNPars,mFitdPars.P         ,mFitdErrs.A
+                             ,mJoinPars.P         ,mJoinErrs.A);
         mJoinPars.hz() = mTargetHz;
 	mJoinErrs.recov();
 
@@ -487,27 +489,32 @@ double StiTrackNodeHelper::joinTwo(int nP1,const double *P1,const double *E1
   }}
   if ( choice >0) {t = p2; p2 = p1; p1 = t; t = e2; e2 = e1; e1 = t;}
 
-  do {//empty loop
-//  	Join errors
-    TCL::vadd(e1,e2,sumE,nE1);
-    int negati = sumE[2]<0;
-    if (negati) TCL::vcopyn(sumE,sumE,nE1);
-    int ign0re = sumE[0]<=0;
-    if (ign0re) sumE[0] = 1;
-    TCL::trsinv(sumE,sumEI,nP1);
-    if (ign0re) {sumE[0]  = 0; sumEI[0] = 0;}
-    if (negati) {TCL::vcopyn(sumE,sumE,nE1);TCL::vcopyn(sumEI,sumEI,nE1);}
-    TCL::vsub(p2       ,p1   ,subP       ,nP1);
-    TCL::trasat(subP,sumEI,&chi2,1,nP1); 
-    if (!EJ) break;
-    TCL::trqsq (e1  ,sumEI,e1sumEIe1,nP2); 
-    TCL::vsub(e1,e1sumEIe1,EJ,nE2);
-  } while(0);
-//  	Join params
+  TRSymMatrix EE1(nP1,e1);
+  TRSymMatrix EE2(nP1,e2);
+  TRVector    PP1(nP1,p1);
+  TRVector    PP2(nP1,p2);
+  TRVector SubP(PP2);
+  SubP -= PP1;
+  //   Join errors
+  TRSymMatrix SumE(EE1);
+  SumE += EE2;
+  int negati = SumE[2]<0;
+  if (negati) SumE *= -1.;
+  int ign0re = SumE[0]<=0;
+  if (ign0re) SumE[0] = 1;
+  TRSymMatrix SumEI(SumE,TRArray::kInvertedA);
+  if (! SumEI.IsValid()) return chi2;
+  if (ign0re) {SumE[0]  = 0; SumEI[0] = 0;}
+  if (negati) {SumE *= -1.; SumEI *= -1.;}
+  chi2 = SumEI.Product(SubP);
+  if (!EJ) return chi2;
+  TRSymMatrix E1sumEIe1(EE1,TRArray::kRxSxR,SumEI);
+  TCL::vsub(EE1.GetArray(),E1sumEIe1.GetArray(),EJ,nE1);
+  //   Join params
   if (PJ) {
-    TCL::tras(subP     ,sumEI,sumEIsubP,1,nP1);
-    TCL::tras(sumEIsubP,e1   ,PJ       ,1,nP2);
-    TCL::vadd(PJ       ,p1   ,PJ         ,nP2);
+    TCL::tras(SubP.GetArray(),SumEI.GetArray(),sumEIsubP,1,nP1);
+    TCL::tras(sumEIsubP,EE1.GetArray()  ,PJ       ,1,nP2);
+    TCL::vadd(PJ       ,PP1.GetArray()  ,PJ         ,nP2);
   }
   return chi2;
 }
@@ -590,7 +597,7 @@ double StiTrackNodeHelper::joinVtx(const double      *Y,const StiHitErrs  &B
   StiNodeErrs Ai=A;	//Inverted A
   
   Ai._cXX=1;
-  TCL::trsinv(Ai.G(),Ai.G(),nP2);
+  TCL::trsinv(Ai.A,Ai.A,nP2);
   Ai._cXX=0;
 
 
@@ -607,7 +614,7 @@ double StiTrackNodeHelper::joinVtx(const double      *Y,const StiHitErrs  &B
 
   TCL::vsub(X.P,m,dif,nP2);			//dif = X - M
   double chi2;
-  TCL::trasat(dif,Ai.G(),&chi2,1,nP2);		//calc chi2
+  TCL::trasat(dif,Ai.A,&chi2,1,nP2);		//calc chi2
   if (!C) return chi2;
 		// Error matrix calculation
   C->reset();
@@ -615,15 +622,15 @@ double StiTrackNodeHelper::joinVtx(const double      *Y,const StiHitErrs  &B
   double TX[nP1][nP2];memset(TX[0],0,sizeof(TX));
   for (int i=0;i<3;i++) {TCL::ucopy(T10[i],TX[i],3); TX[i][i+3]=1;}
   double C11[nE1];
-  TCL::trasat(TX[0],A.G(),C11,nP1,nP2);
+  TCL::trasat(TX[0],A.A,C11,nP1,nP2);
   C->set11(C11);
   
   double TY[nP2][nP1];memset(TY[0],0,sizeof(TX));
   for (int i=0;i<3;i++) {TCL::vcopyn(T10[i],TY[i+3],3); TY[i][i]=1;}
   TY[0][0] = 0;
   double CYY[nE2];
-  TCL::trasat(TY[0],B.G(),CYY,nP2,nP1);
-  TCL::vadd(CYY,C->G(),C->G(),nE2);
+  TCL::trasat(TY[0],B.A,CYY,nP2,nP1);
+  TCL::vadd(CYY,C->A,C->A,nE2);
   return chi2;
 }
 //______________________________________________________________________________
@@ -665,7 +672,7 @@ static const int keepElossBug = StiDebug::iFlag("keepElossBug");
 assert(pt<1e3);
   double relRadThickness;
   // Half path length in previous node
-  double pL1=0,pL2=0,pL3=0,d1=0,d2=0,d3=0,dxEloss=0,dx=0;
+  double pL1,pL2,pL3,d1,d2,d3,dxEloss,dx;
   pL1=0.5*pathIn(mParentNode->getDetector(),&mBestParentPars);
   // Half path length in this node
   pL3=0.5*pathIn(mDetector,&mBestPars);
@@ -850,7 +857,7 @@ double StiTrackNodeHelper::evalChi2()
   if (fabs(mPredPars.curv())      >kMaxCur)      return 1e41;
   if (!mDetector) 	{ //Primay vertex
     mHitPars[0] = mPredPars.x();
-//    chi2 = joinVtx(mHitPars,mHrr.G(),mPredPars.P,mPredErrs.G());
+//    chi2 = joinVtx(mHitPars,mHrr.A,mPredPars.P,mPredErrs.A);
     chi2 = joinVtx(mHitPars,mHrr,mPredPars,mPredErrs);
   } else 		{ //Normal hit
 
@@ -900,8 +907,8 @@ double StiTrackNodeHelper::recvChi2()
   if (fabs(mJoinPars.eta())       >kMaxEta) 	return 1e41;
   if (fabs(mJoinPars.curv())      >kMaxCur)     return 1e41;
   if (!mDetector) {//Primary vertex
-//  double chi2 =joinVtx(mHitPars,mHrr.G(),mPredPars.P,mPredErrs.G());
-    double chi2 =joinVtx(mHitPars,mHrr    ,mPredPars  ,mPredErrs    );
+//  double chi2 =joinVtx(mHitPars,mHrr.A,mPredPars.P,mPredErrs.A);
+    double chi2 =joinVtx(mHitPars,mHrr  ,mPredPars  ,mPredErrs  );
     return chi2;
   }
 
@@ -917,9 +924,9 @@ double StiTrackNodeHelper::recvChi2()
   if (r11*r22-r12*r12<0)			return 1e41;	  
 
 
-  double chi2 = joinTwo(3,mHitPars    ,    myHrr.G()
-                       ,3,mJoinPars.P,mJoinErrs.G()
-		         ,recovPars.P,recovErrs.G());
+  double chi2 = joinTwo(3,mHitPars    ,    myHrr.A
+                       ,3,mJoinPars.P,mJoinErrs.A
+		         ,recovPars.P,recovErrs.A);
   if (fabs(recovPars.y()-mHitPars[1])>10) StiDebug::Break(-1);
   if (fabs(recovPars.z()-mHitPars[2])>10) StiDebug::Break(-1);
 
@@ -962,6 +969,7 @@ static int nCall=0; nCall++;
   StiDebug::Break(mTargetNode->mId);
   if (!mDetector)	{ //Primary vertex
     mHitPars[0] = mPredPars.x();
+//  double chi2 = joinVtx(mHitPars,mHrr.A,mPredPars.P,mPredErrs.A,mFitdPars.P,mFitdErrs.A);
     double chi2 = joinVtx(mHitPars,mHrr,mPredPars,mPredErrs,&mFitdPars,&mFitdErrs);
     mFitdPars.curv() = mTargetHz*mFitdPars.ptin();
     assert(chi2>900 || fabs(mChi2-chi2)<1e-10);
@@ -1151,7 +1159,7 @@ int StiTrackNodeHelper::getHitErrors(const StiHit *hit,const StiNodePars *pars,S
      calc->calculateError(pars,hrr->hYY,hrr->hZZ);
   } else    {//get from hit
     const float *ermx = hit->errMtx();    
-    for (int i=0;i<6;i++){hrr->G()[i]=ermx[i];}
+    for (int i=0;i<6;i++){hrr->A[i]=ermx[i];}
   }
   return (!det);
 }
@@ -1166,12 +1174,12 @@ int errTest(StiNodePars &predP,StiNodeErrs &predE,
   hittP.x() = hit->x();
   hittP.y() = hit->y();
   hittP.z() = hit->z();
-  memcpy(hittE.G(),hitErr.G(),sizeof(StiNodeErrs));
+  memcpy(hittE.A,hitErr.A,sizeof(StiNodeErrs));
   
   double myChi2 = StiTrackNodeHelper::joinTwo(
-                  3,hittP.P,hittE.G(),
-		  6,predP.P,predE.G(),
-		    mineP.P,mineE.G());
+                  3,hittP.P,hittE.A,
+		  6,predP.P,predE.A,
+		    mineP.P,mineE.A);
 
 
   int ndif = 0;
@@ -1181,17 +1189,17 @@ int errTest(StiNodePars &predP,StiNodeErrs &predE,
     diff/=0.5*(fabs(mineP.P[i])+fabs(fitdP.P[i]));
     if (diff < 1e-5 ) continue;
     ndif++;
-    LOG_DEBUG << Form("errTest(P): %g(%d) - %g(%d) = %g",mineE.G()[i],i,fitdE.G()[i],i,diff)<< endm;
+    LOG_DEBUG << Form("errTest(P): %g(%d) - %g(%d) = %g",mineE.A[i],i,fitdE.A[i],i,diff)<< endm;
   }
   if (ndif){ mineP.print();fitdP.print();}
 
   for (int i=0;i<kNErrs;i++) {
-    double diff = fabs(mineE.G()[i]-fitdE.G()[i]);
+    double diff = fabs(mineE.A[i]-fitdE.A[i]);
     if (diff < 1e-10) continue;
-    diff/=0.5*(fabs(mineE.G()[i])+fabs(fitdE.G()[i]));
+    diff/=0.5*(fabs(mineE.A[i])+fabs(fitdE.A[i]));
     if (diff < 1e-5 ) continue;
     ndif+=100;
-    LOG_DEBUG << Form("errTest(E): %g(%d) - %g(%d) = %g",mineE.G()[i],i,fitdE.G()[i],i,diff)<< endm;
+    LOG_DEBUG << Form("errTest(E): %g(%d) - %g(%d) = %g",mineE.A[i],i,fitdE.A[i],i,diff)<< endm;
   }
   if (ndif>=100){ mineE.print();fitdE.print();}
   
