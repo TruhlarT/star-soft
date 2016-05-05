@@ -1755,6 +1755,19 @@ io ";
         $gtitle = "Average ratio of different stream jobs finishing per day in $qprod production";
 
 
+   if($qprod eq "P15i.2014") {
+
+    $gtitle = "Average ratio of different stream jobs in P15ic-P15ie production ";
+
+    }elsif($qprodt eq "P16id.2014") {
+
+    $gtitle = "Average ratio of different stream jobs in run 2014 P16id production ";
+
+    }else{
+
+    $gtitle = "Average ratio of different stream jobs in $qprod production";  
+    }
+
 # @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtfms, \@rtupc, \@rtwb, \@rtmtd, \@rtcentralpro, \@rtsst, \@rthltgood, ) ;
 
  @data = (\@ndate, \@rtphysics,  \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtfms, \@rtrp, \@rtsst, \@rthimult ) ;
