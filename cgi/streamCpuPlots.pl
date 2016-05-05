@@ -1733,11 +1733,13 @@ io ";
 
 	}else{
 
-        if($qprod eq "P16id.2014" ) {
+        if($qprodt eq "P16id.2014" ) {
 
  $gtitle = "Average CPU per day in run 2014 P16id production, average is $avgcpu+-$stdcpu";
 
-	}
+	}else{
+       $gtitle = "Average CPU in sec/evt per day in $qprod production, average is $avgcpu+-$stdcpu";
+        }
 
   @data = (\@ndate, \@cpphysics,  \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfms, \@cprp, \@cpsst, \@cphimult ) ;
 
