@@ -1697,12 +1697,10 @@ END
 
  $gtitle = "Average ratio RealTime/CPU in P15ic-P15ie production, average is $avgratio+-$stdra
 io ";
-     }elsif($qprodt = "P16id.2014") {
+      }
+     if($qprodt eq "P16id.2014") {
 
  $gtitle = "Average ratio RealTime/CPU in P16id production, run 2014, average is $avgratio+-$stdratio ";
-     }else{
-
-       $gtitle = "Average ratio RealTime/CPU in $qprod production, average is $avgratio+-$stdratio ";
      }
 
 #  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt,  \@arfms,  \@arupc, \@arwb, \@armtd, \@arcentralpro, \@arsst, \@arhltgood ) ;
