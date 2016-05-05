@@ -1170,8 +1170,15 @@ my $ynum = 14;
 
 	$xlabel = "CPU in sec/evt";
         $ylabel = "Percentage of jobs (%)";
+   
+if($qprodt eq "P16id.2014" ) {
+
+	$gtitle = "CPU in sec/evt for different stream jobs in run 2014 $qprod production ";
+ 
+}else{
 	$gtitle = "CPU in sec/evt for different stream jobs in $qprod production ";
 
+}
 
   @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtfms, \@rtrp ) ; 
 
@@ -1194,6 +1201,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
     @data = (\@ndate, \@arphysics, \@arhlt, \@arhltgood, \@armtd, \@arupc, \@arwb, \@arfms, \@arrp ) ;
 
    }else{
+	$gtitle = "Ratios RealTime/CPU for different stream jobs in $qprod production ";
 
   if( $qprod eq "P14ii") {
      $max_y = 24 ;
@@ -1206,7 +1214,8 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
      $ynum = 12;
      if( $qprod eq "P16id.2014") {
      $max_y = 45 ;
-     $ynum = 15;   
+     $ynum = 15;  
+	$gtitle = "Ratios RealTime/CPU for different stream jobs for run 2014 $qprod production "; 
      }
  }else{
      $max_y = 28 ;
@@ -1215,7 +1224,6 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 
         $xlabel = "Ratio RealTime/CPU";
         $ylabel = "Percentage of jobs (%)";
-	$gtitle = "Ratios RealTime/CPU for different stream jobs in $qprod production ";
 
     @data = (\@ndate, \@rcphysics, \@rchlt, \@rchltgood, \@rcmtd, \@rcupc, \@rcwb, \@rcfms, \@rcrp ) ;
 
@@ -1225,6 +1233,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 
  @data = ();
 
+  $legend[0] = "all streams data for $qprod production";  
 
   if($qprod eq "P14ia" or $qprod eq "P14ig" ) { 
 
@@ -1269,8 +1278,9 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
      $ynum = 12;
 
    $gtitle = "Execution time for different stream jobs for run 2014  $qprod production "; 
-
-  }
+   $legend[0] = "all streams data for run 2014 $qprod production";  
+ 
+ }
 
  }else{
      $max_y = 28 ;
@@ -1338,7 +1348,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 
      }elsif( $srate eq "njobs"){
 
- $legend[0] = "all streams data ";
+ $legend[0] = "all streams data for $qprod production";
 
  @data = ();
 
@@ -1370,9 +1380,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
      $max_y = 5600 ;
  $legend[0] = "summary for run 2014 P16id production";
  
-  }
-
- $legend[0] = "all streams data ";
+}
 
     @data = (\@ndate, \@numjobs ) ;
 
