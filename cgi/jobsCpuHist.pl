@@ -238,7 +238,8 @@ my @narray = ();
     $cursor->finish();
 
 
-$arrprod[$npr] = "all2014";
+$arrprod[$npr] = "P15i.2014";
+$arrprod[$npr+1] = "P16id.2014";
 
 my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months","7_months","8_months","9_months","10_months","11_months","12_months");
 
@@ -332,6 +333,8 @@ END
     my $qprod   = $qqr->param('prod');
     my $qperiod = $qqr->param('period');    
     my $srate   = $qqr->param('prate');
+
+  my $qprodt = $qprod;
     
  # Tables
 
@@ -342,9 +345,16 @@ END
   if( $qprod =~ /P15ib/ or $qprod =~ /P15ic/ or $qprod =~ /P15ie/) {$pryear = "2014"};
   if( $qprod =~ /P15ik/ or $qprod =~ /P15il/) {$pryear = "2015"};
 
-  if( $qprod eq "all2014") {$pryear = "2014"};
+  if( $qprod eq "P15i.2014") {$pryear = "2014"};
   if( $qprod =~ /P16ic/) {$pryear = "2015"};
   if( $qprod =~ /P16id/) {$pryear = "2015"};
+  if( $qprod eq "P16id.2014"/) {
+      $pryear = "2014";
+      $qprod = "P16id";
+      $qprodt = "P16id.2014";
+    };
+
+
 
     $JobStatusT = "JobStatus".$pryear;
 
@@ -375,7 +385,7 @@ END
 
  &StDbProdConnect();
 
-  if($qprod eq "all2014" ) {
+  if($qprod eq "P15i.2014" ) {
 
 ###########   max createTime
 
@@ -617,7 +627,7 @@ END
 
     foreach  $tdate (@ardays) {
  
-	if($qprod eq "all2014") {
+	if($qprod eq "P15i.2014") {
 
  
  $sql="SELECT exectime, streamName FROM $JobStatusT WHERE (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59' )  AND (prodSeries = 'P15ic' or prodSeries = 'P15ie') AND exectime > 0.1  AND jobStatus = 'Done' AND NoEvents >= 10  "; 
@@ -675,6 +685,9 @@ END
  if($qprod eq "P14ia" or $qprod eq "P14ig" or $qprod eq "P14ii" or $qprod eq "P15ik" or $qprod eq "P15il" or $qprod eq "P16id"  or $qprod eq "P16ic") {
      $maxvalue = 120;
 
+     if($qprodt eq "P16id.2014"){
+     $maxvalue = 240;
+     }
  }else{
      $maxvalue = 240;
  }
@@ -744,7 +757,7 @@ END
  
 	$ndate[$ndt] = $tdate;
 
-	if($qprod eq "all2014") {
+	if($qprod eq "P15i.2014") {
 
  $sql="SELECT  sum(NoEvents) FROM $JobStatusT WHERE  (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') AND ( prodSeries = 'P15ic' or prodSeries = 'P15ie') AND jobStatus = 'Done'  "; 
 
@@ -820,7 +833,7 @@ END
  
 	$ndate[$ndt] = $tdate;
 
-      if($qprod eq "all2014") { 
+      if($qprod eq "P15i.2014") { 
 
  $sql="SELECT  count(jobfileName) FROM $JobStatusT WHERE  (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59')  AND ( prodSeries = 'P15ic' or prodSeries = 'P15ie') AND jobStatus = 'Done'  "; 
 
@@ -897,7 +910,7 @@ END
 
     foreach  $tdate (@ardays) {
 
-    if($qprod eq "all2014") {
+    if($qprod eq "P15i.2014") {
 
   $sql="SELECT CPU_per_evt_sec, RealTime_per_evt, streamName FROM $JobStatusT WHERE (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59')  AND ( prodSeries = 'P15ic' or prodSeries = 'P15ie') AND CPU_per_evt_sec > 0.01 and jobStatus = 'Done' AND NoEvents >= 10  "; 
 
@@ -1185,12 +1198,16 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
   if( $qprod eq "P14ii") {
      $max_y = 24 ;
      $ynum = 12;
-  }elsif($qprod eq "P15ie" or $qprod eq "P15ic" or $qprod eq "all2014") {
+  }elsif($qprod eq "P15ie" or $qprod eq "P15ic" or $qprod eq "P15i.2014") {
      $max_y = 45 ;
      $ynum = 15; 
  }elsif( $qprod eq "P16ic" or $qprod eq "P16id") {
      $max_y = 36 ;
      $ynum = 12;
+     if( $qprod eq "P16id.2014") {
+     $max_y = 45 ;
+     $ynum = 15;   
+     }
  }else{
      $max_y = 28 ;
      $ynum = 14;
@@ -1232,7 +1249,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
  if($qprod eq "P14ii" or $qprod eq "P15ic" ) {
      $max_y = 18 ;
      $ynum = 18;
- }elsif($qprod eq "P15ie" or $qprod eq "all2014" ) {
+ }elsif($qprod eq "P15ie" or $qprod eq "P15i.2014" ) {
      $max_y = 24 ;
      $ynum = 12;
  }elsif($qprod eq "P16ic" ) {
@@ -1244,6 +1261,11 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
      $max_y = 40 ;
      $ynum = 20;
 
+  if($qprod eq "P16id.2014") {
+
+     $max_y = 24 ;
+     $ynum = 12;
+  }
  }else{
      $max_y = 28 ;
      $ynum = 14;
@@ -1272,6 +1294,10 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
  }elsif($qprod eq "P16id" ) {
      $max_y = 64000000 ;
      $ynum = 16;
+ if($qprodt eq "P16id" ) {
+     $max_y = 42000000 ;
+     $ynum = 14;
+   }
  }else{ 
      $max_y = 42000000 ;
      $ynum = 14;
@@ -1281,7 +1307,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
         $ylabel = "Number of events";         
 	$gtitle = "Number of events processed per day in $qprod production ";
 
-   if($qprod eq "all2014") {
+   if($qprod eq "P15i.2014") {
 
 
  $legend[0] = "summary for run 2014 production";
@@ -1320,7 +1346,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
         $ylabel = "Number of jobs";         
 	$gtitle = "Number of jobs processed per day in $qprod production ";
 
-   if($qprod eq "all2014") {
+   if($qprod eq "P15i.2014") {
 
  $legend[0] = "summary for run 2014 production";
  $legend[1] = "P15ic production";
