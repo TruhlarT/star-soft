@@ -1233,7 +1233,6 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 
  @data = ();
 
-  $legend[0] = "all streams data for $qprod production";  
 
   if($qprod eq "P14ia" or $qprod eq "P14ig" ) { 
 
@@ -1296,7 +1295,6 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 
      }elsif( $srate eq "events"){
 
- $legend[0] = "all streams data ";
 
  @data = ();
 
@@ -1348,7 +1346,6 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 
      }elsif( $srate eq "njobs"){
 
- $legend[0] = "all streams data for $qprod production";
 
  @data = ();
 
