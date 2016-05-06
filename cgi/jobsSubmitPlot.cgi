@@ -98,7 +98,7 @@ my  $JobStatusT2 = "JobStatus2014";
     $cursor->finish();
 
 
-$arrprod[$npr] = "all2015";
+$arrprod[$npr] = "P15i.2014";
 
 my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months","8_months","10_months","12_months");
 
@@ -205,7 +205,7 @@ if ( $qperiod =~ /month/) {
  &StDbProdConnect();
 
 
- if($qprod eq "all2015"){
+ if($qprod eq "P15i.2014"){
 
    $sql="SELECT DISTINCT date_format(submitTime, '%Y-%m-%d') as SDATE FROM $JobStatusT WHERE ( prodSeries = 'P15ic' or prodSeries = 'P15ie')  and date_format(submitTime, '%Y-%m-%d') <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(submitTime)) < ?  order by SDATE";
 
@@ -252,7 +252,7 @@ $ndt = 0;
 @jbsubm1 = ();
 @jbsubm2 = ();
 
-  if($qprod eq "all2015"){
+  if($qprod eq "P15i.2014"){
 
   foreach my $tdate (@ardays) {
 
@@ -343,7 +343,7 @@ $ndt = 0;
 
     }
 
-######## $qprod all2015
+######## $qprod P15i.2014
   }
 
 
@@ -373,7 +373,7 @@ $ndt = 0;
       $gtitle = "Number of submitted jobs per day for $qprod production";
 
 
-   if($qprod eq "all2015"){
+   if($qprod eq "P15i.2014"){
 
  $max_y = 12000 ;
 
@@ -381,6 +381,7 @@ $ndt = 0;
  $legend[1] = "P15ic production";
  $legend[2] = "P15ie production";
  
+     $gtitle = "Number of submitted jobs per day for P15ic-P15ie production";
 
   @data = (\@ndate, \@jbsubmit, \@jbsubm1, \@jbsubm2 );
 
