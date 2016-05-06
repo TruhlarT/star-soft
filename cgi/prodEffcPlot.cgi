@@ -631,8 +631,20 @@ $ndt = 0;
  $max_y = 120;
 
       $ylabel = "Percent of jobs";
-      $gtitle = "Percentage of submitted, done and failed jobs for $qprod production";
 
+  if($qprod eq "P15i.2014"){
+ 
+  $gtitle = "Percentage of submitted, done and failed jobs for P15ic-P15ie production";
+  
+  }elsif($qprod eq "P16id.2014"){
+
+  $gtitle = "Percentage of submitted, done and failed jobs for P14id run 2014 production";
+
+  }else{
+  
+  $gtitle = "Percentage of submitted, done and failed jobs for $qprod production";
+
+  }
 
 #  @data = (\@ndate, \@jbsubmit, \@jbdone, \@jbinfail, \@jboutfail, \@jbcrsfail, \@jbheld, \@jbcrash );
 
