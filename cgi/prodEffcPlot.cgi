@@ -113,7 +113,8 @@ my @rtcrash = ();
     $cursor->finish();
 
 
-$arrprod[$npr] = "all2014";
+$arrprod[$npr] = "P15i.2014";
+$arrprod[$npr+1] = "P16id.2014";
 
 my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months","12_months");
 
@@ -196,12 +197,21 @@ END
     my $qperiod = $qqr->param('period');    
     
  # Tables
- $JobStatusT = "JobStatus2014";
+
+  my $qprodt = $qprod;
+
+  $JobStatusT = "JobStatus2014";
 
   if($qprod eq "P15ik" or $qprod eq "P15il" or $qprod eq "P16ic" or $qprod eq "P16id") {
 
- $JobStatusT = "JobStatus2015";
- }
+  $JobStatusT = "JobStatus2015";
+ 
+  }elsif($qprod eq "P16id.2014") {
+
+   $JobStatusT = "JobStatus2014";
+   $qprod = "P16id";
+   $qprodt = "P16id.2014";
+  }
 
 
 my @ardays = ();
@@ -221,7 +231,7 @@ if ( $qperiod =~ /month/) {
  &StDbProdConnect();
 
 
- if($qprod eq "all2014"){
+ if($qprod eq "P15i.2014"){
 
    $sql="SELECT DISTINCT date_format(submitTime, '%Y-%m-%d') as SDATE FROM $JobStatusT WHERE ( prodSeries = 'P15ic' or prodSeries = 'P15ie')  and date_format(submitTime, '%Y-%m-%d') <> '0000-00-00'  AND (TO_DAYS(\"$nowdate\") - TO_DAYS(submitTime)) < ?  order by SDATE";
 
@@ -238,9 +248,6 @@ if ( $qperiod =~ /month/) {
 
   }else{
 
-  if($qprod eq "P15ik" or $qprod eq "P15il" or $qprod eq "P16ic" or $qprod eq "P16id") {
- $JobStatusT = "JobStatus2015";
-  }
 
    $sql="SELECT DISTINCT date_format(submitTime, '%Y-%m-%d') as SDATE FROM $JobStatusT WHERE prodSeries = ?  and date_format(submitTime, '%Y-%m-%d') <> '0000-00-00' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(submitTime)) < ? order by SDATE";
 
@@ -278,7 +285,7 @@ $ndt = 0;
 @rtcrash = ();
 
 
-  if($qprod eq "all2014"){
+  if($qprod eq "P15i.2014"){
 
   foreach my $tdate (@ardays) {
 
@@ -434,9 +441,6 @@ $ndt = 0;
 
   }else{
 
- if($qprod eq "P15ik" or $qprod eq "P15il" or $qprod eq "P16ic" or $qprod eq "P16id") {
- $JobStatusT = "JobStatus2015";
-  }
 
   foreach my $tdate (@ardays) {
 
@@ -592,7 +596,7 @@ $ndt = 0;
 
     }
 
-######## $qprod all2014
+######## $qprod P15i.2014
   }
 
 ############
