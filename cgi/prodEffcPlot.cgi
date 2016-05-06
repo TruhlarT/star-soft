@@ -636,7 +636,7 @@ $ndt = 0;
  
   $gtitle = "Percentage of submitted, done and failed jobs for P15ic-P15ie production";
   
-  }elsif($qprod eq "P16id.2014"){
+  }elsif($qprodt eq "P16id.2014"){
 
   $gtitle = "Percentage of submitted, done and failed jobs for P14id run 2014 production";
 
