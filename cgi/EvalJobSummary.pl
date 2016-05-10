@@ -322,7 +322,6 @@ if($prstat[$nprod] eq "removed" ) {
 <td HEIGHT=10><h3><font color="green">$jbcreat[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$jbdone[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=jstat">$jbcrsh[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=hung">$jbhung[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=hpss">$jbhpss[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$jbresub[$nprod]</h3></td>
 <td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=mudst">$mismudst[$nprod]</font></h3></td>
@@ -348,7 +347,6 @@ END
 <td HEIGHT=10><h3><font color="red">$jbcreat[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$jbdone[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=jstat">$jbcrsh[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=hung">$jbhung[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=hpss">$jbhpss[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$jbresub[$nprod]</h3></td>
 <td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=mudst">$mismudst[$nprod]</font></h3></td>
@@ -374,7 +372,6 @@ END
 <td HEIGHT=10><h3>$jbcreat[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbdone[$nprod]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=jstat">$jbcrsh[$nprod]</h3></td>
-<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=hung">$jbhung[$nprod]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=hpss">$jbhpss[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbresub[$nprod]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveEvalJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$trcktag[$nprod];pflag=mudst">$mismudst[$nprod]</h3></td>
@@ -439,7 +436,6 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs created</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs done</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs crashed</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs 'hung'</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs failed due to HPSS error</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.jobs resubmit</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>No.<br>missing MuDst files</h3></B></TD>
