@@ -546,7 +546,7 @@ my $query = new CGI;
 
  @prodsets = sort { getnum($a) <=> getnum($b) } @prodst ;
 
- @prodsetd = reverse @prodsort;
+ @prodsetd = reverse @prodsets;
 
 my $vvr ;
 my $ik = 0;
