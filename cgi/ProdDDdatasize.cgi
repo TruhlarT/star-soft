@@ -560,7 +560,7 @@ my $ik = 0;
  
  $ik = scalar(@spl);
 
- $sumsized[$jj] = $spl[$ik-1] ;
+ $sumsizd[$jj] = $spl[$ik-1] ;
  $prodd[$jj]    = $spl[$ik-2] ;
  $yrdatd[$jj]   = $spl[$ik-3] ;
  $colld[$jj]    = $spl[$ik-4] ;
