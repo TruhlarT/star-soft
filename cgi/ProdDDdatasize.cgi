@@ -448,6 +448,8 @@ my @prodd = ();
 my @yrdatd = ();
 my @sumsizd = ();
 my @spl = ();
+my $prodname = "n/a";
+
 
  $fileC->set_context("filetype=daq_reco_MuDst","storage=local","limit=0");
 
@@ -574,6 +576,8 @@ my $ik = 0;
 
  }
  }
+
+  $prodname = $trigd[$jj].".".$prodd[$jj]."_loc.html";
 
  print <<END;
 
