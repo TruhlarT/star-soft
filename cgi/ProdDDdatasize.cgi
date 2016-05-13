@@ -578,7 +578,7 @@ my $ik = 0;
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=10 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3>$trigd[$jj]</font></h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/public/comp/prod/localdata/$prodname">$trigd[$jj]</font></h3></td>
 <td HEIGHT=10><h3>$colld[$jj]</h3></td>
 <td HEIGHT=10><h3>$yrdatd[$jj]</h3></td>
 <td HEIGHT=10><h3>$prodd[$jj]</h3></td>
@@ -605,9 +605,9 @@ print <<END;
 <ALIGN=LEFT><font color="blue">Production descriptions can be found on  <a href="http://www.star.bnl.gov/public/comp/prod/ProdList.html"> the page</a></font></h4>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">
 <TR>
-<TD ALIGN=CENTER WIDTH=\"40%\" HEIGHT=60><B><h3>Trigger setup name</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Collision</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Year of data taken</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Trigger setup name</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=60><B><h3>Collision</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=60><B><h3>Year of data taken</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Production Tag</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=60><B><h3>Size of MuDst on DD (GB)<h3></B></TD>
 
