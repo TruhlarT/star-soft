@@ -568,7 +568,7 @@ my $ik = 0;
 
  if($ik > 5 ) {
 
- for ($k=1; $k< $spl[$ik-4]; $k++) {
+ for ($k=1; $k< $ik-4; $k++) {
   
  $trigd[$jj] = $trigd[$jj]."_". $spl[$k];
 
