@@ -53,7 +53,7 @@ my $todate = ($year+1900)."-".$mon."-".$mday." ".$hour.":".$min.":".$sec;
 
 my $nowdate = ($year+1900).$mon.$mday;
 
- $JobStatusT = "CalibJobStatus2011-2015";
+ $JobStatusT = "CalibJobStatus2015";
 
 my @jbstat = ();
 my $nst = 0;
