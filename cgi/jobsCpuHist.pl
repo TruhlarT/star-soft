@@ -1313,8 +1313,8 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
      $max_y = 64000000 ;
      $ynum = 16;
  if($qprodt eq "P16id.2014" ) {
-     $max_y = 24000000 ;
-     $ynum = 12;
+     $max_y = 28000000 ;
+     $ynum = 14;
    }
  }else{ 
      $max_y = 42000000 ;
