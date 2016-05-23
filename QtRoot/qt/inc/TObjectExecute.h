@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TObjectExecute.h,v 1.3 2010/05/10 22:51:26 fine Exp $
+** $Id: TObjectExecute.h,v 1.3.4.1 2016/05/23 18:32:45 jeromel Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -70,7 +70,7 @@ public:
         args += s->String();
       }
       char *cmd = Form("%s(%s);", f->GetName(), args.Data());
-      gROOT->ProcessLine(cmd);
+      ROOT::GetROOT()->ProcessLine(cmd);
     }
   }
   //_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _

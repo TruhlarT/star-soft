@@ -1,5 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
+** $Id: TQtContextMenuImp.h,v 1.1.4.1 2016/05/23 18:33:08 jeromel Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **

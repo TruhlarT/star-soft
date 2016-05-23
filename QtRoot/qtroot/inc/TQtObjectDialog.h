@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtObjectDialog.h,v 1.1 2009/08/03 18:38:41 fine Exp $
+** $Id: TQtObjectDialog.h,v 1.1.4.1 2016/05/23 18:33:08 jeromel Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **

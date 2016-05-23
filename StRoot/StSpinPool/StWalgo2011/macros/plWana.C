@@ -757,6 +757,9 @@ void doAll(char *core0="", char *iPath="", int isMC=0, char* oPath="", char* eta
 
 
 // $Log: plWana.C,v $
+// Revision 1.17.2.1  2016/05/23 18:33:22  jeromel
+// Updates for SL12d / gcc44 embedding library - StDbLib, QtRoot update, new updated StJetMaker, StJetFinder, StSpinPool ... several cast fix to comply with c++0x and several cons related fixes (wrong parsing logic). Changes are similar to SL13b (not all ode were alike). Branch BSL12d_5_embed.
+//
 // Revision 1.18  2012/09/14 21:02:31  balewski
 // *lumi-maker re-written to accumulate alternative rel lumi monitors,
 // * added spin sorting to Zs

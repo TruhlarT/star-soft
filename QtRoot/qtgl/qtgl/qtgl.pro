@@ -10,7 +10,7 @@ CONFIG *= create_prl
 
 TARGET = RQTGL
 
-QMAKE_RPATH=
+QMAKE_LFLAGS_RPATH =
 
 isEmpty(DESTDIR) {
   DESTDIR=..
@@ -99,7 +99,7 @@ unix {
    LIBS += -L../../qt  -lGeom
 }
 mac {
-   LIBS *=  -L../../qt -lGeom
+   LIBS *=  -L../../qt -lGeom -ltable
 }
 
 #  LIBS += -L$$QGLVIEWERDIR  -lQGLViewer
@@ -118,7 +118,7 @@ CONFIG(debug, debug|release) {
 }
 
 macx|darwin-g++ {
-   LIB_NAME = lib$${LIB_NAME}.$${QMAKE_EXTENSION_SHLIB}
+  # LIB_NAME = lib$${LIB_NAME}.$${QMAKE_EXTENSION_SHLIB}
 }
 hpux {
   LIB_NAME = lib$${LIB_NAME}.sl

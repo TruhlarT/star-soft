@@ -1,4 +1,4 @@
-// $Id: Wevent2011.h,v 1.7 2013/01/15 23:26:35 fisyak Exp $
+// $Id: Wevent2011.h,v 1.5.2.1 2016/05/23 18:33:22 jeromel Exp $
 //
 //*-- Author : Jan Balewski, MIT
 
@@ -367,6 +367,9 @@ class Wevent2011 : public TObject {
 
 
 // $Log: Wevent2011.h,v $
+// Revision 1.5.2.1  2016/05/23 18:33:22  jeromel
+// Updates for SL12d / gcc44 embedding library - StDbLib, QtRoot update, new updated StJetMaker, StJetFinder, StSpinPool ... several cast fix to comply with c++0x and several cons related fixes (wrong parsing logic). Changes are similar to SL13b (not all ode were alike). Branch BSL12d_5_embed.
+//
 // Revision 1.7  2013/01/15 23:26:35  fisyak
 // add sys/types.h for APPLE
 //

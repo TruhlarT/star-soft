@@ -1,4 +1,4 @@
-// $Id: St2011W_acessMuDst.cxx,v 1.15 2012/09/18 21:10:06 stevens4 Exp $
+// $Id: St2011W_acessMuDst.cxx,v 1.13.2.1 2016/05/23 18:33:21 jeromel Exp $
 //
 //*-- Author : Jan Balewski, MIT
 //*-- Author for Endcap: Justin Stevens, IUCF
@@ -689,6 +689,9 @@ St2011WMaker::accessBSMD(){
 
 
 //$Log: St2011W_acessMuDst.cxx,v $
+//Revision 1.13.2.1  2016/05/23 18:33:21  jeromel
+//Updates for SL12d / gcc44 embedding library - StDbLib, QtRoot update, new updated StJetMaker, StJetFinder, StSpinPool ... several cast fix to comply with c++0x and several cons related fixes (wrong parsing logic). Changes are similar to SL13b (not all ode were alike). Branch BSL12d_5_embed.
+//
 //Revision 1.15  2012/09/18 21:10:06  stevens4
 //Include all rank>0 vertex again (new jet format coming next), and remove rank<0 endcap vertices.
 //

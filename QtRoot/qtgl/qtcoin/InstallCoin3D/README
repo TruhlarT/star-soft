@@ -1,9 +1,9 @@
 This folder contains information how to install
 Coin3D to be used as ROOT OpenGL viewer
 
-1. Download: http://www.coin3d.org
+1. Download: http://www.coin3d.org/Coin/about.php
     The source code is available from 
-    http://www.coin3d.org/lib/plonesoftwarecenter_view
+    http://www.coin3d.org/Coin/dl_src.php
 
     One has to download and install 4 different things:
 
@@ -11,54 +11,12 @@ Coin3D to be used as ROOT OpenGL viewer
     2. SmallChange
     3. SoQt
     4. simage
+    5. SoGuiExamples 
 
-    See: download.sh script.
+    See: checkOut.sh script.
 
-2. Install:
-   Use the script: installCoin3D3.sh
-   or "do it yourself" as follows:
-   
-To install Coint Suite:
+2. Install http://www.coin3d.org/Coin/building.php 
+   Under Windows one MUST not install Coin into the default directory 
+   because Fons skips ones.
 
-  - Coin-3
-  - SoQt
-  - SmallChange
-  - simage
-
-  1. Choose and create the common for 4 packages top directory where you want 
-     the packages to be installed 
-  2. Choose the common top directory where the source codes of 
-     the packages are to be unpacked to.
-  3. Choose and create the common top temporary "build" directory
-  
-     3.1. Create one subdirectory for each package above   
-          For example:
-             mkdir -p coinBuild/Coin-3
-             mkdir -p coinBuild/SoQt
-             mkdir -p coinBuild/SmallChange
-             mkdir -p coinBuild/simage
-             
-  4. Compile packages one by one by entering the corresponding package
-     build directory in  this order:
-     
-     cd coinBuild/simage
-     ${COIN_SRC}/simage/configure      --prefix=${COIN_PREFIX}  --enable-threadsafe  --enable-optimization=yes   --enable-qimage --with-qt=true --with-mpeg2enc --with-avienc 
-     make -j 9   # estimated time to complete 20 sec  (on rcas6002)
-     make install
-
-     cd coinBuild/Coin-3
-     ${COIN_SRC}/Coin-3/configure      --prefix=${COIN_PREFIX}  --enable-threadsafe  --enable-optimization=yes
-     make -j 9   # estimated time to complete 15 min  (on rcas6002) 
-     make install
-    
-     setenv PATH ${COIN_PREFIX}/bin:$PATH
-     cd coinBuild/Coin-3
-     ${COIN_SRC}/SmallChange/configure --prefix=${COIN_PREFIX}  --enable-threadsafe  --enable-optimization=yes 
-     make -j 9  # estimated time to complete 1 min  (on rcas6002)
-     make install
-
-     cd coinBuild/SoQt
-     ${COIN_SRC}/SoQt/configure        --prefix=${COIN_PREFIX}  --enable-threadsafe  --enable-optimization=yes  --with-qt=true --with-coin
-     make -j 9  # estimated time to complete 9 min (on rcas6002)
-     make install
-
+   See: installCoin3D.sh

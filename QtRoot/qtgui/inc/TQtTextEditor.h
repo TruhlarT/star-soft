@@ -1,4 +1,4 @@
-// @(#)root/gui:$Id: TQtTextEditor.h,v 1.2 2010/05/20 14:59:36 fine Exp $
+// @(#)root/gui:$Id: TQtTextEditor.h,v 1.2.4.1 2016/05/23 18:33:05 jeromel Exp $
 // Author: Bertrand Bellenot   20/06/06
 
 /*************************************************************************
@@ -19,9 +19,9 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
-#include <QtGui/QMainWindow>
-#include <QtCore/QString>
-#include <QtCore/QMap>
+#include <QMainWindow>
+#include <QString>
+#include <QMap>
 
 class QComboBox;
 class QLabel;

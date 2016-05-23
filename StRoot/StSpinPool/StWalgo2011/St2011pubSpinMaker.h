@@ -1,4 +1,4 @@
-// $Id: St2011pubSpinMaker.h,v 1.6 2012/09/17 03:29:30 stevens4 Exp $
+// $Id: St2011pubSpinMaker.h,v 1.5.2.1 2016/05/23 18:33:22 jeromel Exp $
 //
 //*-- Author : Jan Balewski, MIT
 
@@ -65,7 +65,7 @@ class St2011pubSpinMaker : public StMaker {
 
   /// Displayed on session exit, leave it as-is please ...
   virtual const char *GetCVS() const {
-    static const char cvs[]="Tag $Name:  $ $Id: St2011pubSpinMaker.h,v 1.6 2012/09/17 03:29:30 stevens4 Exp $ built "__DATE__" "__TIME__ ; 
+    static const char cvs[]="Tag $Name:  $ $Id: St2011pubSpinMaker.h,v 1.5.2.1 2016/05/23 18:33:22 jeromel Exp $ built "__DATE__" "__TIME__ ; 
     return cvs;
   }
 
@@ -76,6 +76,12 @@ class St2011pubSpinMaker : public StMaker {
 
 
 // $Log: St2011pubSpinMaker.h,v $
+// Revision 1.5.2.1  2016/05/23 18:33:22  jeromel
+// Updates for SL12d / gcc44 embedding library - StDbLib, QtRoot update, new updated StJetMaker, StJetFinder, StSpinPool ... several cast fix to comply with c++0x and several cons related fixes (wrong parsing logic). Changes are similar to SL13b (not all ode were alike). Branch BSL12d_5_embed.
+//
+// Revision 1.6.2.2  2016/04/27 17:47:52  zchang
+// *** empty log message ***
+//
 // Revision 1.6  2012/09/17 03:29:30  stevens4
 // Updates to Endcap algo and Q*ET/PT charge separation
 //

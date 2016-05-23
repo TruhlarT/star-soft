@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.118 2013/06/03 17:06:30 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.106.2.1 2016/05/23 18:33:12 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -738,7 +738,7 @@ Bfc_st BFC[] = {
   {"Idst" ,"" ,"", "dst,event,compend,EventQA" ,"","","Turn on DST for ITTF",kFALSE},
   {"IAna" ,"" ,"","dEdxY2,Kink2,xi2,CMuDst,analysis","","" ,"Turn on Xi, Kink, dEdx and MuDst",kFALSE},
   {"BAna" ,"" ,"","dEdxY2,CMuDst,analysis" ,"","" ,"Turn on dEdx and MuDst",kFALSE},
-  {"B2003I" ,"","","ry2003,in,TpxRaw,TpxClu,Idst,l0,tags,Tree,evout,svtDb"
+  {"B2003I" ,"","","ry2003,in,tpc_daq,tpcI,fcf,Physics,Idst,l0,tags,Tree,evout,svtDb"
    , "","","Base chain for 2003 ITTF",kFALSE},
   {"dau2003i" ,"","","B2003I,IAna,CtbMatchVtx,Corr2,ppOpt,l3onl,tofDat,emcDY2,fpd,svt_daq,SvtD,ftpc,trgd"
    , "","","Production chain for winter 2003 data dau2003a with ITTF",kFALSE},
@@ -885,16 +885,10 @@ Bfc_st BFC[] = {
   {"P2012b","" ,"",
    "B2012b,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis"
    , "","","Production chain for 2011 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
-  {"B2013" ,"","","B2013_c2","","", "Alias for B2013 Configuration 2",kFALSE},
-  {"B2013_c2","","","ry2013_2,in,tpcX,ITTF,AgML,UseXgeom,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
-   , "Base chain for 2013 ITTF (tpc)",kFALSE},
-  {"B2013_c1","","","ry2013_1,in,tpcX,ITTF,AgML,UseXgeom,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
+  {"B2013","","","ry2013_2,in,tpcX,ITTF,AgML,UseXgeom,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
    , "Base chain for 2013 ITTF (tpc)",kFALSE},
   {"pp2013a","" ,"",
-   "B2013_c2,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis",
-   "","", "Production chain for 2013 data - no Corr (+ l3, bcc/fpd, e/b-emc, no VF)",kFALSE},
-  {"pp2013b","" ,"",
-   "B2013_c1,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis",
+   "B2013,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis",
    "","", "Production chain for 2013 data - no Corr (+ l3, bcc/fpd, e/b-emc, no VF)",kFALSE},
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","",""
    , "Laser Calibration Chain (tcl)",kFALSE},
@@ -1028,7 +1022,7 @@ Bfc_st BFC[] = {
   {"mwc_T" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"sim_T" ,"" ,"","","" ,"sim_Tables","Load sim_Tables",kFALSE},
   {"svt_T" ,"" ,"","","" ,"svt_Tables","Load svt_Tables",kFALSE},
-  {"tpc_T" ,"" ,"","","" ,"","WARNING *** Option is OBSOLETE ***",kFALSE},
+  {"tpc_T" ,"" ,"","","" ,"tpc_Tables","Load tpc_Tables",kFALSE},
   {"trg_T" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"vpd_T" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"Embedding" ,"","","-Simu" ,"","","Embedding run",kFALSE},
@@ -1135,8 +1129,8 @@ Bfc_st BFC[] = {
   {"mwc" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"ppMCTrig" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"pp2pp" ,"","","", "St_pp2pp_Maker","St_pp2pp_Maker","pp->pp",kFALSE},
-  {"tpc" ,"","","TpxRaw,TpxClu,tpcI" ,"","","WARNING *** Option is OBSOLETE *** use TpxClu instead",kFALSE},
-  {"tpcI" ,"tpcChain","","db,tpcDB,TpcHitMover", "StMaker","StChain","tpc with ITTF",kFALSE},
+  {"tpc" ,"","","tcl,tpcI" ,"","","WARNING *** Option is OBSOLETE *** use tcl,tpcI instead",kFALSE},
+  {"tpcI" ,"tpcChain","","tpc_T,globT,db,tpcDB,fcf,TpcHitMover","StMaker","StChain","tpc with ITTF",kFALSE},
   {"tpcX" ,"tpcChain","","-tpcI,tpx,MakeEvent" ,"StMaker","StChain","tpc+tpcx with ITTF",kFALSE},
   {"Trs","Trs","tpcChain","scl,tpcDB,TrsToF,StEvent,EmbeddingShortCut","StTrsMaker","StTrsMaker","",kFALSE},
   {"TpcRS","","tpcChain","scl,tpcDB,-Trs,-EmbeddingShortCut","StTpcRSMaker"
@@ -1150,11 +1144,11 @@ Bfc_st BFC[] = {
   {"Mixer" ,"tpc_raw","","daq","StMixerMaker" ,"StTrsMaker,StMixerMaker","",kFALSE},
   {"St_tpc" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"St_svt" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
-  {"tpc_daq" ,"","","TpxRaw", "","","WARNING *** Option is OBSOLETE *** use TpxRaw instead",kFALSE},
-  {"tcl","","","TpxRaw,TpxClu,MakeEvent","",""
-  , "WARNING *** Option is OBSOLETE *** use option TpxRaw,TpxClu,MakeEvent instead",kFALSE},
-  {"fcf" ,"","","-tcl,tpcX", "","","WARNING *** Option is OBSOLETE *** use tpcX instead",kFALSE},
-  {"tpx" ,"tpc_hits","tpcChain","MakeEvent,tpc_T,StEvent,rts,detDb"
+  {"tpc_daq" ,"tpc_raw","tpcChain","detDb,tpc_T","St_tpcdaq_Maker","StTrsMaker,St_tpcdaq_Maker","",kFALSE},
+  {"tcl" ,"","fcf","","","", "WARNING *** Option is OBSOLETE *** use fcf instead",kFALSE},
+  {"fcf","","tpcChain","daq,-tcl,tpc_daq,StEvent","StRTSClientFCFMaker","StRTSClientFCF,StRTSClientFCFMaker"
+   , "Offline FCF Cluster finder",kFALSE},
+  {"tpx" ,"tpc_hits","tpcChain","MakeEvent,-trs,-TpcRS,-tcl,-fcf,-tpc_daq,StEvent,rts,detDb"
    , "StTpcHitMaker","StTpcHitMaker","TPC hit reader for tpc + tpx via EVP_READER",kFALSE},
   {"TpxPulser","TpxPulser","tpcChain","rts,detDb","StTpcHitMaker","StTpcHitMaker","TPC+TPX pulser analysis"
    , kFALSE},
@@ -1214,8 +1208,8 @@ Bfc_st BFC[] = {
   {"dEdx" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"svtdEdx" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"Event" , "","","MakeEvent", "","","Request to initialize event",kFALSE},
-  {"pxlFastSim","","","StMcEvent,StEvent"
-   , "StPxlSimMaker","StPxlSimMaker","FastPixelSimulator",kFALSE},
+  {"pixFastSim","","","StMcEvent,StEvent"
+   , "StPixelFastSimMaker","StPixelFastSimMaker","FastPixelSimulator",kFALSE},
   {"ssddat" ,"","","ssd_daq" ,"","","SSD full chain for Real Data",kFALSE},
   {"ssd_daq","","","ssdCalDb,svt_T,-sls,-spa,ssdUtil","StSsdDaqMaker","StSsdDaqMaker","... SSD Daq",kFALSE},
   {"ssdfast" ,"","","ssdDb,StMcEvent,StEvent","StSsdFastSimMaker","StSsdFastSimMaker",
@@ -1255,6 +1249,7 @@ Bfc_st BFC[] = {
   {"mtd" ,"MtdChain","","mtdDat,mtdMatch","StMaker", "StChain","MTD Chain",kFALSE},
   {"mtdDat" ,"mtd_raw","MtdChain","db","StMtdHitMaker","StEvent,StMtdHitMaker"
    , "MTD hit maker",kFALSE},
+  {"mtdMatch" ,"","","db,MtdUtil","StMtdMatchMaker","StMtdMatchMaker" ,"TPC-MTD track matching",kFALSE},
   {"ToF" ,"TofChain","","tofDat,tofrMatch,tofpMatch,tofCalib","StMaker","StChain","ToF Chain",kFALSE},
   {"ToFx" ,"TofChain","","tofXDat,tofrMatch,tofCalib" ,"StMaker","StChain","ToFx Chain",kFALSE},
   {"tofDat" ,"tof_raw","TofChain","db,Tofutil","StTofMaker","StEvent,StTofMaker",
@@ -1335,7 +1330,6 @@ Bfc_st BFC[] = {
    , "Bichsel method used for dEdx",kFALSE},
   {"btofMatch" ,"","","db,BTofUtil","StBTofMatchMaker","StBTofMatchMaker","TPC-BTOF track matching",kFALSE},
   {"btofCalib" ,"","","db,BTofUtil","StBTofCalibMaker","StBTofCalibMaker", "BTOF calibration",kFALSE},
-  {"mtdMatch" ,"","","db,MtdUtil","StMtdMatchMaker","StMtdMatchMaker" ,"TPC-MTD track matching",kFALSE},
   {"FindVtxSeed" ,"FindVtxSeed" ,"","globT,MuDSTDeps","StVertexSeedMaker"
    , "StPass0CalibMaker", "Performs vertex seed finding",kFALSE},
   {"FindEvtVtxSeed","FindEvtVtxSeed","","MuDSTDeps","StEvtVtxSeedMaker"
@@ -1408,7 +1402,6 @@ Bfc_st BFC[] = {
   {"StrngMuDST","","MuDSTDeps","", "StStrangeMuDstMaker","","Creates Stangeness MuDST",kFALSE},
   {"EMCmDST" ,"","MuDSTChain","MuDst", "StEmcMicroDstMaker","","Creates EMC MuDST",kFALSE},
   {"CMuDST" ,"","MuDSTChain","MuDst,StrngMuDST,Tree", "StMuDstMaker","","Writes Common MuDST",kFALSE},
-  {"RMuDST" ,"","","CMuDST" ,"","","reads Common MuDST, do not disactivate if no output files",kFALSE},
   {"St_geom" ,"" ,"","" , "St_geom_Maker","St_geom_Maker","",kFALSE},
   {"Display" ,"","","", "","","WARNING *** Option is OBSOLETE *** use Ed.C macro instead",kFALSE},
   {"Mc" ,"McChain","McEvent","sim_T,globT,McAss,McAna" ,"StMaker","StChain","",kFALSE},
@@ -1440,7 +1433,6 @@ Bfc_st BFC[] = {
   {"HitFilt" ,"", "","", "StHitFilterMaker","StHitFilterMaker","Hit filter Maker",kFALSE},
   {"KeepTpcHit" ,"", "","", "","","Keep all TPC hits in StHitFilterMaker",kFALSE},
   {"KeepSvtHit" ,"", "","", "","","Keep all SVT hits in StHitFilterMaker",kFALSE},
-  {"KeepFgtHit" ,"", "","", "","","Keep all FGT hits in StHitFilterMaker",kFALSE},
   {"Tree" ,"OutTree","","","StTreeMaker","StTreeMaker","Write requested branches into files",kFALSE},
   {"logger" ,"" ,"","" ,"","","Use log4cxx package to manage the program messages",kFALSE},
   {"NoSimuDb" ,"" ,"","" ,"","","Switch off Simu Option for DB",kFALSE},
@@ -2169,7 +2161,7 @@ Bfc_st BFC[] = {
   {"Idst" ,"" ,"", "dst,event,compend,EventQA" ,"","","Turn on DST for ITTF",kFALSE},
   {"IAna" ,"" ,"","dEdxY2,Kink2,xi2,CMuDst,analysis","","" ,"Turn on Xi, Kink, dEdx and MuDst",kFALSE},
   {"BAna" ,"" ,"","dEdxY2,CMuDst,analysis" ,"","" ,"Turn on dEdx and MuDst",kFALSE},
-  {"B2003I" ,"","","ry2003,in,TpxRaw,TpxClu,Idst,l0,tags,Tree,evout,svtDb"
+  {"B2003I" ,"","","ry2003,in,tpc_daq,tpcI,fcf,Physics,Idst,l0,tags,Tree,evout,svtDb"
    , "","","Base chain for 2003 ITTF",kFALSE},
   {"dau2003i" ,"","","B2003I,IAna,CtbMatchVtx,Corr2,ppOpt,l3onl,tofDat,emcDY2,fpd,svt_daq,SvtD,ftpc,trgd"
    , "","","Production chain for winter 2003 data dau2003a with ITTF",kFALSE},
@@ -2316,16 +2308,10 @@ Bfc_st BFC[] = {
   {"P2012b","" ,"",
    "B2012b,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis"
    , "","","Production chain for 2011 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
-  {"B2013" ,"","","B2013_c2","","", "Alias for B2013 Configuration 2",kFALSE},
-  {"B2013_c2","","","ry2013_2,in,tpcX,ITTF,AgML,UseXgeom,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
-   , "Base chain for 2013 ITTF (tpc)",kFALSE},
-  {"B2013_c1","","","ry2013_1,in,tpcX,ITTF,AgML,UseXgeom,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
+  {"B2013","","","ry2013_2,in,tpcX,ITTF,AgML,UseXgeom,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
    , "Base chain for 2013 ITTF (tpc)",kFALSE},
   {"pp2013a","" ,"",
-   "B2013_c2,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis",
-   "","", "Production chain for 2013 data - no Corr (+ l3, bcc/fpd, e/b-emc, no VF)",kFALSE},
-  {"pp2013b","" ,"",
-   "B2013_c1,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis",
+   "B2013,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis",
    "","", "Production chain for 2013 data - no Corr (+ l3, bcc/fpd, e/b-emc, no VF)",kFALSE},
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","",""
    , "Laser Calibration Chain (tcl)",kFALSE},
@@ -2459,7 +2445,7 @@ Bfc_st BFC[] = {
   {"mwc_T" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"sim_T" ,"" ,"","","" ,"sim_Tables","Load sim_Tables",kFALSE},
   {"svt_T" ,"" ,"","","" ,"svt_Tables","Load svt_Tables",kFALSE},
-  {"tpc_T" ,"" ,"","","" ,"","WARNING *** Option is OBSOLETE ***",kFALSE},
+  {"tpc_T" ,"" ,"","","" ,"tpc_Tables","Load tpc_Tables",kFALSE},
   {"trg_T" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"vpd_T" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"Embedding" ,"","","-Simu" ,"","","Embedding run",kFALSE},
@@ -2566,8 +2552,8 @@ Bfc_st BFC[] = {
   {"mwc" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"ppMCTrig" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"pp2pp" ,"","","", "St_pp2pp_Maker","St_pp2pp_Maker","pp->pp",kFALSE},
-  {"tpc" ,"","","TpxRaw,TpxClu,tpcI" ,"","","WARNING *** Option is OBSOLETE *** use TpxClu instead",kFALSE},
-  {"tpcI" ,"tpcChain","","db,tpcDB,TpcHitMover", "StMaker","StChain","tpc with ITTF",kFALSE},
+  {"tpc" ,"","","tcl,tpcI" ,"","","WARNING *** Option is OBSOLETE *** use tcl,tpcI instead",kFALSE},
+  {"tpcI" ,"tpcChain","","tpc_T,globT,db,tpcDB,fcf,TpcHitMover","StMaker","StChain","tpc with ITTF",kFALSE},
   {"tpcX" ,"tpcChain","","-tpcI,tpx,MakeEvent" ,"StMaker","StChain","tpc+tpcx with ITTF",kFALSE},
   {"Trs","Trs","tpcChain","scl,tpcDB,TrsToF,StEvent,EmbeddingShortCut","StTrsMaker","StTrsMaker","",kFALSE},
   {"TpcRS","","tpcChain","scl,tpcDB,-Trs,-EmbeddingShortCut","StTpcRSMaker"
@@ -2581,11 +2567,11 @@ Bfc_st BFC[] = {
   {"Mixer" ,"tpc_raw","","daq","StMixerMaker" ,"StTrsMaker,StMixerMaker","",kFALSE},
   {"St_tpc" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"St_svt" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
-  {"tpc_daq" ,"","","TpxRaw", "","","WARNING *** Option is OBSOLETE *** use TpxRaw instead",kFALSE},
-  {"tcl","","","TpxRaw,TpxClu,MakeEvent","",""
-  , "WARNING *** Option is OBSOLETE *** use option TpxRaw,TpxClu,MakeEvent instead",kFALSE},
-  {"fcf" ,"","","-tcl,tpcX", "","","WARNING *** Option is OBSOLETE *** use tpcX instead",kFALSE},
-  {"tpx" ,"tpc_hits","tpcChain","MakeEvent,tpc_T,StEvent,rts,detDb"
+  {"tpc_daq" ,"tpc_raw","tpcChain","detDb,tpc_T","St_tpcdaq_Maker","StTrsMaker,St_tpcdaq_Maker","",kFALSE},
+  {"tcl" ,"","fcf","","","", "WARNING *** Option is OBSOLETE *** use fcf instead",kFALSE},
+  {"fcf","","tpcChain","daq,-tcl,tpc_daq,StEvent","StRTSClientFCFMaker","StRTSClientFCF,StRTSClientFCFMaker"
+   , "Offline FCF Cluster finder",kFALSE},
+  {"tpx" ,"tpc_hits","tpcChain","MakeEvent,-trs,-TpcRS,-tcl,-fcf,-tpc_daq,StEvent,rts,detDb"
    , "StTpcHitMaker","StTpcHitMaker","TPC hit reader for tpc + tpx via EVP_READER",kFALSE},
   {"TpxPulser","TpxPulser","tpcChain","rts,detDb","StTpcHitMaker","StTpcHitMaker","TPC+TPX pulser analysis"
    , kFALSE},
@@ -2645,8 +2631,8 @@ Bfc_st BFC[] = {
   {"dEdx" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"svtdEdx" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"Event" , "","","MakeEvent", "","","Request to initialize event",kFALSE},
-  {"pxlFastSim","","","StMcEvent,StEvent"
-   , "StPxlSimMaker","StPxlSimMaker","FastPixelSimulator",kFALSE},
+  {"pixFastSim","","","StMcEvent,StEvent"
+   , "StPixelFastSimMaker","StPixelFastSimMaker","FastPixelSimulator",kFALSE},
   {"ssddat" ,"","","ssd_daq" ,"","","SSD full chain for Real Data",kFALSE},
   {"ssd_daq","","","ssdCalDb,svt_T,-sls,-spa,ssdUtil","StSsdDaqMaker","StSsdDaqMaker","... SSD Daq",kFALSE},
   {"ssdfast" ,"","","ssdDb,StMcEvent,StEvent","StSsdFastSimMaker","StSsdFastSimMaker",
@@ -2686,6 +2672,7 @@ Bfc_st BFC[] = {
   {"mtd" ,"MtdChain","","mtdDat,mtdMatch","StMaker", "StChain","MTD Chain",kFALSE},
   {"mtdDat" ,"mtd_raw","MtdChain","db","StMtdHitMaker","StEvent,StMtdHitMaker"
    , "MTD hit maker",kFALSE},
+  {"mtdMatch" ,"","","db,MtdUtil","StMtdMatchMaker","StMtdMatchMaker" ,"TPC-MTD track matching",kFALSE},
   {"ToF" ,"TofChain","","tofDat,tofrMatch,tofpMatch,tofCalib","StMaker","StChain","ToF Chain",kFALSE},
   {"ToFx" ,"TofChain","","tofXDat,tofrMatch,tofCalib" ,"StMaker","StChain","ToFx Chain",kFALSE},
   {"tofDat" ,"tof_raw","TofChain","db,Tofutil","StTofMaker","StEvent,StTofMaker",
@@ -2766,7 +2753,6 @@ Bfc_st BFC[] = {
    , "Bichsel method used for dEdx",kFALSE},
   {"btofMatch" ,"","","db,BTofUtil","StBTofMatchMaker","StBTofMatchMaker","TPC-BTOF track matching",kFALSE},
   {"btofCalib" ,"","","db,BTofUtil","StBTofCalibMaker","StBTofCalibMaker", "BTOF calibration",kFALSE},
-  {"mtdMatch" ,"","","db,MtdUtil","StMtdMatchMaker","StMtdMatchMaker" ,"TPC-MTD track matching",kFALSE},
   {"FindVtxSeed" ,"FindVtxSeed" ,"","globT,MuDSTDeps","StVertexSeedMaker"
    , "StPass0CalibMaker", "Performs vertex seed finding",kFALSE},
   {"FindEvtVtxSeed","FindEvtVtxSeed","","MuDSTDeps","StEvtVtxSeedMaker"
@@ -2839,7 +2825,6 @@ Bfc_st BFC[] = {
   {"StrngMuDST","","MuDSTDeps","", "StStrangeMuDstMaker","","Creates Stangeness MuDST",kFALSE},
   {"EMCmDST" ,"","MuDSTChain","MuDst", "StEmcMicroDstMaker","","Creates EMC MuDST",kFALSE},
   {"CMuDST" ,"","MuDSTChain","MuDst,StrngMuDST,Tree", "StMuDstMaker","","Writes Common MuDST",kFALSE},
-  {"RMuDST" ,"","","CMuDST" ,"","","reads Common MuDST, do not disactivate if no output files",kFALSE},
   {"St_geom" ,"" ,"","" , "St_geom_Maker","St_geom_Maker","",kFALSE},
   {"Display" ,"","","", "","","WARNING *** Option is OBSOLETE *** use Ed.C macro instead",kFALSE},
   {"Mc" ,"McChain","McEvent","sim_T,globT,McAss,McAna" ,"StMaker","StChain","",kFALSE},
@@ -2871,7 +2856,6 @@ Bfc_st BFC[] = {
   {"HitFilt" ,"", "","", "StHitFilterMaker","StHitFilterMaker","Hit filter Maker",kFALSE},
   {"KeepTpcHit" ,"", "","", "","","Keep all TPC hits in StHitFilterMaker",kFALSE},
   {"KeepSvtHit" ,"", "","", "","","Keep all SVT hits in StHitFilterMaker",kFALSE},
-  {"KeepFgtHit" ,"", "","", "","","Keep all FGT hits in StHitFilterMaker",kFALSE},
   {"Tree" ,"OutTree","","","StTreeMaker","StTreeMaker","Write requested branches into files",kFALSE},
   {"logger" ,"" ,"","" ,"","","Use log4cxx package to manage the program messages",kFALSE},
   {"NoSimuDb" ,"" ,"","" ,"","","Switch off Simu Option for DB",kFALSE},
@@ -2890,6 +2874,7 @@ Bfc_st BFC[] = {
 
 
 // NoChainOptions -> Number of chain options auto-calculated
+#define __KEEP_TPCDAQ_FCF__ /* remove St_tpcdaq_Maker and StRTSClientFCFMaker. not yet ready */
 TableImpl(Bfc);
 ClassImp(StBFChain);
 
@@ -2925,7 +2910,6 @@ void StBFChain::Setup(Int_t mode) {
   cmd += file;
   gInterpreter->ProcessLine(cmd);
   assert(fchainOpt);
-  delete [] file;
   fNoChainOptions = fchainOpt->GetNRows();
   fBFC = fchainOpt->GetTable();
   // add predifined time stamps and geometry versions
@@ -2946,7 +2930,7 @@ void StBFChain::Setup(Int_t mode) {
   }
   FDate  = FTime  = 0;
   FDateS = FTimeS = 0;
-  fRunG  = -1;
+
   Gproperty  = ".gopt.";
   Gvalue     = "";
   Gpattern   = "*";
@@ -3015,14 +2999,12 @@ Int_t StBFChain::Load()
 	    iok = gSystem->Load(libL);
 	    if (iok < 0)  {
 
-	      LOG_FATAL  << "problem with loading of " << libL.Data() << endm;
-	      LOG_FATAL  <<  fBFC[i].Key << " is switched off \t!!!!" << endm;
+	      LOG_QA  << "problem with loading of " << libL.Data() << endm;
+	      LOG_QA  <<  fBFC[i].Key << " is switched off \t!!!!" << endm;
 
-	      //fBFC[i].Flag = kFALSE;
-	      //status = kStErr;
-	      //assert(iok >= 0); ?? obviously it is so, but not very specific
-	      Int_t libraryload = kStErr;
-	      assert(libraryload!=kStErr); // this is obvious and will display an explicit
+	      fBFC[i].Flag = kFALSE;
+	      status = kStErr;
+	      assert(iok >= 0);
 	      break;
 	    } else {
 	      if (Debug() > 1) {  TString ts("load "); ts += libL; StMemStat::PrintMem(ts.Data());}
@@ -3054,7 +3036,7 @@ Int_t StBFChain::Load()
   here which deserves attention
   - The maker's SetMode() mechanism is treated here.
   - Calibration options like NoMySQLDb, NoCintCalDb or NoCintDb and path are set
-  - SetFlavor() sim+ofl or sim, and filestreams is made
+  - SetFlavor() sim+ofl or sim is made
 
   If a maker is added along with some flag options, this is the place to
   implement the switches.
@@ -3123,26 +3105,9 @@ Int_t StBFChain::Instantiate()
 	  dbMk = new St_db_Maker(fBFC[i].Name,Dirs[0],Dirs[1],Dirs[2]);
 	  if (!dbMk) goto Error;
 	  strcpy (fBFC[i].Name, (Char_t *) dbMk->GetName());
-
-	  // Determine flavors
-	  TString flavors = "ofl"; // default flavor for offline
-
-	  // simulation flavors
-	  if (GetOption("Simu") && ! GetOption("NoSimuDb")) flavors.Prepend("sim+");
-
-	  // filestream flavors
-	  if (fSetFiles) {
-	    TString firstFileName = fSetFiles->GetFileName(0);
-	    firstFileName = firstFileName(firstFileName.Last('/')+1,firstFileName.Length());
-	    if (firstFileName.BeginsWith("st_")) {
-	      TString fileStream = firstFileName(3,firstFileName.Index('_',3)-3);
-	      if (fileStream.Length()>0) flavors.Prepend(fileStream += '+');
-	    }
-	  }
- 
-	  LOG_INFO << "Using DB flavors: " << flavors << endm;
-	  dbMk->SetFlavor(flavors.Data());
 	  mk = dbMk;
+	  if (GetOption("Simu") && ! GetOption("NoSimuDb")) dbMk->SetFlavor("sim+ofl");
+	  else                                              dbMk->SetFlavor("ofl");
 	}
 	if (GetOption("dbSnapshot")) dbMk->SetAttr("dbSnapshot","dbSnapshot.root",dbMk->GetName());
 	SetDbOptions(dbMk);
@@ -3198,42 +3163,28 @@ Int_t StBFChain::Instantiate()
       if (strlen(fBFC[i].Name) > 0) mk = New(fBFC[i].Maker,fBFC[i].Name);
       else                          mk = New(fBFC[i].Maker);
       if (! mk) {
-	LOG_FATAL << Form("StBFChain::Instantiate() problem with instantiation Maker=[%s] Name=[%s]",fBFC[i].Maker,fBFC[i].Name) << endm;
+	LOG_FATAL  << Form("StBFChain::Instantiate() problem with instatiation %s",fBFC[i].Maker) << endm;
 	assert(mk);
       }
     }
     strcpy (fBFC[i].Name,(Char_t *) mk->GetName());
-    if (maker == "StTpcDbMaker" && GetOption("laserIT"))   mk->SetAttr("laserIT"    ,kTRUE);
+
     if (maker == "StDAQMaker") {
       if (GetOption("adcOnly")) mk->SetAttr("adcOnly",1);                        ;
     }
 
     if (maker == "St_geant_Maker") { // takes only first request for geant, if it is active then it should be the first one
       Int_t NwGeant = 10; // default geant parameters
-      if (!GetOption("fzin")  && 
-	  !GetOption("ntin")  &&
-	  !GetOption("gstar") && 
-	  !GetOption("pythia"))                      NwGeant =  5;
+      if (!GetOption("fzin") && !GetOption("ntin") &&
+	  !GetOption("gstar"))                       NwGeant =  5;
       if (GetOption("big"))                          NwGeant = 20;
       if (GetOption("bigbig"))                       NwGeant = 40;
       ProcessLine(Form("((St_geant_Maker *) %p)->SetNwGEANT(%i);",mk,NwGeant));
       if (GetOption("Higz")) ProcessLine(Form("((St_geant_Maker *) %p)->SetIwtype(1);",mk));
       if (GetOption("paw"))  ProcessLine(Form("((St_geant_Maker *) %p)->SetNwPAW(2);",mk));
-      if (GetOption("fzin")      || 
-	  GetOption("ntin")      || 
-	  GetOption("gstar")     || 
-	  GetOption("pythia")    || 
-	  GetOption("PrepEmbed") || 
-	  GetOption("mtin")) {
+      if (GetOption("fzin") || GetOption("ntin") || GetOption("gstar") || GetOption("PrepEmbed") || GetOption("mtin")) {
 	mk->SetActive(kTRUE);
-	//	if (GetOption("PrepEmbed")) mk->SetMode(10*(mk->GetMode()/10)+1);
-	if (GetOption("PrepEmbed") || GetOption("pythiaEmbed")) mk->SetAttr("Don'tTouchTimeStamp",kTRUE);
-	if (GetOption("flux")) mk->SetAttr("flux",kTRUE);
-	if (GetOption("pythia")) {
-	  mk->SetAttr("Pythia",kTRUE);
-	  if (GetOption("Wenu")) mk->SetAttr("Wenu",kTRUE);
-	  if (GetOption("beamLine"))  mk->SetAttr("beamLine",kTRUE);
-	}
+	if (GetOption("PrepEmbed")) mk->SetMode(10*(mk->GetMode()/10)+1);
       }
       else mk->SetActive(kFALSE);
       if (! mk) goto Error;
@@ -3242,7 +3193,7 @@ Int_t StBFChain::Instantiate()
 
     // special maker options
     // m_Mode xyz
-    //        x = 1 phys_off                    
+    //        x = 1 phys_off
     //        y = 1 Passive mode (do not call RunMC()
     //        z = 1 Mixer Mode
     if (maker == "StVMCMaker") {
@@ -3304,7 +3255,6 @@ Int_t StBFChain::Instantiate()
       if (GetOption("Alignment")) mk->SetAttr("Alignment"  ,kTRUE);
       mk->PrintAttr();
     }
-    if (maker=="StKFVertexMaker" && GetOption("laserIT"))   mk->SetAttr("laserIT"    ,kTRUE);
     //		Sti(ITTF) end
     if (maker=="StGenericVertexMaker") {
       // VertexFinder methods
@@ -3422,6 +3372,68 @@ Int_t StBFChain::Instantiate()
       if (GetOption("TrsToF"))    mode += 2; // account for particle time of flight
       if (mode) mk->SetMode(mode);
     }
+#ifdef __KEEP_TPCDAQ_FCF__
+    if (maker == "St_tpcdaq_Maker") {
+      Int_t DMode=0;
+      TString cmd(Form("St_tpcdaq_Maker *tcpdaqMk = (St_tpcdaq_Maker *) %p;",mk));
+
+      // Beware of those ...
+      Int_t                                                  mode = 0; // daq
+      if      (GetOption("Trs") || GetOption("Embedding") || GetOption("TpcRS"))
+                                                             mode = 1; // trs
+      else if (GetOption("Simu"))                            mode = 2; // daq, no gain
+      if (mode) mk->SetMode(mode);
+      // DAQ100 or Raw switch options -- Please, adjust StRTSClientFCFMaker block as well
+      if ( GetOption("onlcl") )   DMode = DMode | 0x2;  // use the online TPC clusters (DAQ100) info if any
+      if ( GetOption("onlraw") )  DMode = DMode | 0x1;  // use the TPC raw hit information
+
+      if (DMode != 0) // set flag, leave default = 1
+	cmd += Form("tcpdaqMk->SetDAQFlag(%i);",DMode);
+      // Correction depending on DAQ100 or not
+      // bit 0  =   do GAIN_CORRECTION
+      // bit 1  =   do NOISE_ELIM
+      // bit 2  =   do ASIC_THRESHOLDS
+      // WARNING Option FCF is checked in StDAQMaker
+      Int_t Correction = 0;
+      Int_t SequenceMerging = 0;
+      if ( GetOption("fcf")   ){
+	if ( GetOption("Trs")   )  Correction = 0x5; // ASIC + GAIN
+	else                       Correction = 0x0; // fcf && ! trs => no corrections
+      } else {
+	SequenceMerging = 1;
+	Correction = 0x7;
+      }
+      cmd += Form("tcpdaqMk->SetCorrection(%d);",Correction); // default Correction = 0x7
+      cmd += Form("tcpdaqMk->SetSequenceMerging(%d);",SequenceMerging);
+      LOG_QA << "StBFChain::Instantiate  maker==" << maker.Data()
+	     << Form(" SetDAQFlag(%d) SetMode(%d) SetCorrection(%d) SetSequenceMerging(%d)",
+		     DMode,mk->GetMode(),Correction,SequenceMerging) << endm;
+      ProcessLine(cmd);
+    }
+#endif
+#if 0 /* probably bug 2106 : mismatch N_fit_points */
+    if (maker == "StTpcRTSHitMaker") {
+      if (GetOption("Trs") || GetOption("Embedding"))  mk->SetMode(2); // daq, no gain
+    }
+#endif
+#ifdef __KEEP_TPCDAQ_FCF__
+    if (maker == "StRTSClientFCFMaker"){
+      Int_t DMode=0;
+      // use the online TPC clusters (DAQ100) info if any
+      if ( GetOption("onlcl") && ! GetOption("onlraw") )  DMode = DMode | 0x2;
+      // use the TPC raw hit information
+      if ( GetOption("onlraw")&& ! GetOption("onlcl")  )  DMode = DMode | 0x1;
+      if ( GetOption("Simu") ||  GetOption("Embedding"))  DMode = DMode | 0x4;
+      if (DMode) mk->SetMode(DMode);                 // set flag (matches tcpdaqMk->SetDAQFlag())
+    }
+    if (maker == "StTpcT0Maker"){
+      Int_t mask = 0;
+      if ( GetOption("fcf") ) mask = mask | 0x1;
+      LOG_QA << "StBFChain::Instantiate For " << maker.Data();
+      LOG_QA << " => mask = " << mask << endm;
+      mk->SetMode(mask);
+    }
+#endif
     // Place-holder. Would possibly be a bitmask
     if (maker == "StTofrMatchMaker"){
       mk->SetMode(0);
@@ -3537,16 +3549,10 @@ Int_t StBFChain::Instantiate()
       } else {
 	LOG_QA << "Default hit filtering is ON" << endm;
       }
-      Int_t    mode = 0;
+      Int_t mode = 0;
       if (GetOption("KeepTpcHit")) mode |= (1 << kTpcId);
       if (GetOption("KeepSvtHit")) mode |= (1 << kSvtId);
       mk->SetMode(mode);
-      // the m_Mode (Int_t is signed integer 4 bytes) mask is too short for the FGT
-      if (GetOption("KeepFgtHit")){
-	TString cmd(Form("StHitFilterMaker *Filtmk=(StHitFilterMaker*) %p;",mk));
-	cmd += "Filtmk->setKeepWestHighEtaHitsForFgt(1.0);";
-	ProcessLine(cmd);
-      }
     }
     if (maker == "StMiniMcMaker" && fFileOut != "") {
       ProcessLine(Form("((StMiniMcMaker *) %p)->setFileName(\"%s\");", mk, fFileOut.Data()));
@@ -3598,14 +3604,11 @@ Int_t StBFChain::Instantiate()
 //_____________________________________________________________________
 Int_t StBFChain::Init() {
 
-  TDatime td;
-  Info("Init","Time=%s Cwd=%s",td.AsString(),gSystem->pwd());
-
   SetChainOpt(new StBFChainOpt(this));
   //  SetDbOptions(); moved to Instantiation
   if (fNoChainOptions) {
     //  SetGeantOptions(); move back to Init
-    if (GetOption("Simu") && ! (GetOption("mtin") || GetOption("PrepEmbed") || GetOption("pythiaEmbed"))) { //  ! Simu
+    if (GetOption("Simu")) {
       StEvtHddr *fEvtHddr = (StEvtHddr*)GetDataSet("EvtHddr");
       if (!fEvtHddr) {
 	fEvtHddr = new StEvtHddr(m_ConstSet);
@@ -3618,8 +3621,7 @@ Int_t StBFChain::Init() {
   }
   if (fNoChainOptions) {
     if (GetOption("NoOutput") || GetOption("EvOutOnly")) {
-      if (! GetOption("RMuDst"))
-	SetAttr(".call","SetActive(0)","MuDst");		//NO MuDst
+      SetAttr(".call","SetActive(0)","MuDst");		//NO MuDst
       if (! GetOption("EvOutOnly")) {
 	SetAttr(".call","SetActive(0)","outputStream");	//NO Out
       }
@@ -3657,7 +3659,6 @@ Int_t StBFChain::Init() {
 	    gInterpreter->Calc("CreateTable()");
 	    command.ReplaceAll(".L ",".U ");
 	    gInterpreter->ProcessLine(command);
-	    delete [] file;
 	  } else {
 	    LOG_INFO << "StBFChain::Init file for geometry tag  " << geom << " has not been found in path" << path << endm;
 	  }
@@ -3667,14 +3668,15 @@ Int_t StBFChain::Init() {
     }
 #endif
   }
-  return StChain::Init();
+  Int_t iok = StChain::Init();
+  return iok;
 }
 //_____________________________________________________________________
 /// Really the destructor (close files, delete pointers etc ...)
 Int_t StBFChain::Finish()
 {
   if (!fBFC) return kStOK;
-  Int_t ians = StMaker::Finish();
+  int ians = StMaker::Finish();
   SafeDelete(fchainOpt);
   fBFC = 0;
   TFile *tf = GetTFile();
@@ -3795,10 +3797,7 @@ Int_t StBFChain::kOpt (const TString *tag, Bool_t Check) const {
     Tag.ToLower();
     if ( TPRegexp(BFC_DBREGEXP).Match(Tag)  == 7) return 0;
   }
-  if (Tag.BeginsWith("rung")) {
-    Check = kTRUE;
-    return 0;
-  }
+
   // GoptXXXvvvvvv -> Gopt 4 / XXX 3 / vvvvvv 6 = 13
   if ( Tag.BeginsWith("gopt") && Tag.Length() == 13 ) return 0;
 
@@ -3863,7 +3862,6 @@ void StBFChain::SetOptions(const Char_t *options, const Char_t *chain) {
 	  if (Tag.Length() == 11 || Tag.Length() == 18) {
 	    gMessMgr->QAInfo() << Tag.Data() << " ... but still will be considered as a dynamic timestamp (Max DB EntryTime) "
 			       << FDate  << "." << FTime << endm;
-#ifdef USE_BFCTIMESTAMP
 	  } else {
 	    // we passed kOpt() parsing was fine
 	    //if ( TPRegexp(BFC_DBREGEXP).Match(Tag)  == 7) return 0;
@@ -3887,7 +3885,7 @@ void StBFChain::SetOptions(const Char_t *options, const Char_t *chain) {
 	             << "Realm    " << realm        << "\n\t"
 		     << "Date     " << TS.Date      << "\n\t"
 	             << "Time     " << TS.Time      << endm;
-#endif /*  USE_BFCTIMESTAMP */
+
 	  }
 
 	} else if (Tag.BeginsWith("sdt")) {
@@ -3926,11 +3924,7 @@ void StBFChain::SetOptions(const Char_t *options, const Char_t *chain) {
 	  //SetAttr(property.Data(),GOptValue,pattern.Data());
 	  //SetAttr(property.Data(),GOptValue,pattern.Data());
 
-	} else if (Tag.BeginsWith("rung")) {
-	  fRunG = 1;
-	  if (Tag.Length() > 4)  (void) sscanf(Tag.Data(),"rung.%d",&fRunG);
-	  gMessMgr->QAInfo() << Tag.Data() << " will be considered as Run number (& rndm seed set) " 
-			     << fRunG << " for simulation." << endm; 
+
 	} else { // Check for predefined db time stamps ?
 	  kgo = kOpt(Tag.Data(),kFALSE);
 	  if (kgo != 0){
@@ -3949,7 +3943,6 @@ void StBFChain::SetOptions(const Char_t *options, const Char_t *chain) {
 	      fchainOpt->AddAt(&row);
 	      fNoChainOptions = fchainOpt->GetNRows();
 	      fBFC = fchainOpt->GetTable();
-	      delete [] file;
 	    }
 	    kgo = kOpt(Tag.Data(),kFALSE);
 	    if (kgo != 0) {
@@ -4015,7 +4008,7 @@ Bool_t StBFChain::GetOption(const Int_t k) const
  */
 Char_t *StBFChain::GetOptionString(const Char_t *Opt)
 {
-  Int_t o = kOpt(Opt);
+  int o = kOpt(Opt);
   if(!o) return NULL;
   else if(!GetOption(o)) return NULL;
   else return(fBFC[o].Comment);
@@ -4081,19 +4074,11 @@ void StBFChain::SetFlags(const Char_t *Chain)
       SetOption("-VMCAppl","Default,TGiant3");
       SetOption("-RootVMC","Default,TGiant3");
 #if 1 /* Not Active geant is not needed any more, except BTofUtil */
-      if (!( GetOption("fzin")   || 
-	     GetOption("ntin")   || 
-	     GetOption("gstar" ) || 
-	     GetOption("pythia") || 
-	     GetOption("PrepEmbed"))) {// Not Active geant
-	SetOption("geant","Default,TGiant3");
-	SetOption("MagF","Default,TGiant3");
+      if (!( GetOption("fzin") || GetOption("ntin") || GetOption("gstar") || GetOption("PrepEmbed"))) {// Not Active geant
+	SetOption("geant","Default,-fzin,-ntin,-gstar,TGiant3");
+	SetOption("MagF","Default,-fzin,-ntin,-gstar,TGiant3");
       }
 #endif
-      if (GetOption("xgeometry")) {
-	SetOption("-geometry","Default,-xgeometry");
-	SetOption("-geomNoField","Default,-xgeometry");
-      }
     } else {                                  // root
       if (GetOption("fzin")) {
 	gMessMgr->Error() << "Option fzin cannot be used in root.exe. Use root4star" << endm;
@@ -4104,10 +4089,9 @@ void StBFChain::SetFlags(const Char_t *Chain)
 	abort();
       }
       if (! (GetOption("Stv"))) {
-	if (GetOption("gstar") || GetOption("pythia")) {
+	if (GetOption("gstar")) {
 	  SetOption("VMC","Default,-TGiant3,gstar");
 	  SetOption("-gstar","Default,-TGiant3");
-	  SetOption("-pythia","Default,-TGiant3");
 	}
       }
       SetOption("-geant","Default,-TGiant3");
@@ -4205,7 +4189,7 @@ void StBFChain::SetGC (const Char_t *queue){
   fSetFiles->SetDebug();
   Argc++;
   Char_t **Argv = new Char_t* [Argc];
-  for (Int_t i=0;i<Argc;i++)  {Argv[i] = (Char_t *) ARGV[i].Data();}
+  for (int i=0;i<Argc;i++)  {Argv[i] = (Char_t *) ARGV[i].Data();}
   fSetFiles->Init(Argc,(const Char_t **) Argv);
 }
 //_____________________________________________________________________
@@ -4214,8 +4198,6 @@ void StBFChain::SetInputFile (const Char_t *infile){
   if (infile) fInFile = infile;
   if (fInFile != "") {
     fInFile.ReplaceAll("\n",";");
-    fInFile.ReplaceAll("#",";");
-    fInFile.ReplaceAll(":",";");
     gMessMgr->QAInfo() << "Input file name = " << fInFile.Data() << endm;
   } else {
     if (fkChain >= 0) {
@@ -4249,7 +4231,7 @@ void StBFChain::SetOutputFile (const Char_t *outfile){
   if ( GetOption("NoOutput")) return;
   if (outfile)               fFileOut = outfile;
   else {
-    if (GetOption("gstar") || GetOption("pythia"))  fFileOut = "gtrack.root";
+    if (GetOption("gstar"))  fFileOut = "gtrack.root";
     if (GetOption("VMC"))    fFileOut = "VMC.root";
     if (fInFile != "") {
       if (GetOption("fzin") || GetOption("ntin")) {
@@ -4318,9 +4300,6 @@ void StBFChain::SetGeantOptions(StMaker *geantMk){
   if (geantMk && geantMk->InheritsFrom("St_geant_Maker")) {
     SetInput("geant",".make/geant/.data");
     TString GeomVersion("");
-    if (fRunG > 0) {
-      geantMk->SetAttr("RunG",fRunG);
-    }
     if (!GetOption("fzin") || GetOption("ForceGeometry")) {
       GeomVersion = "y2004x";
       const DbAlias_t *DbAlias = GetDbAliases();
@@ -4334,11 +4313,10 @@ void StBFChain::SetGeantOptions(StMaker *geantMk){
 	break;
       }
       if (! found) gMessMgr->QAInfo() << "StBFChain::SetGeantOptions() Chain has not found geometry tag. Use " << GeomVersion << endm;
-      TString GeometryOpt;
-      if (GetOption("phys_off")) {GeometryOpt += "detp phys_off=1;"; geantMk->SetAttr("phys_off",kTRUE);}
-      if (GetOption("hadr_off")) {GeometryOpt += "detp hadr_off=1;"; geantMk->SetAttr("hadr_off",kTRUE);}
-      GeometryOpt += ("detp geometry ");
+      TString GeometryOpt("detp geometry ");
       GeometryOpt += GeomVersion;
+      if (GetOption("phys_off")) GeometryOpt += " phys_off=1";
+      if (GetOption("hadr_off")) GeometryOpt += " hadr_off=1";
       ProcessLine(Form("((St_geant_Maker *) %p)->LoadGeometry(\"%s\");",geantMk,GeometryOpt.Data()));
     }
     if ((GetOption("fzin") || GetOption("ntin") || GetOption("mtin")) && fInFile != "")
@@ -4398,7 +4376,7 @@ void StBFChain::SetDbOptions(StMaker *mk){
 
     db->SetDateTime(FDateS,FTimeS);
   } else {
-    if (GetOption("simu")) {
+    if (! GetOption("mtin")) {
       const DbAlias_t *DbAlias = GetDbAliases();
       Int_t found = 0;
       for (Int_t i = 0; DbAlias[i].tag; i++) {
@@ -4427,12 +4405,12 @@ void StBFChain::SetDbOptions(StMaker *mk){
     gMessMgr->Info() << "\tSet DataBase max entry time " << Idate << "/" << Itime
 		     << " for St_db_Maker(\"" << db->GetName() <<"\")" << endm;
   } 
-#ifdef USE_BFCTIMESTAMP
+
   //
   // Now treat the detector specific options
   //
   TString realm;
-  for (UInt_t i = 0; i < GTSOptions.size() ; i++){
+  for (unsigned int i = 0; i < GTSOptions.size() ; i++){
     if ( (GTSOptions[i].Realm).IsNull() ){ realm = "*";}
     else {                                 realm = GTSOptions[i].Realm;}
 
@@ -4455,7 +4433,7 @@ void StBFChain::SetDbOptions(StMaker *mk){
   }
 
   //abort();
-#endif /*  USE_BFCTIMESTAMP */
+
 
   if (!GetOption("fzin")) {
     struct Field_t {
@@ -4496,9 +4474,6 @@ void StBFChain::SetDbOptions(StMaker *mk){
     if (! GetOption("SsdDb")||!GetOption("SsdCalDb")) {mk->SetAttr("blacklist", "ssd");  gMessMgr->QAInfo() << "blacklist ssd" << endm;}
     if (! GetOption("EemcDb")                       ) {mk->SetAttr("blacklist", "eemc"); gMessMgr->QAInfo() << "blacklist eemc"<< endm;}
     if (! GetOption("FmsDb")                        ) {mk->SetAttr("blacklist", "fms");  gMessMgr->QAInfo() << "blacklist fms" << endm;}
-  } else {// for Embedding chain trigger black list by NoSsdIT and NoSvtIT, could be some problems if you try to run svt or ssd clusters, ...
-    if (GetOption("NoSvtIt"))                         {mk->SetAttr("blacklist", "svt");  gMessMgr->QAInfo() << "blacklist svt" << endm;}
-    if (GetOption("NoSsdIt"))                         {mk->SetAttr("blacklist", "ssd");  gMessMgr->QAInfo() << "blacklist ssd" << endm;}
   }
 }
 //_____________________________________________________________________
@@ -4521,12 +4496,7 @@ void StBFChain::SetTreeOptions()
   }
   if (GetOption("GeantOut")) treeMk->IntoBranch("geantBranch","geant");
   if (GetOption("AllEvent")) {
-    if (GetOption("fzin")   || 
-	GetOption("ntin")   || 
-	GetOption("gstar")  || 
-	GetOption("pythia") || 
-	GetOption("VMC")    || 
-	GetOption("PrepEmbed")) {
+    if (GetOption("fzin") || GetOption("ntin") || GetOption("gstar") || GetOption("VMC") || GetOption("PrepEmbed")  ) {
       treeMk->IntoBranch("geantBranch","geant");
       treeMk->IntoBranch("geantBranch","geant/.data/particle");
       treeMk->IntoBranch("geantBranch","geant/.data/g2t_rch_hit");
@@ -4548,8 +4518,8 @@ Long_t  StBFChain::ProcessLine(const char *line) {
 //________________________________________________________________________________
 TString StBFChain::GetGeometry() const
 {
-  Int_t n = fchainOpt->GetNRows();
-  for (Int_t i=0;i<n;i++) {
+  int n = fchainOpt->GetNRows();
+  for (int i=0;i<n;i++) {
     if (!fchainOpt->GetTable()[i].Flag) continue;
     TString k(fchainOpt->GetTable()[i].Key);
     k.ToLower();

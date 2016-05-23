@@ -83,7 +83,7 @@
       <widget class="QComboBox" name="comboBox" >
        <item>
         <property name="text" >
-         <string>.x hsimple.C</string>
+         <string>.x $ROOTSYS/tutorials/hsimple.C</string>
         </property>
        </item>
        <item>

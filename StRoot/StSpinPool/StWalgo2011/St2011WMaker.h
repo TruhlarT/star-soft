@@ -1,4 +1,4 @@
-// $Id: St2011WMaker.h,v 1.14 2012/09/21 16:59:10 balewski Exp $
+// $Id: St2011WMaker.h,v 1.12.2.1 2016/05/23 18:33:21 jeromel Exp $
 
 #ifndef STAR_St2011WMaker
 #define STAR_St2011WMaker
@@ -228,7 +228,7 @@ class St2011WMaker : public StMaker {
 
   /// Displayed on session exit, leave it as-is please ...
   virtual const char *GetCVS() const {
-    static const char cvs[]="Tag $Name:  $ $Id: St2011WMaker.h,v 1.14 2012/09/21 16:59:10 balewski Exp $ built "__DATE__" "__TIME__ ; 
+    static const char cvs[]="Tag $Name:  $ $Id: St2011WMaker.h,v 1.12.2.1 2016/05/23 18:33:21 jeromel Exp $ built "__DATE__" "__TIME__ ; 
     return cvs;
   }
 
@@ -239,6 +239,12 @@ class St2011WMaker : public StMaker {
 
 
 // $Log: St2011WMaker.h,v $
+// Revision 1.12.2.1  2016/05/23 18:33:21  jeromel
+// Updates for SL12d / gcc44 embedding library - StDbLib, QtRoot update, new updated StJetMaker, StJetFinder, StSpinPool ... several cast fix to comply with c++0x and several cons related fixes (wrong parsing logic). Changes are similar to SL13b (not all ode were alike). Branch BSL12d_5_embed.
+//
+// Revision 1.14.2.2  2016/04/27 17:47:52  zchang
+// *** empty log message ***
+//
 // Revision 1.14  2012/09/21 16:59:10  balewski
 // added ESMD peak adjustement - partialy finished
 //

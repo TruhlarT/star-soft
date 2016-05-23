@@ -1,4 +1,4 @@
-// $Id: St2011W_algo.cxx,v 1.20 2012/10/05 17:53:53 balewski Exp $
+// $Id: St2011W_algo.cxx,v 1.14.2.1 2016/05/23 18:33:21 jeromel Exp $
 //
 //*-- Author : Jan Balewski, MIT
 //*-- Author for Endcap: Justin Stevens, IUCF
@@ -717,6 +717,9 @@ St2011WMaker::sumBtowPatch(int iEta, int iPhi, int Leta,int  Lphi, float zVert){
 
 
 // $Log: St2011W_algo.cxx,v $
+// Revision 1.14.2.1  2016/05/23 18:33:21  jeromel
+// Updates for SL12d / gcc44 embedding library - StDbLib, QtRoot update, new updated StJetMaker, StJetFinder, StSpinPool ... several cast fix to comply with c++0x and several cons related fixes (wrong parsing logic). Changes are similar to SL13b (not all ode were alike). Branch BSL12d_5_embed.
+//
 // Revision 1.20  2012/10/05 17:53:53  balewski
 // added correlation plots for reco Q in Z, W algos
 //

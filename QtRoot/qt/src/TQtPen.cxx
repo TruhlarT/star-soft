@@ -1,8 +1,8 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtPen.cxx,v 1.2 2010/05/10 22:51:26 fine Exp $
+** $Id: TQtPen.cxx,v 1.2.4.1 2016/05/23 18:32:47 jeromel Exp $
 **
-** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
+** $$Copyright$
 **                                    All rights reserved.
 **
 ** This file may be distributed under the terms of the Q Public License
@@ -27,7 +27,7 @@
 #include "TObjArray.h"
 #include "TAttLine.h"
 
-#include <QtGui/QFontMetrics>
+#include <QFontMetrics>
 #include <QDebug>
 
 //______________________________________________________________________________

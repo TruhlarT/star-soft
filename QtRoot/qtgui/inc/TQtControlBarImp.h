@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtControlBarImp.h,v 1.3 2009/08/03 18:03:08 fine Exp $
+** $Id: TQtControlBarImp.h,v 1.3.4.1 2016/05/23 18:33:04 jeromel Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -26,13 +26,9 @@
 #include "TObjectExecute.h"
 #include "Rtypes.h"
 
-#include <qglobal.h>
-#if QT_VERSION < 0x40000
-#include "qptrstack.h"
-#else /* QT_VERSION */
+#include <QtGlobal>
 #include "q3ptrstack.h"
-#endif /* QT_VERSION */
-#include "qobject.h"
+#include <QObject>
 
 class TControlBarButton;
 class TObjectExecute;

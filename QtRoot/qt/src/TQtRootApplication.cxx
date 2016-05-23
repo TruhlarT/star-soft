@@ -1,8 +1,8 @@
-// @(#)root/gui:$Name:  $:$Id: TQtRootApplication.cxx,v 1.3 2010/05/10 22:51:26 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtRootApplication.cxx,v 1.3.4.1 2016/05/23 18:32:47 jeromel Exp $
 // Author: Fons Rademakers   15/01/98
 
 /*************************************************************************
- * Copyright (C) 1995-2000, Rene Brun and Fons Rademakers.               *
+ * $$Copyright$
  * All rights reserved.                                                  *
  *                                                                       *
  * For the licensing terms see $ROOTSYS/LICENSE.                         *

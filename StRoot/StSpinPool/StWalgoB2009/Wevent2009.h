@@ -1,4 +1,4 @@
-// $Id: Wevent2009.h,v 1.9 2013/01/15 23:26:35 fisyak Exp $
+// $Id: Wevent2009.h,v 1.8.4.1 2016/05/23 18:33:23 jeromel Exp $
 //
 //*-- Author : Jan Balewski, MIT
 
@@ -230,6 +230,9 @@ class Wevent2009 {
 
 
 // $Log: Wevent2009.h,v $
+// Revision 1.8.4.1  2016/05/23 18:33:23  jeromel
+// Updates for SL12d / gcc44 embedding library - StDbLib, QtRoot update, new updated StJetMaker, StJetFinder, StSpinPool ... several cast fix to comply with c++0x and several cons related fixes (wrong parsing logic). Changes are similar to SL13b (not all ode were alike). Branch BSL12d_5_embed.
+//
 // Revision 1.9  2013/01/15 23:26:35  fisyak
 // add sys/types.h for APPLE
 //

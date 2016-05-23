@@ -3,7 +3,7 @@
 
 // Author: Valeri Fine   19/01/2004
 /****************************************************************************
-** $Id: QExGeoDrawHelper.h,v 1.3 2009/11/19 19:23:09 fine Exp $
+** $Id: QExGeoDrawHelper.h,v 1.3.4.1 2016/05/23 18:32:53 jeromel Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.

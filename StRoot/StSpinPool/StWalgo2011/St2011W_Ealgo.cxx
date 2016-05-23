@@ -1,4 +1,4 @@
-// $Id: St2011W_Ealgo.cxx,v 1.22 2012/10/01 19:48:20 stevens4 Exp $
+// $Id: St2011W_Ealgo.cxx,v 1.12.2.1 2016/05/23 18:33:21 jeromel Exp $
 //
 //*-- Author : Jan Balewski, MIT
 //*-- Author for Endcap: Justin Stevens, IUCF
@@ -666,6 +666,9 @@ St2011WMaker::sumEtowPatch(int iEta, int iPhi, int Leta,int  Lphi, float zVert){
 }
 
 // $Log: St2011W_Ealgo.cxx,v $
+// Revision 1.12.2.1  2016/05/23 18:33:21  jeromel
+// Updates for SL12d / gcc44 embedding library - StDbLib, QtRoot update, new updated StJetMaker, StJetFinder, StSpinPool ... several cast fix to comply with c++0x and several cons related fixes (wrong parsing logic). Changes are similar to SL13b (not all ode were alike). Branch BSL12d_5_embed.
+//
 // Revision 1.22  2012/10/01 19:48:20  stevens4
 // add plots for Z result and move esmd cross point calculation outside plane loop
 //

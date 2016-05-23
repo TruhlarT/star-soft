@@ -4,6 +4,12 @@
 // 12 July 2007
 //
 // $Log: StPythiaEvent.cxx,v $
+// Revision 1.5.2.1  2016/05/23 18:33:20  jeromel
+// Updates for SL12d / gcc44 embedding library - StDbLib, QtRoot update, new updated StJetMaker, StJetFinder, StSpinPool ... several cast fix to comply with c++0x and several cons related fixes (wrong parsing logic). Changes are similar to SL13b (not all ode were alike). Branch BSL12d_5_embed.
+//
+// Revision 1.6.8.2  2016/04/27 17:47:49  zchang
+// *** empty log message ***
+//
 // Revision 1.6  2012/12/10 21:52:46  pibero
 // More simplifications...
 //
@@ -47,9 +53,23 @@ ClassImp(StPythiaEvent);
 
 StPythiaEvent::StPythiaEvent()
 {
-    mParticles = new TClonesArray("TParticle");
-
-    Clear();
+  mF1NNPDF = 1000.;
+  mF2NNPDF = 1000.;
+  mF1[0] = 1000.;
+  mF1[1] = 1000.;
+  mF2[0] = 1000.;
+  mF2[1] = 1000.;
+  for(int i = 0; i < NUMNNPDF; i++){
+    mDF1NNPDF[i] = 0.;
+    mDF2NNPDF[i] = 0.;
+  }
+  for(int i = 0; i < NPDF; i++){
+    mDF1[i] = 0.;
+    mDF2[i] = 0.;
+  }
+  mParticles = new TClonesArray("TParticle");
+  Clear();
+    
 }
 
 StPythiaEvent::~StPythiaEvent()
@@ -83,7 +103,13 @@ StPythiaEvent::StPythiaEvent(const StPythiaEvent& t)
     
     copy(t.mF1,t.mF1+2,mF1);
     copy(t.mF2,t.mF2+2,mF2);
-    
+
+    mF1NNPDF = t.mF1NNPDF;
+    mF2NNPDF = t.mF2NNPDF;
+
+    copy(t.mDF1NNPDF, t.mDF1NNPDF+NUMNNPDF, mDF1NNPDF);
+    copy(t.mDF2NNPDF, t.mDF2NNPDF+NUMNNPDF, mDF2NNPDF);
+
     mParticles = new TClonesArray("TParticle");
 
     for (int i = 0; i < t.mParticles->GetEntriesFast(); ++i) {
@@ -118,6 +144,12 @@ StPythiaEvent& StPythiaEvent::operator=(const StPythiaEvent& rhs)
     
     copy(rhs.mF1,rhs.mF1+2,mF1);
     copy(rhs.mF2,rhs.mF2+2,mF2);
+
+    mF1NNPDF = rhs.mF1NNPDF;
+    mF2NNPDF = rhs.mF2NNPDF;
+
+    copy(rhs.mDF1NNPDF, rhs.mDF1NNPDF+NUMNNPDF, mDF1NNPDF);
+    copy(rhs.mDF2NNPDF, rhs.mDF2NNPDF+NUMNNPDF, mDF2NNPDF);
     
     mParticles->Clear();
     

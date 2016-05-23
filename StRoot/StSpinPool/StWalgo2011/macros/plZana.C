@@ -249,6 +249,9 @@ void doAll(char *core0="", char *iPath=""){
 
 
 // $Log: plZana.C,v $
+// Revision 1.4.2.1  2016/05/23 18:33:23  jeromel
+// Updates for SL12d / gcc44 embedding library - StDbLib, QtRoot update, new updated StJetMaker, StJetFinder, StSpinPool ... several cast fix to comply with c++0x and several cons related fixes (wrong parsing logic). Changes are similar to SL13b (not all ode were alike). Branch BSL12d_5_embed.
+//
 // Revision 1.6  2012/09/18 15:46:00  balewski
 // added etaZ to movie
 //

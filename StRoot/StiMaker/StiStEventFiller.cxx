@@ -1,28 +1,13 @@
 /***************************************************************************
  *
- * $Id: StiStEventFiller.cxx,v 2.105 2013/04/10 22:14:20 fisyak Exp $
+ * $Id: StiStEventFiller.cxx,v 2.98.2.1 2016/05/23 18:33:27 jeromel Exp $
  *
  * Author: Manuel Calderon de la Barca Sanchez, Mar 2002
  ***************************************************************************
  *
  * $Log: StiStEventFiller.cxx,v $
- * Revision 2.105  2013/04/10 22:14:20  fisyak
- * Roll back to version 04/04/2013
- *
- * Revision 2.103  2013/01/28 21:51:17  fisyak
- * Correct ranking
- *
- * Revision 2.102  2013/01/18 15:03:37  fisyak
- * Fix TrackData data name clash with StiPPVertexFinder
- *
- * Revision 2.101  2013/01/17 15:57:26  fisyak
- * Add handles for debugging
- *
- * Revision 2.100  2012/11/09 18:28:10  perev
- * fillpull development
- *
- * Revision 2.99  2012/09/16 21:38:42  fisyak
- * use of Tpc West Only and East Only tracks, clean up
+ * Revision 2.98.2.1  2016/05/23 18:33:27  jeromel
+ * Updates for SL12d / gcc44 embedding library - StDbLib, QtRoot update, new updated StJetMaker, StJetFinder, StSpinPool ... several cast fix to comply with c++0x and several cons related fixes (wrong parsing logic). Changes are similar to SL13b (not all ode were alike). Branch BSL12d_5_embed.
  *
  * Revision 2.98  2012/05/07 14:56:14  fisyak
  * Add StKFVertexMaker
@@ -663,7 +648,6 @@ void StiStEventFiller::fillEvent(StEvent* e, StiTrackContainer* t)
 	  detInfoVec.push_back(detInfo);
 	  //cout <<"Setting key: "<<(unsigned short)(trNodeVec.size())<<endl;
 	  gTrack->setKey(kTrack->getId());
-          gTrack->setIdTruth();
 	  trackNode->addTrack(gTrack);
 	  trNodeVec.push_back(trackNode);
 	  // reuse the utility to fill the topology map
@@ -683,7 +667,7 @@ void StiStEventFiller::fillEvent(StEvent* e, StiTrackContainer* t)
 //VP	    throw runtime_error("StiStEventFiller::fillEvent() StTrack::bad() non zero");
           }
 	  fillTrackCount2++;
-          fillPulls(kTrack,gTrack,0);
+          fillPulls(kTrack,0);
           if (gTrack->numberOfPossiblePoints()<10) continue;
           if (gTrack->geometry()->momentum().mag()<0.1) continue;
 	  fillTrackCountG++;
@@ -780,15 +764,15 @@ void StiStEventFiller::fillEventPrimaries()
       // detector info
       StTrackDetectorInfo* detInfo = new StTrackDetectorInfo;
       fillDetectorInfo(detInfo,kTrack,false); //3d argument used to increase/not increase the refCount. MCBS oct 04.
+      fillPulls(kTrack,1); 
       StPrimaryTrack* pTrack = new StPrimaryTrack;
       pTrack->setKey( gTrack->key());
-      nTRack->addTrack(pTrack);  // StTrackNode::addTrack() calls track->setNode(this);
       fillTrack(pTrack,kTrack, detInfo);
       // set up relationships between objects
       detInfoVec.push_back(detInfo);
 
+      nTRack->addTrack(pTrack);  // StTrackNode::addTrack() calls track->setNode(this);
       vertex->addDaughter(pTrack);
-      fillPulls(kTrack,gTrack,1); 
       fillTrackCount2++;
       int ibad = pTrack->bad();
       errh.Add(ibad);
@@ -852,10 +836,9 @@ void StiStEventFiller::fillDetectorInfo(StTrackDetectorInfo* detInfo, StiKalmanT
       if (!detector) 		continue;
       if (!hh) 			continue;
       assert(detector->getGroupId()==hh->detector());
-#if 0
 // 	Fill StHit errors for Gene
       FillStHitErr(hh,node);
-#endif      
+      
       detInfo->addHit(hh,refCountIncr);
       if (!refCountIncr) 	continue;
       hh->setFitFlag(1);
@@ -884,22 +867,22 @@ void StiStEventFiller::fillGeometry(StTrack* gTrack, StiKalmanTrack* track, bool
   StiHit *ihit = node->getHit();
   StThreeVectorF origin(node->x_g(),node->y_g(),node->z_g());
   StThreeVectorF hitpos(ihit->x_g(),ihit->y_g(),ihit->z_g());
-  if (node->getDetector()) {
-    double dif = (hitpos-origin).mag();
-    
-    if (dif>3.) {
-      dif = node->z_g()-ihit->z_g();
-      double nowChi2 = node->evaluateChi2(ihit);
-      printf("***Track(%d) DIFF TOO BIG %g chi2 = %g %g\n",track->getId(),dif,node->getChi2(),nowChi2);
-      printf("H=%g %g %g N =%g %g %g\n",ihit->x()   ,ihit->y()   ,ihit->z()
-	     ,node->getX(),node->getY(),node->getZ());
-      const StMeasuredPoint *mp = ihit->stHit();
-      printf("H=%g %g %g N =%g %g %g\n",mp->position().x(),mp->position().y(),mp->position().z()
-	     ,origin.x(),origin.y(),origin.z());
-      
-      assert(fabs(dif)<50.);
-    }
+
+  double dif = (hitpos-origin).mag();
+
+  if (dif>3.) {
+    dif = node->z_g()-ihit->z_g();
+    double nowChi2 = node->evaluateChi2(ihit);
+    printf("***Track(%d) DIFF TOO BIG %g chi2 = %g %g\n",track->getId(),dif,node->getChi2(),nowChi2);
+    printf("H=%g %g %g N =%g %g %g\n",ihit->x()   ,ihit->y()   ,ihit->z()
+		                     ,node->getX(),node->getY(),node->getZ());
+    const StMeasuredPoint *mp = ihit->stHit();
+    printf("H=%g %g %g N =%g %g %g\n",mp->position().x(),mp->position().y(),mp->position().z()
+		                     ,origin.x(),origin.y(),origin.z());
+     
+    assert(fabs(dif)<50.);
   }
+
     // making some checks.  Seems the curvature is infinity sometimes and
   // the origin is sometimes filled with nan's...
   
@@ -1067,35 +1050,21 @@ void StiStEventFiller::fillFlags(StTrack* gTrack) {
       Int_t NoPositiveSignZ = 0;
       Int_t NoNegativeSignZ = 0;
       Int_t NoPromptHits = 0;
-      Double_t zE = -200, zW = 200;
-      Int_t    rE = 0, rW = 0;
-      Int_t   nW = 0, nE = 0;
       for (Int_t i = 0; i < Nhits; i++) {
 	const StTpcHit *hit = (StTpcHit *) hits[i];
-	Double_t z = hit->position().z();
-	Int_t sector = hit->sector();
-	if (sector <= 12) nW++;
-	else              nE++;
-	Int_t row    = hit->padrow();
-	if ((z < -1.0 && sector <= 12) ||
-	    (z >  1.0 && sector >  12)) NoWrongSignZ++;
+	if ((hit->position().z() < -1.0 && hit->sector() <= 12) ||
+	    (hit->position().z() >  1.0 && hit->sector() >  12)) NoWrongSignZ++;
 	else {
-	  if (z < -1.0) {NoNegativeSignZ++; if (z > zE) {zE = z; rE = row;}}
-	  if (z >  1.0) {NoPositiveSignZ++; if (z < zW) {zW = z; rW = row;}}
+	  if (hit->position().z() < -1.0) NoNegativeSignZ++;
+	  if (hit->position().z() >  1.0) NoPositiveSignZ++;
 	}
-	if (TMath::Abs(209.4 - TMath::Abs(z)) < 3.0) NoPromptHits++;
+	if (TMath::Abs(209.4 - TMath::Abs(hit->position().z())) < 3.0) NoPromptHits++;
       }
       if (NoWrongSignZ >= 2)                             gTrack->setPostCrossingTrack();
       else {
 	if (NoPromptHits == 1)                           gTrack->setPromptTrack();
-	if (NoPositiveSignZ >= 2 && NoNegativeSignZ >=2) {
-	  if (zW - zE < 10 ||
-	      TMath::Abs(rW - rE) < 3) 
-	    gTrack->setMembraneCrossingTrack();
-	}
+	if (NoPositiveSignZ >= 2 && NoNegativeSignZ >=2) gTrack->setMembraneCrossingTrack();
       }
-      if (nW >  0 && nE == 0) gTrack->setWestTpcOnly();
-      if (nW == 0 && nE >  0) gTrack->setEastTpcOnly();
     }
     if (NoTpcFitPoints < 11 && NoFtpcWestId < 5 && NoFtpcEastId < 5) { 
       // hadrcoded number correspondant to  __MIN_HITS_TPC__ 11 in StMuFilter.cxx
@@ -1126,44 +1095,25 @@ void StiStEventFiller::fillFlags(StTrack* gTrack) {
   }
   
   gTrack->setFlag( flag);
-  if (gTrack->type()==global) {
-    // Match with fast detectors
-    StPhysicalHelixD hlx = gTrack->outerGeometry()->helix();
-    StiTrack2FastDetector t;
-    mFastDetectorMatcher->matchTrack2FastDetectors(&hlx,&t);
-    if (t.btofBin > 0) {
-      if (t.mBtof > 0) gTrack->setToFMatched();
-      else             gTrack->setToFNotMatched();
-    }
-    if (t.ctbBin > 0) {
-      if (t.mCtb  > 0) gTrack->setCtbMatched();
-      else             gTrack->setCtbNotMatched();
-    }
-    if (t.bemcBin > 0 || t.eemcBin > 0) {
-      Int_t W = 0;
-      if (t.bemcBin > 0) {
-	W = StBemcHitList::instance()->getFired(t.bemcBin);
-	if (W > 0) gTrack->setBemcMatched();
-	else      gTrack->setBemcNotMatched();
-      } else if (t.eemcBin > 0) {
-	W = StEemcHitList::instance()->getFired(t.eemcBin);
-	if (W > 0) gTrack->setEemcMatched();
-	else      gTrack->setEemcNotMatched();
-      }
-      if (W > 0) {
-	UInt_t fext = gTrack->flagExtension();
-	if (W > 7) W = 7;
-	fext &= ~7;
-	fext += W;
-	gTrack->setFlagExtension(fext);
-      }
-    }
-  } else if (gTrack->type()==primary) {
-    StTrackNode *n = gTrack->node();
-    assert(n);
-    StTrack *t = n->track(global);
-    assert(t);
-    gTrack->setFlagExtension(t->flagExtension());
+  // Match with fast detectors
+  StPhysicalHelixD hlx = gTrack->outerGeometry()->helix();
+  TrackData t;
+  mFastDetectorMatcher->matchTrack2FastDetectors(&hlx,&t);
+  if (t.btofBin > 0) {
+    if (t.mBtof > 0) gTrack->setToFMatched();
+    else             gTrack->setToFNotMatched();
+  }
+  if (t.ctbBin > 0) {
+    if (t.mCtb  > 0) gTrack->setCtbMatched();
+    else             gTrack->setCtbNotMatched();
+  }
+  if (t.bemcBin > 0) {
+    if (t.mBemc  > 0) gTrack->setBemcMatched();
+    else              gTrack->setBemcNotMatched();
+  }
+  if (t.eemcBin > 0) {
+    if (t.mEemc  > 0) gTrack->setEemcMatched();
+    else              gTrack->setEemcNotMatched();
   }
 }
 //_____________________________________________________________________________
@@ -1318,7 +1268,13 @@ void StiStEventFiller::fillDca(StTrack* stTrack, StiKalmanTrack* track)
   const StiNodePars &pars = tNode->fitPars(); 
   const StiNodeErrs &errs = tNode->fitErrs();
   float alfa = tNode->getAlpha();
-  Float_t setp[7] = {pars.y(), pars.z(), pars.eta(), pars.ptin(), pars.tanl(), pars.curv(), pars.hz()};
+  Float_t setp[7] = { (Float_t) pars.y(), 
+		      (Float_t) pars.z(), 
+		      (Float_t) pars.eta(), 
+		      (Float_t) pars.ptin(), 
+		      (Float_t) pars.tanl(), 
+		      (Float_t) pars.curv(), 
+		      (Float_t) pars.hz()};
   setp[2]+= alfa;  
   Float_t sete[15];
   for (int i=1,li=1,jj=0;i< kNPars;li+=++i) {
@@ -1345,20 +1301,11 @@ void StiStEventFiller::FillStHitErr(StHit *hh,const StiKalmanTrackNode *node)
   hh->setPositionError(f3);
 }
 //_____________________________________________________________________________
-void StiStEventFiller::fillPulls(StiKalmanTrack* track,const StGlobalTrack *gTrack, int gloPri) 
+void StiStEventFiller::fillPulls(StiKalmanTrack* track, int gloPri) 
 {
-enum dcaEmx {kImpImp,
-	     kZImp, kZZ,
-	     kPsiImp, kPsiZ, kPsiPsi,
-	     kPtiImp, kPtiZ, kPtiPsi, kPtiPti,
-	     kTanImp, kTanZ, kTanPsi, kTanPti, kTanTan};
-
   //cout << "StiStEventFiller::fillDetectorInfo() -I- Started"<<endl;
-  if (!mPullEvent) 	return;
+  if (!mPullEvent) return;
   if (gloPri && track->isPrimary()!=1) return;
-  const StDcaGeometry *myDca = gTrack->dcaGeometry();
-  if (!myDca)		return;
-
   int dets[kMaxDetectorId][3];
   track->getAllPointCount(dets,kMaxDetectorId-1);
   StiPullTrk aux;
@@ -1372,25 +1319,14 @@ enum dcaEmx {kImpImp,
   aux.nIstHits = dets[kIstId][2];
   aux.mL       = (unsigned char)track->getTrackLength();
   aux.mChi2    = track->getChi2();
-  aux.mCurv    = myDca->curvature();
-  aux.mPt      = myDca->pt();
-  aux.mPsi     = myDca->psi();
-  aux.mDip     = myDca->dipAngle();
-  StThreeVectorF v3 = myDca->origin();
+  aux.mCurv    = track->getCurvature();
+  aux.mPt      = track->getPt();
+  aux.mPsi     = track->getPhi();
+  aux.mDip     = atan(track->getTanL());
+  StThreeVectorD v3 = track->getPoint();
   aux.mRxy     = v3.perp();
   aux.mPhi     = v3.phi();
   aux.mZ       = v3.z();
-  
-  const float *errMx = myDca->errMatrix();
-  aux.mPtErr   = sqrt(errMx[kPtiPti])*aux.mPt*aux.mPt;
-  double c2dip = myDca->tanDip(); c2dip = 1./(1.+c2dip*c2dip);
-  aux.mPsiErr  = sqrt(errMx[kPsiPsi]);
-  aux.mDipErr  = sqrt(errMx[kTanTan])*c2dip;
-  aux.mRxyErr  = sqrt(errMx[kImpImp]);
-  aux.mZErr    = sqrt(errMx[kZZ]);
-
-  aux.mIdTruTk = gTrack->idTruth();
-  aux.mQaTruTk = gTrack->qaTruth();
   mPullEvent->Add(aux,gloPri);
 
 
@@ -1439,9 +1375,6 @@ enum dcaEmx {kImpImp,
   StiPullHit aux;
 // local frame
 // local HIT
-  aux.mIdTruth = stHit->idTruth();
-  aux.mQaTruth = stHit->qaTruth();
-
   aux.mVertex = (unsigned char)track->isPrimary();
   aux.nHitCand = node->getHitCand();
   aux.iHitCand = node->getIHitCand();

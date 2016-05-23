@@ -1,8 +1,8 @@
-// @(#)root/base:$Name:  $:$Id: TBrowserCustom.h,v 1.3 2009/08/03 18:03:08 fine Exp $
+// @(#)root/base:$Name:  $:$Id: TBrowserCustom.h,v 1.3.4.1 2016/05/23 18:33:03 jeromel Exp $
 // Author: Valeri Fine  10/01/2004
 
 /****************************************************************************
-** $Id: TBrowserCustom.h,v 1.3 2009/08/03 18:03:08 fine Exp $
+** $Id: TBrowserCustom.h,v 1.3.4.1 2016/05/23 18:33:03 jeromel Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.

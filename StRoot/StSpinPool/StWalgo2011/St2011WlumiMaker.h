@@ -1,4 +1,4 @@
-// $Id: St2011WlumiMaker.h,v 1.2 2012/09/14 21:02:29 balewski Exp $
+// $Id: St2011WlumiMaker.h,v 1.1.2.1 2016/05/23 18:33:22 jeromel Exp $
 //
 //*-- Author :  Jan Balewski, MIT
 
@@ -49,7 +49,7 @@ class St2011WlumiMaker : public StMaker {
 
   /// Displayed on session exit, leave it as-is please ...
   virtual const char *GetCVS() const {
-    static const char cvs[]="Tag $Name:  $ $Id: St2011WlumiMaker.h,v 1.2 2012/09/14 21:02:29 balewski Exp $ built "__DATE__" "__TIME__ ; 
+    static const char cvs[]="Tag $Name:  $ $Id: St2011WlumiMaker.h,v 1.1.2.1 2016/05/23 18:33:22 jeromel Exp $ built "__DATE__" "__TIME__ ; 
     return cvs;
   }
 
@@ -60,6 +60,12 @@ class St2011WlumiMaker : public StMaker {
 
 
 // $Log: St2011WlumiMaker.h,v $
+// Revision 1.1.2.1  2016/05/23 18:33:22  jeromel
+// Updates for SL12d / gcc44 embedding library - StDbLib, QtRoot update, new updated StJetMaker, StJetFinder, StSpinPool ... several cast fix to comply with c++0x and several cons related fixes (wrong parsing logic). Changes are similar to SL13b (not all ode were alike). Branch BSL12d_5_embed.
+//
+// Revision 1.2.2.2  2016/04/27 17:47:52  zchang
+// *** empty log message ***
+//
 // Revision 1.2  2012/09/14 21:02:29  balewski
 // *lumi-maker re-written to accumulate alternative rel lumi monitors,
 // * added spin sorting to Zs

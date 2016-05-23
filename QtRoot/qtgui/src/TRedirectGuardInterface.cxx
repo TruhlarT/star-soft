@@ -1,4 +1,4 @@
-// @(#)root/gui:$Id: TRedirectGuardInterface.cxx,v 1.1 2010/05/19 22:36:38 fine Exp $
+// @(#)root/gui:$Id: TRedirectGuardInterface.cxx,v 1.1.4.1 2016/05/23 18:33:07 jeromel Exp $
 // Author: G. Ganis   10/10/2005
 
 /*************************************************************************

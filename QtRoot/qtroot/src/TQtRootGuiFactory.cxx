@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtRootGuiFactory.cxx,v 1.5 2009/08/03 18:03:11 fine Exp $
+** $Id: TQtRootGuiFactory.cxx,v 1.5.4.1 2016/05/23 18:33:08 jeromel Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.

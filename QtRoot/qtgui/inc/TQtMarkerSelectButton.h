@@ -5,16 +5,11 @@
 #include <TObject.h>
 #include <TQObject.h>
 
-#include <qpoint.h>
-#include <qtoolbutton.h>
+#include <QPoint>
+#include <QToolButton>
 #ifndef __CINT__
-#if QT_VERSION < 0x40000
-#  include <qdialog.h>
-#  include <qframe.h>
-#else
 #  include  <QDialog>
 #  include  <QFrame>
-#endif
 #else
   class QMenu;
   class QPopupMenu;
@@ -53,7 +48,13 @@ class TQt18MarkerSelector : public QDialog {
 Q_OBJECT
 
 public :
-   TQt18MarkerSelector( QWidget *p,Qt::WFlags f=Qt::WStyle_Customize | Qt::WStyle_NoBorder|Qt::WStyle_StaysOnTop);
+   TQt18MarkerSelector( QWidget *p,Qt::WindowFlags f=  Qt::WStyle_NoBorder |
+#if QT_VERSION < 0x50000
+   Qt::WStyle_Customize | Qt::WStyle_StaysOnTop
+#else
+   Qt::WindowStyle_Customize | Qt::WindowStyle_StaysOnTop
+#endif   
+);
    virtual ~TQt18MarkerSelector(){}
    void showSelector ( const QPoint & position );
 

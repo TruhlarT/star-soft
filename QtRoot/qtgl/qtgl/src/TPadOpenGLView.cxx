@@ -1,4 +1,4 @@
-// @(#)root/g3d:$Name:  $:$Id: TPadOpenGLView.cxx,v 1.4 2009/08/03 18:03:08 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TPadOpenGLView.cxx,v 1.4.4.1 2016/05/23 18:33:02 jeromel Exp $
 // Author: Valery Fine(fine@vxcern.cern.ch)   08/05/97
 
 /*************************************************************************

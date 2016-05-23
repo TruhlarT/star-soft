@@ -1,4 +1,4 @@
-// $Id: St2011ZMaker.cxx,v 1.12 2012/10/05 17:53:53 balewski Exp $
+// $Id: St2011ZMaker.cxx,v 1.5.2.1 2016/05/23 18:33:22 jeromel Exp $
 //
 //*-- Author : Ross Corliss, MIT
 //  changes Jan Balewski, MIT
@@ -417,6 +417,9 @@ St2011ZMaker::find_Z_boson(){
 
 
 // $Log: St2011ZMaker.cxx,v $
+// Revision 1.5.2.1  2016/05/23 18:33:22  jeromel
+// Updates for SL12d / gcc44 embedding library - StDbLib, QtRoot update, new updated StJetMaker, StJetFinder, StSpinPool ... several cast fix to comply with c++0x and several cons related fixes (wrong parsing logic). Changes are similar to SL13b (not all ode were alike). Branch BSL12d_5_embed.
+//
 // Revision 1.12  2012/10/05 17:53:53  balewski
 // added correlation plots for reco Q in Z, W algos
 //

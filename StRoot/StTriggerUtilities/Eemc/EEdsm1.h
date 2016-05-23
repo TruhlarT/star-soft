@@ -1,7 +1,7 @@
 #ifndef EEdsm1_h
 #define EEdsm1_h
 /**************************************************************
- * $Id: EEdsm1.h,v 1.2 2012/12/12 22:54:03 fisyak Exp $
+ * $Id: EEdsm1.h,v 1.1.2.1 2016/05/23 18:33:25 jeromel Exp $
  **************************************************************/
 #ifdef __APPLE__
 #include <sys/types.h>
@@ -57,6 +57,9 @@ class EEdsm1  {
 
 /* container for STAR trigger data
  * $Log: EEdsm1.h,v $
+ * Revision 1.1.2.1  2016/05/23 18:33:25  jeromel
+ * Updates for SL12d / gcc44 embedding library - StDbLib, QtRoot update, new updated StJetMaker, StJetFinder, StSpinPool ... several cast fix to comply with c++0x and several cons related fixes (wrong parsing logic). Changes are similar to SL13b (not all ode were alike). Branch BSL12d_5_embed.
+ *
  * Revision 1.2  2012/12/12 22:54:03  fisyak
  * Add include for APPLE
  *

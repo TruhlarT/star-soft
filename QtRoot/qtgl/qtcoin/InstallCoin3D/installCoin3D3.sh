@@ -1,6 +1,10 @@
 #!/bin/sh
 COIN_VERSION=3
 IV_PLATFORM=$(uname -s )
+if  [ `expr  match $IV_PLATFORM CYGWIN` == 6 ]; then
+  IV_PLATFORM=Win
+fi
+echo "Installing Coin3D for $IV_PLATFORM platform . . . "
 NCPUS=0
 if [ "$IV_PLATFORM" == "Linux" ]; then
     NCPUS=$(grep -e 'cpu[0-9]' /proc/stat | grep -c .)
@@ -12,6 +16,13 @@ fi
 ##=================================================================
 if [ "$IV_PLATFORM" == "Win" ]; then
     NCPUS=$(grep -e 'cpu[0-9]' /proc/stat | grep -c .)
+	# check TEMP variable
+	if [ "x$TEMP" == "x" ]; then
+	    if [ ! -d /usr/tmp ]; then
+	        mkdir -p /usr/tmp
+	    fi
+	    export TEMP=/usr/tmp
+	fi
 fi
 
 if [ "$NCPUS" -le "0" ]; then
@@ -29,7 +40,7 @@ if test "x$platform" = "x" ; then
    platform=`uname`
 fi 
 
-packageName=$platform/coin3d_${COIN_VERSION}
+packageName=$platform/coin3d-${COIN_VERSION}
 
 cd ..
 builddirbase=`pwd`/buildDir${COIN_VERSION}
@@ -102,7 +113,6 @@ if [ -d Coin-${COIN_VERSION} ]; then
  pwd
  echo " Configure simage $builddir/simage"
  cd $builddir/simage
-  echo   $srcdir/simage/configure --enable-optimization=yes  $enable_qt_debug --enable-qimage --with-qt=true --with-mpeg2enc --with-avienc $common_build_opt >simage.config.status
   $srcdir/simage/configure --enable-optimization=yes  $enable_qt_debug --enable-qimage --with-qt=true --with-mpeg2enc --with-avienc $common_build_opt
   make -j $NCPUS
   make install
@@ -110,7 +120,7 @@ if [ -d Coin-${COIN_VERSION} ]; then
  cd $builddir/Coin-${COIN_VERSION}
  echo " Configure Coin3d  at `pwd`"
  pwd
-  echo $srcdir/Coin-${COIN_VERSION}/configure  --enable-optimization=yes  $common_build_opt >coin.config.status
+
   $srcdir/Coin-${COIN_VERSION}/configure  --enable-optimization=yes  $common_build_opt
   make -j $NCPUS
   make install
@@ -118,14 +128,13 @@ if [ -d Coin-${COIN_VERSION} ]; then
  cd $builddir/SmallChange
  echo " Configure Coin3d  at `pwd`"
  pwd
-  echo $srcdir/SmallChange/configure --enable-optimization=yes  $common_build_opt >smallchange.config.status
+
   $srcdir/SmallChange/configure --enable-optimization=yes  $common_build_opt
   make -j $NCPUS
   make install
   
  echo " Configure SoQt"
  cd $builddir/SoQt
-   echo $srcdir/SoQt/configure   $enable_qt_debug  --with-qt=true  --with-coin    $common_build_opt > soqt.config.status
    $srcdir/SoQt/configure   $enable_qt_debug  --with-qt=true  --with-coin    $common_build_opt
     make -j $NCPUS
     make install

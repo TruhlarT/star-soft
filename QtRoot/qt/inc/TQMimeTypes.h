@@ -1,7 +1,7 @@
-// @(#)root/gui:$Name:  $:$Id: TQMimeTypes.h,v 1.8 2010/05/10 22:51:26 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQMimeTypes.h,v 1.8.4.1 2016/05/23 18:32:45 jeromel Exp $
 // Author: Valeri Fine   21/01/2003
 /****************************************************************************
-** $Id: TQMimeTypes.h,v 1.8 2010/05/10 22:51:26 fine Exp $
+** $Id: TQMimeTypes.h,v 1.8.4.1 2016/05/23 18:32:45 jeromel Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.

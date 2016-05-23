@@ -1,4 +1,4 @@
-// $Id: St2011Wlumi_histo.cxx,v 1.2 2012/09/14 21:02:29 balewski Exp $
+// $Id: St2011Wlumi_histo.cxx,v 1.1.2.1 2016/05/23 18:33:22 jeromel Exp $
 //
 //*-- Author : Ross Corliss, MIT
 
@@ -49,6 +49,9 @@ St2011WlumiMaker::initHistos(){
 
 
 // $Log: St2011Wlumi_histo.cxx,v $
+// Revision 1.1.2.1  2016/05/23 18:33:22  jeromel
+// Updates for SL12d / gcc44 embedding library - StDbLib, QtRoot update, new updated StJetMaker, StJetFinder, StSpinPool ... several cast fix to comply with c++0x and several cons related fixes (wrong parsing logic). Changes are similar to SL13b (not all ode were alike). Branch BSL12d_5_embed.
+//
 // Revision 1.2  2012/09/14 21:02:29  balewski
 // *lumi-maker re-written to accumulate alternative rel lumi monitors,
 // * added spin sorting to Zs

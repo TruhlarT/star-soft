@@ -1,4 +1,4 @@
-// $Id: WeventDisplay.cxx,v 1.6 2012/09/21 16:59:10 balewski Exp $
+// $Id: WeventDisplay.cxx,v 1.4.2.1 2016/05/23 18:33:22 jeromel Exp $
 //
 //*-- Author : Jan Balewski, MIT
 
@@ -604,6 +604,9 @@ WeventDisplay::export2sketchup(  const char *tit, WeveVertex myV, WeveEleTrack m
 
 
 // $Log: WeventDisplay.cxx,v $
+// Revision 1.4.2.1  2016/05/23 18:33:22  jeromel
+// Updates for SL12d / gcc44 embedding library - StDbLib, QtRoot update, new updated StJetMaker, StJetFinder, StSpinPool ... several cast fix to comply with c++0x and several cons related fixes (wrong parsing logic). Changes are similar to SL13b (not all ode were alike). Branch BSL12d_5_embed.
+//
 // Revision 1.6  2012/09/21 16:59:10  balewski
 // added ESMD peak adjustement - partialy finished
 //

@@ -4,7 +4,7 @@
 # Qmake include file to add the rules to create RootCint Dictionary
 #-------------------------------------------------------------------------
 #
-# $Id: rootcint.pri,v 1.3 2009/08/03 18:03:09 fine Exp $
+# $Id: rootcint.pri,v 1.3.4.1 2016/05/23 18:33:05 jeromel Exp $
 #
 # Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 #

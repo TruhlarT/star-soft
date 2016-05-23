@@ -4,8 +4,7 @@
 
 TEMPLATE = app
 TARGET = GeomBrowser
-QMAKE_RPATH=
-
+QMAKE_LFLAGS_RPATH =
 DEPENDPATH += .
 INCLUDEPATH += .
 
@@ -87,7 +86,7 @@ unix {
   rootrc.target   = .rootrc
   rootrc.commands = @rm -rf .rootrc; ln -s rootrcqtgui $$rootrc.target
 
-  QMAKE_EXTRA_UNIX_TARGETS += rootrc
+  QMAKE_EXTRA_TARGETS  += rootrc
   PRE_TARGETDEPS  += $$rootrc.target
   QMAKE_CLEAN     += $$rootrc.target
 }

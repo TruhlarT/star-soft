@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtApplication.h,v 1.5 2010/05/10 22:51:26 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtApplication.h,v 1.5.4.1 2016/05/23 18:32:45 jeromel Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -43,7 +43,7 @@ protected:
 
 public:
 
-   TQtApplication() {};
+   TQtApplication() : fGUIThread() {};
    TQtApplication(const char *appClassName, int &argc, char **argv);
    virtual ~TQtApplication();
    static bool Terminate();

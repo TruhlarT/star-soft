@@ -8,8 +8,8 @@
 
 
 #ifndef __CINT__
-#include <qpoint.h>
-#include <qobject.h>
+#include <QPoint>
+#include <QObject>
 
 #endif // ifndef __CINT__
 

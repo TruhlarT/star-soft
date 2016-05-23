@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: StDbTable.cc,v 1.43 2012/12/12 21:59:19 fisyak Exp $
+ * $Id: StDbTable.cc,v 1.42.2.1 2016/05/23 18:33:13 jeromel Exp $
  *
  * Author: R. Jeff Porter
  ***************************************************************************
@@ -11,6 +11,12 @@
  ***************************************************************************
  *
  * $Log: StDbTable.cc,v $
+ * Revision 1.42.2.1  2016/05/23 18:33:13  jeromel
+ * Updates for SL12d / gcc44 embedding library - StDbLib, QtRoot update, new updated StJetMaker, StJetFinder, StSpinPool ... several cast fix to comply with c++0x and several cons related fixes (wrong parsing logic). Changes are similar to SL13b (not all ode were alike). Branch BSL12d_5_embed.
+ *
+ * Revision 1.44  2015/06/23 20:21:12  dmitry
+ * char type: null-terminator assignment fixed
+ *
  * Revision 1.43  2012/12/12 21:59:19  fisyak
  * Add check for HAVE_CLOCK_GETTIME flag and for APPLE
  *
@@ -183,6 +189,12 @@
  * so that delete of St_Table class i done correctly
  *
  * $Log: StDbTable.cc,v $
+ * Revision 1.42.2.1  2016/05/23 18:33:13  jeromel
+ * Updates for SL12d / gcc44 embedding library - StDbLib, QtRoot update, new updated StJetMaker, StJetFinder, StSpinPool ... several cast fix to comply with c++0x and several cons related fixes (wrong parsing logic). Changes are similar to SL13b (not all ode were alike). Branch BSL12d_5_embed.
+ *
+ * Revision 1.44  2015/06/23 20:21:12  dmitry
+ * char type: null-terminator assignment fixed
+ *
  * Revision 1.43  2012/12/12 21:59:19  fisyak
  * Add check for HAVE_CLOCK_GETTIME flag and for APPLE
  *
@@ -654,7 +666,7 @@ StDbTable::createMemory(int nrows) {
       char * ptr;
       for(int i=0; i<max;i++){
         getElementSpecs(i,ptr,name,length,type);
-        if(type==Stchar)ptr='\0';
+        if (type==Stchar) { *ptr='\0'; }
         delete [] name;
       }
      }

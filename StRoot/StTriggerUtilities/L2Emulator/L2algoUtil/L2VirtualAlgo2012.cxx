@@ -514,6 +514,9 @@ unsigned short L2VirtualAlgo2012::swap_bytes(unsigned short in)
 
 /******************************************************
   $Log: L2VirtualAlgo2012.cxx,v $
+  Revision 1.5.2.1  2016/05/23 18:33:25  jeromel
+  Updates for SL12d / gcc44 embedding library - StDbLib, QtRoot update, new updated StJetMaker, StJetFinder, StSpinPool ... several cast fix to comply with c++0x and several cons related fixes (wrong parsing logic). Changes are similar to SL13b (not all ode were alike). Branch BSL12d_5_embed.
+
   Revision 1.6  2012/12/19 17:25:18  jml
   logging
 

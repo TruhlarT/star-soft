@@ -8,7 +8,9 @@ TEMPLATE = lib
 CONFIG += thread dll
 CONFIG += create_prl
 
-QMAKE_RPATH=
+QMAKE_LFLAGS_RPATH=
+
+macx: QMAKE_LFLAGS_SONAME = -Wl,-install_name,@rpath/
 
 TARGET = QtRoot
 
@@ -94,5 +96,5 @@ unix {
 
 }
 #The following line was inserted by qt3to4
-QT += webkit 
+QT += webkit network 
 # qt3support 

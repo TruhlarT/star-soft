@@ -1,4 +1,4 @@
-/* @(#)root/x3d:$Name:  $:$Id: LinkDef.h,v 1.2 2009/08/03 18:03:11 fine Exp $ */
+/* @(#)root/x3d:$Name:  $:$Id: LinkDef.h,v 1.2.4.1 2016/05/23 18:33:09 jeromel Exp $ */
 
 /*************************************************************************
  * Copyright (C) 1995-2000, Rene Brun and Fons Rademakers.               *

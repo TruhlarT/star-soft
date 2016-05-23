@@ -149,101 +149,6 @@ MakeChairInstance2(tpcCorrection,St_TpcPhiDirectionC,Calibrations/tpc/TpcPhiDire
 MakeChairInstance2(tpcCorrection,St_TpcdEdxCorC,Calibrations/tpc/TpcdEdxCor);
 #include "St_TpcLengthCorrectionBC.h"
 MakeChairInstance2(tpcCorrection,St_TpcLengthCorrectionBC,Calibrations/tpc/TpcLengthCorrectionB);
-#include "St_TpcLengthCorrectionMDF.h"
-MakeChairInstance2(MDFCorrection,St_TpcLengthCorrectionMDF,Calibrations/tpc/TpcLengthCorrectionMDF);
-ClassImp(St_MDFCorrectionC);
-//____________________________________________________________________
-Double_t St_MDFCorrectionC::Eval(Int_t k, const Double_t x0, Double_t x1) const {
-  Double_t x[2] = {x0, x1};
-  return Eval(k,x);
-}
-//____________________________________________________________________
-Double_t St_MDFCorrectionC::Eval(Int_t k, const Double_t *x) const {
-  // Evaluate parameterization at point x. Optional argument coeff is
-  // a vector of coefficients for the parameterisation, NCoefficients
-  // elements long.
-  assert(x);
-  Double_t returnValue = DMean(k);
-  Double_t term        = 0;
-  UChar_t    i, j;
-  for (i = 0; i < NCoefficients(k); i++) {
-    // Evaluate the ith term in the expansion
-    term = Coefficients(k)[i];
-    for (j = 0; j < NVariables(k); j++) {
-      // Evaluate the factor (polynomial) in the j-th variable.
-      Int_t    p  =  Powers(k)[i * NVariables(k) + j];
-      Double_t y  =  1 + 2. / (XMax(k)[j] - XMin(k)[j])
-	* (x[j] - XMax(k)[j]);
-      term        *= EvalFactor(k,p,y);
-    }
-    // Add this term to the final result
-    returnValue += term;
-  }
-  return returnValue;
-}
-//____________________________________________________________________
-Double_t St_MDFCorrectionC::EvalError(Int_t k, const Double_t *x) const {
-  // Evaluate parameterization error at point x. Optional argument coeff is
-  // a vector of coefficients for the parameterisation, NCoefficients(k)
-  // elements long.
-  assert(x);
-  Double_t returnValue = 0;
-  Double_t term        = 0;
-  UChar_t    i, j;
-#if 0
-  for (i = 0; i < NCoefficients(k); i++) {
-    //     cout << "Error coef " << i << " -> " << CoefficientsRMS(k)[i] << endl;
-  }
-#endif
-  for (i = 0; i < NCoefficients(k); i++) {
-    // Evaluate the ith term in the expansion
-    term = CoefficientsRMS(k)[i];
-    for (j = 0; j < NVariables(k); j++) {
-      // Evaluate the factor (polynomial) in the j-th variable.
-      Int_t    p  =  Powers(k)[i * NVariables(k) + j];
-      Double_t y  =  1 + 2. / (XMax(k)[j] - XMin(k)[j])
-	* (x[j] - XMax(k)[j]);
-      term        *= EvalFactor(p,y);
-      //	 cout << "i,j " << i << ", " << j << "  "  << p << "  " << y << "  " << EvalFactor(p,y) << "  " << term << endl;
-    }
-    // Add this term to the final result
-    returnValue += term*term;
-    //      cout << " i = " << i << " value = " << returnValue << endl;
-  }
-  returnValue = TMath::Sqrt(returnValue);
-  return returnValue;
-}
-//____________________________________________________________________
-Double_t St_MDFCorrectionC::EvalFactor(Int_t k, Int_t p, Double_t x) const {
-  // Evaluate function with power p at variable value x
-  Int_t    i   = 0;
-  Double_t p1  = 1;
-  Double_t p2  = 0;
-  Double_t p3  = 0;
-  Double_t r   = 0;
-  
-  switch(p) {
-  case 1:
-    r = 1;
-    break;
-  case 2:
-    r =  x;
-    break;
-  default:
-    p2 = x;
-    for (i = 3; i <= p; i++) {
-      p3 = p2 * x;
-      if (PolyType(k) == kLegendre)
-	p3 = ((2 * i - 3) * p2 * x - (i - 2) * p1) / (i - 1);
-      else if (PolyType(k) == kChebyshev)
-	p3 = 2 * x * p2 - p1;
-      p1 = p2;
-      p2 = p3;
-    }
-    r = p3;
-  }
-  return r;
-}
 #include "St_tpcEffectiveGeomC.h"
 MakeChairInstance(tpcEffectiveGeom,Calibrations/tpc/tpcEffectiveGeom);
 #include "St_tpcElectronicsC.h"
@@ -446,8 +351,8 @@ Double_t StTpcHitErrors::calcError(Int_t iXZ, Int_t sec, Int_t row, Double_t _z,
   Int_t pitch = s;
   if (iXZ) pitch = 2;
   Double_t Vars[7] = {
-    Npads,             // 0 => no. of pads in cluster
-    Ntmbks,            // 1 => no. of time buckets in cluster
+    (Double_t) Npads,             // 0 => no. of pads in cluster
+    (Double_t) Ntmbks,            // 1 => no. of time buckets in cluster
     -TMath::Tan(_eta), // 2 => tan(phiL)
     _tanl,             // 3 => tan(dipL)
     _z,                // 4 => zL
@@ -509,23 +414,6 @@ Int_t St_TpcAvgCurrentC::ChannelFromSocket(Int_t socket) {
   default:              break;
   }
   return channel;
-}
-//________________________________________________________________________________
-Float_t St_TpcAvgCurrentC::AcChargeL(Int_t sector, Int_t channel) {
-  //  static const Double_t RA[2]        = { 154.484, 81.42}; // Outer/ Inner average Radii
-  //  static const Double_t WireLenth[2] = {   3.6e5, 1.6e5}; 
-  // L Inner = 190222, Outer = 347303
-  static Float_t Length[8] = {
-    1307.59, //   Channel 1 
-    1650.57, //   Channel 2 
-    1993.54, //   Channel 3 
-    2974.24, //   Channel 4 
-    3324.59, //   Channel 5 
-    3202.42, //   Channel 6 
-    3545.4 , //   Channel 7 
-    4398.53};//   Channel 8 
-
-  return AcCharge(sector,channel)/Length[channel-1];
 }
 //__________________Calibrations/trg______________________________________________________________
 #include "St_defaultTrgLvlC.h"
@@ -819,42 +707,7 @@ MakeChairInstance(tofGeomAlign,Calibrations/tof/tofGeomAlign);
 #include "St_tofTrayConfigC.h"
 MakeChairInstance(tofTrayConfig,Calibrations/tof/tofTrayConfig);
 #include "St_tofStatusC.h"
-#if 1
 MakeChairInstance(tofStatus,Calibrations/tof/tofStatus);
-#else
-ClassImp(St_tofStatusC); 
-St_tofStatusC *St_tofStatusC::fgInstance = 0; 
-St_tofStatusC *St_tofStatusC::instance() { 
-  if (! fgInstance) {
-    St_tofStatus *table = (St_tofStatus *) StMaker::GetChain()->GetDataBase("Calibrations/tof/tofStatus"); 
-    if (! table) {							
-      LOG_WARN << "St_tofStatusC::instance " << "Calibrations/tof/tofStatus" << "\twas not found" 
-	       << "c struct address " << table->GetTable()
-	       << endm; 
-      assert(table);							
-    }									
-    TDatime t[2];								
-    if (St_db_Maker::GetValidity(table,t) > 0) {				
-      Int_t Nrows = table->GetNRows();					
-      LOG_WARN << "St_tofStatusC::instance found table " << table->GetName() 
-	       << " with NRows = " << Nrows << " in db" << endm;		
-      LOG_WARN << "Validity:" << t[0].GetDate() << "/" << t[0].GetTime()	
-	       << " -----   " << t[1].GetDate() << "/" << t[1].GetTime() << endm;	
-      if (Nrows > 10) Nrows = 10;						
-      static Int_t maxsize = 256;
-      if (table->GetRowSize() < maxsize) 
-	table->Print(0,Nrows);		
-    }
-    fgInstance = new St_tofStatusC(table);				
-  }
-  LOG_WARN << "St_tofStatusC::instance c struct address " << ((St_tofStatus *) fgInstance->Table())->GetTable() << endm;
-  static Bool_t d = kFALSE;
-  if (d) {
-    fgInstance->Print(0,1);
-  }
-  return fgInstance;							
-}
-#endif
 //____________________________Calibrations/emc____________________________________________________
 #include "St_emcPedC.h"
 MakeChairInstance2(emcPed,St_bemcPedC,Calibrations/emc/y3bemc/bemcPed);

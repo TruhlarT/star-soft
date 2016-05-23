@@ -1,5 +1,5 @@
-// @(#)root/thread:$Name:  $:$Id: TQtThreadImp.cxx,v 1.4 2009/08/19 17:08:06 fine Exp $
-// $Id: TQtThreadImp.cxx,v 1.4 2009/08/19 17:08:06 fine Exp $
+// @(#)root/thread:$Name:  $:$Id: TQtThreadImp.cxx,v 1.4.4.1 2016/05/23 18:33:09 jeromel Exp $
+// $Id: TQtThreadImp.cxx,v 1.4.4.1 2016/05/23 18:33:09 jeromel Exp $
 // Author: Valery Fine  08/25/2005
 /****************************************************************************
 ** Copyright (C) 2005 by Valeri Fine. Brookhaven National Laboratory.
@@ -27,7 +27,7 @@
 #include "TQtThreadImp.h"
 #undef TWin32Thread
 // ------------------------------
-#include <QtCore/QThread>
+#include <QThread>
 //
 // TRootThread - is a hack to gain an access to the private "fHanle" data-member
 //

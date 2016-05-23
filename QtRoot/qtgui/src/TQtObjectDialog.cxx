@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtObjectDialog.cxx,v 1.4 2009/08/03 18:03:10 fine Exp $
+** $Id: TQtObjectDialog.cxx,v 1.4.4.1 2016/05/23 18:33:06 jeromel Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -25,22 +25,16 @@
 #include "TQtObjectDialog.h"
 #include "TGQt.h"
 
-#include <qlineedit.h>
-#include <qlabel.h>
-#include <qpushbutton.h>
-#if QT_VERSION < 0x40000
-#  include <qobjectlist.h>
-#  include <qcstring.h> 
-#  include <qlayout.h>
-#else /* QT_VERSION */
-#  include <qobject.h>
-#  include <q3cstring.h> 
-#  include <QVBoxLayout>
-#  include <QHBoxLayout>
-#  include <QDialogButtonBox>
-#  include <QDebug>
-#endif /* QT_VERSION */
-#include <qtextcodec.h> 
+#include <QLineEdit>
+#include <QLabel>
+#include <QPushButton>
+#include <QObject>
+#include <q3cstring.h> 
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QDialogButtonBox>
+#include <QDebug>
+#include <QTextCodec> 
 
 
 //______________________________________________________________________________

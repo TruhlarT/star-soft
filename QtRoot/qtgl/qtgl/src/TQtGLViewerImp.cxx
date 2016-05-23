@@ -15,11 +15,11 @@
 #include "TEnv.h"
 #include "TColor.h"
 
-#include <qprinter.h>
-#include <qpixmap.h>
-#include <qapplication.h>
-#include <qclipboard.h>
-#include <qimage.h>
+#include <QPrinter>
+#include <QPixmap>
+#include <QApplication>
+#include <QClipboard>
+#include <QImage>
 
 #include <QFileDialog>
 #include <QMenu>
@@ -28,17 +28,17 @@
 #include <QLabel>
 #include <QAction>
 
-#include <qfile.h>
-#include <qfileinfo.h>
-#include <qmessagebox.h>
-#include <qmenubar.h>
+#include <QFile>
+#include <QFileInfo>
+#include <QMessageBox>
+#include <QMenuBar>
 
-#include <qpainter.h>
-#include <qtextstream.h>
-#include <qstatusbar.h>
-#include <qsplitter.h>
+#include <QPainter>
+#include <QTextStream>
+#include <QStatusBar>
+#include <QSplitter>
 
-#include <qevent.h>
+#include <QEvent>
 
 #ifdef WIN32
 #  ifdef CopyFile
@@ -56,20 +56,15 @@ TQtGLViewerImp::TQtGLViewerImp():QMainWindow(){}
 TQtGLViewerImp::TQtGLViewerImp(TPadOpenGLView *pad, const char *title,
                        UInt_t width, UInt_t height)
  : QMainWindow(
-#if QT_VERSION < 0x40000
-     0,"glviewer", Qt::WDestructiveClose
-#endif /* QT_VERSION */
       )
    , TGLViewerImp(pad,title,width,height)
    , fSaveType("JPEG"),fMaxSnapFileCounter(2),fGLWidget(0),fPad(0),fContextMenu(0),fSelectedView(0),fSelectedViewActive(kFALSE)
    , fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE),fWantRootContextMenu(kFALSE)
    , fSnapShotAction(0)
  {
-#if QT_VERSION > 0x40000
    setAttribute(Qt::WA_DeleteOnClose);
-#endif   
    QString saveFile = TGLViewerImp::GetSnapShotFileName();
-   if (!saveFile.isEmpty()) fSaveFile = saveFile.toAscii().data();
+   if (!saveFile.isEmpty()) fSaveFile = saveFile.toLatin1().data();
    if (pad) {
       TVirtualPad *thisPad = pad->GetPad();
       if (thisPad) {
@@ -99,20 +94,15 @@ TQtGLViewerImp::TQtGLViewerImp(TPadOpenGLView *pad, const char *title,
 TQtGLViewerImp::TQtGLViewerImp(TPadOpenGLView *pad, const char *title,
                        Int_t x, Int_t y, UInt_t width, UInt_t height)
    : QMainWindow(
-#if QT_VERSION < 0x40000
-       0,"glviewer", Qt::WDestructiveClose | Qt::WRepaintNoErase | Qt:: WResizeNoErase 
-#endif /* QT_VERSION */
       )      
    , TGLViewerImp(pad,title,x,y,width,height)
    , fSaveType("JPEG"),fMaxSnapFileCounter(2),fGLWidget(0),fPad(0),fContextMenu(0),fSelectedView(0),fSelectedViewActive(kFALSE)
    , fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE),fWantRootContextMenu(kFALSE)
    , fSnapShotAction(0)
 {
-#if QT_VERSION > 0x40000
    setAttribute(Qt::WA_DeleteOnClose);
-#endif   
    QString saveFile = TGLViewerImp::GetSnapShotFileName();
-   if (!saveFile.isEmpty()) fSaveFile = saveFile.toAscii().data();
+   if (!saveFile.isEmpty()) fSaveFile = saveFile.toLatin1().data();
    if (pad) {
       TVirtualPad *thisPad = pad->GetPad();
       if (thisPad) {
@@ -141,21 +131,16 @@ TQtGLViewerImp::TQtGLViewerImp(TPadOpenGLView *pad, const char *title,
 TQtGLViewerImp::TQtGLViewerImp(TVirtualPad *pad, const char *title,
                        UInt_t width, UInt_t height)
    : QMainWindow(
-#if QT_VERSION < 0x40000
-      0,"glviewer", Qt::WDestructiveClose
-#endif /* QT_VERSION */
      )
    , TGLViewerImp(0,title,width,height)
    , fSaveType("JPEG"),fMaxSnapFileCounter(2),fGLWidget(0),fPad(pad),fContextMenu(0),fSelectedView(0),fSelectedViewActive(kFALSE)
    , fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE),fWantRootContextMenu(kFALSE)
    , fSnapShotAction(0)
  {
-#if QT_VERSION > 0x40000
    setAttribute(Qt::WA_DeleteOnClose);
-#endif   
    // Create the default SnapShot file name and type if any
    QString saveFile = TGLViewerImp::GetSnapShotFileName();
-   if (!saveFile.isEmpty()) fSaveFile = saveFile.toAscii().data();
+   if (!saveFile.isEmpty()) fSaveFile = saveFile.toLatin1().data();
    if (fPad) {
       if (saveFile.isEmpty() || saveFile.endsWith("/") ) {
          fSaveFile += fPad->GetName();
@@ -181,20 +166,15 @@ TQtGLViewerImp::TQtGLViewerImp(TVirtualPad *pad, const char *title,
 TQtGLViewerImp::TQtGLViewerImp(TVirtualPad *pad, const char *title,
                        Int_t x, Int_t y, UInt_t width, UInt_t height)
    : QMainWindow(
-#if QT_VERSION < 0x40000
-       0,"glviewer", Qt::WDestructiveClose | Qt::WRepaintNoErase | Qt:: WResizeNoErase 
-#endif /* QT_VERSION */
       )      
    , TGLViewerImp(0,title,x,y,width,height)
    , fSaveType("JPEG"),fMaxSnapFileCounter(2),fGLWidget(0),fPad(pad),fContextMenu(0),fSelectedView(0),fSelectedViewActive(kFALSE)
    ,fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE),fWantRootContextMenu(kFALSE)
    , fSnapShotAction(0)
 {
-#if QT_VERSION > 0x40000
    setAttribute(Qt::WA_DeleteOnClose);
-#endif   
    QString saveFile = TGLViewerImp::GetSnapShotFileName();
-   if (!saveFile.isEmpty()) fSaveFile = saveFile.toAscii().data();
+   if (!saveFile.isEmpty()) fSaveFile = saveFile.toLatin1().data();
    if (fPad) {
       if (saveFile.isEmpty() || saveFile.endsWith("/") ) {
          fSaveFile += fPad->GetName();
@@ -219,23 +199,18 @@ TQtGLViewerImp::TQtGLViewerImp(TVirtualPad *pad, const char *title,
 //______________________________________________________________________________
 TQtGLViewerImp::TQtGLViewerImp(TQtGLViewerImp &parent) :
       QMainWindow(
-#if QT_VERSION < 0x40000
-     &parent,"glviewerutil", Qt::WDestructiveClose | Qt::WType_TopLevel
-#endif /* QT_VERSION */
       )
    , TGLViewerImp(0,"selection",parent.width(),parent.height())
    , fSaveType(parent.fSaveType),fMaxSnapFileCounter(2),fGLWidget(0),fPad(parent.fPad),fContextMenu(0),fSelectedView(0),fSelectedViewActive(kFALSE)
    , fSelectionViewer(kTRUE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE),fWantRootContextMenu(kFALSE)
    , fSnapShotAction(0)
 {
-#if QT_VERSION > 0x40000
    setAttribute(Qt::WA_DeleteOnClose);
-#endif   
    // create a satelite widget
    connect(this,SIGNAL(destroyed() ),&parent, SLOT(DisconnectSelectorWidgetCB()));
    QString caption;
    QString saveFile = TGLViewerImp::GetSnapShotFileName();
-   if (!saveFile.isEmpty()) fSaveFile = saveFile.toAscii().data();
+   if (!saveFile.isEmpty()) fSaveFile = saveFile.toLatin1().data();
    if (fPad) {
       if (saveFile.isEmpty() || saveFile.endsWith("/") ) {
          fSaveFile += fPad->GetName();
@@ -512,7 +487,7 @@ void TQtGLViewerImp::SaveCB()
      TQtGLViewerWidget *glView = (TQtGLViewerWidget *)c;
      glView->setSnapshotFileName  (fSaveFile.Data());
      glView->saveSnapshot(true);
-     fSaveFile = glView->snapshotFileName().toAscii().data();
+     fSaveFile = glView->snapshotFileName().toLatin1().data();
 #endif
   }
 }
@@ -565,7 +540,7 @@ void TQtGLViewerImp::SaveAsCB()
 #else
      TQtGLViewerWidget *glView = (TQtGLViewerWidget *)c;
      glView->saveSnapshot(false);
-     fSaveFile = glView->snapshotFileName( ).toAscii().data();
+     fSaveFile = glView->snapshotFileName( ).toLatin1().data();
 #endif
 }
 //______________________________________________________________________________
@@ -601,8 +576,8 @@ void TQtGLViewerImp::SaveSnapShot(bool)
 //______________________________________________________________________________
 void TQtGLViewerImp::Save(const QString &filename,const QString  &type)
 {
-   fSaveFile = filename.toAscii().data(); 
-   fSaveType = type.toAscii().data(); 
+   fSaveFile = filename.toLatin1().data(); 
+   fSaveType = type.toLatin1().data(); 
    SaveCB();
 }
 //______________________________________________________________________________
@@ -637,10 +612,10 @@ QString shellCommand;
                          + infoNewFile.suffix();
 #else
    shellCommand = 
-                 "copy " + infoOldFile.completeBaseName() + "-000" + QString::number(counter) + "." + infoOldFile.suffix(FALSE)
-                         + "   " + infoNewFile.completeBaseName() + "-000" + QString::number(counter) + "." + infoNewFile.suffix(FALSE);
+                 "copy " + infoOldFile.completeBaseName() + "-000" + QString::number(counter) + "." + infoOldFile.suffix()
+                         + "   " + infoNewFile.completeBaseName() + "-000" + QString::number(counter) + "." + infoNewFile.suffix();
 #endif
-   gSystem->Exec( shellCommand.toAscii().data());
+   gSystem->Exec( shellCommand.toLatin1().data());
 //   fprintf(stderr," ==Copy==  %s \n", (const char*) shellCommand);
 
    SaveHtml(newName,counter);
@@ -716,14 +691,14 @@ void TQtGLViewerImp::SaveHtml(QString &saveFile, Int_t counter)
                                  + "." + info.completeBaseName() + ".html && "
                          + "mv " + "." + info.completeBaseName() + ".html " + info.completeBaseName() + ".html";
 #else
-          shellCommand =   "cd  " + info.path(true)  + " && "
+          shellCommand =   "cd  " + info.path()  + " && "
                          + "copy "+ htmlFile            + "   "
                                   + "." + info.completeBaseName() + ".html && "
                          + "ren  "+ "." + info.completeBaseName() + ".html " + info.completeBaseName() + ".html";
 #endif
    }
 #endif
-    if (!shellCommand.isEmpty())  gSystem->Exec(shellCommand.toAscii().data());
+    if (!shellCommand.isEmpty())  gSystem->Exec(shellCommand.toLatin1().data());
     // fprintf(stderr," ***  %s \n", (const char*) shellCommand);
 #ifdef GENERATE_HTML
    } else {
@@ -898,13 +873,8 @@ void TQtGLViewerImp::MakeMenu()
 {
    // Create a "save" action
    QAction *saveAction = 
-#if QT_VERSION < 0x40000
-    new QAction("Save", "&Save", CTRL+Key_S, this, "save" );
-   connect ( saveAction, SIGNAL( activated() ) , this, SLOT( SaveCB() ) );
-#else /* QT_VERSION */
     new QAction("&Save", this);
    connect ( saveAction, SIGNAL( triggered() ) , this, SLOT( SaveCB() ) );
-#endif /* QT_VERSION */
 
    const char * saveText = "<p><img source=\"save\"> "
                 "Click this button to save a <em>3D image</em>to the current image file. <br>"
@@ -913,13 +883,8 @@ void TQtGLViewerImp::MakeMenu()
    saveAction->setWhatsThis( tr(saveText) );
 
    // Create a "save as" action
-#if QT_VERSION < 0x40000
-   QAction *saveAsAction =  new QAction("SaveAs", "Save As", CTRL+Key_A, this, "saveas" );
-   connect ( saveAsAction, SIGNAL( activated() ) , this, SLOT( SaveAsCB() ) );
-#else /* QT_VERSION */
    QAction *saveAsAction =  new QAction("Save &As", this);
    connect ( saveAsAction, SIGNAL(triggered() ) , this, SLOT( SaveAsCB() ) );
-#endif /* QT_VERSION */
 
    const char * saveAsText = "<p><img source=\"save\"> "
                 "Click this button to select file and save a <em>3D image</em>there. <br>"
@@ -928,13 +893,8 @@ void TQtGLViewerImp::MakeMenu()
    saveAsAction->setWhatsThis( tr(saveAsText) );
  
    // Create a "save as" action
-#if QT_VERSION < 0x40000
-   fSnapShotAction  =  new QAction("snapShot", "SnapShotSave", CTRL+Key_O, this, "snapshot" );
-   fSnapShotAction->setToggleAction(true);
-#else /* QT_VERSION */
    fSnapShotAction  =  new QAction("SnapSh&otSave", this);
    fSnapShotAction->setCheckable(true);
-#endif /* QT_VERSION */
    connect ( fSnapShotAction, SIGNAL( toggled(bool) ) , this, SLOT( SnapShotSaveCB(bool) ) );
 
    const char * snapShotText = "<p><img source=\"snapshot\"> "
@@ -942,13 +902,8 @@ void TQtGLViewerImp::MakeMenu()
    fSnapShotAction->setWhatsThis( tr(snapShotText) );
 
    // Create a "print" action
-#if QT_VERSION < 0x40000
-   QAction *printAction =  new QAction("Print", "&Print", CTRL+Key_P, this, "print" );
-   connect ( printAction, SIGNAL( activated() ) , this, SLOT( PrintCB() ) );
-#else /* QT_VERSION */
    QAction *printAction =  new QAction("&Print", this);
    connect ( printAction, SIGNAL( triggered () ) , this, SLOT( PrintCB() ) );
-#endif /* QT_VERSION */
 
    const char * printText = "<p><img source=\"print\"> "
                 "Click this button to print a <em>3D image</em>. <br>"
@@ -957,13 +912,8 @@ void TQtGLViewerImp::MakeMenu()
    printAction->setWhatsThis( printText );
 
    // Create a "copy" action
-#if QT_VERSION < 0x40000
-   QAction *copyAction =  new QAction("Copy", "&Copy", CTRL+Key_C, this, "copy" );
-   connect ( copyAction, SIGNAL( activated() ) , this, SLOT( CopyCB() ) );
-#else /* QT_VERSION */
    QAction *copyAction =  new QAction("&Copy", this );
    connect ( copyAction, SIGNAL( triggered() ) , this, SLOT( CopyCB() ) );
-#endif /* QT_VERSION */
 
    const char * copyText = "<p><img source=\"copy\"> "
                 "Click this button to copy a <em>3D image</em>to the system clipborad. <br>"
@@ -972,13 +922,8 @@ void TQtGLViewerImp::MakeMenu()
    copyAction->setWhatsThis( tr(copyText) );
  
     // Create a "copy frame" action
-#if QT_VERSION < 0x40000
-   QAction *copyFrameAction =  new QAction("Frame", "Copy &Frame", CTRL+Key_F, this, "frame" );
-   connect ( copyFrameAction, SIGNAL( activated() ) , this, SLOT( CopyFrameCB() ) );
-#else /* QT_VERSION */
    QAction *copyFrameAction =  new QAction("Copy &Frame", this);
    connect ( copyFrameAction, SIGNAL( triggered() ) , this, SLOT( CopyFrameCB() ) );
-#endif /* QT_VERSION */
    const char * copyFrameText = "<p><img source=\"frame\"> "
                 "Click this button to copy a <em>tge frame of the 3D image</em>to the system clipborad. <br>"
                 "You can also select the <b>Copy Frame</b> command "
@@ -986,25 +931,14 @@ void TQtGLViewerImp::MakeMenu()
    copyFrameAction->setWhatsThis( tr(copyFrameText) );
 
    // Create "close" action
-#if QT_VERSION < 0x40000
-   QAction *fileCloseAction = new QAction( "Close", "&Close", Qt::ALT+Qt::Key_F4, this,
-      "close" );
-   connect ( fileCloseAction, SIGNAL( activated() ) , this,  SLOT( close() ) );
-#else
    QAction *fileCloseAction = new QAction("&Close", this);
    fileCloseAction->setShortcut(Qt::ALT+Qt::Key_F4);   
    connect ( fileCloseAction, SIGNAL( triggered() ) , this,  SLOT( close() ) );
-#endif
 
    // Synchronize TPad rotation 
    
-#if QT_VERSION < 0x40000
-   QAction *synchAction =  new QAction("TPadSynch", "Synchromize with TPad", CTRL+Key_I, this, "synch" );
-   synchAction->setToggleAction(true);
-#else /* QT_VERSION */
    QAction *synchAction =  new QAction("Synchrom&ize with TPad", this);
    synchAction->setCheckable(true);
-#endif /* QT_VERSION */
    connect ( synchAction, SIGNAL( toggled(bool) ) , this, SLOT( SynchTPadCB(bool)  ) );
    const char * synchText = "<p><img source=\"frame\"> "
                 "Select this option if your want the OpenGL view follows the <b>TPad</B> rotation";
@@ -1013,99 +947,59 @@ void TQtGLViewerImp::MakeMenu()
    // Synchronize TPad rotation 
    
 #ifdef QGLVIEWER
-#if QT_VERSION < 0x40000
-   QAction *showFrameAxisAction =  new QAction("Frame3DAxis", "Show Frame axis", CTRL+Key_1, this, "frameaxis" );
-   showFrameAxisAction->setToggleAction(true);
-#else /* QT_VERSION */
    QAction *showFrameAxisAction =  new QAction("Show Frame axis", this);
    showFrameAxisAction->setShortcut(Qt::ALT+Qt::Key_1);
    showFrameAxisAction->setCheckable(true);
-#endif /* QT_VERSION */
    connect ( showFrameAxisAction, SIGNAL( toggled(bool) ) , this, SLOT( ShowFrameAxisCB(bool)  ) );
    const char *showFrameAxisText = "Show the ROOT 3D object axis";
    showFrameAxisAction->setWhatsThis( tr(showFrameAxisText));
 
-#if QT_VERSION < 0x40000
-   QAction *showLightsAction =  new QAction("GLLights", "Show &light", CTRL+Key_L, this, "gllight" );
-   showLightsAction->setToggleAction(true);
-#else /* QT_VERSION */
    QAction *showLightsAction =  new QAction("Show &light", this);
    showLightsAction->setCheckable(true);
-#endif /* QT_VERSION */
    connect ( showLightsAction, SIGNAL( toggled(bool) ) , this, SLOT( ShowLightsCB(bool)  ) );
    const char * showLightsText = "<p><img source=\"frame\"> "
                 "Show the light source to debug the code";
    showLightsAction->setWhatsThis( showLightsText );
    
    // Create a "Event selectable" action
-#if QT_VERSION < 0x40000
-   QAction *selectEventAction =  new QAction("Event", "Select Event", CTRL+Key_E, this, "event" );
-   selectEventAction->setToggleAction(true);
-#else /* QT_VERSION */
    QAction *selectEventAction =  new QAction("Select &Event", this);
    selectEventAction->setCheckable(true);
-#endif /* QT_VERSION */
    connect ( selectEventAction, SIGNAL( toggled(bool) ) , this, SLOT( SelectEventCB(bool) ) );
    const char * selectEventText = "Turn this option on to be able to select the <b>event</b> (tracks and hits)  and similar \"wired\" object";
    selectEventAction->setWhatsThis( tr(selectEventText));
    
    // Create a "Detector selectable" action
-#if QT_VERSION < 0x40000
-   QAction *selectDetectorAction =  new QAction("Detector", "Select Detector", CTRL+Key_D, this, "detector" );
-   selectDetectorAction->setToggleAction(true);
-#else /* QT_VERSION */
    QAction *selectDetectorAction =  new QAction("Select &Detector", this);
    selectDetectorAction->setCheckable(true);
-#endif /* QT_VERSION */
    connect ( selectDetectorAction, SIGNAL( toggled(bool)  ) , this, SLOT( SelectDetectorCB(bool) ) );
    const char * selectDetectorText = "Turn this option on to be able to select the <b>detector</b> (solid) objects";
    selectDetectorAction->setWhatsThis(  selectDetectorText);
 
    // Create a "Detector selectable" action
-#if QT_VERSION < 0x40000
-   QAction *viewSelectionAction =  new QAction("Selection", "Show the selected object", CTRL+Key_T, this, "selection" );
-   viewSelectionAction->setToggleAction(true);
-#else /* QT_VERSION */
    QAction *viewSelectionAction =  new QAction("Show the selec&ted object",this);
    viewSelectionAction->setCheckable(true);
-#endif /* QT_VERSION */
    connect ( viewSelectionAction, SIGNAL( toggled(bool)  ) , this, SLOT( ActivateSelectorWidgetCB(bool) ) );
    const char * viewSelectionActionText = "Turn this option on to see the selected object with the dedicted view";
    viewSelectionAction->setWhatsThis( viewSelectionActionText );
 
    // Show  the "selected object" with the separate widget using the global coordinate
-#if QT_VERSION < 0x40000
-   QAction *viewSelectionGlobalAction =  new QAction("SelectionGlobal", "Show the selected object in global system", CTRL+Key_I, this, "selectionglobal" );
-   viewSelectionGlobalAction->setToggleAction(true);
-#else /* QT_VERSION */
    QAction *viewSelectionGlobalAction =  new QAction("Show the selected object &in global system",  this);
    viewSelectionGlobalAction->setCheckable(true);
-#endif /* QT_VERSION */
    connect ( viewSelectionGlobalAction, SIGNAL( toggled(bool)  ) , this, SLOT( ActivateSelectionGlobalCB(bool) ) );
    connect ( viewSelectionAction, SIGNAL( toggled(bool)  ), viewSelectionGlobalAction, SLOT( setEnabled(bool) ) );
    const char * viewSelectionGlobalActionText = "Turn this option on to show the selected object in the global coordinate system";
    viewSelectionGlobalAction->setWhatsThis( viewSelectionGlobalActionText );
 
    // Create a "Highlight the selected object" action
-#if QT_VERSION < 0x40000
-   QAction *viewSelectionHighlightAction =  new QAction("SelectionHighLight", "Highlight the selected object", CTRL+Key_I, this, "selectionhighlight" );
-   viewSelectionHighlightAction->setToggleAction(true);
-#else /* QT_VERSION */
    QAction *viewSelectionHighlightAction =  new QAction("Highl&ight the selected object", this);
    viewSelectionHighlightAction->setCheckable(true);
-#endif /* QT_VERSION */
    connect ( viewSelectionHighlightAction, SIGNAL( toggled(bool)  ) , this, SLOT( ActivateSelectionHighlighCB(bool) ) );
    const char * viewSelectionHighlightActionText = "Turn this option on to highlight the selected object";
    viewSelectionHighlightAction->setWhatsThis( viewSelectionHighlightActionText );
  
    // Create a "Context Menu for  the selected object" action
-#if QT_VERSION < 0x40000
-   QAction *viewContextMenuAction =  new QAction("ContexteMenu", "Context menu", CTRL+Key_I, this, "contextmenu" );
-   viewContextMenuAction->setToggleAction(true);
-#else /* QT_VERSION */
    QAction *viewContextMenuAction =  new QAction("Context menu", this);
    viewContextMenuAction->setCheckable(true);
-#endif /* QT_VERSION */
    connect ( viewContextMenuAction, SIGNAL( toggled(bool)  ) , this, SLOT( WantRootContextMenuCB(bool) ) );
    const char * viewContextMenuActionText  = "Show the ROOT context menu for the selected ROOT object";
    viewContextMenuAction->setWhatsThis( viewContextMenuActionText );
@@ -1114,90 +1008,6 @@ void TQtGLViewerImp::MakeMenu()
    QMenuBar   *mainMenu = menuBar();
 
    // -- populate the menu bar
-#if QT_VERSION < 0x40000
-      QPopupMenu *fileMenu      = new QPopupMenu();
-      mainMenu->insertItem("&File",fileMenu);
- 
-      QPopupMenu *editMenu      = new QPopupMenu();
-      mainMenu->insertItem("&Edit",editMenu);
-
-      QPopupMenu *optionMenu    = new QPopupMenu();
-      mainMenu->insertItem("&Options",optionMenu);
-
-      QPopupMenu *helpMenu   = new QPopupMenu();
-      mainMenu->insertItem("&Help",helpMenu);      
-  // -- The menu bar has been completed
-
- // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- //  fileMenu
-   
-   saveAction     ->addTo(fileMenu);
-   saveAsAction   ->addTo(fileMenu);
-   fSnapShotAction->addTo(fileMenu);
-                    fileMenu->insertSeparator();
-   printAction    ->addTo(fileMenu);
-                    fileMenu->insertSeparator();
-   fileCloseAction->addTo(fileMenu);
-
-
- // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- //  editMenu
-    copyAction     ->addTo(editMenu);
-    copyFrameAction->addTo(editMenu);
-   
- // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- //  optionMenu
-    synchAction->addTo(optionMenu);
-    synchAction->setOn(true);
-    synchAction->setEnabled (true);
-#ifdef QGLVIEWER
-    QWidget *c = centralWidget();
-    TQtGLViewerWidget *glView = (TQtGLViewerWidget *)c;
-
-    showFrameAxisAction->addTo(optionMenu);
-    showFrameAxisAction->setOn(glView? glView->FrameAxisScale()> 0 : false);
-    showFrameAxisAction->setEnabled(true);
-
-    showLightsAction->addTo(optionMenu);
-    showLightsAction->setOn(false);
-    showLightsAction->setEnabled (true);
-
-    
-    optionMenu->insertSeparator();
-
-    selectEventAction->addTo(optionMenu);
-    selectEventAction->setOn(glView ? glView->IsWiredSelectable() : false );
-    selectEventAction->setEnabled (true);
-
-    selectDetectorAction->addTo(optionMenu);
-    selectDetectorAction->setOn( glView ? glView->IsSolidSelectable() : false );
-    selectDetectorAction->setEnabled (true);
-    
-    optionMenu->insertSeparator();
-    
-    viewSelectionAction->addTo(optionMenu);
-    viewSelectionAction->setOn( false );
-    viewSelectionAction->setEnabled (true);
-    
-    viewSelectionGlobalAction->addTo(optionMenu);
-    viewSelectionGlobalAction->setOn( false );
-    viewSelectionGlobalAction->setEnabled (false);
-
-    viewSelectionHighlightAction->addTo(optionMenu);
-    viewSelectionHighlightAction->setOn( false );
-    viewSelectionHighlightAction->setEnabled (true);
-    
-    viewContextMenuAction->addTo(optionMenu);
-    viewContextMenuAction->setOn( false );
-    viewContextMenuAction->setEnabled (true);
-
-#endif
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- //  helpMenu
-    helpMenu->insertItem("&Help",this,SLOT(HelpCB()));
-    helpMenu->insertSeparator();
-    helpMenu->insertItem("&About",this,SLOT(AboutCB()));
-#else
     QMenu *fileMenu      = mainMenu->addMenu("&File");
     QMenu *editMenu      = mainMenu->addMenu("&Edit");
     QMenu *optionMenu    = mainMenu->addMenu("&Options");
@@ -1277,7 +1087,6 @@ void TQtGLViewerImp::MakeMenu()
     helpMenu->addAction("&Help",this,SLOT(HelpCB()));
     helpMenu->addSeparator();
     (helpMenu->addAction("&About",this,SLOT(AboutCB())))->setMenuRole(QAction::AboutRole);
-#endif /* QT_VERSION */    
 }
 //______________________________________________________________________________
 void TQtGLViewerImp::Paint(Option_t *opt)
@@ -1403,18 +1212,14 @@ void TQtGLViewerImp::ShowObjectInfo(TObject *obj, const QPoint &cursorPosition)
       TAttLine *lAttr = dynamic_cast<TAttLine *>(obj);
       if (lAttr)  objectColor =  lAttr->GetLineColor();
    }
-   SetStatusText(QString("%1,%2").arg(cursorPosition.x()).arg(cursorPosition.y()).toAscii().data(), 1,objectColor);
+   SetStatusText(QString("%1,%2").arg(cursorPosition.x()).arg(cursorPosition.y()).toLatin1().data(), 1,objectColor);
    SetStatusText(obj->ClassName(), 2);
-   SetStatusText(tipText.toAscii().data(), 3);
+   SetStatusText(tipText.toLatin1().data(), 3);
    // Create a tooltip
 
    TQtGLViewerWidget *tipped = (TQtGLViewerWidget *)sender();
    QPoint globalPosition = tipped->mapToGlobal(cursorPosition);
-#if QT_VERSION < 0x40000
-   QWhatsThis::display(tipText, globalPosition,tipped);
-#else /* QT_VERSION */
    QWhatsThis::showText(globalPosition,tipText,tipped);
-#endif /* QT_VERSION */
 
    TObject3DView *view = (TObject3DView *)tipped->selectedName();
 

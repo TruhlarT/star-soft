@@ -1,4 +1,4 @@
-// $Id: St2011WMaker.cxx,v 1.19 2012/09/26 14:20:59 stevens4 Exp $
+// $Id: St2011WMaker.cxx,v 1.15.2.1 2016/05/23 18:33:21 jeromel Exp $
 //
 //*-- Author : Jan Balewski, MIT
 //*-- Author for Endcap: Justin Stevens, IUCF
@@ -637,6 +637,9 @@ void St2011WMaker::chainJetFile( const Char_t *file )
 }
 
 // $Log: St2011WMaker.cxx,v $
+// Revision 1.15.2.1  2016/05/23 18:33:21  jeromel
+// Updates for SL12d / gcc44 embedding library - StDbLib, QtRoot update, new updated StJetMaker, StJetFinder, StSpinPool ... several cast fix to comply with c++0x and several cons related fixes (wrong parsing logic). Changes are similar to SL13b (not all ode were alike). Branch BSL12d_5_embed.
+//
 // Revision 1.19  2012/09/26 14:20:59  stevens4
 // use PtBal cos(phi) for WB and WE algos and use Q*ET/PT for barrel charge sign
 //

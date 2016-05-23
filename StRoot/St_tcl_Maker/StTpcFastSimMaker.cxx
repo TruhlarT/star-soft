@@ -1,10 +1,7 @@
-/* $Id: StTpcFastSimMaker.cxx,v 1.7 2013/01/28 20:27:25 fisyak Exp $
+/* $Id: StTpcFastSimMaker.cxx,v 1.5.2.1 2016/05/23 18:33:27 jeromel Exp $
     $Log: StTpcFastSimMaker.cxx,v $
-    Revision 1.7  2013/01/28 20:27:25  fisyak
-    Move cluters to global coordinatate system
-
-    Revision 1.6  2012/12/12 23:53:36  fisyak
-    Clean up, extend no. of pad rows
+    Revision 1.5.2.1  2016/05/23 18:33:27  jeromel
+    Updates for SL12d / gcc44 embedding library - StDbLib, QtRoot update, new updated StJetMaker, StJetFinder, StSpinPool ... several cast fix to comply with c++0x and several cons related fixes (wrong parsing logic). Changes are similar to SL13b (not all ode were alike). Branch BSL12d_5_embed.
 
     Revision 1.5  2012/05/07 14:54:45  fisyak
     Add printout
@@ -42,11 +39,9 @@
 #include "TDataSetIter.h"
 #include "StDetectorDbMaker/StiTpcInnerHitErrorCalculator.h"
 #include "StDetectorDbMaker/StiTpcOuterHitErrorCalculator.h"
-#include "StDetectorDbMaker/St_tpcPadPlanesC.h"
 ClassImp(StTpcFastSimMaker);
 //____________________________________________________________
 Int_t StTpcFastSimMaker::Make() {
-  static Int_t iBreak = 0;
   mExB = gStTpcDb->ExB();
   if (! gRandom) gRandom = new TRandom();
   // Get the input data structures from StEvent
@@ -87,32 +82,29 @@ Int_t StTpcFastSimMaker::Make() {
     transform(coorG,coorLT,sector,row);
     StTpcLocalCoordinate  coorLTD = coorLT;
     // ExB corrections
-    Float_t pos[3] = {coorLTD.position().x(),coorLTD.position().y(),coorLTD.position().z()};
+    Float_t pos[3] = {(Float_t) coorLTD.position().x(),(Float_t) coorLTD.position().y(),(Float_t) coorLTD.position().z()};
     Float_t posMoved[3];
     if ( mExB ) {
       mExB->DoDistortion(pos,posMoved);   // input pos[], returns posMoved[]
       StThreeVector<double> newPos(posMoved[0],posMoved[1],posMoved[2]);
       coorLTD.setPosition(newPos);
     }
+    static StTpcLocalSectorAlignedCoordinate  coorLSA;
+    transform(coorLTD,coorLSA); //
     static StTpcLocalSectorCoordinate  coorLS;
-    transform(coorLTD,coorLS); // alignment
+    transform(coorLSA,coorLS); // alignment
     Double_t xyzL[3] = {coorLS.position().x(),coorLS.position().y(),coorLS.position().z()};
-    if (TMath::Abs(xyzL[1]-transform.yFromRow(row)) > 0.1000) {
-      if (Debug()) {
-	LOG_DEBUG << "Id: " << tpc_hit[i].volume_id  
-		  << "\txyzL :" << xyzL[0] << "\t" << xyzL[1] << "\t" << xyzL[2] 
-		  << "\tdR :" << xyzL[1]-transform.yFromRow(row) << endm;
-      }
-      iBreak++;
+    if (Debug() && TMath::Abs(xyzL[1]-transform.yFromRow(row)) > 0.1000) {
+      cout << "Id: " << tpc_hit[i].volume_id  
+	   << "\txyzL :" << xyzL[0] << "\t" << xyzL[1] << "\t" << xyzL[2] 
+	   << "\tdR :" << xyzL[1]-transform.yFromRow(row) << endl;
     }
     Double_t Z = xyzL[2];
     Double_t eta = TMath::PiOver2() - TMath::Abs(dirL.position().phi());
     Double_t tanl = dirL.position().z()/dirL.position().perp();
     Double_t sigmaY2, sigmaZ2;
-    if (row <= St_tpcPadPlanesC::instance()->innerPadRows())  
-      StiTpcInnerHitErrorCalculator::instance()->calculateError(Z,eta,tanl,sigmaY2, sigmaZ2);
-    else            
-      StiTpcOuterHitErrorCalculator::instance()->calculateError(Z,eta,tanl,sigmaY2, sigmaZ2);
+    if (row <= 13)  StiTpcInnerHitErrorCalculator::instance()->calculateError(Z,eta,tanl,sigmaY2, sigmaZ2);
+    else            StiTpcOuterHitErrorCalculator::instance()->calculateError(Z,eta,tanl,sigmaY2, sigmaZ2);
     Double_t sigmaY = TMath::Sqrt(sigmaY2);
     Double_t sigmaZ = TMath::Sqrt(sigmaZ2);
     StThreeVectorF e(0, sigmaY, sigmaZ);
@@ -128,20 +120,18 @@ Int_t StTpcFastSimMaker::Make() {
     Float_t  timebkt =  Pad.timeBucket() + 1.e6*gStTpcDb->Electronics()->samplingFrequency()*tof;
     if (timebkt < 0 || timebkt > 512) continue;
     StTpcPadCoordinate newPad(Pad.sector(),Pad.row(), Pad.pad(),timebkt );
-    Short_t pad = newPad.pad();
-    Short_t tmb = newPad.timeBucket();
-    static StGlobalCoordinate global; // StTpcHitMover will not move it because of EmbeddingShortCut flag.
+    static StTpcLocalCoordinate global; // leave coordinates in TpcLocalCoordinate because StTpcHitMover expects that.
     transform(newPad,global,kFALSE); // alignment
+    StThreeVectorF p(global.position().x(),global.position().y(),global.position().z());
     UInt_t hw = 1;   // detid_tpc
     hw += sector << 4;     // (row/100 << 4);   // sector
     hw += row    << 9;     // (row%100 << 9);   // row
-    StTpcHit *tpcHit = new StTpcHit(global.position(),e, hw,TMath::Abs(tpc_hit[i].de)// hw, q
-				    , 0                                              // c
-				    , tpc_hit[i].track_p, 100                        // idTruth, quality
-				    , i                                              // id
-				    , pad, pad+1,tmb,tmb+1                           // mnpad, mxpad, mntmbk, mxtmbk
-				    , newPad.pad(), newPad.timeBucket()              // mxtmbk, cl_x , cl_t
-				    , 0);                                            // Adc
+    StTpcHit *tpcHit = new StTpcHit(p,e, 
+				    hw,TMath::Abs(tpc_hit[i].de), i+1,   // hw, q, c
+				    tpc_hit[i].track_p, 100,             // idTruth, quality
+				    0,                                   // id
+				    0,  0, 0,                            // mnpad, mxpad, mntmbk
+				    0, Pad.pad(), Pad.timeBucket());     // mxtmbk, cl_x , cl_t
     if (Debug() > 1) tpcHit->Print();
     rCol->addHit(tpcHit);
   }

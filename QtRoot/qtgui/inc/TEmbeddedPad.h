@@ -1,4 +1,4 @@
-// @(#)root/base:$Name:  $:$Id: TEmbeddedPad.h,v 1.7 2009/10/21 19:07:45 fine Exp $
+// @(#)root/base:$Name:  $:$Id: TEmbeddedPad.h,v 1.7.4.1 2016/05/23 18:33:04 jeromel Exp $
 // Author: Valeri Fine   02/18/2006
 /****************************************************************************
 **

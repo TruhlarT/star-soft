@@ -1,4 +1,4 @@
-// @(#)root/qt:$Id: TGQt.h,v 1.14 2010/05/10 22:51:25 fine Exp $
+// @(#)root/qt:$Id: TGQt.h,v 1.14.4.1 2016/05/23 18:32:44 jeromel Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -25,22 +25,22 @@
 #include "TQtRConfig.h"
 
 #ifndef __CINT__
+#include <utility>
 #include <vector>
 #include <map>
 
-#include <qobject.h>
+#include <QtCore/Qt>
 #include <QMap>
 #include <QColor>
 #include <QCursor>
 #include <QPainter>
 #include <QRect>
-#include <qnamespace.h>
 
-#include <QtGui/QPixmap>
-#include <QtCore/QEvent>
-#include <QtCore/QVector>
+#include <QPixmap>
+#include <QEvent>
+#include <QVector>
 
-#include <QtGui/QFontDatabase>
+#include <QFontDatabase>
 
 #include "TQtClientGuard.h"
 
