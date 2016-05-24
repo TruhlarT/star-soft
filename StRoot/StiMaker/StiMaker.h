@@ -10,6 +10,7 @@ using std::string;
 #include "StEvent/StEnumerations.h"
 #include "Sti/StiKalmanTrackFinder.h"
 #include "Sti/StiKalmanTrackFitter.h"
+#include "Sti/StiHitLoader.h"
 
 class TFile;
 class TTree;
@@ -49,7 +50,7 @@ class StiMaker : public StMaker
              void FinishTracks(int gloPri);
 
     virtual const char* GetCVS() const
-    {static const char cvs[]="Tag $Name:  $ $Id: StiMaker.h,v 2.35 2016/03/28 00:15:54 perev Exp $ built " __DATE__ " " __TIME__; return cvs;}	
+    {static const char cvs[]="Tag $Name:  $ $Id: StiMaker.h,v 2.34.6.1 2016/05/24 22:49:19 smirnovd Exp $ built " __DATE__ " " __TIME__; return cvs;}	
 
 
     StiToolkit * getToolkit();
@@ -64,9 +65,11 @@ class StiMaker : public StMaker
  private:
     void  MyClear();
 
+    /// Updates the internal toolkit based on set the maker's attributes
+    void UpdateToolkit();
+
     bool                 eventIsFinished;
     bool                 _initialized;
-     int                 mMaxTimes; //max amount of tracks could be assigned to one hit
     StiToolkit  *        _toolkit;
     StiHitLoader<StEvent,StiDetectorBuilder> * _hitLoader;
     StiTrackFinder *       _seedFinder;
