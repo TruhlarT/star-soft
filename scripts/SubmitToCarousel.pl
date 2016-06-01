@@ -39,7 +39,7 @@ my @daqlist = `ls $daqpat` ;
 
 #my $MAXNUM = 900;
 #my $LIMNUM = 600;
-my $MAXNUM = 500;
+my $MAXNUM = 400;
 my $LIMNUM = 200;
 
 my $NNUM = 100;
@@ -147,7 +147,7 @@ my $dcsubm = "/star/u/starreco/runkisti/".$dclog;
 
 # $fC1->set_context("runnumber=$prodrun","filetype=online_daq","filename~st_physics");
 
- $fC1->set_context("runnumber=$prodrun","filetype=online_daq","sanity=1","limit=0");
+ $fC1->set_context("runnumber=$prodrun","filetype=online_daq","filename~st_physics","sanity=1","limit=0");
 
  @fileset = $fC1->run_query("trgsetupname","path","filename");
 
