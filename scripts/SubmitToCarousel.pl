@@ -28,7 +28,7 @@ $dbuser="starreco";
 $dbpass="";
 $dbname="Embedding_job_stats";
 
-my $JobStatusT = "jobs_prod_2013";
+my $JobStatusT = "jobs_prod_2016";
 
 my $nfspath = "/star/data23/GRID/daq/2012/";
 my $daqpat = $nfspath."*.daq";
