@@ -60,7 +60,7 @@ my $qprod = $query->param('prod');
 my $qflag = $query->param('pflag');
 my $qcalib = $query->param('caltag');
 
-my $JobStatusT = "CalibJobStatus"; 
+my $JobStatusT = "CalibJobStatus2016"; 
 
 
 my @archain = ();
