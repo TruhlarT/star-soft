@@ -1164,8 +1164,8 @@ my $ynum = 14;
      $max_y = 98 ;
      $ynum = 14;
   }elsif($qprod eq "P16id") { 
-     $max_y = 36 ;
-     $ynum = 12;
+     $max_y = 45 ;
+     $ynum = 15;
 
  }else{
      $max_y = 28 ;
