@@ -1221,7 +1221,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 	$gtitle = "Ratios RealTime/CPU for different stream jobs in P15ic-P15ie productions ";
   }
  }elsif( $qprod eq "P16ic" or $qprod eq "P16id") {
-     $max_y = 45 ;
+     $max_y = 60 ;
      $ynum = 15;
      if( $qprod eq "P16id.2014") {
      $max_y = 45 ;
