@@ -303,7 +303,7 @@ my $agml;
  $tpath = $spl[0]; 
  @spl = ();
  @spl = split("_", $tpath);
- $dpth = $spl[0];
+ $dpth = $spl[0]."%ittf";
  
 
 
