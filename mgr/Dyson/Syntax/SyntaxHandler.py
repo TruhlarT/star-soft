@@ -89,14 +89,15 @@ class SyntaxHandler ( ContentHandler ):
         self.syntax  = {}
         
         #              AGML TAG      Class which handles tag
-        # ===================================================
+        # =================================================== # Document handling
         self.addToken( 'Document'  , Language.Document      )
-        # ===================================================
+        # ===================================================  
         self.addToken( 'Export'    , Language.Export        ) 
-        # ===================================================
+        # =================================================== # Detector modules
         self.addToken( 'Module'    , Language.Module        )   
         self.addToken( 'Block'     , Language.Block         )
         self.addToken( 'Volume'    , Language.Block         ) # AgML syntax
+        self.addToken( 'Group'     , Language.Group         ) 
         self.addToken( 'Subroutine', Language.Subroutine    )
         self.addToken( 'Content'   , Language.Content       )
         self.addToken( 'Include'   , Language.Include       )
@@ -113,10 +114,15 @@ class SyntaxHandler ( ContentHandler ):
         self.addToken( 'Assign'    , Language.Assign        ) # New in AgROOT 
         self.addToken( 'Keep'      , Language.Keep          ) # New in AgROOT
         # ===================================================
+#       self.addToken( 'Structure' , Language.Structure     )
         self.addToken( 'Structure' , Language.Struct        )     
-        self.addToken( 'Struct'    , Language.Struct        )
-        self.addToken( 'Fill'      , Language.Fill          )
-        self.addToken( 'Use'       , Language.Use           )
+        self.addToken( 'Struct'    , Language.Struct        ) # New style struct
+#       self.addToken( 'Fill'      , Language.Fill          )
+        self.addToken( 'Fill'      , Language.Filling       )
+        self.addToken( 'Filling'   , Language.Filling       ) # New style struct
+#       self.addToken( 'Use'       , Language.Use           )
+        self.addToken( 'Use'       , Language.Using         )
+        self.addToken( 'Using'     , Language.Using         ) # New style struct
         # ===================================================
         self.addToken( 'Shape'     , Language.Shape         )
         self.addToken( 'Material'  , Language.Material      )
@@ -174,6 +180,17 @@ class SyntaxHandler ( ContentHandler ):
         # ===================================================        
         self.addToken( 'Function'  , Language.Function      )
         self.addToken( 'Arguement' , Language.Arguement     )
+        # =================================================== # Detector module configuration
+        # Syntax elements for detector configuration
+        self.addToken( 'Detector'  , Language.Detector      )
+        self.addToken( 'Setup'     , Language.Setup         )
+        self.addToken( 'Modules'   , Language.Modules       )
+        self.addToken( 'Init'      , Language.Init          )
+        # =================================================== # Master geomtery configuration
+        self.addToken( 'StarGeometry', Language.StarGeometry )
+        self.addToken( 'Tag'       , Language.Tag           )
+        self.addToken( 'Geometry'  , Language.Geometry      )
+        self.addToken( 'Construct' , Language.Construct     )                
         # ===================================================
         self.current = 0
         # ===================================================

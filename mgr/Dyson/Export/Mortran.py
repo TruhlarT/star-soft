@@ -3,7 +3,7 @@ from Handler import Handler
 import Dyson.Utils.Shapes
 from   Dyson.Utils.Shapes import shape_params
 
-import os
+import os, copy
 
 export_comments = True
 
@@ -372,6 +372,139 @@ class Document( Handler ):
 # ====================================================================================================
 # Begin definition of Mortran syntax
 
+class Detector( Handler ):
+    """
+    The <Detector> block specifies configuration options for the detector
+    """
+    def __init__(self):
+        global document
+        self.parent = None
+
+        self.name = None
+        self.comment = None
+        self.modules = []
+        self.setups  = []
+
+        Handler.__init__(self)
+
+    def setParent(self, p):
+        self.parent = p
+
+    def addModule( self, module ):
+        self.modules.append( module )
+
+    def startElement(self, tag, attr ):
+        self.name    = attr.get('name', None)
+        self.comment = attr.get('comment', None)
+
+#        formatter( '#ifndef __%s_CONFIG__' % self.name )
+#        formatter( '#define __%s_CONFIG__' % self.name )
+
+    def endElement(self, tag ):
+        pass
+#        formatter ('#endif')
+
+class Setup( Handler ):
+    """
+    The <Setup> block defines a specific configuration for the detector
+    """
+    def __init__(self):
+        self.parent = None
+        self.name = None
+        self.comment = None
+        self.module = None
+        self.onoff = None
+        self.inits = []
+        self.flags = {}
+        Handler.__init__(self);
+
+    def setParent(self,p):
+        self.parent = p
+
+    def startElement(self, tag, attr ):
+        self.name    = attr.get('name',    None)
+        self.comment = attr.get('comment', None)
+        self.module  = attr.get('module',  None)
+        self.onoff   = attr.get('onoff',   None)
+        self.detector = self.parent.name
+
+        # Flags set by agsflag
+        for flag in [ 'prin', 'grap', 'hist', 'geom', 'mfld', 'debu', 'simu' ]:
+            myflag = attr.get(flag, None)
+            if myflag:
+                self.flags[flag] = int(myflag)
+
+
+    def endElement(self, tag):
+#       formatter( 'REPLACE [SETUP %s] with {'%self.name )
+#       formatter( "%s_module = CsAddr('%s')"%(self.detector,self.module) )
+#       formatter( "Call AgDetp NEW('%s')"%(self.detector) )
+        formatter( "FUNCTION SETUP_%s()"%self.name )
+        formatter( "  Integer       :: SETUP_%s"%self.name )
+        formatter( "  Integer, save :: address" )
+        formatter( "  Integer       :: CsAddr" )
+        formatter( "  Real    :: tmp(100)" )
+        if self.onoff == 'off' or self.onoff == 'OFF':
+            formatter ( "address = 0")
+            formatter ( "SETUP_%s = 0"%self.name )
+            formatter ( "RETURN" )
+        else:
+            # Pointer to the constructor defined below
+            formatter( "  SETUP_%s = CsAddr('CONSTRUCT_%s')"%(self.name,self.name) )
+            # Pointer to the detector module
+            formatter( "  address  = CsAddr('%s')"%(self.module) ) 
+            #formatter( "  WRITE(*,*)  '[%10s :: %20s]'"%(self.name,self.module) )
+            formatter( "  Write(*,*) '%12s [%20s] : %80s'"%(self.name,self.module,self.comment) )
+        
+            name = self.parent.name.upper()
+            formatter( "Call AgDetp NEW('%s')"%name )
+
+            for i in self.inits:
+                value = i.value
+                value = value.strip('{}')
+                value = value.split(',')
+                if len(value) == 1:
+                    formatter( "Call AgDetp ADD('%s.%s=',%s,1)"%(i.struct,i.variable,i.value) )
+                else:
+                    formatter( "tmp = %s" %i.value )
+                    formatter( "Call AgDetp ADD('%s.%s=',tmp,%i)"%(i.struct,i.variable,len(value)) )
+
+            formatter("RETURN")
+            
+        formatter("ENTRY construct_%s"%self.name)
+        # Setup flags
+        formatter("IF address.le.0 { return; }")
+        for flag,value in self.flags.iteritems():
+            formatter("   CALL Agsflag('%s',%i)"%(flag,value))
+        # Call the module stored during setup
+        formatter("   CALL CsjCal(address,0, 0,0,0,0,0, 0,0,0,0,0)" )
+        formatter("RETURN")        
+        formatter("END")
+#       formatter( '}' )
+
+class Init( Handler ):
+    def __init__(self):
+        self.parent = None
+
+    def setParent( self, p ):
+        self.parent = p
+        self.parent.inits.append(self)
+
+    def startElement(self, tag, attr ):
+        self.struct   = attr.get('struct', None )
+        if self.struct: self.struct = self.struct.lower()
+        self.variable = attr.get('var', None )
+        self.value    = attr.get('value', None )
+        self.namespace = self.parent.module.upper()
+
+    def endElement(self, tag ):
+        pass
+#        self.parent.inits.append(self)
+
+
+
+class Modules( Handler ):
+    pass
 
 class Module ( Handler ):
     def __init__(self):
@@ -385,6 +518,10 @@ class Module ( Handler ):
         self.name = name
         _in_module = True
         form ( "MODULE %s   %s" % ( name, comm ) )
+        form ( '""" AGML variables """' )
+        form ( 'REAL :: agml_rotm(9), agml_thetax, agml_phix, agml_thetay, agml_phiy, agml_thetaz, agml_phiz' )
+        form ( 'COMMON /agml_vars/ agml_rotm, agml_thetax, agml_phix, agml_thetay, agml_phiy, agml_thetaz, agml_phiz' )
+               
     def characters( self, content ):
         form( content, cchar=' _' )        
     def endElement(self, tag ):
@@ -439,6 +576,16 @@ class Block( Handler ):
         
         form( content, cchar=' _')#debug=True )
 
+class Group( Handler ):
+    def __init__(self):
+        self. name=""
+        self. comment=""
+        Handler.__init__(self)
+    def setParent(self,p): self.parent = p
+    def startElement(self,tag,attr):
+        self.name = attr.get('name')
+        self.cond = attr.get('if',None)
+        form( '! Reference system %s ignored'%self.name )
 
 
 class Export ( Handler ):
@@ -829,7 +976,7 @@ class Enum( Handler ):
     def __init__(self): Handler.__init__(self)
     def setParent(self,p): self.parent = p    
 # ====================================================================================================
-class Struct( Handler ):
+class Structure( Handler ):
     def setParent(self,p): self.parent = p    
     def __init__(self):
         self. name = 0
@@ -867,6 +1014,11 @@ class Struct( Handler ):
         #form( "}! %s" % self.name )
         output += "}"
         form ( output )
+
+class Struct( Structure ):
+    def __init__(self):
+        Structure.__init__(self)
+
 # ====================================================================================================
 class ArrayFormatter:
     def __init__(self,limit=60,indent='    ',level=2 ):
@@ -1006,64 +1158,11 @@ class Fill( Handler ):
                 form      ( '%s = %s ! %s'%( var, val, com ) )
 
         form('ENDFILL')
-                
-            
+                      
 
-    def __NEW_OLD_endElement(self,tag):
 
-        limit = 60
-
-        for i,var in enumerate(self.var_list):
-
-            val = self.val_list[i].strip()  # value(s)
-            com = self.com_list[i]          # comment
-
-            if ( val[0]=='{' ):             # dealing with either matrix or array
-
-                n=len(val)
-                myval=val[1:n-1]
-
-                print myval
-
-                mylines = myval.split(';')
-                nlines = len(mylines)
-
-                output = '%s = {' % var
-                justfy = '      '
-                output += justfy
-                justfy += justfy
-                
-                for myline in mylines:
-
-                    values = myline.split(',')
-                    nv = len(values)
-
-                    for i,v in enumerate(values):
-                        v = v.strip()
-                        if ( i!= nv-1 ):
-                            output += '%s, '% v
-                            if ( len(output)%limit == 0 ):
-                                output+='\n'
-                        else:
-                            output += '%s'  % v
-
-                    if ( nlines > 1 ):
-                        output += ';\n'
-                        output += justfy
-    
-                output += '} ! %s '% com
-
-                for line in output.split('\n'):
-
-                    line = line.strip(',')
-                    #print line                    
-                    #form(line)
-                
-                        
-            else:
-                form ( '%s=%s ! %s'%( var, val, com ) )
-            
-
+class Filling(Fill):
+    def __init__(self): Fill.__init__(self)
             
 
 
@@ -1080,6 +1179,9 @@ class Use(Handler):
             form( "use %s" % struct )
         else:
             form( "use %s %s=%s"%( struct, selector, value ) )
+
+class Using(Use):
+    def __init__(self): Use.__init__(self)
 # ====================================================================================================
 class Material(Handler):
     def __init__(self):
@@ -1341,6 +1443,20 @@ class Create_and_Position(Position):
             output += " %s"% pos.strip(',')
         form( output             )
 
+def tryFloat( value ):
+    result = value
+    try:
+        result = float(value) # convert 1 to 1.0
+    except ValueError:
+        result = 'real(%s)'%result # wrap expressions in explicit cast to real
+    return str(result)
+
+def stripQuotes( value ):
+    value = value.strip('"')
+    value = value.strip("'")
+    return value
+    
+
 # ====================================================================================================
 class Placement(Handler):
     def __init__(self):
@@ -1355,27 +1471,191 @@ class Placement(Handler):
         # Positional arguements
         self.block = attr.get('block')
         self.into  = attr.get('in',None)
-        self.x     = attr.get('x',None)
-        self.y     = attr.get('y',None)
-        self.z     = attr.get('z',None)
+        self.x     = attr.get('x',0.0)
+        self.y     = attr.get('y',0.0)
+        self.z     = attr.get('z',0.0)
         self.only  = attr.get('konly',None)
         self.copy  = attr.get('ncopy',None)
         self.cond  = attr.get('if',   None)
+
+        if self.only:
+            self.only  = self.only.strip("'")
+            self.only  = "'%s'"%self.only
 
         self.attr  = attr
 
     def endElement(self,tag):
 
+        # Conditional placement
+        cond   = self.attr.pop('if', None)
+        if cond: formatter( 'IF %s {'%cond )
+
+        attr = copy.copy(self.attr)
+#       self.agstar_placement(tag) 
+
+        self.attr = attr
+        self.agml_placement(tag)
+
+        self.attr = attr
+
+        if cond: formatter( '} !//IF %s '%cond )        
+
+    def agml_placement(self,tag):
+        block  = self.attr.pop('block')
+        mother = self.attr.pop('in',None)
+        copy   = self.attr.pop('ncopy',None)
+        only   = self.attr.pop('konly',None)
+        cond   = self.attr.pop('if', None)
+        matrix = self.attr.pop('matrix', None)
+        group  = self.attr.pop('group',None)
+        x      = self.attr.pop('x',None)
+        y      = self.attr.pop('y',None)
+        z      = self.attr.pop('z',None)
+
+
+        parlist = []
+
+        formatter( "CALL AgsReset" )
+        formatter( "CALL agml_position_begin('%s')"%block )
+
+        if mother:
+            mother = mother.upper()
+            formatter( "%%mother = '%s'"%mother ) # name of mother volume
+            parlist.append('MOTHER')
+
+        block = block.upper()
+        formatter( "%%title  = '%s'"%block )  # name of daughter volume
+        formatter( "%exname = 'POSITION' ! agml placement" )
+        if copy:
+            formatter( "%%ncopy = %s"% tryFloat(copy) ) # copy number
+            parlist.append( "NCOPY" )
+        if only:
+            only = only.upper()
+            formatter( "%%konly = '%s'"% stripQuotes(only) ) # ONLY/MANY
+            parlist.append( "KONLY" )
+
+
+
+        #
+        # Now create the executive code
+        #
+        if x:
+            formatter( "%%x = %s"% tryFloat(self.x), cchar="_" )
+            parlist.append( "X" )
+        if y:
+            formatter( "%%y = %s"% tryFloat(self.y), cchar="_" )
+            parlist.append( "Y" )
+        if z:
+            formatter( "%%z = %s"% tryFloat(self.z), cchar="_" )
+            parlist.append( "Z" )
+
+        for key in self.attr.keys():
+
+            
+            val = self.attr.pop(key,None)
+            if val:
+                formatter( "%%%s = %s"%( key, tryFloat(val) ) )
+        
+            
+        #
+        # Handle rotations
+        #
+        for rotation in self.contents:
+
+            #
+            # Is a rotation about an axis, or a definition of axes
+            #
+            if rotation.key:
+
+                key  = rotation.key
+                axis = None
+
+                if key == 'alphax':
+                    val  = tryFloat(rotation.value)                    
+                    formatter( '%%alphax = %s'%val )
+                    formatter( 'CALL agml_rotate_x(%alphax)' )
+                if key == 'alphay':
+                    val  = tryFloat(rotation.value)                    
+                    formatter( '%%alphay = %s'%val )
+                    formatter( 'CALL agml_rotate_y(%alphay)' )                    
+                if key == 'alphaz':
+                    val  = tryFloat(rotation.value)                    
+                    formatter( '%%alphaz = %s'%val )
+                    formatter( 'CALL agml_rotate_z(%alphaz)' )                    
+
+                if key == 'ort':
+                    val = rotation.value
+                    formatter( "CALL agml_ortho('%s'//char(0))"%val )
+
+            #
+            # Is defined by the six G3 angles
+            if rotation.angles:
+                #'thetax','phix','thetay','phiy','thetaz','phiz'
+
+                #
+                # Extract 6 G3 angles
+                #
+                angles = rotation.angles
+                thetax = tryFloat( angles.get('thetax', 90.0 ) )
+                thetay = tryFloat( angles.get('thetay', 90.0 ) )
+                thetaz = tryFloat( angles.get('thetaz',  0.0 ) )
+                phix   = tryFloat( angles.get('phix',    0.0 ) )
+                phiy   = tryFloat( angles.get('phiy',   90.0 ) )
+                phiz   = tryFloat( angles.get('phiz',    0.0 ) )
+                
+                #
+                # And set them
+                #
+                formatter( "%%thetax = %s"%thetax )
+                formatter( "%%thetay = %s"%thetay )
+                formatter( "%%thetaz = %s"%thetaz )
+                formatter( "%%phix = %s"%phix )
+                formatter( "%%phiy = %s"%phiy )
+                formatter( "%%phiz = %s"%phiz )                                
+                formatter( "CALL agml_set_angles(%thetax,%phix,%thetay,%phiy,%thetaz,%phiz)" )
+
+
+        #
+        # Next, any remaining attributes
+        #
+
+        #
+        # Now get the rotation angles from the matrix and output
+        #
+        formatter( "CALL agml_get_angles(%thetax,%phix,%thetay,%phiy,%thetaz,%phiz)" )
+        parlist.append( 'THETAX' )
+        parlist.append( 'PHIX' )
+        parlist.append( 'THETAY' )
+        parlist.append( 'PHIY' )
+        parlist.append( 'THETAZ' )
+        parlist.append( 'PHIZ' )
+
+        formatter( "%%parlist = '%s'"%'_'.join(parlist) )
+        #
+        # And finally invoke AgStar executive action
+        #
+        formatter( "CALL AxPosition" )
+
+    def agstar_placement(self,tag):
 
         block  = self.attr.pop('block')
         mother = self.attr.pop('in',None)
         copy   = self.attr.pop('ncopy',None)
         only   = self.attr.pop('konly',None)
         cond   = self.attr.pop('if', None)
-
+        matrix = self.attr.pop('matrix', None)
 
         if cond: formatter( 'IF %s {'%cond )
 
+        # Handle rotation matrix
+        if matrix:
+            formatter( '""" Handle the matrix """' )
+            form     ( 'agml_rotm = %s'%matrix )
+            form     ( 'Call GVmxga(agml_rotm,agml_thetax,agml_phix,agml_thetay,agml_phiy,agml_thetaz,agml_phiz)' )
+            # push theta, phi onto attribute stack
+            for key in ['thetax', 'phix', 'thetay', 'phiy', 'thetaz', 'phiz']:
+                self.attr[key] = 'agml_%s'%key
+        
         output = 'POSITION %s '% block.upper()        
 
         if ( mother != None ):
@@ -1390,6 +1670,8 @@ class Placement(Handler):
         # Loop over all remaining keys
         for key in self.attr.keys():
 
+            if key=="group": continue
+            
             val=self.attr[key]
             output += '%s=%s '%( key, val )
     
@@ -1403,6 +1685,10 @@ class Placement(Handler):
 ##        form(output,cchar='_')
         
         formatter( output, cchar='_' )
+
+
+        if matrix: form( 'call gprotm(%irot)' )
+        
         if cond: formatter( '}' )
         
     def add(self,thingy):
@@ -1452,12 +1738,21 @@ class Rotation(Handler):
     def setParent(self,p): self.parent = p
     def startElement(self,tag,attr):
 
+
+        matrix = attr.get('matrix',None)
+        if matrix:
+            self.key = 'matrix'
+            self.value = matrix
+            self.parent.add(self)
+
+
         list = ['alphax','alphay','alphaz','ort']
         for key in list:
             val = attr.get(key)
             if ( val != None ):
                 self.key   = key
                 self.value = val
+                if key=='ort': self.value = val.replace("+","")                     
                 self.parent.add(self)
                 return
 
@@ -1926,6 +2221,182 @@ class Arguement(Handler):
         pass
     def endElement(self,tag):
         pass
+#__________________________________________________________________________________________
+# Begin support for new steering
+module_tags  = []
+module_flags = {}
+
+class Tag(Handler):
+    def __init__(self):
+        global document
+        self.parent   = None
+
+        self.name     = None
+        self.comment  = None
+        self.flags    = []
+        self.includes = []
+        self.modules  = []
+
+        # Build list of include files from either StarVMC/Geometry or $STAR/StarVMC/Geometry
+        for root, dirs, files in os.walk( 'StarVMC/Geometry' ):
+            for f in files:
+                if 'Config.xml' in f:
+                    name = f
+                    name = name.replace('.xml','.age')
+                    self.includes.append( 'StarVMC/xgeometry/%s' % name )
+
+                if 'Geo' in f and '.xml' in f:
+                    name = f[:4].lower()
+                    if '.' in name or '#' in name: continue
+                    if name in self.modules:
+                        pass
+                    else:
+                        self.modules.append(name)
+        
+        Handler.__init__(self)
+    def setParent(self,p): self.parent = p
+
+    def startElement(self, tag, attr ):
+        global module_tags
+        self.name    = attr.get('name', None)
+        self.comment = attr.get('comment', None)
+        self.top     = attr.get('top', None )
+        formatter( 'REPLACE [EXE %s] with {'%self.name )
+
+        module_tags.append( self.name.upper() )
+    
+
+    def characters(self,content):
+        global module_flags
+        for flag in content.split(' '):
+            if len(flag.strip()):
+                self.flags.append(flag)
+                module_flags[flag]=1
+    
+#       for line in content.split('\n'):
+#           line = line.strip(' ')
+#           for element in line.split(' '):
+#               element = element.strip(' ')
+#               if element != '':
+#                   formatter( '%s = SETUP_%s()'%('???',element) )
+
+    def endElement(self,tag):
+        for flag in self.flags: 
+            name = flag[:4].upper()
+            formatter( '%s = %s()'%(name,flag) )
+#       
+        formatter('}')
+    
+class StarGeometry(Handler):
+    def __init__(self):
+        self.parent = None
+        self.name   = "StarGeometry"
+        self.tag    = None
+        self.geoms  = []
+    def setParent(self, p):
+        self.parent = p
+    def addGeometry(self,geom):
+        self.geoms.append(geom)
+
+        
+class Geometry(Handler):
+    def __init__(self):    
+        self.parent   = None
+        self.name     = None
+        self.docum    = None
+        self.modules  = []
+        self.pmodules = []
+        self.constructs = []
+        self.sys    = [] # subsystems
+        self.config = {} # subsystem configuration
+        Handler.__init__(self)
+        
+    def setParent(self,p): self.parent = p
+
+    def addSystem( self, system, config ):
+        self.sys.append(system)
+        self.config[system] = config
+#       self.modules.append(module)
+#       self.pmodules.append( module[:4].lower() )
+
+
+    def startElement(self, tag, attr ):
+        global module_flags
+        self.name  = attr.get('tag', None)
+        self.docum = attr.get('comment', None )
+
+        formatter('SUBROUTINE GEOM_%s' % self.name )
+
+    def endElement(self,tag):
+
+        # Declare integers to hold the address
+        for sub in self.sys:
+            formatter( 'INTEGER :: %s_addr = 0'%sub )
+
+        # Execute the module
+        for sub in self.sys:
+            config = self.config[sub]
+            formatter( '%s_addr = SETUP_%s()'%(sub,config))
+            formatter( 'call construct_%s'%config )
+        
+        # First setup integers to hold pointer to the method's address
+##         global module_tags
+##         for module in self.modules:
+##             formatter( 'INTEGER :: %s /0/' % module )
+##         formatter( 'SELECT CASE (tag)' )
+##         for tag in module_tags:
+##             formatter( '  Case ("%s")'%tag )
+##             formatter( '     EXE %s'%tag )
+##         formatter( '  Case DEFAULT' )
+##         formatter( "     write(*,*) 'Unknown tag ',tag " )
+##         formatter( 'END SELECT' )
+##         for construct in self.constructs:
+##             print str(construct) 
+## #   
+# Loop over all modules again and create
+#        for module in self.modules:
+#           formatter( 'IF %s { Call CsJCAL( %s, 0, 0,0,0,0,0, 0,0,0,0,0) }'%(module,module) )
+
+        formatter('END SUBROUTINE GEOM_%s'%self.name)
+                  
+       
+        
+
+class Construct(Handler):
+    def __init__(self):
+        self.parent = None
+        self.sys    = None
+        self.config = None
+        
+    def setParent(self, p):
+        self.parent = p
+    
+    def startElement(self, tag, attr ):
+        self.parent.constructs.append(self)
+
+        self.sys     = attr.get('sys', None)
+        self.config  = attr.get('config', None)
+        
+        #self.module = attr.get('module', None)
+        #self.track  = attr.get('track', 'primary' )
+
+        self.parent.addSystem( self.sys, self.config )
+        
+
+    def __str__(self):
+        output = ''
+#       output =  'IF %s {\n' % self.module 
+#       result = 1
+#       if self.track.lower() == 'secondary': result = 2
+#       output += "   CALL AgSFlag('SIMU',%i);\n"%result 
+#       output += "   CALL CsJCAL( %s, 0, 0,0,0,0,0, 0,0,0,0,0);\n"%self.module 
+#       output += "}\n"
+        return output
+        
+ 
+        
+# End support new steering
+#__________________________________________________________________________________________
 # ====================================================================================================
 class Fatal(Handler):
     def __init__(self): Handler.__init__(self)
