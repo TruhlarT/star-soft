@@ -80,7 +80,7 @@ my $nprod = 0;
 
   &StDbProdConnect();
 
-  $sql="SELECT distinct trigsetName, prodSeries, date_format(min(createTime), '%Y-%m-%d') as mintm, date_format(max(createTime), '%Y-%m-%d') as maxtm, sum(NoEvents), avg(CPU_per_evt_sec), avg(avg_no_tracks) from $JobStatusT where createTime <> '0000-00-00 00:00:00'  group by trigsetName, prodSeries order by max(createTime) ";
+  $sql="SELECT distinct trigsetName, prodSeries, date_format(min(createTime), '%Y-%m-%d') as mintm, date_format(max(createTime), '%Y-%m-%d') as maxtm, sum(NoEvents), avg(CPU_per_evt_sec), avg(avg_no_tracks) from $JobStatusT where createTime <> '0000-00-00 00:00:00'  group by trigsetName, prodSeries order by max(createTime) and prodSeries = 'P16id' ";
 
 
             $cursor =$dbh->prepare($sql)
@@ -151,8 +151,6 @@ my $nprod = 0;
     $jbmudst[$nprod] = 0;
     $mismudst[$nprod] = 0;    
 
-    next if($prodtag[$nprod] eq "P15ic" );
-    next if($prodtag[$nprod] eq "P15ie" );   
 
 ###########
 
