@@ -151,6 +151,8 @@ my $nprod = 0;
     $jbmudst[$nprod] = 0;
     $mismudst[$nprod] = 0;    
 
+    next if($prodtag[$nprod] eq "P15ic" );
+    next if($prodtag[$nprod] eq "P15ie" );   
 
 ###########
 
