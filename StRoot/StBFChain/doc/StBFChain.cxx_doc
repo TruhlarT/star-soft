@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.148 2016/05/17 12:06:43 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.149 2016/09/22 16:01:16 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -964,6 +964,11 @@ Bfc_st BFC[] = {
   {"P2016","" ,"",
    "B2016,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
    , "","","Production chain for 2016 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+  {"B2016a" ,"","","ry2016a,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
+   , "Production chain for 2016 data (tpc)",kFALSE},
+  {"P2016a","" ,"",
+   "B2016a,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
+   , "","","Production chain for 2016 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","",""
    , "Laser Calibration Chain (tcl)",kFALSE},
   {"LaserCal","" ,"","db,detDb,tpc_daq,tpcDb,fcf,globT,laser,LaserTest","",""
@@ -1149,6 +1154,9 @@ Bfc_st BFC[] = {
    , "StStrangeMuDstMaker,Tree","Load MuDST misc. dependencies",kFALSE},
   {"MuDST" ,"" ,"","MuDSTDeps,EmcUtil,TofUtil,BTofUtil,PmdUtil",""
    , "StMuDSTMaker","Load MuDST library",kFALSE},
+  {"picoEvt" ,"","","StEvent,Stu","", "StPicoEvent","Load picoEvent and dependencies",kFALSE},
+  {"picoDst" ,"","","picoEvt,EmcUtil,TofUtil,BTofUtil,PmdUtil",""
+   , "StPicoDstMaker","Load PicoDST library",kFALSE},
   {"geantL","","","geomT,gen_T,sim_T,StarMagField","","geometry,Geom,St_db_Maker,St_g2t,St_geant_Maker"
    , "Load GeantLibs",kFALSE},
   {"gstarLib","","","" ,"","gstar","Load gstar lib",kFALSE},
@@ -1421,7 +1429,7 @@ Bfc_st BFC[] = {
   {"StiPulls" ,"","","" ,"","", "Request to make Sti Pulls",kFALSE},
   {"StvPulls" ,"","","" ,"","", "Request to make Stv Pulls",kFALSE},
   {"StiLib" ,"","","" ,"","Sti,StiUtilities","Load Sti",kFALSE},
-  {"StiCALib" ,"","","" ,"","StiCA","Load Sti+CA",kFALSE},
+  {"StiCALib" ,"","","" ,"","TPCCATracker,StiCA","Load Sti+CA",kFALSE},
   {"StiTpc" ,"","","TpcDb,ITTF,tpc_T,dbutil,detDb,StarMagField,magF" ,"","StiTpc","Load StiTpc",kFALSE},
   {"StiSvt" ,"",""," " ,"","StSvtClassLibrary,StSvtDbMaker,StiSvt","Load StiSvt",kFALSE},
   {"StiSsd" ,"","","" ,"","StSsdUtil,StSsdDbMaker,StiSsd","Load StiSsd",kFALSE},
@@ -1441,9 +1449,9 @@ Bfc_st BFC[] = {
    ,"ctf,St_ctf,St_ctf_Maker,Minui,StGenericVertexMaker" , "... StEvent based VFPPV, noCTB",kFALSE},
   {"VFPPVEvNoBtof" ,"" ,"" ,"VFPPVEv" ,"" ,"","...VFPPVEv with no Btof ",kFALSE},
   {"Sti" ,"Sti","","StiLib,StiLibs,SCL,StEvent,StDbT,TpcIT,compend,sim_T,tbutil","StiMaker"
-   , "StEventUtilities,StiUtilities,StiMaker","Sti tracker",kFALSE},
+   , "TPCCATracker,StiCA,StEventUtilities,StiUtilities,StiMaker","Sti tracker",kFALSE},
   {"StiCAPerf","","","","", "TPCCATrackerPerformance", "CA Performance",kFALSE},
-  {"StiCA" ,"Sti","","[-Sti,-StiLib,StiCALib,StiLibs,SCL,StEvent,StDbT,TpcIT,compend,tbutil","StiMaker"
+  {"StiCA" ,"Sti","","Sti,StiLib,StiCALib,StiLibs,SCL,StEvent,StDbT,TpcIT,compend,tbutil","StiMaker"
    , "StEventUtilities,libEG,StiUtilities,StiMaker","Sti+CA tracker",kFALSE},
   {"HLTCA" ,"" ,"Sti","", "StHLTCAMaker","StHLTCAMaker", "HLT reconstruction",kFALSE},
   {"KFVertex" ,"" ,"Sti","-genvtx,-VFMinuit,-VFFV,-VFMCE,-VFppLMV,-VFPPVnoCTB,-VFPPV,-Kink2,-V02,-Xi2"
@@ -1544,6 +1552,8 @@ Bfc_st BFC[] = {
   {"EMCmDST" ,"","MuDSTChain","MuDst", "StEmcMicroDstMaker","","Creates EMC MuDST",kFALSE},
   {"CMuDST" ,"","MuDSTChain","MuDst,StrngMuDST,Tree", "StMuDstMaker","","Writes Common MuDST",kFALSE},
   {"RMuDST" ,"","","CMuDST" ,"","","reads Common MuDST, do not disactivate if no output files",kFALSE},
+  {"picoWrite" ,"","PicoChain","picoDst","StPicoDstMaker","" ,"Writes picoDST format",kFALSE},
+  {"picoRead" ,"","PicoChain","picoDst","StPicoDstMaker","" ,"WritesRead picoDST format",kFALSE},
   {"St_geom" ,"" ,"","" , "St_geom_Maker","St_geom_Maker","",kFALSE},
   {"Display" ,"","","", "","","WARNING *** Option is OBSOLETE *** use Ed.C macro instead",kFALSE},
   {"Mc" ,"McChain","McEvent","sim_T,globT,McAss,McAna" ,"StMaker","StChain","",kFALSE},
@@ -2538,6 +2548,11 @@ Bfc_st BFC[] = {
   {"P2016","" ,"",
    "B2016,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
    , "","","Production chain for 2016 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+  {"B2016a" ,"","","ry2016a,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
+   , "Production chain for 2016 data (tpc)",kFALSE},
+  {"P2016a","" ,"",
+   "B2016a,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
+   , "","","Production chain for 2016 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","",""
    , "Laser Calibration Chain (tcl)",kFALSE},
   {"LaserCal","" ,"","db,detDb,tpc_daq,tpcDb,fcf,globT,laser,LaserTest","",""
@@ -2723,6 +2738,9 @@ Bfc_st BFC[] = {
    , "StStrangeMuDstMaker,Tree","Load MuDST misc. dependencies",kFALSE},
   {"MuDST" ,"" ,"","MuDSTDeps,EmcUtil,TofUtil,BTofUtil,PmdUtil",""
    , "StMuDSTMaker","Load MuDST library",kFALSE},
+  {"picoEvt" ,"","","StEvent,Stu","", "StPicoEvent","Load picoEvent and dependencies",kFALSE},
+  {"picoDst" ,"","","picoEvt,EmcUtil,TofUtil,BTofUtil,PmdUtil",""
+   , "StPicoDstMaker","Load PicoDST library",kFALSE},
   {"geantL","","","geomT,gen_T,sim_T,StarMagField","","geometry,Geom,St_db_Maker,St_g2t,St_geant_Maker"
    , "Load GeantLibs",kFALSE},
   {"gstarLib","","","" ,"","gstar","Load gstar lib",kFALSE},
@@ -2995,7 +3013,7 @@ Bfc_st BFC[] = {
   {"StiPulls" ,"","","" ,"","", "Request to make Sti Pulls",kFALSE},
   {"StvPulls" ,"","","" ,"","", "Request to make Stv Pulls",kFALSE},
   {"StiLib" ,"","","" ,"","Sti,StiUtilities","Load Sti",kFALSE},
-  {"StiCALib" ,"","","" ,"","StiCA","Load Sti+CA",kFALSE},
+  {"StiCALib" ,"","","" ,"","TPCCATracker,StiCA","Load Sti+CA",kFALSE},
   {"StiTpc" ,"","","TpcDb,ITTF,tpc_T,dbutil,detDb,StarMagField,magF" ,"","StiTpc","Load StiTpc",kFALSE},
   {"StiSvt" ,"",""," " ,"","StSvtClassLibrary,StSvtDbMaker,StiSvt","Load StiSvt",kFALSE},
   {"StiSsd" ,"","","" ,"","StSsdUtil,StSsdDbMaker,StiSsd","Load StiSsd",kFALSE},
@@ -3015,9 +3033,9 @@ Bfc_st BFC[] = {
    ,"ctf,St_ctf,St_ctf_Maker,Minui,StGenericVertexMaker" , "... StEvent based VFPPV, noCTB",kFALSE},
   {"VFPPVEvNoBtof" ,"" ,"" ,"VFPPVEv" ,"" ,"","...VFPPVEv with no Btof ",kFALSE},
   {"Sti" ,"Sti","","StiLib,StiLibs,SCL,StEvent,StDbT,TpcIT,compend,sim_T,tbutil","StiMaker"
-   , "StEventUtilities,StiUtilities,StiMaker","Sti tracker",kFALSE},
+   , "TPCCATracker,StiCA,StEventUtilities,StiUtilities,StiMaker","Sti tracker",kFALSE},
   {"StiCAPerf","","","","", "TPCCATrackerPerformance", "CA Performance",kFALSE},
-  {"StiCA" ,"Sti","","[-Sti,-StiLib,StiCALib,StiLibs,SCL,StEvent,StDbT,TpcIT,compend,tbutil","StiMaker"
+  {"StiCA" ,"Sti","","Sti,StiLib,StiCALib,StiLibs,SCL,StEvent,StDbT,TpcIT,compend,tbutil","StiMaker"
    , "StEventUtilities,libEG,StiUtilities,StiMaker","Sti+CA tracker",kFALSE},
   {"HLTCA" ,"" ,"Sti","", "StHLTCAMaker","StHLTCAMaker", "HLT reconstruction",kFALSE},
   {"KFVertex" ,"" ,"Sti","-genvtx,-VFMinuit,-VFFV,-VFMCE,-VFppLMV,-VFPPVnoCTB,-VFPPV,-Kink2,-V02,-Xi2"
@@ -3118,6 +3136,8 @@ Bfc_st BFC[] = {
   {"EMCmDST" ,"","MuDSTChain","MuDst", "StEmcMicroDstMaker","","Creates EMC MuDST",kFALSE},
   {"CMuDST" ,"","MuDSTChain","MuDst,StrngMuDST,Tree", "StMuDstMaker","","Writes Common MuDST",kFALSE},
   {"RMuDST" ,"","","CMuDST" ,"","","reads Common MuDST, do not disactivate if no output files",kFALSE},
+  {"picoWrite" ,"","PicoChain","picoDst","StPicoDstMaker","" ,"Writes picoDST format",kFALSE},
+  {"picoRead" ,"","PicoChain","picoDst","StPicoDstMaker","" ,"WritesRead picoDST format",kFALSE},
   {"St_geom" ,"" ,"","" , "St_geom_Maker","St_geom_Maker","",kFALSE},
   {"Display" ,"","","", "","","WARNING *** Option is OBSOLETE *** use Ed.C macro instead",kFALSE},
   {"Mc" ,"McChain","McEvent","sim_T,globT,McAss,McAna" ,"StMaker","StChain","",kFALSE},
@@ -3416,7 +3436,16 @@ Int_t StBFChain::Instantiate()
 	  if (MyCintDbObj   != "") {Dirs[j] = MyCintDbObj;   j++;}
 	  dbMk = new St_db_Maker(fBFC[i].Name,Dirs[0],Dirs[1],Dirs[2],Dirs[3],Dirs[4]);
 	  if (!dbMk) goto Error;
-	  strcpy (fBFC[i].Name, (Char_t *) dbMk->GetName());
+	  
+	  TString namec = dbMk->GetName();
+	  int len       = sizeof(fBFC[i].Name);
+	  if ( namec.Length() <= len){
+	    strncpy (fBFC[i].Name, namec.Data(),len);
+	  } else {
+	    gMessMgr->Error() << "Maker name [" << namec
+			      << "] length is > " << len 
+			      << " - increase BFC Name field length" << endm;
+	  }
 
 	  // Determine flavors
 	  TString flavors = "ofl"; // default flavor for offline
@@ -3454,7 +3483,16 @@ Int_t StBFChain::Instantiate()
       else inpMk = new StIOMaker("inputStream","r",fSetFiles);
       mk = inpMk;
       if (mk) {
-	strcpy (fBFC[i].Name,(Char_t *) mk->GetName());
+	TString namec = mk->GetName();
+	int      len  = sizeof(fBFC[i].Name);
+	if ( namec.Length() <= len){
+	  strncpy (fBFC[i].Name, namec.Data() , len);
+	} else {
+	  gMessMgr->Error() << "Maker name [" << namec
+			    << "] length is > " << len 
+			    << " - increase BFC Name field length" << endm;
+	}
+
 	SetInput("StDAQReader",".make/inputStream/.make/inputStream_DAQ/.const/StDAQReader");
 	if (GetOption("ReadAll")) {	//activate all branches
 	  // inpMk->SetBranch("*",0,"r");
@@ -3480,7 +3518,15 @@ Int_t StBFChain::Instantiate()
       else treeMk = new StTreeMaker("outputStream",fFileOut.Data());
       mk = treeMk;
       if (mk) {
-	strcpy (fBFC[i].Name,(Char_t *) treeMk->GetName());
+	TString namec =  treeMk->GetName();
+	int len       = sizeof(fBFC[i].Name);
+	if ( namec.Length() <= len ){
+	  strncpy (fBFC[i].Name, namec.Data() , len);
+	} else {
+	  gMessMgr->Error() << "Maker name [" << namec
+			    << "] length is > " << len 
+			    << " - increase BFC Name field length" << endm;
+	}
 	treeMk->SetIOMode("w");
 	SetTreeOptions();
 	goto Add2Chain;
@@ -3496,7 +3542,19 @@ Int_t StBFChain::Instantiate()
 	assert(mk);
       }
     }
-    strcpy (fBFC[i].Name,(Char_t *) mk->GetName());
+
+    {
+      TString namec = mk->GetName();
+      int len       = sizeof(fBFC[i].Name);
+      if ( namec.Length() <= len){
+	strncpy (fBFC[i].Name,namec.Data(),len);
+      } else {
+	gMessMgr->Error() << "Maker name [" << namec
+			  << "] length is > " << len 
+			  << " - increase BFC Name field length" << endm;
+      }
+    }
+
     if (maker == "StTpcDbMaker" && GetOption("laserIT"))   mk->SetAttr("laserIT"    ,kTRUE);
     if (maker == "StDAQMaker") {
       if (GetOption("adcOnly")) mk->SetAttr("adcOnly",1);                        ;
@@ -3565,6 +3623,11 @@ Int_t StBFChain::Instantiate()
       if ( maker == "StvMaker" &&  GetOption("StvCA")) {
 	//      mk->SetAttr("seedFinders","CA","Stv");              // for CA seed finder
 	mk->SetAttr("seedFinders","CA,Default","Stv");      // for CA + Default seed finders
+      }
+
+      // When StiCA library is requested CA will be used as seed finder in StiMaker
+      if ( GetOption("StiCA") ) {
+        mk->SetAttr("seedFinders", "CA DEF");
       }
 
       // Option to re-use hits in other tracks
@@ -3747,6 +3810,14 @@ Int_t StBFChain::Instantiate()
       cmd += "pMuMk->SetStatus(\"EztAll\",1);";
       ProcessLine(cmd);
     }
+
+    if ( maker == "StPicoDstMaker"){
+      if ( GetOption("picoWrite") )  mk->SetMode(1);
+      if ( GetOption("picoRead")  )  mk->SetMode(2);   // possibly more magic
+      //if ( GetOption("PicoVtxAuAu")) mk->SetAttr("picoVtxMode", "PicoVtxAuAu200");
+      //else                           mk->SetAttr("picoVtxMode", "PicoVtxDefault");
+    }
+
 
     if (maker == "StLaserEventMaker"){
       // Bill stuff - Empty place-holder
@@ -3934,7 +4005,7 @@ Int_t StBFChain::Instantiate()
     }
   Add2Chain:
     if (! mk) continue;
-    if (name == "") strcpy (fBFC[i].Name,(Char_t *) mk->GetName());
+    if (name == "") strncpy (fBFC[i].Name,(Char_t *) mk->GetName() , sizeof(fBFC[i].Name));
     if (myChain) myChain->AddMaker(mk);
     continue;
   Error:
@@ -4203,7 +4274,7 @@ void StBFChain::SetOptions(const Char_t *options, const Char_t *chain) {
 	memset(fBFC[kgo].Comment,0,len); // be careful size of Comment
 	TString Comment(Tag.Data()+in+1,Tag.Capacity()-in-1);
 	if ( Comment.Length() <= len ){
-	  strcpy (fBFC[kgo].Comment, Comment.Data());
+	  strncpy (fBFC[kgo].Comment, Comment.Data(),sizeof(fBFC[kgo].Comment));
 	  gMessMgr->QAInfo() << Form(" Set        %s = %s", fBFC[kgo].Key,fBFC[kgo].Comment) << endm;
 	} else {
 	  gMessMgr->Error()  << Form(" Cpy problem [%s] is > %d - adjust BFC Comment field size", 
