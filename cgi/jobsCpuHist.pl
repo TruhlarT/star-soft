@@ -1315,7 +1315,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
      $max_y = 500000000 ;
      $ynum = 25;
  }elsif($qprod eq "P16id" ) {
-     $max_y = 80000000 ;
+     $max_y = 120000000 ;
      $ynum = 20;
  if($qprodt eq "P16id.2014" ) {
      $max_y = 40000000 ;
@@ -1388,8 +1388,8 @@ $legend[0] = "all streams data for $qprod production";
 }else{
 
  if($qprodt eq "P16id.2014" ) {
-     $max_y = 6000 ;
-     $ynum = 15;
+     $max_y = 8000 ;
+     $ynum = 20;
 
  $legend[0] = "all stream data for run 2014 P16id production";
  $gtitle = "Number of jobs processed per day for run 2014 $qprod production "; 
