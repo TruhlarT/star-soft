@@ -387,7 +387,7 @@ $ndt = 0;
 
    }else{
 
- $max_y = 12000 ;
+ $max_y = 14000 ;
 
  $legend[0] = "$qprod production ";
 
