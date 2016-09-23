@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: StMuDstMaker.cxx,v 1.126 2016/05/04 19:24:07 smirnovd Exp $
+ * $Id: StMuDstMaker.cxx,v 1.125.2.1 2016/09/23 18:18:53 perev Exp $
  * Author: Frank Laue, BNL, laue@bnl.gov
  *
  **************************************************************************/
@@ -8,6 +8,7 @@
 #include "Stiostream.h"
 #include "Stsstream.h"
 #include "StChain.h"
+#include "StChainOpt.h"
 #include "THack.h"
 #include "StEvent/StEvent.h"
 #include "StEvent/StTrack.h"
@@ -501,8 +502,7 @@ int StMuDstMaker::Init(){
 #ifndef __NO_STRANGE_MUDST__
   mStStrangeMuDstMaker = (StStrangeMuDstMaker*)GetMaker("strangeMuDst");
 #endif
-  TDataSet *muDstSet =  AddObj(mStMuDst,".const");   ///< added for Valeri to be able to pick it up in other makers
-  if (muDstSet ) muDstSet ->SetName("muDst");          ///< added for Valeri to be able to pick it up in other makers
+  ToWhiteConst("muDst",mStMuDst);
 
   return 0;
 }
@@ -894,6 +894,7 @@ void StMuDstMaker::openWrite(string fileName) {
   // Create a ROOT Tree and one superbranch
   DEBUGMESSAGE2("now create trees and branches");
 
+  TBranch* branch;
   int bufsize = mBufferSize;
   if (mSplit) bufsize /= 4;
   //  all stuff
@@ -908,7 +909,7 @@ void StMuDstMaker::openWrite(string fileName) {
   DEBUGMESSAGE2("all arrays");
   for ( int i=0; i<__NALLARRAYS__; i++) {
     if (mStatusArrays[i]==0) continue;
-    mTTree->Branch(StMuArrays::arrayNames[i],&mAArrays[i], bufsize, mSplit);
+    branch = mTTree->Branch(StMuArrays::arrayNames[i],&mAArrays[i], bufsize, mSplit);
   }
   mCurrentFileName = fileName;
 }
@@ -1503,9 +1504,10 @@ void StMuDstMaker::addTrackNode(const StEvent* ev, const StTrackNode* node, StMu
     if (tr && !tr->bad()) index2Global = addTrack(gTCA, ev, tr, vtx, cut, -1, l3, covgTCA, covpTCA);
   }
   /// do primary track track
+  int index;
   if (pTCA) {
     tr = node->track(primary);
-    if (tr && !tr->bad()) addTrack(pTCA, ev, tr, tr->vertex(), cut, index2Global, l3, covgTCA, covpTCA);
+    if (tr && !tr->bad()) index = addTrack(pTCA, ev, tr, tr->vertex(), cut, index2Global, l3, covgTCA, covpTCA);
   }
   /// all other tracks
   if (oTCA) {
@@ -1513,7 +1515,7 @@ void StMuDstMaker::addTrackNode(const StEvent* ev, const StTrackNode* node, StMu
     for (size_t j=0; j<nEntries; j++) { /// loop over all tracks in tracknode
       tr = node->track(j);
       if (tr && !tr->bad() && (tr->type()!=global) && (tr->type()!=primary) ) { /// exclude global and primary tracks
-	addTrack(oTCA, ev, tr, tr->vertex(), cut, index2Global, l3);
+	index = addTrack(oTCA, ev, tr, tr->vertex(), cut, index2Global, l3);
       }
     }
   }
@@ -1833,8 +1835,8 @@ void StMuDstMaker::connectPmdCollection() {
 /***************************************************************************
  *
  * $Log: StMuDstMaker.cxx,v $
- * Revision 1.126  2016/05/04 19:24:07  smirnovd
- * Addressed compiler warning by removing set but never used variables
+ * Revision 1.125.2.1  2016/09/23 18:18:53  perev
+ * Simplification only, ToWhiteConst used
  *
  * Revision 1.125  2015/11/06 17:47:16  jdb
  * Added StMuFmsInfo.{h,cxx} as a new branch for storing event-by-event FMS paramters
