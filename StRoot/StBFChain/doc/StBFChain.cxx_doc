@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.149 2016/09/22 16:01:16 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.150 2016/09/26 15:20:47 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -1554,6 +1554,8 @@ Bfc_st BFC[] = {
   {"RMuDST" ,"","","CMuDST" ,"","","reads Common MuDST, do not disactivate if no output files",kFALSE},
   {"picoWrite" ,"","PicoChain","picoDst","StPicoDstMaker","" ,"Writes picoDST format",kFALSE},
   {"picoRead" ,"","PicoChain","picoDst","StPicoDstMaker","" ,"WritesRead picoDST format",kFALSE},
+  {"PicoVtxDefault","","","" ,"","pico Vtx default mode",kFALSE},
+  {"PicoVtxVpd","","","" ,"","pico Vtx cut on Tof and VPD mode",kFALSE},
   {"St_geom" ,"" ,"","" , "St_geom_Maker","St_geom_Maker","",kFALSE},
   {"Display" ,"","","", "","","WARNING *** Option is OBSOLETE *** use Ed.C macro instead",kFALSE},
   {"Mc" ,"McChain","McEvent","sim_T,globT,McAss,McAna" ,"StMaker","StChain","",kFALSE},
@@ -3138,6 +3140,8 @@ Bfc_st BFC[] = {
   {"RMuDST" ,"","","CMuDST" ,"","","reads Common MuDST, do not disactivate if no output files",kFALSE},
   {"picoWrite" ,"","PicoChain","picoDst","StPicoDstMaker","" ,"Writes picoDST format",kFALSE},
   {"picoRead" ,"","PicoChain","picoDst","StPicoDstMaker","" ,"WritesRead picoDST format",kFALSE},
+  {"PicoVtxDefault","","","" ,"","pico Vtx default mode",kFALSE},
+  {"PicoVtxVpd","","","" ,"","pico Vtx cut on Tof and VPD mode",kFALSE},
   {"St_geom" ,"" ,"","" , "St_geom_Maker","St_geom_Maker","",kFALSE},
   {"Display" ,"","","", "","","WARNING *** Option is OBSOLETE *** use Ed.C macro instead",kFALSE},
   {"Mc" ,"McChain","McEvent","sim_T,globT,McAss,McAna" ,"StMaker","StChain","",kFALSE},
@@ -3814,8 +3818,8 @@ Int_t StBFChain::Instantiate()
     if ( maker == "StPicoDstMaker"){
       if ( GetOption("picoWrite") )  mk->SetMode(1);
       if ( GetOption("picoRead")  )  mk->SetMode(2);   // possibly more magic
-      //if ( GetOption("PicoVtxAuAu")) mk->SetAttr("picoVtxMode", "PicoVtxAuAu200");
-      //else                           mk->SetAttr("picoVtxMode", "PicoVtxDefault");
+      if ( GetOption("PicoVtxVpd"))  mk->SetAttr("picoVtxMode", "PicoVtxAuAu200");
+      else                           mk->SetAttr("picoVtxMode", "PicoVtxDefault");
     }
 
 
