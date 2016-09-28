@@ -42,6 +42,12 @@ my $mondif;
 my $pyear;
 
 my %collHash = (
+                 AuAu_200_production_2016 => 'auau200',
+                 AuAu200_production2_2016 => 'auau200',
+                 dAu200_production_2016 => 'dau200',
+                 dAu20_production_2016 => 'dau20',
+                 dAu62_production_2016 => 'dau62',
+                 dAu39_production_2016 => 'dau39',
                  production_pp200trans_2015 => 'pp200',
                  production_pp200long_2015 => 'pp200',
                  production_pp200long2_2015 => 'pp200',
@@ -219,6 +225,12 @@ my %collHash = (
 	      );
              
 my %yrHash = (
+                 AuAu_200_production_2016 => 'year2016',
+                 AuAu200_production2_2016 => 'year2016',
+                 dAu200_production_2016 => 'year2016',
+                 dAu20_production_2016 => 'year2016',
+                 dAu62_production_2016 => 'year2016',
+                 dAu39_production_2016 => 'year2016',
                  production_pp200trans_2015 => 'year2015',
                  production_pp200long_2015 => 'year2015',
                  production_pp200long2_2015 => 'year2015',
