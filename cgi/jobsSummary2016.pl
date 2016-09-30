@@ -80,7 +80,7 @@ my $nprod = 0;
 
   &StDbProdConnect();
 
-  $sql="SELECT distinct trigsetName, prodSeries, date_format(min(createTime), '%Y-%m-%d') as mintm, date_format(max(createTime), '%Y-%m-%d') as maxtm, sum(NoEvents), avg(CPU_per_evt_sec), avg(avg_no_tracks) from $JobStatusT where createTime <> '0000-00-00 00:00:00' and prodSeries not like '%test%'   group by trigsetName, prodSeries order by max(createTime) ";
+  $sql="SELECT distinct trigsetName, prodSeries, date_format(min(createTime), '%Y-%m-%d') as mintm, date_format(max(createTime), '%Y-%m-%d') as maxtm, sum(NoEvents), avg(CPU_per_evt_sec), avg(avg_no_tracks) from $JobStatusT where createTime <> '0000-00-00 00:00:00' group by trigsetName, prodSeries order by max(createTime) ";
 
 
             $cursor =$dbh->prepare($sql)
@@ -154,7 +154,7 @@ my $nprod = 0;
 
 ###########
 
-   $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%' and trigsetName = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' ";
+   $sql="SELECT count(jobfileName)  FROM $JobStatusT where trigsetName = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -168,7 +168,7 @@ my $nprod = 0;
   
 ############
 
-   $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%'  and prodSeries = '$prodtag[$nprod]' and trigsetName  = '$artrg[$nprod]' and jobStatus = 'Done' ";
+   $sql="SELECT count(jobfileName)  FROM $JobStatusT where  prodSeries = '$prodtag[$nprod]' and trigsetName  = '$artrg[$nprod]' and jobStatus = 'Done' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -182,7 +182,7 @@ my $nprod = 0;
 
 ###########
 
-   $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%'  and trigsetName  = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and jobStatus <> 'Done' and jobStatus <> 'n/a'  ";
+   $sql="SELECT count(jobfileName)  FROM $JobStatusT where  trigsetName  = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and jobStatus <> 'Done' and jobStatus <> 'n/a'  ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -196,7 +196,7 @@ my $nprod = 0;
 
 ##########
 
-   $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%'  and trigsetName  = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and crsError like '%error%' ";
+   $sql="SELECT count(jobfileName)  FROM $JobStatusT where trigsetName  = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and crsError like '%error%' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -209,7 +209,7 @@ my $nprod = 0;
 
 ########## 
 
-   $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%'  and trigsetName  = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and inputHpssStatus like '%error%'  ";
+   $sql="SELECT count(jobfileName)  FROM $JobStatusT where trigsetName = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and inputHpssStatus like '%error%'  ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -223,7 +223,7 @@ my $nprod = 0;
 
 ########## 
 
-   $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%'  and trigsetName  = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and submitAttempt >=2  ";
+   $sql="SELECT count(jobfileName)  FROM $JobStatusT where trigsetName = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and submitAttempt >=2  ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -236,7 +236,7 @@ my $nprod = 0;
 
 ########## 
 
-  $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%' and trigsetName   = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and outputHpssStatus = 'yes'  ";
+  $sql="SELECT count(jobfileName)  FROM $JobStatusT where trigsetName = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and outputHpssStatus = 'yes'  ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -250,7 +250,7 @@ my $nprod = 0;
 ########## 
 
 
-  $sql="SELECT count(jobfileName)  FROM $JobStatusT where jobfileName like '$artrg[$nprod]%$prodtag[$nprod]%'  and trigsetName  = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and jobStatus <> 'n/a' and outputHpssStatus = 'n/a' ";
+  $sql="SELECT count(jobfileName)  FROM $JobStatusT where trigsetName  = '$artrg[$nprod]' and prodSeries = '$prodtag[$nprod]' and jobStatus <> 'n/a' and outputHpssStatus = 'n/a' ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
