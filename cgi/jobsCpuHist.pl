@@ -241,6 +241,23 @@ my @narray = ();
 $arrprod[$npr] = "P15i.2014";
 $arrprod[$npr+1] = "P16id.2014";
 
+
+ $JobStatusT = "JobStatus2016";
+
+
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT where runDay >= '2015-11-06' order by runDay ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $arrprod[$npr] = $mpr;
+          $npr++;
+       }
+    $cursor->finish();
+
+
 my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months","7_months","8_months","9_months","10_months","11_months","12_months");
 
 
@@ -286,7 +303,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P16id,
+	                          -default=>P16ij,
       			          -size =>1);
 
   
@@ -355,7 +372,7 @@ END
       $qprodt = "P16id.2014";
     };
   if( $qprod =~ /P16ig/) {$pryear = "2013"};
-
+  if( $qprod =~ /P16ij/) {$pryear = "2016"};
 
     $JobStatusT = "JobStatus".$pryear;
 
