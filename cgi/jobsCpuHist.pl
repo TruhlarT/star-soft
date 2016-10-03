@@ -1271,7 +1271,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
  }elsif($qprod eq "P14ig" ) {
      $max_y = 14000 ;
      $ynum = 14;
- }
+
 
         $xlabel = "Job's execution time on the farm in hours";
         $ylabel = "Number of jobs";         
@@ -1301,9 +1301,14 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
      $max_y = 24 ;
      $ynum = 12;
 
+ }elsif($qprod eq "P16ij") {
+ 
+     $max_y = 24 ;
+     $ynum = 12;
+
   if($qprodt eq "P16id.2014") {
 
-     $max_y = 24 ;
+     $max_y = 36 ;
      $ynum = 12;
 
    $gtitle = "Execution time for different stream jobs for run 2014  $qprod production ";  
@@ -1338,6 +1343,10 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
      $max_y = 40000000 ;
      $ynum = 20;
    }
+ }elsif($qprod eq "P16ij" ) {
+     $max_y = 20000000 ;
+     $ynum = 20;
+
  }else{ 
      $max_y = 42000000 ;
      $ynum = 14;
@@ -1378,15 +1387,19 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 $legend[0] = "all streams data for $qprod production";
 
  @data = ();
-
+     $ynum = 14;
  if($qprod eq "P14ia" ) {
      $max_y = 11200 ;
  }elsif($qprod eq "P14ig" ) {
      $max_y = 9800 ;
  }elsif($qprod eq "P14ii" ) {
      $max_y = 11200 ;
+ }elsif($qprod eq "P16ij" ) {
+     $max_y = 6000 ;
+     $ynum = 20;
  }else{ 
      $max_y = 9800 ;
+
  } 
 
         $xlabel = "Date of jobs completion";
