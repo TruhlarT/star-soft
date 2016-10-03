@@ -242,10 +242,10 @@ $arrprod[$npr] = "P15i.2014";
 $arrprod[$npr+1] = "P16id.2014";
 
 
- $JobStatusT = "JobStatus2016";
+$JobStatusT = "JobStatus2016";
 
 
-    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT where runDay >= '2015-11-06' order by runDay ";
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT where runDay >= '2016-10-01' order by runDay ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -1271,7 +1271,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
  }elsif($qprod eq "P14ig" ) {
      $max_y = 14000 ;
      $ynum = 14;
-
+ }
 
         $xlabel = "Job's execution time on the farm in hours";
         $ylabel = "Number of jobs";         
@@ -1303,15 +1303,14 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 
   if($qprodt eq "P16id.2014") {
 
-     $max_y = 36 ;
+     $max_y = 24 ;
      $ynum = 12;
 
    $gtitle = "Execution time for different stream jobs for run 2014  $qprod production ";  
   }
 
  }elsif($qprod eq "P16ij") {
- 
-     $max_y = 24 ;
+     $max_y = 36 ;
      $ynum = 12;
 
  }else{
@@ -1324,7 +1323,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
   
    @data = (\@ndate, \@rphysics, \@rhlt, \@rhltgood, \@rmtd, \@rupc, \@rwb, \@rfms, \@rrp ) ;
 
- }
+  }
 
      }elsif( $srate eq "events"){
 
@@ -1344,10 +1343,6 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
      $max_y = 40000000 ;
      $ynum = 20;
    }
- }elsif($qprod eq "P16ij" ) {
-     $max_y = 20000000 ;
-     $ynum = 20;
-
  }else{ 
      $max_y = 42000000 ;
      $ynum = 14;
@@ -1369,16 +1364,16 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
     @data = (\@ndate, \@nevents, \@nevent1, \@nevent2 ) ;
 
 
- }else{
+}else{
   if($qprodt eq "P16id.2014" ) {
 
   $gtitle = "Number of events processed per day in run 2014 $qprod production ";
   $legend[0] = "all streams data for run 2014 $qprod production";  
- }else{
+}else{
 
  $legend[0] = "all streams data for $qprod production";
 
- }
+}
     @data = (\@ndate, \@nevents ) ;
 
 }
@@ -1389,19 +1384,14 @@ $legend[0] = "all streams data for $qprod production";
 
  @data = ();
 
-     $ynum = 14;
  if($qprod eq "P14ia" ) {
      $max_y = 11200 ;
  }elsif($qprod eq "P14ig" ) {
      $max_y = 9800 ;
  }elsif($qprod eq "P14ii" ) {
      $max_y = 11200 ;
- }elsif($qprod eq "P16ij" ) {
-     $max_y = 6000 ;
-     $ynum = 20;
  }else{ 
      $max_y = 9800 ;
-
  } 
 
         $xlabel = "Date of jobs completion";
@@ -1430,9 +1420,9 @@ $legend[0] = "all streams data for $qprod production";
 
     @data = (\@ndate, \@numjobs ) ;
 
-   }
-
 }
+
+     }
 
  my $xLabelsVertical = 1;
  my $xLabelPosition = 0;
