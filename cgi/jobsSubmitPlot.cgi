@@ -100,6 +100,23 @@ my  $JobStatusT2 = "JobStatus2014";
 
 $arrprod[$npr] = "P15i.2014";
 
+
+$JobStatusT = "JobStatus2016";
+
+
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT where runDay >= '2016-10-01' order by runDay ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $arrprod[$npr] = $mpr;
+          $npr++;
+       }
+    $cursor->finish();
+
+
 my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months","8_months","10_months","12_months");
 
 
@@ -143,7 +160,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P16id,
+	                          -default=>P16ij,
       			          -size =>1);
 
     print "<p>";
@@ -185,7 +202,12 @@ END
 
   if($qprod eq "P15ik" or $qprod eq "P15il" or $qprod eq "P16ic" or  $qprod eq "P16id")  {
    $JobStatusT = "JobStatus2015";
+
+  }elsif($qprod eq "P16ij") {
+   $JobStatusT = "JobStatus2016";   
+
   }
+
 
 
 my @ardays = ();
@@ -224,7 +246,10 @@ if ( $qperiod =~ /month/) {
 
  if($qprod eq "P15ik" or $qprod eq "P15il" or $qprod eq "P16ic" or  $qprod eq "P16id")  {
    $JobStatusT = "JobStatus2015";
-  }
+ }elsif($qprod eq "P16ij") {
+   $JobStatusT = "JobStatus2016";
+ }
+
 
  @ardays = ();
 
@@ -306,7 +331,12 @@ $ndt = 0;
 
   if($qprod eq "P15ik" or $qprod eq "P15il" or $qprod eq "P16ic" or $qprod eq "P16id")  {
    $JobStatusT = "JobStatus2015";
+
+ }elsif($qprod eq "P16ij") {
+   $JobStatusT = "JobStatus2016";   
+
   }
+
 
   foreach my $tdate (@ardays) {
 
