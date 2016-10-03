@@ -67,6 +67,8 @@ my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months"
 
 my $ProdSizeT = "ProductionSize";
 
+my $ProdSize2016T = "ProductionSize2016";
+
  &StDbProdConnect();
 
 
@@ -97,7 +99,35 @@ my $ProdSizeT = "ProductionSize";
        }
     $cursor->finish();
 
-   $trigs[$ntr] = "all";
+
+
+  $sql="SELECT DISTINCT prodtag  FROM $ProdSize2016T ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( my $mpr = $cursor->fetchrow() ) {
+
+          $arrprod[$npr] = $mpr;
+          $npr++;
+        }
+    $cursor->finish();
+
+
+  $sql="SELECT DISTINCT Trigset  FROM $ProdSize2016T ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( my $mpr = $cursor->fetchrow() ) {
+          $trigs[$ntr] = $mpr;
+          $ntr++;
+       }
+    $cursor->finish();
+
+  $trigs[$ntr] = "all";
 
 
 &StDbProdDisconnect();
@@ -140,7 +170,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
                                   -values=>\@arrprod,
-                                  -default=>P16id,
+                                  -default=>P16ij,
                                   -size =>1);
 
     print "<p>";
@@ -196,6 +226,13 @@ my $srate =   $qqr->param('prate');
 my $qtrig =   $qqr->param('ptrig');
 my $qperiod = $qqr->param('period');
 
+
+  if($qprod eq "P16ij" ) {
+  
+   $ProdSizeT = "ProductionSize2016";
+  }else{
+    $ProdSizeT = "ProductionSize";
+  }
 
 # Tables
 
