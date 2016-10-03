@@ -1301,11 +1301,6 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
      $max_y = 24 ;
      $ynum = 12;
 
- }elsif($qprod eq "P16ij") {
- 
-     $max_y = 24 ;
-     $ynum = 12;
-
   if($qprodt eq "P16id.2014") {
 
      $max_y = 36 ;
@@ -1313,6 +1308,12 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 
    $gtitle = "Execution time for different stream jobs for run 2014  $qprod production ";  
   }
+
+ }elsif($qprod eq "P16ij") {
+ 
+     $max_y = 24 ;
+     $ynum = 12;
+
  }else{
      $max_y = 28 ;
      $ynum = 14;
@@ -1323,7 +1324,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
   
    @data = (\@ndate, \@rphysics, \@rhlt, \@rhltgood, \@rmtd, \@rupc, \@rwb, \@rfms, \@rrp ) ;
 
-  }
+ }
 
      }elsif( $srate eq "events"){
 
@@ -1368,16 +1369,16 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
     @data = (\@ndate, \@nevents, \@nevent1, \@nevent2 ) ;
 
 
-}else{
+ }else{
   if($qprodt eq "P16id.2014" ) {
 
   $gtitle = "Number of events processed per day in run 2014 $qprod production ";
   $legend[0] = "all streams data for run 2014 $qprod production";  
-}else{
+ }else{
 
  $legend[0] = "all streams data for $qprod production";
 
-}
+ }
     @data = (\@ndate, \@nevents ) ;
 
 }
@@ -1387,6 +1388,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 $legend[0] = "all streams data for $qprod production";
 
  @data = ();
+
      $ynum = 14;
  if($qprod eq "P14ia" ) {
      $max_y = 11200 ;
@@ -1428,9 +1430,9 @@ $legend[0] = "all streams data for $qprod production";
 
     @data = (\@ndate, \@numjobs ) ;
 
-}
+   }
 
-     }
+}
 
  my $xLabelsVertical = 1;
  my $xLabelPosition = 0;
