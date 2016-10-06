@@ -1337,7 +1337,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
      $max_y = 500000000 ;
      $ynum = 25;
  }elsif($qprod eq "P16ij" ) {
-     $max_y = 12000000 ;
+     $max_y = 40000000 ;
      $ynum = 20;
  }elsif($qprod eq "P16id" ) {
      $max_y = 160000000 ;
@@ -1395,7 +1395,7 @@ $legend[0] = "all streams data for $qprod production";
      $max_y = 11200 ;
 
  }elsif($qprod eq "P16ij" ) {
-     $max_y = 8000 ;
+     $max_y = 12000 ;
      $ynum = 20;
  }else{ 
      $max_y = 9800 ;
