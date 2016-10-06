@@ -1395,7 +1395,7 @@ $legend[0] = "all streams data for $qprod production";
      $max_y = 11200 ;
 
  }elsif($qprod eq "P16ij" ) {
-     $max_y = 12000 ;
+     $max_y = 16000 ;
      $ynum = 20;
  }else{ 
      $max_y = 9800 ;
