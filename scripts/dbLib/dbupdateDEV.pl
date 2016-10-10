@@ -665,15 +665,6 @@ my $pyear = 0;
       $testJobStFiles[$nJobStFiles] = $fObjAdr;
       $nJobStFiles++;
 
-###### coment after one week is fillin
-
-    if($mpath =~ /AuAu200_production_2016/ and $mpath =~ /Mon/) {
-
-    &fillQATable();
-
-    }
-########
-
       foreach my $eachOldJob (@old_jobs) {
           $pvjbId = ($$eachOldJob)->oldjbId;
           $pvpath = ($$eachOldJob)->oldpath;
@@ -683,7 +674,6 @@ my $pyear = 0;
           $pfullName = $pvpath . "/" . $pvfile;
         
 #       if( ($fullname eq $pfullName) and ($pvavail eq "Y") ) {
-
 
 
         if( $pfullName eq $fullname ) {
@@ -707,6 +697,8 @@ my $pyear = 0;
 ##############
 
    if($mpath =~ /AuAu200_production_low_2014/ or $mpath =~ /AuAu200_production_mid_2014/ or $mpath =~ /production_pp200long_2015/ or $mpath =~ /production_pAu200_2015/  or $mpath =~ /AuAu200_production_2016/) {
+
+#   if($mpath =~ /AuAu200_production_low_2014/ or $mpath =~ /AuAu200_production_mid_2014/ or $mpath =~ /production_pp200long_2015/ or $mpath =~ /production_pAu200_2015/) {
 
        print "Fillin QA table  ", $mpath, "\n";
     next if ($mpath =~ /nohft/);
