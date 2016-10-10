@@ -824,7 +824,6 @@ my $pyear = 0;
 
     &fillJSTable();
 
-
     if($mpath =~ /AuAu200_production_2016/) {
 
     &fillQATable();
