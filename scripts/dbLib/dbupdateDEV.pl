@@ -667,11 +667,11 @@ my $pyear = 0;
 
 ###### coment after one week is fillin
 
-    if($mpath =~ /AuAu200_production_2016/) {
+#    if($mpath =~ /AuAu200_production_2016/) {
 
-    &fillQATable();
+#    &fillQATable();
 
-    }
+#    }
 ########
 
       foreach my $eachOldJob (@old_jobs) {
