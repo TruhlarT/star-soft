@@ -698,8 +698,6 @@ my $pyear = 0;
 
    if($mpath =~ /AuAu200_production_low_2014/ or $mpath =~ /AuAu200_production_mid_2014/ or $mpath =~ /production_pp200long_2015/ or $mpath =~ /production_pAu200_2015/  or $mpath =~ /AuAu200_production_2016/) {
 
-#   if($mpath =~ /AuAu200_production_low_2014/ or $mpath =~ /AuAu200_production_mid_2014/ or $mpath =~ /production_pp200long_2015/ or $mpath =~ /production_pAu200_2015/) {
-
        print "Fillin QA table  ", $mpath, "\n";
     next if ($mpath =~ /nohft/);
     &updateQATable();
