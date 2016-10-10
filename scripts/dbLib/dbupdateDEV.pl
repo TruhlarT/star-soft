@@ -667,11 +667,11 @@ my $pyear = 0;
 
 ###### coment after one week is fillin
 
-#    if($mpath =~ /AuAu200_production_2016/) {
+    if($mpath =~ /AuAu200_production_2016/ and $mpath =~ /Mon/) {
 
-#    &fillQATable();
+    &fillQATable();
 
-#    }
+    }
 ########
 
       foreach my $eachOldJob (@old_jobs) {
@@ -823,6 +823,13 @@ my $pyear = 0;
 ###########################
 
     &fillJSTable();
+
+
+    if($mpath =~ /AuAu200_production_2016/) {
+
+    &fillQATable();
+
+    }
 
         foreach my $nOldJob (@old_jobs) {
           $pvjbId = ($$nOldJob)->oldjbId;
