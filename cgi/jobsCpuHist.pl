@@ -1184,6 +1184,9 @@ my $ynum = 14;
   }elsif($qprod eq "P16id") { 
      $max_y = 64 ;
      $ynum = 16;
+  }elsif($qprod eq "P16ij") { 
+     $max_y = 32 ;
+     $ynum = 16;
 
  }else{
      $max_y = 28 ;
@@ -1310,8 +1313,8 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
   }
 
  }elsif($qprod eq "P16ij") {
-     $max_y = 24 ;
-     $ynum = 12;
+     $max_y = 28 ;
+     $ynum = 14;
 
  }else{
      $max_y = 28 ;
