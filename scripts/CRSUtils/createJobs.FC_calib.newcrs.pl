@@ -73,7 +73,6 @@ my $JOB_DIR =  "/star/u/starreco/" . $prodPeriod ."/requests/daq";;
  my $strName;
  my $hpssSt = 'n/a';
  my $outSt = 'n/a';
-# my $tgcalib = "TOF/dEdx";
 
 
 #############################################################################
@@ -209,7 +208,7 @@ my $jbset;
 #####  fill  JobStatus table
       print "filling JobStatus table\n";
  
-#     &fillJSTable();   
+     &fillJSTable();   
 
      }
    }
