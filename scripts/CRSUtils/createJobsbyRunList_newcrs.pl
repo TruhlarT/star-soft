@@ -152,7 +152,7 @@ my @flsplit = ();
  
   if( $ftype eq "all") {
 
-  $fileC->set_context("runnumber=$runList[$ii]","filetype=online_daq","sanity=1","storage=HPSS","limit=0" );
+  $fileC->set_context("runnumber=$runList[$ii]","filetype=online_daq","sanity=1","storage=HPSS","limit=0");
    }else{
   
   $fileC->set_context("runnumber=$runList[$ii]","filetype=online_daq","filename~$ftype","sanity=1","storage=HPSS","limit=0" );
