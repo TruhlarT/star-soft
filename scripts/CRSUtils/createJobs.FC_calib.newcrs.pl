@@ -152,7 +152,7 @@ my $jbset;
  $clfile = $fileSet[$ii];
 
 
-  $fileC->set_context("filename=$fileSet[$ii]","filetype=online_daq","sanity=1","storage=HPSS","limit=0");
+  $fileC->set_context("filename=$fileSet[$ii]","filetype=online_daq","sanity=1","storage=HPSS");
 
 
   @jobs_set = $fileC->run_query("trgsetupname","path","runnumber","fileseq","magscale");
@@ -167,13 +167,13 @@ my $jbset;
     @prt = split("::",$jobline);
 
      
-    $mflname = $clname;
+    $mflname = $clfile;
     $trig = $prt[0];
     $jpath  = $prt[1];
     $mrunId = $prt[2];
     $fileSeq = $prt[3];
     $field = $prt[4];
-    $jfile = $clname;
+    $jfile = $clfile;
     $jfile =~ s/.daq//g;
     @prts = ();
     @prts = split ("_",$jfile);
@@ -209,7 +209,7 @@ my $jbset;
 #####  fill  JobStatus table
       print "filling JobStatus table\n";
  
-     &fillJSTable();   
+#     &fillJSTable();   
 
      }
    }
