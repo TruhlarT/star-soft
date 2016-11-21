@@ -227,7 +227,7 @@ my $qtrig =   $qqr->param('ptrig');
 my $qperiod = $qqr->param('period');
 
 
-  if($qprod eq "P16ij" ) {
+  if($qprod eq "P16ij" or $qprod eq "P16ik") {
   
    $ProdSizeT = "ProductionSize2016";
   }else{

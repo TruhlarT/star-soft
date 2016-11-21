@@ -229,7 +229,7 @@ END
    $JobStatusT = "JobStatus2014";
    $qprod = "P16id";
    $qprodt = "P16id.2014";
-  }elsif($qprod eq "P16ij") {
+  }elsif($qprod eq "P16ij" or $qprod eq "P16ik") {
 
  $JobStatusT = "JobStatus2016";
 

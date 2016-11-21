@@ -203,7 +203,7 @@ END
   if($qprod eq "P15ik" or $qprod eq "P15il" or $qprod eq "P16ic" or  $qprod eq "P16id")  {
    $JobStatusT = "JobStatus2015";
 
-  }elsif($qprod eq "P16ij") {
+  }elsif($qprod eq "P16ij" or $qprod eq "P16ik") {
    $JobStatusT = "JobStatus2016";   
 
   }
