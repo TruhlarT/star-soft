@@ -372,7 +372,7 @@ END
       $qprodt = "P16id.2014";
     };
   if( $qprod =~ /P16ig/) {$pryear = "2013"};
-  if( $qprod =~ /P16ij/) {$pryear = "2016"};
+  if( $qprod =~ /P16ij/ or $qprod =~ /P16ik/) {$pryear = "2016"};
 
     $JobStatusT = "JobStatus".$pryear;
 
@@ -1184,7 +1184,7 @@ my $ynum = 14;
   }elsif($qprod eq "P16id") { 
      $max_y = 64 ;
      $ynum = 16;
-  }elsif($qprod eq "P16ij") { 
+  }elsif($qprod eq "P16ij" or $qprod eq "P16ik" ) { 
      $max_y = 32 ;
      $ynum = 16;
 
@@ -1312,7 +1312,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
    $gtitle = "Execution time for different stream jobs for run 2014  $qprod production ";  
   }
 
- }elsif($qprod eq "P16ij") {
+ }elsif($qprod eq "P16ij" or $qprod eq "P16ik") {
      $max_y = 36 ;
      $ynum = 18;
 
