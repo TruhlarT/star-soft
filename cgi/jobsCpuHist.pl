@@ -1249,6 +1249,10 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
      $ynum = 15;  
 	$gtitle = "Ratios RealTime/CPU for different stream jobs for run 2014 $qprod production "; 
      }
+ }elsif( $qprod eq "P16ij" or $qprod eq "P16ik") {
+    $max_y = 36 ;
+     $ynum = 13;
+
  }else{
      $max_y = 28 ;
      $ynum = 14;
@@ -1313,8 +1317,8 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
   }
 
  }elsif($qprod eq "P16ij" or $qprod eq "P16ik") {
-     $max_y = 36 ;
-     $ynum = 18;
+     $max_y = 40 ;
+     $ynum = 20;
 
  }else{
      $max_y = 28 ;
