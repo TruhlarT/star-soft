@@ -4,11 +4,11 @@
 # 
 # $Log: 
 # 
-# createJobsbyRunList_split.pl - scripts to create CRS jobs spliting rading daq files by number of events.
+# createJobsbyRunList_split.pl - scripts to create CRS jobs spliting daq files by number of events.
 # Use 4 arguments: production tag, chainName from ProdOptions table, filename with list of run numbers
 # and stream name (use "all" if all stream data should be processed)   
 # For example:
-# createJobsbyRunList_split.pl P11id auau19.run2011.prod1 auau19_goodruns.list st_physics
+# createJobsbyRunList_split.pl P16ie aauau200.run2016.prod auau19_goodruns.list st_physics
 # 
 #
 # Author:  L.Didenko
@@ -54,7 +54,7 @@ my @runList = ();
 my $DISK1        = "/star/rcf/prodlog/";
 my $TOPHPSS_SINK = "/home/starsink/raw/daq";
 my $TOPNFS_RECO = "/star/data17/reco";
-my $JOB_LOG =  $DISK1 . $prodPeriod . "_test/log/daq" ;
+my $JOB_LOG =  $DISK1 . $prodPeriod . "/log/daq" ;
 my $JOB_DIR =  "/star/u/starreco/" . $prodPeriod ."/requests/daq"; 
 
 my @jobs_set = ();
@@ -129,7 +129,7 @@ my $mrunId;
 my @flsplit = ();
 my $kjob = 0;
 my $Nevents = 0;
-my $num = 300;
+my $num = 400;
 my $nstr = 0;
 my $nfin = 0;
 my $njobSt = "n/a";
@@ -153,7 +153,7 @@ my $mgSt = "n/a";
  
   if( $ftype eq "all") {
 
-  $fileC->set_context("runnumber=$runList[$ii]","filetype=online_daq","filename~st_physics_17124030","sanity=1","storage=HPSS","limit=0");
+  $fileC->set_context("runnumber=$runList[$ii]","filetype=online_daq","filename~st_physics_17124030_raw_150004","sanity=1","storage=HPSS","limit=0");
 
    }else{
   
@@ -280,6 +280,7 @@ my $mgSt = "n/a";
 
     $sql="insert into $DAQInfoT set ";
     $sql.="filename='$jfile',";
+    $sql.="prodTag='$prodSr',";
     $sql.="nevents='$Nevents',";
     $sql.="njobcreate='$kjob',";
     $sql.="jobStatus='$njobSt',";
@@ -320,7 +321,7 @@ my $mgSt = "n/a";
 
       my $hpss_raw_dir  = $TOPHPSS_SINK . "/" . $Jsetr;
       my $hpss_raw_file = $inFile;
-      my $nfs_dst_dir   = $TOPNFS_RECO . "/" . $Jsetd;
+      my $nfs_dst_dir   = $TOPNFS_RECO . "/" . $Jsetd."/seq";
       my $nfs_dst_file0 = $gfile."_".$nm.".MuDst.root";
       my $nfs_dst_file1 = $gfile."_".$nm.".hist.root";
       my $nfs_dst_file2 = $gfile."_".$nm.".tags.root";
@@ -360,7 +361,7 @@ my $mgSt = "n/a";
        print JOB_FILE "[main]\n";
        print JOB_FILE "num_inputs = 1\n";
        print JOB_FILE "num_outputs = 3\n";
-       print JOB_FILE "queue = highest\n";
+       print JOB_FILE "queue = high\n";
 #       print JOB_FILE "queue = default\n";
        print JOB_FILE "              \n"; 
        print JOB_FILE "[input-0]\n";
