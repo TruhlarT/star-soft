@@ -232,13 +232,6 @@ if($dyear < 10) { $dyear = "0".$dyear };
 # Tables
 $JobStatusT = "JobStatus"."_".$dyear;
 
-if($pryear eq "2016") {
-$JobStatusT = "JobStatus_16;
-}elsif($pryear eq "2017") {
-$JobStatusT = "JobStatus_17;
-}
-
-
 my $day_diff = 0;
 my $nmonth = 0;
 my @prt = ();
