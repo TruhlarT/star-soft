@@ -262,7 +262,7 @@ my $tdate;
     $nowdate = "2015-12-31";
   }elsif($pryear eq "2016") {
       $nowdate = "2016-12-31";
-      $JobStatusT = JobStatus_16;
+      $JobStatusT = "JobStatus_16";
   }else{
     $nowdate = $todate;
   }
