@@ -60,7 +60,7 @@ my @numheld = ();
  my $fperiod   =  $query->param('period');
  
  my $fstatus ;
- my @prodyear = ("2013","2014","2015","2016");
+ my @prodyear = ("2013","2014","2015","2016","2017");
 
   if( $fperiod eq "" and $pryear eq "" ) {
 
