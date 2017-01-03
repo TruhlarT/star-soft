@@ -61,8 +61,7 @@ my $dyear = $thisyear - 2000;
 my @prodyear = ("2006","2007","2008","2009","2010","2011","2012","2013","2014","2015","2016","2017");
 
 # Tables
-
-
+ 
 $JobStatusT = "JobStatus_17";
 
 my @arsites = ( );
@@ -233,6 +232,12 @@ if($dyear < 10) { $dyear = "0".$dyear };
 # Tables
 $JobStatusT = "JobStatus"."_".$dyear;
 
+if($pryear eq "2016") {
+$JobStatusT = "JobStatus_16;
+}elsif($pryear eq "2017") {
+$JobStatusT = "JobStatus_17;
+}
+
 
 my $day_diff = 0;
 my $nmonth = 0;
@@ -264,6 +269,7 @@ my $tdate;
     $nowdate = "2015-12-31";
   }elsif($pryear eq "2016") {
       $nowdate = "2016-12-31";
+      $JobStatusT = JobStatus_16;
   }else{
     $nowdate = $todate;
   }
