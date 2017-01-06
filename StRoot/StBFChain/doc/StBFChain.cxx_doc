@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.150 2016/09/26 15:20:47 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.151 2017/01/06 22:30:45 genevb Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -1114,7 +1114,7 @@ Bfc_st BFC[] = {
   {"Geometry+Mag","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"pgf77" ,"" ,"","","" ,"pgf77VMC","Fortran",kFALSE},
   {"rootcern" ,"" ,"","geant3","" ,"","ROOT minicern OBSOLETE",kFALSE},
-  {"minicern" ,"" ,"","geant3","" ,"","STAR addition to minicern OBSOLETE",kFALSE},
+  {"StarMiniCern","" ,"","geant3","" ,"","STAR addition to minicern OBSOLETE",kFALSE},
   {"mysql" ,"" ,"","","" ,"libmysqlclient","MySQL",kFALSE},
   {"libPhysics" ,"" ,"","","" ,"libPhysics","TVector",kFALSE},
   {"geant3vmc" ,"" ,"","-usexgeom,-xgeometry","", "libGeom,libVMC,libgeant3", "VMC geant3",kFALSE},
@@ -1407,7 +1407,9 @@ Bfc_st BFC[] = {
   {"fpsDat" ,"","", "StEvent,fmsdb",
    "StFpsRawHitMaker","StFpsRawHitMaker","Fill FPS struct", kFALSE},
   {"fmsPoint" ,"","", "event,fmsDb",
-   "StFmsPointMaker","StFmsPointMaker","Fill FMS clusters", kFALSE},
+   "StFmsPointMaker","StFmsPointMaker","Fill FMS clusters and points", kFALSE},
+  {"fmsfps" ,"","", "event,fmsDb",
+   "StFmsFpsMaker","StFmsFpsMaker","Fill FPS association in FMS points", kFALSE},
   {"fpd" ,"","","" ,"","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"fgt" ,"FgtChain","","fgtDat,fgtClu,fgtAtoC" ,"StMaker","StChain","Fgt data Chain",kFALSE},
   {"fgtDat" ,"","", "event,fgtdb","StFgtRawMaker","StFgtRawMaker", "FGT Data reader",kFALSE},
@@ -1449,16 +1451,16 @@ Bfc_st BFC[] = {
    ,"ctf,St_ctf,St_ctf_Maker,Minui,StGenericVertexMaker" , "... StEvent based VFPPV, noCTB",kFALSE},
   {"VFPPVEvNoBtof" ,"" ,"" ,"VFPPVEv" ,"" ,"","...VFPPVEv with no Btof ",kFALSE},
   {"Sti" ,"Sti","","StiLib,StiLibs,SCL,StEvent,StDbT,TpcIT,compend,sim_T,tbutil","StiMaker"
-   , "TPCCATracker,StiCA,StEventUtilities,StiUtilities,StiMaker","Sti tracker",kFALSE},
+   , "StEventUtilities,StiUtilities,StiMaker","Sti tracker",kFALSE},
+  {"StiCA" ,"Sti","","Sti","StiMaker","TPCCATracker,StiCA" ,"StiCA tracker",kFALSE},
   {"StiCAPerf","","","","", "TPCCATrackerPerformance", "CA Performance",kFALSE},
   {"StiCA" ,"Sti","","Sti,StiLib,StiCALib,StiLibs,SCL,StEvent,StDbT,TpcIT,compend,tbutil","StiMaker"
    , "StEventUtilities,libEG,StiUtilities,StiMaker","Sti+CA tracker",kFALSE},
   {"HLTCA" ,"" ,"Sti","", "StHLTCAMaker","StHLTCAMaker", "HLT reconstruction",kFALSE},
   {"KFVertex" ,"" ,"Sti","-genvtx,-VFMinuit,-VFFV,-VFMCE,-VFppLMV,-VFPPVnoCTB,-VFPPV,-Kink2,-V02,-Xi2"
    ,"StKFVertexMaker", "MathMore,Spectrum", "...KFParticle based multi vertex reconstruction",kFALSE},
-  {"Stv" ,"Stv","","geant3vmc,-TpcIT,-SvtIT,-SsdIT,gen_T,sim_T", "StvMaker",
-   "libHist,libHistPainter,GeoTestMaker,StvUtil,Stv,StvMaker"
-   , "Stv",kFALSE},
+  {"Stv" ,"Stv","","-xgeometry,-Sti,-StiTpc,-StiSsd,-StiSvt,-StiPxl,-StiSsd,-StiSst,-StiIst,","StvMaker"
+  ,"libHist,libHistPainter,libVMC,StarMiniCern,geant3,GeoTestMaker,StvUtil,Stv,StvMaker,StEventUtilities,-StiLibs,-StiLibsHft","Stv",kFALSE},
   {"StvCA" ,"StvCA","","Stv","","" ,"StvCA",kFALSE},
   {"StiVMC" ,"StiVMC","","-Sti,SCL,StEvent,StDbT,TpcDb,compend","StiVMCMaker"
    , "StEventUtilities,StiVMC,StiVMCMaker" ,"ITTF VMC tracker",kFALSE},
@@ -1469,10 +1471,10 @@ Bfc_st BFC[] = {
   {"SsdIT" ,"","","ITTF" ,"","","Sti tracking: SSD",kFALSE},
   {"HpdIT" ,"" ,"","ITTF","" ,"Sti,StiRnD","Sti tracking: Hpd geom",kFALSE},
   {"PixelIT","" ,"","PxlIT","" ,"","Alias for PxlIT",kFALSE},
-  {"PxlIT" ,"" ,"","ITTF","" ,"Sti,StiPxl","Sti tracking: Pixel geom",kFALSE},
-  {"IstIT" ,"" ,"","ITTF","" ,"Sti,StiIst","Sti tracking: Ist geom",kFALSE},
-  {"SstIT" ,"" ,"","ITTF","" ,"Sti,StiSst","Sti tracking: Sst geom",kFALSE},
-  {"BTofIT" ,"" ,"","ITTF","" ,"Sti,StiBTof","Sti tracking: BTof geom",kFALSE},
+  {"PxlIT" ,"" ,"","ITTF","" ,"","Sti tracking: Pixel geom",kFALSE},
+  {"IstIT" ,"" ,"","ITTF","" ,"","Sti tracking: Ist geom",kFALSE},
+  {"SstIT" ,"" ,"","ITTF","" ,"","Sti tracking: Sst geom",kFALSE},
+  {"BTofIT" ,"" ,"","ITTF","" ,"","Sti tracking: BTof geom",kFALSE},
   {"NoSvtIT" ,"" ,"","-SvtIT","" ,"","ITTF: track with switch off SVT geom",kFALSE},
   {"NoSsdIT" ,"" ,"","-SsdIT","" ,"","ITTF: track with switch off SSD geom",kFALSE},
   {"NoSstIT" ,"" ,"","-SstIT","" ,"","ITTF: track with switch off SST geom",kFALSE},
@@ -2700,7 +2702,7 @@ Bfc_st BFC[] = {
   {"Geometry+Mag","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"pgf77" ,"" ,"","","" ,"pgf77VMC","Fortran",kFALSE},
   {"rootcern" ,"" ,"","geant3","" ,"","ROOT minicern OBSOLETE",kFALSE},
-  {"minicern" ,"" ,"","geant3","" ,"","STAR addition to minicern OBSOLETE",kFALSE},
+  {"StarMiniCern","" ,"","geant3","" ,"","STAR addition to minicern OBSOLETE",kFALSE},
   {"mysql" ,"" ,"","","" ,"libmysqlclient","MySQL",kFALSE},
   {"libPhysics" ,"" ,"","","" ,"libPhysics","TVector",kFALSE},
   {"geant3vmc" ,"" ,"","-usexgeom,-xgeometry","", "libGeom,libVMC,libgeant3", "VMC geant3",kFALSE},
@@ -2993,7 +2995,9 @@ Bfc_st BFC[] = {
   {"fpsDat" ,"","", "StEvent,fmsdb",
    "StFpsRawHitMaker","StFpsRawHitMaker","Fill FPS struct", kFALSE},
   {"fmsPoint" ,"","", "event,fmsDb",
-   "StFmsPointMaker","StFmsPointMaker","Fill FMS clusters", kFALSE},
+   "StFmsPointMaker","StFmsPointMaker","Fill FMS clusters and points", kFALSE},
+  {"fmsfps" ,"","", "event,fmsDb",
+   "StFmsFpsMaker","StFmsFpsMaker","Fill FPS association in FMS points", kFALSE},
   {"fpd" ,"","","" ,"","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"fgt" ,"FgtChain","","fgtDat,fgtClu,fgtAtoC" ,"StMaker","StChain","Fgt data Chain",kFALSE},
   {"fgtDat" ,"","", "event,fgtdb","StFgtRawMaker","StFgtRawMaker", "FGT Data reader",kFALSE},
@@ -3035,16 +3039,16 @@ Bfc_st BFC[] = {
    ,"ctf,St_ctf,St_ctf_Maker,Minui,StGenericVertexMaker" , "... StEvent based VFPPV, noCTB",kFALSE},
   {"VFPPVEvNoBtof" ,"" ,"" ,"VFPPVEv" ,"" ,"","...VFPPVEv with no Btof ",kFALSE},
   {"Sti" ,"Sti","","StiLib,StiLibs,SCL,StEvent,StDbT,TpcIT,compend,sim_T,tbutil","StiMaker"
-   , "TPCCATracker,StiCA,StEventUtilities,StiUtilities,StiMaker","Sti tracker",kFALSE},
+   , "StEventUtilities,StiUtilities,StiMaker","Sti tracker",kFALSE},
+  {"StiCA" ,"Sti","","Sti","StiMaker","TPCCATracker,StiCA" ,"StiCA tracker",kFALSE},
   {"StiCAPerf","","","","", "TPCCATrackerPerformance", "CA Performance",kFALSE},
   {"StiCA" ,"Sti","","Sti,StiLib,StiCALib,StiLibs,SCL,StEvent,StDbT,TpcIT,compend,tbutil","StiMaker"
    , "StEventUtilities,libEG,StiUtilities,StiMaker","Sti+CA tracker",kFALSE},
   {"HLTCA" ,"" ,"Sti","", "StHLTCAMaker","StHLTCAMaker", "HLT reconstruction",kFALSE},
   {"KFVertex" ,"" ,"Sti","-genvtx,-VFMinuit,-VFFV,-VFMCE,-VFppLMV,-VFPPVnoCTB,-VFPPV,-Kink2,-V02,-Xi2"
    ,"StKFVertexMaker", "MathMore,Spectrum", "...KFParticle based multi vertex reconstruction",kFALSE},
-  {"Stv" ,"Stv","","geant3vmc,-TpcIT,-SvtIT,-SsdIT,gen_T,sim_T", "StvMaker",
-   "libHist,libHistPainter,GeoTestMaker,StvUtil,Stv,StvMaker"
-   , "Stv",kFALSE},
+  {"Stv" ,"Stv","","-xgeometry,-Sti,-StiTpc,-StiSsd,-StiSvt,-StiPxl,-StiSsd,-StiSst,-StiIst,","StvMaker"
+  ,"libHist,libHistPainter,libVMC,StarMiniCern,geant3,GeoTestMaker,StvUtil,Stv,StvMaker,StEventUtilities,-StiLibs,-StiLibsHft","Stv",kFALSE},
   {"StvCA" ,"StvCA","","Stv","","" ,"StvCA",kFALSE},
   {"StiVMC" ,"StiVMC","","-Sti,SCL,StEvent,StDbT,TpcDb,compend","StiVMCMaker"
    , "StEventUtilities,StiVMC,StiVMCMaker" ,"ITTF VMC tracker",kFALSE},
@@ -3055,10 +3059,10 @@ Bfc_st BFC[] = {
   {"SsdIT" ,"","","ITTF" ,"","","Sti tracking: SSD",kFALSE},
   {"HpdIT" ,"" ,"","ITTF","" ,"Sti,StiRnD","Sti tracking: Hpd geom",kFALSE},
   {"PixelIT","" ,"","PxlIT","" ,"","Alias for PxlIT",kFALSE},
-  {"PxlIT" ,"" ,"","ITTF","" ,"Sti,StiPxl","Sti tracking: Pixel geom",kFALSE},
-  {"IstIT" ,"" ,"","ITTF","" ,"Sti,StiIst","Sti tracking: Ist geom",kFALSE},
-  {"SstIT" ,"" ,"","ITTF","" ,"Sti,StiSst","Sti tracking: Sst geom",kFALSE},
-  {"BTofIT" ,"" ,"","ITTF","" ,"Sti,StiBTof","Sti tracking: BTof geom",kFALSE},
+  {"PxlIT" ,"" ,"","ITTF","" ,"","Sti tracking: Pixel geom",kFALSE},
+  {"IstIT" ,"" ,"","ITTF","" ,"","Sti tracking: Ist geom",kFALSE},
+  {"SstIT" ,"" ,"","ITTF","" ,"","Sti tracking: Sst geom",kFALSE},
+  {"BTofIT" ,"" ,"","ITTF","" ,"","Sti tracking: BTof geom",kFALSE},
   {"NoSvtIT" ,"" ,"","-SvtIT","" ,"","ITTF: track with switch off SVT geom",kFALSE},
   {"NoSsdIT" ,"" ,"","-SsdIT","" ,"","ITTF: track with switch off SSD geom",kFALSE},
   {"NoSstIT" ,"" ,"","-SstIT","" ,"","ITTF: track with switch off SST geom",kFALSE},
@@ -3667,10 +3671,13 @@ Int_t StBFChain::Instantiate()
 
       // back to the HFT sub-system
       if (GetOption("NoPxlIT")) {
+	mk->SetAttr("usePxl"	 ,kTRUE);
 	mk->SetAttr("usePixel"	 ,kTRUE);
       } else {
         if (GetOption("PixelIT") || GetOption("PxlIT") ){
+	  mk->SetAttr("usePxl"     ,kTRUE);
 	  mk->SetAttr("usePixel"	 ,kTRUE);
+	  mk->SetAttr("activePxl"  ,kTRUE);
 	  mk->SetAttr("activePixel",kTRUE);
         }
       }
@@ -3717,11 +3724,10 @@ Int_t StBFChain::Instantiate()
       if (GetOption("VFMinuit"   ) ) mk->SetAttr("VFMinuit"   	, kTRUE);
       if (GetOption("VFppLMV"    ) ) mk->SetAttr("VFppLMV"    	, kTRUE);
       if (GetOption("VFppLMV5"   ) ) mk->SetAttr("VFppLMV5"   	, kTRUE);
-      if (GetOption("VFPPV"      ) ) mk->SetAttr("VFPPV"      	, kTRUE);
-      if (GetOption("VFPPVEv"  ) ) {
+      if ((GetOption("VFPPV") && GetOption("Stv")) || GetOption("VFPPVEv") ) {
         gSystem->Load("StBTofUtil.so");
         mk->SetAttr("VFPPVEv"      , kTRUE);
-      }
+      } else if (GetOption("VFPPV") && GetOption("Sti")) mk->SetAttr(    "VFPPV", kTRUE);
       if (GetOption("VFPPVEvNoBtof")){
         gSystem->Load("StBTofUtil.so"); //Not used but loaded to avoid fail
         mk->SetAttr("VFPPVEvNoBtof", kTRUE);
@@ -3818,8 +3824,9 @@ Int_t StBFChain::Instantiate()
     if ( maker == "StPicoDstMaker"){
       if ( GetOption("picoWrite") )  mk->SetMode(1);
       if ( GetOption("picoRead")  )  mk->SetMode(2);   // possibly more magic
-      if ( GetOption("PicoVtxVpd"))  mk->SetAttr("picoVtxMode", "PicoVtxAuAu200");
-      else                           mk->SetAttr("picoVtxMode", "PicoVtxDefault");
+      if ( GetOption("PicoVtxVpd"))           mk->SetAttr("picoVtxMode", "PicoVtxVpd");
+      else if ( GetOption("PicoVtxDefault"))  mk->SetAttr("picoVtxMode", "PicoVtxDefault");
+      
     }
 
 
@@ -4601,7 +4608,7 @@ void StBFChain::SetFlags(const Char_t *Chain)
 	}
 	SetOption("pgf77","Default,-TGiant3");
 	SetOption("mysql","Default,-TGiant3");
-	SetOption("minicern","Default,-TGiant3");
+	SetOption("StarMiniCern","Default,-TGiant3");
       }
     }
     if (GetOption("ITTF") && ! (GetOption("Sti") || GetOption("StiCA")  || GetOption("Stv") || GetOption("StiVMC"))) {
