@@ -361,7 +361,8 @@ $obsolete{"datetaken"} = "datastarts";
 my @DETECTORS=("tpc","svt","tof","emc","eemc","fpd","ftpc",
 	       "pmd","rich","ssd","bbc","bsmd","esmd","zdc",
 	       "ctb","tpx","fgt","mtd","pxl","ist","sst",
-	       "gmt","l4", "fps", "pp2pp", "etof", "fcs");
+	       "gmt","l4", "fps", "pp2pp", "etof", "fcs",
+               "rhicf");
 
 
 
