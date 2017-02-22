@@ -44,7 +44,7 @@ my $nowdate = $todate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my $pryear = "2015";
+my $pryear = "2016";
 
 my @arrate = ("mudstsize","daqsize","all" );
 
