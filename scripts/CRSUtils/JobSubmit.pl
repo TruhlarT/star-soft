@@ -79,7 +79,7 @@ use RunDAQ;
 use CRSQueues;
 
 
-$ThisYear = 2016;                 # Block to consider. Completely artificial
+$ThisYear = 2017;                 # Block to consider. Completely artificial
                                   # and used to preserve older options in if
                                   # block along with current option.
 $HPSS     = 1;                    # turn to 0 for UNIX staging only
