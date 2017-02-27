@@ -599,7 +599,7 @@ if ( $ThisYear == 2005 ){
 	$DCHAIN{"DAu"} = "P2016,btof,mtd,pxlHit,istHit,sstHit,BEmcChkStat,CorrX,OSpaceZ2,OGridLeak3D,-hitfilt";
 
    } elsif ($ThisYear == 2017) {
-       $DCHAIN{"PPPP"} = "pp2017,btof,mtd,pp2pp,fmsDat,fmsPoint,fpsDat,BEmcChkStat,QAalltrigs,CorrX,OSpaceZ2,OGridLeak3D,-hitfilt";
+       $DCHAIN{"PPPP"} = "pp2017,btof,mtd,pp2pp,fmsDat,fmsPoint,fpsDat,BEmcChkStat,CorrX,OSpaceZ2,OGridLeak3D,-hitfilt";
 
    } else {
         $DCHAIN{"PPPP"} =
