@@ -513,7 +513,9 @@ if ( $ThisYear == 2005 ){
 	rdaq_string2ftype("upc")        ."|".  # <-- moved here as data was large in 2011
         rdaq_string2ftype("minbias_adc")."|".
 	rdaq_string2ftype("mtd")        ."|".  # <-- moved here in 2015
-	rdaq_string2ftype("mtd_adc");
+	rdaq_string2ftype("mtd_adc")    ."|".
+	rdaq_string2ftype("rp")         ."|".  # <-- moved here in 2017
+	rdaq_string2ftype("rp_adc");
 
 
     if ( $ThisYear < 2016){
