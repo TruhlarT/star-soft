@@ -102,7 +102,7 @@ my $ProdSize2016T = "ProductionSize2016";
     $cursor->finish();
 
 
-   $sql="SELECT DISTINCT prodtag  FROM $ProdSize2016T ";
+   $sql="SELECT DISTINCT prodtag  FROM ProductionSize2016";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
