@@ -87,6 +87,8 @@ my $ProdSize2016T = "ProductionSize2016";
 
    $arrprod[$npr] = "all2015";
 
+   $npr++; 
+
    $sql="SELECT DISTINCT Trigset  FROM $ProdSizeT ";
 
       $cursor =$dbh->prepare($sql)
