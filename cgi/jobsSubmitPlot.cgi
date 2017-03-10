@@ -203,7 +203,7 @@ END
   if($qprod eq "P15ik" or $qprod eq "P15il" or $qprod eq "P16ic" or  $qprod eq "P16id")  {
    $JobStatusT = "JobStatus2015";
 
-  }elsif($qprod eq "P16ij" or $qprod eq "P16ik") {
+  }elsif($qprod eq "P16ij" or $qprod eq "P16ik" or $qprod eq "P17ib") {
    $JobStatusT = "JobStatus2016";   
 
   }
@@ -246,7 +246,7 @@ if ( $qperiod =~ /month/) {
 
  if($qprod eq "P15ik" or $qprod eq "P15il" or $qprod eq "P16ic" or  $qprod eq "P16id")  {
    $JobStatusT = "JobStatus2015";
- }elsif($qprod eq "P16ij") {
+ }elsif($qprod eq "P16ij" or $qprod eq "P16ik" or $qprod eq "P17ib") {
    $JobStatusT = "JobStatus2016";
  }
 
@@ -332,7 +332,7 @@ $ndt = 0;
   if($qprod eq "P15ik" or $qprod eq "P15il" or $qprod eq "P16ic" or $qprod eq "P16id")  {
    $JobStatusT = "JobStatus2015";
 
- }elsif($qprod eq "P16ij") {
+ }elsif($qprod eq "P16ij"  or $qprod eq "P16ik" or $qprod eq "P17ib" ) {
    $JobStatusT = "JobStatus2016";   
 
   }
