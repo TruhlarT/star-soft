@@ -89,20 +89,8 @@ my $ProdSize2016T = "ProductionSize2016";
 
    $npr++; 
 
-   $sql="SELECT DISTINCT Trigset  FROM $ProdSizeT ";
 
-      $cursor =$dbh->prepare($sql)
-          || die "Cannot prepare statement: $DBI::errstr\n";
-       $cursor->execute();
-
-       while( my $mpr = $cursor->fetchrow() ) {
-          $trigs[$ntr] = $mpr;
-          $ntr++;
-       }
-    $cursor->finish();
-
-
-   $sql="SELECT DISTINCT prodtag  FROM ProductionSize2016";
+  $sql="SELECT DISTINCT prodtag  FROM ProductionSize2016";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -117,7 +105,20 @@ my $ProdSize2016T = "ProductionSize2016";
 
 
    $arrprod[$npr] = "all2016";
- 
+
+
+   $sql="SELECT DISTINCT Trigset  FROM $ProdSizeT ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( my $mpr = $cursor->fetchrow() ) {
+          $trigs[$ntr] = $mpr;
+          $ntr++;
+       }
+    $cursor->finish();
+
 
   $sql="SELECT DISTINCT Trigset  FROM $ProdSize2016T ";
 
@@ -146,7 +147,7 @@ my $qtrig   = $query->param('ptrig');
 my $qperiod = $query->param('period');
 
 
-if( $qprod eq "" and $srate eq "" and  $qtrig eq "" ) {
+if( $qprod eq "" and $srate eq "" and  $qtrig eq "" and $qperiod eq "" ) {
 
     print $query->header();
     print $query->start_html('Production size distribution');
@@ -170,7 +171,7 @@ END
 
     print "<p>";
     print "</td><td>";
-    print "<h3 align=center> Production series <br></h3>";
+    print "<h3 align=center> Production tags <br></h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
                                   -values=>\@arrprod,
