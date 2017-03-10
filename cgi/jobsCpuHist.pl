@@ -54,7 +54,7 @@ my $dyear = $thisyear - 2000;
 
 my $lastdate;
 
-my @prodyear = ("2013","2014","2015","2016");
+my @prodyear = ("2013","2014","2015","2016","2017");
 
 
 my @arperiod = ( );
@@ -372,7 +372,7 @@ END
       $qprodt = "P16id.2014";
     };
   if( $qprod =~ /P16ig/) {$pryear = "2013"};
-  if( $qprod =~ /P16ij/ or $qprod =~ /P16ik/) {$pryear = "2016"};
+  if( $qprod =~ /P16ij/ or $qprod =~ /P16ik/ or $qprod =~ /P17ib/ ) {$pryear = "2016"};
 
     $JobStatusT = "JobStatus".$pryear;
 
@@ -491,7 +491,7 @@ END
        $lastdate = $mxtime;
 
 
-    if($pryear eq "2013" or $pryear eq "2014") {
+    if($pryear eq "2013" or $pryear eq "2014" or $pryear eq "2015" or $pryear eq "2016") {
         $nowdate = $lastdate;
     } else {
         $nowdate = $todate;
