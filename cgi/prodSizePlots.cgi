@@ -102,8 +102,7 @@ my $ProdSize2016T = "ProductionSize2016";
     $cursor->finish();
 
 
-
-  $sql="SELECT DISTINCT prodtag  FROM $ProdSize2016T ";
+   $sql="SELECT DISTINCT prodtag  FROM $ProdSize2016T ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -115,6 +114,7 @@ my $ProdSize2016T = "ProductionSize2016";
           $npr++;
         }
     $cursor->finish();
+
 
    $arrprod[$npr] = "all2016";
  
@@ -231,7 +231,7 @@ my $qtrig =   $qqr->param('ptrig');
 my $qperiod = $qqr->param('period');
 
 
-  if($qprod eq "P16ij" or $qprod eq "P16ik") {
+  if($qprod eq "P16ij" or $qprod eq "P16ik" or  $qprod eq "P17ib") {
   
    $ProdSizeT = "ProductionSize2016";
   }else{
