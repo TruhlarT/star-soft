@@ -116,6 +116,8 @@ my $ProdSize2016T = "ProductionSize2016";
         }
     $cursor->finish();
 
+   $arrprod[$npr] = "all2016";
+ 
 
   $sql="SELECT DISTINCT Trigset  FROM $ProdSize2016T ";
 
