@@ -662,7 +662,7 @@ $DBLBNAME = "dbLoadBalancerLocalConfig_nightly.xml";
 $SCRATCH = ".";
 $LOCKF   = "FastOff.lock";
 $QUITF   = "FastOff.quit";
-$LEAVE   = 1==1;
+$LEAVE   = 1==0;
 $CONFF   = "JobSubmit$LIB.lis";
 $PRIORITY= 50;                        # default queue priority    (old=100 [max], new 50 (lower the better))
 $SLEEPT  =  1;                        # sleep time between submit (old=10)
