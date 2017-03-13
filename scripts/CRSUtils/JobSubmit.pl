@@ -515,7 +515,9 @@ if ( $ThisYear == 2005 ){
 	rdaq_string2ftype("mtd")        ."|".  # <-- moved here in 2015
 	rdaq_string2ftype("mtd_adc")    ."|".
 	rdaq_string2ftype("rp")         ."|".  # <-- moved here in 2017
-	rdaq_string2ftype("rp_adc");
+	rdaq_string2ftype("rp_adc");    ."|".
+	rdaq_string2ftype("W")          ."|".  # <-- moved here in 2017
+	rdaq_string2ftype("W_adc");
 
 
     if ( $ThisYear < 2016){
