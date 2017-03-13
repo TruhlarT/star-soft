@@ -307,7 +307,7 @@ if ( $ThisYear == 2005 ){
     $TARGET  = "/star/data09/reco";       # This is ONLY a default value.
                                           # Overwritten by ARGV (see crontab)
 
-    # Those are taken from previous years - agreed upon as per rate, etc...
+    # Those are taken from previous yera - agreed upon as per rate, etc...
     # and documented on our Web pages.
     $LASERTP =
 	rdaq_string2ftype("laser")."|".
@@ -362,7 +362,7 @@ if ( $ThisYear == 2005 ){
     $TARGET  = "/star/data09/reco";       # This is ONLY a default value.
                                           # Overwritten by ARGV (see crontab)
 
-    # Those are taken from previous years - agreed upon as per rate, etc...
+    # Those are taken from previous yera - agreed upon as per rate, etc...
     # and documented on our Web pages.
     $LASERTP =
 	rdaq_string2ftype("laser")."|".
@@ -414,7 +414,7 @@ if ( $ThisYear == 2005 ){
     $TARGET  = "/star/data09/reco";       # This is ONLY a default value.
                                           # Overwritten by ARGV (see crontab)
 
-    # Those are taken from previous years - agreed upon as per rate, etc...
+    # Those are taken from previous yera - agreed upon as per rate, etc...
     # and documented on our Web pages.
     $LASERTP =
 	rdaq_string2ftype("laser")."|".
@@ -494,7 +494,7 @@ if ( $ThisYear == 2005 ){
     $TARGET  = "/star/data09/reco";       # This is ONLY a default value.
                                           # Overwritten by ARGV (see crontab)
 
-    # Those are taken from previous years - agreed upon as per rate, etc...
+    # Those are taken from previous yera - agreed upon as per rate, etc...
     # and documented on our Web pages.
     $LASERTP =
 	rdaq_string2ftype("laser")."|".
@@ -514,10 +514,10 @@ if ( $ThisYear == 2005 ){
         rdaq_string2ftype("minbias_adc")."|".
 	rdaq_string2ftype("mtd")        ."|".  # <-- moved here in 2015
 	rdaq_string2ftype("mtd_adc")    ."|".
-	rdaq_string2ftype("rp")         ."|".  # <-- moved here in 2017
-	rdaq_string2ftype("rp_adc");    ."|".
 	rdaq_string2ftype("W")          ."|".  # <-- moved here in 2017
-	rdaq_string2ftype("W_adc");
+	rdaq_string2ftype("W_adc")      ."|".
+	rdaq_string2ftype("rp")         ."|".  # <-- moved here in 2017
+	rdaq_string2ftype("rp_adc");
 
 
     if ( $ThisYear < 2016){
@@ -662,7 +662,6 @@ $DBLBNAME = "dbLoadBalancerLocalConfig_nightly.xml";
 $SCRATCH = ".";
 $LOCKF   = "FastOff.lock";
 $QUITF   = "FastOff.quit";
-$LEAVE   = 1==0;
 $CONFF   = "JobSubmit$LIB.lis";
 $PRIORITY= 50;                        # default queue priority    (old=100 [max], new 50 (lower the better))
 $SLEEPT  =  1;                        # sleep time between submit (old=10)
@@ -675,7 +674,7 @@ $MINEVT  =  0 if (!defined($MINEVT)); # minimum number of events to consider
 
 
 # Check if the quit file is present
-if ( -e $QUITF || $LEAVE ){
+if ( -e $QUITF){
     print "$SELF : $QUITF detected I have been asked to skip processing\n";
     rdaq_set_message($SSELF,"$QUITF detected","I have been asked to skip processing");
     &Exit();
@@ -688,7 +687,7 @@ if ( -e $QUITF || $LEAVE ){
 # }
 
 # Global condition will exclude from accidental processing of junk
-# pulsers or lasers types. Note that EXPRESS are NOT added as they
+# puslers or lasers types. Note that EXPRESS are NOT added as they
 # will be grabbed FIRST (then, if there is room, some other files).
 $COND = "$PHYSTP";
 if ($PHYSTP2 != 0){ $COND .= "|$PHYSTP2";}
@@ -914,7 +913,7 @@ $NSLOT = 0;
 		    push(@Xfiles,rdaq_get_files($obj,-1,$num, 1,\%SEL,$ZEROBIAS));
 		}
                 # we may push into @Files up to 10 times more files than
-		# necessary. But please, check the logic further down i.e.
+		# nevessary. But please, check the logic further down i.e.
 		# if we want to submit one file per run, we have to select
 		# more files first and then sub-select from that pool. To do
 		# that, we separate clearly Xfiles and files and loop over the
