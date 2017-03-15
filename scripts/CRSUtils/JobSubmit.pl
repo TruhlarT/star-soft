@@ -502,7 +502,9 @@ if ( $ThisYear == 2005 ){
 
     $PHYSTP  =  
 	rdaq_string2ftype("physics")    ."|".
-        rdaq_string2ftype("physics_adc");
+        rdaq_string2ftype("physics_adc")."|". 
+	rdaq_string2ftype("W")          ."|". 
+	rdaq_string2ftype("W_adc");
 
     $PHYSTP2 =
         rdaq_string2ftype("pxl")        ."|".  # <-- appeared in 2013 run
@@ -514,15 +516,12 @@ if ( $ThisYear == 2005 ){
         rdaq_string2ftype("minbias_adc")."|".
 	rdaq_string2ftype("mtd")        ."|".  # <-- moved here in 2015
 	rdaq_string2ftype("mtd_adc")    ."|".
-	rdaq_string2ftype("W")          ."|".  # <-- moved here in 2017
-	rdaq_string2ftype("W_adc")      ."|".
 	rdaq_string2ftype("rp")         ."|".  # <-- moved here in 2017
 	rdaq_string2ftype("rp_adc");
 
 
     if ( $ThisYear < 2016){
 	@EXPRESS = (
-	        rdaq_string2ftype("rp"),         # <-- new in 2015, 
 		rdaq_string2ftype("express"),
 		rdaq_string2ftype("jpsi"),
 		rdaq_string2ftype("btag"),
