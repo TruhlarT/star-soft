@@ -87,7 +87,7 @@ my @submjobs = ();
 my @submjob1 = ();
 my @submjob2 = ();
 
-my $pryear = "2014";
+my $pryear = "2016";
 
 my $rte = 0;
 
@@ -105,6 +105,8 @@ my @arhltgood = ();
 my @arcentralpro = ();
 my @arwb = ();
 my @arrp = ();
+my @arsst = ();
+
 
 my @ndate = ();
 my $ndt = 0;
@@ -125,6 +127,8 @@ my @cphltgood = ();
 my @cpcentralpro  = (); 
 my @cpwb  = (); 
 my @cprp  = (); 
+my @cpsst = ();
+
 
 my @jbupsilon = ();
 my @jbmtd = ();
@@ -140,6 +144,7 @@ my @jbhltgood = ();
 my @jbcentralpro  = ();
 my @jbwb = ();
 my @jbrp = ();
+my @jbsst = ();
 
 my @prcpmtd = ();
 my @rtprcpmtd = ();
@@ -153,6 +158,7 @@ my @rthltgood = ();
 my @rtfms = ();
 my @rtwb = ();
 my @rtrp = ();
+my @rtsst = ();
 
 my @rphysics = ();
 my @rmtd = ();
@@ -162,7 +168,7 @@ my @rhltgood = ();
 my @rfms = ();
 my @rwb = ();
 my @rrp = ();
-
+my @rsst = ();
 
 my @rcphysics = ();
 my @rcmtd = ();
@@ -172,7 +178,7 @@ my @rchltgood = ();
 my @rcfms = ();
 my @rcwb = ();
 my @rcrp = ();
-
+my @rcsst = ();
 
 my $nphysics = 0;
 my $nmtd = 0;
@@ -183,6 +189,7 @@ my $nhltgood = 0;
 my $nfms = 0;
 my $nwb = 0;
 my $nrp = 0;
+my $nsst = 0;
 
 my @narray = ();
 
@@ -466,6 +473,8 @@ END
               $nfms = $narray[$ik];
           }elsif( $arstream[$ik] eq "rp" ) {
               $nrp = $narray[$ik];
+          }elsif( $arstream[$ik] eq "sst" ) {
+              $nsst = $narray[$ik];
 
           }elsif( $arstream[$ik] eq "W" or $arstream[$ik] eq "WE" or $arstream[$ik] eq "WB"  ) {
               $nwb = $narray[$ik];
@@ -544,6 +553,8 @@ END
               $nfms = $narray[$ik];
           }elsif( $arstream[$ik] eq "rp" ) {
               $nrp = $narray[$ik];
+          }elsif( $arstream[$ik] eq "sst" ) {
+              $nsst = $narray[$ik];
           }elsif( $arstream[$ik] eq "W" or $arstream[$ik] eq "WE" or $arstream[$ik] eq "WB"  ) {
               $nwb = $narray[$ik];
          }
@@ -568,6 +579,7 @@ END
  @arcentralpro = ();
  @arwb = ();
  @arrp = ();
+ @arsst = ();
 
  @cpupsilon = ();
  @cpmtd = ();
@@ -583,6 +595,7 @@ END
  @cpcentralpro  = ();
  @cpwb = (); 
  @cprp = (); 
+ @cpsst = ();
 
  @prcpmtd = ();
  @rtprcpmtd = ();
@@ -601,6 +614,7 @@ END
  @jbcentralpro  = ();
  @jbwb = ();
  @jbrp = ();
+ @jbsst = ();
 
  @rtphysics = ();
  @rtmtd = ();
@@ -610,6 +624,7 @@ END
  @rtfms = ();
  @rtwb = ();
  @rtrp = ();
+ @rtsst = ();
 
  @rphysics = ();
  @rmtd = ();
@@ -619,6 +634,7 @@ END
  @rfms = ();
  @rwb = ();
  @rrp = ();
+ @rsst = ();
 
  @rcphysics = ();
  @rcmtd = ();
@@ -628,6 +644,7 @@ END
  @rcfms = ();
  @rcwb = ();
  @rcrp = ();
+ @rcsst = ();
 
  @nevents = ();
  @nevent1 = ();
@@ -747,6 +764,10 @@ END
            }elsif( $pstream eq "rp" ) {
                $jbrp[$ndt]++; 
                $rrp[$ndt] =  $jbrp[$ndt]*100/$nrp;
+           }elsif( $pstream eq "sst" ) {
+               $jbsst[$ndt]++;
+               $rsst[$ndt] =  $jbsst[$ndt]*100/$nsst;
+
 #           }elsif( $pstream eq "ht" ) {
 #               $jbht[$ndt]++;  
 #           }elsif( $pstream eq "atomcules" ) {
@@ -1036,6 +1057,10 @@ END
               }elsif( $pstream eq "rp" ) {
                $cprp[$ndt]++; 
                $rtrp[$ndt] =  $cprp[$ndt]*100/$nrp;
+	      }elsif( $pstream eq "sst" ) {
+		  $cpsst[$ndt]++;
+		  $rtsst[$ndt] =  $cpsst[$ndt]*100/$nsst;
+
 #              }elsif( $pstream eq "ht" ) {
 #               $cpht[$ndt]++;  
 #              }elsif( $pstream eq "atomcules" ) {
@@ -1102,6 +1127,10 @@ END
               }elsif( $pstream eq "rp" ) {
                $arrp[$ndt]++ ;
                $rcrp[$ndt] =  $arrp[$ndt]*100/$nrp;
+              }elsif( $pstream eq "sst" ) {
+		  $arsst[$ndt]++ ;
+		  $rcsst[$ndt] =  $arsst[$ndt]*100/$nsst;
+
 #              }elsif( $pstream eq "ht" ) {
 #               $arht[$ndt]++ ;
 #              }elsif( $pstream eq "atomcules" ) {
@@ -1152,8 +1181,9 @@ my $ynum = 14;
 #       $legend[1] = "st_gamma    ";
 #       $legend[8] = "st_centralpro ";
 #       $legend[9] = "st_atomcules ";
-       $legend[6] = "st_fms";
-       $legend[7] = "st_rp";
+       $legend[6] = "st_fms ";
+       $legend[7] = "st_rp  ";
+       $legend[8] = "st_sst ";
     
        if( $srate eq "cpu" )  {
 
@@ -1170,7 +1200,7 @@ my $ynum = 14;
 
 #    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cphltgood, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cpfms ) ; 
 
-   @data = (\@ndate, \@cpphysics, \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfms, \@cprp ) ; 
+   @data = (\@ndate, \@cpphysics, \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfms, \@cprp, \@cpsst ) ; 
 
 
  }else{
@@ -1209,7 +1239,7 @@ if($qprodt eq "P16id.2014" ) {
 
 }
 
-  @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtfms, \@rtrp ) ; 
+  @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtfms, \@rtrp, \@rtsst ) ; 
 
     }
 
@@ -1227,7 +1257,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 
   #    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@arhltgood, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfms ) ;
 
-    @data = (\@ndate, \@arphysics, \@arhlt, \@arhltgood, \@armtd, \@arupc, \@arwb, \@arfms, \@arrp ) ;
+    @data = (\@ndate, \@arphysics, \@arhlt, \@arhltgood, \@armtd, \@arupc, \@arwb, \@arfms, \@arrp, \@arsst ) ;
 
    }else{
 	$gtitle = "Ratios RealTime/CPU for different stream jobs in $qprod production ";
@@ -1261,7 +1291,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
         $xlabel = "Ratio RealTime/CPU";
         $ylabel = "Percentage of jobs (%)";
 
-    @data = (\@ndate, \@rcphysics, \@rchlt, \@rchltgood, \@rcmtd, \@rcupc, \@rcwb, \@rcfms, \@rcrp ) ;
+    @data = (\@ndate, \@rcphysics, \@rchlt, \@rchltgood, \@rcmtd, \@rcupc, \@rcwb, \@rcfms, \@rcrp, \@rcsst ) ;
 
   }
 
@@ -1286,7 +1316,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
   
 #    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfms ) ;
 
-    @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbhltgood, \@jbmtd, \@jbupc, \@jbwb, \@jbfms, \@jbrp ) ;
+    @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbhltgood, \@jbmtd, \@jbupc, \@jbwb, \@jbfms, \@jbrp, \@jbsst ) ;
 
   }else{
 
@@ -1328,7 +1358,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
         $xlabel = "Job's execution time on the farm in hours";
         $ylabel = "Percentage of jobs (%)";         
   
-   @data = (\@ndate, \@rphysics, \@rhlt, \@rhltgood, \@rmtd, \@rupc, \@rwb, \@rfms, \@rrp ) ;
+   @data = (\@ndate, \@rphysics, \@rhlt, \@rhltgood, \@rmtd, \@rupc, \@rwb, \@rfms, \@rrp, \@rsst ) ;
 
   }
 
