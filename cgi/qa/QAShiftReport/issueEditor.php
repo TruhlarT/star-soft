@@ -52,44 +52,67 @@ function PrintRuns($iid) {
   print "<div id =\"noRunList\"\n";
   print "       style=\"display:block ;z-index:2\">\n";
   fbutton("showRunsButton","Show full list of runs","toggleSection('RunList')");
-  print "First-last runs: <b>" . min($runlist) . "-" . max($runlist) . "</b><br>";
-  print "</div>\n";
+  print "First-last runs: <font color=\"red\"><b>" . min($runlist) . "-" . max($runlist) . "</b></font><br>";
+  print "</div>\n"; #noRunList
   print "<div id =\"fullRunList\"\n";
   print "       style=\"display:none ;z-index:2\">\n";
   print "<table border=0 cellpadding=0 cellspacing=0><tr valign=top><td>\n";
   fbutton("hideRunsButton","Show only first-last runs","toggleSection('RunList')");
   print "</td><td>";
-  print "<div id =\"noMissList\"\n";
-  print "       style=\"display:block ;z-index:3\">\n";
-  fbutton("showMissButton","...and inactive","toggleSection('MissList')");
-  print "<font size=-1>\n";
-  foreach ($runlist as $run) print "<br><b>$run</b>\n";
-  print "</font>\n</div>\n";
-  print "<div id =\"fullMissList\"\n";
-  print "       style=\"display:none ;z-index:3\">\n";
-  fbutton("hideMissButton","...only active","toggleSection('MissList')");
+  fbutton("expandCollapseButton","Expand/Collapse all","toggleSections('RunLists')");
+
   $fullRunList = getRunsInIssYear($issueYear);
   $bigspace = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-  print "<font size=-1>\n";
+  $sectStatus = false;
+  $statusSects = array();
+  $sectIdx = -1;
   foreach ($fullRunList as $run) {
-    print "<br><font color=\"";
-    if (in_array($run,$runlist)) {
-      print "red\"><b>${bigspace}${run}</b>";
-    } else {
-      print "blue\" size=-2>${run}";
+    $runStatus = in_array($run,$runlist);
+    if ($sectIdx<0 || $runStatus != $sectStatus) {
+      $sectStatus = $runStatus;
+      $sectIdx++;
+      $statusSects[$sectIdx][0] = $sectStatus;
+      $statusSects[$sectIdx][1] = $run;
     }
-    print "</font>\n";
+    $statusSects[$sectIdx][2] = $run;
+    $statusSects[$sectIdx][3][] = $run;
   }
-  print "</font>\n</div>\n";
+    
+  print "<br><font size=-3>\n";
+  print "(click on a run number to expand/collapse each series)<br>\n";
+  print "</font><font size=-2 color=\"#206112\">\n";
+  foreach ($statusSects as $sectIdx => $statusSect) {
+    $sectName = "RunLists${sectIdx}";
+
+    print "<div id =\"no${sectName}\" onclick=\"toggleSection('${sectName}')\"\n";
+    print "       style=\"display:block ;z-index:3\">\n";
+    if ($statusSect[0]) { print "<font color=\"red\" size=-1><b>${bigspace}"; }
+    print $statusSect[1];
+    if (count($statusSect[3])>1) { print " - " . $statusSect[2]; }
+    if ($statusSect[0]) { print "</b></font>"; }
+    print "</div>\n";
+    
+    print "<div id =\"full${sectName}\" onclick=\"toggleSection('${sectName}')\"\n";
+    print "       style=\"display:none ;z-index:3\">\n";
+    $linePrefix = "";
+    if ($statusSect[0]) { print "<font color=\"red\" size=-1><b>"; $linePrefix .= $bigspace; }
+    foreach ($statusSect[3] as $k => $run) {
+      print "${linePrefix}${run}\n";
+      if ($k == 0) { $linePrefix = "<br>${linePrefix}"; }
+    }
+    if ($statusSect[0]) { print "</b></font>"; }
+    print "</div>\n"; #RunListsN
+  }
+    
   print "</td></tr></table>\n";
-  print "</div>\n";
+  print "</div>\n"; #fullRunList
   print "</td></tr></table>\n";
 }
 
 
 function ViewDesc($issue) {
   print "<u>Tags:</u>\n<table border=0 cellpadding=0 cellspacing=0>\n";
-  print "<tr valign=top><td>Category/Subsytem:</td>\n";
+  print "<tr valign=top><td>Category/Subsystem:</td>\n";
   print "<td><b><font color=\"#800000\">";
   print $issue->GetTagCategory() . "</font></b></td></tr>\n";
   #print "<tr valign=top><td>Relevant Plots:</td>\n";
@@ -118,20 +141,20 @@ function EditDesc($mode,$issue) {
   print "easy for others to identify and re-use this issue.</i><p>\n";
   print "<table border=0 cellpadding=0 cellspacing=0>\n";
   print "<tr><td colspan=3><u>Tags:</u></td></tr>\n";
-  print "<tr valign=top><td>Category/Subsytem:</td>\n<td>";
+  print "<tr valign=top><td>Category/Subsystem:</td>\n<td>";
   print printCategorySelector("icateg",$issue);
   print "</td><td><font size=-1>(required)</font></td></tr>\n";
   #print "Relevant Plots:" . printPlotsSelector("iplots",$issue);
   #print "<nobr><font size=-1>(optional, multi-select)</font></nobr><br>\n";
   print "<tr valign=top><td>Keywords:</td>\n<td>";
-  beginSection("Keywords","List of keywords",3,"");
+  beginSection("Keywords","List of keywords",-3,"");
   print printKeywordsMultiSelector("ikeyws",$issue);
   endSection();
   print "</td><td><nobr><font size=-1>(optional, multi-select)</font></nobr></td></tr></table><br>\n";
   print "Name <font size=-1>(short description)</font>:";
-  print "<input tabindex=1 name=iname size=50 value=\"${iname}\"><br>\n";
+  print "<input name=iname size=50 value=\"${iname}\"><br>\n";
   print "Full Description:<br>\n";
-  print "<textarea tabindex=2 name=idesc rows=14 cols=74>";
+  print "<textarea name=idesc rows=14 cols=74>";
   print $idesc . "</textarea>\n\n<br>\n\n";
 }
 
@@ -159,6 +182,7 @@ function EditType($iid,$type) {
 
       print "<option value=\"${typ}\"";
       if ($marked == 1) { print " disabled"; }
+      if ($typ == $type) { print " selected"; }
       if ($typ == $type) { print " selected"; }
       print ">${entT}</option>\n";
     }
@@ -208,9 +232,12 @@ jstart();
       form = document.issForm;
       form.type.value = form.ftype.value;
     }
-    function JustView() {
+    function JustView(serial) {
       form = document.issForm;
       form.mode.value = 'view';
+      if (serial != 0) {
+        form.serial.value = serial;
+      }
       form.submit();
     }
     function CloseEditor() {
@@ -236,6 +263,8 @@ jstart();
       }
       return true;
     }
+    function fillIssueTemplate() {
+    }
 
 <?php
 jsToggleSection();
@@ -247,15 +276,18 @@ fstart("issIDForm","","_top");
 fbutton("closeit","Close Window","CloseEditor()");
 print "<h2>QA Issue Browser/Editor</h2>\n\n";
 
-$type = "none";
+$type = "FRP"; # Should be "none", but for now, they're all FRP
 $mode = "none";
 $iid = 0;
+$serial = 0;
 getPassedInt("issueYear",1);
 getPassedInt("iid",1);
 if ($iid > 0) {
   $mode = "view";
   $issueYear = issYearFromId($iid);
   setIssMinMax();
+  getPassedInt("serial",1);
+  if ($serial > 0) { IAtoggleActive($serial); }
 }
 getPassedVarStrict("mode",1);
 if ($mode != "new") {
@@ -369,15 +401,21 @@ if ($mode != "none") {
         fsubmit("Allow Type","SetType()");
         Details2AttachmentSection();
         IAformForAttachment($iid);
-        fbutton("attachThis","Upload File","JustView()");
+        fbutton("attachThis","Upload File","JustView(0)");
+      }
+      if (IAattached()) {
+        IAhandleAttachment($iid);
+      } else {
+        IAcheckDirectAttachment($iid);
       }
       if (IAattached()) IAhandleAttachment($iid);
     }
     linebreak();
-    $nattach = IAtableOfAttachments($iid);
+    $nattach = IAtableOfAttachments($iid,($serial == -1));
     endSection(); // Attachments
-    print "<font size=-1>(Currently $nattach attachment" .
+    print "<font size=-1>(Currently $nattach active attachment" .
       ($nattach != 1 ? "s" : "") . ".)</font><br>\n";
+    fhidden("serial",0);
 
     holines(8);
   }
@@ -386,12 +424,14 @@ if ($mode != "none") {
 ########################################################
 ### List Issues:
 
-print "<div style=\"background-color:#ffcc9f\">\n";
-fbutton("createiss","Open/Create New Issue","CreateIssue()");
-print "</div>\n";
-print "<font size=-1>Issues can only be added.\n";
-print " If you feel an issue needs to be removed, please contact ";
-print "<a href=\"mailto:gene@bnl.gov\">Gene Van Buren</a>.</font><p>\n";
+if ($mode != "new") {
+  print "<div style=\"background-color:#ffcc9f\">\n";
+  fbutton("createiss","Open/Create New Issue","CreateIssue()");
+  print "</div>\n";
+  print "<font size=-1>Issues can only be added.\n";
+  print " If you feel an issue needs to be removed, please contact ";
+  print "<a href=\"mailto:gene@bnl.gov\">Gene Van Buren</a>.</font><p>\n";
+}
 fhidden("mode","save");
 fhidden("iid","$iid");
 fhidden("type",$type);
@@ -399,7 +439,7 @@ fend();
 
 
 varsForIssueSearch();
-beginSection("Picker","Issue Search",(isIssueSearch() ? -5 : 5),"#ffdc9f");
+beginSection("Picker","Issue Search",($mode=="none" || isIssueSearch() ? -5 : 5),"#ffdc9f");
 buildIssueSearch();
 
 holines(8);

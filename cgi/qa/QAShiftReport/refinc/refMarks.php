@@ -7,7 +7,7 @@
   $marks_file = "";
   $marks_txt = "";
   $marksCheckedDir = "";
-  $prefixSig = "(__\w+__x__)?";
+  $prefixSig = "(?:__(\w+)__x__)?";
 
   function getUpdateFile($subdir) {
     return userRefDir($subdir) . "/refsToUpdate.txt";
@@ -33,12 +33,6 @@
     global $marks_file,$marks_txt;
     rmfile($marks_file);
     if (strlen($marks_txt) > 1) { saveText($marks_txt,$marks_file); }
-  }
-  
-  function markExists($mark) {
-    global $marks_txt,$marks_exist,$prefixSig;
-    if (!$marks_exist) { return false; }
-    return (preg_match("/(^|\n)${prefixSig}${mark}\n/",$marks_txt) > 0);
   }
   
   function removeMark($mark) {
@@ -68,5 +62,23 @@
     if ($needsUpdate) { saveMarks(); }
   }
 
+  function getMarkMatches($mark) {
+    global $marks_txt,$marks_exist,$prefixSig;
+    if (!$marks_exist) { return false; }
+    $matches = array();
+    if (! (preg_match("/(?:^|\n)${prefixSig}${mark}\n/",$marks_txt,$matches))) { return false; }
+    return $matches;
+  }
     
+  function getMarkDestination($mark) {
+    if (($matches = getMarkMatches($mark)) &&
+        (count($matches) > 1)) { return $matches[1]; }
+    return false;
+  }
+
+  function markExists($mark) {
+    return (($matches = getMarkMatches($mark)) &&
+            (count($matches) > 0));
+  }
+
 ?>

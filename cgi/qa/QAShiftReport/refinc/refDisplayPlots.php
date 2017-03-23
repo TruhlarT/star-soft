@@ -28,7 +28,7 @@
   }
   
   function preparePlots() {
-    global $DAEMON_OUTPUT_DIR,$disp1,$HiRes1,$HiRes2,$user_dir;
+    global $DAEMON_OUTPUT_DIR,$disp1,$HiRes1,$HiRes2,$user_dir,$QARefCache;
 
     $user_dir1 = $DAEMON_OUTPUT_DIR . $user_dir;
     $files = dirlist($user_dir1,".${HiRes1}");
@@ -42,7 +42,6 @@
         $newfile = "${user_dir2}/" . substr($file,0,strlen($file)-6) . $disp1; // assumes .gz
         cnvrtr("${user_dir1}/$file",$newfile,false);
       }
-      execSys();
     }
     $files = dirlist($user_dir1,".${HiRes2}");
     if (count($files)) {
@@ -54,8 +53,12 @@
       addSys("/bin/cp ${user_dir1}/*.${HiRes2} ${user_dir2}/");
       addSys("/usr/bin/bunzip2 ${user_dir2}/*.bz2 >& /dev/null");
       addSys("/bin/rm ${user_dir2}/*.bz2 >& /dev/null");
-      execSys();
     }
+    # Cleanup of old files (more than 15 days old)
+    $user_dir2 = userRefDir("");
+    $findOldFiles = "/usr/bin/find $user_dir2 -ctime +15 -type d -maxdepth 1 -name \"*_*\" ";
+    addSys("$findOldFiles | /usr/bin/xargs /bin/rm -r >& /dev/null");
+    execSys();
   }
 
   function displayPlots($name) {
@@ -144,9 +147,13 @@
       $dispData = "${URL_FOR_DAEMON_OUTPUT}${user_dir}/${name}.${disp2}";
       $HiResData = urlUserRefDir($user_dir) . "${name}.${HiRes2}";
       print "<table border=1 cellspacing=0>\n<tr>";
-      if (strlen($inputfile)) { print "<th>Data:</th>"; }
-      if ($refID >= 0) { print "<th>Reference:"; }
-      print "</th></tr>\n<tr>\n";
+      if (strlen($inputfile)) {
+        print "<th>Data:&nbsp;<span class=\"dimHover\">";
+        fbutton("attButton","Attach to Issue","prepIssAttach('${name}','${disp2}')");
+        print "</span></th>";
+      }
+      if ($refID >= 0) { print "<th>Reference:</th>"; }
+      print "</tr>\n<tr>\n";
       #print "<td><a href=\"${HiResData}\" target=\"QARzfr\"><img src=\"${dispData}\"></a></td>\n";
       print "<td><img src=\"${dispData}\" onclick=\"LoadZoom('${HiResData}')\"></td>\n";
       if (! $singleFile) {

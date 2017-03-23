@@ -7,10 +7,12 @@
     define("QAnull",".");
 
     # Base directory for working on reports:
-    $bdir = "/home/users/starweb/WWW/tmp/QAShiftReport/";
+    $bdir_base = "/home/users/starweb/WWW/tmp/";
+    $bdir = $bdir_base . "QAShiftReport/";
+    $bdir_tmp = $bdir_base . "QAtemp/";
 
     # Web directory of web-access scripts
-    $webdir = "http://" . $_SERVER["HTTP_HOST"] .
+    $webdir = "https://" . $_SERVER["HTTP_HOST"] .
                   dirname($_SERVER["SCRIPT_NAME"]) . "/";
     # File system directory of web-access scripts
     $fsdir = dirname($_SERVER["PATH_TRANSLATED"]) . "/";
@@ -64,10 +66,11 @@
 ###############################
 # Status functions
 #
-    function died($str) {
+    function died($str,$str2="") {
       $code = $_SERVER["REQUEST_URI"];
       $str = "*** DIED ***: ${code}: ${str}";
       logit($str);
+      if (strlen($str2)) { logit($str2); }
       die("${str}\n");
     }
     function reloadMenu() {
@@ -177,6 +180,12 @@ incl("forms.php");
       elem.style.display = 'inline';
       return elem;
     }
+    function showElemBlock(ename) {
+      elem = eval("document.getElementById('" + ename + "')");
+      if (!elem) return 0;
+      elem.style.display = 'block';
+      return elem;
+    }
     function hideElem(ename) {
       elem = eval("document.getElementById('" + ename + "')");
       if (!elem) return 0;
@@ -207,6 +216,11 @@ incl("forms.php");
     }
 <?php
     }
+    function jqry() { ?>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"
+            type="text/javascript"></script>
+<?php
+    }
 
 
 ###############################
@@ -233,6 +247,9 @@ incl("forms.php");
 
     $myCols = array("good" => "#dfec9f",
                     "bad"  => "#ffbc9f",
-                    "emph" => "#ffdc9f");
+                    "emph" => "#ffdc9f",
+                    "alt1" => "#efdc9f",
+                    "alt2" => "#ffcc9f",
+                    "alt3" => "#fffc9f");
 
 ?>

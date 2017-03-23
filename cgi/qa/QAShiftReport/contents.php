@@ -76,12 +76,13 @@ print "<p>\n<table border=0 callpadding=0 cellspacing=0>\n";
 
 $infoFile = getInfoFile();
 if (file_exists($infoFile)) {
-  print "<tr><td></td><td>\n";
+  print "<tr><td></td><td></td><td>\n";
   mkhref("showRep.php?content=Info","Shift Info","new");
-  print "</td><td>\n";
+  if (isErrInfo($ses)) { print " <font color=red>CONTAINS ERRORS!</font>"; }
+  print "</td><td></td><td>\n";
   fbutton("Einfo","Edit","Edit('Info','yes',0)");
 } else {
-  print "<tr><td colspan=3 bgcolor=#ffbc9f>\n";
+  print "<tr><td colspan=5 bgcolor=#ffbc9f>\n";
   print "<b>YOU NEED TO RE-ENTER YOUR SHIFT INFO!</b>\n";
 }
 print "</td></tr>\n\n";
@@ -92,7 +93,7 @@ foreach ($ents as $typ => $entN) {
   $entFiles = dirlist($sesDir,$typ,".data");
   sort($entFiles);
   if (count($entFiles) > 0) {
-    print "<tr><td><br></td></tr>\n<tr><td colspan=3>\n";
+    print "<tr><td colspan=5><br></td></tr>\n<tr><td colspan=5>\n";
     print "$entN data entries:\n<br>\n";
     print "</td></tr>\n";
     $duplicates = 0;
@@ -102,18 +103,24 @@ foreach ($ents as $typ => $entN) {
       $numb = intval(substr($entFileEnd,0,strpos($entFileEnd,".data")));
       if ($entr = readEntry($typ,$numb));
         $dname = "del" . $numA;
-        print "<tr><td>\n";
-        print "<input type=checkbox name=${dname}";
+        print "<tr " . ($k % 2 ? " bgcolor=\"" . $myCols["emph"] . "\"" : "");
+        print ">\n<td><input type=checkbox name=${dname}";
         print "  value=\"${entFile}\">\n";
-        print "</td><td>\n";
+        print "</td><td align=right>${numb} : </td>\n<td>";
         $allents .= d2tdelim() . $entFile;
 
-        # insert run/fseq:
-        $runfseq = $entr->info["runid"] . " / " . $entr->info["fseq"];
-        if (isset($listOfRFS[$runfseq])) $duplicates = 1;
-        else $listOfRFS[$runfseq] = 1;
+        # insert run/fseq/fstream:
+        $anchor = $entr->Anchor();
+        $runfseq = $entr->Headline("<br>\n");
+        if (isset($listOfRFS[$anchor])) $duplicates = 1;
+        else $listOfRFS[$anchor] = 1;
 
-        mkhref("showRep.php?content=${entFile}","${numb} : ${runfseq}","new");
+        #mkhref("showRep.php?content=${entFile}","${numb} : ${runfseq}","new");
+        mkhref("showRep.php?content=${entFile}","${runfseq}","new");
+        print "</td><td>\n";
+        $issCount = count($entr->issues);
+        $issS = ($issCount == 1 ? "" : "s");
+        print "(${issCount} issue${issS})";
         print "</td><td>\n";
         fbutton("E${dname}","Edit","Edit('${typ}','yes',${numb})");
         fbutton("C${dname}","Make Copy","Edit('${typ}','copy',${numb})");
@@ -122,8 +129,8 @@ foreach ($ents as $typ => $entN) {
         $numA++;
     }
     if ($duplicates) {
-      print "<tr><td colspan=3 bgcolor=#ffbc9f>\n";
-      print "WARNING: duplicate run / file sequence entries!\n</td></tr>\n\n";
+      print "<tr><td colspan=5 bgcolor=#ffbc9f>\n";
+      print "WARNING: duplicate run / file sequence / file stream entries!\n</td></tr>\n\n";
     }
   }
 }

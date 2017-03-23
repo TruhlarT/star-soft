@@ -3,8 +3,8 @@
   inclR("refData.php");
   inclR("refDisplayPlots.php");
   
-  global $refID,$inputfile,$res,$cuts,$trigs,$viewmode,$edit,$doPageCell;
-  global $user_dir,$go_back,$combJob,$singleFile,$combID;
+  global $refID,$inputfile,$fstream,$res,$cuts,$trigs,$viewmode,$edit,$doPageCell;
+  global $user_dir,$go_back,$combJob,$singleFile,$combID,$useRunsStr,$useRuns;
 
   # viewmodes:
   # 0 : failed only (future default)
@@ -13,6 +13,18 @@
   # 3 : marking examined / recording results
   # 11: all with plots (very slow to load)
   
+
+  # Make sure $useRuns array is set up
+  if (! isset($useRunsStr)) {
+    if ($combJob) {
+      $useRuns[] = 0;
+    } else {
+      inclR("refRunFileInfo.php");
+      $finfo = getInfoFromFilename($inputfile); # needs modified for combined?
+      $useRuns[] = $finfo['runNumber'];
+    }
+  }
+
   $viewmode = ($singleFile ? 1 : 0);
   $viewmode = 1;
   getPassedInt("viewmode",1);
@@ -22,18 +34,11 @@
     inclR("refMarks.php");
     readMarks();
     jstart();
-    if ($combJob) {
-      $useRuns[] = 0;
-    } else {
-      inclR("refRunFileInfo.php");
-      $finfo = getInfoFromFilename($inputfile); # needs modified for combined?
-      $useRuns[] = $finfo['runNumber'];
-    }
     initRefSelectors(1,$useRuns[0]);  
     ?>
-    function prepReady(val) {
-      document.choiceForm.trig.value = val;
-      document.choiceForm.runYear.value = document.choiceForm.sel1.value;
+    function prepReady1(val) {
+      document.choice1Form.trig.value = val;
+      document.choice1Form.runYear.value = document.choice1Form.sel101.value;
     }
 <?php
     jend();
@@ -99,6 +104,7 @@
   $hist_idx = 1;
   $colspan = ($doPageCell ? 7 : 5);
   
+  $trgVerts = readVerts($user_dir);
   foreach ($res as $TR => $typdata) {
     $none_yet = 1;
     foreach ($typdata as $pg => $pgdata) {
@@ -114,8 +120,17 @@
         $list_it = ($viewmode == 2 ? markExists($name) : ($failed || $viewmode));
         if ($list_it) {
           if ($none_yet) {
-            print "<tr><td colspan=${colspan} align=center><br><i><u>" . $trigs[$TR]
-                . " Histograms</u></i></td></tr>\n";
+            print "<tr><td colspan=${colspan} align=center onclick=\"$('.rcl${TR}').toggle()\"><br><i><u>"
+                . $trigs[$TR] . " Histograms</u></i>";
+            $totVtx = $trgVerts[$TR][1];
+            if (strlen($totVtx)) {
+              $fndVtx = $trgVerts[$TR][0];
+              print " <font size=-1>(events with vertices:"
+                  . " <font color=\"green\">${fndVtx}</font> /"
+                  . " <font color=\"red\">${totVtx}</font> )</font>";
+              fbutton("report${TR}","New report entry","fillReport('${TR}',$fndVtx,$totVtx)");
+            }
+            print "\n</td></tr>\n";
             $none_yet = 0;
             $any_yet = 0;
           }
@@ -123,9 +138,16 @@
           $bcol = $bcols[$colkey][1 - $hist_idx % 2];
           $tdl2 = "<td align=left bgcolor=\"${bcol}\">";
           $tdl3 = "<td align=left bgcolor=\"${bcol}\" ondblclick=\"ViewHistTitle(${hist_idx},'${name}')\">";
-          print "<tr>";
+          print "<tr class=\"rcl${TR}\">";
           if ($doPageCell) { print "${tdl}${pg}</td>${tdl}${cl}</td>"; }
-          print "${tdl3}<b>${name}</b><div id=\"histTitle${hist_idx}\" style=\"width:225px;\">";
+          print "${tdl3}<b>${name}</b>";
+          if ($viewmode == 2) {
+            $destination = getMarkDestination($name);
+            $destPref = getTrigPrefix($destination);
+            $destTrig = $trigs[$destPref];
+            print "<br>\n&nbsp;&nbsp;&rarr;&nbsp;&nbsp;<b>${destination}</b> [ ${destPref} - ${destTrig} ]";
+          }
+          print "<div id=\"histTitle${hist_idx}\" style=\"width:225px;\">";
           print "</div></td>";
 
           if ($singleFile) { $analRes = "<font size=-1><i>N/A</i></font>"; }
@@ -136,7 +158,7 @@
           print "</td></tr>\n";
           # GGG
           if ($viewmode == 11) {
-            print "<tr><td colspan=${colspan} align=left><div style=\"background-color:${bcol}; display: table; \">\n";
+            print "<tr class=\"rcl${TR}\"><td colspan=${colspan} align=left><div style=\"background-color:${bcol}; display: table; \">\n";
             displayPlots($name);
             print "</div><p>";
             print "</td></tr>\n";
@@ -158,7 +180,7 @@
   
   if ($viewmode == 2) {
     # Display form for updating references
-    fstart("choiceForm","refUpdater.php","QARnfr");
+    fstart2("choice1Form","refUpdater.php","no");
     fhidden("topic",3);
     fhidden("user_dir",$user_dir);
     print "<hr>\n<h3>Reference Histogram Updating:</h3>\n";
@@ -175,22 +197,37 @@
 
     print "<br><br><font size=-1>\n";
     $grpName = "allOrSome";
-    $defValue[$grpName] = "marked";
+    $defValue = "marked";
     fradio("radio",$grpName,$defValue,"marked");
     print "Update only marked histograms<br>\n";
     fradio("radio",$grpName,$defValue,"all");
     print "Update all histograms (please be careful!)\n</font><br>\n";
-    print "<span id=\"refSelected\" style=\"display:none ;z-index:${lcnt}\">\n";
-    fbutton("updateIt","Submit new reference","document.choiceForm.submit();document.dispForm.submit()");
+    print "<span id=\"refSelected1\" style=\"display:none ;z-index:${lcnt}\">\n";
+    fbutton("updateIt","Submit new reference","post_form('choice1Form');post_form('dispForm')");
     print "</span>\n";
     $lcnt++;
-    print "<span id=\"refNotSelected\" style=\"display:inline ;z-index:${lcnt}\">";
+    print "<span id=\"refNotSelected1\" style=\"display:inline ;z-index:${lcnt}\">";
     print "<i>Please finish selecting tags.</i></span>\n";
     
     fend();
   }
   print "<br><br>\n";
   
+  if (! $any_yet) {
+    fstart("reportForm","formData.php");
+    fhidden("type","FRP");
+    fhidden("editit","fill");
+    foreach ($useRuns as $k => $v) { fhidden("runid${k}",$v); }
+    fhidden("fstream",$fstream);
+    fhidden("fseq","");
+    fhidden("nevents",0);
+    fhidden("nprivs",0);
+    if (count($useRuns)>1) {
+      fhidden("rcomments","Combined runs " . implode(', ',$useRuns));
+    }
+    fend();
+  }
+
   jstart();
   ?>
     var curNum = -1;
@@ -203,14 +240,22 @@
       $.ajax({
              url : "refHistTitle.php?name=" + name,
              success : function (data) {
-             $("#histTitle" + num).html(data);
-             showElem("histTitle" + num);
-             if (curNum>0) hideElem("histTitle" + curNum);
-             curNum = num;
+               $("#histTitle" + num).html(data);
+               showElem("histTitle" + num);
+               if (curNum>0) hideElem("histTitle" + curNum);
+               curNum = num;
              }
              });
     }
+    function fillReport(fseq,nprivs,nevents) {
+      submit_form('reportForm','fseq',fseq,'nprivs',nprivs,'nevents',nevents);
+    }
 <?php
+  foreach ($res as $TR => $typdata) {
+    if ($TR != "GE" && $trgVerts[$TR][1] < 100) {
+      print "    $('.rcl${TR}').hide();\n";
+    }
+  }
   jend();
   
 ?>

@@ -119,7 +119,7 @@
       }
       $cut = strtok($tokens);
       $opts = strtok($tokens);
-      if (!($opts && strlen(opts))) { $opts = "!"; }
+      if (!($opts && strlen($opts))) { $opts = "!"; }
       $output .= "${name} ${mode} ${cut} ${opts} \r";
       if ($opts == "!") { $opts = ""; }
       $data[$name] = array("mode" => $mode, "cut" => $cut, "opts" => $opts);
@@ -145,7 +145,11 @@
       $cutname = stripHistPrefixes($name,1);
       if (!isset($cuts[$cutname])) {
         $cutname = stripHistPrefixes($name,0);
-        if (!isset($cuts[$cutname])) { return 0; }
+        #if (!isset($cuts[$cutname])) { return 0; }
+        if (!isset($cuts[$cutname])) {
+          if (preg_match("/TpcSector/",$cutname)) { $cutname = "QaTpcSector9"; }
+          if (!isset($cuts[$cutname])) { return 0; }
+        }
         $prefix = getTrigPrefix($name);
       }
     }

@@ -20,8 +20,13 @@ jstart();
       return;
     }
     form.mode.value = arguments[0];
-    if ((form.iexists.value == "0") && (form.mode.value != "SaveIt")) {
+    if ((form.iexists.value == "1") && (form.mode.value != "SaveIt")) {
       pstr = "You need to enter your Shift Info before submitting!\n";
+      alert(pstr);
+      return;
+    }
+    if ((form.iexists.value == "2") && (form.mode.value != "SaveIt")) {
+      pstr = "Your Shift Info contains errors which need fixed before submitting!\n";
       alert(pstr);
       return;
     }
@@ -107,14 +112,14 @@ if ($QAdebug) {
 
 
 $ffile = getInfoFile($ses);
-$iexists = 0;
-if (file_exists($ffile)) { $iexists = 1; }
+$iexists = 1;
+if (file_exists($ffile)) { $iexists = (isErrInfo($ses) ? 2 : 0); }
 fhidden("iexists",$iexists);
 fend();
 
 # Make sure the QAnfr frame is blank (and not submit.php)
 jstart();
-print "  parent.QAnfr.location.href=\"${webdir}blank.html\";\n";
+print "  parent.QAnfr.location.href=\"${webdir}blank.php\";\n";
 jend();
 
 foot(); ?>

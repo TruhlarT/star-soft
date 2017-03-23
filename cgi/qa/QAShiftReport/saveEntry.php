@@ -14,27 +14,27 @@ getPassedVarStrict("type");
 if ($type == "Info") {
   # Info entries are special
 
-  saveInfo($_POST);
-
   # Need to do some error checking (people do silly things)
-  $estr = "";
+  $estr = saveInfo($_POST);
   if (!checkdate($shift["datem"],$shift["dated"],$shift["datey"])) {
     # invalid date syntax (probably day and month reversed)
-    $estr = "date_syntax";
+    $estr .= "${errTok}an_invalid_date";
   } else {
     $shiftStr = $shift["datem"] . "/" . $shift["dated"]
                 . "/20" . nDigits(2,$shift["datey"]);
     $shiftStrTime = strtotime($shiftStr);
     if ($shiftStrTime > strtotime("+1 week")) {
       # no dates more than 1 week ahead
-      $estr = "date_future";
+      $estr .= "${errTok}a_date_too_far_in_future";
     } elseif ($shiftStrTime < strtotime("-2 years")) {
       # no dates more than 2 years old
-      $estr = "date_past";
+      $estr .= "${errTok}a_date_too_far_in_past";
     }
   }
+  getPassedVarStrict("work");
+  setErrSes($work,$estr);
   if ($estr != "") {
-    getPassedVarStrict("work");
+    logit("Info had errors: $estr");
     header("location: ${webdir}info.php?work=${work}&mode=Error${estr}");
     exit;
   }

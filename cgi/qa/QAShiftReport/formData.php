@@ -5,10 +5,11 @@ incl("entry.php");
 incl("issueSearch.php");
 
 # Routes:
-# Add form data from menu: editit=no num=0 (temp)
-# Edit form from contents: editit=yes, num=id
-# Copy form from contents: editit=copy, num=id, send num=0
-# Add/Remove/Refresh issues: editit=yes, num=same, send addissue != 0
+# Add form data from menu  : editit=no  , num=0 (temp)
+# Edit form from contents  : editit=yes , num=id
+# Copy form from contents  : editit=copy, num=id  , send num=0
+# Fill form from _POST     : editit=fill
+# Add/Remove/Refresh issues: editit=yes , num=same, send addissue != 0
 #  (will use entry numbers <= 0 to indicate restore from temp entry file)
 
 
@@ -22,26 +23,56 @@ if ($type == "Info") {
   exit;
 }
 
+head("STAR QA Shift Report");
+
 # Better be an existing type
 (existsType($type)) || died("Non-existent type: " . $type);
 
+
+$sesDefd = defd(getSesName());
 $num = 0;
-getPassedInt("num",1);
 $entr = false;
-if ($editit != "no") {
-  if ($num <= 0) {
-    ($entr = readEntry("temp")) or died("Could not read temp entry.");
-    $num = -1 * $num;
-  } else {
-    logit ("WENT FOR ENTRY $type $num");
-    ($entr = readEntry($type,$num)) or died("Could not read entry " . $type . $num);
-    if ($editit == "copy") { $num = 0; }
+if ($sesDefd) {
+  getPassedInt("num",1);
+  if ($editit != "no") {
+    if ($editit == "fill") {
+      $entr = new qaentry($type);
+      $entr->Fill($_POST);
+    } else if ($num <= 0) {
+      ($entr = readEntry("temp")) or died("Could not read temp entry.");
+      $num = -1 * $num;
+    } else {
+      logit ("WENT FOR ENTRY $type $num");
+      ($entr = readEntry($type,$num)) or died("Could not read entry " . $type . $num);
+      if ($editit == "copy") { $num = 0; }
+    }
   }
 }
 
-head("STAR QA Shift Report");
 jstart();
 ?>
+    if (top.location.href == window.location.href) {
+      str  = "You did not have an existing QA Shift Report open\n";
+      str += "Please close this window/tab and open a report in a new one.";
+      alert(str);
+      window.close();
+    }
+<?php
+if ($sesDefd) {
+  jhideshow();
+?>
+    var runshowing = 0;
+    function AddRun() {
+      if (showElemBlock("elrunid" + runshowing)) { runshowing++; }
+    }
+    function RemoveRun() {
+      if (runshowing > 1) {
+        runshowing--;
+        if (hideElem("elrunid" + runshowing)) {
+          document.dataForm.elements["runid" + runshowing].value = "";
+        } else { runshowing++; }
+      }
+    }
     function AddIssueN(id) {
       form = document.dataForm;
       form.addissue.value = id;
@@ -56,34 +87,49 @@ jstart();
       form.mode.value = 'view';
       form.submit();
     }
-    function Lookup() {
-      form = document.lookupForm;
-      form1 = document.dataForm;
-      if (form1.runid.value == "") {
+    function NewIssue() {
+      form = document.issEd;
+      form.iid.value = 0;
+      form.mode.value = 'new';
+      form.submit();
+    }
+    function Lookup(runi) {
+      runnum = document.dataForm.elements["runid" + runi].value;
+      if (runnum == "") {
         alert("You must enter a Run ID first!");
         return;
       }
-      form.run.value = form1.runid.value;
+      form = document.lookupForm;
+      form.run.value = runnum;
       form.submit();
+    }
+    function ShowRuns() {
+      form = document.dataForm;
+      runi = 1;
+      while ((elrun = form.elements["runid" + runi]) && (elrun.value > 0)) {
+        AddRun();
+        runi++;
+      }
     }
     function CheckDigits() {
       form = document.dataForm;
-      runidN = Math.floor(form.runid.value);
-      fseqN = Math.floor(form.fseq.value);
-      runid8 = (runidN < 10000000 || runidN > 30000000);
-      fseq7 = (fseqN < 1000000 || fseqN > 10000000);
-      if (runid8 || fseq7) {
-        cString = "Do you have the right number of digits?\n\n";
-        if (runid8) cString += "Run ID: " + form.runid.value + "\n\n";
-        if (fseq7) cString += "File Sequence: " + form.fseq.value + "\n\n";
-        if (! confirm(cString) ) { return; }
-      }
-      runidD = ( (runidN % 1000000) - (runidN % 1000) ) / 1000;
-      if ((runidD < 1) || (runidD > 366)) {
-        cString = "Standard parsing of the Run ID indicates\n\n";
-        cString += "day number: " + runidD;
-        cString += "\n\nIs this what you want?\n\n";
-        if (! confirm(cString) ) { return; }
+      runi = 0;
+      while ((elrun = form.elements["runid" + runi]) && (elrun.value > 0)) {
+        runidN = Math.floor(elrun.value);
+        runid8 = (runidN < 10000000 || runidN > 30000000);
+        if (runid8) {
+          cString = "Do you have the right number of digits?\n\n";
+          if (runid8) cString += "Run ID: " + elrun.value + "\n\n";
+          if (! confirm(cString) ) { return; }
+        }
+        runidD = ( (runidN % 1000000) - (runidN % 1000) ) / 1000;
+        if ((runidD < 1) || (runidD > 366)) {
+          cString = "Standard parsing of the Run ID indicates\n\n";
+          cString += "Run ID: " + elrun.value + ", day number: " + runidD;
+          cString += "\n\nIs this what you want?\n\n";
+          if (! confirm(cString) ) { return; }
+        }
+        runi++;
       }
       form.submit();
     }
@@ -102,82 +148,74 @@ jstart();
       else { form.trigset.value = form.fseq.value; }
     }
 <?php
+} else {
+  print "    parent.QArfr.location.href = \"${webdir}sessions.php\";\n";
+}
 jend();
 body();
 
 fstart("dataForm","saveEntry.php");
 fhidden("addissue",0);
-?>
-
-<h3>QA Shift Report Form:
-<?php print $ents[$type]; ?>
-</h3>
-
-<b>Add one entry for each QA job examined!</b><p>
-
-<?php if (($type=="MNT") || ($type=="MDP")) {
+print "\n\n<h3>QA Shift Report Form: ";
+print $ents[$type];
+print "</h3>\n\n<b>Add one entry for each QA job examined!</b><p>\n\n";
+if (($type=="MNT") || ($type=="MDP")) {
   fhidden("runid","");
-} else { ?>
-Run ID:
-<input tabindex=1 name=runid size=9 maxlength=8>
-<font size=-1>(usually a 7 or 8 digit number)
-<?php
-  fbutton("lookup","Lookup","Lookup()");
-  print " other QA Reports for this Run</font>";
-  linebreak();
+} else {
+  print "<div>Run number(s): <font size=-1>(usually 8 digits)</font>\n";
+  fbutton("addRunButton","more runs","AddRun()");
+  fbutton("removeRunBUtton","less runs","RemoveRun()");
+  print "</div>";
+  for ($runi = 0; $runi < 32; $runi++) {
+    $runi1 = $runi + 1;
+    $elid = "elrunid${runi}";
+    print "<div id=\"${elid}\" style=\"position:relative; display: none; \">\n";
+    print "<input tabindex=${runi1} name=\"runid${runi}\" size=9 maxlength=8 value=\"\">\n";
+    fbutton("lookup${runi}","Lookup","Lookup(${runi})");
+    if ($runi == 0) { print "<font size=-1>other QA Reports for this run</font>"; }
+    linebreak();
+    print "</div>\n";
+  }
   if (($type=="RDP") || ($type=="RNT")) {
     print "<font size=-1>";
     fbutton("refYear","Refresh Issues","RefreshIssues()");
     print " for this Run Year (e.g. examining run 6 data during later years)</font>";
     linebreak();
   }
+}
+print "Trigger type\n";
+print "<select tabindex=40 name=trigset id=\"Ttrig\" onchange=\"trig2fseq()\">\n";
+foreach ($trigs as $k => $v) {
+  print "<option value=\"${k}\"". ($k == "NA" ? " selected" : "") . ">${k} - ${v}</option>\n";
 } ?>
-File Sequence number:
-<input tabindex=2 name=fseq id="Tfseq" size=8 maxlength=7
-  onchange="fseq2trig()"> or
-<select tabindex=20 name=trigset id="Ttrig"
-  onchange="trig2fseq()">
-<option value="NA" selected>NA - not applicable</option>
-<option value="GE">GE - General</option>
-<option value="MB">MB - MinBias</option>
-<option value="CL">CL - Central</option>
-<option value="HT">HT - High Tower</option>
-<option value="JP">JP - Jet Patch</option>
-<option value="HP">HP - High Pt</option>
-<option value="XX">XX - Other Physics</option>
 </select>
-<font size=-1>(select from the menu for combined sequences)</font><br>
+<font size=-1>(or file sequence number)</font>:
+<input tabindex=50 name=fseq id="Tfseq" size=8 maxlength=7 onchange="fseq2trig()"><br>
 
-
-
+File stream:
+<select tabindex=51 name=fstream>
+<option value="">not applicable</option>
 <?php
-#Production Job ID:
-#<input tabindex=3 name=prodid size=20 value="NA"><br>
-#Production job status:
-#<input type=radio name=prodstat value=ok>OK
-#<input type=radio name=prodstat value=crashed>Crashed<br>
+foreach ($fstreams as $k => $v) {
+  print "<option value=\"${k}\"". ($k == "ph" ? " selected" : "") . ">${v}</option>\n";
+}
+print "</select><br>\n";
+
+
 fhidden("prodid","NA");
 fhidden("prodstat","ok");
 ?>
-Number of events in this file:
-<input tabindex=4 name=nevents size=8><br>
-Number of events with reconstructed primary vertex:
-<input tabindex=5 name=nprivs size=8><br>
-<?php
-#QA job status:
-#<input type=radio name=jobstat value=ok>OK
-#<input type=radio name=jobstat value=crashed>Crashed<p>
-fhidden("jobstat","ok");
-?>
+Number of events in this dataset:
+<input tabindex=52 name=nevents size=8><br>
+Number of events with a reconstructed primary vertex:
+<input tabindex=53 name=nprivs size=8><br>
+<?php fhidden("jobstat","ok"); ?>
 
 If you would like to enter some additional comments beyond what
 is described by the <b><i><font color="#400000">Active Issues</font></i></b>
 below, please do so here.<br>
-<textarea tabindex=10 name=rcomments rows=5 cols=60>
-<?php
-if ($entr) {
-  print stripslashes($entr->info["rcomments"]);
-} ?>
+<textarea tabindex=60 name=rcomments rows=5 cols=60>
+<?php if ($entr) { print stripslashes($entr->info["rcomments"]); } ?>
 </textarea>
 <p>
 
@@ -234,7 +272,7 @@ fhidden("editit",$editit);
 print "</td></tr><tr><td>&nbsp;</td></tr>\n";
 
 print "<tr><td align=right colspan=3 bgcolor=\"#ffcc9f\">\n";
-fbutton("issEd","Open/Create New Issue","document.issEd.submit()");
+fbutton("issEd2","Open/Create New Issue","NewIssue()");
 fbutton("refresh","Refresh Issues","AddIssueN(-${issueYear})");
 print "</td></tr>\n\n";
 
@@ -283,7 +321,7 @@ fhidden("type",$type);
 fhidden("mode","new");
 fhidden("issueYear","$issueYear");
 fhidden("iid",0);
-fsubmit("Open/Create New Issue");
+fbutton("issEd1","Open/Create New Issue","NewIssue()");
 fbutton("refresh","Refresh Issues","AddIssueN(-${issueYear})");
 print "</td></tr>\n\n";
 
@@ -292,11 +330,9 @@ fbutton("Continue","Save &amp; View Contents","CheckDigits()");
 fbutton("Reset","Reset This Page","document.dataForm.reset()");
 print "</td></tr>\n";
 print "\n</table>\n\n";
-
 fend();
 
-fstart("lookupForm","showRun.php",
-       "QAshowRun","POST",0);
+fstart("lookupForm","showRun.php","QAshowRun","POST",0);
 fhidden("run",0);
 fend();
 
@@ -307,7 +343,8 @@ if ($entr) {
   reloadMenu();
 }
 jstart();
-print "  setTimeout(\"fseq2trig();\",250);\n";
+print "  AddRun();\n";
+print "  setTimeout(\"ShowRuns();fseq2trig();\",350);\n";
 jend();
 
 foot(); ?>

@@ -82,7 +82,7 @@ function getNextRepNum($RepType) {
 ############
 # runFileSeqIndex
 
-function saveLinkDB($RepType,$run,$seq,$link,$RepNum) {
+function saveLinkDB($RepType,$run,$seq,$fstream,$link,$RepNum) {
   global $rFSIDB,$repFODB;
   if (!(cleanInt($run) && cleanRepType($RepType) &&
         cleanStrict($seq) && cleanStrict($RepNum))) return false;
@@ -90,13 +90,14 @@ function saveLinkDB($RepType,$run,$seq,$link,$RepNum) {
   $runCnt = $run % 1000;
   $runDay = (($run - $runCnt) / 1000) % 1000;
   $runYear = ($run - $runCnt - ($runDay * 1000)) / 1000000;
-  $query = "SELECT max(idx) FROM $rFSIDB WHERE runYear='$runYear' and $runDay='$runDay' and"
-         . " run='$run' and seq='$seq' and RepType='$RepTypeDB';";
+  $query = "SELECT max(idx) AS maxidx FROM $rFSIDB WHERE runYear='$runYear' and"
+         . " runDay='$runDay' and run='$run' and seq='$seq'"
+         . " and fstream='$fstream' and RepType='$RepTypeDB';";
   $row = queryDBfirst($query);
-  $idx = intval($row['max(idx)']) + 1;
+  $idx = intval($row['maxidx']) + 1;
   $encoded = escapeDB($link);
-  $query = "INSERT INTO $rFSIDB (runYear,runDay,run,seq,idx,RepType,RepNum,link) VALUES ";
-  $query .= "('$runYear','$runDay','$run','$seq','$idx','$RepTypeDB','$RepNum','$encoded');";
+  $query = "INSERT INTO $rFSIDB (runYear,runDay,run,seq,fstream,idx,RepType,RepNum,link) VALUES ";
+  $query .= "('$runYear','$runDay','$run','$seq','$fstream','$idx','$RepTypeDB','$RepNum','$encoded');";
   queryDB($query);
 }
 
@@ -106,7 +107,7 @@ function getLinksDB($runYear=-1,$runDay=-1,$run=-1) {
   $xstr = "XXX"; $rstr = "runYear";
   $str = "SELECT ";
   if ($run < 0) $str .= $xstr;
-  else $str .= "seq,RepType,idx,link,RepNum";
+  else $str .= "seq,fstream,RepType,idx,link,RepNum";
   $str .= " FROM $rFSIDB ";
   if ($runYear >0) {
     $str .= "WHERE runYear='$runYear' ";

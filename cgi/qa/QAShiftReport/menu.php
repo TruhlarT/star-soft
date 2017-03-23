@@ -51,16 +51,17 @@ function mymkhref2($ref,$val,$trg="QArfr",$onc="") {
   print "    ";
   mkhref2($ref . "\" class=\"items",$val,$trg,$onc);
 }
-function BeginRow($col="#ffdc9f") { print "  <tr><td bgcolor=\"${col}\">\n"; }
+$defCol = $myCols["emph"];
+function BeginRow($col) { print "  <tr><td bgcolor=\"${col}\">\n"; }
 function EndRow() { print "  </td></tr>\n"; }
-function NewRow($col="#ffdc9f") { EndRow(); BeginRow($col); }
+function NewRow($col) { EndRow(); BeginRow($col); }
 
 print "<b>Menu</b>\n\n";
 print "<table border=0 cellpadding=1 cellspacing=1 width=\"100%\">";
-NewRow("#dfec9f");
+NewRow($myCols["good"]);
 mymkhref2("http://drupal.star.bnl.gov/STAR/comp/qa/offline/QAShiftReportInstructions",
   "<b>QA Shift Report Instructions</b>","QASRinstruct");
-BeginRow("#efdc9f");
+BeginRow($myCols["alt1"]);
 
 print "\n  <table cellpadding=0 cellspacing=0 border=0 width=\"100%\"><tr><td>\n";
 mymkhref("sessions.php?erase=0","Session");
@@ -71,11 +72,11 @@ print "<b>$work</b></td></tr></table>\n\n";
 # Include the following only if session is defined
 if (defd($work)) {
 
-NewRow();
+NewRow($defCol);
 print "Manage Contents:\n";
-NewRow();
+NewRow($defCol);
 mymkhref("contents.php?mode=View","&#149; View Current Contents");
-NewRow();
+NewRow($defCol);
 mymkhref("info.php?work=${work}&mode=Edit","&#149; (Re)Enter Shift Info");
 EndRow();
   # GVB: to show FRP only...
@@ -84,7 +85,7 @@ EndRow();
   # 3) <tr onmouseover="showSubMenu()" onmouseout="hideSubMenu()">
 ?>
   <tr>
-  <td bgcolor="#ffdc9f">
+  <td bgcolor="<?php print $myCols["emph"]; ?>">
     &#149; <font color=navy>Add A Data Entry For...</font>
 
     <table id ="Tsubmenu" border=0 cellpadding=1 cellspacing=1
@@ -103,19 +104,19 @@ if ($k === "FRP") {
 
 <?php
 
-Newrow();
+Newrow($defCol);
 mymkhref("wrapup.php","&#149; Finish &amp; Submit Report");
 
 }
 # end of "if defined session"
 
-Newrow("#ffcc9f");
+Newrow($myCols["alt2"]);
 mymkhref("issueEditor.php","Open Issue Browser/Editor","QAifr");
-Newrow("#ffcc9f");
+Newrow($myCols["alt2"]);
 mymkhref2("showRun.php","Open Report Archive","QAafr");
 
 if (defd($work)) {
-Newrow("#ffbc9f");
+Newrow($myCols["bad"]);
 mymkhref("sessions.php?erase=1","Erase Session &amp; Start Over",
        "QArfr","return eraseSession()");
 }

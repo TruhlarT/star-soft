@@ -1,7 +1,7 @@
 <?php
-  @(include "setup.php") or die("Problems (0).");
+  @(include "refSetup.php") or die("Problems (0).");
   incl("report.php");
-  
+  incl("entry.php");
   
   # Request mode
   # 0 nothing
@@ -44,6 +44,7 @@
   $showrep = 0;
   $textFromDB = 0;
   $searchResults = array();
+  $searchStr = "";
   
   # Strict checking of passed parameters:
   if ($mode > 0 && $mode < 10) { # By run
@@ -134,8 +135,9 @@
   
   head("STAR QA Shift Report Archives");
   
-  if ($mode == 20) {
+  if ($mode == 20 || ($run)) {
     jstart();
+    if ($mode == 20) {
     ?>
     function useSearchRes(rtype,ryearmo,rnum) {
       form = document.forms.rform;
@@ -146,6 +148,26 @@
       form.submit();
     }
 <?php
+    }
+    if ($run) {
+    ?>
+    function subPlots(autoTag) {
+      form = document.forms.plotForm;
+      username = prompt("Please enter your RCF username (required):");
+      if (username == "") {
+        alert("Invalid RCF username");
+        return;
+      }
+      form.textUserName.value = username;
+      if (! document.getElementsByName("plotOpts")[0].checked) {
+        form.useRun.value = 'go' + autoTag;
+      } else {
+        form.useRun.value = autoTag;
+      }
+      form.submit();
+    }
+<?php
+    }
     jend();
   }
     
@@ -168,7 +190,7 @@
   fstart("searchForm","","");
   fhidden("mode",20);
   print "<p align=right>\n";
-  finput("searchStr",32,"","document.searchForm.submit()");
+  finput("searchStr",32,$searchStr,"document.searchForm.submit()");
   fsubmit("Search");
   print "</p>\n";
   fend();
@@ -179,9 +201,34 @@
   
   print $divstr;
   #<div id=menus style="position:relative; z-index:2;
-?>
+  print "<h1>STAR QA Shift Report Archives</h1>\n";
 
-<h1>STAR QA Shift Report Archives</h1>
+  if ($run) {
+    # Provide a link to the plots using the AutoCombine mechanism, if plots are available
+    inclR("refAutoComb.php");
+    $autoInfo = getAutoCombInfo($run,"all");
+    fstart("plotForm","refs.php","QArfr","GET");
+    print "<h3>Plots: ";
+    if (count($autoInfo)) {
+      foreach ($autoInfo as $k => $autoFS) {
+        fbutton("plots${k}",formatFStream($autoFS[2]),"subPlots('" . $autoFS[3] . "')");
+      }
+      print "</h3>\n";
+      fhidden("textUserName","");
+      fhidden("commas","no");
+      fhidden("radioMainMenu","fastOffline");
+      fhidden("oooer","autoRef");
+      fhidden("useRun","0");
+      fradio("checkbox","plotOpts",0,1);
+      print " Check this box for plotting options (e.g. reference analysis, histograms for specific subsystems instead of the QA Shift set, etc.):\n";
+      linebreak();
+      linebreak();
+    } else {
+      print "none readily available</h3>\n";
+    }
+    fend();
+  }
+?>
 
 <span style="background-color:#ffbc9f; "><b>Please select a report:</b></span>
 
@@ -210,7 +257,7 @@ display:<?php print ($showrep ? "none" : "block"); ?> " >
   ####### By Run ######
   print "<table cellspacing=5 width=\"98%\"><tr><td width=\"53%\">\n";
   if ($byrun) print "<font color=maroon>\n";
-  print "By Run (year / day / number / sequence) :<br>\n";
+  print "By Run (year / day / number / trigger or sequence / stream) :<br>\n";
   if ($byrun) print "</font>\n";
   
   print "<select name=runyear onchange=\"rform.mode.value=1;submit()\">\n";
@@ -250,11 +297,12 @@ display:<?php print ($showrep ? "none" : "block"); ?> " >
           $runIndices++;
           $reptypes = $repFO[$row['RepType']];
           $seq = $row['seq']; # might start with zeros or have "NA"
+          $fstream = formatFStream($row['fstream']);
           $idx = intval($row['idx']);
           if ($reptypes != $prevtype) {
             if ($prevtype == "first"){
               print "</select> / <select name=runIndex onchange=\"rform.mode.value=4;submit()\">\n";
-              print "<option value=0 disabled" . ($mode==3 ? " selected" : "") . ">sequence</option>\n";
+              print "<option value=0 disabled" . ($mode==3 ? " selected" : "") . ">trigger or sequence/stream</option>\n";
             } else {
               print "</optgroup>\n";  
             }
@@ -272,7 +320,7 @@ display:<?php print ($showrep ? "none" : "block"); ?> " >
             }
             $repfile = $row['link'];
           }
-          print ">$seq ($idx)</option>\n";
+          print ">$seq / $fstream ($idx)</option>\n";
         } 
         if ($runIndices) {
           print "</optgroup>\n";
@@ -345,9 +393,12 @@ display:<?php print ($showrep ? "none" : "block"); ?> " >
 
   ####### Display Report ######
   if ($mode==9) {
-    print "<h3>No availble reports for run $run. Please select a different run from the above menus.</h3>\n\n";
+    print "<h3>No availble reports directly linked for run $run.<br>\n"
+     . "Please try entering the run number in the Search field in\n"
+     . "the upper right of this window to perform a general search,\n"
+     . "or select a different run from the above menus.</h3>\n\n";
   } else if ($mode==3) {
-    print "<h3>Please select from the above menu of file sequences for availble reports on run $run</h3>\n\n";
+    print "<h3>Reports <u>are</u> available for run ${run}. Please select from the above menu of trigger types (or file sequences), and file streams.</h3>\n\n";
   }
   print "</div>\n";
   if ($showrep) {
@@ -383,6 +434,7 @@ display:<?php print ($showrep ? "none" : "block"); ?> " >
         $reptext1 = stristr(stristr($reptext,"<body"),"<hr>");
         $reptext2 = strtolower($reptext1);
         $endofbody = strpos($reptext2,"</body");
+        $token = "<a name=";
         if ($mode==4) {
           # Remove all but the entry of interest
           $anchor = strtolower(str_replace(chr(10),"",$repfile));
@@ -390,12 +442,12 @@ display:<?php print ($showrep ? "none" : "block"); ?> " >
           if ($anchorpos > 0) {
             $anchorpos = strpos($reptext2,">",$anchorpos + 1) + 1; # end of anchor
             # Remove everything before and through desired anchor
-            $firstanchorpos = strpos($reptext2,"<a name");
+            $firstanchorpos = strpos($reptext2,$token);
             $remove_len = $anchorpos - $firstanchorpos;
             $reptext1 = substr_replace($reptext1,"",$firstanchorpos,$remove_len);
             $endofbody -= $remove_len;
             # Remove anything after entry
-            $nextanchorpos = strpos($reptext2,"<a name",$anchorpos);
+            $nextanchorpos = strpos($reptext2,$token,$anchorpos);
             if ($nextanchorpos > 0) {
               $nextanchorpos -= $remove_len;
               $remove_len = $endofbody - $nextanchorpos;
@@ -408,11 +460,10 @@ display:<?php print ($showrep ? "none" : "block"); ?> " >
         $reptext2 = substr($reptext1,0,$eoh);
         $reptext1 = substr($reptext1,$eoh,$endofbody-$eoh);
         print "${headersegment}${reptext2}</div>\n";
-        $token = "<a name=";
         $segments = split($token,$reptext1);
         foreach ($segments as $k => $segment) {
           if (($mode != 4) && (1 - ($k % 2))) { print "${oddsegment}${token}${segment}</div>"; }
-          else { print $token . $segment; }
+          else { print ($mode==4 ? "" : $token) . $segment; }
         }
       }
       print "\n</div>\n";      

@@ -11,7 +11,8 @@
   getPassedVarStrict("user");
   getPassedInt("refID");
   getPassedInt("combID");
-
+  getPassedInt("viewmode");
+  
   function copyCombLogs($dir,$mode) {
     # $mode=0 => to tmp, 1 => from tmp
     global $combID;
@@ -30,27 +31,36 @@
     }
   }
   
-  head("QA Reference Histogram Analyze");
-  body();
-  
+  global $fstream;
   $user_dir = "";
-  $status=1;
+  $status = 1;
   $infile = $inputfile;
+  $fstream = "";
+
+#$status = -64; $refID = -1; $combID = -1; # TEST
   
   if ($refID >= 0) {
     if (strlen(getFileById($refID))==0) { $status = -99; }
   }
 
   if ($combID >= 0) {
+    getPassedVarStrict("stream");
+    $fstream = FStreamSearch($stream);
+    global $DAEMON_OUTPUT_DIR;
+    $user_dir = $DAEMON_OUTPUT_DIR . $user . "_" . $combID;
     # Wait for the combine to finish...
     $res = waitForProc(1,$combID,-95,-94);
     $status = $res[0];
-    global $DAEMON_OUTPUT_DIR;
-    $user_dir = $DAEMON_OUTPUT_DIR . $user . "_" . $combID;
     copyCombLogs($user_dir,0);
   } else if (isAutoTag($infile)) {
-    $infile = getAutoCombRun($infile);
+    $acInfo = getAutoCombInfo($infile);
+    $infile = $acInfo[0];
+    # e.g. st_ph => st_physics => ph
+    $fstream = FStreamSearch($acInfo[2]);
     if ($infile < 0) { $status = -93; }
+  } else if (strlen($infile)>4) {
+    # e.g. st_physics_9123456_raw_0000000 => st_physics => ph
+    $fstream = FStreamSearch(substr($infile,0,strpos($infile,"_",4)));
   }
 
   if ($status > 0) {
@@ -90,14 +100,17 @@
     }
 
     $user_dir = $user . "_" . $results['anticache'];
-    fstart("successForm","refOutput.php","QARofr");
+    fstart2("successForm","refOutput.php","output");
     fhidden("inputfile",$infile);
+    fhidden("fstream",$fstream);
     fhidden("format",$format);
     fhidden("refID",$refID);
     fhidden("cutsID",$cutsID);
     fhidden("newRefHists",$results['refFile']);
     fhidden("refResults",$results['refCuts']);
     fhidden("user_dir",$user_dir);
+    if (getPassedVarStrict("useRunsStr",1)) { fhidden("useRunsStr",$useRunsStr); }
+    fhidden("viewmode",$viewmode);
     if ($combID >= 0) { 
       copyCombLogs(userRefDir($user_dir,$combID),1);
       fhidden("combID",$combID);
@@ -107,18 +120,14 @@
     
   }
   
-  fstart("failedForm","refStatus.php","QARmfr");
+  fstart2("failedForm","refStatus.php","main");
   fhidden("status",$status);
   fend();
   
-  fstart("prepForm","refPrepPlots.php","QARnfr");
-  fhidden("user_dir",$user_dir);
-  fend();
-  
   jstart();
-  print "    document." . ($status<0 ? "failed" : "success") . "Form.submit();\n";
-  if ($status >= 0) { print "    document.prepForm.submit();\n"; }
+  #print "    setTimeout(\"post_form('" . ($status<0 ? "failed" : "success") . "Form')\",500);\n";
+  print "    post_form('" . ($status<0 ? "failed" : "success") . "Form');\n";
   jend();
+  if ($status >= 0) { preparePlots(); }
   
-  foot();
-?>
+  if (connectedDB()) { closeDB(); } ?>

@@ -6,7 +6,8 @@
 
 incl("preserve_wordwrap.php");
 
-global $shift,$wrapup,$mergeiw;
+global $shift,$wrapup,$mergeiw,$errTok;
+$errTok = "ERR";
 
 $shift_now_str = nDigits(2,date("H")) . ":" . nDigits(2,date("i"));
 
@@ -35,11 +36,17 @@ function getWrapupFile($ses="") {
 }
 
 function saveInfo($arr,$ses="") {
-  global $shift;
+  global $shift,$errTok;
+  $estr = "";
   foreach ($arr as $key => $val) {
-    if (isset($shift[$key])) { $shift[$key] = $val; }
+    if (isset($shift[$key])) {
+      if ($key == "affiliation") { $val = str_replace("_"," ",$val); }
+      $shift[$key] = $val;
+      if (strlen($val)<1) { $estr .= "${errTok}an_empty_${key}_field"; }
+    }
   }
   saveObject($shift,getInfoFile($ses));
+  return $estr;
 }
 function saveWrapup($arr,$ses="") {
   global $wrapup;
@@ -177,6 +184,22 @@ function infoWrapupHtml() {
   $mergeiw = 1;
   return infoHtml();
 }
+
+function errInfoFile($ses="") {
+  return getSesDir($ses) . "ERRORS";
+}
+function isErrInfo($ses="") {
+  return file_exists(errInfoFile($ses));
+}
+function errInfo($ses="") {
+  return readText(errInfoFile($ses));
+}
+function setErrSes($ses="",$estr="") {
+  $file = errInfoFile($ses);
+  rmfile($file);
+  if (strlen($estr)) { saveText($estr,$file); }
+}
+
 
 $mergeiw = 0;
 ?>

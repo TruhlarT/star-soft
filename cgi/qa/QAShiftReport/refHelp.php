@@ -15,7 +15,12 @@ function mkHelpRef($topic,$txt,$li=0) {
   if ($li) { print "</li>\n"; }
 }
 
-print "<h3>QA Reference Histograms Help</h3>\n";
+?>
+<p align=right><font size=-1>
+<a href="javascript:window.close()">Close Window</a>
+</font></p>
+<h3>QA Reference Histograms Help</h3>
+<?php
 if ($topic > 0) { mkHelpRef(0,"(full topic list)"); }
   
 switch ($topic) {
@@ -63,18 +68,24 @@ the list.</dd>
 
 <dt>Plotting options</dt>
 <dd>Clicking on this will expose a couple menus allowing a choice of
-full output format (e.g. PDF or PostScript; this option may have been
-available to the user earlier too, but is repeated for convenience here)
+full output format (e.g. PDF or PostScript)
 if the users wants to view all
 the histograms collected into multi-page files (see the help for
 <?php mkHelpRef(3,"List of Output"); ?>), and allowing a
 choice of which histograms to plot
-(the QA Shift generally views the "Regular QA" histograms, while experts
+(the QA Shift generally views the "QA Shift" histograms, while experts
 may select a different option). Choosing "none" for the full output format
 skips generating the full output and makes the processing notably faster.</dd>
 
 <dt>How to proceed</dt>
-<dd>Once a reference set has been chosen, you will be offered a choice of
+<dd>If selecting a reference, the Run Year and Trigger Setup of the data
+being examined will be shown in <font color="red">red</font> next to
+the selection menus, and an appropriate reference will be <i>guessed</i>
+from these. If the system is unable to determine these things or make a
+good guess, you will need to manually select what you believe is the best
+choice for a reference.<br>
+
+Once a reference set has been chosen, you will be offered a choice of
 seeing all the details of the reference set (via the "Show Set Info" button),
 and proceeding with the analysis via the "Analyze" button. The analysis will
 generate graphics plot files (which will be listed at the top right of the page),
@@ -85,8 +96,9 @@ you reach those steps of the procedure.</dd>
 <dt>Go back to QA selections</dt>
 <dd>Because not all web browsers handle using their "back" buttons in the same
 manner, it is recommended not to use that feature of your web browser here.
-Instead, please select one of the "Go back" options when ready to return
-to the selection of
+Instead, please select one of the "Go back" options (in the Controls Panel,
+which pops up when either hovering over "Controls..." or clicking on it)
+when ready to return to the selection of
 data for QA. Usually these buttons are unnecessary as the option will also be
 provided via a pop-up dialog when the files are marked as examined.</dd>
 
@@ -101,7 +113,8 @@ case (3) : # Output plots
 <dl>
 
 <dt>General</dt>
-<dd>Provided here
+<dd>Provided here (in the Output Panel, which pops up when
+either hovering over "Output..." or clicking on it)
 are links to the full graphics output plot files and logs generated
 from the data processing. It is expected that users will generally
 view the individual plots by using the "Examine" buttons available
@@ -140,9 +153,10 @@ case (11) : # Analysis
 
 <dt>General</dt>
 <dd>This frame shows a summary of the reference historam analysis results.
-By default, only the histograms failing cuts will be listed, but clicking
-on the "All" button on the left will switch to showing all results. Failed
-analyses will be highlighted in red, while passed analyses will be highlighted
+By default, all histograms are listed. Clicking on the "All + Plots" button
+on the left will show all of the histogram images too. In the future, the
+default will be to show only histograms which fail their analyses.
+Failed analyses will be highlighted in red, while passed analyses will be highlighted
 in green. If a result is within the lower 10% of its passing range (e.g. between
 0.80 and 0.82 if the cut is 0.80), then it will be highlighted in yellow to
 indicate it as questionable. Histograms without a defined analysis will be
@@ -150,24 +164,42 @@ highlighted in grey. In principle, only the histograms failing their analyses ne
 to be reported for the QA Shift.<br>
 Note that when only viewing plots from a data or reference without analyzing,
 all histograms will
-be listed, and there will only be an "All" button on the left.<dd>
+be listed, and there will only be "All" and "All + Plots" button on the left.<dd>
+
+<dt>Trigger type sections</dt>
+<dd>Histograms may or may not be separated into trigger type groups (the
+default group is simply <i>General Histograms</i>). The number of events
+in each group with found vertices is shown, as well as the total number
+of events in that group. Clicking on the trigger type heading will collapse
+and expand the histogram list for each group, and if the total number of events
+is below 100, the list will be collapsed by default.<br>
+For users on QA Shift, the "New report entry" simplifies transfering basic
+information about a run (and trigger type) into an open QA Shift Report.</dd>
 
 <dt>Names, titles, and descriptions</dt>
 <dd>Histogram names are generally in a shorthand notation which is not
-easily understood. To help with this,
+always easily interpreted. To help with this,
 double-clicking on the name of a histogram will reveal
 its title (which appears in the upper left of each histogram plot),
 and clicking on "<font size=-1>(more)</font>" will bring up a longer description.
 Double-clicking again will hide these details.</dd>
 
 <dt>How to proceed</dt>
-<dd>Select the "Examine" button next to the summary for any individual
+<dd>If "All + Plots" was used, then the plots are shown and you can
+scroll down through the plots, examining them. Note that these are
+low resolution images, but clicking on any of them will lead to a
+high resolution, vector graphics version of the image. Most browsers
+will pop up a new window for SVG graphics file and allow zooming via
+control+ and control- (command+/- on Macs), enabling a closer look
+at details in the plot.<br>
+You may select the "Examine" button next to the summary for any individual
 histogram to see the details of the analysis, and view the individual plots
 (it may take a few seconds for the page to advance and the plot to appear
 on the screen - please have patience as the retrieval takes a moment).
 Alternatively, navigation to individual histograms can be made using the
-graphical menu on the left, which represents the locations within the
-full graphics files where one can find each histogram.</dd>
+graphical menu on the left. Note that if a multi-page output format was
+chosen, then the navigation includes locations of plots (pages and cells)
+within the full graphics files where one can find each histogram.</dd>
 
 <dt>When finished...</dt>
 <dd>Mark the data as examined by selecting either the "Good" or "Bad" buttons
@@ -189,7 +221,7 @@ case (12) : # Cuts
 <dd>This section should show the
 all the details regarding the cuts used as well as the individual plots
 (both data and reference) themselves.
-he cuts define a quantitative means by which to determine whether
+The cuts define a quantitative means by which to determine whether
 two histograms are sufficiently similar.
 All the information regarding cuts, the stored reference histogram,
 and the descriptions of the histograms can be edited/updated by selecting
@@ -200,7 +232,7 @@ in the editing mode intended for experts.</dd>
 
 <dt>How to proceed</dt>
 <dd>One can return to the list of analysis results by selecting either
-the "Failed" or "All" buttons on the far left. One can also select the
+the "Failed" or "All" or "All + Plots" buttons on the far left. One can also select the
 "Prev" or "Next" buttons on the left to navigate forward or backward through
 the histogram list. Or one can
 use the graphical
@@ -276,52 +308,58 @@ histogram may have been preserved accross multiple reference sets).
 #####################################
 case (20) : # Images
   ?>
-<h4>Grabbing a Histogram Image and Attaching to an Issue</h4>
+<h4>Attaching a Histogram Image to an Issue</h4>
 <dl>
 
-<dt>Generating an Image</dt>
-<dd>In the QA browser, choose one of the options for "reference histograms".
-These options generate individual histogram plots regardless of whether
-a reference set is selected (and "Analyzed") or not ("Plots Only").
-Histograms can be found either by
-their name in the list of in the main display and clicking on the
-"Examine" button next to it, or by their clicking on their location
-(page and cell) from the traditional multiple-plot graphics files by using
-the tabular arrangement in the left panel.
-The traditional graphics files are still available when using the reference
-histogram system as links under "Output plots" in the upper right panel.
-Once you have picked a histogram, it will be shown graphically in the browser.
+<dt>Make sure the issue exists</dt>
+<dd>You can only attach images to existing issues.
+Using the <?php mkhref("issueEditor.php","Issue Editor","QAifr"); ?>
+to create and save an issue describing the problem <u>before</u>
+trying to attach an image!
 </dd>
 
-<dt>Saving the Image</dt>
-<dd>The image-generating code creates two types of images: GIF and EPS files.
-The GIF is what is shown in the web browser, and modern web browsers will
-let you obtain a contextual menu by performing an alternative mouse click
-action over the image (examples include "right-click" or "control-click")
-which provides the option to save the image
-to your computer. Some browsers even let you "drag-and-drop" an image by
-pressing-and-holding the mouse button over the image, and moving the mouse
-to the desktop (or other folder) before letting go of the mouse button.<br>
+<dt>The easy way: automatically through the QA browser</dt>
+<dd>When viewing histograms in the QA browser, an "Attach to Issue" button
+appears above each histogram image. Clicking this button will prompt
+for the ID number of an issue to which you would like the image attached.
+The selected issue will be loaded in the
+<?php mkhref("issueEditor.php","Issue Editor","QAifr"); ?> (unless it
+does not exist) with the same image now attached. Note that this is
+the low resolution image, not the high resolution vector graphics image.
+</dd>
 
-Simply clicking on the image in the browser will download a gzipped EPS
-file, which is useful for zooming in on particulars of a plot because
-the image is encoded as vector graphics. These EPS files are generally
-not what should be attached to the Issues as they are not usually
-presented graphically by web browsers.
+<dt>The only-slightly-harder way: saving an image and uploading it</dt>
 <dd>
+<dl>
+<dt>Obtaining an Image</dt>
+<dd>Use the QA browser as you normally would to generate and view plots.
+If you view plots in the QA browser, it is a simple matter to save these
+plots to your own computer by either of the following methods:
+<ol>
+<li>Save the image directly from your web browser, often achieved by
+"right-clicking" or "control-clicking" over the image and selecting
+something like "Save Image As..." from a contextual menu.</li>
+<li>Use a screen capture tool to select the portion of your screen
+which contains the image.</li>
+</ol>
+You may have other means at your disposal, and it may be worthwile
+to crop an image once it is on your computer to what you feel is the
+relevant portion of the image for the issue.
 </dd>
 
 <dt>Attaching the Image</dt>
 <dd>With the <?php mkhref("issueEditor.php","Issue Editor","QAifr"); ?>
-open to the Issue to which you want to attach the
-image, scroll down to the "Image Attachments" section and click on the arrow
+open to the Issue to which you want to attach the image, scroll down to
+the "Image Attachments" section and, if necessary, click on the arrow
 such that it is pointing downwards and the section for Image Attachments is
 displayed. Click on the "Choose File" button in this section, and navigate
-to and select the GIF image you just saved on your computer. After selecting
+to and select the desired image you just saved on your computer. After selecting
 the file, click the "Upload File" button in the Image Attachments section.
 The image should now be available in the Issue, and the direct link for the
 Issue (shown near the top of the Issue Editor window) can be sent to anyone
 to whom you wish to see the Issue.
+</dd>
+</dl>
 </dd>
 
 </dl>
@@ -367,7 +405,7 @@ default : # Topic list
   mkHelpRef(11,"Analysis Results",1);
   mkHelpRef(12,"Examining (&amp; Editing) Analyses &amp; Cuts",1);
   mkHelpRef(13,"Trend Plotting",1);
-  mkHelpRef(20,"Grabbing a Histogram Image and Attaching to an Issue",1);
+  mkHelpRef(20,"Attaching a Histogram Image to an Issue",1);
   mkHelpRef(21,"Determining the number of events and found vertices",1);
   print "</ul>\n";
 

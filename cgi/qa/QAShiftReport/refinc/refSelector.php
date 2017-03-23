@@ -13,10 +13,10 @@
   $defSelTag = selectedTag(0,0);
 
   function jselectors() {
-    global $jfuncstr;
     jhideshow();
     ?>
-    function refSelector(lvl,cnt,prnt,slctidx) {
+    function refSelector(mde,lvl,cnt,prnt,slctidx) {
+      this.mode = mde;
       this.level = lvl;
       this.count = cnt;
       this.parent = prnt;
@@ -24,39 +24,41 @@
     }
     var selectors = new Object;
     function selName(sel) { return 'sel' + sel; }
-    function hideSel(level) {
+    function hideSel(level,mode) {
       for (var sels in selectors) {
-        if (selectors[sels].level >= level) hideElem(selName(sels));
+        if (selectors[sels].level >= level &&
+            selectors[sels].mode  == mode    ) hideElem(selName(sels));
       }
-      hideElem('refSelected'); showElem('refNotSelected');
+      hideElem('refSelected' + mode); showElem('refNotSelected' + mode);
     }
-    function showSel(sel,force) {
+    function showSel(sel,force,mode) {
+      form = 'document.choice' + mode + 'Form.';
       level = selectors[sel].level;
-      if (level < 2) hideSel(level + 1);
+      if (level < 2) hideSel(level + 1,mode);
       if (level == 2 || (level == 1 && force == 1)) {
-        readElem = eval("document.choiceForm." + selName(sel));
-        prepReady(readElem.options[readElem.selectedIndex].value);
-        showElem('refSelected'); hideElem('refNotSelected');
+        readElem = eval(form + selName(sel));
+        eval('prepReady' + mode + '(readElem.options[readElem.selectedIndex].value);');
+        showElem('refSelected' + mode); hideElem('refNotSelected' + mode);
         if (level == 2) return;
       }
-      parSel = eval("document.choiceForm.sel" + sel);
+      parSel = eval(form + "sel" + sel);
       idx = parSel.selectedIndex;
       for (var sels in selectors) {
         if ((selectors[sels].parent == sel) &&
-            (selectors[sels].selectidx == idx)) {
+            (selectors[sels].selectidx == idx) &&
+            (selectors[sels].mode == mode)) {
           showElem(selName(sels));
           if (selectors[sels].count == 1) {
-            showSel(sels,0);
+            showSel(sels,0,mode);
           }
         }
       }
     }
 <?php
-    print $jfuncstr;
   }
   
   
-  function makemenu($enums,$level,$parent,$parent_idx,$defaultEnum=-1) {
+  function makemenu($mode,$enums,$level,$parent,$parent_idx,$defaultEnum=-1) {
     global $refMenuMode,$idcnt,$jfuncstr,$defSelTag;
     $action = ""; $fullySelected = false;
     $cnt = count($enums);
@@ -79,7 +81,7 @@
     } else {
       # $force==1 makes the submit button appear (forces past level 2)
       $force = ($level==1 && $refMenuMode==1 ? 1 : 0);
-      $action = "showSel(${idcnt},${force})";
+      $action = "showSel(${idcnt},${force},${mode})";
       $str.= onSelect($ename,$action);
       
       $enumI = 0;
@@ -108,7 +110,7 @@
     }
     $str.= "</span>\n";
     $jfuncstr .= "    selectors[${idcnt}] ="
-    . " new refSelector(${level},${cnt},${parent},${parent_idx});\n";
+    . " new refSelector(${mode},${level},${cnt},${parent},${parent_idx});\n";
     if ($fullySelected) { $jfuncstr .= "    setTimeout('${action}',150);\n"; }
     return $str;
   }
@@ -120,24 +122,45 @@
     # $mode:
     #   1 : new version menu
     #   2 : existing versions menu
-    global $l0str,$l1str,$l2str,$refMenuMode,$idcnt;
+    global $l0str,$l1str,$l2str,$refMenuMode,$idcnt,$jfuncstr;
+    $jfuncstr = "";
+    $idcnt_init = ($mode == 2 ? 0 : 100);
+    $idcnt = $idcnt_init;
     $refMenuMode = $mode;
     $runYearTrig = getYTfromRun($runNumber);
-    $runYears = array();
-    if ($refMenuMode == 1) { $runYears[] = $runYearTrig['runYear']; }
-    else { $runYears = getRunYearList(); }
-    $l0str .= makemenu($runYears,0,0,0,$runYearTrig['runYear']);
-    foreach ($runYears as $kc => $runYear) {
-      $trigs = ($refMenuMode == 1 ? getTrigListAll($runYear) : getTrigList($runYear));
-      $l1str .= makemenu($trigs,1,1,$kc,$runYearTrig['trig']);
+    $runYear = $runYearTrig['runYear'];
+    if ($refMenuMode == 1) {
+      $l0str .= "<br>\n";
+      $l1str .= "<br>\n";
+      $l2str .= "<br>\n";
+      $l0str .= makemenu($mode,array($runYear),0,0,0,$runYear);
+      $trigs = getTrigListAll($runYear);
+      $l1str .= makemenu($mode,$trigs,1,$idcnt_init+1,0,$runYearTrig['trig']);
       $parent = $idcnt;
-      $trigvers = array();
       foreach ($trigs as $kt => $trig) {
-	    $trigvers["$trig"] = getVersList($runYear,$trig);
-	    $l2str .= makemenu($trigvers["$trig"],2,$parent,$kt);
+        $trigvers = getVersList($runYear,$trig);
+        $l2str .= makemenu($mode,$trigvers,2,$parent,$kt);
       }
+    } else {
+      $runYears = getRunYearTrigVersList();
+      $l0str .= " (<font color=\"red\">" . $runYear . "</font>)<br>\n";
+      $l1str .= " (<font color=\"red\">" . $runYearTrig['trig'] . "</font>)<br>\n";
+      $l2str .= "<br>\n";
+      $l0str .= makemenu($mode,array_keys($runYears),0,0,0,$runYear);
+      $kc = 0;
+      foreach ($runYears as $trigs) {
+        $l1str .= makemenu($mode,array_keys($trigs),1,$idcnt_init+1,$kc,$runYearTrig['trig']);
+        $parent = $idcnt;
+        $kt = 0;
+        foreach ($trigs as $trigvers) {
+          $l2str .= makemenu($mode,$trigvers,2,$parent,$kt);
+          $kt++;
+        }
+        $kc++;
+      }
+      jselectors();
     }
-    jselectors();
+    print $jfuncstr;
   }
   
 
@@ -145,12 +168,12 @@
     global $l0str,$l1str,$l2str,$idcnt,$refMenuMode;
     print "<font size=-1>\n";
     print "<table border=0 cellpadding=6 cellspacing=0><tr valign=top><td>\n";
-    print "Run Year:<br>${l0str}\n\n";
+    print "Run Year:${l0str}\n\n";
     print "</td><td>\n";
-    print "Trigger Setup:<br>${l1str}\n\n";
+    print "Trigger Setup:${l1str}\n\n";
     print "</td><td>\n";
     if ($refMenuMode == 1) { print "Latest "; }
-    print "Version:<br>${l2str}\n\n";
+    print "Version:${l2str}\n\n";
     print "</td></tr></table>\n";
     print "</font>\n";
     $idcnt++;

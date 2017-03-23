@@ -6,13 +6,16 @@
   inclR("refRecords.php");
   incl("sections.php");
 
-  global $DAEMON_OUTPUT_DIR,$marks_exist,$go_back,$singleFile,$myCols;
+  global $DAEMON_OUTPUT_DIR,$marks_exist,$go_back,$singleFile;
+  global $myCols,$useRuns,$useRunsStr;
   
   getPassedInt("refID");
   getPassedInt("cutsID");
   getPassedVarStrict("inputfile");
+  getPassedVarStrict("fstream");
   getPassedInt("page"); # page > 0 means we are editing/examining
   getPassedVarStrict("user_dir");
+  if (getPassedVarStrict("useRunsStr",1)) { sort($useRuns = explode("_",$useRunsStr)); }
   getPassedInt("doPageCell");
   getPassedVar("newRefHists");
   getPassedVar("refResults");
@@ -22,12 +25,10 @@
   $combJob = getPassedVarStrict("combID",1);
   $singleFile = (strlen($inputfile) < 1 || $refID < 0);
   
-  headR("QA Reference Histogram Analysis");
-  
-  ?>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"
-            type="text/javascript"></script>
-  <?php
+  # Validate $fstream as a file stream type
+  $isAKey = false;
+  if (!(existsFStreamType($fstream,$isAKey) && $isAKey)) { $fstream = ""; }
+
   jstart();
   jhideshow();
   ?>
@@ -45,25 +46,21 @@
       }
     }
     function runEdit(ttyp,page,cell,edit) {
-      document.dispForm.ttyp.value = ttyp;
-      document.dispForm.page.value = page;
-      document.dispForm.cell.value = cell;
-      document.dispForm.edit.value = edit;
-      document.dispForm.submit();
+      post_form('dispForm','ttyp',ttyp,'page',page,'cell',cell,'edit',edit);
     }
     function check4sure(status) {
       var retval = confirm("Are you sure you want to record these results as " + status + "?");
       if (retval == true) {
-        document.dispForm.viewmode.value = 3;
-        document.dispForm.rStatus.value = status;
-        document.dispForm.submit();
+        post_form('dispForm','viewmode',3,'rStatus',status);
       } else {
         return false;
       }
     }
+    function prepIssAttach(att,suf) {
+      post_form("issAttForm",'attach',att,'suffix',suf);
+    } 
 <?php
   jend();
-  body();
   
   ### Initial and global values
   $ttyp = "";
@@ -73,21 +70,26 @@
   $cuts = getCutsById($cutsID);
   checkMarksExist($user_dir);
 
-  helpButton( ($page > 0 ? 12 : 11) );
   $go_back = false;
 
   
   ### Content (edit or display)
-  print "<div id=\"refViewer\" style=\"position:absolute; top:0px; right:0px;";
-  print " width:80%; height:99%; overflow:auto; z-index:1; ";
-  print ($edit? "border: 2px dashed rgb(256, 0, 0); " : "") . "\">\n";
+  print "<div id=\"refViewer\" class=\"refContent";
+  print ($edit? " refExpert" : "") . "\">\n";
+  helpButton( ($page > 0 ? 12 : 11) );
+  print "<div id=\"refViewerInner\" class=\"refViewerInner\">\n";
   @inclR("ref" . ($page > 0 ? "Edit" : "Display") . "Analysis.php");
-  print "</div>\n\n";
+  fstart2("issAttForm","refUpdater.php","no");
+  fhidden("topic",5);
+  fhidden("user_dir",$user_dir);
+  fhidden("attach","");
+  fhidden("suffix","");
+  fend();
+  print "</div></div>\n\n";
   
 
   ### Menu (allow selections)
-  print "<div id=\"refMenu\" style=\"position:absolute; top:0px; left:0px; ";
-  print "width:20%; height:100%; overflow:auto; z-index:100; \">\n";
+  print "<div id=\"refMenu\" class=\"refNavig\">\n";
   
 
   # Mark as examined
@@ -96,41 +98,56 @@
     print "; display: table; border: 2px solid rgb(0, 64, 128); \">\n";
     print "<b>Mark as examined:&nbsp;</b><br>\n";
     fbutton("rGood","Good","check4sure('good')");
+    print "&nbsp;&nbsp;\n";
     fbutton("rBad","Bad","check4sure('bad')");
     print "</div>\n<p>\n";
   }
   
   #print "<div style=\"background-color:" . $myCols["good"]
   #. "; display: table; border: 2px solid rgb(0, 64, 128); \">\n";
-  beginSection("navigators","Navigation",101,$myCols["good"]);
+  beginSection("navigators","Plot Navigation",101,$myCols["good"]);
 
-  fstart("dispForm","","QARmfr");
+  fstart2("dispForm");
 
   # Dataset
+  $dataRefStr = "";
   print ($singleFile ? "Plots" : "Analysis") . " for: <b>";
   if (strlen($inputfile)) {
-    print (isRunNum($inputfile) ? "run " : "")
-    . ($combJob ? "combined files (see selections above)" : $inputfile);
+    $isRN = isRunNum($inputfile);
+    if ($combJob) {
+      print "runs<br>\n";
+      print implode("<br>\n",$useRuns);
+    } else if (isRunNum($inputfile)) {
+      print "run ${inputfile}";
+    } else {
+      print $inputfile;
+    }
+    linebreak();
+    print "(" . $fstreams[$fstream] . ")";
+    $dataRefStr = "data" . ($refID < 0 ? "" : " + reference");
   } else {
     print "reference set ${refID}";
+    $dataRefStr = "reference";
   }
   print "</b>\n<p>\n";
   
   # Hist list to show
   print "<b>Show list:</b><br>\n";
   if ($marks_exist) {
-    fbutton("mbutton","Marked for update","viewmode.value=2;submit()");
+    fbutton("mbutton","Marked for update","post_form('dispForm','viewmode',2)");
     print "<br>\n";
   }
-  if (! $singleFile) { fsubmit("Failed"); }
-  fbutton("abutton","All","viewmode.value=1;submit()");
+  if (! $singleFile) { fbutton("fbutton","Failed","post_form('dispForm')"); }
+  fbutton("abutton","All","post_form('dispForm','viewmode',1)");
   linebreak();
-  fbutton("apbutton","All + Plots","viewmode.value=11;submit()");
+  fbutton("apbutton","All + Plots","post_form('dispForm','viewmode',11)");
 
   fhidden("refID",$refID);
   fhidden("cutsID",$cutsID);
   fhidden("inputfile",$inputfile);
+  fhidden("fstream",$fstream);
   fhidden("user_dir",$user_dir);
+  if (isset($useRunsStr)) { fhidden("useRunsStr",$useRunsStr); }
   fhidden("newRefHists",$newRefHists);
   fhidden("refResults",$refResults);
   fhidden("doPageCell",$doPageCell);
@@ -181,7 +198,7 @@
     print "<div id=\"div${TR}\" style=\"display:none ;z-index:${zin} \">\n";
     #print "<div id=\"div${TR}\" style=\"display:none \">\n";
     $pgForm = "pgForm${TR}";
-    fstart($pgForm,"","QARmfr");
+    fstart2($pgForm);
     print "<table border=0 cellspacing=2 cellpadding=0>\n";
     
     for ($pg=1; $pg<=$pages; $pg++) {
@@ -219,31 +236,12 @@
   print "</div>\n\n"; #refMenu
   #print "</div>\n</div>\n\n"; #bordered box; refMenu
 
-  print "<div id=\"zoomPlot\" ";
-  print "style=\"position:absolute; top:10px; left:10px; z-index:201; display:none; ";
-  print "background-color:" . $myCols["emph"] . "; border: 2px solid rgb(0, 64, 128); \">";
-  print "</div>\n\n";
-  
   # initial values for Menu
   jstart();
   ?>
     function LoadZoom(args) {
       ops = 'fullscreen=yes,toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes';
       window.open(args,'QARzfr',ops);
-    }
-    function ViewZoom(args) {
-      alert("GGGG :: " + args);
-      $.ajax({
-              url : args,
-              success : function (data) {
-                $("#zoomPlot").html(data);
-                document.getElementById("zoomPlot").style.display = 'block';
-              }
-             });
-    }
-    function HideZoom() {
-      $("#zoomPlot").html("");
-      document.getElementById("zoomPlot").style.display = 'none';
     }
 <?php
   if ($prevStr) {
@@ -268,22 +266,28 @@
     print "    setTimeout('showElem(\"trButtonss\")',100);\n";
   }
   if ($go_back) {
+    rotateLog();
     ?>
     function go_back() {
       var retval = confirm("Would you like to go back to the QA data selections?");
       if (retval == true) {
-        form = window.parent.frames['QARcfr'].document.backForm;
-        form.formNumber.value=22;
-        form.submit();
+        post_form('backForm','formNumber',22);
       }
     }
-    setTimeout('go_back()',250);
+    setTimeout('go_back()',350);
 <?php
   }
-  jsToggleSection();
-  print "    toggleSection('navigators');\n";
+  ?>
+    toggleSection('navigators');
+    $('.dimHover').each( function(i) {
+      $(this).fadeTo(0,0.4);
+    });
+    $('.dimHover').hover(
+      function() { $(this).fadeTo('fast',1.0); },
+      function() { $(this).fadeTo('slow',0.4); }
+    );
+<?php
+  print "    setQATitle(\"${dataRefStr} histograms\");\n";
   jend();
   
-  foot(0,1);
-?>
-
+  if (connectedDB()) { closeDB(); } ?>

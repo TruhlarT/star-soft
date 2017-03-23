@@ -105,10 +105,10 @@ linebreak();
 finput("work",10);
 fsubmit("Begin New Session","return (checkSesName() < 2)");
 print "&nbsp;&nbsp;&nbsp;&nbsp;<i>Play</i> session:&nbsp;";
-$plays[$play] = "0";
-fradio("radio","play",$plays,0);
+$defaultPlay = "0";
+fradio("radio","play",$defaultPlay,0);
 print "no&nbsp;&nbsp;";
-fradio("radio","play",$plays,1);
+fradio("radio","play",$defaultPlay,1);
 print "yes (generate toy reports)";
 linebreak();
 if (count($workDirs) == 0) {

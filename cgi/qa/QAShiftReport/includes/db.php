@@ -1,18 +1,18 @@
 <?php
 
 global $QAdbhost,$QAdbname;
-#$QAdbhost = "duvall.star.bnl.gov";
-$QAdbhost = "db09.star.bnl.gov";
+$QAdbhost = "duvall.star.bnl.gov";
+#$QAdbhost = "db09.star.bnl.gov";
 $QAdbname = "OfflineQA";
 
 ###############################
 # DB Generic functions
 #
 
-function connectDB() {
+function connectDB($user1="starweb",$user2="") {
   global $QAdbhost;
   if (connectedDB()) return;
-  @($conn = mysql_connect($QAdbhost)) or died("Could not connect to the DB");
+  @($conn = mysql_connect($QAdbhost,$user1,$user2)) or died("Could not connect to the DB, please report",dbErrMess());
   setConnectedDB($conn);
   selectDB();
 }
@@ -20,20 +20,27 @@ function selectDB($dbname="") {
   global $QAdbname;
   if (!strlen($dbname)) { $dbname = $QAdbname; }
   connectDB();
-  mysql_select_db($dbname);
+  @(mysql_select_db($dbname)) or died("Could not select DB, please report",dbErrMess());
 }
 function closeDB() {
   global $QAdbconn;
   if (! connectedDB()) return;
-  @(mysql_close($QAdbconn)) or died("Could not close DB connection");
+  @(mysql_close($QAdbconn)) or died("Could not close DB connection",dbErrMess());
   setUnconnectedDB();
 }
 function queryDB($str) {
   global $QAdebug,$QAdbconn;
   connectDB();
-  if ($QAdebug) logit("QUERY###\n$str\n###QUERY");
+  if ($QAdebug) {
+    if (strlen($str)<2050) logit("QUERY###\n$str\n###QUERY");
+    else logit("QUERY### long one ###QUERY");
+  }
+  $tt = time();
   @($result = mysql_query($str,$QAdbconn)) or
-    died("Could not query the DB: " . ($QAdebug ? mysql_error() : "please report"));
+    died("Could not query the DB, please report",dbErrMess());
+  if ($QAdebug && strlen($str)<2050)
+    logit("2QUERY###\n" . preg_replace("/\),\(/","),\n(",$str) .
+      "\n###QUERY TOOK : " . (time() - $tt) . " seconds");
   return $result;
 }
 function nextDBrow($result) {
@@ -63,11 +70,57 @@ function escapeDB($str) {
 function getDBid() {
   return mysql_insert_id();
 }
+function existsDBtable($table) {
+  return (queryDBfirst("SHOW TABLES LIKE '${table}'") !== 0);
+}
 function optimizeTable($str) {
   $query = "ANALYZE TABLE $str;";
   queryDB($query);
   $query = "OPTIMIZE TABLE $str;";
   queryDB($query);
+}
+
+
+#-------------------
+# For temp connections to other DBs
+
+$TMPdbhost = QAnull;
+$TMPdbname = QAnull;
+$TMPdbconn = QAnull;
+
+function startDbTemp($tempHost,$tempName,$tempUser1="",$tempUser2="") {
+  global $QAdbhost,$QAdbconn,$QAdbname;
+  global $TMPdbhost,$TMPdbconn,$TMPdbname;
+
+  $TMPdbhost = $QAdbhost;
+  $TMPdbname = $QAdbname;
+  $TMPdbconn = $QAdbconn;
+  $QAdbhost = $tempHost;
+  $QAdbname = $tempName;
+  $QAdbconn = QAnull;
+  connectDB($tempUser1,$tempUser2);
+}
+
+function stopDbTemp() {
+  global $QAdbhost,$QAdbconn,$QAdbname;
+  global $TMPdbhost,$TMPdbconn,$TMPdbname;
+
+  closeDB();
+  $QAdbhost = $TMPdbhost;
+  $QAdbname = $TMPdbname;
+  $QAdbconn = $TMPdbconn;
+}
+
+function dbErrMess() {
+  if (connectedDB()) {
+    global $QAdbconn;
+    $dbErrNumb = mysql_errno($QAdbconn);
+    $dbErrMess = mysql_error($QAdbconn);
+  } else {
+    $dbErrNumb = mysql_errno();
+    $dbErrMess = mysql_error();
+  }
+  return "DB error # = ${dbErrNumb}, message = ${dbErrMess}";
 }
 
 

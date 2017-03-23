@@ -59,24 +59,26 @@
   function getResultsByName($file) { return getResults($file,0); }
   function getResultsByLoc($file) { return getResults($file,1); }
   
-  function recordResults($user,$name,$analRes,$refId,$cut,$file) {
-    global $dbResultsTable,$fileInfo;
-    $ifile = stripDaq($file);
-    $runNumber = $fileInfo[$ifile]['runNumber'];
-    $procTime = $fileInfo[$ifile]['ExecDate'];
-    $seenTime = $fileInfo[$ifile]['EntryDate'];
-    $qry = "INSERT DELAYED INTO $dbResultsTable (`name`,`result`,`refId`,`cut`,"
-    . "`runNumber`,`procTime`,`seenTime`,`file`,`user`)"
-    . " VALUES ('${name}','${analRes}','${refId}','${cut}',"
-    . "'${runNumber}','${procTime}','${seenTime}','${ifile}','${user}')";
-    queryDB($qry);
-  }
-  
   function recordResultsForFiles($user,$name,$analRes,$refId,$cut,$files) {
-    buildFileInfo($files);
-    foreach ($files as $k => $file) {
-      recordResults($user,$name,$analRes,$refId,$cut,$file);
+    global $dbResultsTable,$fileInfo;
+    if (count($files) < 1) {
+      logit("Trying to record results for 0 files, user:${user} , name:${name}");
+      return;
     }
+    buildFileInfo($files);
+    $qryArray = array();
+    foreach ($files as $k => $file) {
+      $ifile = stripDaq($file);
+      $runNumber = $fileInfo[$ifile]['runNumber'];
+      $procTime = $fileInfo[$ifile]['ExecDate'];
+      $seenTime = $fileInfo[$ifile]['EntryDate'];
+      $qryArray[] = "('${name}','${analRes}','${refId}','${cut}',"
+        . "'${runNumber}','${procTime}','${seenTime}','${ifile}','${user}')";
+    }
+    $qry = "INSERT DELAYED INTO $dbResultsTable (`name`,`result`,`refId`,`cut`,"
+    . "`runNumber`,`procTime`,`seenTime`,`file`,`user`) VALUES "
+    . implode(",",$qryArray);
+    queryDB($qry);
     if (rand(1,1000)==2) { optimizeResultsTable(); } # Slow on big table
   }
   
@@ -87,9 +89,9 @@
     . ",UNIX_TIMESTAMP(`entryTime`) AS eTime,DATE_FORMAT(`entryTime`,\"%Y-%m-%d\") AS enTime"
     . ",UNIX_TIMESTAMP(`procTime`) AS pTime,DATE_FORMAT(`procTime`,\"%Y-%m-%d\") AS prTime"
     . ",UNIX_TIMESTAMP(`seenTime`) AS sTime,DATE_FORMAT(`seenTime`,\"%Y-%m-%d\") AS seTime"
-    #. " FROM $dbResultsTable WHERE `name`='${name}' AND FLOOR(YEAR(NOW())+QUARTER(NOW())/4)="
-    #. "FLOOR(YEAR(entryTime)+QUARTER(entryTime)/4) ORDER BY `${idx}` ASC";
-    . " FROM $dbResultsTable WHERE `name`='${name}' AND "
+    . " FROM $dbResultsTable WHERE `name`='${name}' AND FLOOR(YEAR(NOW())+QUARTER(NOW())/4)="
+    . "FLOOR(YEAR(entryTime)+QUARTER(entryTime)/4) AND "
+    #. " FROM $dbResultsTable WHERE `name`='${name}' AND "
     #    . "entryTime>\"2011-03-15\" ORDER BY `${idx}` ASC";
     . "entryTime>\"2011-04-03\""
     . " GROUP BY `runNumber`,`cut`,`refId`,`result`";

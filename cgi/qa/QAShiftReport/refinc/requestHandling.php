@@ -3,31 +3,33 @@
   incl("db.php");
   inclR("refAutoComb.php");
   
-  global $dbProcTable,$dbCombTable,$dbCombFileTable,
-         $stdFilePath,$useRuns,$SLEEP,$MAXCOUNT;
+  global $dbProcTable,$dbCombTable,$dbCombFileTable,$stream,
+         $stdFilePath,$useRuns,$useRunsStr,$SLEEP,$MAXCOUNT;
   $dbProcTable = "hist2ps";
   $dbCombTable = "combineFiles";
   $dbCombFileTable = "combineFileList";
   $stdFilePath = "/star/u/starqa/QA/files";
-  $useRuns = array();
+  if (! isset($useRuns)) { $useRuns = array(); }
   $SLEEP = 3;
-  $MAXCOUNT = 100;
+  $MAXCOUNT = 600;
+  $stream = "";
   
   function runLogLink() {
     global $useRuns,$myCols;
     $nruns = count($useRuns);
     $str = "You have selected " . ($nruns < 1 ? "no " : "")
     . "run" . ($nruns != 1 ? "s" : "") . " ";
-    $hrStart = "<a href=\"http://online.star.bnl.gov/";
+    $hrStart = "<a href=\"https://online.star.bnl.gov/";
+    $hrStart_nos = "<a href=\"http://online.star.bnl.gov/";
     $spStart = "<span style=\"background-color:";
     $srStart = $spStart . $myCols["good"] . "\">${hrStart}RunLog/index.php?r=";
-    $seStart = $spStart . $myCols["emph"] . "\">${hrStart}apps/shiftLog/logForFullTextSearch.jsp?text=";
+    $seStart = $spStart . $myCols["emph"] . "\">${hrStart_nos}apps/shiftLog/logForFullTextSearch.jsp?text=";
     $hrEnd = "\" target=\"new\">";
     $hsEnd = "</a></span>";
     if (count($useRuns) > 1) {
       foreach ($useRuns as $k => $run) {
         if ($k > 0) { $str .= ", "; }
-        $str .= "${run}<font size=-2><i>[${srStart}${run}${hrEnd}RL${hsEnd},"
+        $str .= "<b>${run}</b><font size=-2><i>[${srStart}${run}${hrEnd}RL${hsEnd},"
         . "${seStart}${run}${hrEnd}ESL${hsEnd}]</i></font>";
       }
     } else {
@@ -41,7 +43,7 @@
 
   function diskLocByFile($file) {
     global $dbFOLoc,$dbDAQInfo;
-    $qry = "SELECT `Label` from $dbFOLoc where `id` = "
+    $qry = "SELECT `Label` FROM $dbFOLoc WHERE `id` = "
     . "(SELECT `DiskLoc` FROM $dbDAQInfo WHERE `file`=\"${file}.daq\" LIMIT 1)";
     $row = queryDBfirst($qry);
     if ($row == 0) { return false; }
@@ -50,7 +52,7 @@
 
   function diskLocById($id) {
     global $dbFOLoc;
-    $qry = "SELECT `Label` from $dbFOLoc where `id` = '${id}'";
+    $qry = "SELECT `Label` FROM $dbFOLoc WHERE `id` = '${id}'";
     $row = queryDBfirst($qry);
     if ($row == 0) { return false; }
     return $row['Label'];
@@ -87,7 +89,8 @@
         $infile .= ".hist.root";
         if (substr($whichHist,0,3) == "det") {
           $detectors = substr($whichHist,3);
-          $whichHist = "reg";
+          if ($detectors == "hft") $detectors = "pxl,ist,sst";
+          $whichHist = "subsys";
         } else {
           $detectors = implode(",",getDetList());
         }
@@ -134,23 +137,22 @@
     
   function combProcRequest(&$combID,&$status) {
     global $textUserName,$FOdb,$dbCombTable,$dbCombFileTable,$dbDAQInfo;
-    global $month1,$day1,$year1,$month2,$day2,$year2,$useRuns;
+    global $month1,$day1,$year1,$month2,$day2,$year2,$useRuns,$stream;
     $combID = rand(1,65535); # seed is now done automatically in PHP
     $str = "";
     
-    #streams = array("jpsi","mtd","upsilon","minbias","gamma","physics");
-    $stream = ""; # default stream is any
-    
     # determine passed run numbers
     $MAX_RUNS = 32;
-    foreach ($_GET as $k => $v) {
+    foreach ($_POST as $k => $v) {
       if ((substr($k,0,6) === "useRun") && cleanInt(substr($k,6))) {
-        $vals = explode(' ',$v); # delimeter is space
+        #$vals = explode(' ',$v); # delimeter is space
+        $vals = explode('+',$v); # delimeter is plus
         if (count($vals) == 2 && isRunNum($vals[0]) && cleanStrict($vals[1])) {
+          $vals[1] = "st_" . $vals[1];
           if (strlen($stream)) {
             if ($vals[1] != $stream) {
               $str .= "<b>WARNING: combine request for multiple streams; ignoring run "
-              . $vals[0] . ", st_" . $vals[1] . "* stream</b><br>\n";
+                . implode(",",$vals) . "* stream</b><br>\n";
               continue;
             }
           } else {
@@ -179,8 +181,8 @@
       $str .= dateChecker("year2",$year1,2040,$status);
       if ($status < 0) { return $str; }
       $qry = "SELECT `file`,`DiskLoc` FROM $dbDAQInfo WHERE `runNumber` IN"
-      . " (${runList}) AND `Status` > 1 and `Status` < 4 and `DiskLoc` > 0"
-      . " AND `file` LIKE 'st_${stream}%'"
+      . " (${runList}) AND `Status` > 1 AND `Status` < 4 AND `DiskLoc` > 0"
+      . " AND `file` LIKE '${stream}%'"
       . " AND `UpdateDate` >= " . sprintf("\"%d-%02d-%02d 00:00:00\"",$year1,$month1,$day1)
       . " AND `UpdateDate` <= " . sprintf("\"%d-%02d-%02d 23:59:59\"",$year2,$month2,$day2)
       . " LIMIT 100";
@@ -206,12 +208,13 @@
         $status = -76;
       } else {
         $str .= "<br>Combinining $nfiles files:\n<pre>";
+        $qryArray = array();
         foreach ($listOfFiles as $k => $file) {
-          $qry = "INSERT INTO $dbCombFileTable (`id`,`file`)"
-          . " VALUES ($combID,'${file}')";
-          queryDB($qry);
+          $qryArray[] = "($combID,'${file}')";
           $str .= " ${file}\n";
         }
+        $qry = "INSERT INTO $dbCombFileTable (`id`,`file`) VALUES " . implode(",",$qryArray);
+        queryDB($qry);
         $str .= "</pre>\n";
         $qry = "INSERT INTO $dbCombTable (`done`,`id`,`user`,`whichHist`,`format`)"
         . " VALUES ('N',$combID,'${textUserName}','none','0')";
@@ -228,13 +231,15 @@
     # make entry in DB for daemon.c to process
     $tokens = "\n";
     $tok = strtok($marks,$tokens);
+    $qryArray = array();
     while ($tok !== false) {
       if (cleanStrict($tok)) {
-        $qry = "INSERT INTO $dbCombFileTable (`id`,`file`) VALUES (${id},'${tok}');";
-        queryDB($qry);
+        $qryArray[] = "(${id},'${tok}')";
       }
       $tok = strtok($tokens);
     }
+    $qry = "INSERT INTO $dbCombFileTable (`id`,`file`) VALUES " . implode(",",$qryArray);
+    queryDB($qry);
     $qry = "INSERT INTO $dbCombTable (`id`,`user`,`whichHist`,`done`,`format`)"
     . " VALUES (${id},'${user}','${whichDir}','N',4)";
     queryDB($qry);
@@ -273,25 +278,33 @@
     return array($status,$results);
   }
   
-  function getAutoCombStr($autoID) {
+  function getAutoCombStr($autoID,&$autoCombTag) {
     # Assemble a string to print info about an AutoCombine jobs
     global $useRuns;
     $info = getAutoCombInfo($autoID);
     $useRuns[] = $info[0];
-    return runLogLink() . ", using "
-    . intval($info[1]) . " <i>" . $info[2] . "*</i> files.\n";
+    $autoCombTag = $info[3];
+    $nfiles = intval($info[1]);
+    return runLogLink() . ", using ${nfiles} <i>" . $info[2] . "*</i> file"
+      . ($nfiles != 1 ? "s" : "") . ".\n";
   }
 
-  function getDetList($useRunsStr="") {
+  function getDetList() {
     # Get the list of detectors which were in the run
-    global $FOdb,$dbFODets,$dbDAQInfo,$useRuns;
-    if (strlen($useRunsStr)) { $useRuns = $useRunsStr; }
-    else { getPassedVarStrict("useRuns"); }
-    $runList = preg_replace("/_/",",",$useRuns);
+    global $FOdb,$dbFODets,$dbDAQInfo,$useRuns,$useRunsStr;
+    if ((! isset($useRunsStr)) &&
+        (! getPassedVarStrict("useRunsStr",1))) {
+      if (count($useRuns)) {
+        $useRunsStr = implode('_',$useRuns);
+      } else {
+        return array();
+      }
+    }
+    $runList = preg_replace("/_/",",",$useRunsStr);
     selectDB($FOdb);
-    $qry = "SELECT Label FROM $dbFODets AS FOD WHERE"
-    . " ((SELECT BIT_OR(DetSetMask) FROM $dbDAQInfo"
-    . " WHERE runNumber IN (${runList}) GROUP BY 1=1)>>FOD.id)&1=1";
+    $qry = "SELECT `Label` FROM $dbFODets AS FOD WHERE"
+    . " ((SELECT BIT_OR(`DetSetMask`) FROM $dbDAQInfo"
+    . " WHERE `runNumber` IN (${runList}) GROUP BY 1=1)>>FOD.`id`)&1=1";
     $detLabels = queryDBarray($qry,"Label");
     selectDB();
     return $detLabels;

@@ -18,6 +18,7 @@
     srand(time());
     if (rand()%100 == 0) { optimizeDescTable(); }
 
+    if (preg_match("/TpcSector/",$name)) { $name = "QaTpcSector9"; }
     $qry = "SELECT `title`,`desc` FROM $dbDescTable WHERE"
     . " `name`='${name}' ORDER BY `entryTime` DESC LIMIT 1";
     return queryDBfirst($qry);

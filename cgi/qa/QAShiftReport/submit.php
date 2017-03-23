@@ -33,6 +33,11 @@ $start = "STAR QA Shift Report";
 $startSum = $start . " Summary";
 $startTxt = array($kOFFL => $startSum, $kFAST => $startSum . " (FAST OFFLINE)");
 
+$submErrs = array( 5 => "mail failure (possibly an invalid email address)",
+                  11 => "invalid date",
+                  12 => "invalid shift person name",
+                  13 => "invalid string");
+
 
 $allents = "InfoWrapup";
 $info = data2text($allents);
@@ -85,16 +90,20 @@ foreach ($ents as $typ => $entN) {
     $allents .= d2tdelim() . $entFile;
     if ($entr = readObjectEntry($sesDir . $entFile)) {
       $typeissues += $entr->issues;
-      $runFileSeqs[] = array($entr->info["runid"],$entr->info["fseq"],$entr->Anchor());
+      $entrRun = $entr->info["runid"];
+      if (! is_array($entrRun)) { $entrRun = array($entrRun); }
+      foreach ($entrRun as $runid) {
+        $runFileSeqs[] = array($runid,$entr->info["fseq"],$entr->info["fstream"],$entr->Anchor());
 
-      # Compile list of runs for each issue
-      if (count($entr->issues) > 0) {
-        foreach ($entr->issues as $id => $isstxt) {
-          $allRunIssues[$id][] = $entr->info["runid"];
+        # Compile list of runs for each issue
+        if (count($entr->issues) > 0) {
+          foreach ($entr->issues as $id => $isstxt) {
+            $allRunIssues[$id][] = $runid;
+          }
+        } else {
+          # no issues
+          $allRunIssues["0"][] = $runid;
         }
-      } else {
-        # no issues
-        $allRunIssues["0"][] = $entr->info["runid"];
       }
     }
   }
@@ -156,7 +165,7 @@ function LinkArchive($typ) {
     $runyear = substr(strval($runid),0,$yeardigits);
     $runday  = substr(strval($runid),$yeardigits,3);
     $fseqf = formatFseq($rfs[1]);
-    saveLinkDB($fast,$runid,$fseqf,$rfs[2],$repnum);
+    saveLinkDB($fast,$runid,$fseqf,$rfs[2],$rfs[3],$repnum);
   }
 }
 
@@ -188,7 +197,7 @@ function OutputExaminedRunFseq($typ) {
   if (count($allRunFileSeqs[$typ]) > 0) {
     $ostr .= "\n\nSUMMARY OF RUNS / FILE SEQUENCES EXAMINED FOR " . $ents[$typ];
     foreach ($allRunFileSeqs[$typ] as $k => $rfs) {
-      $ostr .= "\n  " . formatRun($rfs[0]) . " / " . formatFseq($rfs[1]);
+      $ostr .= "\n  " . HeadlineRFS($rfs[0],$rfs[1],$rfs[2]);
     }
     $ostr .= "\n";
   }
@@ -255,37 +264,30 @@ function ArchAndMail($typs, $sendmail=1) {
 
 # Output if the submission to the electronic shift log and mail failed
 function FailSubmission($code) {
+  global $submErrs;
   # Mail the maintainer first
   $mstr = "gene@bnl.gov";
   $sstr = "QA Shift Report Failure";
-  $fstr = "QA Shift Report submission failed with code: ${code}\n";
+  $fstr = "QA Shift Report submission failed with code: ${code} = "
+    . $submErrs[$code] . "\n";
   $mailResult = mail($mstr,$sstr,$fstr);
 
-  head("STAR QA Shift Report Submission");
-  body();
-  print "<h3>QA Shift Report Form: ";
   print "<font color=red>Submission Failed</font></h3>\n\n";
   print "<h2>Please do not re-attempt submission.</h2>\n\n";
   print "Please notify <a href=${mstr}>Gene Van Buren</a>\n";
   print "(631-344-7953) that the submission failed with code:\n";
-  print "<b>${code}.${mailResult}</b>\n\n";
+  print "<b>${code}.${mailResult}</b><br>\n<i>";
+  print $submErrs[$code] . "</i>\n\n";
   foot();
-  exit;
 }
 
 # Output if the submission to the electronic shift log and mail succeeded
 function SuccessSubmission() {
   global $play;
-  head("STAR QA Shift Report Submission");
-  body();
-  print "<h3>QA Shift Report Form: ";
-  print "<font color=blue>";
+  print " <font color=blue>";
   if ($play) { print "Play "; }
   print "Submission Completed Successfully</font></h3>\n\n";
-  print "<h2>NEVER SELECT YOUR BROWSER'S RELOAD OR BACK (PREVIOUS PAGE) BUTTONS AFTER FORM SUBMISSION!</h2>\n\n";
-  if (! $play) { PostToShiftLog(); }
-  foot();
-  #exit;
+  print "<h2>NEVER SELECT YOUR BROWSER'S RELOAD OR BACK (PREVIOUS PAGE) BUTTONS AFTER REPORT SUBMISSION!</h2>\n\n";
 }
 
 ###################################################################
@@ -340,6 +342,13 @@ if ($mode == "SendIt") {
 rotateLog();
 optimizeReportsDB();
 optimizeIssuesDB();
-SuccessSubmission();
+
+$postPrepResult = ($play || PostToShiftLog());
+
+head("STAR QA Shift Report Submission");
+body();
+if ($postPrepResult) { SuccessSubmission(); }
+else { FailSubmission(21); }
+foot();
 
 ?>

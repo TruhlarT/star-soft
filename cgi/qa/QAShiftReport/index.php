@@ -6,7 +6,7 @@
 <noframes>
 <font size="+1" color="green">This page uses frames.</font><p>
 </noframes>
-<frame src="blank.html" name="QAnfr" scrolling=no>
+<frame src="blank.php" name="QAnfr" scrolling=no>
 <frameset cols="27%,*" border=0 frameborder=0 framespacing=0>
 <frame src="menu.php" name="QAmfr" scrolling=auto>
 <frame src="sessions.php" name="QArfr" scrolling=auto>

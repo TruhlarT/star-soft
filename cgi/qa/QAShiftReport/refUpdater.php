@@ -1,13 +1,10 @@
 <?php
   
   @(include "refSetup.php") or die("Problems (0).");
-  
+  incl("files.php");
+
   getPassedInt("topic");
   
-  head("QA Reference Updater");
-  body();
-  
-  $task = "unknown";
   $status = 0;
   
   # topic values:
@@ -15,12 +12,33 @@
   # 2 : descriptions
   # 3 : references
   # 4 : references preparation file
+  # 5 : attachment for an issue
+  $tasks = array( 1 => "updating analysis options and pass/fail cut",
+                  2 => "updating plot description",
+                  3 => "updating reference histograms",
+                  4 => "marking for reference histogram update",
+                  5 => "attaching plot to issue"
+                );
+
+  $task = (array_key_exists($topic) ? $tasks[$topic] : "unknown");
   
+  $isRef = ($topic == 3 || $topic == 4); # longer waiting for updating references
+  $UPDATElockfile = "/tmp/QAUPDATElockfile" . ($isRef ? "3" : "${topic}");
+  $tooOld = ($isRef ? 1800 : 180);
+  $giveUp = ($isRef ? 900 : 90);
+  if (! (waitForLock($UPDATElockfile,$tooOld,2.0,$giveUp))) {
+    jstart();
+    print "    err_handle.html('Could not complete ${task}\nOther update not yet completed.');\n";
+    print "    err_handle.show();\n";
+    jend();
+    died("Problems (7.${topic})");
+    # This seems to cause unexpected EOF for web browser
+  }
+
   switch ($topic) {
       
     case  1 :
       # 1 : cuts
-      $task = "updating analysis options and pass/fail cut";
 
       inclR("refCuts.php");
       
@@ -42,7 +60,6 @@
       
     case 2 :
       # 2 : descriptions
-      $task = "updating plot description";
       
       inclR("refDesc.php");
 
@@ -55,7 +72,6 @@
       
     case 3 :
       # 3 : references
-      $task = "updating reference histograms";
       
       inclR("refData.php");
       
@@ -67,12 +83,10 @@
       
       $aOS = ($allOrSome === "all" ? 0 : 1);
       $status = writeDbFromFile($user_dir,$runYear,$trig,$comments,$aOS);
-      ($status >= 0) or died("Failed in $task: $status");
       break;
 
     case 4 :
-      # 4 : reference prepation file
-      $task = "marking for reference histogram update";
+      # 4 : reference preparation file
       
       inclR("refMarks.php");
 
@@ -85,12 +99,60 @@
       addOrRemoveMark($name,$pref,$user_dir,$mode);
       break;
 
+    case 5 :
+      # 5 : attachment for an issue
+
+      getPassedVarStrict("user_dir");
+      getPassedVarStrict("attach");
+      getPassedVarStrict("suffix");
+      $inattach = "${DAEMON_OUTPUT_DIR}${user_dir}/${attach}.${suffix}";
+      if (is_file($inattach)) {
+        @(ckdir($bdir_tmp)) or $status = -2;
+        if ($status == 0) {
+          $outattach = "${bdir_tmp}${attach}.${suffix}";
+          if (is_file($outattach)) { unlink($outattach); }
+          @(copy($inattach,$outattach)) or $status = -3;
+          if ($status == 0) {
+            fstart("issAttach","issueEditor.php","QAifr");
+            fhidden("iid",0);
+            fhidden("mode","view");
+            fhidden("attach",$attach);
+            fhidden("suffix",$suffix);
+            fend();
+            jstart();
+?>
+    var trying = true;
+    var astr = '';
+    while (trying) {
+      iid = prompt(astr + 'Please enter the ID of an existing issue (e.g. 8009)','0');
+      if (iid == '' || iid == null || (iid > 999 && iid < 30000)) { trying = false; }
+      else { astr = 'Invalid issue ID: ' + iid + '\n'; }
+    }
+    if (iid > 999) {
+      submit_form('issAttach','iid',iid);
+    }
+<?php       jend();
+          }
+        }
+      } else {
+        $status = -1;
+      }
+      if ($status < 0) {
+        jstart();
+        print "    alert('Problems with attachments (${status})');\n";
+        jend();
+      }
+      break;
+
     default :
-      died("Unknown update topic: $topic");
+      #died("Unknown update topic: $topic");
+      logit("Unknown update topic: $topic");
+      
       
   }
   
-  print ($status < 0 ? "Failed" : "Succeeeded") . " in ${task}.\n";
-  foot();
+  clearLock($UPDATElockfile);
+
+  print ($status < 0 ? "Failed" : "Succeeeded") . " in ${task} : ${status}.\n";
   
   ?>

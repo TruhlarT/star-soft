@@ -26,7 +26,7 @@
   #######################
   # Section for the description of the histogram
   beginSection("descriptor","Description",1080,$myCols["emph"]);
-  fstart("descForm","refUpdater.php","QARnfr");
+  fstart2("descForm","refUpdater.php","no");
   $dname = stripHistPrefixes($name);
   fhidden("name",$dname);
   fhidden("topic",2);
@@ -56,15 +56,17 @@
   #######################
   # Section for the marking the histogram for reference update
   if ($edit) {
-    fstart("markForm","refUpdater.php","QARnfr");
+    fstart2("markForm","refUpdater.php","no");
     fhidden("name",$name);
     fhidden("mode",0);
     fhidden("user_dir",$user_dir);
     fhidden("topic",4);
     ReadMarks();
     if (markExists($name)) {
-      fbutton("unmarkForRef","Unmark for updating reference",
+      fbutton("unmarkForRef","Unmark for updating reference data",
               "markForm.mode.value=1;UpdateSubmit('markForm')");
+      $destPref = getTrigPrefix(getMarkDestination($name));
+      print "<i>Currently set to update the</i> ${destPref} - " . $trigs[$destPref] . " <i>reference.</i><br>\n";
     } else {
       $histprefix = getTrigPrefix($name);
       print "<i>Reference applies to histograms for trigger types:</i> ";
@@ -111,7 +113,7 @@
     $opts = "";
   }
   
-  fstart("cutForm","refUpdater.php","QARnfr");
+  fstart2("cutForm","refUpdater.php","no");
   fhidden("topic",1);
   fhidden("name",$name);
   print "<table>\n";
@@ -217,11 +219,10 @@
   print "</div>\n<div id=\"jhelpers\">\n";
   
   jstart();
-  jsToggleSection();
   if ($edit) {
     ?>
     function UpdateSubmit(formToSub) {
-      setTimeout("document." + formToSub + ".submit()",0);
+      post_form(formToSub);
       str = "<?php print $strRunEdit1; ?>";
       setTimeout(str,250);
     }

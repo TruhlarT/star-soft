@@ -4,26 +4,13 @@
   
   getPassedInt("status");
   
-  head("QA Reference Histogram Status");
-  body();
-  
+  print "<div class=\"refStatusDiv\">\n";
   print "<h3>";
   switch ($status) {
     case 1 :
-      #print "Processing (this could take several minutes)....please wait...."; break;
-      inclR("ProgressBar.class.php");
-      print "Processing (this could take several minutes)....please wait....<hr>\n";
-      print "<img src=\"/~genevb/STARevent.gif\"><br><br>\n";
-      #$elements = 1;
-      #for ($cnt=0;$cnt<66;$cnt++) {
-      #  $bar = new ProgressBar("",true,0,400,20,"cornsilk","navy","progBar$cnt");
-      #  $bar->initialize($elements);
-      #  for($i=0;$i<$elements;$i++){
-      #    sleep(5);
-      #    $bar->increase();
-      #  }
-      #}
-      #print "This really seems to be taking too long."; break;
+      print "<center>Processing (this could take several seconds or  minutes, ";
+      print "depending on several factors)....please wait....<hr>\n";
+      print "<img src=\"/~genevb/STARevent.gif\"></center><br><br>\n";
       break;
 
     case -99 :
@@ -72,6 +59,7 @@
     print "<a href=\"mailto:gene@bnl.gov\">G. Van Buren</a>\n";
     logit("Error Status: ${status}");
   }
+
+  print "</div>\n";
   
-  foot();
 ?>

@@ -1,5 +1,5 @@
 <?php
-global $ents,$noent,$trigs;
+global $ents,$noent,$trigs,$fstreams;
 $ents = array(
   "FRP" => "Fast Offline Data",
   "RDP" => "Real Data Production",
@@ -19,15 +19,38 @@ $trigs = array(
   "XX" => "Other Physics"
 );
 
+$fstreams = array(
+  "ph" => "st_physics",
+  "mt" => "st_mtd",
+  "ht" => "st_ht",
+  "cp" => "st_centralpro",
+  "rp" => "st_rp"
+);
+
 
 function existsType($type) {
   global $ents;
-  return isset($ents[$type]);
+  return array_key_exists($type,$ents);
 }
 
 function existsTrigType($type) {
   global $trigs;
-  return isset($trigs[$type]);
+  return array_key_exists($type,$trigs);
+}
+
+function existsFStreamType($type,&$isAKey) {
+  global $fstreams;
+  $isAKey = array_key_exists($type,$fstreams);
+  return ($isAKey || in_array($type,$fstreams));
+}
+
+function FStreamSearch($type) {
+  global $fstreams;
+  # in place of array_search, allows st_ce to match st_centralpro
+  foreach ($fstreams as $k => $v) {
+    if (substr($v,0,strlen($type)) == $type) { return $k; }
+  }
+  return "";
 }
 
 function cmpTrigTypes($tt1,$tt2) {

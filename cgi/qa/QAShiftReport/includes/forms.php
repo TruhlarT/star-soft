@@ -1,13 +1,22 @@
 <?php
 # Forms HTML    
 				
-    function fstart($name,$action,$target="QArfr",$meth="POST",$auto=1,$onsub="") {
+    function fstart($name,$action="",$target="QArfr",$meth="POST",$auto=1,$onsub="") {
       global $webdir,$refphp;
-      print "<form name=\"${name}\" action=\"";
+      print "<form name=\"${name}\" id=\"${name}\" action=\"";
       if ($auto==1) { print $webdir; }
       print (strlen($action) ? $action : "${refphp}.php");
       print "\" method=\"${meth}\" target=${target}";
       if (strlen($onsub)) { print " onSubmit=\"$onsub\""; }
+      print ">\n";
+    }
+
+    function fstart2($name,$action="",$target="main",$onsub="") {
+      global $webdir,$refphp;
+      print "<form name=\"${name}\" id=\"${name}\" action=\"";
+      print (strlen($action) ? $action : "${refphp}.php");
+      print "\" target=${target}";
+      print " onSubmit=\"${onsub};return false;\"";
       print ">\n";
     }
 
@@ -49,10 +58,10 @@
 
 //print a radio button or checkbox
     function fradio($type, $element_name,
-                           $values, $element_value) {
+                           $default_value, $element_value) {
       print "<input type=\"${type}\" name=\"${element_name}\"" .
             " value=\"${element_value}\" ";
-      if ($element_value == $values[$element_name]) {
+      if ($element_value == $default_value) {
           print " checked=\"checked\"";
       }
       print "/>";

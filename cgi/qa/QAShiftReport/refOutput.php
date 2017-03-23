@@ -7,6 +7,7 @@
   global $DAEMON_OUTPUT_DIR,$URL_FOR_DAEMON_OUTPUT;
 
   getPassedVarStrict("inputfile");
+  getPassedVarStrict("fstream");
   getPassedVarStrict("format");
   getPassedVarStrict("user_dir");
   getPassedVar("newRefHists");
@@ -22,7 +23,7 @@
       $typ = ( $type == "GE" ? "" : $type );
       if (preg_match("/hist${typ}\.${format}/",$fname)) { return $type; }
     }
-    return 0;
+    return false;
   }
   
   function isRefOutput($fname) {
@@ -61,38 +62,39 @@
   $exists_stdout = file_exists($user_dir_str . "stdout.html");
   $exists_stderr = file_exists($user_dir_str . "stderr.html");
 
-  headR("QA Reference Output");
-  jstart();
-  jsToggleSection();
-  jend();
-  body();
-  
-  helpButton(3);
   $sectColor = $myCols[($exists_plots || $format=="none" ? "good" : "bad")];
 
+  print "<div id=\"outputLabel\" class=\"refNavig refPop refPopNavig\">\n";
+  print "<b>Output...</b>\n\n";
+  print "</div>\n\n";
+  print "<div id=\"outputOutline\" class=\"refContent refPopOutline\">\n";
+  print "<div id=\"outputContent\" class=\"refPop refPopContent\">\n";
+
+  helpButton(3);
+
   if ($format!="none") {
-  beginSection("plots","Output plots",800,$sectColor);
-  if ($exists_plots) {
-    foreach ($trigs as $type => $v) {
-      if (isset($stdFiles[$type])) {
-        mkhref2($urlstr . $stdFiles[$type],$trigs[$type],"new");
-        if (isset($refFiles[$type])) {
-          print "(";
-          mkhref2($urlstr . $refFiles[$type],"Ref","new");
-          print ")\n";
+    beginSection("plots","Output plots",800,$sectColor);
+    if ($exists_plots) {
+      foreach ($trigs as $type => $v) {
+        if (isset($stdFiles[$type])) {
+          mkhref2($urlstr . $stdFiles[$type],$v,"new");
+          if (isset($refFiles[$type])) {
+            print "(";
+            mkhref2($urlstr . $refFiles[$type],"Ref","new");
+            print ")\n";
+          }
+          print "<br>\n";
         }
-        print "<br>\n";
       }
+    } else {
+      print "<i>None found!</i>\n";
     }
-  } else {
-    print "<i>None found!</i>\n";
-  }
-  endSection();
-  linebreak();
+    endSection();
+    linebreak();
   } #Output plots if requested
   
   $sectColor = $myCols[($exists_stdout && $exists_stderr ? "good" : "bad")];
-  beginSection("logs","Logs",801,$sectColor);
+  beginSection("logs","Logs",802,$sectColor);
   print "Plotting:\n";
   if ($exists_stdout) {
     mkhref2("${urlstr}stdout.html","stdout","new");
@@ -120,30 +122,36 @@
   endSection();
   
   if ($exists_plots || $format=="none") {
-    fstart("statusForm","refShowAnalysis.php","QARmfr");
+    fstart2("statusForm","refShowAnalysis.php","main");
     fhidden("refID",$refID);
     fhidden("cutsID",$cutsID);
     fhidden("inputfile",$inputfile);
+    fhidden("fstream",$fstream);
     fhidden("page",0);
     fhidden("doPageCell",($format=="none" ? 0 : 1));
     fhidden("user_dir",$user_dir);
+    if (getPassedVarStrict("useRunsStr",1)) { fhidden("useRunsStr",$useRunsStr); }
+    if (getPassedInt("viewmode",1)) { fhidden("viewmode",$viewmode); }
     fhidden("newRefHists",$newRefHists);
     fhidden("refResults",$refResults);
     if ($combJob) { fhidden("combID",$combID); }
     if ($QAdebug) {
       linebreak();
-      fbutton("reDispButton","Re-display results","statsub()");
+      fbutton("reDispButton","Re-display results","post_form('statusForm')");
     }
   } else {
-    fstart("statusForm","refStatus.php","QARmfr");
+    fstart2("statusForm","refStatus.php","main");
     fhidden("status",-89);    
   }
   fend();
   
   jstart();
-  print "    function statsub() { document.statusForm.submit(); }\n";
-  print "    statsub();\n";
+  if ($format!="none") { print "    toggleSection('plots');\n"; }
+  print "    toggleSection('logs');\n";
+  print "    post_form('statusForm');\n";
+  print "    assignClicks();\n";
   jend();
 
-  foot(0,0);
-?>
+  print "</div></div>\n\n";
+
+  if (connectedDB()) { closeDB(); } ?>

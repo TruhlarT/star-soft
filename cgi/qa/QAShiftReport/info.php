@@ -6,6 +6,7 @@
 
 @(include "setup.php") or die("Problems (0).");
 incl("loadSession.php");
+incl("dbmembers.php");
 
 getPassedVarStrict("work");
 
@@ -40,6 +41,8 @@ if (substr($mode,0,1) != "E") {
 #Continue with Shift Info form
 head("STAR QA Shift Report Basic Info");
 
+jqry();
+
 body();
 
 fstart("basicInfo","saveEntry.php");
@@ -48,19 +51,39 @@ fstart("basicInfo","saveEntry.php");
 <h3>QA Shift Report Form: Shift Info</h3>
 
 <?php
-if (substr($mode,0,5) == "Error") {
-  $err = substr($mode,5);
-  print "<font color=\"red\">You have an invalid entry for ${err}! Please correct!</font><br>\n";
+$errant = (substr($mode,0,5) == "Error" ? substr($mode,8) : substr(errInfo($work),3));
+if (strlen($errant)>0) {
+  $errs = split($errTok,$errant);
+  foreach ($errs as $k => $err) {
+    print "<font color=\"red\">ERROR: You have "
+    . str_replace("_"," ",$err) . "! Please correct!</font><br>\n";
+  }
+}
+$membsInsts = getMembersInstitutions();
+$instList = "<option value=\"\">--- Institutions ---</option>\n";
+$membList = "<option value=\"\">--- People ---</option>\n";
+foreach ($membsInsts as $inst => $people) {
+  $inst2 = str_replace(" ","_",$inst);
+  $instList .= "<option value=\"${inst2}\">${inst}</option>\n";
+  foreach ($people as $l => $person) {
+    $lastName = $person[0];
+    $firstName = $person[1];
+    $membList .= "<option value=\"${firstName} ${lastName}\" class=\"${inst2}\">${lastName}, ${firstName}</option>\n";
+  }
 }
 ?>
 
 
-Name:
-<input name=name size=54 maxlength=60>
+Affiliation:
+<select name="affiliation" id="affiliation_id">
+<?php print $instList; ?>
+</select>
 <br>
 
-Affiliation:
-<input name=affiliation size=54 maxlength=60>
+Name:
+<select name="name" id="name_id">
+<?php print $membList; ?>
+</select>
 <br>
 
 Shift Date: 
@@ -103,8 +126,9 @@ TO THE TIME AT BNL (U.S. EASTERN TIME)!
 </font><br>
 
 Shift Location:
-<input name=location size=54 maxlength=60>
-(e.g. BNL, Kent State Univ., Subatech)
+<select name=location>
+<?php print str_replace("_"," ",$instList); ?>
+</select>
 <br>
 
 
@@ -121,7 +145,7 @@ print "</div></center>\n";
 fend();
 
 incl("fillform.php");
-fillform($shift);
+fillform($shift,"name_id","affiliation_id");
 reloadMenu();
 
 foot(); ?>

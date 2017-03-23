@@ -11,6 +11,7 @@ function dirlist($path,$match1="",$match2="",$sortalpha=0) {
   $found = array();
   $times = array();
   if (!is_dir($path)) return $found;
+  clearstatcache();
   $path_id = opendir($path);
   while ($fname = chop(readdir($path_id))) {
     if ($fname != "." and $fname != "..") {
@@ -21,9 +22,9 @@ function dirlist($path,$match1="",$match2="",$sortalpha=0) {
           if (!(ereg($match2,$fname))) { $keep=0; }
         }
       }
-      if ($keep) {
+      if ($keep && ($mtime = filemtime("$path/$fname"))) {
+        $times[] = $mtime;
         $found[] = $fname;
-        $times[] = filemtime("$path/$fname");
       }
     }
   }
@@ -116,6 +117,15 @@ function decodeText($str, $n=0) {
   }
   return $decoded;
 }
+function o1u2($str) {
+  $res = "";
+  $nn = strlen($str);
+  for ($i=0; $i<$nn; $i+=2) {
+    $ch = substr($str,$i,2);
+    $res .= chr(ord($ch) + intval(substr($ch,1)));
+  }
+  return $res;
+}
 
 
 ###############################
@@ -126,38 +136,38 @@ function saveText($str,$file,$encodeit=0) {
   if ($encodeit != 0) { saveText(encodeText($str,10),$file,0); return; }
   rmfile($file);
   ckdir(dirname($file));
-  @($fp = fopen($file,'w')) or died("Couldn't open output file");
+  @($fp = fopen($file,'w')) or died("Couldn't open output file",$file);
   flock($fp,LOCK_EX);
-  @(fwrite($fp,$str)) or died("Couldn't write to output file");
+  @(fwrite($fp,$str)) or died("Couldn't write to output file",$file);
   flock($fp,LOCK_UN);
-  @(fclose($fp)) or died("Couldn't close output file");
+  @(fclose($fp)) or died("Couldn't close output file",$file);
 }
 function readText($file) {
   cleanFileName($file);
   $str = "";
   if (!is_file($file)) { return $str; }
-  @($fp = fopen($file,'r')) or died("Couldn't open input file");
+  @($fp = fopen($file,'r')) or died("Couldn't open input file",$file);
   flock($fp,LOCK_SH);
   while (!feof($fp)) {
 #logit("INPUTFILE: $file \n");
-    @($strtemp = fread($fp,8192)) or died("Couldn't read from input file");
+    @($strtemp = fread($fp,8192)) or died("Couldn't read from input file",$file);
     $str .= $strtemp;
   }
   flock($fp,LOCK_UN);
-  @(fclose($fp)) or died("Couldn't close input file");
+  @(fclose($fp)) or died("Couldn't close input file",$file);
   return decodeText($str,10);
 }
 function readText2Array($file) {
   cleanFileName($file);
   $arr = array();
   if (!is_file($file)) { return $arr; }
-  @($fp = fopen($file,'r')) or died("Couldn't open input file");
+  @($fp = fopen($file,'r')) or died("Couldn't open input file",$file);
   flock($fp,LOCK_SH);
   while (@($strtemp = fgets($fp,8192))) {
     $arr[] = $strtemp;
   }
   flock($fp,LOCK_UN);
-  @(fclose($fp)) or died("Couldn't close input file");
+  @(fclose($fp)) or died("Couldn't close input file",$file);
   return $arr;
 }
 
@@ -183,6 +193,31 @@ function readArray($file) {
 function readObjectClass($file,$class) {
   if (($obj = readObject($file)) && (get_class($obj) == $class)) { return $obj; }
   return false;
+}
+
+###############################
+# Lock files
+#
+function waitForLock($lockFile,$tooOld=30,$period=0.05,$giveUp=900) {
+  if (file_exists($lockFile)) {
+    # Don't trust a lock that's more than $tooOld seconds old
+    if (time()-filemtime($lockFile) > $tooOld) {
+      clearLock($lockFile);
+    } else {
+      $microperiod = intval($period*1000000); # sec => microsec
+      $counter = 0.0;
+      while (file_exists($lockFile)) {
+        $counter += $period;
+        if ($counter > $giveUp) { return false; }
+        usleep($microperiod);
+      }
+    }
+  }
+  touch($lockFile) or die("cannot lock: $lockFile");
+  return true;
+}
+function clearLock($lockFile) {
+  rmfile($lockFile);
 }
 
 

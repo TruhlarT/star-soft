@@ -43,6 +43,23 @@
     }
     return $vers;
   }
+
+  function getRunYearTrigVersList() {
+    # Build a full array hierarchy for (year, trig, vers)
+    $qry = "SELECT `runYear`,`trig`,`vers`,`id`,`entryTime` " . fromWhereYTV() . " ORDER BY 1 DESC, 2 ASC, 3 DESC";
+    $res = queryDB($qry);
+    $ytv = array();
+    while ($row = nextDBrow($res)) {
+      $kr = $row['runYear'];
+      $kt = $row['trig'];
+      if (! isset($ytv["$kr"])) { $ytv["$kr"] = array(); }
+      if (! isset($ytv["$kr"]["$kt"])) { $ytv["$kr"]["$kt"] = array(); }
+      $ytv["$kr"]["$kt"][$row['vers']] = array("id" => $row['id'],
+                                        "entryTime" => $row['entryTime']);
+    }
+    return $ytv;
+  }
+
   
   function getNextVers($runYear,$trig) {
     $vers = getVersList($runYear,$trig);
@@ -108,13 +125,13 @@
     $res = queryDB($qry);
 
     # write file segment-by-segment
-    @($fp = fopen($file,"wb")) or died("Problems (24).");
+    @($fp = fopen($file,"wb")) or died("Problems (24).",$file);
     flock($fp,LOCK_EX);
     while ($row = nextDBrow($res)) {
-      @(fwrite($fp,$row['data'])) or died("Problems (25).");
+      @(fwrite($fp,$row['data'])) or died("Problems (25).",$file);
     }
     flock($fp,LOCK_UN);
-    @(fclose($fp)) or died("Problems (26).");
+    @(fclose($fp)) or died("Problems (26).",$file);
 
     return filesize($file);
   }
@@ -128,7 +145,7 @@
     $newRefs = $user_dir1;
     if ($allOrSome) {
       # update some reference histograms
-      @(checkMarksExist($user_dir)) or died("Problems (30).");
+      @(checkMarksExist($user_dir)) or died("Problems (30).",$user_dir);
       readMarks($user_dir);
       $_pos = strrpos($user_dir,"_");
       $user = substr($user_dir,0,$_pos);
@@ -143,11 +160,11 @@
       $newRefs .= "/resultHists.root";
     }
     
-    @($fp = fopen($newRefs,"rb")) or died("Problems (27).");
+    @($fp = fopen($newRefs,"rb")) or died("Problems (27).",$newRefs);
     flock($fp,LOCK_SH);
-    @($data = escapeDB(@fread($fp,@filesize($newRefs)))) or died("Problems (28)."); 
+    @($data = escapeDB(@fread($fp,@filesize($newRefs)))) or died("Problems (28).",$newRefs); 
     flock($fp,LOCK_UN);
-    @(fclose($fp)) or died("Problems (29).");
+    @(fclose($fp)) or died("Problems (29).",$newRefs);
 
     $user = readUserName($user_dir);
     $qry = "INSERT INTO $dbRefSetTable (`runYear`,`trig`,`vers`,`user`,`comments`)"

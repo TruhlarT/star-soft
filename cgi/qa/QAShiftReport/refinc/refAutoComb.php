@@ -24,7 +24,13 @@
     return "";
   }
   
-  function getAutoCombInfo($autoID) {
+  function prepAutoCombStr2Arr($str) {
+    $arr = split(" ",$str);
+    if (substr($arr[2],0,3) == "st_") { $arr[2] = substr($arr[2],3); }
+    return $arr;
+  }
+
+  function getAutoCombInfo($autoID,$fstream=QAnull) {
     global $autoIndex;
     (file_exists($autoIndex)) or died("No autoComb list found");
     $inputfull = readText($autoIndex);
@@ -32,20 +38,28 @@
     $tok = strtok($inputfull,$tokens);
     $found = false;
     $cnt = 0;
+    $results = array();
     while ((! $found) && ($tok !== false)) {
-      // Either the start or end of the line...
-      if ((preg_match("/ ${autoID}$/",$tok)) || (preg_match("/^${autoID} /",$tok))) {
+      // For all file streams, match start (run number) of the line...
+      if ($fstream == "all" && (preg_match("/^${autoID} /",$tok))) {
+        $results[] = prepAutoCombStr2Arr($tok);
+      }
+      // Either the end (tag) or start (run number) of the line...
+      if ((preg_match("/ ${autoID}$/",$tok)) || 
+          ((preg_match("/^${autoID} /",$tok)) &&
+           ($fstream==QAnull || (preg_match("/ ${fstream} /",$tok))))) {
         $found = true;
       } else {
         $tok = strtok($tokens);
         ($cnt++ < 4096) or died("Reading autoComb list not sane");
       }
     }
+    if ($fstream == "all") { return $results; }
     if (! $found) {
-      logit("Run not found in autoComb list");
+      logit("Run not found in autoComb list: $autoID , $fstream");
       $tok = "-1 0 0 0";
     }
-    return split(" ",$tok);
+    return prepAutoCombStr2Arr($tok);
   }
   
   function getAutoCombRun($autoID) {

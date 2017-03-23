@@ -21,31 +21,44 @@ class qaentry {
     $this->type = $typ;
     $this->issues = array();
     $this->info = array(
-      "runid"     => "0000000",
+      "runid"     => array(),
       "prodid"    => "0",
       "prodstat"  => "ok",
       "fseq"      => "NA",
       "nevents"   => "0",
       "nprivs"    => "0",
       "jobstat"   => "ok",
-      "rcomments" => ""
+      "rcomments" => "",
+      "fstream"   => ""
     );
   }
 
   function Fill($passed) {
     # Only allow info element and issues (xID)
+    # Use runidN for multiple run numbers
+    $this->CheckRunId();
+    $initRunIds = true;
     foreach ($passed as $key => $val) {
       if (substr($key,0,1) == "x") {
         $id = substr($key,1);
         if (cleanInt($id)) { $this->AddIssue($id); }
-      } elseif (isset($this->info[$key])) {
+      } elseif (substr($key,0,5) == "runid") {
+        $rk = (strlen($key) > 5 ? substr($key,5) : 0);
+        if (cleanInt($val) && ($val > 0)) {
+          if ($initRunIds) {
+            $this->info["runid"] = array();
+            $initRunIds = false;
+          }
+          $this->info["runid"][$rk] = $val;
+        }
+      } elseif (array_key_exists($key,$this->info)) {
         # Be strict about types
         switch($key) {
-          case "runid"     :
           case "nevents"   :
           case "nprivs"    : cleanInt($val); break;
           case "prodid"    :
           case "fseq"      :
+          case "fstream"   :
           case "jobstat"   : cleanStrict($val); break;
           default          :
         }
@@ -56,6 +69,14 @@ class qaentry {
 
   function HasRunId() {
     return (($this->type != "MDP") && ($this->type != "MNT"));
+  }
+
+  function CheckRunId() {
+    # To handle backward compatibility of old persistant instances
+    $runid = $this->info["runid"];
+    if (! is_array($runid)) {
+      $this->info["runid"] = (intval($runid) > 0 ? array($runid) : array());
+    }
   }
   
   function AddIssue($id) {
@@ -88,15 +109,25 @@ class qaentry {
     $str = "-----------------------------------------------------------------------";
     $str .= "\nData Entry for " . $ents[$this->type] . ":\n";
     if ($this->HasRunId()) {
-      $str .= "\n   Run ID:                                 " . $this->info["runid"];
+      $this->CheckRunId();
+      if (count($this->info["runid"])) {
+        $str .= "\n   Run Number(s):                          " . implode(",",$this->info["runid"]);
+      }
     }
-    $str .= "\n   File Sequence number:                   " . $this->info["fseq"];
-    $str .= "\n   Production Job ID:                      " . $this->info["prodid"];
-    $str .= "\n   Production job status (OK or crashed?): " . $this->info["prodstat"];
+    if (existsTrigType($this->info["fseq"])) {
+      $str .= "\n   Trigger Type:                           " . $this->info["fseq"];
+    } else {
+      $str .= "\n   File Sequence number:                   " . $this->info["fseq"];
+    }
+    $str .= "\n   File stream:                            " . formatFStream($this->info["fstream"]);
+    if ($this->info["prodid"] > 0) {
+      $str .= "\n   Production Job ID:                      " . $this->info["prodid"];
+      $str .= "\n   Production job status (OK or crashed?): " . $this->info["prodstat"];
+      $str .= "\n   QA job status (OK or crashed?):         " . $this->info["jobstat"];
+    }
     $str .= "\n   Number of events in this file:          " . $this->info["nevents"];
     $str .= "\n   Number of events with reconstructed";
     $str .= "\n      primary vertex:                      " . $this->info["nprivs"];
-    $str .= "\n   QA job status (OK or crashed?):         " . $this->info["jobstat"];
     if (strlen($this->info["rcomments"]) > 0) {
       $str .= "\n\n   Comments for this run:\n\n";
       $str .= $this->info["rcomments"] . "\n";
@@ -119,9 +150,21 @@ class qaentry {
   }
   
   function Anchor() {
-    return $this->type . "_" . formatRun($this->info["runid"])
-                       . "_" . formatFseq($this->info["fseq"]);
+    $this->CheckRunId();
+    return AnchorTRFS($this->type,$this->info["runid"][0],
+                      $this->info["fseq"],$this->info["fstream"]);
   }
+
+  function Headline($delim) {
+    $this->CheckRunId();
+    #return HeadlineRFS($this->info["runid"][0],$this->info["fseq"],$this->info["fstream"]);
+    $runHeadlines = array();
+    foreach ($this->info["runid"] as $runid) {
+      $runHeadlines[] = HeadlineRFS($runid,$this->info["fseq"],$this->info["fstream"]);
+    }
+    return implode($delim,$runHeadlines);
+  }
+
   function Html() {
     $str = "<a name=\"". $this->Anchor() . "\">\n<pre>";
     $str .= preserve_wordwrap(htmlentities(stripslashes($this->InfoText())),75,chr(10));
@@ -188,7 +231,10 @@ function readEntry($typ,$num=-1) {
   $file = "";
   if ($num == -1) { $file = tempEntry(); }
   else { $file = fileEntry($typ,$num); }
-  return readObjectEntry($file);
+  #return readObjectEntry($file);
+  $entr = readObjectEntry($file);
+  $entr->CheckRunId();
+  return $entr;
 }
 
 function formatFseq($var) {
@@ -198,5 +244,24 @@ function formatRun($var) {
   $rundigits = (intval($var)>9999999 ? 8 : 7);
   return nDigits($rundigits,$var);
 }
+function formatFStreamLink($var) {
+  global $fstreams;
+  $isAKey = false;
+  return (existsFStreamType($var,$isAKey) ? "_" . ($isAKey ? $var : array_search($var)) : "" );
+}
+function formatFStream($var) {
+  global $fstreams;
+  $isAKey = false;
+  return (existsFStreamType($var,$isAKey) ? ($isAKey ? $fstreams[$var] : $var) : "" );
+}
+function AnchorTRFS($type,$run,$fseq,$fstream) {
+  return $type . "_" . formatRun($run)
+               . "_" . formatFseq($fseq)
+                     . formatFStreamLink($fstream);
+}
+function HeadlineRFS($run,$fseq,$fstream) {
+  return formatRun($run) . " / " . formatFseq($fseq) . " / " . formatFStream($fstream);
+}
+
 
 ?>

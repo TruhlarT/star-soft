@@ -6,9 +6,10 @@
   
   $incdir = "../QAShiftReport/includes/";
   @(include_once $incdir . "base.php") or die("Problems (1).");
+  incl("sections.php");
 
   # Base directory for working on reports:
-  $bdir = "/home/users/starweb/WWW/tmp/QARefHists/";
+  $bdir = $bdir_base . "QARefHists/";
   $url_bdir = "/~starweb/tmp/QARefHists/";
   
   # Reference cache "user"
@@ -16,7 +17,7 @@
 
   # Daemon output locations:
   $DAEMON_OUTPUT_DIR = "/afs/rhic.bnl.gov/star/users/starqa/WWW/QA/";
-  $URL_FOR_DAEMON_OUTPUT = "http://www.star.bnl.gov/~starqa/QA/";
+  $URL_FOR_DAEMON_OUTPUT = "https://www.star.bnl.gov/~starqa/QA/";
 
   # Log file
   $elog = $bdir . "log/QARefLog.txt";
@@ -29,6 +30,7 @@
   # Additional DBs
   $FOdb = "operation";
   $dbDAQInfo = "DAQInfo";
+  $dbFOFileType = "FOFileType";
   $dbFOTrig = "FOTriggerSetup";
   $dbFOLoc = "FOLocations";
   $dbFODets = "FODetectorTypes";
@@ -55,6 +57,18 @@
     // remove line feeds
     $user = preg_replace("\r*\n*","",readText("${DAEMON_OUTPUT_DIR}${dir}/user.txt"));
     return (cleanStrict($user) ? $user : "unknown");
+  }
+  function readVerts($dir) {
+    global $DAEMON_OUTPUT_DIR;
+    $matches = array();
+    $trgVerts = array();
+    $nm = preg_match_all("/([A-Z][A-Z]) QA Events \(found vtx\/total\) (\d+) \/ (\d+)/",
+            readText("${DAEMON_OUTPUT_DIR}${dir}/stdout.html"),$matches);
+    for ($k =0; $k < $nm; $k++) {
+      $type = $matches[1][$k];
+      if (existsTrigType($type)) { $trgVerts[$type] = array($matches[2][$k],$matches[3][$k]); }
+    }
+    return $trgVerts;
   }
 
 
@@ -99,7 +113,7 @@
       else { if (cfr.QARwins[QARnam].closed || !(cfr.QARwins[QARnam].document)) { opennew = true; } }
       if (opennew) {
         ops = 'fullscreen=yes,toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes'; 
-        cfr.QARwins[QARnam]=cfr.open('blank.html',QARnam,ops); 
+        cfr.QARwins[QARnam]=cfr.open('blank.php',QARnam,ops); 
         cfr.QARwins[QARnam].resizeTo(550,350);
       }
       setTimeout('document.forms.' + form + '.submit()',50);
@@ -108,10 +122,30 @@
 <?php
     jend();
   }
+  function headR2($title) {
+    head($title);
+    jstart();
+    ?>
+    var QARwins = new Object;
+    function loadWindow(form,QARnam) {
+      opennew = false;
+      if (typeof(QARwins[QARnam]) != "object") { opennew = true; }
+      else { if (QARwins[QARnam].closed || !(QARwins[QARnam].document)) { opennew = true; } }
+      if (opennew) {
+        ops = 'fullscreen=yes,toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes'; 
+        QARwins[QARnam]=window.open('blank.php',QARnam,ops); 
+        QARwins[QARnam].resizeTo(550,350);
+      }
+      setTimeout('document.forms.' + form + '.submit()',50);
+      QARwins[QARnam].focus();
+    }
+<?php
+    jend();
+  }
   function helpButton($topic) {
     if (!cleanInt($topic)) { return; }
     $rtmrgn = ($topic>10 ? 20 : 5);
-    print "<div id=\"helpButton${topic}\" style=\"position:absolute; top:3px; right:${rtmrgn}px; z-index:1020; \">\n";
+    print "<div id=\"helpButton${topic}\" class=\"refHelpButton\" style=\"position:absolute; top:3px; right:${rtmrgn}px; z-index:1020; \">\n";
     fstart("helpForm${topic}","refHelp.php","QARhelp");
     fhidden("topic",$topic);
     fbutton("Help${topic}","Help","loadWindow('helpForm${topic}','QARhelp')");

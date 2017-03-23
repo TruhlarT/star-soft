@@ -67,7 +67,7 @@ class qaissue {
   # Can only add entry types this issue has been seen in.
   function InsureType($typ) {
     if ($this->HasType($typ)) { return; }
-    (existsType($typ)) or died("Setting invalid type for issue.");
+    (existsType($typ)) or died("Setting invalid type for issue.",$typ);
     $this->times[$typ] = 1;
   }
   
@@ -310,7 +310,7 @@ function superCategoryID($id) {
 
 function printCategorySelector($name,$issue=0,$selID=0) {
   $id = ($issue ? $issue->GetTagCategoryID() : $selID);
-  $str = "<select name=${name}>\n";
+  $str = "<select name=${name} onchange=\"fillIssueTemplate()\">\n";
   if ($issue == 0) $str .= "<option value=0>-</option>\n";
   foreach (getTypedTagsList("Categories") as $k => $v) {
     $str .= "<option value=${k}";
@@ -640,7 +640,7 @@ function getIssDir() {
 }
 function getIssFile($id) { return getIssDir() . "${id}.data"; }
 function getIssIndex($typ) {
-  (($typ == QAnull) || (existsType($typ))) or died("Invalid issue type.");
+  (($typ == QAnull) || (existsType($typ))) or died("Invalid issue type.",$typ);
   return getIssDir() . ".typ${typ}index";
 }
 function getIssIndexP($typ) { return getIssIndex($typ) . "P"; }

@@ -38,20 +38,26 @@
                    'EntryDate' => 0,
                    'DiskLoc' => 0,
                    'eDate' => "",
-                   'year' => $known_yr);
+                   'year' => $known_yr,
+                   'fstream' => "");
     if (strlen($inputfile)) {
       if (isRunNum($inputfile)) {
         $finfo['runNumber'] = $inputfile;
       } else {
-        global $FOdb,$dbDAQInfo;
+        global $FOdb,$dbDAQInfo,$dbFOFileType;
         $year = ($known_yr === false ? getCurrentRunYear() : 2);
         $yr = ($known_yr === false ? "" : $known_yr);
         $ifile = assureDaq($inputfile);
         selectDB($FOdb);
         # loop over run years
         while ($year > 1 && $finfo['runNumber'] == 0) {
-          $qry = "SELECT `runNumber`,`ExecDate`,`EntryDate`,`DiskLoc`,`EntryDate`+0 as eDate"
-          . " FROM ${dbDAQInfo}${yr} WHERE `file`='${ifile}' ORDER BY `EntryDate` DESC LIMIT 1";
+          $dbFTY = $dbFOFileType . $yr;
+          $dbDIY = $dbDAQInfo . $yr;
+          $proxyExec = ($year > 5 ? "" : "`EntryDate` AS "); # no ExecDate before Y6
+          $qry = "SELECT `runNumber`,${proxyExec}`ExecDate`,"
+          . "`EntryDate`,`DiskLoc`,`EntryDate`+0 AS `eDate`,"
+          . "(SELECT `Label` FROM $dbFTY WHERE ${dbFTY}.`id` = ${dbDIY}.`ftype`) AS `fstream`"
+          . " FROM $dbDIY WHERE `file`='${ifile}' ORDER BY `EntryDate` DESC LIMIT 1";
           $row = queryDBfirst($qry);
           if ($row === 0) {
             if (!($known_yr === false)) {
@@ -96,6 +102,12 @@
     }
     $yr = ($year >= $curYear ? "" : "_Y${year}");
     selectDB($FOdb);
+    if (!existsDBtable($dbFOTrig . $yr)) {
+      # fallback to current year if old year doesn't exist
+      (existsDBtable($dbFOTrig)) or
+        died("Problems (40).","$dbFOTrig $year $curYear");
+      $yr = "";
+    }
     $qry = "SELECT `Label` FROM ${dbFOTrig}${yr} WHERE `id`="
     . "(SELECT `TrgSetup` FROM ${dbDAQInfo}${yr} WHERE `runNumber`=${runNumber} LIMIT 1)";
     $row = queryDBfirst($qry);
@@ -108,10 +120,16 @@
     global $FOdb,$dbDAQInfo,$dbFOTrig;
     $yr = ($runYear == getCurrentRunYear() ? "" : "_Y${runYear}");
     selectDB($FOdb);
-    $qry = "SELECT `Label`,(SELECT `runNumber` FROM ${dbDAQInfo}${yr} WHERE "
-    . "${dbDAQInfo}${yr}.TrgSetup=${dbFOTrig}${yr}.id ORDER BY `runNumber` DESC LIMIT 1)"
-    . " AS maxrun FROM ${dbFOTrig}${yr} WHERE `Label` LIKE \"%prod%\" "
-    . "AND `Label` NOT LIKE \"%test%\" ORDER BY maxrun DESC";
+    if (!existsDBtable($dbFOTrig . $yr)) {
+      # fallback to current year if old year doesn't exist
+      (existsDBtable($dbFOTrig)) or
+        died("Problems (40).","$dbFOTrig $year $curYear");
+      $yr = "";
+    }
+    $qry = "SELECT FO.`Label`,MAX(DI.`runNumber`) AS `maxrun` FROM ${dbDAQInfo}${yr}"
+    . " AS DI JOIN ${dbFOTrig}${yr} AS FO ON DI.`TrgSetup`=FO.`id` WHERE"
+    . " FO.`Label` LIKE \"%prod%\" AND FO.`Label` NOT LIKE \"%test%\""
+    . " GROUP BY 1 ORDER BY 2 DESC";
     $result = queryDBarray($qry,"Label");
     selectDB();
     return $result;
@@ -128,17 +146,24 @@
 
   function recordStatusForFiles($user,$files) {
     global $dbFOHistory,$rStatus,$fileInfo;
+    if (count($files) < 1) {
+      logit("Trying to record status for 0 files, user:${user}");
+      return;
+    }
     getPassedVarStrict("rStatus");
     $updated = ($rStatus === "bad" ? "B" : "N");
     buildFileInfo($files);
+    $qryArray = array();
     foreach ($files as $k => $file) {
       $ifile = stripDaq($file);
       $diskLoc = $fileInfo[$ifile]['DiskLoc'];
       $eDate = $fileInfo[$ifile]['eDate'];
-      $qry = "INSERT DELAYED INTO $dbFOHistory (`examiner`,`entryDate`,`file`,`DiskLoc`,`updated`)"
-      . " VALUES ('${user}','${eDate}','${ifile}','${diskLoc}','${updated}')";
-      queryDb($qry);
+      $qryArray[] = "('${user}','${eDate}','${ifile}','${diskLoc}','${updated}')";
     }
+    #$qry = "INSERT DELAYED INTO $dbFOHistory (`examiner`,`entryDate`,`file`,"
+    $qry = "INSERT INTO $dbFOHistory (`examiner`,`entryDate`,`file`,"
+      . "`DiskLoc`,`updated`) VALUES " . implode(",",$qryArray);
+    queryDb($qry);
   }
   
   

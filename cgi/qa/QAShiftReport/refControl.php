@@ -18,8 +18,8 @@
   $formats = array("ps" => "PostScript",
                    "pdf" => "PDF",
                    "none" => "none");
-  $histGroups = array("reg" => "Regular QA",
-                      "TPCsectors" => "TPC sectors",
+  $histGroups = array("reg" => "QA Shift",
+                      "TPCsectors" => "TPC Sectors",
                       "all" => "All");
   
   $combID = -1;
@@ -39,71 +39,63 @@
     $soFarStr = runLogLink() . ", using file ${inputfile}<br>\n";
   } else if ($oooer === "autoRef") {
     getPassedVarStrict("useRun");
-    $inputfile = $useRun;
-    $soFarStr = getAutoCombStr($useRun);
+    if (substr($useRun,0,2) === "go") {
+      $useRun = substr($useRun,2);
+      $status = 2;
+    }
+    $soFarStr = getAutoCombStr($useRun,$inputfile);
   } else if ($oooer === "viewRef") {
     $useRuns[] = getLastExaminedRun();
   } else {
-    header("location: ${webdir}blank.html");
+    header("location: ${webdir}blank.php");
     exit;
   }
 
 
-  headR("STAR QA Reference Histograms Control");
-  ?>
-
-<style type="text/css">
-<!--
-a.items:link {color: navy; text-decoration: none; }
-a.items:visited {color: navy; text-decoration: none; }
-a.items:active {color: tomato; text-decoration: none; }
-a.items:hover {color: maroon; text-decoration: none; }
--->
-</style>
-
-<?php
-  
-  
   jstart();
   initRefSelectors(2,$useRuns[0]);  
   ?>
-    function prepReady(val) {
+    function prepReady2(val) {
       document.showInfoForm.refID.value = val;
       document.analyzeForm.refID.value = val;
     }
     function prepAnalysis() {
-      aForm = document.analyzeForm;
-      cForm = document.choiceForm;
-      aForm.format.value = cForm.format.value;
-      aForm.whichHist.value = cForm.whichHist.value;
-      document.waitForm.submit();
-      aForm.submit();
-      window.parent.setFirst();
+      hidePops();
+      clear_div("output");
+      setQATitle("processing...");
+      post_form("waitForm");
+      cForm = document.choice2Form;
+      cWhichHist = cForm.whichHist.value;
+      if (cWhichHist.substring(0,3) == 'det') {
+        document.analyzeForm.viewmode.value = 11;
+      }
+      post_form("analyzeForm",'format',cForm.format.value,'whichHist',cWhichHist);
+      page_entry = false;
     }
     function noAnalysis() {
       refID = document.analyzeForm.refID.value;
-      prepReady(-999);
+      prepReady2(-999);
       prepAnalysis();
-      setTimeout('prepReady(' + refID + ');',300);
+      setTimeout('prepReady2(' + refID + ');',300);
     }
-    function backToQA(val) {
-      bForm = document.backForm;
-      bForm.formNumber.value = val;
-      bForm.submit();
+    function backToQA(formNumber) {
+      submit_form('backForm','formNumber',formNumber);
     }
 <?php
-  jsToggleSection();
   jend();
 
-  body();
-  # /cgi-bin/protected/starqa/qa?textUserName=${textUserName}&commas=no&formNumber=2&radioMainMenu=fastOffline
-  helpButton(1);
   
-  print "<h3>Controls...</h3>\n\n";
+  print "<div id=\"controlLabel\" class=\"refNavig refPop refPopNavig\">\n";
+  print "<b>Controls...</b>\n\n";
+  print "</div>\n\n";
+  print "<div id=\"controlOutline\" class=\"refContent refPopOutline\">\n";
+  print "<div id=\"controlContent\" class=\"refPop refPopContent\">\n";
+
+  helpButton(1);
 
   beginSection("backers","Go back",1017,"cornsilk");
   fstart("backForm","/cgi-bin/protected/starqa/qa","_top","GET",0);
-  foreach ( $_GET as $k => $v ) {
+  foreach ( $_POST as $k => $v ) {
     $first6 = substr($k,0,6);
     if (! (($first6 === "useRun") ||
            ($first6 === "formNu") ||
@@ -118,19 +110,19 @@ a.items:hover {color: maroon; text-decoration: none; }
   endSection();
 
   if ($status > 0) {
-    fstart("choiceForm","refControl.php");
+    fstart2("choice2Form");
 
     beginSection("referencers","Select a reference set",1015,"cornsilk");
     $lcnt = selectYTV();
     endSection();
 
-    print "<div style=\"background-color:" . $myCols["emph"] . "; display: table; border: 2px solid rgb(0, 64, 128); \">\n";
+    print "<div id=\"plotAnalyze\" style=\"background-color:" . $myCols["emph"] . "; display: table; border: 2px solid rgb(0, 64, 128); \">\n";
     if (!($oooer === "viewRef")) { fbutton("noRef","Plots Only","noAnalysis()"); print " | "; }
-    print "<span id=\"refSelected\" style=\"display:none\">\n";
+    print "<span id=\"refSelected2\" style=\"display:none\">\n";
     fbutton("analyze","Analyze","prepAnalysis()");
     fbutton("showInfo","Show Set Info","loadWindow('showInfoForm','QARinfo')");
     print "</span>\n";
-    print "<span id=\"refNotSelected\" style=\"display:inline\"><i>reference not selected</i>&nbsp;</span>\n";
+    print "<span id=\"refNotSelected2\" style=\"display:inline\"><i>reference not selected</i>&nbsp;</span>\n";
     print "</div>\n";
     
     beginSection("optioners","Plotting options",1016,"cornsilk");
@@ -147,12 +139,13 @@ a.items:hover {color: maroon; text-decoration: none; }
       if ($k == $whichHist) print " selected";
       print ">${v}</option>\n";
     }
-    $useRunsStr = implode("_",$useRuns);
-    $detList = getDetList($useRunsStr);
+    $detList = getDetList();
+    if (count(array_intersect(array("pxl","ist","sst"),$detList)))
+      $detList[] = "hft";
     foreach ($detList as $k => $v) {
       print "<option value=\"det${v}\">Subsystem: ${v}</option>\n";
     }
-    print "</select>)\n";
+    print "</select>\n";
     print "</font>\n\n";
     endSection();
 
@@ -164,16 +157,18 @@ a.items:hover {color: maroon; text-decoration: none; }
     fend();
     
     # For starting the analysis:
-    fstart("analyzeForm","refAnalyze.php","QARnfr");
+    fstart2("analyzeForm","refAnalyze.php","no");
     fhidden("inputfile",$inputfile);
     fhidden("format",$fileFormat);
     fhidden("user",$textUserName);
     fhidden("whichHist",$whichHist);
     fhidden("refID","-1");
     fhidden("combID",$combID);
-    if (!($oooer === "viewRef")) fhidden("useRuns",$useRunsStr);
+    if (!($oooer === "viewRef")) { fhidden("useRunsStr",$useRunsStr); }
+    if (strlen($stream)) { fhidden("stream",$stream); }
+    fhidden("viewmode",($status == 2 ? "11" : "1"));
     fend();
-    fstart("waitForm","refStatus.php","QARmfr");
+    fstart2("waitForm","refStatus.php","main");
     fhidden("status","1");
     fend();
   }
@@ -190,12 +185,11 @@ a.items:hover {color: maroon; text-decoration: none; }
     jstart();
     print "    toggleSection('referencers');\n";
     print "    toggleSection('optioners');\n";
-    print "    toggleSection('flisters');\n";
-    if ($combID>=0) {
-      print "    window.parent.fsHideSize = 55;\n";
-      print "    window.parent.fsShowSize = 350;\n";
-    }
+    if (!($oooer === "viewRef")) { print "    toggleSection('flisters');\n"; }
+    if ($status == 2) { print "    noAnalysis(); setTimeout('hidePops();',500);\n"; }
     jend();
   }
 
-  foot(0,0); ?>
+  print "</div></div>\n\n";
+
+  if (connectedDB()) { closeDB(); } ?>

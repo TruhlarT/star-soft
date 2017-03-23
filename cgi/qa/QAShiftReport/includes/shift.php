@@ -4,6 +4,7 @@ global $shiftCookie,$dirCookie;
 
     $shiftCookie = "QAShiftSessionName";
     $dirCookie = "QAShiftDirName";
+    $localShiftSesName = "";
 
     incl("cookies.php");
 
@@ -15,15 +16,22 @@ global $shiftCookie,$dirCookie;
       }
     }
     function getSesName() {
-      global $shiftCookie,$undef;
-      $name = getCookie($shiftCookie);
-      #if (!is_dir(getSesDir($name))) { return $undef; }
-      if (strlen($name) < 2) { return $undef; }
-      return $name;
+      global $shiftCookie,$localShiftSesName,$undef;
+      if ($localShiftSesName == $undef) {
+        $name = getCookie($shiftCookie);
+        #if (!is_dir(getSesDir($name))) { return $undef; }
+        if (strlen($name) > 1) { $localShiftSesName = $name; }
+      }
+      return $localShiftSesName;
     }
     function eraseSesName() {
       global $shiftCookie;
       eraseCookie($shiftCookie);
+      eraseLocalShiftSesName();
+    }
+    function eraseLocalShiftSesName() {
+      global $localShiftSesName,$undef;
+      $localShiftSesName = $undef;
     }
     function getWrkDir() {
       global $bdir;
@@ -47,4 +55,5 @@ global $shiftCookie,$dirCookie;
       else { if (file_exists($file)) { unlink($file); } }
     }
 
+    eraseLocalShiftSesName();
 ?>
