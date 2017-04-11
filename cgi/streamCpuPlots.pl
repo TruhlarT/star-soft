@@ -1301,7 +1301,7 @@ END
  @rthltgood= ();
  @rtwb = ();
  @rtrp = ();
- @rtssdmb ();
+ @rtssdmb = ();
 
       if($qprod eq "P15i.2014" ) {
 
