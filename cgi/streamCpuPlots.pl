@@ -75,7 +75,7 @@ my $jbTottime;
 my $jbextime;
 my $precpu;
 
-my $pryear = "2014";
+my $pryear = "2016";
 
 my %rte = {};
 my %nstr = {};
@@ -101,6 +101,7 @@ my @arfgt  = ();
 my @arhltgood  = ();
 my @arwb  = ();
 my @arrp  = ();
+my @arssdmb = ();
 
 my @ndate = ();
 my $ndt = 0;
@@ -122,6 +123,7 @@ my @nsthimult  = ();
 my @nsthltgood  = ();
 my @nstwb = ();
 my @nstrp = ();
+my @nstssdmb = ();
 
 my @rtgamma = ();
 my @rtmtd = ();
@@ -139,6 +141,7 @@ my @rthimult  = ();
 my @rthltgood  = ();
 my @rtwb = ();
 my @rtrp = ();
+my @rtssdmb = ();
 
 my @cpupsilon = ();
 my @cpmtd = ();
@@ -156,6 +159,7 @@ my @cphimult  = ();
 my @cphltgood  = ();
 my @cpwb = ();
 my @cprp = ();
+my @cpssdmb = ();
 
 my @prcpmtd = ();
 
@@ -176,6 +180,8 @@ my @trhimult  = ();
 my @trhltgood  = ();
 my @trwb = ();
 my @trrp = ();
+my @trssdmb = ();
+
 
 my @jbupsilon = ();
 my @jbmtd = ();
@@ -193,6 +199,7 @@ my @jbhimult  = ();
 my @jbhltgood  = ();
 my @jbwb = ();
 my @jbrp = ();
+my @jbssdmb = ();
 
 my $avgcpu = 0;
 my $stdcpu = 0;
@@ -603,7 +610,7 @@ END
  @cpwb = ();
  @prcpmtd = ();
  @cprp = ();
-
+ @cpssdmb = ();
 
  @ndate = ();
  $ndt = 0;
@@ -683,6 +690,8 @@ END
                $cpupc[$ndt] =  $arcpu{$mfile,$ndt};
               }elsif( $mfile eq "sst" ) {
                $cpsst[$ndt] =  $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "ssdmb" ) {
+	       $cpssdmb[$ndt] =  $arcpu{$mfile,$ndt};
               }elsif( $mfile eq "W" or $mfile eq "WB" or $mfile eq "WE") {
                $cpwb[$ndt] =  $arcpu{$mfile,$ndt};
               }elsif( $mfile eq "hltgood" ) {
@@ -775,6 +784,8 @@ END
 #               $cpht[$ndt] = $arcpu{$mfile,$ndt};
               }elsif( $mfile eq "sst" ) {
                $cpsst[$ndt] = $arcpu{$mfile,$ndt};
+              }elsif( $mfile eq "ssdmb" ) {
+	       $cpssdmb[$ndt] = $arcpu{$mfile,$ndt};
 #              }elsif( $mfile eq "monitor" ) {
 #               $cpmonitor[$ndt] = $arcpu{$mfile,$ndt};
 #              }elsif( $mfile eq "pmdftp" ) {
@@ -823,6 +834,8 @@ END
  @arhltgood= ();
  @arwb = ();
  @arrp = ();
+ @arssdmb = ();
+
 
  @cpupsilon = ();
  @cpmtd = ();
@@ -840,6 +853,7 @@ END
  @cphltgood= ();
  @cpwb = ();
  @cprp = ();
+ @cpssdmb = ();
 
  @ndate = ();
  $ndt = 0;
@@ -916,6 +930,8 @@ END
                $arupc[$ndt] =  $rte{$mfile,$ndt};
               }elsif( $mfile eq "sst" ) {
                $arsst[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "ssdmb" ) {
+	       $arssdmb[$ndt] =  $rte{$mfile,$ndt};
               }elsif( $mfile eq "W"  or $mfile eq "WB" or $mfile eq "WE" ) {
                $arwb[$ndt] =  $rte{$mfile,$ndt};
               }elsif( $mfile eq "hltgood" ) {
@@ -1009,6 +1025,8 @@ END
 #               $arht[$ndt] =  $rte{$mfile,$ndt};
                }elsif( $mfile eq "sst" ) {
                 $arsst[$ndt] =  $rte{$mfile,$ndt};
+               }elsif( $mfile eq "ssdmb" ) {
+		$arssdmb[$ndt] =  $rte{$mfile,$ndt};
 #              }elsif( $mfile eq "monitor" ) {
 #               $armonitor[$ndt] =  $rte{$mfile,$ndt};
 #              }elsif( $mfile eq "pmdftp" ) {
@@ -1054,7 +1072,7 @@ END
  @trhltgood= ();
  @trwb = ();
  @trrp = ();
-
+ @trssdmb = ();
 
  @ndate = ();
  $ndt = 0;
@@ -1124,6 +1142,8 @@ END
                $trupc[$ndt] =  $artrk{$mfile,$ndt};
               }elsif( $mfile eq "sst" ) {
                $trsst[$ndt] =  $artrk{$mfile,$ndt};
+	      }elsif( $mfile eq "ssdmb" ) {
+	       $trssdmb[$ndt] =  $artrk{$mfile,$ndt};
               }elsif( $mfile eq "W" or $mfile eq "WB" or $mfile eq "WE" ) {
                $trwb[$ndt] =  $artrk{$mfile,$ndt};
               }elsif( $mfile eq "hltgood" ) {
@@ -1211,6 +1231,8 @@ END
 #               $trht[$ndt] = $artrk{$mfile,$ndt};
               }elsif( $mfile eq "sst" ) {
                $trsst[$ndt] = $artrk{$mfile,$ndt};
+              }elsif( $mfile eq "ssdmb" ) {
+               $trssdmb[$ndt] = $artrk{$mfile,$ndt};
 #              }elsif( $mfile eq "monitor" ) {
 #               $trmonitor[$ndt] = $artrk{$mfile,$ndt};
 #              }elsif( $mfile eq "pmdftp" ) {
@@ -1258,6 +1280,7 @@ END
  @nsthltgood= ();
  @nstwb = ();
  @nstrp = ();
+ @nstssdmb = ();
 
  @ndate = ();
  $ndt = 0;  
@@ -1278,6 +1301,7 @@ END
  @rthltgood= ();
  @rtwb = ();
  @rtrp = ();
+ @rtssdmb ();
 
       if($qprod eq "P15i.2014" ) {
 
@@ -1332,6 +1356,8 @@ END
                $nstupc[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "sst" ) {
                $nstsst[$ndt] =  $nstr{$mfile,$ndt};
+              }elsif( $mfile eq "ssdmb" ) {
+               $nstssdmb[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "W" or $mfile eq "WB" or $mfile eq "WE" ) {
                $nstwb[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "hltgood" ) {
@@ -1403,6 +1429,8 @@ END
                $nstupc[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "sst" ) {
                $nstsst[$ndt] =  $nstr{$mfile,$ndt};
+              }elsif( $mfile eq "ssdmb" ) {
+	       $nstssdmb[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "W" or $mfile eq "WB" or $mfile eq "WE" ) {
                $nstwb[$ndt] =  $nstr{$mfile,$ndt};
               }elsif( $mfile eq "hltgood" ) {
@@ -1425,7 +1453,7 @@ END
  
 #     $numstream[$ii] = $nstphysics[$ii]+$nstcentralpro[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+ $nstfms[$ndt] + $nsthimult[$ndt] + $nsthltgood[$ndt] + $nstupc[$ii]+ $nstgamma[$ii]+ $nstwb[$ii] +  $nstsst[$ii]+ $nstupsilon[$ii];
 
-     $numstream[$ii] = $nstphysics[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+ $nstfms[$ii] + $nsthltgood[$ii] + $nstupc[$ii] + $nstwb[$ii] + $nstrp[$ii] + $nstsst[$ii] + $nsthimult[$ii];
+     $numstream[$ii] = $nstphysics[$ii]+$nstmtd[$ii]+$nsthlt[$ii]+ $nstfms[$ii] + $nsthltgood[$ii] + $nstupc[$ii] + $nstwb[$ii] + $nstrp[$ii] + $nstsst[$ii] + $nsthimult[$ii] + $nstssdmb[$ii];
 
 
      if ($numstream[$ii] >= 1) {
@@ -1444,6 +1472,7 @@ END
       $rtfms[$ii] = $nstfms[$ii]/$numstream[$ii];
       $rtrp[$ii] = $nstrp[$ii]/$numstream[$ii];
       $rtsst[$ii] = $nstsst[$ii]/$numstream[$ii];
+      $rtssdmb[$ii] = $nstssdmb[$ii]/$numstream[$ii];
       $rthimult[$ii] = $nsthimult[$ii]/$numstream[$ii];
       $rthltgood[$ii] = $nsthltgood[$ii]/$numstream[$ii];
 
@@ -1473,6 +1502,7 @@ END
  @jbhltgood= ();
  @jbwb = ();
  @jbrp = ();
+ @jbssdmb = ();
 
  @ndate = ();
  $ndt = 0;  
@@ -1549,6 +1579,9 @@ END
 #               $jbht[$ndt] =  $arjbtime{$mfile,$ndt};
             }elsif( $mfile eq "sst" ) {
                $jbsst[$ndt] = $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "ssdmb" ) {
+		$jbssdmb[$ndt] = $arjbtime{$mfile,$ndt};
+
 #            }elsif( $mfile eq "monitor" ) {
 #               $jbmonitor[$ndt] = $arjbtime{$mfile,$ndt};
 #            }elsif( $mfile eq "pmdftp" ) {
@@ -1644,6 +1677,8 @@ END
 #               $jbht[$ndt] =  $arjbtime{$mfile,$ndt};
             }elsif( $mfile eq "sst" ) {
                $jbsst[$ndt] = $arjbtime{$mfile,$ndt};
+            }elsif( $mfile eq "ssdmb" ) {
+	       $jbssdmb[$ndt] = $arjbtime{$mfile,$ndt};
 #            }elsif( $mfile eq "monitor" ) {
 #               $jbmonitor[$ndt] = $arjbtime{$mfile,$ndt};
 #            }elsif( $mfile eq "pmdftp" ) {
@@ -1723,7 +1758,7 @@ io ";
 
 #  @data = (\@ndate, \@arphysics, \@argamma, \@arhlt,  \@arfms,  \@arupc, \@arwb, \@armtd, \@arcentralpro, \@arsst, \@arhltgood ) ;
 
-  @data = (\@ndate, \@arphysics, \@arhlt, \@arhltgood, \@armtd, \@arupc, \@arwb, \@arfms, \@arrp, \@arsst, \@arhimult ) ;
+  @data = (\@ndate, \@arphysics, \@arhlt, \@arhltgood, \@armtd, \@arupc, \@arwb, \@arfms, \@arrp, \@arsst, \@arssdmb, \@arhimult ) ;
 
 
       $max_y = $maxval + 0.2*$maxval;
@@ -1745,7 +1780,7 @@ io ";
 
 #  @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpfms, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpsst, \@cphltgood ) ;
 
-  @data = (\@ndate, \@cpphysics,  \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfms, \@prcpmtd, \@cpsst, \@cphimult ) ;
+  @data = (\@ndate, \@cpphysics,  \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfms, \@prcpmtd, \@cpsst, \@cpssdmb, \@cphimult ) ;
 
 	}else{
 
@@ -1757,7 +1792,7 @@ io ";
        $gtitle = "Average CPU in sec/evt per day in $qprod production, average is $avgcpu+-$stdcpu";
         }
 
-  @data = (\@ndate, \@cpphysics,  \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfms, \@cprp, \@cpsst, \@cphimult ) ;
+  @data = (\@ndate, \@cpphysics,  \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfms, \@cprp, \@cpsst, \@cpssdmb, \@cphimult ) ;
 
         }
 
@@ -1788,7 +1823,7 @@ io ";
 
 # @data = (\@ndate, \@rtphysics, \@rtgamma, \@rthlt, \@rtfms, \@rtupc, \@rtwb, \@rtmtd, \@rtcentralpro, \@rtsst, \@rthltgood, ) ;
 
- @data = (\@ndate, \@rtphysics,  \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtfms, \@rtrp, \@rtsst, \@rthimult ) ;
+ @data = (\@ndate, \@rtphysics,  \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtfms, \@rtrp, \@rtsst, \@rtssdmb, \@rthimult ) ;
 
         $max_y = 1.2;
 
@@ -1812,7 +1847,7 @@ io ";
 
 # @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbfms, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbsst, \@jbhltgood,) ;
 
- @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbhltgood, \@jbmtd, \@jbupc, \@jbwb, \@jbfms, \@jbrp, \@jbsst, \@jbhimult ) ;
+ @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbhltgood, \@jbmtd, \@jbupc, \@jbwb, \@jbfms, \@jbrp, \@jbsst, \@jbssdmb, \@jbhimult ) ;
 
 
     $max_y = $maxjbtime + 0.2*$maxjbtime;    
@@ -1840,7 +1875,7 @@ io ";
 
 # @data = (\@ndate, \@trphysics, \@trgamma, \@trhlt, \@trfms, \@trupc, \@trwb, \@trmtd, \@trcentralpro, \@trsst, \@trhltgood ) ;
 
- @data = (\@ndate, \@trphysics, \@trhlt, \@trhltgood, \@trmtd, \@trupc, \@trwb, \@trfms, \@trrp, \@trsst, \@trhimult ) ;
+ @data = (\@ndate, \@trphysics, \@trhlt, \@trhltgood, \@trmtd, \@trupc, \@trwb, \@trfms, \@trrp, \@trsst, \@trssdmb, \@trhimult ) ;
 
     
       $max_y = $maxtrk + 0.2*$maxtrk;
