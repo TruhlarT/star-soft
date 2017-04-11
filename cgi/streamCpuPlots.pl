@@ -1729,7 +1729,9 @@ END
        $legend[5] = "st_W         ";
        $legend[6] = "st_fms       ";
        $legend[7] = "st_rp        ";
-       $legend[9] = "st_himult    ";
+       $legend[8] = "st_sst       ";
+       $legend[9] = "st_ssdmb     ";
+       $legend[10] = "st_himult    ";
 #       $legend[7] = "st_mtd,prepassCPU ";
 #       $legend[1] = "st_gamma     ";
 #       $legend[3] = "st_ht        ";
