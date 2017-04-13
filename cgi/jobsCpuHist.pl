@@ -106,7 +106,7 @@ my @arcentralpro = ();
 my @arwb = ();
 my @arrp = ();
 my @arsst = ();
-
+my @arssdmb = ();
 
 my @ndate = ();
 my $ndt = 0;
@@ -128,7 +128,7 @@ my @cpcentralpro  = ();
 my @cpwb  = (); 
 my @cprp  = (); 
 my @cpsst = ();
-
+my @cpssdmb = ();
 
 my @jbupsilon = ();
 my @jbmtd = ();
@@ -145,6 +145,7 @@ my @jbcentralpro  = ();
 my @jbwb = ();
 my @jbrp = ();
 my @jbsst = ();
+my @jbssdmb = ();
 
 my @prcpmtd = ();
 my @rtprcpmtd = ();
@@ -159,6 +160,8 @@ my @rtfms = ();
 my @rtwb = ();
 my @rtrp = ();
 my @rtsst = ();
+my @rtssdmb = ();
+
 
 my @rphysics = ();
 my @rmtd = ();
@@ -169,6 +172,7 @@ my @rfms = ();
 my @rwb = ();
 my @rrp = ();
 my @rsst = ();
+my @rssdmb = ();
 
 my @rcphysics = ();
 my @rcmtd = ();
@@ -179,6 +183,8 @@ my @rcfms = ();
 my @rcwb = ();
 my @rcrp = ();
 my @rcsst = ();
+my @rcssdmb = ();
+
 
 my $nphysics = 0;
 my $nmtd = 0;
@@ -190,6 +196,7 @@ my $nfms = 0;
 my $nwb = 0;
 my $nrp = 0;
 my $nsst = 0;
+my $nssdmb = 0;
 
 my @narray = ();
 
@@ -475,7 +482,8 @@ END
               $nrp = $narray[$ik];
           }elsif( $arstream[$ik] eq "sst" ) {
               $nsst = $narray[$ik];
-
+	  }elsif( $arstream[$ik] eq "ssdmb" ) {
+              $nssdmb = $narray[$ik];
           }elsif( $arstream[$ik] eq "W" or $arstream[$ik] eq "WE" or $arstream[$ik] eq "WB"  ) {
               $nwb = $narray[$ik];
           }
@@ -555,6 +563,8 @@ END
               $nrp = $narray[$ik];
           }elsif( $arstream[$ik] eq "sst" ) {
               $nsst = $narray[$ik];
+	  }elsif( $arstream[$ik] eq "ssdmb" ) {
+              $nssdmb = $narray[$ik];
           }elsif( $arstream[$ik] eq "W" or $arstream[$ik] eq "WE" or $arstream[$ik] eq "WB"  ) {
               $nwb = $narray[$ik];
          }
@@ -580,6 +590,8 @@ END
  @arwb = ();
  @arrp = ();
  @arsst = ();
+ @arssdmb = ();
+
 
  @cpupsilon = ();
  @cpmtd = ();
@@ -596,6 +608,7 @@ END
  @cpwb = (); 
  @cprp = (); 
  @cpsst = ();
+  @cpssdmb = ();
 
  @prcpmtd = ();
  @rtprcpmtd = ();
@@ -615,6 +628,7 @@ END
  @jbwb = ();
  @jbrp = ();
  @jbsst = ();
+ @jbssdmb = ();
 
  @rtphysics = ();
  @rtmtd = ();
@@ -625,6 +639,8 @@ END
  @rtwb = ();
  @rtrp = ();
  @rtsst = ();
+ @rtssdmb = ();
+
 
  @rphysics = ();
  @rmtd = ();
@@ -635,6 +651,7 @@ END
  @rwb = ();
  @rrp = ();
  @rsst = ();
+ @rssdmb = ();
 
  @rcphysics = ();
  @rcmtd = ();
@@ -645,6 +662,8 @@ END
  @rcwb = ();
  @rcrp = ();
  @rcsst = ();
+ @rcssdmb = ();
+
 
  @nevents = ();
  @nevent1 = ();
@@ -767,6 +786,9 @@ END
            }elsif( $pstream eq "sst" ) {
                $jbsst[$ndt]++;
                $rsst[$ndt] =  $jbsst[$ndt]*100/$nsst;
+           }elsif( $pstream eq "ssdmb" ) {
+               $jbssdmb[$ndt]++;
+               $rssdmb[$ndt] =  $jbssdmb[$ndt]*100/$nssdmb;
 
 #           }elsif( $pstream eq "ht" ) {
 #               $jbht[$ndt]++;  
@@ -1060,6 +1082,9 @@ END
 	      }elsif( $pstream eq "sst" ) {
 		  $cpsst[$ndt]++;
 		  $rtsst[$ndt] =  $cpsst[$ndt]*100/$nsst;
+              }elsif( $pstream eq "ssdmb" ) {
+                  $cpssdmb[$ndt]++;
+                  $rtssdmb[$ndt] =  $cpssdmb[$ndt]*100/$nssdmb;
 
 #              }elsif( $pstream eq "ht" ) {
 #               $cpht[$ndt]++;  
@@ -1130,6 +1155,9 @@ END
               }elsif( $pstream eq "sst" ) {
 		  $arsst[$ndt]++ ;
 		  $rcsst[$ndt] =  $arsst[$ndt]*100/$nsst;
+              }elsif( $pstream eq "ssdmb" ) {
+                  $arssdmb[$ndt]++ ;
+                  $rcssdmb[$ndt] =  $arssdmb[$ndt]*100/$nssdmb;
 
 #              }elsif( $pstream eq "ht" ) {
 #               $arht[$ndt]++ ;
@@ -1184,6 +1212,7 @@ my $ynum = 14;
        $legend[6] = "st_fms ";
        $legend[7] = "st_rp  ";
        $legend[8] = "st_sst ";
+       $legend[9] = "st_ssdmb ";
     
        if( $srate eq "cpu" )  {
 
@@ -1200,7 +1229,7 @@ my $ynum = 14;
 
 #    @data = (\@ndate, \@cpphysics, \@cpgamma, \@cphlt, \@cpht, \@cphltgood, \@cpupc, \@cpwb, \@cpmtd, \@cpcentralpro, \@cpatomcules, \@cpfms ) ; 
 
-   @data = (\@ndate, \@cpphysics, \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfms, \@cprp, \@cpsst ) ; 
+   @data = (\@ndate, \@cpphysics, \@cphlt, \@cphltgood, \@cpmtd, \@cpupc, \@cpwb, \@cpfms, \@cprp, \@cpsst, \@cpssdmb ) ; 
 
 
  }else{
@@ -1239,7 +1268,7 @@ if($qprodt eq "P16id.2014" ) {
 
 }
 
-  @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtfms, \@rtrp, \@rtsst ) ; 
+  @data = (\@ndate, \@rtphysics, \@rthlt, \@rthltgood, \@rtmtd, \@rtupc, \@rtwb, \@rtfms, \@rtrp, \@rtsst, \@rtssdmb ) ; 
 
     }
 
@@ -1257,7 +1286,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
 
   #    @data = (\@ndate, \@arphysics, \@argamma, \@arhlt, \@arht, \@arhltgood, \@arupc, \@arwb, \@armtd, \@arcentralpro, \@aratomcules, \@arfms ) ;
 
-    @data = (\@ndate, \@arphysics, \@arhlt, \@arhltgood, \@armtd, \@arupc, \@arwb, \@arfms, \@arrp, \@arsst ) ;
+    @data = (\@ndate, \@arphysics, \@arhlt, \@arhltgood, \@armtd, \@arupc, \@arwb, \@arfms, \@arrp, \@arsst, \@arssdmb ) ;
 
    }else{
 	$gtitle = "Ratios RealTime/CPU for different stream jobs in $qprod production ";
@@ -1291,7 +1320,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
         $xlabel = "Ratio RealTime/CPU";
         $ylabel = "Percentage of jobs (%)";
 
-    @data = (\@ndate, \@rcphysics, \@rchlt, \@rchltgood, \@rcmtd, \@rcupc, \@rcwb, \@rcfms, \@rcrp, \@rcsst ) ;
+    @data = (\@ndate, \@rcphysics, \@rchlt, \@rchltgood, \@rcmtd, \@rcupc, \@rcwb, \@rcfms, \@rcrp, \@rcsst, \@rcssdmb ) ;
 
   }
 
@@ -1316,7 +1345,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
   
 #    @data = (\@ndate, \@jbphysics, \@jbgamma, \@jbhlt, \@jbht, \@jbhltgood, \@jbupc, \@jbwb, \@jbmtd, \@jbcentralpro, \@jbatomcules, \@jbfms ) ;
 
-    @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbhltgood, \@jbmtd, \@jbupc, \@jbwb, \@jbfms, \@jbrp, \@jbsst ) ;
+    @data = (\@ndate, \@jbphysics, \@jbhlt, \@jbhltgood, \@jbmtd, \@jbupc, \@jbwb, \@jbfms, \@jbrp, \@jbsst, \@jbssdmb ) ;
 
   }else{
 
@@ -1358,7 +1387,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
         $xlabel = "Job's execution time on the farm in hours";
         $ylabel = "Percentage of jobs (%)";         
   
-   @data = (\@ndate, \@rphysics, \@rhlt, \@rhltgood, \@rmtd, \@rupc, \@rwb, \@rfms, \@rrp, \@rsst ) ;
+   @data = (\@ndate, \@rphysics, \@rhlt, \@rhltgood, \@rmtd, \@rupc, \@rwb, \@rfms, \@rrp, \@rsst, \@rssdmb ) ;
 
   }
 
