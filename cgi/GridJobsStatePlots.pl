@@ -26,7 +26,7 @@ $dbuser="starreco";
 $dbpass="";
 $dbname="Embedding_job_stats";
 
-my $JobStatusT = "jobs_prod_2013";
+my $JobStatusT = "jobs_prod_2017";
 
 my $query = new CGI;
 
@@ -114,7 +114,7 @@ my $fperiod   =  $qqr->param('period');
 
 # Tables
 
-$JobStatusT = "jobs_prod_2013";
+$JobStatusT = "jobs_prod_2016";
 
  $day_diff = 0;
  $max_y = 2000;
