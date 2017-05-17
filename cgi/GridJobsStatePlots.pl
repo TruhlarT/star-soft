@@ -114,7 +114,7 @@ my $fperiod   =  $qqr->param('period');
 
 # Tables
 
-$JobStatusT = "jobs_prod_2016";
+$JobStatusT = "jobs_prod_2017";
 
  $day_diff = 0;
  $max_y = 2000;
