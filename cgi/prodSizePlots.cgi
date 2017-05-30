@@ -281,7 +281,7 @@ if ( $qperiod =~ /month/) {
   }elsif($qprod eq "all2016"){
 
 
-   $sql="SELECT DISTINCT date_format(starttime, '%Y-%m-%d') as SDATE FROM $ProdSize2016T WHERE (prodtag = 'P16ij' or prodtag = 'P16ik' or prodtag = 'P17ib')  and date_format(starttime, '%Y-%m-%d') <> '0000-00-00' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(starttime)) < ?  order by SDATE";
+   $sql="SELECT DISTINCT date_format(starttime, '%Y-%m-%d') as SDATE FROM $ProdSize2016T WHERE (prodtag = 'P16ij' or prodtag = 'P16ik' or prodtag = 'P17ib' or  prodtag = 'P17id')  and date_format(starttime, '%Y-%m-%d') <> '0000-00-00' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(starttime)) < ?  order by SDATE";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -365,7 +365,7 @@ $ndt = 0;
 
   foreach my $tdate (@ardays) {
 
-  $sql="SELECT date_format(createtime, '%Y-%m-%d') as PDATE, sum(mudstsize) FROM $ProdSize2016T WHERE (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and (prodtag = 'P16ij' or prodtag = 'P16ik' or prodtag = 'P17ib') group by PDATE  ";
+  $sql="SELECT date_format(createtime, '%Y-%m-%d') as PDATE, sum(mudstsize) FROM $ProdSize2016T WHERE (createTime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and (prodtag = 'P16ij' or prodtag = 'P16ik' or prodtag = 'P17ib' or prodtag = 'P17id' ) group by PDATE  ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
@@ -463,7 +463,7 @@ $ndt = 0;
 
   foreach my $tdate (@ardays) {
 
-  $sql="SELECT date_format(starttime, '%Y-%m-%d') as PDATE, sum(daqsize) FROM $ProdSize2016T WHERE  (starttime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and (prodtag = 'P16ij' or prodtag = 'P16ik' or prodtag = 'P17ib')  group by PDATE  ";
+  $sql="SELECT date_format(starttime, '%Y-%m-%d') as PDATE, sum(daqsize) FROM $ProdSize2016T WHERE  (starttime BETWEEN '$tdate 00:00:00' AND '$tdate 23:59:59') and (prodtag = 'P16ij' or prodtag = 'P16ik' or prodtag = 'P17ib' or prodtag = 'P17id' )  group by PDATE  ";
 
             $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n";
