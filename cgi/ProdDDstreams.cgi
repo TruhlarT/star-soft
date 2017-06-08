@@ -471,7 +471,7 @@ my @sumfile = ();
 my @trigset = ();
 my @prodtag = ();
 my @strname = ();
-my @yeardt = ()
+my @yeardt = ();
 my @colls = ();
 
 my $prodname = "n/a";
