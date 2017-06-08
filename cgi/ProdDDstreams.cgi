@@ -620,6 +620,7 @@ my $query = new CGI;
 <td HEIGHT=10><h3>$trigset[$nline]</h3></td>
 <td HEIGHT=10><h3>$colls[$nline]</h3></td>
 <td HEIGHT=10><h3>$yeardt[$nline]</h3></td>
+<td HEIGHT=10><h3>$strname[$nline]</h3></td>
 <td HEIGHT=10><h3>$prodtag[$nline]</h3></td>
 <td HEIGHT=10><h3>$sumevet[$nline]</h3></td>
 <td HEIGHT=10><h3>$sumevthpss[$nline]</h3></td>
@@ -656,6 +657,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Trigger setup name</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Collision</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Year of data taken</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Stream name</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Production Tag</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of Events on DD<h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of Events on HPSS<h3></B></TD>
