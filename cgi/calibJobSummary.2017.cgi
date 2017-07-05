@@ -269,17 +269,17 @@ if($prstat[$nprod] eq "removed" ) {
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3><font color="green">$artrg[$nprod]<br><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=ndisk">location</font></h3></td>
+<td HEIGHT=10><h3><font color="green">$artrg[$nprod]<br><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.2017.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=ndisk">location</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$prodtag[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$calbtag[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveCalChain.pl?rchain=$chainm[$nprod];rcaltag=$calbtag[$nprod]">chain</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$jbcreat[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$jbdone[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=jstat">$jbcrsh[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=hung">$jbhung[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=hpss">$jbhpss[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.2017.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=jstat">$jbcrsh[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.2017.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=hung">$jbhung[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.2017.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=hpss">$jbhpss[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$jbresub[$nprod]</h3></td>
-<td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=mudst">$mismudst[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="green"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.2017.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=mudst">$mismudst[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$szmudst[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$sumevt[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="green">$avcpu[$nprod]</font></h3></td>
@@ -294,17 +294,17 @@ END
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3><font color="red">$artrg[$nprod]<br><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=ndisk">location</font></h3></td>
+<td HEIGHT=10><h3><font color="red">$artrg[$nprod]<br><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.2017.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=ndisk">location</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$prodtag[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$calbtag[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveCalChain.pl?rchain=$chainm[$nprod];rcaltag=$calbtag[$nprod]">chain</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$jbcreat[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$jbdone[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=jstat">$jbcrsh[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=hung">$jbhung[$nprod]</font></h3></td>
-<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=hpss">$jbhpss[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.2017.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=jstat">$jbcrsh[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.2017.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=hung">$jbhung[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.2017.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=hpss">$jbhpss[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$jbresub[$nprod]</h3></td>
-<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=mudst">$mismudst[$nprod]</font></h3></td>
+<td HEIGHT=10><h3><font color="red"><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.2017.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=mudst">$mismudst[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$szmudst[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$sumevt[$nprod]</font></h3></td>
 <td HEIGHT=10><h3><font color="red">$avcpu[$nprod]</font></h3></td>
@@ -319,17 +319,17 @@ END
  print <<END;
 
 <TR ALIGN=CENTER HEIGHT=20 bgcolor=\"cornsilk\">
-<td HEIGHT=10><h3>$artrg[$nprod]<br><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=ndisk">location</font></h3></td>
+<td HEIGHT=10><h3>$artrg[$nprod]<br><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.2017.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=ndisk">location</font></h3></td>
 <td HEIGHT=10><h3>$prodtag[$nprod]</h3></td>
 <td HEIGHT=10><h3>$calbtag[$nprod]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveCalChain.pl?rchain=$chainm[$nprod];rcaltag=$calbtag[$nprod]">chain</font></h3></td>
 <td HEIGHT=10><h3>$jbcreat[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbdone[$nprod]</h3></td>
-<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=jstat">$jbcrsh[$nprod]</h3></td>
-<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=hung">$jbhung[$nprod]</h3></td>
-<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=hpss">$jbhpss[$nprod]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.2017.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=jstat">$jbcrsh[$nprod]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.2017.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=hung">$jbhung[$nprod]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.2017.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=hpss">$jbhpss[$nprod]</h3></td>
 <td HEIGHT=10><h3>$jbresub[$nprod]</h3></td>
-<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=mudst">$mismudst[$nprod]</h3></td>
+<td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveCalibJob.2017.pl?trigs=$artrg[$nprod];prod=$prodtag[$nprod];caltag=$calbtag[$nprod];pflag=mudst">$mismudst[$nprod]</h3></td>
 <td HEIGHT=10><h3>$szmudst[$nprod]</h3></td>
 <td HEIGHT=10><h3>$sumevt[$nprod]</h3></td>
 <td HEIGHT=10><h3>$avcpu[$nprod]</font></h3></td>
