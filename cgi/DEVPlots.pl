@@ -558,7 +558,7 @@ my $graph = new GD::Graph::linespoints(650,500);
        $legend[0] = "sti,nonoptimized";
        $legend[1] = "sti,optimized";
        $legend[2] = "stica,nonoptimized";
-       $legend[3] = "stihr,optimized";
+       $legend[3] = "stihr,nonoptimized";
 
 
    }else{
