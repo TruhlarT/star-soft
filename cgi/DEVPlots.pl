@@ -551,6 +551,16 @@ my $graph = new GD::Graph::linespoints(650,500);
     $legend[2] = "nonoptimized,AgML";
     $legend[3] = "optimized,AgML";  
 
+   }elsif($tset =~ /year_2014/ or $tset =~ /year_2015/ or $tset =~ /year_2016/ or $tset =~ /year_2017/ ) {
+
+       @data = (\@Ndate, \@point1, \@point2,  \@point9, \@point10 );
+
+       $legend[0] = "sti,nonoptimized";
+       $legend[1] = "sti,optimized";
+       $legend[2] = "stica,nonoptimized";
+       $legend[3] = "stihr,optimized";
+
+
    }else{
 
     @data = (\@Ndate, \@point1, \@point2 );
