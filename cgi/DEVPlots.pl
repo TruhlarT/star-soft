@@ -254,7 +254,6 @@ my @point11 = ();
 my @point12 = ();
 
 
-
 for($i=0;$i<7*$qweek;$i++) {
 
     $point1[$i]=undef;
@@ -381,7 +380,7 @@ if($tset =~ /year_2012/ ) {
             }
        }
 ########## 
-        if($tset =~ /year_2014/ or $tset =~ /year_2015/ or $tset =~ /year_2016/ or $tset =~ /year_2017/ )
+	    if($tset =~ /year_2014/ or $tset =~ /year_2015/ or $tset =~ /year_2016/ or $tset =~ /year_2017/ ) {
 
   $qupath2 = "$sticapath%";
   $qupath3 = "$stihrpath%";
