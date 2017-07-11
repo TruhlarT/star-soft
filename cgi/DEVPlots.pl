@@ -248,6 +248,12 @@ my @point5 = ();
 my @point6 = ();
 my @point7 = ();
 my @point8 = ();
+my @point9 = ();
+my @point10 = ();
+my @point11 = ();
+my @point12 = ();
+
+
 
 for($i=0;$i<7*$qweek;$i++) {
 
@@ -259,6 +265,10 @@ for($i=0;$i<7*$qweek;$i++) {
     $point6[$i]=undef;
     $point7[$i]=undef;
     $point8[$i]=undef;
+    $point9[$i]=undef;
+    $point10[$i]=undef;
+    $point11[$i]=undef;
+    $point12[$i]=undef;
 }
 
 my @spl = ();
@@ -291,6 +301,8 @@ my $qupath;
 my $quagml;
 my $quagml_opt;
 my $maxvalue = 0;
+my $sticapath;
+my $stihrpath;
 
 my @prt = ();
 
@@ -300,6 +312,10 @@ $path = "/star/rcf/test/dev/".$tset ;
 $path =~ s/ittf/sl302.ittf\/%/g ;
 $path_opt = "/star/rcf/test/dev/".$tset ;
 $path_opt =~ s/ittf/sl302.ittf_opt\/%/g ;
+$sticapath = $path;
+$sticapath =~ s/ittf/stica/g;
+$stihr =~ s/ittf/stihr/g;
+
 
 my $agml = "year_2012.AgML";
 my $agmlpath = $path;
@@ -363,10 +379,46 @@ if($tset =~ /year_2012/ ) {
             }else{
                 $point2[$ik] = $fields[1];             
             }
-          }
+       }
 ########## 
+        if($tset =~ /year_2014/ or $tset =~ /year_2015/ or $tset =~ /year_2016/ or $tset =~ /year_2017/ )
 
-        if($tset =~ /year_2012/ ) { 
+  $qupath2 = "$sticapath%";
+  $qupath3 = "$stihrpath%";
+
+      $sql="SELECT path, $mplotVal FROM $JobStatusT WHERE path LIKE ? AND jobStatus=\"Done\" AND createTime like '$Ndate[$ik]%'  ";
+
+	    $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
+	    $cursor->execute($qupath2);
+
+
+	    while(@fields = $cursor->fetchrow_array) {
+
+		if ($plotVl eq "MemUsage") {
+		    $point9[$ik] = $fields[1];
+		    $point11[$ik] = $fields[2];
+		}else{
+		    $point9[$ik] = $fields[1];
+		}
+	    }
+
+      $sql="SELECT path, $mplotVal FROM $JobStatusT WHERE path LIKE ? AND jobStatus=\"Done\" AND createTime like '$Ndate[$ik]%'  ";
+
+            $cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
+            $cursor->execute($qupath2);
+
+
+            while(@fields = $cursor->fetchrow_array) {
+
+                if ($plotVl eq "MemUsage") {
+                    $point10[$ik] = $fields[1];
+                    $point12[$ik] = $fields[2];
+                }else{
+                    $point10[$ik] = $fields[1];
+                }
+            }
+ #### 
+       }elsif($tset =~ /year_2012/ ) { 
 
             $sql="SELECT path, $mplotVal FROM $JobStatusT WHERE path LIKE ? AND jobStatus=\"Done\" AND createTime like '$Ndate[$ik]%'  ";
 
@@ -447,6 +499,8 @@ my $graph = new GD::Graph::linespoints(650,500);
 
    if ($plotVal eq "MemUsage") {
  
+
+
     if($tset =~ /year_2012/ ) {   
 
     @data = (\@Ndate, \@point1, \@point2, \@point3, \@point4, \@point5, \@point6, \@point7, \@point8 ); 
@@ -459,6 +513,19 @@ my $graph = new GD::Graph::linespoints(650,500);
     $legend[5] = "MemUsageFirst(optimized,AgML)";
     $legend[6] = "MemUsageLast(nonoptimized,AgML)";
     $legend[7] = "MemUsageLast(optimized,AgML)";
+
+    }elsif($tset =~ /year_2014/ or $tset =~ /year_2015/ or $tset =~ /year_2016/ or $tset =~ /year_2017/ ) {
+
+	@data = (\@Ndate, \@point1, \@point2, \@point3, \@point4, \@point9, \@point10, \@point11, \@point12,);
+
+	$legend[0] = "MemUsageFirst(sti,nonoptimized)";
+	$legend[1] = "MemUsageFirst(sti,optimized)";
+	$legend[2] = "MemUsageLast(sti,nonoptimized)";
+	$legend[3] = "MemUsageLast(sti,optimized)";
+	$legend[4] = "MemUsageFirst(stica)";
+	$legend[5] = "MemUsageFirst(stihr)";
+	$legend[6] = "MemUsageLast(stica)";
+	$legend[7] = "MemUsageLast(stihr)";
 
 
     }else{
