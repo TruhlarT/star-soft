@@ -265,7 +265,11 @@ if ("$node" == "") then
 
        case "rhphenix":
 	set node="rcas2+"
-        set pool="-pool condor01.rcf.bnl.gov:9662"
+        set pool="RANDOM"
+        set rhost="rcas"
+        set rdomain="rcf.bnl.gov"
+        set rstart=2061
+        set rrange=19
 	breaksw;
 
        case "rhbrahms":
@@ -274,13 +278,13 @@ if ("$node" == "") then
 	breaksw;
 
        case "usatlas":
-        set node="acas+"
-        set pool="-pool condor03.usatlas.bnl.gov:9660"
-	breaksw;
-
        case "rhstaff":
         set node="acas+"
-        set pool="-pool condor03.usatlas.bnl.gov:9660"
+        set pool="RANDOM"
+        set rhost="spar"
+        set rdomain="usatlas.bnl.gov"
+        set rstart=101
+        set rrange=4
 	breaksw;
 
        default:
@@ -313,7 +317,11 @@ else
         breaksw;
 
        case "rcas2*":
-        set pool="-pool condor01.rcf.bnl.gov:9662"
+        set pool="RANDOM"
+        set rhost="rcas"
+        set rdomain="rcf.bnl.gov"
+        set rstart=2061
+        set rrange=19
         breaksw;
 
        case "rcas0*":
@@ -321,7 +329,13 @@ else
         breaksw;
 
        case "acas*":
-        set pool="-pool condor03.usatlas.bnl.gov:9660"
+       case "spar*":
+        set node="acas+"
+        set pool="RANDOM"
+        set rhost="spar"
+        set rdomain="usatlas.bnl.gov"
+        set rstart=101
+        set rrange=4
         breaksw;
 
        default:
@@ -429,8 +443,10 @@ if ("$TEST" != "$node") then
 	endif
     end
 
+    if ( "$pool" == "RANDOM" ) then
+	set CANDIDATES=`/usr/bin/perl -e "printf('${rhost}%04i.${rdomain}', ${rstart}+rand(${rrange}));"`
     # if not found, bail out
-    if( "$LOAD" != "") then    
+    else if( "$LOAD" != "") then    
         # The below was for LSF
 	#   set CANDIDATES=`$LOAD -R "select[inter] order[r1m:pg]" | $GREP $TEST | 
 	#                   $GREP -i " ok" | $AWK '{print $1}'`
@@ -460,10 +476,13 @@ if ("$TEST" != "$node") then
 
         set CANDIDATES=`$CAT /tmp/$$.$USER.lis | $SORT -un -k 2 | $GREP $TEST | $AWK '{print $1}'`
 	/bin/rm -f /tmp/$$.$USER.lis
+    else
+	set CANDIDATES=""
+    endif
 
-	if ( $#CANDIDATES != 0) then
-	    set i=1
-	    AGAIN:
+    if ( $#CANDIDATES != 0 && "$CANDIDATES" != "" ) then
+        set i=1
+        AGAIN:
 		set  node=$CANDIDATES[$i]
 		set rnode=`echo $node | $SED "s/\..*//"`
 		if ( $DEBUG ) echo "Found node=$node -> $rnode"
@@ -480,13 +499,9 @@ if ("$TEST" != "$node") then
 			goto AGAIN
 		    endif
 		endif
-	else
-	    echo "Illegal node specification or queue problem detected."
-	    echo "Please check/correct syntax and try again."
-	    exit
-	endif
     else
-	echo "No tools to determine the least loaded system"
+	echo "Illegal node specification or queue problem detected."
+	echo "Please check/correct syntax and try again."
 	exit
     endif
 endif
