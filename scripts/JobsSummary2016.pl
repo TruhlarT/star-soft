@@ -47,7 +47,7 @@ my $nowdate = ($year+1900).$mon.$mday;
 
  $JobStatusT = "JobStatus2016";
 
-my $jobs_html = "/star/u/didenko/WWW/Html/JobSummary2016_new.html";
+my $jobs_html = "/star/u/starlib/datsum/JobSummary2016.html";
 
 
 my @jbstat = ();
