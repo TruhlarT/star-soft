@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.154 2017/03/02 18:24:50 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.155 2017/08/08 03:58:47 genevb Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -973,7 +973,10 @@ Bfc_st BFC[] = {
    , "Base chain for run 2017 data (tpc)",kFALSE},
   {"pp2017","" ,"",
    "B2017,Sti,UseXgeom,BAna,hitfilt,ppOpt,VFPPVnoCTB,beamline,l3onl,emcDY2,fpd,trgd,ZDCvtx,analysis"
-   , "","","Base chain for year 2017 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+   , "","","Production chain for year 2017 pp data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+  {"P2017","" ,"",
+   "B2017,Sti,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,analysis"
+   , "","","Production chain for year 2017 AA data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","",""
    , "Laser Calibration Chain (tcl)",kFALSE},
   {"LaserCal","" ,"","db,detDb,tpc_daq,tpcDb,fcf,globT,laser,LaserTest","",""
@@ -1378,7 +1381,7 @@ Bfc_st BFC[] = {
   {"vpdSim" ,"","VpdChain","BTofUtil","StVpdSimMaker","StEvent,StMcEvent,StBTofHitMaker,StVpdSimMaker"
    , "Vpd Simulator",kFALSE},
   {"vpdCalib","","BTofChain","db,BTofUtil","StVpdCalibMaker" ,"StVpdCalibMaker","VPD calibration",kFALSE},
-  {"btofSim" ,"","BTofChain","BTofUtil",
+  {"btofSim" ,"","BTofChain","BTofUtil" ,"StBTofSimMaker",
                        "StEvent,StMcEvent,StTofUtil,StBTofHitMaker,StBTofSimMaker","BTOF Simulator",kFALSE},
   {"btofMixer" ,"","BTofChain","BTofUtil","StBTofMixerMaker","StEvent,StBTofHitMaker,StBTofMixerMaker"
    , "BTof Mixer",kFALSE},
@@ -1504,9 +1507,9 @@ Bfc_st BFC[] = {
   {"mtdMatch" ,"","","db,MtdUtil", "StMtdMatchMaker","StMtdMatchMaker","TPC-MTD track matching",kFALSE},
   {"mtdCalib" ,"","","db", "StMtdCalibMaker","StMtdCalibMaker","MTD calibration",kFALSE},
   {"mtdEvtFilt" ,"","","db", "StMtdEvtFilterMaker","StMtdEvtFilterMaker","MTD event filter" ,kFALSE},
-  {"FindVtxSeed" ,"FindVtxSeed" ,"","globT,MuDSTDeps","StVertexSeedMaker"
+  {"FindVtxSeed" ,"FindVtxSeed" ,"","globT,MuDSTDeps,picoDst","StVertexSeedMaker"
    , "StPass0CalibMaker", "Performs vertex seed finding",kFALSE},
-  {"FindEvtVtxSeed","FindEvtVtxSeed","","MuDSTDeps","StEvtVtxSeedMaker"
+  {"FindEvtVtxSeed","FindEvtVtxSeed","","MuDSTDeps,picoDst","StEvtVtxSeedMaker"
    , "StPass0CalibMaker","Performs vertex seed finding using StEvent",kFALSE},
   {"Ftpc" ,"ftpcChain" ,"","ftpcT,fcl,fpt" ,"StMaker","StChain","",kFALSE},
   {"fss" ,"ftpc_raw","ftpcChain","SCL,Simu","StFtpcSlowSimMaker"
@@ -1537,10 +1540,10 @@ Bfc_st BFC[] = {
    , "Xis AND V0s from StEvent",kFALSE},
   {"V0svt" ,"","","" ,"","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"Xisvt" ,"","","" ,"","","WARNING *** Option is OBSOLETE ***",kFALSE},
-  {"SCEbyE" ,"scebye","","MuDSTDeps","StSpaceChargeEbyEMaker","StMuDSTMaker,StPass0CalibMaker"
-   , "Determine EbyE SpaceCharge using StEvent",kFALSE},
-  {"SCScalerCal" ,"scscalercal","","MuDSTDeps","StSpaceChargeEbyEMaker","StMuDSTMaker,StPass0CalibMaker"
-   , "Calibrate SpaceCharge scalers",kFALSE},
+  {"SCEbyE" ,"scebye","","MuDSTDeps,picoDst","StSpaceChargeEbyEMaker"
+   , "StMuDSTMaker,StPass0CalibMaker","Determine EbyE SpaceCharge using StEvent",kFALSE},
+  {"SCScalerCal" ,"scscalercal","","MuDSTDeps,picoDst","StSpaceChargeEbyEMaker"
+   , "StMuDSTMaker,StPass0CalibMaker","Calibrate SpaceCharge scalers",kFALSE},
   {"compend" ,"","","event,detDb","StEventCompendiumMaker","StEventCompendiumMaker"
    , "Fill event summary in ITTF Chain",kFALSE},
   {"TpcAligner" ,"","","Alignment" ,"StTpcAlignerMaker","StTpcAlignerMaker","TpcAligner",kFALSE},
@@ -2571,7 +2574,10 @@ Bfc_st BFC[] = {
    , "Base chain for run 2017 data (tpc)",kFALSE},
   {"pp2017","" ,"",
    "B2017,Sti,UseXgeom,BAna,hitfilt,ppOpt,VFPPVnoCTB,beamline,l3onl,emcDY2,fpd,trgd,ZDCvtx,analysis"
-   , "","","Base chain for year 2017 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+   , "","","Production chain for year 2017 pp data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+  {"P2017","" ,"",
+   "B2017,Sti,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,analysis"
+   , "","","Production chain for year 2017 AA data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","",""
    , "Laser Calibration Chain (tcl)",kFALSE},
   {"LaserCal","" ,"","db,detDb,tpc_daq,tpcDb,fcf,globT,laser,LaserTest","",""
@@ -2976,7 +2982,7 @@ Bfc_st BFC[] = {
   {"vpdSim" ,"","VpdChain","BTofUtil","StVpdSimMaker","StEvent,StMcEvent,StBTofHitMaker,StVpdSimMaker"
    , "Vpd Simulator",kFALSE},
   {"vpdCalib","","BTofChain","db,BTofUtil","StVpdCalibMaker" ,"StVpdCalibMaker","VPD calibration",kFALSE},
-  {"btofSim" ,"","BTofChain","BTofUtil",
+  {"btofSim" ,"","BTofChain","BTofUtil" ,"StBTofSimMaker",
                        "StEvent,StMcEvent,StTofUtil,StBTofHitMaker,StBTofSimMaker","BTOF Simulator",kFALSE},
   {"btofMixer" ,"","BTofChain","BTofUtil","StBTofMixerMaker","StEvent,StBTofHitMaker,StBTofMixerMaker"
    , "BTof Mixer",kFALSE},
@@ -3102,9 +3108,9 @@ Bfc_st BFC[] = {
   {"mtdMatch" ,"","","db,MtdUtil", "StMtdMatchMaker","StMtdMatchMaker","TPC-MTD track matching",kFALSE},
   {"mtdCalib" ,"","","db", "StMtdCalibMaker","StMtdCalibMaker","MTD calibration",kFALSE},
   {"mtdEvtFilt" ,"","","db", "StMtdEvtFilterMaker","StMtdEvtFilterMaker","MTD event filter" ,kFALSE},
-  {"FindVtxSeed" ,"FindVtxSeed" ,"","globT,MuDSTDeps","StVertexSeedMaker"
+  {"FindVtxSeed" ,"FindVtxSeed" ,"","globT,MuDSTDeps,picoDst","StVertexSeedMaker"
    , "StPass0CalibMaker", "Performs vertex seed finding",kFALSE},
-  {"FindEvtVtxSeed","FindEvtVtxSeed","","MuDSTDeps","StEvtVtxSeedMaker"
+  {"FindEvtVtxSeed","FindEvtVtxSeed","","MuDSTDeps,picoDst","StEvtVtxSeedMaker"
    , "StPass0CalibMaker","Performs vertex seed finding using StEvent",kFALSE},
   {"Ftpc" ,"ftpcChain" ,"","ftpcT,fcl,fpt" ,"StMaker","StChain","",kFALSE},
   {"fss" ,"ftpc_raw","ftpcChain","SCL,Simu","StFtpcSlowSimMaker"
@@ -3135,10 +3141,10 @@ Bfc_st BFC[] = {
    , "Xis AND V0s from StEvent",kFALSE},
   {"V0svt" ,"","","" ,"","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"Xisvt" ,"","","" ,"","","WARNING *** Option is OBSOLETE ***",kFALSE},
-  {"SCEbyE" ,"scebye","","MuDSTDeps","StSpaceChargeEbyEMaker","StMuDSTMaker,StPass0CalibMaker"
-   , "Determine EbyE SpaceCharge using StEvent",kFALSE},
-  {"SCScalerCal" ,"scscalercal","","MuDSTDeps","StSpaceChargeEbyEMaker","StMuDSTMaker,StPass0CalibMaker"
-   , "Calibrate SpaceCharge scalers",kFALSE},
+  {"SCEbyE" ,"scebye","","MuDSTDeps,picoDst","StSpaceChargeEbyEMaker"
+   , "StMuDSTMaker,StPass0CalibMaker","Determine EbyE SpaceCharge using StEvent",kFALSE},
+  {"SCScalerCal" ,"scscalercal","","MuDSTDeps,picoDst","StSpaceChargeEbyEMaker"
+   , "StMuDSTMaker,StPass0CalibMaker","Calibrate SpaceCharge scalers",kFALSE},
   {"compend" ,"","","event,detDb","StEventCompendiumMaker","StEventCompendiumMaker"
    , "Fill event summary in ITTF Chain",kFALSE},
   {"TpcAligner" ,"","","Alignment" ,"StTpcAlignerMaker","StTpcAlignerMaker","TpcAligner",kFALSE},
