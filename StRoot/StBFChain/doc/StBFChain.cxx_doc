@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.156 2017/08/08 17:19:54 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.157 2017/08/08 18:51:41 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -1439,8 +1439,9 @@ Bfc_st BFC[] = {
   {"VFMinuit3" ,"" ,"","VFMinuit","","","... Generic VF will use Minuit method w/rank mode 3",kFALSE},
   {"VFFV" ,"" ,"","genvtx" ,"","","... Fixed dummy VF method",kFALSE},
   {"VFMCE" ,"" ,"","genvtx" ,"","","... Fixed vertex from MCEvent",kFALSE},
-  {"VFppLMV" ,"" ,"","genvtx" ,"","","...VertexMaker will use ppLMV method",kFALSE},
-  {"VFppLMV5" ,"" ,"","VFppLMV" ,"","","...VertexMaker will use ppLMV method (tuned)",kFALSE},
+  {"VFppLMV" ,"" ,"","genvtx" ,"","","... VertexMaker will use ppLMV method",kFALSE},
+  {"VFppLMV5" ,"" ,"","VFppLMV" ,"","","... VertexMaker will use ppLMV method (tuned)",kFALSE},
+  {"VFStoreX" ,"" ,"","genvtx" ,"","","... VertexMaker will use save at least 100 vertices",kFALSE},
   {"StiPulls" ,"","","" ,"","", "Request to make Sti Pulls",kFALSE},
   {"StvPulls" ,"","","" ,"","", "Request to make Stv Pulls",kFALSE},
   {"StiLib" ,"","","" ,"","Sti,StiUtilities","Load Sti",kFALSE},
@@ -3040,8 +3041,9 @@ Bfc_st BFC[] = {
   {"VFMinuit3" ,"" ,"","VFMinuit","","","... Generic VF will use Minuit method w/rank mode 3",kFALSE},
   {"VFFV" ,"" ,"","genvtx" ,"","","... Fixed dummy VF method",kFALSE},
   {"VFMCE" ,"" ,"","genvtx" ,"","","... Fixed vertex from MCEvent",kFALSE},
-  {"VFppLMV" ,"" ,"","genvtx" ,"","","...VertexMaker will use ppLMV method",kFALSE},
-  {"VFppLMV5" ,"" ,"","VFppLMV" ,"","","...VertexMaker will use ppLMV method (tuned)",kFALSE},
+  {"VFppLMV" ,"" ,"","genvtx" ,"","","... VertexMaker will use ppLMV method",kFALSE},
+  {"VFppLMV5" ,"" ,"","VFppLMV" ,"","","... VertexMaker will use ppLMV method (tuned)",kFALSE},
+  {"VFStoreX" ,"" ,"","genvtx" ,"","","... VertexMaker will use save at least 100 vertices",kFALSE},
   {"StiPulls" ,"","","" ,"","", "Request to make Sti Pulls",kFALSE},
   {"StvPulls" ,"","","" ,"","", "Request to make Stv Pulls",kFALSE},
   {"StiLib" ,"","","" ,"","Sti,StiUtilities","Load Sti",kFALSE},
@@ -3770,6 +3772,9 @@ Int_t StBFChain::Instantiate()
       if (GetOption("VtxSeedCalG") ) mk->SetAttr("calibBeamline", kTRUE);
       if (GetOption("usePct4Vtx" ) ) mk->SetAttr("PCT"          , kTRUE);
       if (GetOption("useBTOF4Vtx") ) mk->SetAttr("BTOF"         , kTRUE);
+      // X-tended works only for VFPPV, VFPPVnoCTB, VFPPVev for now but could be re-used
+      // However, we will change this to a more flexible arbitrarry setting later
+      if (GetOption("VFStoreX")    ) mk->SetAttr("VFStore"      , 100); 
       mk->PrintAttr();
     }
     if (maker=="StKFVertexMaker") {
