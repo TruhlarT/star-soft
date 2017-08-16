@@ -426,7 +426,7 @@ $collHash{"ppLong-1"} = "pp200";
 $collHash{"testJPsi-3"} = "dau200";
 
 
-my $prod_html = "/star/u/didenko/WWW/Html/ProdDDstreams_test.html";
+my $prod_html = "/star/u/didenko/WWW/Html/ProdDDstreams_new.html";
 
 my $SITE         = "BNL";
 my $status       = (0==1);
@@ -645,10 +645,10 @@ sub beginHtml {
  print HTML "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">\n";
  print HTML "<html>\n";
  print HTML " <head>\n";
- print HTML "          <title>Production Data Summary on DD  </title>\n";
+ print HTML "          <title>Production MuDst Summary on DD  </title>\n";
  print HTML "  </head>\n";
  print HTML "  <body BGCOLOR=\"cornsilk\">\n"; 
- print HTML "  <h2 ALIGN=CENTER> <B> Production Data Summary on Distributed Disk by stream data </B></h2>\n";
+ print HTML "  <h2 ALIGN=CENTER> <B> Production MuDst Summary on Distributed Disk by stream data </B></h2>\n";
  print HTML "  <h3 ALIGN=CENTER> Generated on $todate</h3>\n";
  print HTML " <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">\n";
  print HTML " <TR>\n";
