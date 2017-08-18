@@ -426,7 +426,7 @@ $collHash{"ppLong-1"} = "pp200";
 $collHash{"testJPsi-3"} = "dau200";
 
 
-my $prod_html = "/star/u/didenko/WWW/Html/ProdDDstreams_pico.html";
+my $prod_html = "/star/u/starlib/localdata/ProdDDstreams_pico.html";
 
 my $SITE         = "BNL";
 my $status       = (0==1);
