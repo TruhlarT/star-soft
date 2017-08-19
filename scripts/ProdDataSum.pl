@@ -427,7 +427,7 @@ $collHash{"ppTrans-1"} = "pp200";
 $collHash{"ppLong-1"} = "pp200";
 $collHash{"testJPsi-3"} = "dau200";
 
-my $prod_html = "/star/u/didenko/WWW/Html/DataSummary_new.html";
+my $prod_html = "/star/u/starlib/datsum/DataSummary.html";
 
 
 my $SITE         = "BNL";
