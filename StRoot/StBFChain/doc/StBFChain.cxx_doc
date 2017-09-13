@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.157 2017/08/08 18:51:41 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.158 2017/09/13 15:33:51 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -1326,6 +1326,8 @@ Bfc_st BFC[] = {
   {"Event" , "","","MakeEvent", "","","Request to initialize event",kFALSE},
   {"pxlFastSim" ,"","","StMcEvent,StEvent"
    , "StPxlSimMaker","StPxlSimMaker","PXL Fast Simulator",kFALSE},
+  {"pxlSlowSim" ,"","","StMcEvent,StEvent"
+   , "StPxlSimMaker","StPxlSimMaker","PXL Slow Simulator",kFALSE},
   {"pxlRaw" ,"","","pxlDb", "StPxlRawHitMaker", "StPxlRawHitMaker", "PXL raw hit maker",kFALSE},
   {"pxlCluster" ,"","","pxlRaw", "StPxlClusterMaker", "StPxlClusterMaker", "PXL cluster maker",kFALSE},
   {"pxlHit" ,"","","event pxlCluster", "StPxlHitMaker", "StPxlHitMaker", "PXL hit maker",kFALSE},
@@ -2928,6 +2930,8 @@ Bfc_st BFC[] = {
   {"Event" , "","","MakeEvent", "","","Request to initialize event",kFALSE},
   {"pxlFastSim" ,"","","StMcEvent,StEvent"
    , "StPxlSimMaker","StPxlSimMaker","PXL Fast Simulator",kFALSE},
+  {"pxlSlowSim" ,"","","StMcEvent,StEvent"
+   , "StPxlSimMaker","StPxlSimMaker","PXL Slow Simulator",kFALSE},
   {"pxlRaw" ,"","","pxlDb", "StPxlRawHitMaker", "StPxlRawHitMaker", "PXL raw hit maker",kFALSE},
   {"pxlCluster" ,"","","pxlRaw", "StPxlClusterMaker", "StPxlClusterMaker", "PXL cluster maker",kFALSE},
   {"pxlHit" ,"","","event pxlCluster", "StPxlHitMaker", "StPxlHitMaker", "PXL hit maker",kFALSE},
@@ -3910,6 +3914,8 @@ Int_t StBFChain::Instantiate()
       cmd += "Ximk->SetXiLanguageUsage(5);";
       ProcessLine(cmd);
     }
+
+    // TPC
     if (maker == "StTpcRTSHitMaker") {
       if ( GetOption("TpxClu2D")) mk->SetAttr("TpxClu2D", kTRUE);
     }
@@ -3979,12 +3985,16 @@ Int_t StBFChain::Instantiate()
 	 maker == "StFtpcTrackMaker"    )  &&
 	GetOption("fgain"))                    mk->SetMode(mk->GetMode()+4);
 
-    // FTPC
 
     // PMD
     if ( maker == "StPmdReadMaker"         &&
          GetOption("pmdRaw"))                  mk->SetAttr("pmdRaw",kTRUE);
-    // PMD
+
+    // HFT
+    if (maker == "StPxlSimMaker"           &&
+	GetOption("pxlSlowSim"))               mk->SetAttr("useDIGMAPSSim",kTRUE);
+
+
 
     // Hit filtering will be made from a single maker in
     // future with flexible filtering method
