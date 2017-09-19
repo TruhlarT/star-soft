@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.159 2017/09/14 13:53:16 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.160 2017/09/19 14:54:04 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -973,9 +973,17 @@ Bfc_st BFC[] = {
    , "Base chain for run 2017 data (tpc)",kFALSE},
   {"pp2017","" ,"",
    "B2017,Sti,UseXgeom,BAna,hitfilt,ppOpt,VFPPVnoCTB,beamline,l3onl,emcDY2,fpd,trgd,ZDCvtx,analysis"
-   , "","","Production chain for year 2017 pp data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+   , "","","Base chain for year 2017 pp data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"P2017","" ,"",
    "B2017,Sti,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,analysis"
+   , "","","Base chain for year 2017 AA data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+  {"B2017a" ,"","","ry2017a,in,tpcX,CorrX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,picoWrite","",""
+   , "Production chain for run 2017 data (tpc)",kFALSE},
+  {"pp2017a","" ,"",
+   "B2017a,ITTF,UseXgeom,BAna,hitfilt,ppOpt,VFPPVnoCTB,beamline3D,l3onl,emcDY2,fpd,trgd,ZDCvtx,analysis"
+   , "","","Production chain for year 2017 pp data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+  {"P2017a","" ,"",
+   "B2017a,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,beamline3D,l3onl,emcDY2,fpd,trgd,ZDCvtx,analysis"
    , "","","Production chain for year 2017 AA data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","",""
    , "Laser Calibration Chain (tcl)",kFALSE},
@@ -2578,9 +2586,17 @@ Bfc_st BFC[] = {
    , "Base chain for run 2017 data (tpc)",kFALSE},
   {"pp2017","" ,"",
    "B2017,Sti,UseXgeom,BAna,hitfilt,ppOpt,VFPPVnoCTB,beamline,l3onl,emcDY2,fpd,trgd,ZDCvtx,analysis"
-   , "","","Production chain for year 2017 pp data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+   , "","","Base chain for year 2017 pp data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"P2017","" ,"",
    "B2017,Sti,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,analysis"
+   , "","","Base chain for year 2017 AA data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+  {"B2017a" ,"","","ry2017a,in,tpcX,CorrX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,picoWrite","",""
+   , "Production chain for run 2017 data (tpc)",kFALSE},
+  {"pp2017a","" ,"",
+   "B2017a,ITTF,UseXgeom,BAna,hitfilt,ppOpt,VFPPVnoCTB,beamline3D,l3onl,emcDY2,fpd,trgd,ZDCvtx,analysis"
+   , "","","Production chain for year 2017 pp data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+  {"P2017a","" ,"",
+   "B2017a,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,beamline3D,l3onl,emcDY2,fpd,trgd,ZDCvtx,analysis"
    , "","","Production chain for year 2017 AA data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","",""
    , "Laser Calibration Chain (tcl)",kFALSE},
