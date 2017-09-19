@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.160 2017/09/19 14:54:04 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.161 2017/09/19 18:47:37 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -1581,8 +1581,8 @@ Bfc_st BFC[] = {
   {"RMuDST" ,"","","CMuDST" ,"","","reads Common MuDST, do not disactivate if no output files",kFALSE},
   {"picoWrite" ,"","PicoChain","picoDst","StPicoDstMaker","" ,"Writes picoDST format",kFALSE},
   {"picoRead" ,"","PicoChain","picoDst","StPicoDstMaker","" ,"WritesRead picoDST format",kFALSE},
-  {"PicoVtxDefault","","","" ,"","pico Vtx default mode",kFALSE},
-  {"PicoVtxVpd","","","" ,"","pico Vtx cut on Tof and VPD mode",kFALSE},
+  {"PicoVtxDefault" ,"","","" ,"" ,"","pico Vtx default mode",kFALSE},
+  {"PicoVtxVpd" ,"","","" ,"" ,"","pico Vtx cut on Tof and VPD mode",kFALSE},
   {"St_geom" ,"" ,"","" , "St_geom_Maker","St_geom_Maker","",kFALSE},
   {"Display" ,"","","", "","","WARNING *** Option is OBSOLETE *** use Ed.C macro instead",kFALSE},
   {"Mc" ,"McChain","McEvent","sim_T,globT,McAss,McAna" ,"StMaker","StChain","",kFALSE},
@@ -3194,8 +3194,8 @@ Bfc_st BFC[] = {
   {"RMuDST" ,"","","CMuDST" ,"","","reads Common MuDST, do not disactivate if no output files",kFALSE},
   {"picoWrite" ,"","PicoChain","picoDst","StPicoDstMaker","" ,"Writes picoDST format",kFALSE},
   {"picoRead" ,"","PicoChain","picoDst","StPicoDstMaker","" ,"WritesRead picoDST format",kFALSE},
-  {"PicoVtxDefault","","","" ,"","pico Vtx default mode",kFALSE},
-  {"PicoVtxVpd","","","" ,"","pico Vtx cut on Tof and VPD mode",kFALSE},
+  {"PicoVtxDefault" ,"","","" ,"" ,"","pico Vtx default mode",kFALSE},
+  {"PicoVtxVpd" ,"","","" ,"" ,"","pico Vtx cut on Tof and VPD mode",kFALSE},
   {"St_geom" ,"" ,"","" , "St_geom_Maker","St_geom_Maker","",kFALSE},
   {"Display" ,"","","", "","","WARNING *** Option is OBSOLETE *** use Ed.C macro instead",kFALSE},
   {"Mc" ,"McChain","McEvent","sim_T,globT,McAss,McAna" ,"StMaker","StChain","",kFALSE},
