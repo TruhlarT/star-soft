@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx,v 1.633 2016/07/02 22:23:10 perev Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx,v 1.644.2.1 2017/10/05 22:10:32 jwebb Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -507,10 +507,13 @@ Int_t StBFChain::Instantiate()
 
       // back to the HFT sub-system
       if (GetOption("NoPxlIT")) {
+	mk->SetAttr("usePxl"	 ,kTRUE);
 	mk->SetAttr("usePixel"	 ,kTRUE);
       } else {
         if (GetOption("PixelIT") || GetOption("PxlIT") ){
+	  mk->SetAttr("usePxl"     ,kTRUE);
 	  mk->SetAttr("usePixel"	 ,kTRUE);
+	  mk->SetAttr("activePxl"  ,kTRUE);
 	  mk->SetAttr("activePixel",kTRUE);
         }
       }
@@ -557,27 +560,31 @@ Int_t StBFChain::Instantiate()
       if (GetOption("VFMinuit"   ) ) mk->SetAttr("VFMinuit"   	, kTRUE);
       if (GetOption("VFppLMV"    ) ) mk->SetAttr("VFppLMV"    	, kTRUE);
       if (GetOption("VFppLMV5"   ) ) mk->SetAttr("VFppLMV5"   	, kTRUE);
-      if (GetOption("VFPPV"      ) ) mk->SetAttr("VFPPV"      	, kTRUE);
-      if (GetOption("VFPPVEv"  ) ) {
+      if ((GetOption("VFPPV") && GetOption("Stv")) || GetOption("VFPPVEv") ) {
         gSystem->Load("StBTofUtil.so");
         mk->SetAttr("VFPPVEv"      , kTRUE);
-      }
+      } else if (GetOption("VFPPV") && GetOption("Sti")) mk->SetAttr(    "VFPPV", kTRUE);
       if (GetOption("VFPPVEvNoBtof")){
         gSystem->Load("StBTofUtil.so"); //Not used but loaded to avoid fail
         mk->SetAttr("VFPPVEvNoBtof", kTRUE);
       }
-      if (GetOption("VFPPVnoCTB" ) ) mk->SetAttr("VFPPVnoCTB" 	, kTRUE);
-      if (GetOption("VFFV"       ) ) mk->SetAttr("VFFV"       	, kTRUE);
-      if (GetOption("VFMCE"      ) ) mk->SetAttr("VFMCE"      	, kTRUE);
-      if (GetOption("VFMinuit2"  ) ) mk->SetAttr("VFMinuit2"  	, kTRUE);
-      if (GetOption("VFMinuit3"  ) ) mk->SetAttr("VFMinuit3"  	, kTRUE);
-      if (GetOption("beamLine"   ) ) mk->SetAttr("BeamLine"   	, kTRUE);
-      if (GetOption("beamLine3D" ) ) mk->SetAttr("BeamLine3D"  	, kTRUE);
-      if (GetOption("CtbMatchVtx") ) mk->SetAttr("CTB"        	, kTRUE);
-      if (GetOption("min2trkVtx" ) ) mk->SetAttr("minTracks" 	, 2);
-      if (GetOption("VtxSeedCalG") ) mk->SetAttr("calibBeamline", kTRUE);
-      if (GetOption("usePct4Vtx" ) ) mk->SetAttr("PCT"          , kTRUE);
-      if (GetOption("useBTOF4Vtx") ) mk->SetAttr("BTOF"         , kTRUE);
+      if (GetOption("VFPPVnoCTB" ) )      mk->SetAttr("VFPPVnoCTB" 	, kTRUE);
+      if (GetOption("VFFV"       ) )      mk->SetAttr("VFFV"       	, kTRUE);
+      if (GetOption("VFMCE"      ) )      mk->SetAttr("VFMCE"      	, kTRUE);
+      if (GetOption("VFMinuit2"  ) )      mk->SetAttr("VFMinuit2"  	, kTRUE);
+      if (GetOption("VFMinuit3"  ) )      mk->SetAttr("VFMinuit3"  	, kTRUE);
+      if (GetOption("beamLine"   ) )      mk->SetAttr("BeamLine"   	, kTRUE);
+      if (GetOption("beamLine3D" ) )      mk->SetAttr("BeamLine3D"  	, kTRUE);
+      if (GetOption("CtbMatchVtx") )      mk->SetAttr("CTB"        	, kTRUE);
+      if (GetOption("min2trkVtx" ) )      mk->SetAttr("minTracks" 	, 2);
+      if (GetOption("VtxSeedCalG") )      mk->SetAttr("calibBeamline" 	, kTRUE);
+      if (GetOption("usePct4Vtx" ) )      mk->SetAttr("PCT"           	, kTRUE);
+      if (GetOption("useBTOF4Vtx") )      mk->SetAttr("BTOF"          	, kTRUE);
+      if (GetOption("useBTOFmatchOnly") ) mk->SetAttr("useBTOFmatchOnly", kTRUE);
+
+      // X-tended works only for VFPPV, VFPPVnoCTB, VFPPVev for now but could be re-used
+      // However, we will change this to a more flexible arbitrarry setting later
+      if (GetOption("VFStoreX")    ) mk->SetAttr("VFStore"      , 100); 
       mk->PrintAttr();
     }
     if (maker=="StKFVertexMaker") {
@@ -655,6 +662,15 @@ Int_t StBFChain::Instantiate()
       ProcessLine(cmd);
     }
 
+    if ( maker == "StPicoDstMaker"){
+      if ( GetOption("picoWrite") )  mk->SetMode(1);
+      if ( GetOption("picoRead")  )  mk->SetMode(2);   // possibly more magic
+      if ( GetOption("PicoVtxVpd"))           mk->SetAttr("picoVtxMode", "PicoVtxVpd");
+      else if ( GetOption("PicoVtxDefault"))  mk->SetAttr("picoVtxMode", "PicoVtxDefault");
+      
+    }
+
+
     if (maker == "StLaserEventMaker"){
       // Bill stuff - Empty place-holder
     }
@@ -704,6 +720,8 @@ Int_t StBFChain::Instantiate()
       cmd += "Ximk->SetXiLanguageUsage(5);";
       ProcessLine(cmd);
     }
+
+    // TPC
     if (maker == "StTpcRTSHitMaker") {
       if ( GetOption("TpxClu2D")) mk->SetAttr("TpxClu2D", kTRUE);
     }
@@ -744,6 +762,7 @@ Int_t StBFChain::Instantiate()
 	if( GetOption("OBMap2d")    ) mk->SetAttr("OBMap2d"    , kTRUE);
 	if( GetOption("OGridLeak")  ) mk->SetAttr("OGridLeak"  , kTRUE);
 	if( GetOption("OGridLeak3D")) mk->SetAttr("OGridLeak3D", kTRUE);
+	if( GetOption("OGridLeakFull")) mk->SetAttr("OGridLeakFull", kTRUE);
 	if( GetOption("OGGVoltErr") ) mk->SetAttr("OGGVoltErr" , kTRUE);
 	if( GetOption("OSectorAlign"))mk->SetAttr("OSectorAlign",kTRUE);
       }
@@ -772,12 +791,16 @@ Int_t StBFChain::Instantiate()
 	 maker == "StFtpcTrackMaker"    )  &&
 	GetOption("fgain"))                    mk->SetMode(mk->GetMode()+4);
 
-    // FTPC
 
     // PMD
     if ( maker == "StPmdReadMaker"         &&
          GetOption("pmdRaw"))                  mk->SetAttr("pmdRaw",kTRUE);
-    // PMD
+
+    // HFT
+    if (maker == "StPxlSimMaker"           &&
+	GetOption("pxlSlowSim"))               mk->SetAttr("useDIGMAPSSim",kTRUE);
+
+
 
     // Hit filtering will be made from a single maker in
     // future with flexible filtering method
@@ -907,6 +930,16 @@ Int_t StBFChain::Init() {
       SetAttr(".call","SetActive(0)","StStrangeMuDstMaker::");
     }
 #if 1
+
+
+    if (fNoChainOptions) {
+      if (GetOption("misalign") ) 
+	gROOT->ProcessLine("AgPosition::SetReal();");
+      else                        
+	gROOT->ProcessLine("AgPosition::SetIdeal();");
+    }
+
+
     // force load of geometry for VMC and Sti
     
     if (GetOption("Sti") || GetOption("StiCA") || 
@@ -1058,7 +1091,7 @@ Int_t StBFChain::kOpt (const TString *tag, Bool_t Check) const {
   //
   // Gopt for arbitrary property on 3 letter name (wildcard would be added) and length
   // 6 for a value. Not advertized / not used and implementation is not complete (needed
-  // a case and di not have a clear one). TBD.
+  // a case and do not have a clear one). TBD.
   //
   // 2011/11 added the possibility of detector sub-system specific timestamps.
   // DBV only for now, logic is similar if we equally parse.
@@ -1192,6 +1225,8 @@ void StBFChain::SetOptions(const Char_t *options, const Char_t *chain) {
 	  }
 
 	} else if ( Tag.BeginsWith("gopt") && Tag.Length() == 13){
+	  // TODO option best as gopt.$ATTRR.$VAL for arbitrary attribute and value
+	  //      parsing to extend
 	  char GOptName[4],GOptValue[7];
 	  //TString property(".gopt.");
 	  //TString pattern("*");
@@ -1433,7 +1468,7 @@ void StBFChain::SetFlags(const Char_t *Chain)
 	}
 	SetOption("pgf77","Default,-TGiant3");
 	SetOption("mysql","Default,-TGiant3");
-	SetOption("minicern","Default,-TGiant3");
+	SetOption("StarMiniCern","Default,-TGiant3");
       }
     }
     if (GetOption("ITTF") && ! (GetOption("Sti") || GetOption("StiCA")  || GetOption("Stv") || GetOption("StiVMC"))) {

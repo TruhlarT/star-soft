@@ -61,6 +61,9 @@ Bfc_st BFC[] = { // standard chains
   {"Geometry    ","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
 #ifdef __AgMLonFly__
+  {"ideal",       "",  "","",            "",           "",              "Ideal Alignment", kFALSE},
+  {"misalign",    "",  "","",            "","-AgMLideal",           "Misaligned Geometry", kFALSE},
+  {"AgMLutil",    "",  "","",            "","StarAgmlUtil",             "AgML support", kFALSE},
   {"AgMLlib",     "",  "","",            "","StarAgmlUtil,StarAgmlLib", "AgML support", kFALSE},
   {"AgML"        ,""  ,"","AgMLlib,-Agi,-VmcGeo","","Geometry,StarGeometry"
    ,                                                            "Alias VmcGeometry to AgiLGeometry",kFALSE},
@@ -1014,7 +1017,7 @@ Bfc_st BFC[] = { // standard chains
    ,                                                               "Base chain for 2015 ITTF (tpc)",kFALSE},
 
   {"B2015a"  ,"","","ry2015a,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
-   ,                                                               "Base chain for run 2015a data",kFALSE},
+   ,                                                                "Base chain for run 2015a data",kFALSE},
 
   {"B2015b"  ,"","","ry2015b,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
    ,                                                  "Base chain for run 2015 with y2015b geometry",kFALSE},
@@ -1028,15 +1031,15 @@ Bfc_st BFC[] = { // standard chains
 
   {"pp2015a","" ,"",
    "B2015a,ITTF,UseXgeom,BAna,hitfilt,ppOpt,VFPPVnoCTB,beamline,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
-   ,                      "","","Production chain for year 2015a data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+   ,                "","","Production chain for year 2015a data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
 
   {"pp2015b","" ,"",
    "B2015b,ITTF,UseXgeom,BAna,hitfilt,ppOpt,VFPPVnoCTB,beamline,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
-   ,                      "","","Production chain for year 2015b data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+   ,                "","","Production chain for year 2015b data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
 
   {"pp2015c","" ,"",
    "B2015c,ITTF,UseXgeom,BAna,hitfilt,ppOpt,VFPPVnoCTB,beamline,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
-   ,                      "","","Production chain for year 2015c data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+   ,                "","","Production chain for year 2015c data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
 
 
   {"P2015","" ,"",
@@ -1045,15 +1048,15 @@ Bfc_st BFC[] = { // standard chains
 
   {"P2015a","" ,"",
    "B2015a,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
-   ,                      "","","Production chain for year 2015a data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+   ,                "","","Production chain for year 2015a data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
 
   {"P2015b","" ,"",
    "B2015b,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
-   ,                      "","","Production chain for year 2015b data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+   ,                "","","Production chain for year 2015b data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
 
   {"P2015c","" ,"",
    "B2015c,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
-   ,                      "","","Production chain for year 2015c data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+   ,                "","","Production chain for year 2015c data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
 
 
   // Year 16 initial chains - no data to really test yet but placeholder
@@ -1065,18 +1068,36 @@ Bfc_st BFC[] = { // standard chains
    ,                      "","","Production chain for 2016 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
 
   {"B2016a"  ,"","","ry2016a,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
-   ,                                                               "Production chain for 2016 data (tpc)",kFALSE},
+   ,                                                         "Production chain for 2016 data (tpc)",kFALSE},
   {"P2016a","" ,"",
    "B2016a,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,StiHftC,analysis"
    ,                      "","","Production chain for 2016 data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+  
+  // 
+  // Year 17, p+p and BES - first chains are FastOffline related as usual
+  //
+  {"B2017"  ,"","","ry2017,in,tpcX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
+   ,                                                           "Base chain for run 2017 data (tpc)",kFALSE},
+
+  {"pp2017","" ,"",
+   "B2017,Sti,UseXgeom,BAna,hitfilt,ppOpt,VFPPVnoCTB,beamline,l3onl,emcDY2,fpd,trgd,ZDCvtx,analysis"
+   ,                    "","","Base chain for year 2017 pp data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+  {"P2017","" ,"",
+   "B2017,Sti,UseXgeom,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,trgd,ZDCvtx,analysis"
+   ,                    "","","Base chain for year 2017 AA data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
 
 
-  // TEST
-  //{"B2013_X","","","ry2012,in,tpcX,ITTF,AgML,UseXgeom,tpcDB,TpcHitMover,Idst,tags,Tree,evout","",""
-  // ,                                                               "Base chain for 2014 ITTF (tpc)",kFALSE},
-  //{"pp2013X","" ,"",
-  // "B2013_X,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,trgd,ZDCvtx,NosvtIT,NossdIT,analysis",
-  // "","",                "Production chain for 2014 data - no Corr (+ l3, bcc/fpd, e/b-emc, no VF)",kFALSE},
+  {"B2017a"  ,"","","ry2017a,in,tpcX,CorrX,AgML,tpcDB,TpcHitMover,Idst,tags,Tree,picoWrite","",""
+   ,                                                     "Production chain for run 2017 data (tpc)",kFALSE},
+
+  {"pp2017a","" ,"",
+   "B2017a,ITTF,UseXgeom,BAna,hitfilt,ppOpt,VFPPVnoCTB,beamline3D,l3onl,emcDY2,fpd,trgd,ZDCvtx,analysis"
+   ,              "","","Production chain for year 2017 pp data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+
+  {"P2017a","" ,"",
+   "B2017a,ITTF,UseXgeom,BAna,hitfilt,VFMinuit,beamline3D,l3onl,emcDY2,fpd,trgd,ZDCvtx,analysis"
+   ,              "","","Production chain for year 2017 AA data - no Corr (+ l3, bcc/fpd, e/b-emc)",kFALSE},
+
 
 
 
@@ -1171,6 +1192,7 @@ Bfc_st BFC[] = { // standard chains
   {"OShortR"     ,""  ,"","",""                                       ,"","Shorted Ring correction",kFALSE},
   {"OGridLeak"   ,""  ,"","",""                                          ,"","Grid Leak correction",kFALSE},
   {"OGridLeak3D" ,""  ,"","",""                                       ,"","3D Grid Leak correction",kFALSE},
+  {"OGridLeakFull","" ,"","",""                                     ,"","Full Grid Leak correction",kFALSE},
   {"OGGVoltErr"  ,""  ,"","",""                                   ,"","GG voltage error correction",kFALSE},
   {"OSectorAlign",""  ,"","",""                        ,"","Sector alignment distortion correction",kFALSE},
   {"AlignSectors",""  ,"","",""                                             ,"",STAR_CHAIN_OBSOLETE,kFALSE},
@@ -1194,6 +1216,8 @@ Bfc_st BFC[] = { // standard chains
   // See related code in StBFChain.cxx for details
   {"usePct4Vtx"     ,""  ,"","",""                ,"","Use Post-Crossing Tracks for vertex finding",kFALSE},
   {"useBTOF4Vtx"    ,""  ,"","",""                 ,"","Use BTOF track matching for vertex ranking",kFALSE},
+  {"useBTOFmatchOnly","","","useBTOF4Vtx",""                     ,"","Use BTOF track matching only",kFALSE},
+
   {"svt1hit"        ,""  ,"","",""                             ,"","Use 1 SVT hit only combination",kFALSE},
   {"onlcl"  ,""  ,"","",""                                       ,"","Read/use TPC DAQ100 clusters",kFALSE},
   {"onlraw" ,""  ,"","",""                                              ,"","Read/use TPC raw hits",kFALSE},
@@ -1230,7 +1254,7 @@ Bfc_st BFC[] = { // standard chains
   {"Geometry+Mag","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"pgf77"       ,"" ,"","",""                                                ,"pgf77VMC","Fortran",kFALSE},
   {"rootcern"    ,"" ,"","geant3",""                                   ,"","ROOT minicern OBSOLETE",kFALSE},
-  {"minicern"    ,"" ,"","geant3",""                       ,"","STAR addition to minicern OBSOLETE",kFALSE},
+  {"StarMiniCern","" ,"","geant3",""                       ,"","STAR addition to minicern OBSOLETE",kFALSE},
   {"mysql"       ,"" ,"","",""                                            ,"libmysqlclient","MySQL",kFALSE},
   {"libPhysics"  ,"" ,"","",""                                              ,"libPhysics","TVector",kFALSE},
   {"geant3vmc"   ,"" ,"","-usexgeom,-xgeometry","",        "libGeom,libVMC,libgeant3", "VMC geant3",kFALSE},
@@ -1279,6 +1303,10 @@ Bfc_st BFC[] = { // standard chains
   {"MuDST"       ,"" ,"","MuDSTDeps,EmcUtil,TofUtil,BTofUtil,PmdUtil",""
    ,                                                   "StMuDSTMakerNoStrange","Load MuDST library",kFALSE},
 #endif /* __NoStrangeMuDst__ */
+  {"picoEvt"    ,"","","StEvent,Stu","",            "StPicoEvent","Load picoEvent and dependencies",kFALSE},
+  {"picoDst"    ,"","","picoEvt,EmcUtil,TofUtil,BTofUtil,PmdUtil",""
+   ,                                                        "StPicoDstMaker","Load PicoDST library",kFALSE},
+
 
   {"geantL","","","geomT,gen_T,sim_T,StarMagField","","geometry,Geom,St_db_Maker,St_g2t,St_geant_Maker"
    ,                                                                               "Load GeantLibs",kFALSE},
@@ -1326,6 +1354,8 @@ Bfc_st BFC[] = { // standard chains
   {"fgtDb"       ,"fgtDb","","db,fgtutil",          "StFgtDbMaker","StFgtDbMaker","Load FgtDbMaker",kFALSE},
   {"pxlDb"       ,"pxlDb","","tpcDb PxlUtil",       "StPxlDbMaker","StPxlDbMaker","Load PxlDbMaker",kFALSE},
   {"istDb"       ,"istDb","","tpcDb",               "StIstDbMaker","StIstDbMaker","Load IstDbMaker",kFALSE},
+
+  {"epdDb"       ,"epdDb","","epdDb",               "StEpdDbMaker","StEpdDbMaker","Load EpdDbMaker",kFALSE},
 
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"MAKERS      ","-----------","-----------","------------------------------------------","","","",kFALSE},
@@ -1457,6 +1487,9 @@ Bfc_st BFC[] = { // standard chains
 
   {"pxlFastSim"  ,"","","StMcEvent,StEvent"
    ,                                           "StPxlSimMaker","StPxlSimMaker","PXL Fast Simulator",kFALSE},
+  {"pxlSlowSim"  ,"","","StMcEvent,StEvent"
+   ,                                           "StPxlSimMaker","StPxlSimMaker","PXL Slow Simulator",kFALSE},
+   
   {"pxlRaw"      ,"","","pxlDb",    "StPxlRawHitMaker", "StPxlRawHitMaker",     "PXL raw hit maker",kFALSE},
   {"pxlCluster"  ,"","","pxlRaw", "StPxlClusterMaker", "StPxlClusterMaker",     "PXL cluster maker",kFALSE},
   {"pxlHit"      ,"","","event pxlCluster",   "StPxlHitMaker", "StPxlHitMaker",     "PXL hit maker",kFALSE},
@@ -1514,14 +1547,19 @@ Bfc_st BFC[] = { // standard chains
   {"EEmcMixer", "","","",                    "StEEmcMixerMaker","StEEmcSimulatorMaker","EEMC mixer",kFALSE},
   {"eemcA2E","eemcA2E","" ,"db","StEEmcA2EMaker",       "StEEmcA2EMaker","E-EMC ADC to E converter",kFALSE},
   {"eemCl"    ,"eemCl","","db","StEEmcClusterMaker"        ,"StEEmcClusterMaker","E-EMC clustering",kFALSE},
+
   // BTOF related chains
   {"btof"       ,"BTofChain","","btofDat,vpdCalib,btofMatch,btofCalib,geant","StMaker"
    ,                                                                         "StChain","BTOF Chain",kFALSE},
   {"BtofDat"   ,"tof_raw","BTofChain","db,BTofutil","StBTofHitMaker","StEvent,StBTofHitMaker"
    ,                                                                               "BTOF hit maker",kFALSE},
+  {"vpdSim"    ,"","VpdChain","BTofUtil","StVpdSimMaker","StEvent,StMcEvent,StBTofHitMaker,StVpdSimMaker"
+   ,                                                                                "Vpd Simulator",kFALSE},
   {"vpdCalib","","BTofChain","db,BTofUtil","StVpdCalibMaker"   ,"StVpdCalibMaker","VPD calibration",kFALSE},
-  {"btofSim"    ,"","BTofChain","BTofUtil","StBTofSimMaker","StEvent,StBTofHitMaker,StBTofSimMaker"
-   ,                                                                               "BTOF Simulator",kFALSE},
+  {"btofSim" ,"","BTofChain","BTofUtil"  ,"StBTofSimMaker",
+                       "StEvent,StMcEvent,StTofUtil,StBTofHitMaker,StBTofSimMaker","BTOF Simulator",kFALSE},
+  {"btofMixer"    ,"","BTofChain","BTofUtil","StBTofMixerMaker","StEvent,StBTofHitMaker,StBTofMixerMaker"
+   ,                                                                                   "BTof Mixer",kFALSE},
 
 
   // left MTD chain for sumulation alone here
@@ -1570,7 +1608,9 @@ Bfc_st BFC[] = { // standard chains
   {"fpsDat"     ,"","", "StEvent,fmsdb",
    "StFpsRawHitMaker","StFpsRawHitMaker","Fill FPS struct",                                         kFALSE},
   {"fmsPoint"   ,"","", "event,fmsDb",
-   "StFmsPointMaker","StFmsPointMaker","Fill FMS clusters",                                         kFALSE},
+   "StFmsPointMaker","StFmsPointMaker","Fill FMS clusters and points",                              kFALSE},
+  {"fmsfps"   ,"","", "event,fmsDb",
+   "StFmsFpsMaker","StFmsFpsMaker","Fill FPS association in FMS points",                            kFALSE},
 
 #if 0
   {"fpd"         ,"fpd","","",                  "StFpdMaker","StFpdMaker","FPD/BBC Data base chain",kFALSE},
@@ -1595,8 +1635,10 @@ Bfc_st BFC[] = { // standard chains
   {"VFMinuit3"      ,""  ,"","VFMinuit","","","... Generic VF will use Minuit method w/rank mode 3",kFALSE},
   {"VFFV"           ,""  ,"","genvtx"                            ,"","","... Fixed dummy VF method",kFALSE},
   {"VFMCE"          ,""  ,"","genvtx"                        ,"","","... Fixed vertex from MCEvent",kFALSE},
-  {"VFppLMV"        ,""  ,"","genvtx"                 ,"","","...VertexMaker will use ppLMV method",kFALSE},
-  {"VFppLMV5"       ,""  ,"","VFppLMV"        ,"","","...VertexMaker will use ppLMV method (tuned)",kFALSE},
+  {"VFppLMV"        ,""  ,"","genvtx"                ,"","","... VertexMaker will use ppLMV method",kFALSE},
+  {"VFppLMV5"       ,""  ,"","VFppLMV"       ,"","","... VertexMaker will use ppLMV method (tuned)",kFALSE},
+  {"VFStoreX"       ,""  ,"",""        ,"","","... VertexMaker will use save at least 100 vertices",kFALSE},
+
   // Sti options
   {"StiPulls" ,"","",""                                         ,"","", "Request to make Sti Pulls",kFALSE},
   {"StvPulls" ,"","",""                                         ,"","", "Request to make Stv Pulls",kFALSE},
@@ -1625,18 +1667,20 @@ Bfc_st BFC[] = { // standard chains
   {"VFPPVEv"    ,""     ,""	,"ctf_T,eemcDb"	,"StGenericVertexMaker"
    ,"ctf,St_ctf,St_ctf_Maker,Minui,StGenericVertexMaker"	,  "... StEvent based VFPPV, noCTB",kFALSE},
   {"VFPPVEvNoBtof"     	,""  ,""	,"VFPPVEv"	,""	     ,"","...VFPPVEv with no Btof ",kFALSE},
+
+
   // Sti/Stv chains
   {"Sti"      ,"Sti","","StiLib,StiLibs,SCL,StEvent,StDbT,TpcIT,compend,sim_T,tbutil","StiMaker"
-   ,                      "TPCCATracker,StiCA,StEventUtilities,StiUtilities,StiMaker","Sti tracker",kFALSE},
+   ,                      "StEventUtilities,StiUtilities,StiMaker","Sti tracker",kFALSE},
+  {"StiCA"      ,"Sti","","Sti","StiMaker","TPCCATracker,StiCA"                    ,"StiCA tracker",kFALSE},
   {"StiCAPerf","","","","",                             "TPCCATrackerPerformance", "CA Performance",kFALSE},
   {"StiCA"    ,"Sti","","Sti,StiLib,StiCALib,StiLibs,SCL,StEvent,StDbT,TpcIT,compend,tbutil","StiMaker"
    ,                                "StEventUtilities,libEG,StiUtilities,StiMaker","Sti+CA tracker",kFALSE},
   {"HLTCA"    ,""  ,"Sti","",                  "StHLTCAMaker","StHLTCAMaker",  "HLT reconstruction",kFALSE},
   {"KFVertex" ,""  ,"Sti","-genvtx,-VFMinuit,-VFFV,-VFMCE,-VFppLMV,-VFPPVnoCTB,-VFPPV,-Kink2,-V02,-Xi2"
    ,"StKFVertexMaker",      "MathMore,Spectrum",  "...KFParticle based multi vertex reconstruction",kFALSE},
-  {"Stv"     ,"Stv","","geant3vmc,-TpcIT,-SvtIT,-SsdIT,gen_T,sim_T",    "StvMaker",
-   "libHist,libHistPainter,GeoTestMaker,StvUtil,Stv,StvMaker"
-   ,                                                                                          "Stv",kFALSE},
+  {"Stv"     ,"Stv","","-xgeometry,-Sti,-StiTpc,-StiSsd,-StiSvt,-StiPxl,-StiSsd,-StiSst,-StiIst,","StvMaker"
+  ,"libHist,libHistPainter,libVMC,StarMiniCern,geant3,GeoTestMaker,StvUtil,Stv,StvMaker,StEventUtilities,-StiLibs,-StiLibsHft","Stv",kFALSE},
   {"StvCA"    ,"StvCA","","Stv","",""                                                      ,"StvCA",kFALSE},
   {"StiVMC"   ,"StiVMC","","-Sti,SCL,StEvent,StDbT,TpcDb,compend","StiVMCMaker"
    ,                                      "StEventUtilities,StiVMC,StiVMCMaker" ,"ITTF VMC tracker",kFALSE},
@@ -1648,11 +1692,12 @@ Bfc_st BFC[] = { // standard chains
 
   {"HpdIT"  ,""  ,"","ITTF",""                               ,"Sti,StiRnD","Sti tracking: Hpd geom",kFALSE},
   {"PixelIT",""  ,"","PxlIT",""                                               ,"","Alias for PxlIT",kFALSE},
-  {"PxlIT"  ,""  ,"","ITTF",""                             ,"Sti,StiPxl","Sti tracking: Pixel geom",kFALSE},
-  {"IstIT"  ,""  ,"","ITTF",""                               ,"Sti,StiIst","Sti tracking: Ist geom",kFALSE},
-  {"SstIT"  ,""  ,"","ITTF",""                               ,"Sti,StiSst","Sti tracking: Sst geom",kFALSE},
 
-  {"BTofIT"  ,""  ,"","ITTF",""                            ,"Sti,StiBTof","Sti tracking: BTof geom",kFALSE},
+  {"PxlIT"  ,""  ,"","ITTF",""                               ,"","Sti tracking: Pixel geom",kFALSE},
+  {"IstIT"  ,""  ,"","ITTF",""                               ,"","Sti tracking: Ist geom",kFALSE},
+  {"SstIT"  ,""  ,"","ITTF",""                               ,"","Sti tracking: Sst geom",kFALSE},
+
+  {"BTofIT"  ,""  ,"","ITTF",""                            ,"","Sti tracking: BTof geom",kFALSE},
   {"NoSvtIT"     ,""  ,"","-SvtIT",""                    ,"","ITTF: track with switch off SVT geom",kFALSE},
   {"NoSsdIT"     ,""  ,"","-SsdIT",""                    ,"","ITTF: track with switch off SSD geom",kFALSE},
   {"NoSstIT"     ,""  ,"","-SstIT",""                    ,"","ITTF: track with switch off SST geom",kFALSE},
@@ -1685,9 +1730,9 @@ Bfc_st BFC[] = { // standard chains
   {"mtdCalib"    ,"","","db",                 "StMtdCalibMaker","StMtdCalibMaker","MTD calibration",kFALSE},
   {"mtdEvtFilt"  ,"","","db",       "StMtdEvtFilterMaker","StMtdEvtFilterMaker","MTD event filter" ,kFALSE},
 
-  {"FindVtxSeed"   ,"FindVtxSeed"   ,"","globT,MuDSTDeps","StVertexSeedMaker"
+  {"FindVtxSeed"   ,"FindVtxSeed"   ,"","globT,MuDSTDeps,picoDst","StVertexSeedMaker"
    ,                                   "StPass0CalibMaker",          "Performs vertex seed finding",kFALSE},
-  {"FindEvtVtxSeed","FindEvtVtxSeed","","MuDSTDeps","StEvtVtxSeedMaker"
+  {"FindEvtVtxSeed","FindEvtVtxSeed","","MuDSTDeps,picoDst","StEvtVtxSeedMaker"
    ,                               "StPass0CalibMaker","Performs vertex seed finding using StEvent",kFALSE},
   {"Ftpc"      ,"ftpcChain"  ,"","ftpcT,fcl,fpt"                            ,"StMaker","StChain","",kFALSE},
   {"fss"       ,"ftpc_raw","ftpcChain","SCL,Simu","StFtpcSlowSimMaker"
@@ -1726,10 +1771,10 @@ Bfc_st BFC[] = { // standard chains
 
   {"V0svt"       ,"","",""                                               ,"","",STAR_CHAIN_OBSOLETE,kFALSE},
   {"Xisvt"       ,"","",""                                               ,"","",STAR_CHAIN_OBSOLETE,kFALSE},
-  {"SCEbyE"      ,"scebye","","MuDSTDeps","StSpaceChargeEbyEMaker","StMuDSTMaker,StPass0CalibMaker"
-   ,                                                     "Determine EbyE SpaceCharge using StEvent",kFALSE},
-  {"SCScalerCal" ,"scscalercal","","MuDSTDeps","StSpaceChargeEbyEMaker","StMuDSTMaker,StPass0CalibMaker"
-   ,                                                                "Calibrate SpaceCharge scalers",kFALSE},
+  {"SCEbyE"      ,"scebye","","MuDSTDeps,picoDst","StSpaceChargeEbyEMaker"
+   ,                    "StMuDSTMaker,StPass0CalibMaker","Determine EbyE SpaceCharge using StEvent",kFALSE},
+  {"SCScalerCal" ,"scscalercal","","MuDSTDeps,picoDst","StSpaceChargeEbyEMaker"
+   ,                               "StMuDSTMaker,StPass0CalibMaker","Calibrate SpaceCharge scalers",kFALSE},
   {"compend"     ,"","","event,detDb","StEventCompendiumMaker","StEventCompendiumMaker"
    ,                                                             "Fill event summary in ITTF Chain",kFALSE},
   {"TpcAligner"    ,"","","Alignment"         ,"StTpcAlignerMaker","StTpcAlignerMaker","TpcAligner",kFALSE},
@@ -1775,8 +1820,14 @@ Bfc_st BFC[] = { // standard chains
 #else /* ! __NoStrangeMuDst__ */
   {"CMuDST"    ,"","MuDSTChain","MuDst,Tree",               "StMuDstMaker","","Writes Common MuDST",kFALSE},
 #endif /* __NoStrangeMuDst__ */
-
   {"RMuDST"    ,"","","CMuDST"   ,"","","reads Common MuDST, do not disactivate if no output files",kFALSE},
+
+  {"picoWrite" ,"","PicoChain","picoDst","StPicoDstMaker",""               ,"Writes picoDST format",kFALSE},
+  {"picoRead"  ,"","PicoChain","picoDst","StPicoDstMaker",""           ,"WritesRead picoDST format",kFALSE},
+  {"PicoVtxDefault" ,"","",""                                       ,"" ,"","pico Vtx default mode",kFALSE},
+  {"PicoVtxVpd"     ,"","",""                            ,"" ,"","pico Vtx cut on Tof and VPD mode",kFALSE},
+
+
   {"St_geom"     ,""  ,"",""     ,                               "St_geom_Maker","St_geom_Maker","",kFALSE},
 #ifndef __NoDisplay__
   {"Display"     ,"","","TbUtil,St_geom"
