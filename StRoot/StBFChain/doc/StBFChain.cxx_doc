@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.164 2017/10/18 14:30:47 jwebb Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.165 2017/10/23 11:25:49 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -1337,11 +1337,11 @@ Bfc_st BFC[] = {
   {"dEdx" ,"","","" ,"","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"svtdEdx" ,"","","" ,"","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"Event" , "","","MakeEvent", "","","Request to initialize event",kFALSE},
-  {"pxlFastSim" ,"","","StMcEvent,StEvent"
-   , "StPxlSimMaker","StPxlSimMaker","PXL Fast Simulator",kFALSE},
-  {"pxlSlowSim" ,"","","StMcEvent,StEvent"
-   , "StPxlSimMaker","StPxlSimMaker","PXL Slow Simulator",kFALSE},
   {"pxlRaw" ,"","","pxlDb", "StPxlRawHitMaker", "StPxlRawHitMaker", "PXL raw hit maker",kFALSE},
+  {"pxlFastSim" ,"","","pxlRaw,StMcEvent,StEvent"
+   , "StPxlSimMaker","StPxlSimMaker","PXL Fast Simulator",kFALSE},
+  {"pxlSlowSim" ,"","","pxlRaw,StMcEvent,StEvent"
+   , "StPxlSimMaker","StPxlSimMaker","PXL Slow Simulator",kFALSE},
   {"pxlCluster" ,"","","pxlRaw", "StPxlClusterMaker", "StPxlClusterMaker", "PXL cluster maker",kFALSE},
   {"pxlHit" ,"","","event pxlCluster", "StPxlHitMaker", "StPxlHitMaker", "PXL hit maker",kFALSE},
   {"istSlowSim", "", "","StMcEvent,StEvent,IstUtil", "StIstSlowSimMaker",
@@ -2954,11 +2954,11 @@ Bfc_st BFC[] = {
   {"dEdx" ,"","","" ,"","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"svtdEdx" ,"","","" ,"","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"Event" , "","","MakeEvent", "","","Request to initialize event",kFALSE},
-  {"pxlFastSim" ,"","","StMcEvent,StEvent"
-   , "StPxlSimMaker","StPxlSimMaker","PXL Fast Simulator",kFALSE},
-  {"pxlSlowSim" ,"","","StMcEvent,StEvent"
-   , "StPxlSimMaker","StPxlSimMaker","PXL Slow Simulator",kFALSE},
   {"pxlRaw" ,"","","pxlDb", "StPxlRawHitMaker", "StPxlRawHitMaker", "PXL raw hit maker",kFALSE},
+  {"pxlFastSim" ,"","","pxlRaw,StMcEvent,StEvent"
+   , "StPxlSimMaker","StPxlSimMaker","PXL Fast Simulator",kFALSE},
+  {"pxlSlowSim" ,"","","pxlRaw,StMcEvent,StEvent"
+   , "StPxlSimMaker","StPxlSimMaker","PXL Slow Simulator",kFALSE},
   {"pxlCluster" ,"","","pxlRaw", "StPxlClusterMaker", "StPxlClusterMaker", "PXL cluster maker",kFALSE},
   {"pxlHit" ,"","","event pxlCluster", "StPxlHitMaker", "StPxlHitMaker", "PXL hit maker",kFALSE},
   {"istSlowSim", "", "","StMcEvent,StEvent,IstUtil", "StIstSlowSimMaker",
@@ -3912,6 +3912,7 @@ Int_t StBFChain::Instantiate()
       if (GetOption("TrsToF"))    mode += 2; // account for particle time of flight
       if (mode) mk->SetMode(mode);
     }
+
     // Place-holder. Would possibly be a bitmask
     if (maker == "StTofrMatchMaker"){
       mk->SetMode(0);
@@ -4019,8 +4020,12 @@ Int_t StBFChain::Instantiate()
          GetOption("pmdRaw"))                  mk->SetAttr("pmdRaw",kTRUE);
 
     // HFT
-    if (maker == "StPxlSimMaker"           &&
-	GetOption("pxlSlowSim"))               mk->SetAttr("useDIGMAPSSim",kTRUE);
+    //if (maker == "StPxlSimMaker"           &&
+    //	GetOption("pxlSlowSim"))               mk->SetAttr("useDIGMAPSSim",kTRUE);
+    // ... PXL
+    if (maker == "StPxlSimMaker") {
+      if (GetOption("pxlSlowSim")) mk->SetAttr("useDIGMAPSSim",kTRUE);
+    }
 
 
 
