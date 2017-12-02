@@ -1,4 +1,4 @@
-// $Id: StvMaker.cxx,v 1.61 2017/09/29 16:54:51 perev Exp $
+// $Id: StvMaker.cxx,v 1.60.2.1 2017/12/02 00:40:36 perev Exp $
 /*!
 \author V Perev 2010
 
@@ -297,7 +297,6 @@ static int initialized = 0;
 
 //		Now Initialize TGeo proxy
   tgh->Init(1+2+4);
-
   if (IAttr("activeTpc")) { 	//prompt hits for geo >=y2009
     StvTpcPrompt promp;
     tgh->InitHitPlane(&promp);
@@ -356,7 +355,6 @@ static int initialized = 0;
           assert(gSystem->Load("TPCCATracker.so")	>=0);
 	}
 	StvSeedFinder *mySeedFinder = (StvSeedFinder*)gROOT->ProcessLineFast(seedNews[nick],&seedErr);
-        if (IAttr("truthSeedFinder")) mySeedFinder->SetIdTruth();       
         if (TString(seedNick[nick])=="Fts") mySeedFinder->SetSgn(-1);
 	assert(mySeedFinder && !seedErr);
         mSeedFinders[jreg]->Add(mySeedFinder);
@@ -391,6 +389,8 @@ static int initialized = 0;
     mVertexFinder[reg]= 0;
   } while(0);
 
+//tgh->ls();///????????????????????????????????????/
+//tgh->Print();///?????????????????????????????
   
   InitPulls();
 
@@ -638,7 +638,7 @@ static StvToolkit *kit = StvToolkit::Inst();
   {
     auto* kTrack = *it;
     int nHits = kTrack->GetNHits();
-    StvDebug::Count("IdQua_vs_NHits",nHits,kTrack->GetQua()*100);
+//???    StvDebug::Count("IdQua_vs_NHits",nHits,kTrack->GetQua()*100);
   }
   return 0;
 }
