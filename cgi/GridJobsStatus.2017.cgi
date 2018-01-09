@@ -1,10 +1,10 @@
 #!/usr/bin/env perl
 #
-# $Id: GridJobsStatus.2016.cgi
+# $Id: GridJobsStatus.2017.cgi
 #
 # L.Didenko
 #
-# GridJobsStatus.2016.cgi - browser for GRID production jobs status
+# GridJobsStatus.2017.cgi - browser for GRID production jobs status
 #
 ########################################################################################
 
@@ -174,7 +174,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Job state</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Globus error</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Reco status</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>MuDst status</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>MuDst/picoDst status</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Log file status</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Overral job status</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Prod site</h3></B></TD>
@@ -192,9 +192,9 @@ print <<END;
 </TABLE>
       <h5>
       <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
-<!-- Created: Thu February 20 2014 -->
+<!-- Created: Thu December 28 2017 -->
 <!-- hhmts start -->
-Last modified: 2014-04-25
+Last modified: 2018-01-09
 <!-- hhmts end -->
   </body>
 </html>
