@@ -1054,10 +1054,10 @@ END
 
  if($qprod eq "P14ia" or $qprod eq "P14ig" or $qprod eq "P14ii" ) {
      $maxcpuval = 110;
- }elsif($qprod eq "P15ik" or $qprod eq "P15il") {
+ }elsif($qprod eq "P15ik" or $qprod eq "P15il" $qprod eq "P17ii" or $qprod eq "P18ia") {
      $maxcpuval = 110;
- }elsif($qprod eq "P17ii" or $qprod eq "P18ia") {
-     $maxcpuval = 55;
+# }elsif($qprod eq "P17ii" or $qprod eq "P18ia") {
+#     $maxcpuval = 55;
  }else{
      $maxcpuval = 220;
  }
@@ -1405,6 +1405,9 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
  }elsif($qprod eq "P16ij" or $qprod eq "P16ik") {
      $max_y = 40 ;
      $ynum = 20;
+ }elsif($qprod eq "P17ii" or $qprod eq "P18ia") {
+     $max_y = 40 ;
+     $ynum = 20;
 
  }else{
      $max_y = 28 ;
@@ -1439,7 +1442,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
      $max_y = 40000000 ;
      $ynum = 20;
  }elsif($qprod eq "P17ii" ) {
-     $max_y = 100000000 ;
+     $max_y = 200000000 ;
      $ynum = 20;
  }elsif($qprod eq "P18ia" ) {
      $max_y = 20000000 ;
@@ -1496,7 +1499,7 @@ $legend[0] = "all streams data for $qprod production";
      $max_y = 16000 ;
      $ynum = 20;
  }elsif($qprod eq "P17ii" ) {
-     $max_y = 10000 ;
+     $max_y = 40000 ;
      $ynum = 20;
  }else{ 
      $max_y = 9800 ;
