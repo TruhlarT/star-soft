@@ -1267,7 +1267,7 @@ my $ynum = 14;
      $max_y = 32 ;
      $ynum = 16;
   }elsif($qprod eq "P17ii" ) { 
-     $max_y = 90 ;
+     $max_y = 120 ;
      $ynum = 15;
 
  }else{
