@@ -1054,7 +1054,7 @@ END
 
  if($qprod eq "P14ia" or $qprod eq "P14ig" or $qprod eq "P14ii" ) {
      $maxcpuval = 110;
- }elsif($qprod eq "P15ik" or $qprod eq "P15il" $qprod eq "P17ii" or $qprod eq "P18ia") {
+ }elsif($qprod eq "P15ik" or $qprod eq "P15il" or $qprod eq "P17ii" or $qprod eq "P18ia") {
      $maxcpuval = 110;
 # }elsif($qprod eq "P17ii" or $qprod eq "P18ia") {
 #     $maxcpuval = 55;
