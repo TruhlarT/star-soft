@@ -754,7 +754,7 @@ END
 
 ###########
 
- if($qprod eq "P14ia" or $qprod eq "P14ig" or $qprod eq "P14ii" or $qprod eq "P15ik" or $qprod eq "P15il" or $qprod eq "P16id"  or $qprod eq "P16ic") {
+ if($qprod eq "P14ia" or $qprod eq "P14ig" or $qprod eq "P14ii" or $qprod eq "P15ik" or $qprod eq "P15il" or $qprod eq "P16id"  or $qprod eq "P16ic" or $qprod eq "P17ii" or $qprod eq "P18ia" ) {
      $maxvalue = 120;
 
      if($qprodt eq "P16id.2014"){
@@ -1267,8 +1267,8 @@ my $ynum = 14;
      $max_y = 32 ;
      $ynum = 16;
   }elsif($qprod eq "P17ii" ) { 
-     $max_y = 64 ;
-     $ynum = 16;
+     $max_y = 90 ;
+     $ynum = 15;
 
  }else{
      $max_y = 28 ;
@@ -1336,7 +1336,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
      $ynum = 13;
 
  }elsif( $qprod eq "P17ii" ) {
-     $max_y = 45 ;
+     $max_y = 60 ;
      $ynum = 15;
 
  }else{
@@ -1406,8 +1406,8 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
      $max_y = 40 ;
      $ynum = 20;
  }elsif($qprod eq "P17ii" or $qprod eq "P18ia") {
-     $max_y = 40 ;
-     $ynum = 20;
+     $max_y = 60 ;
+     $ynum = 15;
 
  }else{
      $max_y = 28 ;
@@ -1442,7 +1442,7 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
      $max_y = 40000000 ;
      $ynum = 20;
  }elsif($qprod eq "P17ii" ) {
-     $max_y = 200000000 ;
+     $max_y = 400000000 ;
      $ynum = 20;
  }elsif($qprod eq "P18ia" ) {
      $max_y = 20000000 ;
