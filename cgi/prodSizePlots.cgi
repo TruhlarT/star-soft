@@ -101,9 +101,6 @@ my $ProdSize2017T = "ProductionSize2017";
         }
     $cursor->finish();
 
-   $arrprod[$npr] = "all2015";
-   $arrprod[$npr+1] = "all2016";
-
 
   $sql="SELECT DISTINCT prodtag  FROM ProductionSize2017";
 
@@ -118,6 +115,8 @@ my $ProdSize2017T = "ProductionSize2017";
         }
     $cursor->finish();
 
+   $arrprod[$npr] = "all2015";
+   $arrprod[$npr+1] = "all2016";
 
    $sql="SELECT DISTINCT Trigset  FROM $ProdSizeT ";
 
