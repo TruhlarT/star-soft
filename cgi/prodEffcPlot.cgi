@@ -52,7 +52,7 @@ my @arrprod = ();
 my $npr = 0;
 my $mpr;
 
-my $pryear = "2014";
+my $pryear = "2017";
 
 my @ndate = ();
 my $ndt = 0;
@@ -133,6 +133,22 @@ $arrprod[$npr+1] = "P16id.2014";
     $cursor->finish();
 
 
+ $JobStatusT = "JobStatus2017";
+
+
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT where runDay >= '2017-12-12' order by runDay ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $arrprod[$npr] = $mpr;
+          $npr++;
+       }
+    $cursor->finish();
+
+
 
 my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months","12_months");
 
@@ -177,7 +193,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
-	                          -default=>P16ij,
+	                          -default=>P18ia,
       			          -size =>1);
 
 
@@ -231,10 +247,13 @@ END
    $qprodt = "P16id.2014";
   }elsif($qprod eq "P16ij" or $qprod eq "P16ik" or $qprod eq "P17ib") {
 
- $JobStatusT = "JobStatus2016";
+  $JobStatusT = "JobStatus2016";
+
+  }elsif($qprod eq "P17ii" or $qprod eq "P18ia" ) {
+
+ $JobStatusT = "JobStatus2017";
 
   }
-
 
 my @ardays = ();
 my @prt = ();
