@@ -442,11 +442,11 @@ $ndt = 0;
 
   if($qprod eq "P17ii"){
  
-  $max_y = 70000 ;
+  $max_y = 42000 ;
 
  }elsif($qprod eq "P18ia"){
 
- $max_y = 42000 ;
+ $max_y = 28000 ;
 
  }
 
