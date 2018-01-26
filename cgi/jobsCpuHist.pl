@@ -1338,6 +1338,9 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
  }elsif( $qprod eq "P17ii" ) {
      $max_y = 60 ;
      $ynum = 15;
+ }elsif( $qprod eq "P18ia" ) {
+     $max_y = 40 ;
+     $ynum = 20;
 
  }else{
      $max_y = 28 ;
