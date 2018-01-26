@@ -439,7 +439,7 @@ $ndt = 0;
 
  $legend[0] = "$qprod production ";
 
- }elsif(($qprod eq "P18ia"){
+ }elsif($qprod eq "P18ia"){
 
  $max_y = 42000 ;
 
