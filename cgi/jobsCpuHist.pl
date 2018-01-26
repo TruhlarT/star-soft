@@ -87,7 +87,7 @@ my @submjobs = ();
 my @submjob1 = ();
 my @submjob2 = ();
 
-my $pryear = "2016";
+my $pryear = "2017";
 
 my $rte = 0;
 
@@ -1448,8 +1448,8 @@ if($qprod eq "P14ia" or $qprod eq "P14ig" ) {
      $max_y = 400000000 ;
      $ynum = 20;
  }elsif($qprod eq "P18ia" ) {
-     $max_y = 30000000 ;
-     $ynum = 15;
+     $max_y = 40000000 ;
+     $ynum = 20;
  }else{ 
      $max_y = 42000000 ;
      $ynum = 14;
@@ -1505,7 +1505,7 @@ $legend[0] = "all streams data for $qprod production";
      $max_y = 40000 ;
      $ynum = 20;
  }elsif($qprod eq "P18ia"  ) {
-     $max_y = 40000 ;
+     $max_y = 20000 ;
      $ynum = 20;
  }else{ 
      $max_y = 9800 ;
