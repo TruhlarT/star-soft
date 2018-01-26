@@ -222,8 +222,6 @@ END
   }elsif($qprod eq "P16ij" or $qprod eq "P16ik" or $qprod eq "P17ib") {
    $JobStatusT = "JobStatus2016";   
 
-  }
-
   }elsif($qprod eq "P17ii" or $qprod eq "P18ia" ) {
    $JobStatusT = "JobStatus2017";   
 
