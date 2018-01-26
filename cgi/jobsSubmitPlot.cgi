@@ -433,7 +433,10 @@ $ndt = 0;
 
   @data = (\@ndate, \@jbsubmit, \@jbsubm1, \@jbsubm2 );
 
- }elsif($qprod eq "P17ii"){
+ 
+   }else{
+
+  if($qprod eq "P17ii"){
  
   $max_y = 70000 ;
 
@@ -445,7 +448,7 @@ $ndt = 0;
 
  $legend[0] = "$qprod production ";
 
-   }else{
+ }
 
  $max_y = 14000 ;
 
