@@ -262,9 +262,11 @@ my $qperiod = $qqr->param('period');
 
   }elsif($qprod eq "P17ii" or $qprod eq "P18ia") {
 
+ $ProdSizeT = "ProductionSize2017";
+
   }else{
 
-    $ProdSizeT = "ProductionSize2017";
+    $ProdSizeT = "ProductionSize";
   }
 
 # Tables
