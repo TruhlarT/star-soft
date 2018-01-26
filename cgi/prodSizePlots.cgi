@@ -44,7 +44,7 @@ my $nowdate = $todate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my $pryear = "2016";
+my $pryear = "2017";
 
 my @arrate = ("mudstsize","daqsize","all" );
 
@@ -68,6 +68,8 @@ my @arperiod = ("1_month","2_months","3_months","4_months","5_months","6_months"
 my $ProdSizeT = "ProductionSize";
 
 my $ProdSize2016T = "ProductionSize2016";
+
+my $ProdSize2017T = "ProductionSize2017";
 
  &StDbProdConnect();
 
@@ -103,6 +105,20 @@ my $ProdSize2016T = "ProductionSize2016";
    $arrprod[$npr+1] = "all2016";
 
 
+  $sql="SELECT DISTINCT prodtag  FROM ProductionSize2017";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( my $mpr = $cursor->fetchrow() ) {
+
+          $arrprod[$npr] = $mpr;
+          $npr++;
+        }
+    $cursor->finish();
+
+
    $sql="SELECT DISTINCT Trigset  FROM $ProdSizeT ";
 
       $cursor =$dbh->prepare($sql)
@@ -127,6 +143,19 @@ my $ProdSize2016T = "ProductionSize2016";
           $ntr++;
        }
     $cursor->finish();
+
+  $sql="SELECT DISTINCT Trigset  FROM ProductionSize2017 ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( my $mpr = $cursor->fetchrow() ) {
+          $trigs[$ntr] = $mpr;
+          $ntr++;
+       }
+    $cursor->finish();
+
 
   $trigs[$ntr] = "all";
 
@@ -171,7 +200,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
                                   -values=>\@arrprod,
-                                  -default=>all2016,
+                                  -default=>P18ia,
                                   -size =>1);
 
     print "<p>";
@@ -231,8 +260,12 @@ my $qperiod = $qqr->param('period');
   if($qprod eq "P16ij" or $qprod eq "P16ik" or  $qprod eq "P17ib" or $qprod eq "P17id" ) {
   
    $ProdSizeT = "ProductionSize2016";
+
+  }elsif($qprod eq "P17ii" or $qprod eq "P18ia") {
+
   }else{
-    $ProdSizeT = "ProductionSize";
+
+    $ProdSizeT = "ProductionSize2017";
   }
 
 # Tables
