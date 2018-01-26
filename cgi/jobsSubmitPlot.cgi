@@ -436,23 +436,19 @@ $ndt = 0;
  
    }else{
 
+ $max_y = 14000 ;
+
+ $legend[0] = "$qprod production ";
+
   if($qprod eq "P17ii"){
  
   $max_y = 70000 ;
-
- $legend[0] = "$qprod production ";
 
  }elsif($qprod eq "P18ia"){
 
  $max_y = 42000 ;
 
- $legend[0] = "$qprod production ";
-
  }
-
- $max_y = 14000 ;
-
- $legend[0] = "$qprod production ";
 
 
   @data = (\@ndate, \@jbsubmit );
