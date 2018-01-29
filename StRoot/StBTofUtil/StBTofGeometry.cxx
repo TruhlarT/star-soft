@@ -1,6 +1,6 @@
 /*******************************************************************
  *
- * $Id: StBTofGeometry.cxx,v 1.14.2.15 2018/01/29 18:15:52 smirnovd Exp $
+ * $Id: StBTofGeometry.cxx,v 1.14.2.16 2018/01/29 18:16:01 smirnovd Exp $
  * 
  * Authors: Shuwei Ye, Xin Dong
  *******************************************************************
@@ -10,6 +10,12 @@
  *
  *******************************************************************
  * $Log: StBTofGeometry.cxx,v $
+ * Revision 1.14.2.16  2018/01/29 18:16:01  smirnovd
+ * StBTofGeometry: Missing flag set to initialize geometry once
+ *
+ * I believe this flag should be set but have been overlooked.
+ * Otherwise why call IsInitDone() in StBTofMatchMaker?
+ *
  * Revision 1.14.2.15  2018/01/29 18:15:52  smirnovd
  * StBTofGeometry: Simple relation between tray index and id
  *
@@ -957,7 +963,7 @@ void StBTofGeometry::Init(StMaker *maker, TVolume *starHall, TGeoManager* geoMan
      }//for j
    }//if Year
 
-
+   mInitFlag = true;
 }
 //_____________________________________________________________________________
 void StBTofGeometry::InitFrom(TVolume &starHall)
