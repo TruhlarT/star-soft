@@ -1,6 +1,6 @@
 /*******************************************************************
  *
- * $Id: StBTofGeometry.h,v 1.10.2.11 2018/01/29 18:15:24 smirnovd Exp $
+ * $Id: StBTofGeometry.h,v 1.10.2.12 2018/01/29 18:15:33 smirnovd Exp $
  * 
  * Authors: Shuwei Ye, Xin Dong
  *******************************************************************
@@ -10,6 +10,9 @@
  *
  *******************************************************************
  * $Log: StBTofGeometry.h,v $
+ * Revision 1.10.2.12  2018/01/29 18:15:33  smirnovd
+ * StBTofGeometry: Added private InitFrom(TGeoManager)
+ *
  * Revision 1.10.2.11  2018/01/29 18:15:24  smirnovd
  * StBTofGeometry: InitFrom(TVolume*) to InitFrom(TVolume&)
  *
@@ -370,6 +373,9 @@ class StBTofGeometry : public TNamed {
    }
 
    void InitFrom(TVolume &starHall);
+
+   /// Initializes mBTofTray and mBTofSensor arrays
+   void InitFrom(TGeoManager &geoManager);
 
  protected:
    TVolumeView*      mTopNode;       //top TNode as MRS
