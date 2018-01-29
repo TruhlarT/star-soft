@@ -1,6 +1,6 @@
 /*******************************************************************
  *
- * $Id: StBTofGeometry.cxx,v 1.14 2017/10/20 17:50:33 smirnovd Exp $
+ * $Id: StBTofGeometry.cxx,v 1.14.2.1 2018/01/29 17:47:31 smirnovd Exp $
  * 
  * Authors: Shuwei Ye, Xin Dong
  *******************************************************************
@@ -10,6 +10,9 @@
  *
  *******************************************************************
  * $Log: StBTofGeometry.cxx,v $
+ * Revision 1.14.2.1  2018/01/29 17:47:31  smirnovd
+ * StBTofGeometry: Removed unused member pointer to non-TGeo ROOT geometry
+ *
  * Revision 1.14  2017/10/20 17:50:33  smirnovd
  * Squashed commit of the following:
  *
@@ -707,7 +710,6 @@ StBTofGeometry::StBTofGeometry(const char* name, const char* title)
    mRootFile       = 0;
    mInitFlag       = kFALSE;
    mTopNode        = 0;
-   mStarHall       = 0;
    mIsMC           = kFALSE;
    SetAlignFile("");
 
@@ -827,7 +829,6 @@ void StBTofGeometry::Init(StMaker *maker, TVolume *starHall)
    }
 
    InitFromStar(starHall);
-   mStarHall = starHall;
 
 
 /* Starting with geometry tags in Y2013, GMT units were installed into tof trays 8,23,93, & 108.

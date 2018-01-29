@@ -1,6 +1,6 @@
 /*******************************************************************
  *
- * $Id: StBTofGeometry.h,v 1.10.2.1 2018/01/29 17:47:25 smirnovd Exp $
+ * $Id: StBTofGeometry.h,v 1.10.2.2 2018/01/29 17:47:32 smirnovd Exp $
  * 
  * Authors: Shuwei Ye, Xin Dong
  *******************************************************************
@@ -10,6 +10,9 @@
  *
  *******************************************************************
  * $Log: StBTofGeometry.h,v $
+ * Revision 1.10.2.2  2018/01/29 17:47:32  smirnovd
+ * StBTofGeometry: Removed unused member pointer to non-TGeo ROOT geometry
+ *
  * Revision 1.10.2.1  2018/01/29 17:47:25  smirnovd
  * Remove unnecessary guards around ClassDef macro
  *
@@ -299,7 +302,6 @@ class StBTofGeometry : public TNamed {
    Int_t       mModulesInTray; //number of modules in a tray
    Int_t       mCellsInModule; //number of cell in a module
    Bool_t      mInitFlag;      //flag of initialization, kTRUE if done
-   TVolume*    mStarHall;
    Int_t       mBTofConf;      //configuration for tray/full (0/1) tof
 
    StBTofGeomTray* mBTofTray[mNTrays];
@@ -393,7 +395,7 @@ class StBTofGeometry : public TNamed {
    Bool_t            HelixCross(const StHelixD &helix, IntVec validModuleVec, IntVec projTrayVec) const;
    Bool_t            projTrayVector(const StHelixD &helix, IntVec &trayVec) const;
 #endif
-  ClassDef(StBTofGeometry,1)  //Simplified TOF Geometry
+  ClassDef(StBTofGeometry,2)  //Simplified TOF Geometry
 };
 
 R__EXTERN  StBTofGeometry* gBTofGeometry;
