@@ -1,6 +1,6 @@
 /*******************************************************************
  *
- * $Id: StBTofGeometry.cxx,v 1.14.2.2 2018/01/29 17:47:39 smirnovd Exp $
+ * $Id: StBTofGeometry.cxx,v 1.14.2.3 2018/01/29 18:13:13 smirnovd Exp $
  * 
  * Authors: Shuwei Ye, Xin Dong
  *******************************************************************
@@ -10,6 +10,9 @@
  *
  *******************************************************************
  * $Log: StBTofGeometry.cxx,v $
+ * Revision 1.14.2.3  2018/01/29 18:13:13  smirnovd
+ * StBTofGeometry: C++ style to zero out arrays
+ *
  * Revision 1.14.2.2  2018/01/29 17:47:39  smirnovd
  * StBTofGeometry: Use std::array in place of plain C arrays
  *
@@ -72,6 +75,7 @@
  *
  *******************************************************************/
 #include "Stiostream.h"
+#include <algorithm>
 #include <array>
 #include <math.h>
 #include <vector>
@@ -717,12 +721,8 @@ StBTofGeometry::StBTofGeometry(const char* name, const char* title)
    mIsMC           = kFALSE;
    SetAlignFile("");
 
-   for(int i=0;i<mNTrays;i++) {
-     mBTofTray[i] = 0;
-     for(int j=0;j<mNModules;j++) {
-       mBTofSensor[i][j] = 0;
-     }
-   }
+   std::fill( mBTofTray, mBTofTray + mNTrays, nullptr );
+   std::fill( &mBTofSensor[0][0], &mBTofSensor[mNTrays][0], nullptr );
 
    //
    //We only need one instance of StBTofGeometry
@@ -762,12 +762,12 @@ void StBTofGeometry::Init(StMaker *maker, TVolume *starHall)
    //  
    if(maker->Debug()) DebugOn();
 
+   // Zero out internal alignment arrays
+   std::fill_n(mTrayX0, mNTrays, 0);
+   std::fill_n(mTrayY0, mNTrays, 0);
+   std::fill_n(mTrayZ0, mNTrays, 0);
+
    // retrieve align parameters  -- need to use db
-   for(int i=0;i<mNTrays;i++) {
-     mTrayX0[i] = 0.0;
-     mTrayY0[i] = 0.0;
-     mTrayZ0[i] = 0.0;
-   }
 
    std::array<double, mNTrays> phi0{}, x0{}, z0{};
 
