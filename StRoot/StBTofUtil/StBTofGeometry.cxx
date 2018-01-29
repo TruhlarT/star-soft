@@ -1,6 +1,6 @@
 /*******************************************************************
  *
- * $Id: StBTofGeometry.cxx,v 1.14.2.9 2018/01/29 18:14:46 smirnovd Exp $
+ * $Id: StBTofGeometry.cxx,v 1.14.2.10 2018/01/29 18:14:54 smirnovd Exp $
  * 
  * Authors: Shuwei Ye, Xin Dong
  *******************************************************************
@@ -10,6 +10,9 @@
  *
  *******************************************************************
  * $Log: StBTofGeometry.cxx,v $
+ * Revision 1.14.2.10  2018/01/29 18:14:54  smirnovd
+ * StBTofGeometry: New method to form TGeo paths for trays and modules
+ *
  * Revision 1.14.2.9  2018/01/29 18:14:46  smirnovd
  * StBTofGeomSensor: New constructor accepting TGeo
  *
@@ -1054,6 +1057,42 @@ void StBTofGeometry::InitFromStar(TVolume *starHall)
   return;
 
 }
+
+/**
+ * Returns a full path to the BTOF module placed in a predifined location in
+ * the detector's ROOT geometry. An empty string is returned if the module not
+ * found in the geometry hierarchy (via TGeoManager).
+ */
+std::string StBTofGeometry::FormTGeoPath(TGeoManager &geoManager,
+  int trayId, bool hasGmt, int moduleId)
+{
+  // BTOH_1/BTO1_2 - east/west
+  // TOF trayId map: west=1-60, east=61-120
+  int halfId   = ( trayId <= 60 ? 1 : 2 );
+  int sectorId = ( trayId <= 60 ? trayId : trayId - 60 );
+
+  std::ostringstream geoPath;
+
+  geoPath << "/HALL_1/CAVE_1/TpcRefSys_1/BTOF_1"
+          << (halfId == 1 ? "/BTOH_" : "/BTO1_") << halfId;
+
+  // Node names depend on whether this sector contains GMT modules
+  geoPath << ( hasGmt ? "/BSE1_"  : "/BSEC_" ) << sectorId
+          << ( hasGmt ? "/BTR1_1" : "/BTRA_1");
+
+  // Go deeper only when module is requested
+  if ( moduleId >= 1 )
+  {
+    geoPath << ( hasGmt ? "/BXT1_1/BRT1_1/BGM1_1/BRM1_" :
+                          "/BXTR_1/BRTC_1/BGMT_1/BRMD_" )
+            << moduleId;
+  }
+
+  bool found = geoManager.CheckPath( geoPath.str().c_str() );
+
+  return found ? geoPath.str() : "";
+}
+
 
 //_____________________________________________________________________________
 Bool_t StBTofGeometry::ContainOthers(TVolume *element)

@@ -1,6 +1,6 @@
 /*******************************************************************
  *
- * $Id: StBTofGeometry.h,v 1.10.2.7 2018/01/29 18:14:46 smirnovd Exp $
+ * $Id: StBTofGeometry.h,v 1.10.2.8 2018/01/29 18:14:54 smirnovd Exp $
  * 
  * Authors: Shuwei Ye, Xin Dong
  *******************************************************************
@@ -10,6 +10,9 @@
  *
  *******************************************************************
  * $Log: StBTofGeometry.h,v $
+ * Revision 1.10.2.8  2018/01/29 18:14:54  smirnovd
+ * StBTofGeometry: New method to form TGeo paths for trays and modules
+ *
  * Revision 1.10.2.7  2018/01/29 18:14:46  smirnovd
  * StBTofGeomSensor: New constructor accepting TGeo
  *
@@ -120,6 +123,7 @@ class StBTofGeometry;
 
 class TVolumeView;
 class TGeoPhysicalNode;
+class TGeoManager;
 
 /**
    \class StBTofNode
@@ -348,6 +352,8 @@ class StBTofGeometry : public TNamed {
    TNamed*    mGeoNamed;   //!Geometry to copy from
    static Int_t const mNTrays = 120;
    static Int_t const mNModules = 32;
+
+   std::string FormTGeoPath(TGeoManager &geoManager, int trayId, bool hasGmt = false, int moduleId = -1);
 
  protected:
    TVolumeView*      mTopNode;       //top TNode as MRS
