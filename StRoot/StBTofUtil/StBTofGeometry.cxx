@@ -1,6 +1,6 @@
 /*******************************************************************
  *
- * $Id: StBTofGeometry.cxx,v 1.14.2.5 2018/01/29 18:13:31 smirnovd Exp $
+ * $Id: StBTofGeometry.cxx,v 1.14.2.6 2018/01/29 18:13:39 smirnovd Exp $
  * 
  * Authors: Shuwei Ye, Xin Dong
  *******************************************************************
@@ -10,6 +10,9 @@
  *
  *******************************************************************
  * $Log: StBTofGeometry.cxx,v $
+ * Revision 1.14.2.6  2018/01/29 18:13:39  smirnovd
+ * Accept reference instead of pointer to xyz alignment
+ *
  * Revision 1.14.2.5  2018/01/29 18:13:31  smirnovd
  * StBTofGeometry: Senseless assignments in destructors
  *
@@ -130,15 +133,10 @@ const char* StBTofGeometry::trayPref   = "BTRA";
 const char* StBTofGeometry::senPref    = "BRMD";
 
 //_____________________________________________________________________________
-StBTofNode::StBTofNode(TVolumeView *element, TVolumeView *top, StThreeVectorD *align, TVolumePosition *pos)
-  : fView(element), pView(new TVolumePosition(*pos)), mMasterNode(top), mTransFlag(kFALSE)
+StBTofNode::StBTofNode(TVolumeView *element, TVolumeView *top, const StThreeVectorD& align, TVolumePosition *pos)
+  : fView(element), pView(new TVolumePosition(*pos)), mMasterNode(top), mTransFlag(kFALSE),
+    mAlign{align.x(), align.y(), align.z()}
 {
-   if(align) {
-     mAlign[0] = align->x();  mAlign[1] = align->y();  mAlign[2] = align->z();
-   } else {
-     mAlign[0] = 0.0;   mAlign[1] = 0.0;   mAlign[2] = 0.0;
-   }
-
    UpdateMatrix();
    BuildMembers();
 }
@@ -539,7 +537,7 @@ void StBTofNode::Print(Option_t *opt) const
 Bool_t StBTofGeomTray::mDebug = kFALSE;
 
 //_____________________________________________________________________________
-StBTofGeomTray::StBTofGeomTray(const Int_t ibtoh, TVolumeView *sector, TVolumeView *top, StThreeVectorD *align, TVolumePosition *pos)
+StBTofGeomTray::StBTofGeomTray(const Int_t ibtoh, TVolumeView *sector, TVolumeView *top, const StThreeVectorD& align, TVolumePosition *pos)
   : StBTofNode((TVolumeView *)sector->First(), top, align, pos)
 {
   mSectorsInBTOH = top->GetListSize()/2;
@@ -567,7 +565,7 @@ void StBTofGeomTray::Print(const Option_t *opt) const
 Bool_t StBTofGeomSensor::mDebug = kFALSE;
 
 //_____________________________________________________________________________
-StBTofGeomSensor::StBTofGeomSensor(TVolumeView *element, TVolumeView *top, StThreeVectorD *align, TVolumePosition *pos) 
+StBTofGeomSensor::StBTofGeomSensor(TVolumeView *element, TVolumeView *top, const StThreeVectorD& align, TVolumePosition *pos) 
   : StBTofNode(element, top, align, pos)
 {
    mModuleIndex = element->GetPosition()->GetId();
@@ -917,7 +915,7 @@ void StBTofGeometry::InitFromStar(TVolume *starHall)
   Int_t isensor = 0;
   mNValidTrays = 0;
   mModulesInTray = 0;
-  StThreeVectorD *align = 0;
+  StThreeVectorD align{};
   while ( (detVolume = (TVolumeView *)nextDet()) ) {
 
     if(strcmp(detVolume->GetName(), sectorPref)==0) {  // sector volume
@@ -935,15 +933,13 @@ void StBTofGeometry::InitFromStar(TVolume *starHall)
 
         int itray = trayIndex - 1;
 
-        align = new StThreeVectorD(mTrayX0[itray], mTrayY0[itray], mTrayZ0[itray]);
-
+        align.set(mTrayX0[itray], mTrayY0[itray], mTrayZ0[itray]);
         transPos = nextDet[0];
 
         mNValidTrays++;
 
         mBTofTray[mNValidTrays-1] = new StBTofGeomTray(ibtoh, secVolume, mTopNode, align, transPos);
         delete transPos;  transPos = 0;
-        delete align;    align = 0;
 
         if(mDebug) {
           LOG_DEBUG << "   Initialize and save tray # " << mBTofTray[mNValidTrays-1]->Index() << " with " << detVolume->GetListSize() << " modules" << endm;
