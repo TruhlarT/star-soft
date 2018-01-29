@@ -1,6 +1,6 @@
 /*******************************************************************
  *
- * $Id: StBTofGeometry.cxx,v 1.14.2.1 2018/01/29 17:47:31 smirnovd Exp $
+ * $Id: StBTofGeometry.cxx,v 1.14.2.2 2018/01/29 17:47:39 smirnovd Exp $
  * 
  * Authors: Shuwei Ye, Xin Dong
  *******************************************************************
@@ -10,6 +10,9 @@
  *
  *******************************************************************
  * $Log: StBTofGeometry.cxx,v $
+ * Revision 1.14.2.2  2018/01/29 17:47:39  smirnovd
+ * StBTofGeometry: Use std::array in place of plain C arrays
+ *
  * Revision 1.14.2.1  2018/01/29 17:47:31  smirnovd
  * StBTofGeometry: Removed unused member pointer to non-TGeo ROOT geometry
  *
@@ -69,6 +72,7 @@
  *
  *******************************************************************/
 #include "Stiostream.h"
+#include <array>
 #include <math.h>
 #include <vector>
 #include <string>
@@ -765,10 +769,7 @@ void StBTofGeometry::Init(StMaker *maker, TVolume *starHall)
      mTrayZ0[i] = 0.0;
    }
 
-   double phi0[mNTrays], x0[mNTrays], z0[mNTrays];
-   for(int i=0;i<mNTrays;i++) {
-     phi0[i] = 0.0, x0[i] = 0.0; z0[i] = 0.0;
-   }
+   std::array<double, mNTrays> phi0{}, x0{}, z0{};
 
    // If not MC input, load the alignment parameters from the database; otherwise ignore.
    if (mIsMC) {
