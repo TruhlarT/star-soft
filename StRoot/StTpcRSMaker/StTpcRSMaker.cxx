@@ -59,14 +59,13 @@
 #include "tables/St_g2t_vertex_Table.h" 
 //#define ElectronHack
 #define Old_dNdx_Table
-#define __STOPPED_ELECTRONS__
 #define __DEBUG__
 #if defined(__DEBUG__)
 #define PrPP(A,B) if (Debug()%10 > 2) {LOG_INFO << "StTpcRSMaker::" << (#A) << "\t" << (#B) << " = \t" << (B) << endm;}
 #else
 #define PrPP(A,B)
 #endif
-static const char rcsid[] = "$Id: StTpcRSMaker.cxx,v 1.75 2017/02/14 23:40:35 fisyak Exp $";
+static const char rcsid[] = "$Id: StTpcRSMaker.cxx,v 1.73.2.1 2018/01/29 15:43:48 didenko Exp $";
 #define __ClusterProfile__
 static Bool_t ClusterProfile = kFALSE;
 #define Laserino 170
@@ -104,7 +103,7 @@ StTpcRSMaker::StTpcRSMaker(const char *name):
   NoOfInnerRows(-1),
   NoOfPads(182),
   NoOfTimeBins(__MaxNumberOfTimeBins__),
-  mCutEle(1e-5)
+  mCutEle(1e-4)
 {
   memset(beg, 0, end-beg+1);
   m_Mode = 0;
@@ -837,11 +836,15 @@ Int_t StTpcRSMaker::Make(){  //  PrintInfo();
 	  CdEdx.QSumA = 0;
 	  CdEdx.sector = TrackSegmentHits[iSegHits].Pad.sector(); 
 	  CdEdx.row    = TrackSegmentHits[iSegHits].Pad.row();
+	  CdEdx.channel = St_TpcAvgPowerSupplyC::instance()->ChannelFromRow(CdEdx.row);
+	  CdEdx.Voltage = St_tpcAnodeHVavgC::instance()->voltagePadrow(sector,CdEdx.row);
+	  CdEdx.Crow    = St_TpcAvgCurrentC::instance()->AvCurrRow(sector,CdEdx.row);
+	  Double_t              Qcm      = St_TpcAvgCurrentC::instance()->AcChargeRowL(CdEdx.sector,CdEdx.row); // C/cm
 	  CdEdx.pad    = TMath::Nint(TrackSegmentHits[iSegHits].Pad.pad());
 	  CdEdx.edge   = CdEdx.pad;
 	  if (CdEdx.edge > 0.5*gStTpcDb->PadPlaneGeometry()->numberOfPadsAtRow(row)) 
 	  CdEdx.edge += 1 - gStTpcDb->PadPlaneGeometry()->numberOfPadsAtRow(row);
-	  CdEdx.F.dE     = 1;
+	  CdEdx.dE     = 1;
 #if 0
 	  CdEdx.dCharge= tpcHit->chargeModified() - tpcHit->charge();
 	  Int_t p1 = tpcHit->minPad();
@@ -852,7 +855,7 @@ Int_t StTpcRSMaker::Make(){  //  PrintInfo();
 	  if (TESTBIT(m_Mode, kEmbeddingShortCut) && 
 	      (tpcHit->idTruth() && tpcHit->qaTruth() > 95)) CdEdx.lSimulated = tpcHit->idTruth();
 #endif
-	  CdEdx.F.dx     = dStep;
+	  CdEdx.dx     = dStep;
 	  CdEdx.xyz[0] = TrackSegmentHits[iSegHits].xyzG.position().x();
 	  CdEdx.xyz[1] = TrackSegmentHits[iSegHits].xyzG.position().y();
 	  CdEdx.xyz[2] = TrackSegmentHits[iSegHits].xyzG.position().z();
@@ -867,13 +870,16 @@ Int_t StTpcRSMaker::Make(){  //  PrintInfo();
 	  CdEdx.xyzD[2] = TrackSegmentHits[nSegHits].dirLS.position().z();
 	  CdEdx.ZdriftDistance = CdEdx.xyzD[2];
 	  CdEdx.zG      = CdEdx.xyz[2];
+	  CdEdx.Qcm     = 1e6*Qcm; // uC/cm
+	  CdEdx.Crow    = St_TpcAvgCurrentC::instance()->AvCurrRow(sector,row);
 	  if (St_trigDetSumsC::instance())	CdEdx.Zdc     = St_trigDetSumsC::instance()->zdcX();
+	  
 	  CdEdx.ZdriftDistance = TrackSegmentHits[iSegHits].coorLS.position().z(); // drift length
 	  St_tpcGas *tpcGas = m_TpcdEdxCorrection->tpcGas();
 	  if (tpcGas)
 	    CdEdx.ZdriftDistanceO2 = CdEdx.ZdriftDistance*(*tpcGas)[0].ppmOxygenIn;
 	  if (! m_TpcdEdxCorrection->dEdxCorrection(CdEdx)) {
-	    dEdxCor = CdEdx.F.dE;
+	    dEdxCor = CdEdx.dE;
 	  }
 	  if (dEdxCor <= 0.) continue;
 	}
@@ -932,7 +938,6 @@ Int_t StTpcRSMaker::Make(){  //  PrintInfo();
 	Double_t bg = 0;
 	static const Double_t m_e = .51099907e-3;
 	Double_t eKin = -1;
-#ifdef __STOPPED_ELECTRONS__
 	if (mass > 0) {
 	  bg = pxyzG.mag()/mass;
 	  // special case stopped electrons
@@ -946,9 +951,6 @@ Int_t StTpcRSMaker::Make(){  //  PrintInfo();
 	    }
 	  }
 	}
-#else /* ! __STOPPED_ELECTRONS__ */
-	if (mass > 0) bg = pxyzG.mag()/mass;
-#endif /* __STOPPED_ELECTRONS__ */
 	if (bg > betaGamma) betaGamma = bg;
 	Double_t bg2 = betaGamma*betaGamma;
 	gamma = TMath::Sqrt(bg2 + 1.);
@@ -1250,7 +1252,7 @@ Int_t StTpcRSMaker::Make(){  //  PrintInfo();
 	  tpc_hitC->de = dESum*eV; 
 	  tpc_hitC->ds = dSSum; 
 	  tpc_hitC->adc = TotalSignal;
-	  tpc_hitC->np = nP;
+	  //tpc_hitC->np = nP;
     if (ClusterProfile) {
 	  if (TotalSignal > 0) {
 	    if (hist[ioH][0]) {
@@ -1778,13 +1780,10 @@ TF1 *StTpcRSMaker::StTpcRSMaker::fEc(Double_t w) {
 
 #undef PrPP
 //________________________________________________________________________________
-// $Id: StTpcRSMaker.cxx,v 1.75 2017/02/14 23:40:35 fisyak Exp $
+// $Id: StTpcRSMaker.cxx,v 1.73.2.1 2018/01/29 15:43:48 didenko Exp $
 // $Log: StTpcRSMaker.cxx,v $
-// Revision 1.75  2017/02/14 23:40:35  fisyak
-// Add new Table to correct dE/dx pad dependence, 2017 dAu20-62 calibration
-//
-// Revision 1.74  2016/12/29 16:30:56  fisyak
-// make switch to account __STOPPED_ELECTRONS__
+// Revision 1.73.2.1  2018/01/29 15:43:48  didenko
+// branch revision to 1.73 for embedding
 //
 // Revision 1.73  2016/12/19 15:22:39  fisyak
 // Fix typo
