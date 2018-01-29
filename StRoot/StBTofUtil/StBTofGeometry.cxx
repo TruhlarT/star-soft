@@ -1,6 +1,6 @@
 /*******************************************************************
  *
- * $Id: StBTofGeometry.cxx,v 1.14.2.6 2018/01/29 18:13:39 smirnovd Exp $
+ * $Id: StBTofGeometry.cxx,v 1.14.2.7 2018/01/29 18:14:29 smirnovd Exp $
  * 
  * Authors: Shuwei Ye, Xin Dong
  *******************************************************************
@@ -10,6 +10,14 @@
  *
  *******************************************************************
  * $Log: StBTofGeometry.cxx,v $
+ * Revision 1.14.2.7  2018/01/29 18:14:29  smirnovd
+ * StBTofNode: New constructor accepting TGeo volume
+ *
+ * The new TGeo constructor creates transient TVolume objects to provide
+ * functionality compatible with the existing TVolume-base geometry
+ * transformations. Unlike previously, the TVolume objects are owned by this class
+ * and so have to be deleted.
+ *
  * Revision 1.14.2.6  2018/01/29 18:13:39  smirnovd
  * Accept reference instead of pointer to xyz alignment
  *
@@ -100,6 +108,10 @@
 #include "TFile.h"
 #include "TDataSet.h"
 #include "TDataSetIter.h"
+#include "TGeoBBox.h"
+#include "TGeoMatrix.h"
+#include "TGeoPhysicalNode.h"
+
 #include "StMaker.h"
 //#include "TMemStat.h"
 #include "StMessMgr.h"
@@ -137,6 +149,49 @@ StBTofNode::StBTofNode(TVolumeView *element, TVolumeView *top, const StThreeVect
   : fView(element), pView(new TVolumePosition(*pos)), mMasterNode(top), mTransFlag(kFALSE),
     mAlign{align.x(), align.y(), align.z()}
 {
+   SetBit(kIsOwner, false);
+
+   UpdateMatrix();
+   BuildMembers();
+}
+
+
+StBTofNode::StBTofNode(const TGeoPhysicalNode& gpNode, const StThreeVectorD& align) :
+  fView(nullptr), pView(nullptr), mMasterNode(nullptr), mTransFlag(false),
+  mAlign{align.x(), align.y(), align.z()}
+{
+  SetBit(kIsOwner, true);
+
+  TGeoBBox* bbox = static_cast<TGeoBBox*>( gpNode.GetShape() );
+
+  mTShape = new TBRIK( gpNode.GetVolume()->GetName(), "BTOF shape", "unknown", bbox->GetDX(), bbox->GetDY(), bbox->GetDZ() );
+  mTVolume = new TVolume( gpNode.GetVolume()->GetName(), "BTOF volume", mTShape );
+
+  TGeoHMatrix* ghMatrix = static_cast<TGeoHMatrix*>( gpNode.GetMatrix() );
+
+  double* rotationM = ghMatrix->GetRotationMatrix();
+
+  double  rotationF[9] = {
+    rotationM[0], rotationM[3], rotationM[6],
+    rotationM[1], rotationM[4], rotationM[7],
+    rotationM[2], rotationM[5], rotationM[8]
+  };
+
+  // The rotation matrix is owned by pView
+  TRotMatrix* rotMatrix = new TRotMatrix("rotMatrix", "BTOF rotation matrix", rotationF);
+
+  double* trans = ghMatrix->GetTranslation();
+
+  pView = new TVolumePosition(mTVolume, trans[0], trans[1], trans[2], rotMatrix);
+  pView->SetMatrixOwner(true);
+
+  fView = new TVolumeView( static_cast<TVolume*>(nullptr), pView);
+
+  TVolumePosition* masterPosition = new TVolumePosition(nullptr, 0, 0, 0, TVolume::GetIdentity());
+
+  // By default masterPosition is owned by mMasterNode
+  mMasterNode = new TVolumeView( static_cast<TVolume*>(nullptr), masterPosition);
+
    UpdateMatrix();
    BuildMembers();
 }
