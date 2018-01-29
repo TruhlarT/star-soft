@@ -1,6 +1,6 @@
 /*******************************************************************
  *
- * $Id: StBTofGeometry.h,v 1.10.2.9 2018/01/29 18:15:04 smirnovd Exp $
+ * $Id: StBTofGeometry.h,v 1.10.2.10 2018/01/29 18:15:16 smirnovd Exp $
  * 
  * Authors: Shuwei Ye, Xin Dong
  *******************************************************************
@@ -10,6 +10,9 @@
  *
  *******************************************************************
  * $Log: StBTofGeometry.h,v $
+ * Revision 1.10.2.10  2018/01/29 18:15:16  smirnovd
+ * StBTofGeometry: s/InitFromStar/InitFrom/ and make it private
+ *
  * Revision 1.10.2.9  2018/01/29 18:15:04  smirnovd
  * StBTofGeometry: Added static method to identify trays with GMT modules
  *
@@ -363,6 +366,7 @@ class StBTofGeometry : public TNamed {
       return trayId == 8 || trayId == 23 || trayId == 93 || trayId == 108;
    }
 
+   void InitFrom(TVolume *starHall);
 
  protected:
    TVolumeView*      mTopNode;       //top TNode as MRS
@@ -416,7 +420,6 @@ class StBTofGeometry : public TNamed {
    void          SetAlignFile(const Char_t *infile="") { mAlignFile = infile; }
 
    void          Init(StMaker *maker, TVolume *starHall);
-   void          InitFromStar(TVolume *starHall);
 
    Bool_t  IsInitDone() const { return mInitFlag; }
    Bool_t  IsCellValid(const Int_t icell)     const;

@@ -1,6 +1,6 @@
 /*******************************************************************
  *
- * $Id: StBTofGeometry.cxx,v 1.14.2.10 2018/01/29 18:14:54 smirnovd Exp $
+ * $Id: StBTofGeometry.cxx,v 1.14.2.11 2018/01/29 18:15:16 smirnovd Exp $
  * 
  * Authors: Shuwei Ye, Xin Dong
  *******************************************************************
@@ -10,6 +10,9 @@
  *
  *******************************************************************
  * $Log: StBTofGeometry.cxx,v $
+ * Revision 1.14.2.11  2018/01/29 18:15:16  smirnovd
+ * StBTofGeometry: s/InitFromStar/InitFrom/ and make it private
+ *
  * Revision 1.14.2.10  2018/01/29 18:14:54  smirnovd
  * StBTofGeometry: New method to form TGeo paths for trays and modules
  *
@@ -904,7 +907,7 @@ void StBTofGeometry::Init(StMaker *maker, TVolume *starHall)
      }
    }
 
-   InitFromStar(starHall);
+   InitFrom(starHall);
 
 
 /* Starting with geometry tags in Y2013, GMT units were installed into tof trays 8,23,93, & 108.
@@ -939,7 +942,7 @@ void StBTofGeometry::Init(StMaker *maker, TVolume *starHall)
 
 }
 //_____________________________________________________________________________
-void StBTofGeometry::InitFromStar(TVolume *starHall)
+void StBTofGeometry::InitFrom(TVolume *starHall)
 {
   // Initialize TOFr geometry from STAR geometry
   //     BTofConf   --     0     tray_BTof   (default)
