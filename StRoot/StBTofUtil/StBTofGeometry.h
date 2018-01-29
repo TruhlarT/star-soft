@@ -1,6 +1,6 @@
 /*******************************************************************
  *
- * $Id: StBTofGeometry.h,v 1.10.2.5 2018/01/29 18:14:29 smirnovd Exp $
+ * $Id: StBTofGeometry.h,v 1.10.2.6 2018/01/29 18:14:39 smirnovd Exp $
  * 
  * Authors: Shuwei Ye, Xin Dong
  *******************************************************************
@@ -10,6 +10,9 @@
  *
  *******************************************************************
  * $Log: StBTofGeometry.h,v $
+ * Revision 1.10.2.6  2018/01/29 18:14:39  smirnovd
+ * StBTofGeoTray: New constructor accepting TGeo
+ *
  * Revision 1.10.2.5  2018/01/29 18:14:29  smirnovd
  * StBTofNode: New constructor accepting TGeo volume
  *
@@ -237,6 +240,8 @@ class StBTofGeomTray : public StBTofNode {
 
    StBTofGeomTray(const Int_t ibtoh, TVolumeView *sector, TVolumeView *top, const StThreeVectorD& align, TVolumePosition *pos=0);
 
+   StBTofGeomTray(const int trayId, const TGeoPhysicalNode& gpNode, const StThreeVectorD& align);
+
    StBTofGeomTray() {}
    ~StBTofGeomTray() {};
 
@@ -331,6 +336,9 @@ const
 //////////////////////////////////////////////////////////////////////////////
 
 class StBTofGeometry : public TNamed {
+
+   friend class StBTofGeomTray;
+
  private:
    TNamed*    mGeoNamed;   //!Geometry to copy from
    static Int_t const mNTrays = 120;

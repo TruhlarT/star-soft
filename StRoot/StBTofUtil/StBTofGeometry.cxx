@@ -1,6 +1,6 @@
 /*******************************************************************
  *
- * $Id: StBTofGeometry.cxx,v 1.14.2.7 2018/01/29 18:14:29 smirnovd Exp $
+ * $Id: StBTofGeometry.cxx,v 1.14.2.8 2018/01/29 18:14:39 smirnovd Exp $
  * 
  * Authors: Shuwei Ye, Xin Dong
  *******************************************************************
@@ -10,6 +10,9 @@
  *
  *******************************************************************
  * $Log: StBTofGeometry.cxx,v $
+ * Revision 1.14.2.8  2018/01/29 18:14:39  smirnovd
+ * StBTofGeoTray: New constructor accepting TGeo
+ *
  * Revision 1.14.2.7  2018/01/29 18:14:29  smirnovd
  * StBTofNode: New constructor accepting TGeo volume
  *
@@ -598,6 +601,18 @@ StBTofGeomTray::StBTofGeomTray(const Int_t ibtoh, TVolumeView *sector, TVolumeVi
   mSectorsInBTOH = top->GetListSize()/2;
   mBTOHIndex = ibtoh + 1;
   mTrayIndex = ibtoh * mSectorsInBTOH + sector->GetPosition()->GetId();
+}
+
+
+StBTofGeomTray::StBTofGeomTray(const int trayId, const TGeoPhysicalNode& node, const StThreeVectorD& align)
+  : StBTofNode(node, align)
+{
+  int mBTOHId  = ( trayId <= 60 ? 1 : 2 );
+  int sectorId = ( trayId <= 60 ? trayId : trayId - 60 );
+
+  mSectorsInBTOH = StBTofGeometry::mNTrays/2;
+  mBTOHIndex = mBTOHId;
+  mTrayIndex = (mBTOHId - 1) * mSectorsInBTOH + sectorId;
 }
 
 
