@@ -1,6 +1,6 @@
 /*******************************************************************
  *
- * $Id: StBTofGeometry.cxx,v 1.14.2.8 2018/01/29 18:14:39 smirnovd Exp $
+ * $Id: StBTofGeometry.cxx,v 1.14.2.9 2018/01/29 18:14:46 smirnovd Exp $
  * 
  * Authors: Shuwei Ye, Xin Dong
  *******************************************************************
@@ -10,6 +10,9 @@
  *
  *******************************************************************
  * $Log: StBTofGeometry.cxx,v $
+ * Revision 1.14.2.9  2018/01/29 18:14:46  smirnovd
+ * StBTofGeomSensor: New constructor accepting TGeo
+ *
  * Revision 1.14.2.8  2018/01/29 18:14:39  smirnovd
  * StBTofGeoTray: New constructor accepting TGeo
  *
@@ -639,6 +642,14 @@ StBTofGeomSensor::StBTofGeomSensor(TVolumeView *element, TVolumeView *top, const
   : StBTofNode(element, top, align, pos)
 {
    mModuleIndex = element->GetPosition()->GetId();
+   CreateGeomCells();
+}
+
+
+StBTofGeomSensor::StBTofGeomSensor(const int moduleId, const TGeoPhysicalNode& node, const StThreeVectorD& align)
+  : StBTofNode(node, align)
+{
+   mModuleIndex = moduleId;
    CreateGeomCells();
 }
 

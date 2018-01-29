@@ -1,6 +1,6 @@
 /*******************************************************************
  *
- * $Id: StBTofGeometry.h,v 1.10.2.6 2018/01/29 18:14:39 smirnovd Exp $
+ * $Id: StBTofGeometry.h,v 1.10.2.7 2018/01/29 18:14:46 smirnovd Exp $
  * 
  * Authors: Shuwei Ye, Xin Dong
  *******************************************************************
@@ -10,6 +10,9 @@
  *
  *******************************************************************
  * $Log: StBTofGeometry.h,v $
+ * Revision 1.10.2.7  2018/01/29 18:14:46  smirnovd
+ * StBTofGeomSensor: New constructor accepting TGeo
+ *
  * Revision 1.10.2.6  2018/01/29 18:14:39  smirnovd
  * StBTofGeoTray: New constructor accepting TGeo
  *
@@ -283,6 +286,8 @@ class StBTofGeomSensor : public StBTofNode {
  public:
 //   StBTofGeomSensor(TVolumeView *element, TVolumeView *top);
    StBTofGeomSensor(TVolumeView *element, TVolumeView *top, const StThreeVectorD& align, TVolumePosition *pos=0);
+
+   StBTofGeomSensor(const int moduleId, const TGeoPhysicalNode& gpNode, const StThreeVectorD& align);
 
    StBTofGeomSensor() {}
    ~StBTofGeomSensor() {}
