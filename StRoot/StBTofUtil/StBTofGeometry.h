@@ -1,6 +1,6 @@
 /*******************************************************************
  *
- * $Id: StBTofGeometry.h,v 1.10.2.8 2018/01/29 18:14:54 smirnovd Exp $
+ * $Id: StBTofGeometry.h,v 1.10.2.9 2018/01/29 18:15:04 smirnovd Exp $
  * 
  * Authors: Shuwei Ye, Xin Dong
  *******************************************************************
@@ -10,6 +10,9 @@
  *
  *******************************************************************
  * $Log: StBTofGeometry.h,v $
+ * Revision 1.10.2.9  2018/01/29 18:15:04  smirnovd
+ * StBTofGeometry: Added static method to identify trays with GMT modules
+ *
  * Revision 1.10.2.8  2018/01/29 18:14:54  smirnovd
  * StBTofGeometry: New method to form TGeo paths for trays and modules
  *
@@ -354,6 +357,12 @@ class StBTofGeometry : public TNamed {
    static Int_t const mNModules = 32;
 
    std::string FormTGeoPath(TGeoManager &geoManager, int trayId, bool hasGmt = false, int moduleId = -1);
+
+   static bool TrayHasGmtModules(int trayId)
+   {
+      return trayId == 8 || trayId == 23 || trayId == 93 || trayId == 108;
+   }
+
 
  protected:
    TVolumeView*      mTopNode;       //top TNode as MRS
