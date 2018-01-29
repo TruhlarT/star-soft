@@ -1,6 +1,6 @@
 /*******************************************************************
  *
- * $Id: StBTofGeometry.h,v 1.10.2.10 2018/01/29 18:15:16 smirnovd Exp $
+ * $Id: StBTofGeometry.h,v 1.10.2.11 2018/01/29 18:15:24 smirnovd Exp $
  * 
  * Authors: Shuwei Ye, Xin Dong
  *******************************************************************
@@ -10,6 +10,9 @@
  *
  *******************************************************************
  * $Log: StBTofGeometry.h,v $
+ * Revision 1.10.2.11  2018/01/29 18:15:24  smirnovd
+ * StBTofGeometry: InitFrom(TVolume*) to InitFrom(TVolume&)
+ *
  * Revision 1.10.2.10  2018/01/29 18:15:16  smirnovd
  * StBTofGeometry: s/InitFromStar/InitFrom/ and make it private
  *
@@ -366,7 +369,7 @@ class StBTofGeometry : public TNamed {
       return trayId == 8 || trayId == 23 || trayId == 93 || trayId == 108;
    }
 
-   void InitFrom(TVolume *starHall);
+   void InitFrom(TVolume &starHall);
 
  protected:
    TVolumeView*      mTopNode;       //top TNode as MRS

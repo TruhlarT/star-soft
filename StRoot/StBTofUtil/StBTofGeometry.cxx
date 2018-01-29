@@ -1,6 +1,6 @@
 /*******************************************************************
  *
- * $Id: StBTofGeometry.cxx,v 1.14.2.11 2018/01/29 18:15:16 smirnovd Exp $
+ * $Id: StBTofGeometry.cxx,v 1.14.2.12 2018/01/29 18:15:24 smirnovd Exp $
  * 
  * Authors: Shuwei Ye, Xin Dong
  *******************************************************************
@@ -10,6 +10,9 @@
  *
  *******************************************************************
  * $Log: StBTofGeometry.cxx,v $
+ * Revision 1.14.2.12  2018/01/29 18:15:24  smirnovd
+ * StBTofGeometry: InitFrom(TVolume*) to InitFrom(TVolume&)
+ *
  * Revision 1.14.2.11  2018/01/29 18:15:16  smirnovd
  * StBTofGeometry: s/InitFromStar/InitFrom/ and make it private
  *
@@ -907,7 +910,10 @@ void StBTofGeometry::Init(StMaker *maker, TVolume *starHall)
      }
    }
 
-   InitFrom(starHall);
+   if ( starHall )
+     InitFrom( *starHall );
+   else
+     LOG_ERROR << "StBTofGeometry::Init - Cannot build BTOF geometry without Geant input\n";
 
 
 /* Starting with geometry tags in Y2013, GMT units were installed into tof trays 8,23,93, & 108.
@@ -942,7 +948,7 @@ void StBTofGeometry::Init(StMaker *maker, TVolume *starHall)
 
 }
 //_____________________________________________________________________________
-void StBTofGeometry::InitFrom(TVolume *starHall)
+void StBTofGeometry::InitFrom(TVolume &starHall)
 {
   // Initialize TOFr geometry from STAR geometry
   //     BTofConf   --     0     tray_BTof   (default)
@@ -954,7 +960,7 @@ void StBTofGeometry::InitFrom(TVolume *starHall)
   }
 
   // Loop over the STAR geometry and mark the volume needed
-  TDataSetIter volume(starHall,0);
+  TDataSetIter volume(&starHall,0);
 
   TVolume *starDetectorElement = 0;
   while ( (starDetectorElement = ( TVolume *)volume()) )
@@ -977,8 +983,8 @@ void StBTofGeometry::InitFrom(TVolume *starHall)
       }
     }
 
-  starHall->SetVisibility(TVolume::kBothVisible);
-  mTopNode = new TVolumeView(*starHall,10); 
+  starHall.SetVisibility(TVolume::kBothVisible);
+  mTopNode = new TVolumeView(starHall,10);
 
   mSectorsInBTOH = mTopNode->GetListSize()/2;    // # of sectors in one half
 
