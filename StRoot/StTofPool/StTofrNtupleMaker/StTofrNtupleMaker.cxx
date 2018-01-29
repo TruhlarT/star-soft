@@ -1,6 +1,6 @@
 /*******************************************************************
  *
- * $Id: StTofrNtupleMaker.cxx,v 1.11 2016/05/05 16:18:07 geurts Exp $
+ * $Id: StTofrNtupleMaker.cxx,v 1.11.4.1 2018/01/29 17:47:16 smirnovd Exp $
  *
  * Author: Xin Dong
  *****************************************************************
@@ -11,6 +11,9 @@
  *****************************************************************
  *
  * $Log: StTofrNtupleMaker.cxx,v $
+ * Revision 1.11.4.1  2018/01/29 17:47:16  smirnovd
+ * StTof: Remove outdated ClassImp macro
+ *
  * Revision 1.11  2016/05/05 16:18:07  geurts
  * addressed Cppcheck report: fixed uninitialized variables and remove one unused variable.
  *
@@ -88,7 +91,6 @@
 #include "StTofrNtupleMaker.h"
 
 
-ClassImp(StTofrNtupleMaker)
 
 //---------------------------------------------------------------------------
 /// constructor sets default parameters

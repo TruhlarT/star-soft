@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: StTofpNtupleMaker.cxx,v 1.6 2007/04/17 23:01:28 dongx Exp $
+ * $Id: StTofpNtupleMaker.cxx,v 1.6.16.1 2018/01/29 17:47:16 smirnovd Exp $
  *
  * Author: Frank Geurts
  ***************************************************************************
@@ -10,6 +10,9 @@
  ***************************************************************************
  *
  * $Log: StTofpNtupleMaker.cxx,v $
+ * Revision 1.6.16.1  2018/01/29 17:47:16  smirnovd
+ * StTof: Remove outdated ClassImp macro
+ *
  * Revision 1.6  2007/04/17 23:01:28  dongx
  * replaced with standard STAR Loggers
  *
@@ -50,7 +53,6 @@
 #include "StTofpNtupleMaker.h"
 
 
-ClassImp(StTofpNtupleMaker)
 
 //---------------------------------------------------------------------------
 /// constructor sets default parameters

@@ -1,6 +1,6 @@
 /*******************************************************************
  *
- * $Id: StBTofMatchEffMaker.cxx,v 1.2 2010/01/28 18:16:53 perev Exp $
+ * $Id: StBTofMatchEffMaker.cxx,v 1.2.4.1 2018/01/29 17:47:15 smirnovd Exp $
  *
  * Author: Xin Dong
  *****************************************************************
@@ -10,6 +10,9 @@
  *****************************************************************
  *
  * $Log: StBTofMatchEffMaker.cxx,v $
+ * Revision 1.2.4.1  2018/01/29 17:47:15  smirnovd
+ * StTof: Remove outdated ClassImp macro
+ *
  * Revision 1.2  2010/01/28 18:16:53  perev
  * WarningOff
  *
@@ -43,7 +46,6 @@
 #include "StBTofMatchEffMaker.h"
 //#include "TMemStat.h"
 
-ClassImp(StBTofMatchEffMaker)
 
 //---------------------------------------------------------------------------
 StBTofMatchEffMaker::StBTofMatchEffMaker(const Char_t *name): StMaker(name){

@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: StTofSimMaker.cxx,v 1.11 2007/04/17 23:02:36 dongx Exp $
+ * $Id: StTofSimMaker.cxx,v 1.11.16.1 2018/01/29 17:47:16 smirnovd Exp $
  *
  * Author: Frank Geurts
  ***************************************************************************
@@ -10,6 +10,9 @@
  ***************************************************************************
  *
  * $Log: StTofSimMaker.cxx,v $
+ * Revision 1.11.16.1  2018/01/29 17:47:16  smirnovd
+ * StTof: Remove outdated ClassImp macro
+ *
  * Revision 1.11  2007/04/17 23:02:36  dongx
  * replaced with standard STAR Loggers
  *
@@ -84,7 +87,6 @@ typedef tofMCSlatVector::iterator tofMCSlatVecIter;
 
 static RanluxEngine engine;
 
-ClassImp(StTofSimMaker)
 
 /// default constructor
 StTofSimMaker::StTofSimMaker(const char *name):StMaker(name){

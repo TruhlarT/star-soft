@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: StBTofMaker.cxx,v 1.3 2009/12/21 23:32:16 dongx Exp $
+ * $Id: StBTofMaker.cxx,v 1.3.4.1 2018/01/29 17:47:15 smirnovd Exp $
  *
  * Author: Valeri Fine, BNL Feb 2008
  ***************************************************************************
@@ -25,7 +25,6 @@
 #include "StBTofUtil/StBTofINLCorr.h"
 #include "StEvent/StEvent.h"
 
-ClassImp(StBTofMaker);
 
 //_____________________________________________________________
 StBTofMaker::StBTofMaker(const char *name):StMaker("tof",name)

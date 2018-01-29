@@ -1,7 +1,10 @@
 /*************************************************
  *
- * $Id: StTofpMcAnalysisMaker.cxx,v 1.4 2011/04/03 15:52:57 fisyak Exp $
+ * $Id: StTofpMcAnalysisMaker.cxx,v 1.4.14.1 2018/01/29 17:47:16 smirnovd Exp $
  * $Log: StTofpMcAnalysisMaker.cxx,v $
+ * Revision 1.4.14.1  2018/01/29 17:47:16  smirnovd
+ * StTof: Remove outdated ClassImp macro
+ *
  * Revision 1.4  2011/04/03 15:52:57  fisyak
  * Fix effect of constness in StAssociationMaker
  *
@@ -32,7 +35,6 @@
 #include "StMessMgr.h"
 #include "StTofpMcAnalysisMaker.h"
 
-ClassImp(StTofpMcAnalysisMaker)
 
 
 const Int_t   StTofpMcAnalysisMaker::mPtBin = 50;

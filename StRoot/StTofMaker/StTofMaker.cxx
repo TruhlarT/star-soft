@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: StTofMaker.cxx,v 1.18 2007/04/17 23:00:41 dongx Exp $
+ * $Id: StTofMaker.cxx,v 1.18.16.1 2018/01/29 17:47:15 smirnovd Exp $
  *
  * Author: W.J. Llope / Wei-Ming Zhang / Frank Geurts
  *
@@ -11,6 +11,9 @@
  ***************************************************************************
  *
  * $Log: StTofMaker.cxx,v $
+ * Revision 1.18.16.1  2018/01/29 17:47:15  smirnovd
+ * StTof: Remove outdated ClassImp macro
+ *
  * Revision 1.18  2007/04/17 23:00:41  dongx
  * replaced with standard STAR Loggers
  *
@@ -99,7 +102,6 @@
 #include "TFile.h"
 #include "TH1.h"
 
-ClassImp(StTofMaker)
 
 
 /// default constructor

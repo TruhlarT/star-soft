@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: StTofHitMaker.cxx,v 1.5 2009/06/09 19:45:36 jeromel Exp $
+ * $Id: StTofHitMaker.cxx,v 1.5.14.1 2018/01/29 17:47:15 smirnovd Exp $
  *
  * Author: Valeri Fine, BNL Feb 2008
  ***************************************************************************
@@ -16,6 +16,9 @@
  * Revision 1.7, 02/09/2008, Jing liu
  *
  * $Log: StTofHitMaker.cxx,v $
+ * Revision 1.5.14.1  2018/01/29 17:47:15  smirnovd
+ * StTof: Remove outdated ClassImp macro
+ *
  * Revision 1.5  2009/06/09 19:45:36  jeromel
  * Changes for BT#1428
  *
@@ -80,7 +83,6 @@
 #endif
 #endif /* NEW_DAQ_READER */
 
-ClassImp(StTofHitMaker);
 
 //_____________________________________________________________
 #ifndef NEW_DAQ_READER

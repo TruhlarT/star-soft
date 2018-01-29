@@ -1,6 +1,6 @@
 /*******************************************************************
  *
- * $Id: StBTofNtupleMaker.cxx,v 1.1 2010/04/09 00:28:48 dongx Exp $
+ * $Id: StBTofNtupleMaker.cxx,v 1.1.4.1 2018/01/29 17:47:16 smirnovd Exp $
  *
  * Author: Xin Dong
  *****************************************************************
@@ -11,6 +11,9 @@
  *****************************************************************
  *
  * $Log: StBTofNtupleMaker.cxx,v $
+ * Revision 1.1.4.1  2018/01/29 17:47:16  smirnovd
+ * StTof: Remove outdated ClassImp macro
+ *
  * Revision 1.1  2010/04/09 00:28:48  dongx
  * First release
  *
@@ -83,7 +86,6 @@
 
 #include "StEnumerations.h"
 
-ClassImp(StBTofNtupleMaker)
 
 //---------------------------------------------------------------------------
 /// constructor sets default parameters

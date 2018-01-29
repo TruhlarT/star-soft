@@ -1,6 +1,6 @@
 /*******************************************************************
  *
- * $Id: StTofrGeometry.cxx,v 1.10 2009/01/26 15:05:33 fisyak Exp $
+ * $Id: StTofrGeometry.cxx,v 1.10.14.1 2018/01/29 17:47:16 smirnovd Exp $
  * 
  * Authors: Shuwei Ye, Xin Dong
  *******************************************************************
@@ -10,6 +10,9 @@
  *
  *******************************************************************
  * $Log: StTofrGeometry.cxx,v $
+ * Revision 1.10.14.1  2018/01/29 17:47:16  smirnovd
+ * StTof: Remove outdated ClassImp macro
+ *
  * Revision 1.10  2009/01/26 15:05:33  fisyak
  * rename TMemStat => StMemStat due to clash with ROOT class
  *
@@ -78,9 +81,6 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#ifdef __ROOT__      
-ClassImp(StTofrNode)
-#endif
 
 Bool_t StTofrNode::mDebug = kFALSE;
 Double_t const StTofrGeomSensor::mSensorDy = 10.35;   // Actual module length;
@@ -459,9 +459,6 @@ StTofrGeomNode::StTofrGeomNode(const char* name, const char* title,
 }
 */
 
-#ifdef __ROOT__      
-ClassImp(StTofrGeomNode)
-#endif
 
 Bool_t StTofrGeomNode::mDebug = kFALSE;
 //_____________________________________________________________________________
@@ -826,9 +823,6 @@ const
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#ifdef __ROOT__      
-ClassImp(StTofrGeomTray)
-#endif
 
 Bool_t StTofrGeomTray::mDebug = kFALSE;
 
@@ -1013,9 +1007,6 @@ void StTofrGeomTray::Print(const Option_t *opt) const
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#ifdef __ROOT__      
-ClassImp(StTofrGeomSensor)
-#endif
 
 Bool_t StTofrGeomSensor::mDebug = kFALSE;
 
@@ -1172,9 +1163,6 @@ void StTofrGeomSensor::Print(const Option_t *opt) const
 StTofrGeometry *gTofrGeometry = 0;
 static const Int_t CELLSINMODULE = 6;
 
-#ifdef __ROOT__      
-ClassImp(StTofrGeometry)
-#endif
 
 Bool_t StTofrGeometry::mDebug = kFALSE;
 

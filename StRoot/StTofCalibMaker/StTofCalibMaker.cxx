@@ -1,6 +1,6 @@
 /*******************************************************************
  *
- * $Id: StTofCalibMaker.cxx,v 1.22 2012/12/14 06:35:48 geurts Exp $
+ * $Id: StTofCalibMaker.cxx,v 1.22.12.1 2018/01/29 17:47:15 smirnovd Exp $
  *
  * Author: Xin Dong
  *****************************************************************
@@ -13,6 +13,9 @@
  *****************************************************************
  *
  * $Log: StTofCalibMaker.cxx,v $
+ * Revision 1.22.12.1  2018/01/29 17:47:15  smirnovd
+ * StTof: Remove outdated ClassImp macro
+ *
  * Revision 1.22  2012/12/14 06:35:48  geurts
  * Changed global database calls to direct table access and/or removed deprecated database access code.
  *
@@ -138,9 +141,6 @@
 #include "StMemoryInfo.hh"
 #include "StTimer.hh"
 
-#ifdef __ROOT__
-ClassImp(StTofCalibMaker)
-#endif
 
 //_____________________________________________________________________________
 StTofCalibMaker::StTofCalibMaker(const char *name) : StMaker(name)

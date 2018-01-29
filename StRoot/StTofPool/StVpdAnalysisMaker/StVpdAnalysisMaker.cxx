@@ -1,6 +1,6 @@
 /*******************************************************************
  *
- * $Id: StVpdAnalysisMaker.cxx,v 1.2 2012/12/14 06:35:56 geurts Exp $
+ * $Id: StVpdAnalysisMaker.cxx,v 1.2.12.1 2018/01/29 17:47:16 smirnovd Exp $
  *
  * Author: Xin Dong
  *****************************************************************
@@ -11,6 +11,9 @@
  *****************************************************************
  *
  * $Log: StVpdAnalysisMaker.cxx,v $
+ * Revision 1.2.12.1  2018/01/29 17:47:16  smirnovd
+ * StTof: Remove outdated ClassImp macro
+ *
  * Revision 1.2  2012/12/14 06:35:56  geurts
  * Changed global database calls to direct table access and/or removed deprecated database access code.
  *
@@ -50,9 +53,6 @@
 #include "StMemoryInfo.hh"
 #include "StTimer.hh"
 
-#ifdef __ROOT__
-ClassImp(StVpdAnalysisMaker)
-#endif
 
 //_____________________________________________________________________________
 StVpdAnalysisMaker::StVpdAnalysisMaker(const char *name) : StMaker(name)

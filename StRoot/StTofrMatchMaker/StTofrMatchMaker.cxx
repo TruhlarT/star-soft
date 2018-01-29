@@ -1,6 +1,6 @@
 /*******************************************************************
  *
- * $Id: StTofrMatchMaker.cxx,v 1.32 2012/12/17 22:57:29 geurts Exp $
+ * $Id: StTofrMatchMaker.cxx,v 1.32.12.1 2018/01/29 17:47:17 smirnovd Exp $
  *
  * Author: Xin Dong
  *****************************************************************
@@ -12,6 +12,9 @@
  *****************************************************************
  *
  * $Log: StTofrMatchMaker.cxx,v $
+ * Revision 1.32.12.1  2018/01/29 17:47:17  smirnovd
+ * StTof: Remove outdated ClassImp macro
+ *
  * Revision 1.32  2012/12/17 22:57:29  geurts
  * bugfix (tickets #2456/#2457)
  *
@@ -147,7 +150,6 @@
 #include "StTofrMatchMaker.h"
 //#include "TMemStat.h"
 
-ClassImp(StTofrMatchMaker)
 
 // Define the  static constants:
 

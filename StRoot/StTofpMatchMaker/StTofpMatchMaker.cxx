@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: StTofpMatchMaker.cxx,v 1.13 2012/12/14 06:36:02 geurts Exp $
+ * $Id: StTofpMatchMaker.cxx,v 1.13.12.1 2018/01/29 17:47:16 smirnovd Exp $
  *
  * Author: Frank Geurts
  ***************************************************************************
@@ -10,6 +10,9 @@
  ***************************************************************************
  *
  * $Log: StTofpMatchMaker.cxx,v $
+ * Revision 1.13.12.1  2018/01/29 17:47:16  smirnovd
+ * StTof: Remove outdated ClassImp macro
+ *
  * Revision 1.13  2012/12/14 06:36:02  geurts
  * Changed global database calls to direct table access and/or removed deprecated database access code.
  *
@@ -79,7 +82,6 @@
 #include "StTofpMatchMaker.h"
 
 
-ClassImp(StTofpMatchMaker)
 
 //---------------------------------------------------------------------------
 /// default constructor, set default values
