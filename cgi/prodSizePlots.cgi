@@ -592,9 +592,13 @@ $ndt = 0;
 
     @data = ();
 
-  if($qprod eq "P17ii" or $qprod eq "P18ia" ) {
+  if($qprod eq "P17ii") { 
 
-    $max_y = 84000;
+    $max_y = 98000;
+
+  }elsif $qprod eq "P18ia" ) {
+
+      $max_y = 84000;
 
    }else{
 
@@ -609,9 +613,13 @@ $ndt = 0;
 
    @data = ();
 
-   if($qprod eq "P17ii" or $qprod eq "P18ia" ) {
+  if($qprod eq "P17ii") { 
 
-    $max_y = 84000;
+    $max_y = 98000;
+
+  }elsif $qprod eq "P18ia" ) {
+
+      $max_y = 84000;
 
    }else{
 
