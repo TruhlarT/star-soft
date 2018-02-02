@@ -592,8 +592,14 @@ $ndt = 0;
 
     @data = ();
 
-    $max_y = 56000;
+  if($qprod eq "P17ii" or $qprod eq "P18ia" ) {
 
+    $max_y = 84000;
+
+   }else{
+
+    $max_y = 56000;
+   }
        $ylabel = "Size of raw data in GB restored from HPSS per day";
        $gtitle = "Size of raw data in GB restored from HPSS in $qprod production";
 
@@ -603,8 +609,15 @@ $ndt = 0;
 
    @data = ();
 
+   if($qprod eq "P17ii" or $qprod eq "P18ia" ) {
+
+    $max_y = 84000;
+
+   }else{
+
     $max_y = 56000;
 
+   }
        $ylabel = "Size of data in GB transferred  from/to HPSS per day";
        $gtitle = "Size of data in GB transferred  from/to HPSS in $qprod production";
 
