@@ -594,7 +594,7 @@ $ndt = 0;
 
   if($qprod eq "P17ii") { 
 
-    $max_y = 98000;
+    $max_y = 112000;
 
   }elsif ($qprod eq "P18ia" ) {
 
@@ -615,7 +615,7 @@ $ndt = 0;
 
   if($qprod eq "P17ii") { 
 
-    $max_y = 98000;
+    $max_y = 112000;
 
   }elsif ($qprod eq "P18ia" ) {
 
