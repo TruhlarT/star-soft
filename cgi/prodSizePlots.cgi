@@ -596,7 +596,7 @@ $ndt = 0;
 
     $max_y = 98000;
 
-  }elsif $qprod eq "P18ia" ) {
+  }elsif ($qprod eq "P18ia" ) {
 
       $max_y = 84000;
 
@@ -617,7 +617,7 @@ $ndt = 0;
 
     $max_y = 98000;
 
-  }elsif $qprod eq "P18ia" ) {
+  }elsif ($qprod eq "P18ia" ) {
 
       $max_y = 84000;
 
