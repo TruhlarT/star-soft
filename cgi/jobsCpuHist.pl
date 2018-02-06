@@ -1269,7 +1269,10 @@ my $ynum = 14;
   }elsif($qprod eq "P17ii" ) { 
      $max_y = 120 ;
      $ynum = 15;
-
+ }elsif($qprod eq "P18ia" ) { 
+     $max_y = 20 ;
+     $ynum = 20;
+  
  }else{
      $max_y = 28 ;
      $ynum = 14;
