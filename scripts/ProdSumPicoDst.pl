@@ -432,9 +432,9 @@ $collHash{"ppLong-1"} = "pp200";
 $collHash{"testJPsi-3"} = "dau200";
 
 
-#my $prod_html = "/star/u/starlib/datsum/ProdSumpPicoDst.html";
+my $prod_html = "/star/u/starlib/datsum/ProdSumPicoDst.html";
 
-my $prod_html = "/star/u/starreco/ProdSumPicoDst.html";
+#my $prod_html = "/star/u/starreco/ProdSumPicoDst.html";
 
 my $SITE         = "BNL";
 my $status       = (0==1);
