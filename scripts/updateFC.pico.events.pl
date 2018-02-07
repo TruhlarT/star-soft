@@ -51,7 +51,6 @@ my $updatefile;
 my $logFile;
 my $fullname;
 my $jfile;  
-my @eventset = ();
 my $Nevent = 0;
 my $Nevline ;
 
@@ -60,7 +59,7 @@ my $Nevline ;
     "library=$libtag",
     "trgsetupname=$trig",
     "filetype=daq_reco_picoDst",
-#    "filename~st_mtd",
+    "filename~st_mtd",
     "events=0",
     "storage=hpss");
 
