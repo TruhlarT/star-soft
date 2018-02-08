@@ -600,7 +600,6 @@ my $trg0 = "n/a";
  print HTML "<td HEIGHT=10><h3><font color=\"#ff0000\">$sumevt[$nlist]</font></h3></td>\n";
  print HTML "<td HEIGHT=10><h3><font color=\"#ff0000\">$sumsize[$nlist]</font></h3></td>\n";
  print HTML "<td HEIGHT=10><h3><font color=\"#ff0000\">$numfiles[$nlist]</font></h3></td>\n";
- print HTML "<td HEIGHT=10><h3><font color=\"#ff0000\"><a href=\"http://www.star.bnl.gov/devcgi/RetriveTrigID.pl?rtrig=$trig[$nlist];rprod=$prod[$nlist];rstream=nostream\">triggerID</font></h3></td>\n";
  print HTML "</TR>\n";
 
 } else{
@@ -613,7 +612,6 @@ my $trg0 = "n/a";
     print HTML "<td HEIGHT=10><h3>$sumevt[$nlist]</h3></td>\n";
     print HTML "<td HEIGHT=10><h3>$sumsize[$nlist]</h3></td>\n";
     print HTML "<td HEIGHT=10><h3>$numfiles[$nlist]</h3></td>\n";
-    print HTML "<td HEIGHT=10><h3><a href=\"http://www.star.bnl.gov/devcgi/RetriveTrigID.pl?rtrig=$trig[$nlist];rprod=$prod[$nlist];rstream=nostream\">triggerID</h3></td>\n";
     print HTML "</TR>\n";
 
  }
@@ -652,7 +650,6 @@ sub beginHtml {
     print HTML " <TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=60><B><h3>Number of Events<h3></B></TD>\n";
     print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Size  (GB) of MuDst <h3></B></TD>\n";
     print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of MuDst files <h3></B></TD>\n";
-    print HTML " <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>TriggerIDs summary <h3></B></TD>\n";
     print HTML " </TR> \n";
 
 }
