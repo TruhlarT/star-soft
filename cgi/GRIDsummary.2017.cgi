@@ -65,7 +65,7 @@ my @nevents = ();
 my @nmislog = ();
 my @nodaq   = ();
 my @globuserr = ();
-
+my @avgcpu = ();
 
 my $prtag;
 my $dtset;
@@ -251,7 +251,7 @@ my $dtset;
    $cursor->finish();
 
 
-  $sql="SELECT count(inputFileName) from $JobStatusT where prodTag = '$prtag' and datasetName = '$dtset' and overallJobStates = 'done' ";
+  $sql="SELECT count(inputFileName) from $JobStatusT where prodTag = '$prtag' and datasetName = '$dtset' and overallJobStates =  'done' ";
 
           $cursor =$dbh->prepare($sql)
               || die "Cannot prepare statement: $DBI::errstr\n"; 
@@ -260,6 +260,19 @@ my $dtset;
         while(@fields = $cursor->fetchrow) {
 
           $overstat[$ii]  = $fields[0];
+
+         }
+   $cursor->finish();
+
+  $sql="SELECT avg(cpuPerEvent) from $JobStatusT where prodTag = '$prtag' and datasetName = '$dtset' and recoStatus = 'completed' and cpuPerEvent > 0 ";
+
+          $cursor =$dbh->prepare($sql)
+              || die "Cannot prepare statement: $DBI::errstr\n"; 
+          $cursor->execute();
+
+        while(@fields = $cursor->fetchrow) {
+
+          $avgcpu[$ii]  = $fields[0];
 
          }
    $cursor->finish();
@@ -377,6 +390,7 @@ my $dtset;
 <td HEIGHT=10><h3>$nnotInQ[$ik]</h3></td>
 <td HEIGHT=10><h3>$nnone[$ik]</h3></td>
 <td HEIGHT=10><h3>$recosucces[$ik]</h3></td>
+<td HEIGHT=10><h3>$avgcpu[$ik]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveGridJobs.pl?trigs=$trigset[$ik];prod=$prodtag[$ik];jflag=jstat">$recofailed[$ik]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveGridJobs.pl?trigs=$trigset[$ik];prod=$prodtag[$ik];jflag=unknown">$recounknown[$ik]</h3></td>
 <td HEIGHT=10><h3><a href="http://www.star.bnl.gov/devcgi/RetriveGridJobs.pl?trigs=$trigset[$ik];prod=$prodtag[$ik];jflag=mglob">$globuserr[$ik]</h3></td>
@@ -438,6 +452,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Jobs notInQ</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Jobs NOT SUBMITTED</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Reco success</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Average CPU/evt</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Reco failed</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Reco unknown</h3></B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Globus error</h3></B></TD>
