@@ -272,7 +272,7 @@ my $dtset;
 
         while(@fields = $cursor->fetchrow) {
 
-          $avgcpu[$ii]  = float($fields[0],2);
+          $avgcpu[$ii]  = sprintf("'%.2f'\n\n",$fields[0]);
 
          }
    $cursor->finish();
