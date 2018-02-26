@@ -1,6 +1,6 @@
 /*************************************************
  *
- * $Id: StTofpMcAnalysisMaker.cxx,v 1.5 2018/02/26 23:13:20 smirnovd Exp $
+ * $Id: StTofpMcAnalysisMaker.cxx,v 1.6 2018/02/26 23:26:51 smirnovd Exp $
  *
  *************************************************/
 
@@ -19,7 +19,6 @@
 #include "StMessMgr.h"
 #include "StTofpMcAnalysisMaker.h"
 
-ClassImp(StTofpMcAnalysisMaker)
 
 
 const Int_t   StTofpMcAnalysisMaker::mPtBin = 50;
@@ -1053,6 +1052,9 @@ const StTrackGeometry* StTofpMcAnalysisMaker::trackGeometry(const StTrack* track
 
 //--------------------------------------------------------------------------
 /* $Log: StTofpMcAnalysisMaker.cxx,v $
+/* Revision 1.6  2018/02/26 23:26:51  smirnovd
+/* StTof: Remove outdated ClassImp macro
+/*
 /* Revision 1.5  2018/02/26 23:13:20  smirnovd
 /* Move embedded CVS log messages to the end of file
 /*
