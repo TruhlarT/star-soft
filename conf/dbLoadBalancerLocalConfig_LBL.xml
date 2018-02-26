@@ -23,7 +23,9 @@
 <Scatalog version="1.0.1">
 
                 <Server scope="Analysis" accessMode="read">
-                       <Host name="stardb.nersc.gov"  port="3306"/>
+                       <!-- <Host name="stardb.nersc.gov"  port="3306"/> //-->
+						<Host name="mstardb02.nersc.gov"  port="3316"/>
+                     	<Host name="mstardb03.nersc.gov"  port="3316"/>
                 </Server>
 
 </Scatalog>
