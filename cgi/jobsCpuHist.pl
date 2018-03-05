@@ -754,7 +754,7 @@ END
 
 ###########
 
- if($qprod eq "P14ia" or $qprod eq "P14ig" or $qprod eq "P14ii" or $qprod eq "P15ik" or $qprod eq "P15il" or $qprod eq "P16id"  or $qprod eq "P16ic" or $qprod eq "P17ii" or $qprod eq "P18ia" ) {
+ if($qprod eq "P14ia" or $qprod eq "P14ig" or $qprod eq "P14ii" or $qprod eq "P15ik" or $qprod eq "P15il" or $qprod eq "P16id"  or $qprod eq "P16ic" or $qprod eq "P17ii" or $qprod eq "P18ia" or $qprod eq "P18ib" ) {
      $maxvalue = 120;
 
      if($qprodt eq "P16id.2014"){
@@ -1054,7 +1054,7 @@ END
 
  if($qprod eq "P14ia" or $qprod eq "P14ig" or $qprod eq "P14ii" ) {
      $maxcpuval = 110;
- }elsif($qprod eq "P15ik" or $qprod eq "P15il" or $qprod eq "P17ii" or $qprod eq "P18ia") {
+ }elsif($qprod eq "P15ik" or $qprod eq "P15il" or $qprod eq "P17ii" or $qprod eq "P18ia" or $qprod eq "P18ib" ) {
      $maxcpuval = 110;
 # }elsif($qprod eq "P17ii" or $qprod eq "P18ia") {
 #     $maxcpuval = 55;
