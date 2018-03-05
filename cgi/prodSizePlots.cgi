@@ -199,7 +199,7 @@ END
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
                                   -values=>\@arrprod,
-                                  -default=>P18ia,
+                                  -default=>P18ib,
                                   -size =>1);
 
     print "<p>";
@@ -260,7 +260,7 @@ my $qperiod = $qqr->param('period');
   
    $ProdSizeT = "ProductionSize2016";
 
-  }elsif($qprod eq "P17ii" or $qprod eq "P18ia") {
+  }elsif($qprod eq "P17ii" or $qprod eq "P18ia" or $qprod eq "P18ib") {
 
  $ProdSizeT = "ProductionSize2017";
 
@@ -617,7 +617,7 @@ $ndt = 0;
 
     $max_y = 112000;
 
-  }elsif ($qprod eq "P18ia" ) {
+  }elsif ($qprod eq "P18ia" or $qprod eq "P18ib" ) {
 
       $max_y = 84000;
 
