@@ -35,7 +35,7 @@ my $nowdate = ($year+1900).$mon.$mday;
 my $thisdate = ($year+1900)."-".$mon."-".$mday." ".$hour."%";
 
 
-my $jobs_html = "/star/u/starlib/datsum/GRIDsummary.2017.html";
+my $jobs_html = "/star/u/starlib/gridsum/GRIDsummary.2017.html";
 
 my @nnone      = ();
 my @nsubmit    = ();
