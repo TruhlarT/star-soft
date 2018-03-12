@@ -424,7 +424,7 @@ print HTML "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">\n";
 print HTML "<html>\n";
 print HTML "    <head>\n";
 print HTML "    <title>GRID jobs states summary for run 2017-2018</title>\n";
-print HTML "    </head>>\n";
+print HTML "    </head>\n";
 
 print HTML "    <body BGCOLOR=\"cornsilk\">\n";
 print HTML "  <h2 ALIGN=CENTER> <B>GRID production jobs states summary for year 2017 - 2018 productions </h2>\n";
