@@ -502,9 +502,10 @@ if ( $ThisYear == 2005 ){
 
     $PHYSTP  =  
 	rdaq_string2ftype("physics")    ."|".
-        rdaq_string2ftype("physics_adc")."|". 
-	rdaq_string2ftype("W")          ."|". 
-	rdaq_string2ftype("W_adc");
+        rdaq_string2ftype("physics_adc");
+        #rdaq_string2ftype("physics_adc")."|". 
+	#rdaq_string2ftype("W")          ."|". 
+	#rdaq_string2ftype("W_adc");
 
     $PHYSTP2 =
         rdaq_string2ftype("pxl")        ."|".  # <-- appeared in 2013 run
@@ -605,6 +606,10 @@ if ( $ThisYear == 2005 ){
        $DCHAIN{"PPPP"} = "pp2017,btof,mtd,pp2pp,fmsDat,fmsPoint,fpsDat,BEmcChkStat,CorrX,OSpaceZ2,OGridLeak3D,-hitfilt";
        $DCHAIN{"AuAu"} = "P2017,btof,mtd,fmsDat,fmsPoint,fpsDat,BEmcChkStat,CorrX,OSpaceZ2,OGridLeak3D,-hitfilt";
 
+   } elsif ($ThisYear == 2018) {
+       $DCHAIN{"ZuZu"} = "P2018a,StiCA,btof,mtd,PicoVtxDefault,BEmcChkStat,OSpaceZ2,OGridLeak3D,-hitfilt";
+       $DCHAIN{"RuRu"} = "P2018a,StiCA,btof,mtd,PicoVtxDefault,BEmcChkStat,OSpaceZ2,OGridLeak3D,-hitfilt";
+
    } else {
         $DCHAIN{"PPPP"} =
             "P2016,btof,mtd,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
@@ -682,9 +687,9 @@ if ( -e $QUITF){
 
 # be sure to turn it ON
 # if (rdaq_toggle_debug()){ rdaq_toggle_debug();}
-# if ($DEBUG){
-#    rdaq_toggle_debug(1);
-# }
+if ($DEBUG){
+    rdaq_toggle_debug(1);
+}
 
 # Global condition will exclude from accidental processing of junk
 # puslers or lasers types. Note that EXPRESS are NOT added as they
