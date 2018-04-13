@@ -1,6 +1,6 @@
 /***********************************************************************
  *
- * $Id: StMagUtilities.h,v 1.62 2018/04/11 02:35:57 genevb Exp $
+ * $Id: StMagUtilities.h,v 1.58.10.1 2018/04/13 16:23:20 didenko Exp $
  *
  * Author: Jim Thomas   11/1/2000
  *
@@ -11,17 +11,8 @@
  ***********************************************************************
  *
  * $Log: StMagUtilities.h,v $
- * Revision 1.62  2018/04/11 02:35:57  genevb
- * Distortion smearing by calibration resolutions
- *
- * Revision 1.61  2017/10/26 02:47:42  genevb
- * Allow FullGridLeak to work on specific sheets via sheet widths
- *
- * Revision 1.60  2017/04/12 19:47:02  genevb
- * Generic SpaceCharge and GridLeak functions independent of specific modes
- *
- * Revision 1.59  2017/01/06 22:30:45  genevb
- * Introduce FullGridLeak distortion correction
+ * Revision 1.58.10.1  2018/04/13 16:23:20  didenko
+ * updates for SL16d_embed library
  *
  * Revision 1.58  2014/07/08 09:50:43  fisyak
  * Fix old correction with 2D and 3D mag.field
@@ -216,7 +207,6 @@ enum   DistortSelect
   kGGVoltError       = 0x10000,  // Bit 17
   kSectorAlign       = 0x20000,  // Bit 18
   kDisableTwistClock = 0x40000,  // Bit 19
-  kFullGridLeak      = 0x80000,  // Bit 20
   kDistoSmearing     = 0x100000  // Bit 21
 } ;
 enum   CorrectSelect
@@ -243,8 +233,8 @@ enum   EBMapSizes
 class StTpcDb ;
 class TDataSet ;
 class St_tpcHVPlanesC;
-class St_tpcCalibResolutionsC;
-class TRandom;
+  class St_tpcCalibResolutionsC;
+  class TRandom;
 #include "StDetectorDbMaker/StDetectorDbSpaceCharge.h"
 #include "StDetectorDbMaker/StDetectorDbTpcVoltages.h"
 #include "StDetectorDbMaker/StDetectorDbTpcOmegaTau.h"
@@ -268,12 +258,12 @@ class StMagUtilities {
   virtual void    GetDistoSmearing ( Int_t mode) ;
   virtual void    GetMagFactor ()     ;
   virtual void    GetTPCParams ()     ;
-  virtual void    GetTPCVoltages ( Int_t mode ) ;
+  virtual void    GetTPCVoltages ()   ;
   virtual void    GetSpaceCharge ()   ;
   virtual void    GetSpaceChargeR2 () ;  
   virtual void    GetShortedRing ()   ;  
   virtual void    GetOmegaTau ()      ;
-  virtual void    GetGridLeak ( Int_t mode ) ;
+  virtual void    GetGridLeak()       ;
   virtual void    GetHVPlanes()       ;
   virtual void    GetE()              ;
 
@@ -359,7 +349,7 @@ class StMagUtilities {
   Double_t OuterGridLeakStrength      ; // Relative strength of the Outer grid leak
   Double_t OuterGridLeakRadius        ; // Location (in local Y coordinates) of the Outer grid leak 
   Double_t OuterGridLeakWidth         ; // Half-width of the Outer grid leak.  Must be larger than life for numerical reasons.
-  Float_t  GLWeights[96]              ; // GridLeak weights per sector.  24 sectors x 3 locations
+  Float_t  GLWeights[25]              ; // GridLeak weights per sector.  24 sectors. Note: slot 0 is not used!!
   Int_t    ShortTableRows             ; // Number of rows in the Shorted Ring Table
   Int_t    Side[10]                   ; // Location of Short   E=0 /   W=1
   Int_t    Cage[10]                   ; // Location of Short IFC=0 / OFC=1
@@ -420,12 +410,9 @@ class StMagUtilities {
   virtual void    UndoMembraneDistortion ( const Float_t x[], Float_t Xprime[] , Int_t Sector = -1 ) ;
   virtual void    UndoEndcapDistortion ( const Float_t x[], Float_t Xprime[] , Int_t Sector = -1 ) ;
   virtual void    UndoSpaceChargeDistortion ( const Float_t x[], Float_t Xprime[] , Int_t Sector = -1 ) ;
-  virtual void    UndoSpaceChargeR0Distortion ( const Float_t x[], Float_t Xprime[] , Int_t Sector = -1 ) ;
   virtual void    UndoSpaceChargeR2Distortion ( const Float_t x[], Float_t Xprime[] , Int_t Sector = -1 ) ;
   virtual void    UndoGridLeakDistortion ( const Float_t x[], Float_t Xprime[] , Int_t Sector = -1 ) ;
-  virtual void    Undo2DGridLeakDistortion ( const Float_t x[], Float_t Xprime[] , Int_t Sector = -1 ) ;
   virtual void    Undo3DGridLeakDistortion ( const Float_t x[], Float_t Xprime[] , Int_t Sector = -1 ) ;
-  virtual void    UndoFullGridLeakDistortion ( const Float_t x[], Float_t Xprime[] , Int_t Sector = -1 ) ;
   virtual void    UndoIFCShiftDistortion ( const Float_t x[], Float_t Xprime[] , Int_t Sector = -1 ) ;
   virtual void    UndoShortedRingDistortion ( const Float_t x[], Float_t Xprime[] , Int_t Sector = -1 ) ;
   virtual void    UndoGGVoltErrorDistortion ( const Float_t x[], Float_t Xprime[], Int_t Sector = -1 ) ;
@@ -467,7 +454,7 @@ class StMagUtilities {
 						 Float_t RowMaskErrorRPhi[64], 
 						 Float_t &pSpace ) ;
 
-  virtual void     ManualShortedRing ( Int_t EastWest, Int_t InnerOuter, 
+  virtual void    ManualShortedRing ( Int_t EastWest, Int_t InnerOuter, 
 				      Float_t RingNumber, Float_t MissingRValue, Float_t ExtraRValue) ;
 
   virtual Int_t    GetSpaceChargeMode();
