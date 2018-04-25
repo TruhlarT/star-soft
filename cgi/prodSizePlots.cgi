@@ -260,7 +260,7 @@ my $qperiod = $qqr->param('period');
   
    $ProdSizeT = "ProductionSize2016";
 
-  }elsif($qprod eq "P17ii" or $qprod eq "P18ia" or $qprod eq "P18ib") {
+  }elsif($qprod eq "P17ii" or $qprod eq "P18ia" or $qprod eq "P18ib" or $qprod eq "P18ic" ) {
 
  $ProdSizeT = "ProductionSize2017";
 
@@ -617,7 +617,7 @@ $ndt = 0;
 
     $max_y = 112000;
 
-  }elsif ($qprod eq "P18ia" or $qprod eq "P18ib" ) {
+  }elsif ($qprod eq "P18ia" or $qprod eq "P18ib" or $qprod eq "P18ic" ) {
 
       $max_y = 84000;
 
