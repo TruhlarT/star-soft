@@ -222,7 +222,7 @@ END
   }elsif($qprod eq "P16ij" or $qprod eq "P16ik" or $qprod eq "P17ib") {
    $JobStatusT = "JobStatus2016";   
 
-  }elsif($qprod eq "P17ii" or $qprod eq "P18ia" or $qprod eq "P18ib" ) {
+  }elsif($qprod eq "P17ii" or $qprod eq "P18ib" or $qprod eq "P18ic" ) {
    $JobStatusT = "JobStatus2017";   
 
   }
@@ -444,7 +444,7 @@ $ndt = 0;
  
   $max_y = 28000 ;
 
- }elsif($qprod eq "P18ia" or $qprod eq "P18ib"){
+ }elsif($qprod eq "P18ic" or $qprod eq "P18ib"){
 
  $max_y = 28000 ;
 
