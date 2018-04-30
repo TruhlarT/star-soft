@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx,v 1.627.2.1 2018/04/13 16:15:54 didenko Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx,v 1.638.2.1 2018/04/30 15:16:35 didenko Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -280,7 +280,16 @@ Int_t StBFChain::Instantiate()
 	  if (MyCintDbObj   != "") {Dirs[j] = MyCintDbObj;   j++;}
 	  dbMk = new St_db_Maker(fBFC[i].Name,Dirs[0],Dirs[1],Dirs[2],Dirs[3],Dirs[4]);
 	  if (!dbMk) goto Error;
-	  strcpy (fBFC[i].Name, (Char_t *) dbMk->GetName());
+	  
+	  TString namec = dbMk->GetName();
+	  int len       = sizeof(fBFC[i].Name);
+	  if ( namec.Length() <= len){
+	    strncpy (fBFC[i].Name, namec.Data(),len);
+	  } else {
+	    gMessMgr->Error() << "Maker name [" << namec
+			      << "] length is > " << len 
+			      << " - increase BFC Name field length" << endm;
+	  }
 
 	  // Determine flavors
 	  TString flavors = "ofl"; // default flavor for offline
@@ -318,7 +327,16 @@ Int_t StBFChain::Instantiate()
       else inpMk = new StIOMaker("inputStream","r",fSetFiles);
       mk = inpMk;
       if (mk) {
-	strcpy (fBFC[i].Name,(Char_t *) mk->GetName());
+	TString namec = mk->GetName();
+	int      len  = sizeof(fBFC[i].Name);
+	if ( namec.Length() <= len){
+	  strncpy (fBFC[i].Name, namec.Data() , len);
+	} else {
+	  gMessMgr->Error() << "Maker name [" << namec
+			    << "] length is > " << len 
+			    << " - increase BFC Name field length" << endm;
+	}
+
 	SetInput("StDAQReader",".make/inputStream/.make/inputStream_DAQ/.const/StDAQReader");
 	if (GetOption("ReadAll")) {	//activate all branches
 	  // inpMk->SetBranch("*",0,"r");
@@ -344,7 +362,15 @@ Int_t StBFChain::Instantiate()
       else treeMk = new StTreeMaker("outputStream",fFileOut.Data());
       mk = treeMk;
       if (mk) {
-	strcpy (fBFC[i].Name,(Char_t *) treeMk->GetName());
+	TString namec =  treeMk->GetName();
+	int len       = sizeof(fBFC[i].Name);
+	if ( namec.Length() <= len ){
+	  strncpy (fBFC[i].Name, namec.Data() , len);
+	} else {
+	  gMessMgr->Error() << "Maker name [" << namec
+			    << "] length is > " << len 
+			    << " - increase BFC Name field length" << endm;
+	}
 	treeMk->SetIOMode("w");
 	SetTreeOptions();
 	goto Add2Chain;
@@ -360,7 +386,19 @@ Int_t StBFChain::Instantiate()
 	assert(mk);
       }
     }
-    strcpy (fBFC[i].Name,(Char_t *) mk->GetName());
+
+    {
+      TString namec = mk->GetName();
+      int len       = sizeof(fBFC[i].Name);
+      if ( namec.Length() <= len){
+	strncpy (fBFC[i].Name,namec.Data(),len);
+      } else {
+	gMessMgr->Error() << "Maker name [" << namec
+			  << "] length is > " << len 
+			  << " - increase BFC Name field length" << endm;
+      }
+    }
+
     if (maker == "StTpcDbMaker" && GetOption("laserIT"))   mk->SetAttr("laserIT"    ,kTRUE);
     if (maker == "StDAQMaker") {
       if (GetOption("adcOnly")) mk->SetAttr("adcOnly",1);                        ;
@@ -429,6 +467,11 @@ Int_t StBFChain::Instantiate()
       if ( maker == "StvMaker" &&  GetOption("StvCA")) {
 	//      mk->SetAttr("seedFinders","CA","Stv");              // for CA seed finder
 	mk->SetAttr("seedFinders","CA,Default","Stv");      // for CA + Default seed finders
+      }
+
+      // When StiCA library is requested CA will be used as seed finder in StiMaker
+      if ( GetOption("StiCA") ) {
+        mk->SetAttr("seedFinders", "CA DEF");
       }
 
       // Option to re-use hits in other tracks
@@ -529,6 +572,7 @@ Int_t StBFChain::Instantiate()
       if (GetOption("VFMinuit2"  ) ) mk->SetAttr("VFMinuit2"  	, kTRUE);
       if (GetOption("VFMinuit3"  ) ) mk->SetAttr("VFMinuit3"  	, kTRUE);
       if (GetOption("beamLine"   ) ) mk->SetAttr("BeamLine"   	, kTRUE);
+      if (GetOption("beamLine3D" ) ) mk->SetAttr("BeamLine3D"  	, kTRUE);
       if (GetOption("CtbMatchVtx") ) mk->SetAttr("CTB"        	, kTRUE);
       if (GetOption("min2trkVtx" ) ) mk->SetAttr("minTracks" 	, 2);
       if (GetOption("VtxSeedCalG") ) mk->SetAttr("calibBeamline", kTRUE);
@@ -610,6 +654,15 @@ Int_t StBFChain::Instantiate()
       cmd += "pMuMk->SetStatus(\"EztAll\",1);";
       ProcessLine(cmd);
     }
+
+    if ( maker == "StPicoDstMaker"){
+      if ( GetOption("picoWrite") )  mk->SetMode(1);
+      if ( GetOption("picoRead")  )  mk->SetMode(2);   // possibly more magic
+      if ( GetOption("PicoVtxVpd"))           mk->SetAttr("picoVtxMode", "PicoVtxVpd");
+      else if ( GetOption("PicoVtxDefault"))  mk->SetAttr("picoVtxMode", "PicoVtxDefault");
+      
+    }
+
 
     if (maker == "StLaserEventMaker"){
       // Bill stuff - Empty place-holder
@@ -741,7 +794,7 @@ Int_t StBFChain::Instantiate()
       if (GetOption("pxlSlowSim")) mk->SetAttr("useDIGMAPSSim",kTRUE);
     }
     // HFT
-
+ 
     // Hit filtering will be made from a single maker in
     // future with flexible filtering method
     if (maker == "StHitFilterMaker") {
@@ -804,7 +857,7 @@ Int_t StBFChain::Instantiate()
     }
   Add2Chain:
     if (! mk) continue;
-    if (name == "") strcpy (fBFC[i].Name,(Char_t *) mk->GetName());
+    if (name == "") strncpy (fBFC[i].Name,(Char_t *) mk->GetName() , sizeof(fBFC[i].Name));
     if (myChain) myChain->AddMaker(mk);
     continue;
   Error:
@@ -1079,10 +1132,16 @@ void StBFChain::SetOptions(const Char_t *options, const Char_t *chain) {
       subTag.ToLower(); //printf ("Chain %s\n",tChain.Data());
       kgo = kOpt(subTag.Data());
       if (kgo > 0) {
-	memset(fBFC[kgo].Comment,0,sizeof(fBFC[kgo].Comment)); // be careful size of Comment
+	int len= sizeof(fBFC[kgo].Comment);
+	memset(fBFC[kgo].Comment,0,len); // be careful size of Comment
 	TString Comment(Tag.Data()+in+1,Tag.Capacity()-in-1);
-	strcpy (fBFC[kgo].Comment, Comment.Data());
-	gMessMgr->QAInfo() << Form(" Set        %s = %s", fBFC[kgo].Key,fBFC[kgo].Comment) << endm;
+	if ( Comment.Length() <= len ){
+	  strncpy (fBFC[kgo].Comment, Comment.Data(),sizeof(fBFC[kgo].Comment));
+	  gMessMgr->QAInfo() << Form(" Set        %s = %s", fBFC[kgo].Key,fBFC[kgo].Comment) << endm;
+	} else {
+	  gMessMgr->Error()  << Form(" Cpy problem [%s] is > %d - adjust BFC Comment field size", 
+				     Comment.Data(),len) << endm;
+	}
       }
     } else {
       Tag.ToLower();
