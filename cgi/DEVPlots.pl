@@ -40,6 +40,7 @@ my $day_diff = 7;
 
 
 my @prod_set = (
+                "daq_ittf/year_2018/production_isobar_2018",
                 "daq_ittf/year_2017/AuAu54_production_2017",
                 "daq_ittf/year_2017/pp500_production_2017",
                 "daq_ittf/year_2016/dAu200_production_2016",
