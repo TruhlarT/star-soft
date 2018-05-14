@@ -406,7 +406,7 @@ END
    };
  if( $qprod =~ /P16ig/ ) {$pryear = "2013"};
  if( $qprod =~ /P16ij/ or  $qprod =~ /P16ik/ or  $qprod =~ /P17id/) {$pryear = "2016"};
- if( $qprod =~ /P17ii/ or  $qprod =~ /P18ia/ or  $qprod =~ /P18ib/ ) {$pryear = "2017"};       
+ if( $qprod =~ /P17ii/ or  $qprod =~ /P18ic/ or  $qprod =~ /P18ib/ ) {$pryear = "2017"};       
 
 
     $JobStatusT = "JobStatus".$pryear;
