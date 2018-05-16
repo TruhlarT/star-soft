@@ -514,7 +514,7 @@ my $graph = new GD::Graph::linespoints(650,500);
     $legend[6] = "MemUsageLast(nonoptimized,AgML)";
     $legend[7] = "MemUsageLast(optimized,AgML)";
 
-    }elsif($tset =~ /year_2014/ or $tset =~ /year_2015/ or $tset =~ /year_2016/ or $tset =~ /year_2017/ ) {
+    }elsif($tset =~ /year_2014/ or $tset =~ /year_2015/ or $tset =~ /year_2016/ or $tset =~ /year_2017/ or $tset =~ /year_2018/) {
 
 	@data = (\@Ndate, \@point1, \@point2, \@point3, \@point4, \@point9, \@point10, \@point11, \@point12,);
 
@@ -552,7 +552,7 @@ my $graph = new GD::Graph::linespoints(650,500);
     $legend[2] = "nonoptimized,AgML";
     $legend[3] = "optimized,AgML";  
 
-   }elsif($tset =~ /year_2014/ or $tset =~ /year_2015/ or $tset =~ /year_2016/ or $tset =~ /year_2017/ ) {
+   }elsif($tset =~ /year_2014/ or $tset =~ /year_2015/ or $tset =~ /year_2016/ or $tset =~ /year_2017/ or $tset =~ /year_2018/ ) {
 
        @data = (\@Ndate, \@point1, \@point2,  \@point9, \@point10 );
 
