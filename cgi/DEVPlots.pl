@@ -381,7 +381,7 @@ if($tset =~ /year_2012/ ) {
             }
        }
 ########## 
-	    if($tset =~ /year_2014/ or $tset =~ /year_2015/ or $tset =~ /year_2016/ or $tset =~ /year_2017/ ) {
+	    if($tset =~ /year_2014/ or $tset =~ /year_2015/ or $tset =~ /year_2016/ or $tset =~ /year_2017/ or $tset =~ /year_2018/ ) {
 
   $qupath2 = "$sticapath%";
   $qupath3 = "$stihrpath%";
