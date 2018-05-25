@@ -4,7 +4,7 @@
 #
 # L.Didenko
 #
-# script to update number of events for picoDst files in FileCatalog when produced from MuDst
+# updateFC.pico.events.pl - script to update number of events for picoDst files in FileCatalog when# produced from MuDst
 # 
 ##############################################################################################################
 
@@ -59,7 +59,7 @@ my $Nevline ;
     "library=$libtag",
     "trgsetupname=$trig",
     "filetype=daq_reco_picoDst",
-#    "filename~st_mtd",
+#    "filename~st_physics",
     "events=0",
     "storage=hpss");
 
