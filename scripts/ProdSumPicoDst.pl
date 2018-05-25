@@ -653,7 +653,7 @@ sub beginHtml {
  print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of Events in MuDst<h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of picoDst <br>files on HPSS<h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Size of picoDst (GB)<h3></B></TD>\n";
- print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>% of produced picoDst files<h3></B></TD>\n";
+ print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>% of picoDst <br>files on HPSS<h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>% of picoDst files on NFS<h3></B></TD>\n";
  print HTML " </TR> \n";
 
