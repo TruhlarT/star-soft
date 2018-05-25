@@ -86,7 +86,7 @@ for ( $ii = 0; $ii<scalar(@fileList); $ii++){
 
     $Nevent = $prt[1];
 
- print $fullname,  "  Nevents  = ",$Nevent,"\n"; 
+# print $fullname,  "  Nevents  = ",$Nevent,"\n"; 
  
   if($Nevent >= 1) {
 
