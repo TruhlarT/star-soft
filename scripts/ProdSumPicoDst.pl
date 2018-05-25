@@ -469,6 +469,11 @@ my $pdrate = 0;
 my @prodrate = ();
 my @nstreams = ();
 my $nstr = 0;
+my @nfspdrate = ();
+my $nfsrate = 0;
+
+my @filenfs = ();
+my @sumflnfs = ();
 
 my @sumevet = ();
 my @sumsize = ();
@@ -516,6 +521,8 @@ my $prodname = "n/a";
  @nstreams = ();
  $nstr = 0;
 
+ @filenfs = ();
+
  $patt = $prod[$nlist].".".$libpico[$nlist] ;
 
     $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","library=$libpico[$nlist]","filetype=daq_reco_picoDst","path~$patt","storage=hpss","sanity=1","limit=0");
@@ -557,6 +564,14 @@ my $prodname = "n/a";
 
    $fileC->clear_context( );
 
+    $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","library=$libpico[$nlist]","sname2=$nstreams[$kk]","filetype=daq_reco_picoDst","storage=NFS","sanity=1","limit=0" );
+
+   @filenfs = $fileC->run_query(filename);
+
+   $sumflnfs[$nline] = scalar(@filenfs);   
+
+   $fileC->clear_context( );
+
 ################
 #####################
 
@@ -573,6 +588,8 @@ my $prodname = "n/a";
     if($nfileHpss[$nline] >=1) {
    $pdrate = ($sumfile[$nline]/$nfileHpss[$nline])*100;
    $prodrate[$nline] = sprintf("%.1f", $pdrate);
+   $nfsrate = ($sumflnfs[$nline]/$nfileHpss[$nline])*100;
+   $nfspdrate[$nline] = sprintf("%.1f", $nfsrate);
 
   }else{
     $pdrate = 0;
@@ -595,6 +612,7 @@ my $prodname = "n/a";
     print HTML "<td HEIGHT=10><h3>$sumfile[$nline]</h3></td>\n";
     print HTML "<td HEIGHT=10><h3>$sumsize[$nline]</h3></td>\n";
     print HTML "<td HEIGHT=10><h3>$prodrate[$nline]</h3></td>\n";
+    print HTML "<td HEIGHT=10><h3>$nfspdrate[$nline]</h3></td>\n";
     print HTML "</TR>\n";
 
 
@@ -625,17 +643,18 @@ sub beginHtml {
  print HTML "  <h3 ALIGN=CENTER> Generated on $todate</h3>\n";
  print HTML " <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">\n";
  print HTML " <TR>\n";
- print HTML " <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Trigger setup name</h3></B></TD>\n";
+ print HTML " <TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=60><B><h3>Trigger setup name</h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Stream name</h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Collision</h3></B></TD>\n";
- print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Year of data taken</h3></B></TD>\n";
- print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Production Tag</h3></B></TD>\n";
- print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Library Tag</h3></B></TD>\n";
+ print HTML " <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Year of data taken</h3></B></TD>\n";
+ print HTML " <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Production Tag</h3></B></TD>\n";
+ print HTML " <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Library Tag</h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of MuDst files<h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of Events in MuDst<h3></B></TD>\n";
- print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of picoDst files<h3></B></TD>\n";
+ print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of picoDst <br>files on HPSS<h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Size of picoDst (GB)<h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>% of produced picoDst files<h3></B></TD>\n";
+ print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>% of picoDst files on NFS<h3></B></TD>\n";
  print HTML " </TR> \n";
 
 }
