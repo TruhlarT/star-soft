@@ -1,51 +1,17 @@
-// $Id: StFtsFastSimulatorMaker.cxx,v 1.1.2.2 2018/03/23 17:12:53 jwebb Exp $                                            
+#if 0 
+// $Id: StFtsFastSimulatorMaker.cxx,v 1.1.2.3 2018/06/07 16:18:49 jwebb Exp $                                            
 //                                                                                                                     
 // $Log: StFtsFastSimulatorMaker.cxx,v $
-// Revision 1.1.2.2  2018/03/23 17:12:53  jwebb
-// Previous versions of the simulator were used for the initial studies of
-// forward tracking.  This commit updates to a more recent version, with a
-// more correct implementation of the thin gap chambers.  Main differences
-// relate to
+// Revision 1.1.2.3  2018/06/07 16:18:49  jwebb
+// Note-- code may not have been previously checked in.
 //
-// FTS Si Disk Simulation
+// This version comments out the class (#if 0 ... #endif), so that it does not
+// interfere with Guannan's StFtsSiFastSimulatorMaker.  Old code is preserved
+// for now, but want to move on to the newer Si disk code.
 //
-// 1) The inner and outer radii of sensitive area for the Si disks is now
-//    a run-time, rather than compile time, parameter
+// Revision 1.1.2.1  2018/03/15 19:38:11  jwebb
 //
-// 2) Option is added to segment the disks with constant-eta, rather than
-//    constant-r, strips.
-//
-// 3) Individual disks may be enabled / disabled at run time.
-//
-// 4) ID truth is determined by the last particle which hits the strip,
-//    previously by the first.
-//
-// FTS sTGC Wheel Simulation
-//
-// 1) Wire and strip pitch configurable at run time.
-//
-// 2) Bug fix for multiple hits to strips and wires
-//
-// 3) Implementation of "ghost" hits... i.e. sTGC hits are defined by the
-//    intersection of struck wires and strips.  Hit multiplicity in each
-//    pad creates 2^n hits, which are now accounted for.
-//
-// Revision 1.20  2017/01/17 16:25:33  jwebb
-// Runtime configuration of min/max radii for Si disks.
-//
-// Runtime switch to enable / disable hit ambiguities in the sTGC wheels.
-//
-// Revision 1.19  2016/12/22 19:55:04  jwebb
-// Code cleanup.  Bug fix for multiple hits on wires (keys were duplicated).  Emulation of point finding.  Error matrices computed correctly for both Si disks and sTGC wheels.
-//
-// Revision 1.18  2016/12/09 15:48:56  jwebb
-// Added option to switch off digitization of specified disks and wheels.
-//
-// Revision 1.17  2016/12/07 21:16:44  jwebb
-// Corrected y-error error
-//
-// Revision 1.16  2016/12/07 21:14:57  jwebb
-// Added compile-time option to allow for ambiguities (wire chamber problem)
+// Initial checkin of StFtsFastSimulatorMaker.
 //
 // Revision 1.15  2016/12/06 21:45:52  jwebb
 // Add pseudo point finder
@@ -91,7 +57,6 @@
 //
 // Revision 1.1  2015/10/16 15:22:50  jwebb
 // Offline area established for STAR upgrades
-//
 
 #include "StFtsFastSimulatorMaker/StFtsFastSimulatorMaker.h"
 #include "St_base/StMessMgr.h"
@@ -103,18 +68,13 @@
 #include "tables/St_g2t_fts_hit_Table.h"
 #include "StThreeVectorF.hh"
 #include <array>
-#include <vector>
 #include "TCanvas.h"
 #include "TH2F.h"
 #include "TLine.h" 
 #include "TVector3.h"
 #include "TCernLib.h"
 #include "TString.h"
-
-//
-// Wheel segmentation 
-//
-//efine __NO_AMBIGUITY__
+#include <array>
 
 TCanvas *canvas = 0;
 StMatrixF  Hack1to6(const StHit *stHit);
@@ -122,32 +82,18 @@ StMatrixF  Hack1to6(const StHit *stHit);
 constexpr float PI     = atan2(0.0,-1.0);
 constexpr float SQRT12 = sqrt(12.0);
 
-const float fudge_error = 1.0;
 
 const float OCTANT_WIDTH_PHI        = PI/4;
 const float OCTANT_GLOBAL_PHI_MIN[] = {-PI/8, PI/8, 3*PI/8, 5*PI/8, 7*PI/8, 9*PI/8, 11*PI/8, 13*PI/8};
 const float OCTANT_GLOBAL_PHI_MAX[] = {       PI/8, 3*PI/8, 5*PI/8, 7*PI/8, 9*PI/8, 11*PI/8, 13*PI/8, 15*PI/8};
 
-      float OCTANT_XMIN[] = {  6.0f,  6.0f,  6.0f,  6.0f,  6.0f,  6.0f }; // octant size in each disk... 
-      float OCTANT_XMAX[] = { 42.0f, 42.0f, 66.0f, 66.0f, 66.0f, 66.0f };
+const float OCTANT_XMIN[] = {  6.0f,  6.0f,  6.0f,  6.0f,  6.0f,  6.0f }; // octant size in each disk... 
+const float OCTANT_XMAX[] = { 42.0f, 42.0f, 66.0f, 66.0f, 66.0f, 66.0f };
 
 const float PAD_WIDTH    = 6.0f;
 const float STRIP_WIDTH  = 0.3f;   // must divide nicly into 6cm
 const float WIRE_SPACING = 0.15f;  // ditto
 
-
-//
-// Disk segmentation
-//
-float RMIN[] = {   0.85*2.56505,   0.85*3.41994,   0.85*4.27484,  0.85*5.13010, 0.85*5.985, 0.85*6.83988 };
-float RMAX[] = {  1.15*11.56986,  1.15*15.42592,  1.15*19.28199, 1.15*23.13971, 1.15*26.99577, 1.15*30.84183 };
-
-
-void StFtsFastSimulatorMaker::setDisk( const int i, const float rmn, const float rmx )
-{
-  RMIN[i] = rmn;
-  RMAX[i] = rmx;
-}
 
 // helper functions
 
@@ -298,7 +244,6 @@ StFtsFastSimulatorMaker::StFtsFastSimulatorMaker(const Char_t* name)
     mNumPHI(128),
     mNumSEC(12),
     mRaster(0),
-    mEnable({true,true,true,true,true,true,true,true,true,true,true,true}),
     hGlobalYX(0),
     hOctantYX(0),
     hOctantWireYX(0),
@@ -313,26 +258,11 @@ StFtsFastSimulatorMaker::StFtsFastSimulatorMaker(const Char_t* name)
     hStripPullsY(0),
     hPointsPullsX(0),
     hPointsPullsY(0),
-    mPointHits(false),
-    mAmbiguity(true),
-    mStripWidth(0.3),
-    mWireSpacing(0.15),
-    mWindow(3.0),
-    mStereo(2*TMath::Pi() / 8 / 6),
-    mStagger(0.0),
-    mConstEta(false)
+    mPointHits(false)
 {}
-
 
 int StFtsFastSimulatorMaker::Init()
 {
-
-  // Stagger the pads in every other wheel
-  for ( auto i : { 2, 4, 6 } )
-    {
-      OCTANT_XMIN[i] -= mStagger;
-      OCTANT_XMAX[i] += mStagger;
-    }
 
   AddHist( hGlobalYX = new TH2F("hGlobalYX","Global hits before segmentation", 151,-75.5,75.5, 151,-75.5,75.5) );
   AddHist( hOctantYX = new TH2F("hOctantYX","Octant hits before segmentation", 151,-75.5,75.5, 151,-75.5,75.5) );
@@ -385,6 +315,7 @@ Int_t StFtsFastSimulatorMaker::Make() {
 
     // Digitize GEANT FTS hits
     fillSilicon(event);
+    //    event->rndHitCollection()->Print();
     fillThinGapChambers(event);
 
     return kStOk;
@@ -396,50 +327,41 @@ Int_t StFtsFastSimulatorMaker::Make() {
 
 
 
-
 void StFtsFastSimulatorMaker::fillSilicon(StEvent* event) {
 
   //    StFtsHitCollection * ftscollection = event->ftsCollection();    
   StRnDHitCollection* ftscollection = event->rndHitCollection();
 
-  static const int NDISC=6;    
-  //static const int MAXR  =128; // JCW: let's give Stv best shot at this possible...
-  //static const int MAXPHI=128*12;      
-  static const int MAXR   = mNumR;
-  static const int MAXPHI = mNumPHI * mNumSEC;
-
+  /*static const*/ const int NDISC=6;    
+    //static const int MAXR  =128; // JCW: let's give Stv best shot at this possible...
+    //static const int MAXPHI=128*12;      
+  /*static const */const int MAXR   = mNumR;
+  /*static const */const int MAXPHI = mNumPHI * mNumSEC;
 
     
-  //I guess this should be RSEG[NDISC][MAXR+1] array to give better R segements
-  //For now this is just unform R segments regardless of disc 
-  //static const float RMIN[NDISC]={ 2.5, 2.5, 2.5, 2.5}; //hack this need to get right numbers
-  //static const float RMAX[NDISC]={23.2,23.2,23.2,23.2}; //hack this need to get right numbers
-  //    static const float PI=atan2(0.0,-1.0);
-  //    static const float SQRT12=sqrt(12.0);
+    //I guess this should be RSEG[NDISC][MAXR+1] array to give better R segements
+    //For now this is just unform R segments regardless of disc 
+    //static const float RMIN[NDISC]={ 2.5, 2.5, 2.5, 2.5}; //hack this need to get right numbers
+    //static const float RMAX[NDISC]={23.2,23.2,23.2,23.2}; //hack this need to get right numbers
+    //    static const float PI=atan2(0.0,-1.0);
+    //    static const float SQRT12=sqrt(12.0);
     /*
-      Rmin =     2.56505
-      Rmax =    11.56986
-      Rmin =     3.41994
-      Rmax =    15.42592
-      Rmin =     4.27484
-      Rmax =    19.28199
-      Rmin =     5.13010
-      Rmax =    23.13971
+    Rmin =     2.56505
+    Rmax =    11.56986
+    Rmin =     3.41994
+    Rmax =    15.42592
+    Rmin =     4.27484
+    Rmax =    19.28199
+    Rmin =     5.13010
+    Rmax =    23.13971
     */
+    static const float RMIN[] = {   2.56505,   3.41994,   4.27484,  5.13010, 5.985, 6.83988 };
+    static const float RMAX[] = {  11.56986,  15.42592,  19.28199, 23.13971, 26.99577, 30.84183 };
 
 
-  // Constant eta segmentation
-  static const float etaMn = 2.5;
-  static const float etaMx = 4.0;
-  static const float thetaMn = 2.0 * TMath::ATan( TMath::Exp(-etaMx) );
-  static const float thetaMx = 2.0 * TMath::ATan( TMath::Exp(-etaMn) );
-  static const int   nbins = MAXR;
-  static const float deta = (etaMx - etaMn)/nbins; 
-
-
-  // Raster each disk by 1mm, 60 degree offset for every disk
-  static       float X0[] = { 0, 0, 0, 0, 0, 0 };
-  static       float Y0[] = { 0, 0, 0, 0, 0, 0 }; 
+    // Raster each disk by 1mm, 60 degree offset for every disk
+    static       float X0[] = { 0, 0, 0, 0, 0, 0 };
+    static       float Y0[] = { 0, 0, 0, 0, 0, 0 }; 
     if ( mRaster > 0 ) for ( int i=0;i<6;i++ )
       {
 	X0[i] = mRaster * TMath::Cos( i*60 * TMath::DegToRad() );
@@ -450,32 +372,32 @@ void StFtsFastSimulatorMaker::fillSilicon(StEvent* event) {
      //table to keep pointer to hit for each disc, r & phi strips
      StRnDHit* _map[NDISC][MAXR][MAXPHI];
      double ***enrsum = (double* **)malloc(NDISC*sizeof(double **));
-         double ***enrmax = (double* **)malloc(NDISC*sizeof(double **)); 
-         //memset( _map, 0, NDISC*MAXR*MAXPHI*sizeof(StRnDHit*) );
+	 double ***enrmax = (double* **)malloc(NDISC*sizeof(double **)); 
+	 //memset( _map, 0, NDISC*MAXR*MAXPHI*sizeof(StRnDHit*) );
      //StRnDHit* ***_map = (StRnDHit* ***)malloc(NDISC*sizeof(StRnDHit* **));[NDISC][MAXR][MAXPHI];
-         for( int id=0; id<NDISC; id++){
-                 enrsum[id] = (double**)malloc(MAXR*sizeof(double *));
-                 enrmax[id] = (double**)malloc(MAXR*sizeof(double *));
-                 for(int ir=0; ir<MAXR;ir++){
-                         enrsum[id][ir] = (double*)malloc(MAXPHI*sizeof(double));
-                         enrmax[id][ir] = (double*)malloc(MAXPHI*sizeof(double));
-                 }
-         }
+	 for( int id=0; id<NDISC; id++){
+		 enrsum[id] = (double**)malloc(MAXR*sizeof(double *));
+		 enrmax[id] = (double**)malloc(MAXR*sizeof(double *));
+		 for(int ir=0; ir<MAXR;ir++){
+			 enrsum[id][ir] = (double*)malloc(MAXPHI*sizeof(double));
+			 enrmax[id][ir] = (double*)malloc(MAXPHI*sizeof(double));
+		 }
+	 }
 
     
-    for ( int id=0;id<NDISC;id++) {
-	for ( int ir=0;ir<MAXR;ir++ ) {
-	    for ( int ip=0;ip<MAXPHI;ip++ ) {
-		_map[id][ir][ip]=0;
-		enrsum[id][ir][ip]=0;
-		enrmax[id][ir][ip]=-999; 
-	    }
-	}
-    }
+     for ( int id=0;id<NDISC;id++) {
+     	for ( int ir=0;ir<MAXR;ir++ ) {
+     	    for ( int ip=0;ip<MAXPHI;ip++ ) {
+     		_map[id][ir][ip]=0;
+     		enrsum[id][ir][ip]=0;
+     		enrmax[id][ir][ip]=0; 
+     	    }
+     	}
+     }
 	
-	    
-    
+   
 
+    
     // Read the g2t table
     St_g2t_fts_hit* hitTable = static_cast<St_g2t_fts_hit*>(GetDataSet("g2t_fts_hit"));
     if (!hitTable) {
@@ -494,7 +416,6 @@ void StFtsFastSimulatorMaker::fillSilicon(StEvent* event) {
 	if (hit) {
             int   d = hit->volume_id; 
 	    if ( d > 6 ) continue; // skip large disks
-	    if ( false == mEnable[d-1] ) continue; // disk switched off
 
 	    float e = hit->de;
 	    int   t = hit->track_p;
@@ -520,29 +441,12 @@ void StFtsFastSimulatorMaker::fillSilicon(StEvent* event) {
 	    while(p<0.0) p+=2.0*PI; 	    while(p>=2.0*PI) p-=2.0*PI; 
 	    while(pp<0.0) pp+=2.0*PI; 	    while(pp>=2.0*PI) pp-=2.0*PI; 
 
-            // compute point eta 
-            float theta =  TMath::ATan2(rr,z); // rastered eta
-            float eta   = -TMath::Log( TMath::Tan(theta/2) ); 
-
 	    // Cuts made on rastered value
 	    if(rr<RMIN[d-1] || rr>RMAX[d-1]) continue;
 
-	    // Strip numbers on rastered value 
+	    // Strip numbers on rastered value
 	    int  ir = int( MAXR*(rr-RMIN[d-1])/(RMAX[d-1]-RMIN[d-1]) );
-	    // Phi number
 	    int  ip = int( MAXPHI*pp/2.0/PI );
-	    
-	    // Guard against out-of-bounds on constant eta binning
-	    if ( mConstEta ) {
-	      if ( eta < etaMn ) continue;
-	      if ( eta > etaMx ) continue;
-	    }
-
-	    // Strip numbers on rastered value (eta)
-	    int ieta = int( nbins *(eta - etaMn)/(etaMx - etaMn) );
-
-
-
 	    if ( MAXR ) assert(ir<MAXR);
 	    if ( MAXPHI ) assert(ip<MAXPHI);
 
@@ -551,76 +455,58 @@ void StFtsFastSimulatorMaker::fillSilicon(StEvent* event) {
 
 	      if(verbose)	      LOG_INFO << Form("NEW d=%1d xyz=%8.4f %8.4f %8.4f r=%8.4f phi=%8.4f iR=%2d iPhi=%4d dE=%8.4f[MeV] truth=%d",
 			       d,x,y,z,r,p,ir,ip,e*1000.0,t) <<endm;
-	      count++;
-	      ftshit = new StRnDHit();
-	      ftshit->setDetectorId( kFtsId );
-	      ftshit->setLayer(d);
-
-	      //
-	      // Set position and position error based on radius-constant bins
-	      //
-	      float p0=(ip+0.5)*2.0*PI/float(MAXPHI);
-	      float dp=2.0*PI/float(MAXPHI)/SQRT12;
-	      if ( false == mConstEta ) {
+	    count++;
+		ftshit = new StRnDHit();
+		ftshit->setDetectorId( kFtsId );
+		ftshit->setLayer(d);
 		float r0=RMIN[d-1] + (ir+0.5)*(RMAX[d-1]-RMIN[d-1])/float(MAXR);
-		float dr=(RMAX[d-1]-RMIN[d-1])/float(MAXR);       		
+		float p0=(ip+0.5)*2.0*PI/float(MAXPHI);
 		float x0=r0*cos(p0) + xc;
 		float y0=r0*sin(p0) + yc;
-		assert( TMath::Abs(x0)+TMath::Abs(y0) > 0 );
+		float dr=(RMAX[d-1]-RMIN[d-1])/float(MAXR)/SQRT12;
+		float dp=2.0*PI/float(MAXPHI)/SQRT12;
 		float dz=0.2/SQRT12;
-		float er = dr/SQRT12;
 		ftshit->setPosition(StThreeVectorF(x0,y0,z));
-		ftshit->setPositionError(StThreeVectorF(er,dp,dz));
-	      }
-	      //
-	      // Set position and error based on eta-constant bins
-	      //
-	      else {
+		ftshit->setPositionError(StThreeVectorF(dr,dp,dz));
+#if 0
+		float dx = dr*TMath::Cos(pp) - r*dp*TMath::Sin(pp);
+		float dy = dr*TMath::Sin(pp) + r*dp*TMath::Cos(pp);
 
-		float thMn = 2.0 * TMath::ATan( TMath::Exp(-(etaMn+(ieta+1)*deta)) );
-		float thMx = 2.0 * TMath::ATan( TMath::Exp(-(etaMn+(ieta+0)*deta)) );
-		float rrMn = z * TMath::Tan(thMn); // rastered r-min
-		float rrMx = z * TMath::Tan(thMx); // rastered r-max
-
-		if ( rr < rrMn || rr > rrMx ) {	
-		  LOG_INFO << Form("NEW d=%1d xyz=%8.4f %8.4f %8.4f r=%8.4f rr=%8.4f phi=%8.4f eta=%8.4f iR=%2d iPhi=%4d iEta=%2d dE=%8.4f[MeV] truth=%d",  d,x,y,z,r,rr,p,eta,ir,ip,ieta,e*1000.0,t) <<endm;	
-		  LOG_INFO << "rrMn = " << rrMn << endm;
-		  LOG_INFO << "rrMx = " << rrMx << endm;
-		  assert(0);
-		};
+		// Error matrix 
+		float E[] = { dx*dx, dx*dy, 0.   ,
+			      dx*dy, dy*dy, 0.   ,
+			      0.,    0.,    dz*dz};
 		
-		float r0 = (rrMn + rrMx) * 0.5; // rastered position
-		float x0=r0*cos(p0) + xc; // deraster the position
-		float y0=r0*sin(p0) + yc;
-		float dz=0.2/SQRT12;
-		float dr = rrMx - rrMn;
-		float er = dr/SQRT12;
-		ftshit->setPosition(StThreeVectorF(x0,y0,z));
-		ftshit->setPositionError(StThreeVectorF(er,dp,dz));
 
-	      }
+		ftshit->setErrorMatrix( E );
+#endif
+#if 1
+                ftshit->setErrorMatrix(&Hack1to6(ftshit)[0][0]);
+#endif
 
-	      ftshit->setErrorMatrix(&Hack1to6(ftshit)[0][0]);
-	      
-	      ftshit->setCharge(e);
-	      ftshit->setIdTruth(t,100); 
-	      hits.push_back(ftshit);
-	      _map[d-1][ir][ip]= ftshit;
-	      enrsum[d-1][ir][ip]+=e; 		// Add energy to running sum
-	      enrmax[d-1][ir][ip]=e;                  // Set maximum energy 
-	      
+		ftshit->setCharge(e);
+		ftshit->setIdTruth(t,100); 
+		hits.push_back(ftshit);
+		_map[d-1][ir][ip]= ftshit;
+		enrsum[d-1][ir][ip]+=e; 		// Add energy to running sum
+		enrmax[d-1][ir][ip]=e;                  // Set maximum energy 
+
 	    }else{ // Adding energy to old hit
 	      //	    LOG_INFO << Form("ADD d=%1d xyz=%8.4f %8.4f %8.4f r=%8.4f phi=%8.4f iR=%2d iPhi=%4d dE=%8.4f[MeV] truth=%d",
 	      //			     d,x,y,z,r,p,ir,ip,e*1000.0,t) <<endm;
-	      
-	      ftshit = _map[d-1][ir][ip];
-	      ftshit->setCharge(ftshit->charge() + e);
-	      
-	      // Add energy to running sum
-	      enrsum[d-1][ir][ip]+=e;
-	      double& E = enrmax[d-1][ir][ip];
-	      if ( e > E ) E = e;
-	      ftshit->setIdTruth(t, 100* E / enrsum[d-1][ir][ip]);
+
+ 		ftshit = _map[d-1][ir][ip];
+		ftshit->setCharge(ftshit->charge() + e);
+
+		// Add energy to running sum
+		enrsum[d-1][ir][ip]+=e;
+		double& E = enrmax[d-1][ir][ip];
+		if ( e > E ) E = e;
+		
+		// keep idtruth but dilute it...
+		t = ftshit->idTruth();
+
+		ftshit->setIdTruth(t, 100* E / enrsum[d-1][ir][ip]);
 	    }
 	}
     }
@@ -633,22 +519,279 @@ void StFtsFastSimulatorMaker::fillSilicon(StEvent* event) {
     }
     if(verbose)    LOG_INFO << Form("Found %d/%d g2t hits in %d cells, created %d hits with ADC>0",count,nHits,nftshit,ftscollection->numberOfHits()) <<endm;
     //    ftscollection->print(1);
-        for ( int id=0;id<NDISC;id++) {
-                for ( int ir=0;ir<MAXR;ir++ ) {
-                        free(enrsum[id][ir]);
-                        free(enrmax[id][ir]); 
-                }
-        }
-        for ( int id=0; id<NDISC;id++){
-                free(enrmax[id]);
-                free(enrsum[id]);
-        }
-        free(enrsum);
-        free(enrmax);
+	for ( int id=0;id<NDISC;id++) {
+		for ( int ir=0;ir<MAXR;ir++ ) {
+			free(enrsum[id][ir]);
+			free(enrmax[id][ir]); 
+		}
+	}
+	for ( int id=0; id<NDISC;id++){
+		free(enrmax[id]);
+		free(enrsum[id]);
+	}
+	free(enrsum);
+	free(enrmax);
+//	
+//	delete *_map;
+//	delete enrmax;
+//	delete enrsum;
 
 }
 //
 
+
+
+long long encodeWire ( const int&   disk, 
+		       const float& xGlobal, 
+		       const float& yGlobal,
+		       float& xLocal, 
+		       float& yLocal,
+                             float& xCenter,
+ 		             float& yCenter,
+		             float& dxCenter, 
+  		             float& dyCenter,
+			     float& xPull,
+			     float& yPull )
+{
+
+//  float xLocal, yLocal;
+
+  //
+  // min and max xlocal coordinates in each octant
+  //
+  //ftsref1/2  const float xmin[] = { 7.0,  7.0,  15.0, 15.0,  23.0, 23.0 }; 
+  //ftsref1/2 const float xmax[] = { 37.0, 37.0, 75.0, 75.0, 113.0, 113.0 };
+
+  /* ftsref3/4/5 */ const float xmin[] = { 6,6,6,6,6,6 };
+  /* ftsref3/4/5 */ const float xmax[] = { 45.5, 45.5, 71.4, 71.4, 71.4, 71.4 };
+
+  //
+  // Map into octant local coordinates
+  //
+
+  float phiGlobal = TMath::ATan2( xGlobal, yGlobal );
+
+
+  while ( phiGlobal <=             0. ) phiGlobal += TMath::TwoPi();
+  while ( phiGlobal  > TMath::TwoPi() ) phiGlobal -= TMath::TwoPi();
+
+  float rGlobal   = TMath::Sqrt( xGlobal*xGlobal + yGlobal*yGlobal );  
+
+  //
+  // Note note note note note -- ioctant may NOT be calculated correctly here
+  //   ... octant zero covers [-pi/8,+pi/8] ...
+  //
+  //   ... so it looks like it is shifted by one half of an octant ...
+  //
+
+  int ioctant = 4 * ( phiGlobal ) / TMath::Pi(); // this is the octant number
+
+  float phiLocal  = phiGlobal;
+
+  while ( phiLocal  >  TMath::Pi() / 8.0 ) { phiLocal -= TMath::Pi() / 4.0; }
+  while ( phiLocal <= -TMath::Pi() / 8.0 ) { phiLocal += TMath::Pi() / 4.0; }
+
+  xLocal = rGlobal * TMath::Cos( phiLocal );
+  yLocal = rGlobal * TMath::Sin( phiLocal );
+
+  //
+  // Check that xLocal is w/in the boundaries of the octant
+  //
+  if ( xLocal < xmin[disk-7] ) return -1;
+  if ( xLocal > xmax[disk-7] ) return -2;
+
+
+  //
+  // Map into pad local coordinats and strip number
+  //
+  int   ipad = ( xLocal - xmin[disk-7] ) / 6.0;
+  float xPad =   xLocal - xmin[disk-7]   - 6.0 * float(ipad);
+
+  // Divide the octant into three phi bins... Should be 1, 0, -1
+  int   iphi = (12.0 * phiLocal) / TMath::Pi();
+
+  // Wire center in X ...
+  float xPadLow = 6.0*ipad + xmin[disk-7]; 
+  xCenter  = xPadLow + 3.0;
+  dxCenter = 6.0 / SQRT12; 
+
+  // Wire center in Y ...
+  float yRowLow = -TMath::Tan( PI/8 ) * xPadLow;
+  float yRowHi  = +TMath::Tan( PI/8 ) * xPadLow;
+  if ( yLocal > yRowHi || yLocal < yRowLow ) {
+     return -1; // Error condition 
+  } 
+
+  int iwire = ( yLocal - yRowLow ) / 0.15;
+  yCenter = yRowLow + iwire * 0.15 + 0.075;
+  dyCenter = 0.15 / SQRT12; 
+
+  // Compute the pullz
+  xPull = ( xLocal - xCenter ) / dxCenter;
+  yPull = ( yLocal - yCenter ) / dyCenter; 
+
+  // LOG_INFO << " xg="      << xGlobal
+  // 	   << " yg="      << yGlobal
+  // 	   << " phig="    << phiGlobal*TMath::RadToDeg()
+  // 	   << " xl="      << xLocal
+  // 	   << " yl="      << yLocal
+  // 	   << " phil="    << phiLocal*TMath::RadToDeg()
+  // 	   << " xpad="    << xPad
+  // 	   << " ioctant=" << ioctant
+  // 	   << " ipad="    << ipad
+  // 	   << " iphi="    << iphi
+  // 	   << " iwire="    << iwire
+  // 	   << " xc="      << xCenter
+  // 	   << " yc="      << yCenter
+  // 	   << endm;
+
+  xLocal = xCenter;
+  yLocal = yCenter;
+  
+  // Now rotate back to global coordinates
+  float dPhiToGlobal = ioctant * TMath::Pi() / 4;
+  if ( dPhiToGlobal > 0 ) 
+    {
+      float X = xCenter;
+      float Y = yCenter;
+
+      xCenter = X * TMath::Cos(dPhiToGlobal) - Y * TMath::Sin(dPhiToGlobal);
+      yCenter = X * TMath::Sin(dPhiToGlobal) + Y * TMath::Cos(dPhiToGlobal);
+
+    }
+
+  return 1000000*disk +  
+          100000*ioctant +
+           10000*ipad    +
+                 iwire;
+
+
+}
+
+long long encodeStrip( const int&   disk, 
+		       const float& xGlobal, 
+		       const float& yGlobal,
+		       float& xLocal,
+		       float& yLocal,
+                             float& xCenter,
+ 		             float& yCenter,
+		             float& dxCenter, 
+  		             float& dyCenter,
+			     float& xPull,
+			     float& yPull )
+{
+
+//  float xLocal, yLocal;
+
+
+  //
+  // min and max xlocal coordinates in each octant
+  //
+  //ftsref1/2  const float xmin[] = { 7.0,  7.0,  15.0, 15.0,  23.0, 23.0 }; 
+  //ftsref1/2 const float xmax[] = { 37.0, 37.0, 75.0, 75.0, 113.0, 113.0 };
+
+  /* ftsref3/4/5 */ const float xmin[] = { 6,6,6,6,6,6 };
+  /* ftsref3/4/5 */ const float xmax[] = { 45.5, 45.5, 71.4, 71.4, 71.4, 71.4 };
+
+  //
+  // Map into octant local coordinates
+  //
+
+  float phiGlobal = TMath::ATan2( xGlobal, yGlobal );
+
+
+  while ( phiGlobal <=             0. ) phiGlobal += TMath::TwoPi();
+  while ( phiGlobal  > TMath::TwoPi() ) phiGlobal -= TMath::TwoPi();
+
+  float rGlobal   = TMath::Sqrt( xGlobal*xGlobal + yGlobal*yGlobal );  
+
+  int ioctant = 4 * ( phiGlobal ) / TMath::Pi(); // this is the octant number
+
+  float phiLocal  = phiGlobal;
+
+  while ( phiLocal  >  TMath::Pi() / 8.0 ) { phiLocal -= TMath::Pi() / 4.0; }
+  while ( phiLocal <= -TMath::Pi() / 8.0 ) { phiLocal += TMath::Pi() / 4.0; }
+
+  xLocal = rGlobal * TMath::Cos( phiLocal );
+  yLocal = rGlobal * TMath::Sin( phiLocal );
+
+  //
+  // Check that xLocal is w/in the boundaries of the octant
+  //
+  if ( xLocal < xmin[disk-7] ) return -1;
+  if ( xLocal > xmax[disk-7] ) return -2;
+
+
+  //
+  // Map into pad local coordinats and strip number
+  //
+  int   ipad = ( xLocal - xmin[disk-7] ) / 6.0;
+  float xPad =   xLocal - xmin[disk-7]   - 6.0 * float(ipad);
+
+  // Divide the octant into three phi bins... Should be 1, 0, -1
+  int   iphi = (12.0 * phiLocal) / TMath::Pi();
+  assert( iphi >= -1 );
+  assert( iphi <=  1 );
+
+  int   istrip = ( xPad ) / 0.3; // 3mm strip size
+  float xStrip = istrip * 0.3 + 0.15;
+
+  xCenter = xStrip + ipad*6.0 + xmin[disk-7];
+
+  // Calculate width in y at xCenter and the X and Y errors
+  float yWidth = 2.0 * xCenter * TMath::Tan( TMath::Pi() / 8.0 );
+
+  dxCenter = 0.3        / SQRT12; // 3mm wide strip
+  dyCenter = yWidth / 3 / SQRT12; // 1/3rd width of octant
+      //Center = yWidth / 10.3923;
+
+  // Finally, the center of the strip in Y
+  float YCENTER[] = { -yWidth/3, 0, +yWidth/3 };
+  yCenter = YCENTER[iphi+1];
+    
+
+  // LOG_INFO << " xg="      << xGlobal
+  // 	   << " yg="      << yGlobal
+  // 	   << " phig="    << phiGlobal*TMath::RadToDeg()
+  // 	   << " xl="      << xLocal
+  // 	   << " yl="      << yLocal
+  // 	   << " phil="    << phiLocal*TMath::RadToDeg()
+  // 	   << " xpad="    << xPad
+  // 	   << " ioctant=" << ioctant
+  // 	   << " ipad="    << ipad
+  // 	   << " iphi="    << iphi
+  // 	   << " istr="    << istrip
+  // 	   << " xc="      << xCenter
+  // 	   << " yc="      << yCenter
+  // 	   << endm;
+
+
+  xPull = ( xLocal - xCenter ) / dxCenter;
+  yPull = ( yLocal - yCenter ) / dyCenter;
+
+  xLocal = xCenter;
+  yLocal = yCenter;
+
+  // Now rotate back to global coordinates
+  float dPhiToGlobal = ioctant * TMath::Pi() / 4;
+  if ( dPhiToGlobal > 0 ) 
+    {
+      float X = xCenter;
+      float Y = yCenter;
+
+      xCenter = X * TMath::Cos(dPhiToGlobal) - Y * TMath::Sin(dPhiToGlobal);
+      yCenter = X * TMath::Sin(dPhiToGlobal) + Y * TMath::Cos(dPhiToGlobal);
+
+    }
+
+  // Return a hash code 
+  return 1000000*disk
+    +     100000*ioctant // 8 octants
+    +      10000*iphi    // 3 phibins
+    +        100*ipad    // 14 pads
+    +          1*istrip; // 20 strips
+
+}
 
 
 
@@ -661,46 +804,15 @@ void StFtsFastSimulatorMaker::fillThinGapChambers(StEvent *event)
 	return;  // Nothing to do
     }  // if
 
-    // TODO Get the primary vertex from the event record.
-    float xv = 0.;
-    float yv = 0.;
-    float zv = 0.;
-
     // Stereo angle added at each detector plane
-    float stereo = mStereo; // 2*TMath::Pi() / 8 / 6;
+    const float stereo = 2*TMath::Pi() / 8 / 6;
 
     // hash tables to store hits in strips and wires / fast lookup for handling multiple hits
     std::map<long long, StRnDHit*> strip_hits;
     std::map<long long, StRnDHit*> wire_hits;
     std::map<long long, StRnDHit*> point_hits;
 
-
-
-    // struct FtsHit 
-    // {
-    //   float xlocal; 
-    //   float ylocal; 
-    //   float exlocal; 
-    //   float eylocal;
-    //   int   disk;
-    //   int   octant;
-    //   int   column;
-    //   int   padrow;
-    //   bool  isstrip;
-    //   int   idtruth;
-    //   float  Etruth;
-    //   float  Esum;
-    // };
-
-   
-    // wheel octants columns pads hits
-    std::array< std::array< std::array< std::array< std::vector<StRnDHit*>, 10>, 3>, 8>, 6> strip_hits_bank;
-    std::array< std::array< std::array< std::array< std::vector<StRnDHit*>, 10>, 3>, 8>, 6> wire_hits_bank;
-    std::array< std::array< std::array< std::array< std::vector<StRnDHit*>, 10>, 3>, 8>, 6> strip_hits_vec;
-    std::array< std::array< std::array< std::array< std::vector<StRnDHit*>, 10>, 3>, 8>, 6> wire_hits_vec;
-
-    std::array< std::vector<StRnDHit*>, 6 > point_hits_by_wheel;
-
+    
     // Prepare to loop over all hits
     const int nhits           = hitTable->GetNRows();
     const g2t_fts_hit_st* hit = hitTable->GetTable();
@@ -714,11 +826,7 @@ void StFtsFastSimulatorMaker::fillThinGapChambers(StEvent *event)
 	float zhit = hit->x[2];
 	int   disk = hit->volume_id;            if ( disk <=6 ) continue; // skip Si disks
 
-	LOG_DEBUG << "wheel hit " << disk << " x=" << xhit << " y=" << yhit << " z=" << zhit << endl;
-
-	if ( false == mEnable[disk-1] ) continue; // disk switched off
-
-	float alph = mStereo * (disk-7);           // stereo angle at this sation
+	float alph = stereo * (disk-7);           // stereo angle at this sation
 
 	int octant = -1; // octant number
 	int pad    = -1; // pad row number    (in X)
@@ -764,7 +872,7 @@ void StFtsFastSimulatorMaker::fillThinGapChambers(StEvent *event)
 	if ( phi_octant >  PI/12 ) col = 2;
 	if ( phi_octant < -PI/12 ) col = 0;
 
-//	LOG_INFO << Form("    pad=%02d col=%02d",pad,col) << endm;
+	LOG_INFO << Form("    pad=%02d col=%02d",pad,col) << endm;
 
 
 	// Position relative to the start of the pad
@@ -795,11 +903,11 @@ void StFtsFastSimulatorMaker::fillThinGapChambers(StEvent *event)
 	float yhigh = +TMath::Tan( PI/8 ) * xpad_low;
 
 	float ywire  = 0;
-	float eywire = mWireSpacing / SQRT12;
+	float eywire = WIRE_SPACING / SQRT12;
 
 	// Compute a wire number, and the wire position
-	wire = (yoctant - ylow) / mWireSpacing;
-	ywire = (float(wire)+0.50)*mWireSpacing + ylow;
+	wire = (yoctant - ylow) / WIRE_SPACING;
+	ywire = (float(wire)+0.50)*WIRE_SPACING + ylow;
 
 	// Check that wire is in allowed range of phi
 	float phi_wire = TMath::ATan2( ywire, xwire );
@@ -825,36 +933,13 @@ void StFtsFastSimulatorMaker::fillThinGapChambers(StEvent *event)
 	  	  
 	  octantToGlobal( xwire, ywire, octant, alph, xwire_global, ywire_global, Ewire );
 	  
-	  //	  long long wire_key = wire + 1000*col + 10000*pad + 100000*octant;
-
-	  long long wire_key =
-	    disk   /* 1-12 */          +
-	    octant /* 0-7  */  *100    +
-	    pad    /* 0-5  */  *1000   +
-	    col    /* 0-2  */  *10000  +
-	    wire   /* large */ *100000 ;
+	  long long wire_key = wire + 1000*col + 10000*pad + 100000*octant;
 	  
 	  StRnDHit *wire_hit = wire_hits[ wire_key ];
-	  if ( 0==wire_hit ) 
-	    {
-	      wire_hit = wire_hits[wire_key] = new StRnDHit();
-	      wire_hits_vec[ disk-7 ][ octant ][ col ][ pad ].push_back( wire_hit );
-	    }
-	  else 
-	    {
-	      float zold = wire_hit->position()[2] + 0.1f;
-	      if ( TMath::Abs( zold - zhit ) > 0.1 ) {
-		LOG_WARN << "Wrong wheel for double hit wire: zold=" << zold << " znew=" << zhit << endm;
-		LOG_WARN << disk << endm;
-		LOG_WARN << octant << endm;
-		LOG_WARN << pad << endm;
-		LOG_WARN << wire << endm;
-		LOG_WARN << wire_key << endm;
-	      }
-	    }
+	  if ( 0==wire_hit ) wire_hit = wire_hits[wire_key] = new StRnDHit();
 	  
 	  wire_hit -> setLayer( disk );
-	  wire_hit -> setLadder( wire );
+	  wire_hit -> setLadder( 1 );
 	  wire_hit -> setWafer( octant );
 	  
 	  wire_hit -> setDetectorId( kFtsId );
@@ -873,9 +958,6 @@ void StFtsFastSimulatorMaker::fillThinGapChambers(StEvent *event)
 				 0.0f,     0.0f,     0.1f };
 	
 	  wire_hit -> setErrorMatrix( Ewire_global );
-
-
-	  //	  wire_hits_vec[ octant ][ col ][ pad ].push_back( wire_hit );
 
 
 	}
@@ -897,10 +979,10 @@ void StFtsFastSimulatorMaker::fillThinGapChambers(StEvent *event)
 	// 
 	// strip number hit in the pad / x and y of the strip
 	//
-	strip = xpad / mStripWidth;
+	strip = xpad / STRIP_WIDTH;
 	
 	// Position of the strip relative to the pad boundary
-	float  xstrip = ( 0.5 + float(strip)) * mStripWidth;
+	float  xstrip = ( 0.5 + float(strip)) * STRIP_WIDTH;
 
 	// Shift strip back to octant coordinates.  x is shifted.  y should remain the same
 	xstrip += float(pad) * PAD_WIDTH + OCTANT_XMIN[disk-7];
@@ -914,7 +996,7 @@ void StFtsFastSimulatorMaker::fillThinGapChambers(StEvent *event)
 
 	// This is the strip's error matrix in octant local system
 	float dystrip = dyoctant / 3;
-	float dxstrip = mStripWidth;	       
+	float dxstrip = STRIP_WIDTH;	       
 	float Estrip[] = { dxstrip*dxstrip/12, 0., dystrip*dystrip/12 };
 
 	// Rotate back to the global system
@@ -931,37 +1013,13 @@ void StFtsFastSimulatorMaker::fillThinGapChambers(StEvent *event)
 
 	octantToGlobal( xstrip, ystrip, octant, alph, xstrip_global, ystrip_global, Estrip );
 	
-	//	long long key_strip = strip + 1000*pad + 100000*col + 10000000*octant + 10000000000*disk;
-
-	long long key_strip = 
-	  disk   /* 1-12 */          +
-	  octant /* 0-7  */  *100    +
-	  pad    /* 0-5  */  *1000   +
-	  col    /* 0-2  */  *10000  +
-	  strip  /* large */ *100000 ;
+	long long key_strip = strip + 100*pad + 1000*col + 10000*octant + 100000*disk;
 
 	StRnDHit *strip_hit = strip_hits[ key_strip ];
-	if ( 0 == strip_hit ) 
-	  { 
-	    strip_hit = strip_hits[key_strip] = new StRnDHit();
-	    strip_hits_vec[ disk-7 ][ octant ][ col ][ pad ].push_back( strip_hit );
-	  }
-	else 
-	  {
-	    float zold = strip_hit->position()[2] - 0.1f;
-	    if ( TMath::Abs( zold - zhit ) > 0.1 ) {
-	      LOG_WARN << "Wrong wheel for double hit strip: zold=" << zold << " znew=" << zhit << endm;
-	      LOG_WARN << disk << endm;
-	      LOG_WARN << octant << endm;
-	      LOG_WARN << pad << endm;
-	      LOG_WARN << strip << endm;
-	      LOG_WARN << key_strip << endm;
-	    }
-	  }
-	  
+	if ( 0 == strip_hit ) strip_hit = strip_hits[key_strip] = new StRnDHit();
 
 	strip_hit -> setLayer  (   disk ); // disk mapped to layer
-	strip_hit -> setLadder (  strip ); // indicates a strip
+	strip_hit -> setLadder (      0 ); // indicates a strip
 	strip_hit -> setWafer  ( octant ); // octant number
 	
 	strip_hit -> setDetectorId( kFtsId );
@@ -982,13 +1040,9 @@ void StFtsFastSimulatorMaker::fillThinGapChambers(StEvent *event)
 	strip_hit -> setErrorMatrix( Estrip_global );
 
 	//	strip_hit -> Print();
-
-	//	strip_hits_vec[ octant ][ col ][ pad ].push_back( strip_hit );
-	
-
-	//#ifdef __NO_AMBIGUITY__
-	if ( 0==mAmbiguity ) {
+       
 	if ( mPointHits ) { // combine xstrip and ywire into single point
+
 
 	  LOG_INFO << " x: xoctant=" << xoctant
 		   << "    xstrip=" << xstrip
@@ -998,8 +1052,8 @@ void StFtsFastSimulatorMaker::fillThinGapChambers(StEvent *event)
 
 	  float  x = xstrip;
 	  float  y = ywire;
-	  float dx = mStripWidth  / SQRT12;
-	  float dy = mWireSpacing / SQRT12;
+	  float dx = STRIP_WIDTH  / SQRT12;
+	  float dy = WIRE_SPACING / SQRT12;
 	  
 	  float Ept[] ={ dx*dx, 0., dy*dy }; // returns from octantToGlobal a 2x2 triangular packed mtx
 
@@ -1016,11 +1070,6 @@ void StFtsFastSimulatorMaker::fillThinGapChambers(StEvent *event)
 	    0.f,0,0.f, 0.1
 	  };
 
-
-	  //
-	  // NOTE -- not sure at all that this logic is correct... but maybe we
-	  // don't use it... combinatorics look like thay are handled below...
-	  //
 	  StRnDHit *ahit = point_hits[ key_strip ];
 	  if ( 0==ahit ) ahit = point_hits[key_strip] = new StRnDHit();
 
@@ -1040,11 +1089,8 @@ void StFtsFastSimulatorMaker::fillThinGapChambers(StEvent *event)
 	  ahit -> setIdTruth( hit->track_p, 0 );
 	  
 	}
-	}
-	//#endif
 	
       }
-
 
 
     //
@@ -1074,8 +1120,7 @@ void StFtsFastSimulatorMaker::fillThinGapChambers(StEvent *event)
       }
 
     }
-    //#ifdef __NO_AMBIGUITY__
-    else if ( 0==mAmbiguity ) { // pad-like hits
+    else { // pointmaker-style hits
       for ( auto& iter : point_hits ) {
 	auto* hit = iter.second;
 	assert(hit); if (verbose) hit->Print();
@@ -1084,194 +1129,155 @@ void StFtsFastSimulatorMaker::fillThinGapChambers(StEvent *event)
     }
 
 
-    // Points have been generated
-    if ( 0 == mAmbiguity ) 
-      {
-	return;
-      }
-
-    //#else
-    //
-    // handle combinatoric hits in pads (no
-    //
-    for ( int wheel = 0; wheel < 6; wheel++ )
-      for ( int octant = 0; octant < 8; octant++ )
-	for ( int column = 0; column < 3; column++ )
-	  for ( int row = 0; row < 10; row++ )
-	    {
-
-	      const auto& strips = strip_hits_vec[wheel][octant][column][row];
-	      const auto& wires  =  wire_hits_vec[wheel][octant][column][row];
-
-	      for ( auto* shit : strips ) 
-		for ( auto* whit : wires ) 
-		  {
-		    
-		    StThreeVectorF spos = shit->position(); // strip position
-		    StThreeVectorF wpos = whit->position(); // wire position
-		    StThreeVectorF serr = shit->positionError(); // strip error
-		    StThreeVectorF werr = whit->positionError(); // wire error
-
-		    //
-		    // x & y position before rotation to global
-		    //
-		    float x = shit->double2();
-		    float y = whit->double3();
-		    //		    float z = (spos[2]+wpos[2])*0.5;
-		    float zw = wpos[2];
-		    float zs = spos[2];
-		    if ( TMath::Abs(zw-zs)>1.0 ) 
-		      {
-			LOG_INFO << "Strip and wire from different z locations WTF? " << zw << " " << zs << " " << whit->layer() << " " << shit->layer() << endm;
-			shit->Print();
-			whit->Print();	
-			continue; // sweep under da rug...
-		      }
-		    float z = ( zw + zs ) * 0.5;
-		    
-
-		    float ex = serr[0] * fudge_error;
-		    float ey = werr[1] * fudge_error;
-		    float ez = 1.0;
-
-		    float Ematrix[] = {
-		      ex*ex ,
-		      0.0f  , ey*ey 
-		    };
-
-		    float xg, yg;
-		    octantToGlobal( x, y, octant, mStereo*wheel, xg, yg, Ematrix );
-
-		    float Eglobal[] = {
-		      Ematrix[0], Ematrix[1], 0.0f,
-		      Ematrix[1], Ematrix[2], 0.0f,
-		      0.0f      , 0.0f      , ez*ez
-		    };
-
-
-		    int strip = shit->ladder();
-		    int wire  = whit->ladder();
-
-
-		    StRnDHit *ahit = new StRnDHit();
-
-		    //
-		    // Encode detector IDs for offline QA
-		    //
-		    ahit->setLayer( wheel+7 );				    
-		    ahit->setLadder( octant ); // strip number
-		    ahit->setWafer ( 10*row + column ); // wire number
-		    ahit->setExtraByte2( strip );
-		    ahit->setExtraByte3( wire );
-
-		    ahit->setPosition( { xg, yg, z } );
-		    ahit->setPositionError( { ex, ey, ez } );
-		    ahit->setErrorMatrix( Eglobal );
-
-		    if ( shit->idTruth() == whit->idTruth() )
-		      {
-			ahit->setIdTruth( shit->idTruth(), 100 );
-		      }
-		    else 
-		      {
-			ahit->setIdTruth( 0, 0 );
-		      }
-
-		    ahit->setExtraByte0( shit->idTruth() );
-		    ahit->setExtraByte1( whit->idTruth() );
-		    
-
-
-		    
-
-		    point_hits_by_wheel[ wheel ].push_back( ahit );
-
-		    //		    ftscollection->addHit(ahit);
-		    //		    ahit->Print();
-
-		  }
-
-
-	    }
-
-    float window = mWindow; // accept all
-
-    std::map< StRnDHit*, int > point_accumulator;
-
-    //
-    // Vertex filtering of hits in each station
-    //
-
-    int wheel1[] = { 1, 2, 3, 4, 5, 6 };
-    int wheel2[] = { 2, 1, 4, 3, 6, 5 };
-
-    int hit_count_total = 0;
-    for ( int i=0; i<6; i++ ) {
-    
-    for ( auto& hit1 : point_hits_by_wheel[ wheel1[i] ] ) 
-      {
-	hit_count_total++;
-
-	// hit already added
-	if ( 0 != point_accumulator[ hit1 ] ) continue;
-
-	float xh1 = hit1->position()[0];
-	float yh1 = hit1->position()[1];
-	float zh1 = hit1->position()[2];
-
-	float dx1 = hit1->covariantMatrix()(1,1);
-	float dy1 = hit1->covariantMatrix()(2,2);
-	
-	float dxdz = (xh1 - xv)/(zh1 - zv); // slope in x from vtx
-	float dydz = (yh1 - yv)/(zh1 - zv); // slope in y from vtx
-
-	for ( auto& hit2 : point_hits_by_wheel[ wheel2[i] ] )
-	  {
-
-	    float xh2 = hit2->position()[0];
-	    float yh2 = hit2->position()[1];
-	    float zh2 = hit2->position()[2];
-	    
-	    float xpred = dxdz * ( zh2 - zv ); // str8 line from first to second plane
-	    float ypred = dydz * ( zh2 - zv ); // str8 line from first to second plane
-	    
-	    if ( TMath::Abs( xpred - xh2 ) > window * dx1 ) continue;
-	    if ( TMath::Abs( ypred - yh2 ) > window * dy1 ) continue;
-
-	    // add both hits to the accumulator and keep looking for other
-	    // hits in this window.
-	    point_accumulator[ hit1 ]++; 
-	    point_accumulator[ hit2 ]++;
-	    
-	  }
-      }
-
-    }
-
-    LOG_INFO << "______________________________________________________________" << endm;
-    //    LOG_INFO << "Filtered hits" << endm;
-
-    LOG_INFO << "Total FTS silicon hits: " << ftscollection->numberOfHits() << endm;
-    LOG_INFO << "Total FTS wheel hits: " << hit_count_total << endm;
-    int hit_count_filt = 0;
-    for ( auto& iter : point_accumulator ) 
-      {
-	hit_count_filt++;
-	ftscollection->addHit( iter.first );
-	
-      };
-    
-
-    LOG_INFO << "Filtered FTS wheel htis:  " << hit_count_filt << endm;
-    LOG_INFO << "Total FTS: " << ftscollection->numberOfHits() << endm;
-
-
-    //#endif
-
-
 };
 
+#if 0
+void StFtsFastSimulatorMaker::fillThinGapChambers(StEvent *event)
+{
+    // Read the g2t table
+    St_g2t_fts_hit* hitTable = static_cast<St_g2t_fts_hit*>(GetDataSet("g2t_fts_hit"));
+    if (!hitTable) {
+	LOG_INFO << "g2t_fts_hit table is empty" << endm;
+	return;  // Nothing to do
+    }  // if
 
+
+    const float stereo = 2*TMath::Pi() / 8 / 6;
+
+    
+    std::map<long long, StRnDHit*> strip_hits;
+    std::map<long long, StRnDHit*> wire_hits;
+
+    const Int_t nHits = hitTable->GetNRows();
+    LOG_DEBUG << "g2t_fts_hit table has " << nHits << " hits" << endm;
+    const g2t_fts_hit_st* hit = hitTable->GetTable();
+    //    StPtrVecFtsHit hits; //temp storage for hits    
+    int count = 0; 
+    for (Int_t i=0; i < nHits; ++i) {
+      hit = (g2t_fts_hit_st *)hitTable->At(i);
+	if (hit) {
+            int   d = hit->volume_id; 
+	    if ( d <= 6 ) continue; // skip small disks
+
+	    float xhit = hit->x[0];
+	    float yhit = hit->x[1];
+	    float zhit = hit->x[2];
+
+	    float xstrip, ystrip, exstrip, eystrip;
+	    float xwire, ywire, exwire, eywire;
+
+	    float xspull, yspull, xwpull, ywpull ; 
+	    float xslocal, yslocal, xwlocal, ywlocal; 
+
+	    //
+	    // Rotate gloabl hits by stereo angle
+	    //
+	    float alpha = stereo * (d-7);
+
+	    float xstereo = xhit * TMath::Cos( alpha )  - yhit * TMath::Sin( alpha );
+	    float ystereo = xhit * TMath::Sin( alpha )  + yhit * TMath::Cos( alpha );
+
+            long long xkey = encodeStrip( d, xstereo, ystereo, xslocal, yslocal, xstrip, ystrip, exstrip, eystrip, xspull, yspull );
+	    long long ykey = encodeWire ( d, xstereo, ystereo, xwlocal, ywlocal, xwire,  ywire,  exwire,  eywire,  xwpull, ywpull );
+
+	    //
+	    // Rotate encoded hits back by stereo angle
+	    //
+	    {
+	      float xs = xstrip * TMath::Cos( -alpha ) - ystrip * TMath::Sin( -alpha );
+	      float ys = ystrip * TMath::Sin( -alpha ) + ystrip * TMath::Cos( -alpha );
+	      xstrip = xs; 
+	      ystrip = ys;
+
+	      float xw = xwire * TMath::Cos( -alpha ) - ywire * TMath::Sin( -alpha );
+	      float yw = ywire * TMath::Sin( -alpha ) + ywire * TMath::Cos( -alpha );
+	      xwire = xw; 
+	      ywire = yw;
+	    }
+
+	    if ( xkey > 0 ) {
+
+	      StRnDHit* xh = (merge_hits)? strip_hits[ xkey ] : 0;
+	      if ( 0 == xh ) { xh = strip_hits[xkey] = new StRnDHit();}
+	      xh->setLayer(d);
+	      xh->setPosition(       StThreeVectorF(  xstrip,  ystrip, zhit-0.1 ) );
+	      xh->setPositionError(  StThreeVectorF( exstrip, eystrip, 0.1 ) );
+	      xh->setCharge( hit->de + xh->charge() );
+	      xh->setIdTruth( hit->track_p,  xh-> qaTruth() + 1 );
+	      xh->setDouble0( xhit );
+	      xh->setDouble1( yhit );
+	      //xh->setDouble2( zhit );
+	      xh->setDouble3( xslocal ); 
+	      xh->setDouble4( yslocal ); 
+	      xh->setLadder(0); 
+	      xh->setExtraByte0( xkey );
+
+	      hStripDeltasX -> Fill( xspull*exstrip, d-6 );
+	      hStripDeltasY -> Fill( yspull*eystrip, d-6 );
+	      
+	      hStripPullsX -> Fill( xspull, d-6 );
+	      hStripPullsY -> Fill( yspull, d-6 );
+
+	    };
+ 
+
+
+	    if ( ykey > 0 ) {
+
+	      StRnDHit* yh = (merge_hits)? wire_hits[ ykey ] : 0;
+	      if ( 0 == yh ) { yh = wire_hits[ykey] = new StRnDHit(); }
+	      yh->setLayer(d);
+	      yh->setPosition(       StThreeVectorF(  xwire,  ywire, zhit+0.1 ) );
+	      yh->setPositionError(  StThreeVectorF( exwire, eywire, 0.1 ) );
+	      yh->setCharge( hit->de + yh->charge() );
+	      yh->setIdTruth( hit->track_p,  yh-> qaTruth() + 1 );
+	      yh->setDouble0( xhit );
+	      yh->setDouble1( yhit );
+	      //yh->setDouble2( zhit );
+	      yh->setDouble3( xwlocal );
+	      yh->setDouble4( ywlocal ); 
+	      yh->setLadder(1); 
+	      yh->setExtraByte0( ykey );
+	      
+	      hWireDeltasX -> Fill( xwpull*exwire, d-6 );
+	      hWireDeltasY -> Fill( ywpull*eywire, d-6 );
+	      
+	      hWirePullsX -> Fill( xwpull, d-6 );
+	      hWirePullsY -> Fill( ywpull, d-6 );
+	      
+	    }
+
+
+	}
+    }
+
+    //
+    // Normalize ID truth amd addd to hit collection
+    //
+    //    StFtsHitCollection * ftscollection = event->ftsCollection();
+    StRnDHitCollection* ftscollection = event->rndHitCollection();
+     for ( auto& iter : strip_hits ) {
+       auto* hit=iter.second;
+       hit->setDetectorId( kFtsId );
+       int id = hit->idTruth();
+       int qa = 100 / hit->qaTruth();
+       hit->setIdTruth( id, qa );
+       if ( verbose ) hit->Print();
+       ftscollection->addHit( hit );
+     }
+    for ( auto& iter : wire_hits ) {
+      auto* hit=iter.second;
+      hit->setDetectorId( kFtsId );
+      int id = hit->idTruth();
+      int qa = 100 / hit->qaTruth();
+      hit->setIdTruth( id, qa );
+      if ( verbose ) hit->Print();
+      ftscollection->addHit( hit );
+    }
+
+
+}
+#endif
 //_____________________________________________________________________________
 StMatrixF  Hack1to6(const StHit *stHit)
 {
@@ -1301,3 +1307,4 @@ StMatrixF  Hack1to6(const StHit *stHit)
      
   return mtxF;
 }
+#endif 
