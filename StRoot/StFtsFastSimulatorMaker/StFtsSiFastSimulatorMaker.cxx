@@ -432,7 +432,7 @@ void StFtsSiFastSimulatorMaker::fillStripDisk(StEvent *event)
 
          // Decode volume ID -- return if not the right subsystem --
          int volume_id = hit -> volume_id;
-         LOG_INFO << "volume_id = " << volume_id << endm;
+	 //         LOG_INFO << "volume_id = " << volume_id << endm;
 
          int t = hit -> track_p;// Pointer to parent track
          // cout << "track_p = " << t <<endl;
@@ -504,7 +504,7 @@ void StFtsSiFastSimulatorMaker::fillStripDisk(StEvent *event)
          //
 
          //for back strip, they are vertical stand
-         int Index_A;
+         int Index_A = -1;
          // for(int j = 0; j< strip_MapsA[sensortype].size(); j++)
          int tmpJ = (xhit + 0.5 * Sensor_Width) / Strip_Width - 10;//enlarge the search range
          for (int j = tmpJ ; j < strip_MapsA[sensortype].size(); j++)
@@ -523,9 +523,10 @@ void StFtsSiFastSimulatorMaker::fillStripDisk(StEvent *event)
             }
             // cout << " j = "<< j << endl;
          }
+         if(Index_A == -1) Index_A = strip_MapsA[sensortype].size() -1;
 
          //for front strip, they are rotate 7.5 degree
-         int Index_B;
+         int Index_B = -1;
          // for(int j = 0; j< strip_MapsB[sensortype].size(); j++)
          float xhitsmall = xhit - (yhit + 0.5 * Sensor_Height[sensortype]) * TMath::Tan(stereo);
          float xhitlarge = xhit + (0.5 * Sensor_Height[sensortype] - yhit) * TMath::Tan(stereo);
@@ -546,9 +547,10 @@ void StFtsSiFastSimulatorMaker::fillStripDisk(StEvent *event)
             }
             // cout << " j = "<< j << endl;
          }
+         if(Index_B == -1) Index_B = strip_MapsB[sensortype].size() -1;
 
          //for front strip, they are rotate 7.5 degree
-         int Index_C;
+         int Index_C = -1;
          int tmpJJ = (xhitsmall + 0.5 * Sensor_Width + Sensor_Height[sensortype] * TMath::Tan(stereo)) / Strip_Width - 10; //enlarge the search range
          for (int j = tmpJJ ; j < strip_MapsB[sensortype].size(); j++)
          {
@@ -566,6 +568,7 @@ void StFtsSiFastSimulatorMaker::fillStripDisk(StEvent *event)
             }
             // cout << " j = "<< j << endl;
          }
+         if(Index_C == -1) Index_C = strip_MapsB[sensortype].size() -1;
 
          if (Index_B != Index_C)
          {
