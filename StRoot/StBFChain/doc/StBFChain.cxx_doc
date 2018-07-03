@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.167 2018/06/08 04:03:57 genevb Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.168 2018/07/03 17:02:50 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -1047,6 +1047,7 @@ Bfc_st BFC[] = {
   {"Higz" ,"" ,"","" ,"","","Pop Higz window",kFALSE},
   {"big" ,"" ,"","" ,"","","Set NwGEANT =20Mwords",kFALSE},
   {"bigbig" ,"" ,"","" ,"","","Set NwGEANT =40Mwords",kFALSE},
+  {"huge" ,"" ,"","" ,"","","Set NwGEANT =80Mwords",kFALSE},
   {"clearmem" ,"" ,"","" ,"","","Obsolete",kFALSE},
   {"adcOnly" ,"" ,"","" ,"","","DAQMaker selects only TPC ADC events",kFALSE},
   {"InTree" ,"" ,"","in","" ,"","bfcTree Input Tree name",kFALSE},
@@ -1166,6 +1167,7 @@ Bfc_st BFC[] = {
   {"TbUtil" ,"" ,"","sim_T,tpc_t,globT,SCL","" ,"StTableUtilities","Load StTableUtilities",kFALSE},
   {"TofUtil" ,"" ,"","","" ,"StTofUtil","Load StTofUtil",kFALSE},
   {"BTofUtil" ,"" ,"","","" ,"StBTofUtil","Load StBTofUtil",kFALSE},
+  {"ETofUtil" ,"" ,"","","" ,"StETofUtil","Load StETofUtil",kFALSE},
   {"MtdUtil" ,"" ,"","","" ,"StMtdUtil","Load StMtdUtil",kFALSE},
   {"StBichsel" ,"" ,"","","" ,"StBichsel","Load Bichsel model for dE/dx",kFALSE},
   {"StEvent" ,"","","globT,SCL,TRGDef,StBichsel,EmcUtil,TbUtil,detDb","","StEvent","Load StEvent",kFALSE},
@@ -1412,6 +1414,10 @@ Bfc_st BFC[] = {
                        "StEvent,StMcEvent,StTofUtil,StBTofHitMaker,StBTofSimMaker","BTOF Simulator",kFALSE},
   {"btofMixer" ,"","BTofChain","BTofUtil","StBTofMixerMaker","StEvent,StBTofHitMaker,StBTofMixerMaker"
    , "BTof Mixer",kFALSE},
+  {"ETofDat", "etof_raw","ETofChain", "db, ETofUtil", "StETofDigiMaker", "StEvent,StETofDigiMaker",
+                                                                                  "ETOF digi maker",kFALSE},
+  {"ETofQa", "", "ETofChain", "db", "StETofQAMaker", "StETofQAMaker",
+                                                                                    "ETOF QA maker",kFALSE},
   {"mtdSim" ,"","MtdChain","","StMtdSimMaker", "StEvent,StMtdSimMaker","MTD Simulator",kFALSE},
   {"ToF" ,"TofChain","","tofDat,tofrMatch,tofpMatch,tofCalib,geant","StMaker","StChain","ToF Chain",kFALSE},
   {"ToFx" ,"TofChain","","tofXDat,tofrMatch,tofCalib,geant" ,"StMaker","StChain","ToFx Chain",kFALSE},
@@ -2677,6 +2683,7 @@ Bfc_st BFC[] = {
   {"Higz" ,"" ,"","" ,"","","Pop Higz window",kFALSE},
   {"big" ,"" ,"","" ,"","","Set NwGEANT =20Mwords",kFALSE},
   {"bigbig" ,"" ,"","" ,"","","Set NwGEANT =40Mwords",kFALSE},
+  {"huge" ,"" ,"","" ,"","","Set NwGEANT =80Mwords",kFALSE},
   {"clearmem" ,"" ,"","" ,"","","Obsolete",kFALSE},
   {"adcOnly" ,"" ,"","" ,"","","DAQMaker selects only TPC ADC events",kFALSE},
   {"InTree" ,"" ,"","in","" ,"","bfcTree Input Tree name",kFALSE},
@@ -2796,6 +2803,7 @@ Bfc_st BFC[] = {
   {"TbUtil" ,"" ,"","sim_T,tpc_t,globT,SCL","" ,"StTableUtilities","Load StTableUtilities",kFALSE},
   {"TofUtil" ,"" ,"","","" ,"StTofUtil","Load StTofUtil",kFALSE},
   {"BTofUtil" ,"" ,"","","" ,"StBTofUtil","Load StBTofUtil",kFALSE},
+  {"ETofUtil" ,"" ,"","","" ,"StETofUtil","Load StETofUtil",kFALSE},
   {"MtdUtil" ,"" ,"","","" ,"StMtdUtil","Load StMtdUtil",kFALSE},
   {"StBichsel" ,"" ,"","","" ,"StBichsel","Load Bichsel model for dE/dx",kFALSE},
   {"StEvent" ,"","","globT,SCL,TRGDef,StBichsel,EmcUtil,TbUtil,detDb","","StEvent","Load StEvent",kFALSE},
@@ -3042,6 +3050,10 @@ Bfc_st BFC[] = {
                        "StEvent,StMcEvent,StTofUtil,StBTofHitMaker,StBTofSimMaker","BTOF Simulator",kFALSE},
   {"btofMixer" ,"","BTofChain","BTofUtil","StBTofMixerMaker","StEvent,StBTofHitMaker,StBTofMixerMaker"
    , "BTof Mixer",kFALSE},
+  {"ETofDat", "etof_raw","ETofChain", "db, ETofUtil", "StETofDigiMaker", "StEvent,StETofDigiMaker",
+                                                                                  "ETOF digi maker",kFALSE},
+  {"ETofQa", "", "ETofChain", "db", "StETofQAMaker", "StETofQAMaker",
+                                                                                    "ETOF QA maker",kFALSE},
   {"mtdSim" ,"","MtdChain","","StMtdSimMaker", "StEvent,StMtdSimMaker","MTD Simulator",kFALSE},
   {"ToF" ,"TofChain","","tofDat,tofrMatch,tofpMatch,tofCalib,geant","StMaker","StChain","ToF Chain",kFALSE},
   {"ToFx" ,"TofChain","","tofXDat,tofrMatch,tofCalib,geant" ,"StMaker","StChain","ToFx Chain",kFALSE},
@@ -3660,6 +3672,7 @@ Int_t StBFChain::Instantiate()
 	  !GetOption("pythia"))                      NwGeant =  5;
       if (GetOption("big"))                          NwGeant = 20;
       if (GetOption("bigbig"))                       NwGeant = 40;
+      if (GetOption("huge"))                         NwGeant = 80;
       ProcessLine(Form("((St_geant_Maker *) %p)->SetNwGEANT(%i);",mk,NwGeant));
       if (GetOption("Higz")) ProcessLine(Form("((St_geant_Maker *) %p)->SetIwtype(1);",mk));
       if (GetOption("paw"))  ProcessLine(Form("((St_geant_Maker *) %p)->SetNwPAW(2);",mk));
