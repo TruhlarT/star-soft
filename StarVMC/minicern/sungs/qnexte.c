@@ -1,9 +1,9 @@
 /*
- * $Id: qnexte.c,v 1.1 2005/05/25 20:36:55 fisyak Exp $
+ * $Id: qnexte.c,v 1.1.1.1 2005/05/25 20:36:55 fisyak Exp $
  *
  * $Log: qnexte.c,v $
- * Revision 1.1  2005/05/25 20:36:55  fisyak
- * Initial revision
+ * Revision 1.1.1.1  2005/05/25 20:36:55  fisyak
+ *
  *
  * Revision 1.1.1.1  2002/07/24 15:56:28  rdm
  * initial import into CVS

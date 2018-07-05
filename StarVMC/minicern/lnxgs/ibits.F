@@ -1,9 +1,9 @@
 *
-* $Id: ibits.F,v 1.1 2005/05/25 20:36:52 fisyak Exp $
+* $Id: ibits.F,v 1.1.1.1 2005/05/25 20:36:52 fisyak Exp $
 *
 * $Log: ibits.F,v $
-* Revision 1.1  2005/05/25 20:36:52  fisyak
-* Initial revision
+* Revision 1.1.1.1  2005/05/25 20:36:52  fisyak
+*
 *
 * Revision 1.1.1.1  2002/07/24 15:56:28  rdm
 * initial import into CVS
