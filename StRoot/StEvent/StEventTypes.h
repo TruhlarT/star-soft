@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: StEventTypes.h,v 2.49.4.1 2018/08/24 15:46:50 jwebb Exp $
+ * $Id: StEventTypes.h,v 2.49.4.2 2018/08/29 14:52:37 jwebb Exp $
  *
  * Author: Thomas Ullrich, Sep 1999
  ***************************************************************************
@@ -10,6 +10,11 @@
  ***************************************************************************
  *
  * $Log: StEventTypes.h,v $
+ * Revision 2.49.4.2  2018/08/29 14:52:37  jwebb
+ * o Victor corrected issues with FCS hit dependency, enumerations, definitions...
+ *
+ * o Added missing implementations for fcsCollection() and setFcsCollection(...).
+ *
  * Revision 2.49.4.1  2018/08/24 15:46:50  jwebb
  *
  * ... and need to declare types...
@@ -180,6 +185,7 @@
 #include "StEventClusteringHints.h"
 #include "StEventInfo.h"
 #include "StEventSummary.h"
+#include "StFcsHit.h"
 #include "StFcsCollection.h"
 #include "StFmsCollection.h"
 #include "StFmsCluster.h"
