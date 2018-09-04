@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.169 2018/08/08 15:01:06 genevb Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.170 2018/09/04 20:16:06 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TPRegexp.h"
@@ -3853,6 +3853,7 @@ Int_t StBFChain::Instantiate()
       // X-tended works only for VFPPV, VFPPVnoCTB, VFPPVev for now but could be re-used
       // However, we will change this to a more flexible arbitrarry setting later
       if (GetOption("VFStoreX")    ) mk->SetAttr("VFStore"      , 100); 
+      //if (GetOption("VFStoreX")    ) mk->SetAttr("VFStore"      , 100); 
       mk->PrintAttr();
     }
     if (maker=="StKFVertexMaker") {
@@ -3933,10 +3934,10 @@ Int_t StBFChain::Instantiate()
     if ( maker == "StPicoDstMaker"){
       if ( GetOption("picoWrite") )  mk->SetMode(1);
       if ( GetOption("picoRead")  )  mk->SetMode(2);   // possibly more magic
-      if ( GetOption("PicoVtxVpd"))           mk->SetAttr("picoVtxMode", "PicoVtxVpd");
-      else if ( GetOption("PicoVtxDefault"))  mk->SetAttr("picoVtxMode", "PicoVtxDefault");
-      if ( GetOption("PicoCovMtxWrite"))      mk->SetAttr("picoCovMtxMode", "PicoCovMtxWrite");
-      else if ( GetOption("PicoCovMtxSkip"))  mk->SetAttr("picoCovMtxMode", "PicoCovMtxSkip"); // Default mode
+      if ( GetOption("PicoVtxVpd"))           mk->SetAttr("PicoVtxMode", "PicoVtxVpd");
+      else if ( GetOption("PicoVtxDefault"))  mk->SetAttr("PicoVtxMode", "PicoVtxDefault");
+      if ( GetOption("PicoCovMtxWrite"))      mk->SetAttr("PicoCovMtxMode", "PicoCovMtxWrite");
+      else if ( GetOption("PicoCovMtxSkip"))  mk->SetAttr("PicoCovMtxMode", "PicoCovMtxSkip"); // Default mode
       
     }
 
@@ -4533,9 +4534,24 @@ void StBFChain::SetOptions(const Char_t *options, const Char_t *chain) {
 	  if (Tag.Length() > 4)  (void) sscanf(Tag.Data(),"rung.%d",&fRunG);
 	  gMessMgr->QAInfo() << Tag.Data() << " will be considered as Run number (& rndm seed set) " 
 			     << fRunG << " for simulation." << endm; 
+
+
+	} else if (Tag.BeginsWith("VFStore",TString::kIgnoreCase)) {
+	  TString VFS   = Tag;
+	  Ssiz_t  idx   = Tag.Index('.');
+
+	  if ( idx != 0){
+	    // exclude VFStoreX or options not containing "."
+	    int     val;
+	    val = atoi(Tag(idx+1,64).Data());
+	    VFS = Tag(0,idx);
+	    gMessMgr->QAInfo() << "Setting " << VFS << " = " << val << " as global property" << endm;
+	  }
+	  
+
 	} else if (Tag.BeginsWith("FiltTrg",TString::kIgnoreCase)) {
           TString filtTrgTag = Tag;
-          Ssiz_t flavorIdx = Tag.Index('_');
+          Ssiz_t  flavorIdx = Tag.Index('_');
           if (flavorIdx > 0) {
             filtTrgTag = Tag(0,flavorIdx);
             fFiltTrg = Tag(flavorIdx+1,64);
@@ -4551,6 +4567,7 @@ void StBFChain::SetOptions(const Char_t *options, const Char_t *chain) {
             // not a match, disable
             fFiltTrg = "";
           }
+
 	} else { // Check for predefined db time stamps ?
 	  kgo = kOpt(Tag.Data(),kFALSE);
 	  if (kgo != 0){
