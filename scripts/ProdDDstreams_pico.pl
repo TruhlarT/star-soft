@@ -459,9 +459,11 @@ my $ssize = 0;
 my $dsize  = 0;
 my @numfiles = ();
 my @nfileHpss = ();
+my @nfileNfs = ();
 my @filehpss = ();
 my @eventhpss = ();
 my @sumevthpss = ();
+my @fileNfs = ();
 my $pdrate = 0;
 my @prodrate = ();
 my @nstreams = ();
@@ -550,8 +552,11 @@ my $prodname = "n/a";
  @eventhpss = ();
  $eventhpss[0] = 0;
  @filehpss = (); 
+ @fileNfs = ();
  @nstreams = ();
  $nstr = 0;
+ @nfileHpss = ();
+ @nfileNfs = ();
 
     $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_picoDst","storage=local","sanity=1","limit=0");
 
@@ -591,6 +596,15 @@ my $prodname = "n/a";
 
    $fileC->clear_context( );
 
+  $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_picoDst","sname2=$nstrea\
+ms[$kk]","storage=nfs","sanity=1","limit=0");
+
+    @fileNfs = $fileC->run_query(filename);
+    $nfileNfs[$nline] =scalar(@fileNfs);
+
+    $fileC->clear_context( );
+
+
 #####
 
    $dsize = $sumsize[$nline]/1000000000.;
@@ -626,6 +640,7 @@ my $prodname = "n/a";
     print HTML "<td HEIGHT=10><h3>$sumevthpss[$nline]</h3></td>\n";
     print HTML "<td HEIGHT=10><h3>$sumsize[$nline]</h3></td>\n";
     print HTML "<td HEIGHT=10><h3>$sumfile[$nline]</h3></td>\n";
+    print HTML "<td HEIGHT=10><h3>$nfileNfs[$nline]</h3></td>\n";
     print HTML "<td HEIGHT=10><h3>$nfileHpss[$nline]</h3></td>\n";
     print HTML "<td HEIGHT=10><h3>$prodrate[$nline]</h3></td>\n";
     print HTML "</TR>\n";
@@ -659,14 +674,15 @@ sub beginHtml {
  print HTML " <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">\n";
  print HTML " <TR>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Trigger setup name</h3></B></TD>\n";
- print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Stream name</h3></B></TD>\n";
- print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Collision</h3></B></TD>\n";
- print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Year of data taken</h3></B></TD>\n";
- print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Production Tag</h3></B></TD>\n";
+ print HTML " <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Stream name</h3></B></TD>\n";
+ print HTML " <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Collision</h3></B></TD>\n";
+ print HTML " <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Year of data taken</h3></B></TD>\n";
+ print HTML " <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Production Tag</h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of Events on DD<h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of Events on HPSS<h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Size of picoDst on DD (GB)<h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of picoDst files on DD<h3></B></TD>\n";
+ print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of picoDst files on NFS<h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of picoDst files on HPSS<h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>% of production saved on DD<h3></B></TD>\n";
  print HTML " </TR> \n";
