@@ -636,12 +636,12 @@ ms[$kk]","storage=nfs","sanity=1","limit=0");
     print HTML "<td HEIGHT=10><h3>$colls[$nline]</h3></td>\n";
     print HTML "<td HEIGHT=10><h3>$yeardt[$nline]</h3></td>\n";
     print HTML "<td HEIGHT=10><h3>$prodtag[$nline]</h3></td>\n";
-    print HTML "<td HEIGHT=10><h3>$sumevet[$nline]</h3></td>\n";
     print HTML "<td HEIGHT=10><h3>$sumevthpss[$nline]</h3></td>\n";
-    print HTML "<td HEIGHT=10><h3>$sumsize[$nline]</h3></td>\n";
-    print HTML "<td HEIGHT=10><h3>$sumfile[$nline]</h3></td>\n";
-    print HTML "<td HEIGHT=10><h3>$nfileNfs[$nline]</h3></td>\n";
     print HTML "<td HEIGHT=10><h3>$nfileHpss[$nline]</h3></td>\n";
+    print HTML "<td HEIGHT=10><h3>$sumevet[$nline]</h3></td>\n";
+    print HTML "<td HEIGHT=10><h3>$sumfile[$nline]</h3></td>\n";
+    print HTML "<td HEIGHT=10><h3>$sumsize[$nline]</h3></td>\n";
+    print HTML "<td HEIGHT=10><h3>$nfileNfs[$nline]</h3></td>\n";
     print HTML "<td HEIGHT=10><h3>$prodrate[$nline]</h3></td>\n";
     print HTML "</TR>\n";
 
@@ -669,7 +669,7 @@ sub beginHtml {
  print HTML "          <title>Production picoDst Summary on DD  </title>\n";
  print HTML "  </head>\n";
  print HTML "  <body BGCOLOR=\"cornsilk\">\n"; 
- print HTML "  <h2 ALIGN=CENTER> <B> Production picoDst Summary on Distributed Disk by stream data </B></h2>\n";
+ print HTML "  <h2 ALIGN=CENTER> <B> Production picoDst Summary from FileCatalog by stream data </B></h2>\n";
  print HTML "  <h3 ALIGN=CENTER> Generated on $todate</h3>\n";
  print HTML " <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">\n";
  print HTML " <TR>\n";
@@ -678,12 +678,12 @@ sub beginHtml {
  print HTML " <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Collision</h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Year of data taken</h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Production Tag</h3></B></TD>\n";
- print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of Events on DD<h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of Events on HPSS<h3></B></TD>\n";
- print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Size of picoDst on DD (GB)<h3></B></TD>\n";
- print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of picoDst files on DD<h3></B></TD>\n";
- print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of picoDst files on NFS<h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of picoDst files on HPSS<h3></B></TD>\n";
+ print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of Events on DD<h3></B></TD>\n";
+ print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of picoDst files on DD<h3></B></TD>\n";
+ print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Size of picoDst on DD (GB)<h3></B></TD>\n";
+ print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of picoDst files on NFS<h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>% of production saved on DD<h3></B></TD>\n";
  print HTML " </TR> \n";
 
