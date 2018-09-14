@@ -6,7 +6,7 @@
 #
 # ProdDDstreams_pico.pl
 #
-# Production summary from FileCatalog by stream data for Distributed disk.
+# Production summary from FileCatalog by stream data for picoDst .
 # 
 ################################################################################################
 
@@ -481,7 +481,7 @@ my @colls = ();
 
 my $prodname = "n/a";
 
- $fileC->set_context("filetype=daq_reco_picoDst","storage=local","limit=0");
+ $fileC->set_context("filetype=daq_reco_picoDst","storage=hpss","limit=0");
 
   @prodset = $fileC->run_query("trgsetupname","ordd(production)");
 
