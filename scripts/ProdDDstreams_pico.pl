@@ -543,6 +543,7 @@ my $prodname = "n/a";
         next if($prod[$nlist] eq "P03gb");
         next if($prod[$nlist] eq "P03gc"); 
         next if($prod[$nlist] eq "P03ie");          
+        next if($prod[$nlist] eq "DEV");
 
  @runevents = ();
  $runevents[0] = 0;  
@@ -557,6 +558,7 @@ my $prodname = "n/a";
  $nstr = 0;
  @nfileHpss = ();
  @nfileNfs = ();
+ @sumevet = ();
 
     $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_picoDst","storage=hpss","sanity=1","limit=0");
 
@@ -564,7 +566,7 @@ my $prodname = "n/a";
 
     $nstr = scalar(@nstreams);
 
-   $fileC->clear_context( );
+  $fileC->clear_context( );
 
      for ($kk=0; $kk< $nstr; $kk++) {
 
@@ -596,8 +598,7 @@ my $prodname = "n/a";
 
    $fileC->clear_context( );
 
-  $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_picoDst","sname2=$nstrea\
-ms[$kk]","storage=nfs","sanity=1","limit=0");
+  $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_picoDst","sname2=$nstreams[$kk]","storage=nfs","sanity=1","limit=0");
 
     @fileNfs = $fileC->run_query(filename);
     $nfileNfs[$nline] =scalar(@fileNfs);
