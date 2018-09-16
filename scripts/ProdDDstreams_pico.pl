@@ -447,7 +447,9 @@ my @trig = ();
 my @prod = ();
 my @sumevt = ();
 my @prodset = ();
-my @runevents = ();
+my @plibs = ();
+my @libtag = ();
+my @runevent = ();
 my @sumsize = ();
 my @datasize = ();
 my @filelst = ();
@@ -483,7 +485,7 @@ my $prodname = "n/a";
 
  $fileC->set_context("filetype=daq_reco_picoDst","storage=hpss","limit=0");
 
-  @prodset = $fileC->run_query("trgsetupname","ordd(production)");
+  @prodset = $fileC->run_query("trgsetupname","ordd(production)","library");
 
  $fileC->clear_context( );
 
@@ -497,6 +499,7 @@ my $prodname = "n/a";
 
     $trig[$nlist] = $prt[0];
     $prod[$nlist] = $prt[1];  
+    $plibs[$nlist] = $prt[2];
     $coll[$nlist] = $collHash{$trig[$nlist]};
     $yrdat[$nlist] = $yrHash{$trig[$nlist]};
 
@@ -545,8 +548,8 @@ my $prodname = "n/a";
         next if($prod[$nlist] eq "P03ie");          
         next if($prod[$nlist] eq "DEV");
 
- @runevents = ();
- $runevents[0] = 0;  
+ @runevent = ();
+ $runevent[0] = 0;
  @datasize = ();
  $datasize[0] = 0; 
  @filelst = (); 
@@ -570,35 +573,41 @@ my $prodname = "n/a";
 
      for ($kk=0; $kk< $nstr; $kk++) {
 
-    $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","sname2=$nstreams[$kk]","filetype=daq_reco_picoDst","storage=local","sanity=1","limit=0" );
-
-
-   @runevents = $fileC->run_query("sum(events)");
-   @datasize = $fileC->run_query("sum(size)");
-   @filelst = $fileC->run_query(filename);
-
-   $trigset[$nline] = $trig[$nlist];
-   $prodtag[$nline] = $prod[$nlist];
-   $colls[$nline]   = $coll[$nlist];
-   $yeardt[$nline]  = $yrdat[$nlist];
-   $strname[$nline] = $nstreams[$kk];
-   $sumevet[$nline] = $runevents[0];
-   $sumsize[$nline] = $datasize[0];
-   $sumfile[$nline] = scalar(@filelst);        
-   
-   $fileC->clear_context( );
-
-   $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_picoDst","sname2=$nstreams[$kk]","storage=HPSS","sanity=1","limit=0");
+   $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","library=$plibs[$nlist]","filetype=daq_reco_picoDst","sname2=$nstreams[$kk]","storage=HPSS","sanity=1","limit=0");
 
    @filehpss = $fileC->run_query(filename);
    @eventhpss = $fileC->run_query("sum(events)");
 
-    $sumevthpss[$nline] = $eventhpss[0];
-    $nfileHpss[$nline] =scalar(@filehpss);  
+   $sumevthpss[$nline] = $eventhpss[0];
+   $nfileHpss[$nline] =scalar(@filehpss);
+   $libtag[$nline] =  $plibs[$nlist];
+   $prodtag[$nline] = $prod[$nlist];
 
    $fileC->clear_context( );
 
-  $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_picoDst","sname2=$nstreams[$kk]","storage=nfs","sanity=1","limit=0");
+    $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","library=$plibs[$nlist]","sname2=$nstreams[$kk]","filetype=daq_reco_picoDst","storage=local","sanity=1","limit=0" );
+
+
+   @runevent = $fileC->run_query("sum(events)");
+   @datasize = $fileC->run_query("sum(size)");
+   @filelst = $fileC->run_query(filename);
+
+    $sumevet[$nline] = 0 ;
+
+   $trigset[$nline] = $trig[$nlist];
+   $colls[$nline]   = $coll[$nlist];
+   $yeardt[$nline]  = $yrdat[$nlist];
+   $strname[$nline] = $nstreams[$kk];
+   $sumevet[$nline] = $runevent[0];
+   $sumsize[$nline] = $datasize[0];
+   $sumfile[$nline] = scalar(@filelst);        
+
+    if( ! defined($runevent[0]) ) {$sumevet[$nline] = 0 };
+   
+   $fileC->clear_context( );
+
+
+  $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","library=$plibs[$nlist]","filetype=daq_reco_picoDst","sname2=$nstreams[$kk]","storage=nfs","sanity=1","limit=0");
 
     @fileNfs = $fileC->run_query(filename);
     $nfileNfs[$nline] =scalar(@fileNfs);
@@ -637,6 +646,7 @@ my $prodname = "n/a";
     print HTML "<td HEIGHT=10><h3>$colls[$nline]</h3></td>\n";
     print HTML "<td HEIGHT=10><h3>$yeardt[$nline]</h3></td>\n";
     print HTML "<td HEIGHT=10><h3>$prodtag[$nline]</h3></td>\n";
+    print HTML "<td HEIGHT=10><h3>$libtag[$nline]</h3></td>\n";
     print HTML "<td HEIGHT=10><h3>$sumevthpss[$nline]</h3></td>\n";
     print HTML "<td HEIGHT=10><h3>$nfileHpss[$nline]</h3></td>\n";
     print HTML "<td HEIGHT=10><h3>$sumevet[$nline]</h3></td>\n";
@@ -667,18 +677,19 @@ sub beginHtml {
  print HTML "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">\n";
  print HTML "<html>\n";
  print HTML " <head>\n";
- print HTML "          <title>Production picoDst Summary on DD  </title>\n";
+ print HTML "          <title>Production picoDst Summary </title>\n";
  print HTML "  </head>\n";
  print HTML "  <body BGCOLOR=\"cornsilk\">\n"; 
  print HTML "  <h2 ALIGN=CENTER> <B> Production picoDst Summary from FileCatalog by stream data </B></h2>\n";
  print HTML "  <h3 ALIGN=CENTER> Generated on $todate</h3>\n";
  print HTML " <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 bgcolor=\"#ffdc9f\">\n";
  print HTML " <TR>\n";
- print HTML " <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Trigger setup name</h3></B></TD>\n";
+ print HTML " <TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=60><B><h3>Trigger setup name</h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Stream name</h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Collision</h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Year of data taken</h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Production Tag</h3></B></TD>\n";
+ print HTML " <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Library Tag</h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of Events on HPSS<h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of picoDst files on HPSS<h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of Events on DD<h3></B></TD>\n";
