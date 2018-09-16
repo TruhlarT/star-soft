@@ -563,7 +563,7 @@ my $prodname = "n/a";
  @nfileNfs = ();
  @sumevet = ();
 
-    $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_picoDst","storage=hpss","sanity=1","limit=0");
+    $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","library=plibs[$nlist]","filetype=daq_reco_picoDst","storage=hpss","sanity=1","limit=0");
 
    @nstreams = $fileC->run_query(sname2); 
 
