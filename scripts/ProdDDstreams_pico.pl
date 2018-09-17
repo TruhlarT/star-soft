@@ -649,7 +649,7 @@ my $prodname = "n/a";
     print HTML "<td HEIGHT=10><h3>$libtag[$nline]</h3></td>\n";
     print HTML "<td HEIGHT=10><h3>$sumevthpss[$nline]</h3></td>\n";
     print HTML "<td HEIGHT=10><h3>$nfileHpss[$nline]</h3></td>\n";
-    print HTML "<td HEIGHT=10><h3>$sumevet[$nline]</h3></td>\n";
+#    print HTML "<td HEIGHT=10><h3>$sumevet[$nline]</h3></td>\n";
     print HTML "<td HEIGHT=10><h3>$sumfile[$nline]</h3></td>\n";
     print HTML "<td HEIGHT=10><h3>$sumsize[$nline]</h3></td>\n";
     print HTML "<td HEIGHT=10><h3>$nfileNfs[$nline]</h3></td>\n";
@@ -692,7 +692,7 @@ sub beginHtml {
  print HTML " <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=60><B><h3>Library Tag</h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of Events on HPSS<h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of picoDst files on HPSS<h3></B></TD>\n";
- print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of Events on DD<h3></B></TD>\n";
+# print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of Events on DD<h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of picoDst files on DD<h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Size of picoDst on DD (GB)<h3></B></TD>\n";
  print HTML " <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=60><B><h3>Number of picoDst files on NFS<h3></B></TD>\n";
